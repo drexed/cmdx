@@ -4,23 +4,26 @@ module Cmdx
   class BatchGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path("../templates", __FILE__)
-    check_class_collision suffix: "Batch"
+    check_class_collision prefix: "Batch"
 
     desc "Generates a batch task with the given NAME (if one does not exist)."
 
     def copy_files
-      path = File.join("app/cmds", class_path, "batch_#{file_name}.rb")
+      name = file_name.sub(/^batch_?/i, "")
+      path = File.join("app/cmds", class_path, "batch_#{name}.rb")
       template("batch.rb.tt", path)
     end
 
     private
 
-    def file_name
-      @_file_name ||= remove_possible_prefix(super)
+    def class_name
+      @_class_name ||= super.delete_prefix("Batch")
     end
 
-    def remove_possible_prefix(name)
-      name.sub(/^batch_?/i, "")
+    def parent_class_name
+      ApplicationBatch
+    rescue StandardError
+      CMDx::Batch
     end
 
   end

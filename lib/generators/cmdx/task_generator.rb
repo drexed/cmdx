@@ -9,18 +9,21 @@ module Cmdx
     desc "Generates a task with the given NAME (if one does not exist)."
 
     def copy_files
-      path = File.join("app/cmds", class_path, "#{file_name}_task.rb")
+      name = file_name.sub(/_?task$/i, "")
+      path = File.join("app/cmds", class_path, "#{name}_task.rb")
       template("task.rb.tt", path)
     end
 
     private
 
-    def file_name
-      @_file_name ||= remove_possible_suffix(super)
+    def class_name
+      @_class_name ||= super.end_with?("Task") ? super : "#{super}Task"
     end
 
-    def remove_possible_suffix(name)
-      name.sub(/_?task$/i, "")
+    def parent_class_name
+      ApplicationTask
+    rescue StandardError
+      CMDx::Task
     end
 
   end
