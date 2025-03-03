@@ -25,16 +25,14 @@ to place all of your tasks and batches under, eg:
 ```txt
 /app
   /cmds
-    /batches
-      - batch_deliver_notifications.rb
-      - application_batch.rb
-    /tasks
-      /notifications
-        - deliver_email_task.rb
-        - post_slack_message_task.rb
-        - send_carrier_pigeon_task.rb
-      - process_order_task.rb
-      - application_task.rb
+    /notifications
+      - deliver_email_task.rb
+      - post_slack_message_task.rb
+      - send_carrier_pigeon_task.rb
+      - batch_deliver_all.rb
+    - process_order_task.rb
+    - application_batch.rb
+    - application_task.rb
 ```
 
 > [!TIP]
