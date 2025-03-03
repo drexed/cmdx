@@ -1,0 +1,83 @@
+plugins:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+AllCops:
+  NewCops: enable
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  TargetRubyVersion: 3.3.5
+Gemspec/DevelopmentDependencies:
+  EnforcedStyle: gemspec
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+    - 'spec/**/**/*'
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: empty_lines_except_namespace
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: empty_lines_except_namespace
+Layout/LineLength:
+  Enabled: false
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/**/*'
+    - '*.gemspec'
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+Naming/MethodParameterName:
+  Enabled: false
+RSpec/AnyInstance:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MessageSpies:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/NestedGroups:
+  Enabled: false
+RSpec/SpecFilePathFormat:
+  CustomTransform:
+    CMDx: cmdx
+RSpec/VerifiedDoubleReference:
+  Enabled: false
+Style/ArgumentsForwarding:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+Style/ExpandPathArguments:
+  Enabled: false
+Style/FormatStringToken:
+  Enabled: false
+Style/OpenStructUse:
+  Enabled: false
+Style/OptionalBooleanParameter:
+  Enabled: false
+Style/StringLiterals:
+  EnforcedStyle: double_quotes

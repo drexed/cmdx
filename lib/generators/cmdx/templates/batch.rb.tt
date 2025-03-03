@@ -1,0 +1,7 @@
+<% module_namespacing do -%>
+  class Batch<%= class_name %> < <%= ApplicationBatch.to_s rescue 'CMDx::Batch' %>
+
+    process # TODO
+
+  end
+<% end -%>

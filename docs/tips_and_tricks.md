@@ -1,0 +1,81 @@
+# Tips & Tricks
+
+## Configuration
+
+Configure `CMDx` to get the most out of your Rails application.
+
+```ruby
+CMDx.configure do |config|
+  # Redirect your logs through the app defined logger:
+  config.logger = Rails.logger
+
+  # Adjust the log level to write depending on the environment:
+  config.logger.level = Rails.env.development? ? Logger::DEBUG : Logger::INFO
+
+  # Structure log lines using a pre-built or custom formatter:
+  config.logger.formatter = CMDx::LogFormatters::Logstash.new
+end
+```
+
+## Setup
+
+While not required, a common setup involves creating an `app/cmds` directory
+to place all of your tasks and batches under, eg:
+
+```txt
+/app
+  /cmds
+    /batches
+      - batch_deliver_notifications.rb
+      - application_batch.rb
+    /tasks
+      /notifications
+        - deliver_email_task.rb
+        - post_slack_message_task.rb
+        - send_carrier_pigeon_task.rb
+      - process_order_task.rb
+      - application_task.rb
+```
+
+> [!TIP]
+> Prefix batches with `batch_` and suffix tasks with `_task` to they convey their function.
+> Use a verb+noun naming structure to convey the work that will be performed, eg:
+> `BatchDeliverNotifications` or `DeliverEmailTask`
+
+## Parameters
+
+Use the Rails `with_options` as an elegant way to factor duplication
+out of options passed to a series of parameter definitions. The following
+are a few common example:
+
+```ruby
+class UpdateUserDetailsTask < CMDx::Task
+
+  # Apply `type: :string, presence: true` to this set of parameters:
+  with_options(type: :string, presence: true) do
+    required :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
+    optional :first_name, :last_name
+  end
+
+  required :address do
+    # Apply the `address_*` prefix to this set of nested parameters:
+    with_options(prefix: :address_) do
+      required :city, :country
+      optional :state
+    end
+  end
+
+  def call
+    # Do work
+  end
+
+end
+```
+
+[Learn More](https://api.rubyonrails.org/classes/Object.html#method-i-with_options)
+about its usages on the official Rails docs.
+
+---
+
+- **Prev:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
+- **Next:** [Example](https://github.com/drexed/cmdx/blob/main/docs/example.md)

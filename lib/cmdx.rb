@@ -1,0 +1,78 @@
+# frozen_string_literal: true
+
+require "bigdecimal" unless defined?(BigDecimal)
+require "date" unless defined?(Date)
+require "I18n" unless defined?(I18n)
+require "json" unless defined?(JSON)
+require "logger" unless defined?(Logger)
+require "securerandom" unless defined?(SecureRandom)
+require "timeout" unless defined?(Timeout)
+
+require_relative "cmdx/version"
+require_relative "cmdx/core_ext/object"
+require_relative "cmdx/core_ext/hash"
+require_relative "cmdx/core_ext/module"
+require_relative "cmdx/log_formatters/json"
+require_relative "cmdx/log_formatters/key_value"
+require_relative "cmdx/log_formatters/line"
+require_relative "cmdx/log_formatters/logstash"
+require_relative "cmdx/log_formatters/raw"
+require_relative "cmdx/coercions/array"
+require_relative "cmdx/coercions/big_decimal"
+require_relative "cmdx/coercions/boolean"
+require_relative "cmdx/coercions/complex"
+require_relative "cmdx/coercions/date"
+require_relative "cmdx/coercions/date_time"
+require_relative "cmdx/coercions/float"
+require_relative "cmdx/coercions/hash"
+require_relative "cmdx/coercions/integer"
+require_relative "cmdx/coercions/rational"
+require_relative "cmdx/coercions/string"
+require_relative "cmdx/coercions/time"
+require_relative "cmdx/coercions/virtual"
+require_relative "cmdx/validators/custom"
+require_relative "cmdx/validators/exclusion"
+require_relative "cmdx/validators/format"
+require_relative "cmdx/validators/inclusion"
+require_relative "cmdx/validators/length"
+require_relative "cmdx/validators/numeric"
+require_relative "cmdx/validators/presence"
+require_relative "cmdx/utils/method_name"
+require_relative "cmdx/utils/runtime"
+require_relative "cmdx/error"
+require_relative "cmdx/errors"
+require_relative "cmdx/fault"
+require_relative "cmdx/faults"
+require_relative "cmdx/logger"
+require_relative "cmdx/lazy_struct"
+require_relative "cmdx/configuration"
+require_relative "cmdx/context"
+require_relative "cmdx/run"
+require_relative "cmdx/run_serializer"
+require_relative "cmdx/run_inspector"
+require_relative "cmdx/parameter"
+require_relative "cmdx/parameter_value"
+require_relative "cmdx/parameter_validator"
+require_relative "cmdx/parameter_serializer"
+require_relative "cmdx/parameter_inspector"
+require_relative "cmdx/parameters"
+require_relative "cmdx/parameters_serializer"
+require_relative "cmdx/parameters_inspector"
+require_relative "cmdx/result"
+require_relative "cmdx/result_serializer"
+require_relative "cmdx/result_inspector"
+require_relative "cmdx/result_logger"
+require_relative "cmdx/task"
+require_relative "cmdx/task_hook"
+require_relative "cmdx/batch"
+require_relative "cmdx/immutator"
+
+if defined?(Rails::Generators)
+  require_relative "generators/cmdx/install_generator"
+  require_relative "generators/cmdx/task_generator"
+  require_relative "generators/cmdx/batch_generator"
+end
+
+# Load the Railtie last after everything else is required so we don't
+# need to load any CMDx components when we use this Railtie.
+require_relative "cmdx/railtie" if defined?(Rails::Railtie)
