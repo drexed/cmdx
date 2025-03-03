@@ -5,6 +5,8 @@ module Cmdx
 
     source_root File.expand_path("../templates", __FILE__)
 
+    desc "Generates a CMDx configurations files for global settings."
+
     def copy_initializer_file
       copy_file("install.rb", "config/initializers/cmdx.rb")
     end

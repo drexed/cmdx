@@ -6,6 +6,8 @@ module Cmdx
     source_root File.expand_path("../templates", __FILE__)
     check_class_collision suffix: "Batch"
 
+    desc "Generates a batch task with the given NAME (if one does not exist)."
+
     def copy_files
       path = File.join("app/cmds", class_path, "batch_#{file_name}.rb")
       template("batch.rb.tt", path)

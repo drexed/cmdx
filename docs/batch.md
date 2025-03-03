@@ -44,7 +44,7 @@ The `process` method support the following options:
 
 ## Generator
 
-Run `rails g cmdx:batch [NAME]` to create a batch template file under `app/cmds`.
+Run `rails g cmdx:batch [NAME]` to create a batch task template file under `app/cmds`.
 Tasks will inherit from `ApplicationBatch` if available or fall back to `CMDx::Batch`.
 
 ---
