@@ -6,11 +6,9 @@ AllCops:
   NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
-  TargetRubyVersion: 3.3.5
+  TargetRubyVersion: 3.1.0
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
-Gemspec/RequiredRubyVersion:
-  Enabled: false
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
 Layout/EmptyLinesAroundClassBody:
