@@ -63,8 +63,6 @@ RSpec/NestedGroups:
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
-RSpec/VerifiedDoubleReference:
-  Enabled: false
 Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
