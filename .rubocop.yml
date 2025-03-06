@@ -44,8 +44,6 @@ Metrics/ModuleLength:
   Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
-Naming/MemoizedInstanceVariableName:
-  Enabled: false
 Naming/MethodParameterName:
   Enabled: false
 RSpec/AnyInstance:

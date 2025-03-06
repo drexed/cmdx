@@ -17,7 +17,7 @@ module Cmdx
     private
 
     def class_name
-      @_class_name ||= super.delete_prefix("Batch")
+      @class_name ||= super.delete_prefix("Batch")
     end
 
     def parent_class_name

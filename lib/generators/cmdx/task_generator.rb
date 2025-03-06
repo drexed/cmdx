@@ -17,7 +17,7 @@ module Cmdx
     private
 
     def class_name
-      @_class_name ||= super.end_with?("Task") ? super : "#{super}Task"
+      @class_name ||= super.end_with?("Task") ? super : "#{super}Task"
     end
 
     def parent_class_name
