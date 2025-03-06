@@ -48,5 +48,4 @@ RSpec.describe CMDx::ResultInspector do
       end
     end
   end
-
 end

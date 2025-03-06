@@ -30,5 +30,4 @@ RSpec.describe CMDx::Coercions::Rational do
       end
     end
   end
-
 end

@@ -30,5 +30,4 @@ RSpec.describe CMDx::Coercions::Integer do
       end
     end
   end
-
 end

@@ -13,9 +13,6 @@ Gemspec/RequiredRubyVersion:
   Enabled: false
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'spec/**/**/*'
 Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/EmptyLinesAroundModuleBody:

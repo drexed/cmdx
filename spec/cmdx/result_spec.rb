@@ -304,5 +304,4 @@ RSpec.describe CMDx::Result do
       end
     end
   end
-
 end

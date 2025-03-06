@@ -22,5 +22,4 @@ RSpec.describe CMDx::Context do
       end
     end
   end
-
 end

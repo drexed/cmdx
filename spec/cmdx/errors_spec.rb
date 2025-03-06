@@ -181,5 +181,4 @@ RSpec.describe CMDx::Errors do
       expect(errors.values).to eq([["error message"]])
     end
   end
-
 end

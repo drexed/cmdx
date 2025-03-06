@@ -25,5 +25,4 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
       LINE
     end
   end
-
 end

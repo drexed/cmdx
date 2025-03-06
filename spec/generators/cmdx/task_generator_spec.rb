@@ -18,5 +18,4 @@ RSpec.describe Cmdx::TaskGenerator, type: :generator do
       expect(sample_file.include?(text_snippet)).to be(true)
     end
   end
-
 end

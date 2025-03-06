@@ -245,5 +245,4 @@ RSpec.describe CMDx::Validators::Length do
       end
     end
   end
-
 end

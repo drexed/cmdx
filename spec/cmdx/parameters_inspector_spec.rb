@@ -29,5 +29,4 @@ RSpec.describe CMDx::ParametersInspector do
       TXT
     end
   end
-
 end

@@ -30,5 +30,4 @@ RSpec.describe CMDx::Run do
       end
     end
   end
-
 end

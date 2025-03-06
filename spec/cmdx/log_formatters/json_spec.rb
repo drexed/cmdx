@@ -25,5 +25,4 @@ RSpec.describe CMDx::LogFormatters::Json do
       LINE
     end
   end
-
 end

@@ -30,5 +30,4 @@ RSpec.describe CMDx::Coercions::String do
       end
     end
   end
-
 end

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe CMDx do
-
   around do |ex|
     old_config = described_class.configuration.to_h
     ex.run
@@ -33,5 +32,4 @@ RSpec.describe CMDx do
       expect(described_class.configuration.task_timeout).to be_nil
     end
   end
-
 end

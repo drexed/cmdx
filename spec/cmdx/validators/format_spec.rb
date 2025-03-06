@@ -60,5 +60,4 @@ RSpec.describe CMDx::Validators::Format do
       end
     end
   end
-
 end

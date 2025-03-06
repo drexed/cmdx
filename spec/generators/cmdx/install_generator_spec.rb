@@ -18,5 +18,4 @@ RSpec.describe Cmdx::InstallGenerator, type: :generator do
       expect(sample_file).to eq(expect_file)
     end
   end
-
 end

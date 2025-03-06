@@ -30,5 +30,4 @@ RSpec.describe CMDx::Coercions::Float do
       end
     end
   end
-
 end

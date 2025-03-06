@@ -10,5 +10,4 @@ RSpec.describe CMDx::Coercions::Virtual do
       expect(coercion).to eq(1)
     end
   end
-
 end

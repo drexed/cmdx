@@ -30,5 +30,4 @@ RSpec.describe CMDx::Coercions::BigDecimal do
       end
     end
   end
-
 end

@@ -25,5 +25,4 @@ RSpec.describe CMDx::LogFormatters::Raw do
       LINE
     end
   end
-
 end

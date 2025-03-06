@@ -120,5 +120,4 @@ RSpec.describe CMDx::LogFormatters::Line do
       end
     end
   end
-
 end

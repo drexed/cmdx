@@ -101,5 +101,4 @@ RSpec.describe CMDx::Fault do
       end
     end
   end
-
 end

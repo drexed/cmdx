@@ -69,5 +69,4 @@ RSpec.describe CMDx::Validators::Inclusion do
       end
     end
   end
-
 end

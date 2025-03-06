@@ -16,5 +16,4 @@ RSpec.describe CMDx::ParameterInspector do
       TXT
     end
   end
-
 end

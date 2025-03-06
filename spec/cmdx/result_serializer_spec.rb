@@ -76,5 +76,4 @@ RSpec.describe CMDx::ResultSerializer do
       end
     end
   end
-
 end

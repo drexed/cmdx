@@ -38,5 +38,4 @@ RSpec.describe CMDx::Coercions::Boolean do
       end
     end
   end
-
 end

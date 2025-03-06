@@ -38,5 +38,4 @@ RSpec.describe CMDx::Validators::Presence do
       end
     end
   end
-
 end

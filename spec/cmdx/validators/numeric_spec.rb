@@ -245,5 +245,4 @@ RSpec.describe CMDx::Validators::Numeric do
       end
     end
   end
-
 end

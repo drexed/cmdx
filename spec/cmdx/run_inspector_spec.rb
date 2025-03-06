@@ -16,5 +16,4 @@ RSpec.describe CMDx::RunInspector do
       TEXT
     end
   end
-
 end

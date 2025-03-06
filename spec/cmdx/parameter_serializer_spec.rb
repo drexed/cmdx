@@ -23,5 +23,4 @@ RSpec.describe CMDx::ParameterSerializer do
       )
     end
   end
-
 end

@@ -62,5 +62,4 @@ RSpec.describe CMDx::ParametersSerializer do
       )
     end
   end
-
 end

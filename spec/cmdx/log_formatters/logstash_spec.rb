@@ -27,5 +27,4 @@ RSpec.describe CMDx::LogFormatters::Logstash do
       LINE
     end
   end
-
 end

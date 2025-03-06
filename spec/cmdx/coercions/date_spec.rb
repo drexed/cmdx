@@ -52,5 +52,4 @@ RSpec.describe CMDx::Coercions::Date do
       end
     end
   end
-
 end

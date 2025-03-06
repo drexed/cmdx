@@ -638,5 +638,4 @@ RSpec.describe CMDx::Parameter do
       end
     end
   end
-
 end

@@ -28,5 +28,4 @@ RSpec.describe CMDx::RunSerializer do
       )
     end
   end
-
 end

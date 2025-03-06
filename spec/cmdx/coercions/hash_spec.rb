@@ -38,5 +38,4 @@ RSpec.describe CMDx::Coercions::Hash do
       end
     end
   end
-
 end

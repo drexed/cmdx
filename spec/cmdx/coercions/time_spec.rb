@@ -52,5 +52,4 @@ RSpec.describe CMDx::Coercions::Time do
       end
     end
   end
-
 end
