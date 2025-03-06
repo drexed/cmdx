@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe Cmdx::InstallGenerator, type: :generator do
-  destination(File.expand_path("../../tmp", __FILE__))
+  destination(File.expand_path("../tmp", __dir__))
 
   before do
     prepare_destination
