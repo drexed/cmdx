@@ -101,13 +101,13 @@ RSpec.describe CMDx::Result do
     end
   end
 
-  describe ".ok?" do
+  describe ".good?" do
     it "returns value depending on status" do
-      expect(initialized_result.ok?).to be(true)
+      expect(initialized_result.good?).to be(true)
 
       initialized_result.instance_variable_set(:@status, CMDx::Result::FAILED)
 
-      expect(initialized_result.ok?).to be(false)
+      expect(initialized_result.good?).to be(false)
     end
   end
 

@@ -67,7 +67,7 @@ module CMDx
       define_method(:"#{s}?") { status == s }
     end
 
-    def ok?
+    def good?
       !failed?
     end
 

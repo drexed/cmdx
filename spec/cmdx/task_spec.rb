@@ -142,7 +142,7 @@ RSpec.describe CMDx::Task do
     context "when success" do
       it "returns correct result" do
         expect(result).to be_success
-        expect(result).to be_ok
+        expect(result).to be_good
         expect(result).not_to be_bad
         expect(result).to have_attributes(
           state: CMDx::Result::COMPLETE,
@@ -157,7 +157,7 @@ RSpec.describe CMDx::Task do
 
       it "returns correct result" do
         expect(result).to be_skipped
-        expect(result).to be_ok
+        expect(result).to be_good
         expect(result).to be_bad
         expect(result).to have_attributes(
           state: CMDx::Result::INTERRUPTED,
@@ -172,7 +172,7 @@ RSpec.describe CMDx::Task do
 
       it "returns correct result" do
         expect(result).to be_failed
-        expect(result).not_to be_ok
+        expect(result).not_to be_good
         expect(result).to be_bad
         expect(result).to have_attributes(
           state: CMDx::Result::INTERRUPTED,
@@ -187,7 +187,7 @@ RSpec.describe CMDx::Task do
 
       it "returns correct result" do
         expect(result).to be_failed
-        expect(result).not_to be_ok
+        expect(result).not_to be_good
         expect(result).to be_bad
         expect(result).to have_attributes(
           state: CMDx::Result::INTERRUPTED,

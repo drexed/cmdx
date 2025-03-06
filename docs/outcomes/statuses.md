@@ -21,7 +21,7 @@ result.skipped? #=> true
 result.failed?  #=> false
 
 # `success` or `skipped`
-result.ok?      #=> true
+result.good?    #=> true
 
 # `skipped` or `failed`
 result.bad?     #=> true
