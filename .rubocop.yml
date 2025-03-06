@@ -52,8 +52,6 @@ RSpec/AnyInstance:
   Enabled: false
 RSpec/ExampleLength:
   Enabled: false
-RSpec/MessageSpies:
-  Enabled: false
 RSpec/MultipleExpectations:
   Enabled: false
 RSpec/NestedGroups:
