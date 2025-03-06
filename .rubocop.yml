@@ -22,12 +22,6 @@ Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/LineLength:
   Enabled: false
-Layout/SpaceAroundMethodCallOperator:
-  Enabled: true
-Lint/RaiseException:
-  Enabled: true
-Lint/StructNewOverride:
-  Enabled: true
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
@@ -39,6 +33,8 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Enabled: false
 Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
   Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
