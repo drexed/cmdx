@@ -65,8 +65,6 @@ RSpec/SpecFilePathFormat:
     CMDx: cmdx
 RSpec/VerifiedDoubleReference:
   Enabled: false
-Style/ArgumentsForwarding:
-  Enabled: false
 Style/Documentation:
   Enabled: false
 Style/FormatStringToken:

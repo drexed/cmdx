@@ -6,13 +6,13 @@ module CMDx
 
       alias __cmdx_respond_to? respond_to?
 
-      def __cmdx_try(key, *args, **kwargs, &)
+      def __cmdx_try(key, ...)
         if key.is_a?(Proc)
           return instance_eval(&key) unless is_a?(Module) || key.inspect.include?("(lambda)")
 
-          key.call(*args, **kwargs, &)
+          key.call(...)
         elsif respond_to?(key, true)
-          send(key, *args, **kwargs, &)
+          send(key, ...)
         elsif is_a?(Hash)
           __cmdx_fetch(key)
         end
@@ -30,22 +30,22 @@ module CMDx
         end
       end
 
-      def __cmdx_yield(key, *args, **kwargs, &)
+      def __cmdx_yield(key, ...)
         if key.is_a?(Symbol) || key.is_a?(String)
           return key unless respond_to?(key, true)
 
-          send(key, *args, **kwargs, &)
+          send(key, ...)
         elsif is_a?(Hash) || key.is_a?(Proc)
-          __cmdx_try(key, *args, **kwargs, &)
+          __cmdx_try(key, ...)
         else
           key
         end
       end
 
-      def __cmdx_call(*args, **kwargs, &)
+      def __cmdx_call(...)
         return self unless respond_to?(:call)
 
-        call(*args, **kwargs, &)
+        call(...)
       end
 
     end

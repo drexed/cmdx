@@ -16,8 +16,8 @@ module CMDx
       @table[key.to_sym]
     end
 
-    def fetch!(key, *args, **kwargs, &)
-      @table.fetch(key.to_sym, *args, **kwargs, &)
+    def fetch!(key, ...)
+      @table.fetch(key.to_sym, ...)
     end
 
     def store!(key, value)
