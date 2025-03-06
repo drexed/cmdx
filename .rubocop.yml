@@ -69,8 +69,6 @@ Style/ArgumentsForwarding:
   Enabled: false
 Style/Documentation:
   Enabled: false
-Style/DocumentDynamicEvalDefinition:
-  Enabled: false
 Style/FormatStringToken:
   Enabled: false
 Style/OpenStructUse:
