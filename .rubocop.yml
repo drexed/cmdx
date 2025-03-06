@@ -56,13 +56,13 @@ RSpec/MessageSpies:
   Enabled: false
 RSpec/MultipleExpectations:
   Enabled: false
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
 RSpec/NestedGroups:
   Enabled: false
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
+RSpec/VerifiedDoubleReference:
+  Enabled: false
 Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
