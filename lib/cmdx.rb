@@ -6,7 +6,7 @@
 
 require "bigdecimal"
 require "date"
-require "I18n"
+require "i18n"
 require "json"
 require "logger"
 require "securerandom"
