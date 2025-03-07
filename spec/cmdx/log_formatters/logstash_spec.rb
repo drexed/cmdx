@@ -23,7 +23,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
         "tags":[],
         "pid":3784,
         "@version":"1",
-        "@timestamp":"2022-07-17T18:43:15.000Z"}
+        "@timestamp":"2022-07-17T18:43:15.000000"}
       LINE
     end
   end

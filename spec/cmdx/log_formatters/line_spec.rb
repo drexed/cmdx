@@ -11,7 +11,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = log_formatter_simulation(described_class, :success)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          I, [2022-07-17T18:43:15.000Z #3784] INFO -- CMDx:
+          I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -33,7 +33,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = log_formatter_simulation(described_class, :skipped)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          W, [2022-07-17T18:43:15.000Z #3784] WARN -- CMDx:
+          W, [2022-07-17T18:43:15.000000 #3784] WARN -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -55,7 +55,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = log_formatter_simulation(described_class, :failed)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx:
+          E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -77,7 +77,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = log_formatter_simulation(described_class, :child_failed)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx:
+          E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -101,7 +101,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = log_formatter_simulation(described_class, :grand_child_failed)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx:
+          E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
