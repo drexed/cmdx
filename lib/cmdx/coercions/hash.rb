@@ -6,10 +6,10 @@ module CMDx
 
       extend self
 
-      def call(v, _options = {})
-        case v.class.name
-        when "Hash", "ActionController::Parameters" then v
-        when "Array" then ::Hash[*v]
+      def call(value, _options = {})
+        case value.class.name
+        when "Hash", "ActionController::Parameters" then value
+        when "Array" then ::Hash[*value]
         else raise_coercion_error!
         end
       rescue ArgumentError, TypeError

@@ -8,11 +8,11 @@ module CMDx
 
       module_function
 
-      def call(v, options = {})
-        return v if ANALOG_TYPES.include?(v.class.name)
-        return ::Time.strptime(v, options[:format]) if options[:format]
+      def call(value, options = {})
+        return value if ANALOG_TYPES.include?(value.class.name)
+        return ::Time.strptime(value, options[:format]) if options[:format]
 
-        ::Time.parse(v)
+        ::Time.parse(value)
       rescue ArgumentError, TypeError
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",

@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 # TODO: capture the seed to try to fix leaky class methods
-# TODO: Logger#with_level https://github.com/sidekiq/sidekiq
-# TODO: Setup github actions
+# be rspec . --seed 1410
+
 # TODO: Use reactors or threads for parallel batch processing:
 # https://blog.arkency.com/ractor-getting-started/
 # TODO: Group batch processes
-# TODO: Clean up Naming/MethodParameterName
-# TODO: Add custom rspec matchers
+
 # TODO: Add stub/expectation like???
 # https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
+
+# TODO: Add custom rspec matchers
+
+# TODO: Setup github actions
 # TODO: Add available methods to the docs
 
 require "bigdecimal" unless defined?(BigDecimal)

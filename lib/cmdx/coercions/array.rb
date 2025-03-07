@@ -6,8 +6,8 @@ module CMDx
 
       module_function
 
-      def call(v, _options = {})
-        Array(v)
+      def call(value, _options = {})
+        Array(value)
       end
 
     end

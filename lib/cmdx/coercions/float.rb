@@ -6,8 +6,8 @@ module CMDx
 
       module_function
 
-      def call(v, _options = {})
-        Float(v)
+      def call(value, _options = {})
+        Float(value)
       rescue ArgumentError, TypeError
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",

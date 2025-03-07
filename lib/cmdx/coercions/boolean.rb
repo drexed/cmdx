@@ -9,8 +9,8 @@ module CMDx
 
       module_function
 
-      def call(v, _options = {})
-        case v.to_s
+      def call(value, _options = {})
+        case value.to_s
         when FALSEY then false
         when TRUTHY then true
         else

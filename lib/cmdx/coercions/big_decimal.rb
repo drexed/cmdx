@@ -8,8 +8,8 @@ module CMDx
 
       module_function
 
-      def call(v, options = {})
-        BigDecimal(v, options[:precision] || DEFAULT_PRECISION)
+      def call(value, options = {})
+        BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",
