@@ -3,13 +3,9 @@
 # TODO: capture the seed to try to fix leaky class methods
 # be rspec . --seed 1410
 
-# TODO: Add stub/expectation like???
-# https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
-
-# TODO: Add custom rspec matchers
-
-# TODO: Setup github actions
-# TODO: Add available methods to the docs
+# TODO: Add documentation:
+# - Expose methods in docs/*.md
+# - Add method documentation in code, eg: https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
 
 require "bigdecimal" unless defined?(BigDecimal)
 require "date" unless defined?(Date)
