@@ -23,7 +23,7 @@ RSpec.describe CMDx::ParametersInspector do
         Parameter: name=last_name type=virtual source=context required=true options={}
         Parameter: name=address type=hash source=context required=false options={}
           ↳ Parameter: name=city type=virtual source=address required=true options={}
-          ↳ Parameter: name=state type=virtual source=address required=false options={:default=>"USA", :desc=>"Alpha-2"}
+          ↳ Parameter: name=state type=virtual source=address required=false options={default: "USA", desc: "Alpha-2"}
             ↳ Parameter: name=zipcode type=integer source=state required=false options={}
         Parameter: name=gender type=virtual source=context required=true options={}
       TXT
