@@ -12,6 +12,8 @@ composition, informative halting, and exhaustive tracing/debugging.
 
 ## Installation
 
+**Prerequisites:** This gem requires Ruby `>= 3.1` to be installed.
+
 Add this line to your application's Gemfile:
 
 ```ruby

@@ -3,11 +3,9 @@
 require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::KeyValue do
-  include LogFormatterHelpers
-
   describe ".call" do
     it "returns Key Value formatted log line" do
-      local_io = log_formatter_simulation(described_class, :success)
+      local_io = LogFormatterHelpers.simulation_output(described_class, :success)
 
       expect(local_io).to match_log(<<~LINE.tr("\n", " "))
         index=0

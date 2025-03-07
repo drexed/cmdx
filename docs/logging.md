@@ -9,27 +9,27 @@ Built-in log formatters are: `Line` (default), `Json`, `KeyValue`, `Logstash`, `
 
 #### Success:
 ```txt
-I, [2022-07-17T18:43:15.000Z #3784] INFO -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=complete status=success outcome=success metadata={} runtime=0 tags=[] pid=3784
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=complete status=success outcome=success metadata={} runtime=0 tags=[] pid=3784
 ```
 
 #### Skipped:
 ```txt
-W, [2022-07-17T18:43:15.000Z #3784] WARN -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=skipped outcome=skipped metadata={} runtime=0 tags=[] pid=3784
+W, [2022-07-17T18:43:15.000000 #3784] WARN -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=skipped outcome=skipped metadata={} runtime=0 tags=[] pid=3784
 ```
 
 #### Failed:
 ```txt
-E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=failed metadata={} runtime=0 tags=[] pid=3784
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=failed metadata={} runtime=0 tags=[] pid=3784
 ```
 
 #### Level 1 subtask failure:
 ```txt
-E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=interrupted metadata={} runtime=0 tags=[] pid=3784 caused_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784} threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784}
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=interrupted metadata={} runtime=0 tags=[] pid=3784 caused_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784} threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784}
 ```
 
 #### Level 2+ subtask failure:
 ```txt
-E, [2022-07-17T18:43:15.000Z #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=interrupted metadata={} runtime=0 tags=[] pid=3784 caused_failure={:index=>2, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784} threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"interrupted", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784}
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=SimulationTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=interrupted status=failed outcome=interrupted metadata={} runtime=0 tags=[] pid=3784 caused_failure={:index=>2, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784} threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :state=>"interrupted", :status=>"failed", :outcome=>"interrupted", :metadata=>{}, :runtime=>0, :tags=>[], :pid=>3784}
 ```
 
 ## Logger

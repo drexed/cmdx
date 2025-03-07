@@ -7,7 +7,7 @@ module CMDx
       def call(_severity, time, _progname, message)
         if message.is_a?(Hash)
           message["@version"]   ||= "1"
-          message["@timestamp"] ||= time.utc.iso8601(3)
+          message["@timestamp"] ||= Utils::DatetimeFormatter.call(time.utc)
         end
 
         JSON.dump(message)

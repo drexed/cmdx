@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
-# TODO: capture the seed to try to fix leaky class methods
-# be rspec . --seed 1410
-
 # TODO: Add documentation:
 # - Expose methods in docs/*.md
 # - Add method documentation in code, eg: https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
 
-require "bigdecimal" unless defined?(BigDecimal)
-require "date" unless defined?(Date)
-require "I18n" unless defined?(I18n)
-require "json" unless defined?(JSON)
-require "logger" unless defined?(Logger)
-require "securerandom" unless defined?(SecureRandom)
-require "timeout" unless defined?(Timeout)
+require "bigdecimal"
+require "date"
+require "i18n"
+require "json"
+require "logger"
+require "securerandom"
+require "time"
+require "timeout"
 
 require_relative "cmdx/version"
 require_relative "cmdx/core_ext/object"
@@ -44,6 +42,7 @@ require_relative "cmdx/validators/inclusion"
 require_relative "cmdx/validators/length"
 require_relative "cmdx/validators/numeric"
 require_relative "cmdx/validators/presence"
+require_relative "cmdx/utils/datetime_formatter"
 require_relative "cmdx/utils/method_name"
 require_relative "cmdx/utils/runtime"
 require_relative "cmdx/error"

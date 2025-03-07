@@ -52,6 +52,10 @@ Style/Documentation:
   Enabled: false
 Style/FormatStringToken:
   Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always_true
+  SafeAutoCorrect: true
 Style/OpenStructUse:
   Enabled: false
 Style/OptionalBooleanParameter:

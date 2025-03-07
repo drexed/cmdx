@@ -6,7 +6,7 @@ module CMDx
 
       def call(severity, time, progname, message)
         message = message.map { |k, v| "#{k}=#{v}" }.join(" ")
-        "#{severity.first}, [#{time.utc.iso8601(3)} ##{Process.pid}] #{severity} -- #{progname || 'CMDx'}: #{message}"
+        "#{severity[0]}, [#{Utils::DatetimeFormatter.call(time.utc)} ##{Process.pid}] #{severity} -- #{progname || 'CMDx'}: #{message}"
       end
 
     end

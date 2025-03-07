@@ -4,8 +4,6 @@ ENV["RACK_ENV"] = "test"
 ENV["TZ"] = "UTC"
 
 require "bundler/setup"
-require "rails/generators"
-require "generator_spec"
 
 require "cmdx"
 
