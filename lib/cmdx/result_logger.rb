@@ -13,7 +13,11 @@ module CMDx
 
     def call(result)
       logger = result.task.send(:logger)
-      logger.send(STATUS_TO_LEVEL[result.status]) { result.to_h }
+      status = STATUS_TO_LEVEL[result.status]
+
+      logger.with_level(result.task.task_setting(:log_level) || status) do
+        logger.send(status) { result.to_h }
+      end
     end
 
   end
