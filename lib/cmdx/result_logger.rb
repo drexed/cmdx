@@ -15,9 +15,7 @@ module CMDx
       logger = result.task.send(:logger)
       status = STATUS_TO_LEVEL[result.status]
 
-      logger.with_level(result.task.task_setting(:log_level) || status) do
-        logger.send(status) { result.to_h }
-      end
+      logger.send(status) { result.to_h }
     end
 
   end
