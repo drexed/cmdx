@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: capture the seed to try to fix leaky class methods
-# be rspec . --seed 1410
-
 # TODO: Add documentation:
 # - Expose methods in docs/*.md
 # - Add method documentation in code, eg: https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb

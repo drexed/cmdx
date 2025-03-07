@@ -2,10 +2,9 @@
 
 RSpec.describe CMDx do
   around do |ex|
-    old_config = described_class.configuration.to_h
+    old_config = described_class.configuration.to_h.dup
     ex.run
     described_class.configuration.merge!(old_config)
-    I18n.locale = :en
   end
 
   describe "#configuration" do
