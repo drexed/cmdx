@@ -33,7 +33,7 @@ RSpec.configure do |config|
   end
 
   config.before do
-    allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC).and_return(0)
+    allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :millisecond).and_return(0)
     allow(Process).to receive(:pid).and_return(3784)
     allow(SecureRandom).to receive(:uuid).and_return("018c2b95-b764-7615-a924-cc5b910ed1e5")
     allow(Time).to receive(:now).and_return(Time.local(2022, 7, 17, 18, 43, 15))

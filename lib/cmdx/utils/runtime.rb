@@ -7,11 +7,11 @@ module CMDx
       module_function
 
       def call(&)
-        start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        start = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
         yield
-        finish = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        finish = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
 
-        (finish - start).round(3)
+        finish - start
       end
 
     end
