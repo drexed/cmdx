@@ -2,35 +2,41 @@
 
 module CMDx
 
-  BatchTask = Struct.new(:klass, :options)
+  BatchGroup = Struct.new(:tasks, :options)
 
   class Batch < Task
 
     class << self
 
-      def batch_tasks
-        @batch_tasks ||= []
+      def batch_groups
+        @batch_groups ||= []
       end
 
-      def process(*klasses, **options)
-        klasses.flatten.each do |klass|
-          raise ArgumentError, "must be a Batch or Task" unless klass <= Task
+      def process(*tasks, **options)
+        batch_groups << BatchGroup.new(
+          tasks.flatten.map do |task|
+            next task if task <= Task
 
-          batch_tasks << BatchTask.new(klass, options)
-        end
+            raise ArgumentError, "must be a Batch or Task"
+          end,
+          options
+        )
       end
 
     end
 
     def call
-      self.class.batch_tasks.each do |batch_task|
-        next unless __cmdx_eval(batch_task.options)
+      self.class.batch_groups.each do |batch_group|
+        next unless __cmdx_eval(batch_group.options)
 
-        task_result = batch_task.klass.call(context)
-        batch_halt  = batch_task.options[:batch_halt] || task_setting(:batch_halt)
-        next unless Array(batch_halt).include?(task_result.status)
+        batch_halt = batch_group.options[:batch_halt] || task_setting(:batch_halt)
 
-        throw!(task_result)
+        batch_group.tasks.each do |task|
+          task_result = task.call(context)
+          next unless Array(batch_halt).include?(task_result.status)
+
+          throw!(task_result)
+        end
       end
     end
 
