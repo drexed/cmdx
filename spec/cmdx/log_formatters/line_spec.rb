@@ -74,7 +74,7 @@ RSpec.describe CMDx::LogFormatters::Line do
       it "returns Line formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :child_failed)
 
-        if RubyVersionHelpers.min?(3.4)
+        if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
             E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
             index=0
@@ -118,7 +118,7 @@ RSpec.describe CMDx::LogFormatters::Line do
       it "returns Line formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :grand_child_failed)
 
-        if RubyVersionHelpers.min?(3.4)
+        if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
             E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
             index=0

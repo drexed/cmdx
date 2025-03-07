@@ -7,7 +7,7 @@ RSpec.describe CMDx::LogFormatters::Raw do
     it "returns Hash formatted log line" do
       local_io = LogFormatterHelpers.simulation_output(described_class, :success)
 
-      if RubyVersionHelpers.min?(3.4)
+      if RubyVersionHelpers.atleast?(3.4)
         expect(local_io).to match_log(<<~LINE.delete("\n"))
           {index: 0,
            run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",

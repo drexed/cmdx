@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 module RubyVersionHelpers
 
   module_function
 
-  def min?(version)
+  def atleast?(version)
     Gem::Version.new(RUBY_VERSION) >= Gem::Version.new(version.to_s)
   end
 
-  def max?(version)
-    Gem::Version.new(RUBY_VERSION) <= Gem::Version.new(version.to_s)
+  def atmost?(version)
+    Gem::Version.new(version.to_s) <= Gem::Version.new(RUBY_VERSION)
   end
 
 end
