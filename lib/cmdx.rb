@@ -3,10 +3,6 @@
 # TODO: capture the seed to try to fix leaky class methods
 # be rspec . --seed 1410
 
-# TODO: Use reactors or threads for parallel batch processing:
-# https://blog.arkency.com/ractor-getting-started/
-# TODO: Group batch processes
-
 # TODO: Add stub/expectation like???
 # https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
 
