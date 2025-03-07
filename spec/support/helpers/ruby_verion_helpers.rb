@@ -12,7 +12,7 @@ module RubyVersionHelpers
   end
 
   def atmost?(version)
-    Gem::Version.new(version.to_s) <= Gem::Version.new(RUBY_VERSION)
+    Gem::Version.new(RUBY_VERSION) <= Gem::Version.new(version.to_s)
   end
 
 end
