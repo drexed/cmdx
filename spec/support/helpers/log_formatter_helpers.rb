@@ -2,7 +2,9 @@
 
 module LogFormatterHelpers
 
-  def log_formatter_simulation(formatter, simulate)
+  module_function
+
+  def simulation_output(formatter, simulate)
     local_io = StringIO.new
 
     Class.new(SimulationTask) do
