@@ -2,8 +2,8 @@
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-ruby.svg)](http://forthebadge.com)
 
-[![Gem Version](https://badge.fury.io/rb/cmdx.svg)](https://badge.fury.io/rb/cmdx)
-[![CI](https://github.com/drexed/cmdx/blob/main/.github/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/blob/main/.github/workflows/ci.yml)
+[![Gem Version](https://badge.fury.io/rb/cmdx.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/cmdx)
+[![CI](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
 
 `CMDx` is a framework for expressive processing of business logic. Design
