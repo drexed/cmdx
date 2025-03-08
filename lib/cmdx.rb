@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: Add documentation:
-# - Expose methods in docs/*.md
-# - Add method documentation in code, eg: https://github.com/typhoeus/typhoeus/blob/master/lib/typhoeus/expectation.rb
-
 require "bigdecimal"
 require "date"
 require "i18n"
