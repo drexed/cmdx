@@ -5,7 +5,7 @@ module CMDx
     class Raw
 
       def call(_severity, _time, _progname, message)
-        message
+        message << "\n"
       end
 
     end

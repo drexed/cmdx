@@ -5,7 +5,8 @@ module CMDx
     class Json
 
       def call(_severity, _time, _progname, message)
-        JSON.dump(message)
+        message = message.to_h if message.is_a?(Result)
+        JSON.dump(message) << "\n"
       end
 
     end

@@ -5,7 +5,8 @@ module CMDx
     class KeyValue
 
       def call(_severity, _time, _progname, message)
-        message.map { |k, v| "#{k}=#{v}" }.join(" ")
+        message = message.to_h.map { |k, v| "#{k}=#{v}" }.join(" ") if message.is_a?(Result)
+        message << "\n"
       end
 
     end
