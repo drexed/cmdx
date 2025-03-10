@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+- Add log severity coloring
 - Fix not being able to log non hash values
 
 ## [0.1.0] - 2025-03-07

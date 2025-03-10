@@ -9,7 +9,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = LogFormatterHelpers.simulation_output(described_class, :success)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
+          #{CMDx::Utils::ColorSeverity.call('I')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('INFO')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -31,7 +31,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = LogFormatterHelpers.simulation_output(described_class, :skipped)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          W, [2022-07-17T18:43:15.000000 #3784] WARN -- CMDx:
+          #{CMDx::Utils::ColorSeverity.call('W')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('WARN')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -53,7 +53,7 @@ RSpec.describe CMDx::LogFormatters::Line do
         local_io = LogFormatterHelpers.simulation_output(described_class, :failed)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+          #{CMDx::Utils::ColorSeverity.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('ERROR')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
@@ -76,7 +76,7 @@ RSpec.describe CMDx::LogFormatters::Line do
 
         if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::Utils::ColorSeverity.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
@@ -94,7 +94,7 @@ RSpec.describe CMDx::LogFormatters::Line do
           LINE
         else
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::Utils::ColorSeverity.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
@@ -120,7 +120,7 @@ RSpec.describe CMDx::LogFormatters::Line do
 
         if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::Utils::ColorSeverity.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
@@ -138,7 +138,7 @@ RSpec.describe CMDx::LogFormatters::Line do
           LINE
         else
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::Utils::ColorSeverity.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::Utils::ColorSeverity.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task

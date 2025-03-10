@@ -4,7 +4,7 @@ RSpec::Matchers.define :match_log do |heredoc|
   description { "to match heredoc" }
 
   match do |templog|
-    @heredoc = heredoc.strip
+    @heredoc = heredoc.strip << "\n"
     @templog = templog.tap(&:rewind).read
 
     templog.truncate(0)
