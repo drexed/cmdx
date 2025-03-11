@@ -2,9 +2,9 @@
 
 module CMDx
   module Utils
-    module MethodName
+    module NameFormatter
 
-      ROOTFIX = proc do |o, &block|
+      AFFIX = proc do |o, &block|
         o == true ? block.call : o
       end.freeze
 
@@ -12,8 +12,8 @@ module CMDx
 
       def call(method_name, source, options = {})
         options[:as] || begin
-          prefix = ROOTFIX.call(options[:prefix]) { "#{source}_" }
-          suffix = ROOTFIX.call(options[:suffix]) { "_#{source}" }
+          prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
+          suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
 
           "#{prefix}#{method_name}#{suffix}".strip.to_sym
         end

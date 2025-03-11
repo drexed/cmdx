@@ -1,6 +1,7 @@
 ## [Unreleased]
 
-- Add PrettyLine log formatter with ansi color on severity, state, and status
+- Add `PrettyLine` and `PrettyJson` log formatter
+- Rename `MethodName` util to `NameFormatter`
 - Fix not being able to log non hash values
 
 ## [0.1.0] - 2025-03-07
