@@ -2,7 +2,7 @@
 
 module CMDx
   module Utils
-    module Runtime
+    module MonotonicRuntime
 
       module_function
 

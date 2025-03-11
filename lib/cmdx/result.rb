@@ -154,7 +154,7 @@ module CMDx
       timeout_secs = task.task_setting(timeout_type)
 
       Timeout.timeout(timeout_secs, TimeoutError, "execution exceeded #{timeout_secs} seconds") do
-        @runtime = Utils::Runtime.call(&block)
+        @runtime = Utils::MonotonicRuntime.call(&block)
       end
     end
 
