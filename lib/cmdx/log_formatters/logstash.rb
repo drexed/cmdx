@@ -12,8 +12,7 @@ module CMDx
           message["@timestamp"] ||= Utils::DatetimeFormatter.call(time.utc)
         end
 
-        message = JSON.dump(message)
-        message << "\n"
+        JSON.dump(message) << "\n"
       end
 
     end

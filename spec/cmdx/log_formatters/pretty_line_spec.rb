@@ -2,22 +2,22 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::LogFormatters::Line do
+RSpec.describe CMDx::LogFormatters::PrettyLine do
   describe ".call" do
     context "when success" do
-      it "returns Line formatted log line" do
+      it "returns PrettyLine formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :success)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
+          #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('I')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('INFO')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
           class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
-          state=complete
-          status=success
-          outcome=success
+          state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('complete')}
+          status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('success')}
+          outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('success')}
           metadata={}
           runtime=0
           tags=[]
@@ -27,19 +27,19 @@ RSpec.describe CMDx::LogFormatters::Line do
     end
 
     context "when skipped" do
-      it "returns Line formatted log line" do
+      it "returns PrettyLine formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :skipped)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          W, [2022-07-17T18:43:15.000000 #3784] WARN -- CMDx:
+          #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('W')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('WARN')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
           class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
-          state=interrupted
-          status=skipped
-          outcome=skipped
+          state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+          status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('skipped')}
+          outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('skipped')}
           metadata={}
           runtime=0
           tags=[]
@@ -49,19 +49,19 @@ RSpec.describe CMDx::LogFormatters::Line do
     end
 
     context "when failed" do
-      it "returns Line formatted log line" do
+      it "returns PrettyLine formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :failed)
 
         expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-          E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+          #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('ERROR')} -- CMDx:
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
           class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
-          state=interrupted
-          status=failed
-          outcome=failed
+          state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+          status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
+          outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
           metadata={}
           runtime=0
           tags=[]
@@ -71,20 +71,20 @@ RSpec.describe CMDx::LogFormatters::Line do
     end
 
     context "when child failed" do
-      it "returns Line formatted log line" do
+      it "returns PrettyLine formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :child_failed)
 
         if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
             class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
-            state=interrupted
-            status=failed
-            outcome=interrupted
+            state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+            status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
+            outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
             metadata={}
             runtime=0
             tags=[]
@@ -94,15 +94,15 @@ RSpec.describe CMDx::LogFormatters::Line do
           LINE
         else
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
             class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
-            state=interrupted
-            status=failed
-            outcome=interrupted
+            state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+            status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
+            outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
             metadata={}
             runtime=0
             tags=[]
@@ -115,20 +115,20 @@ RSpec.describe CMDx::LogFormatters::Line do
     end
 
     context "when grand child failed" do
-      it "returns Line formatted log line" do
+      it "returns PrettyLine formatted log line" do
         local_io = LogFormatterHelpers.simulation_output(described_class, :grand_child_failed)
 
         if RubyVersionHelpers.atleast?(3.4)
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
             class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
-            state=interrupted
-            status=failed
-            outcome=interrupted
+            state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+            status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
+            outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
             metadata={}
             runtime=0
             tags=[]
@@ -138,15 +138,15 @@ RSpec.describe CMDx::LogFormatters::Line do
           LINE
         else
           expect(local_io).to match_log(<<~LINE.tr("\n", " "))
-            E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CMDx:
+            #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('E')}, [2022-07-17T18:43:15.000000 #3784] #{CMDx::LogFormatters::PrettyLine::SEVERITY_ANSI.call('ERROR')} -- CMDx:
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
             class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
-            state=interrupted
-            status=failed
-            outcome=interrupted
+            state=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
+            status=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('failed')}
+            outcome=#{CMDx::LogFormatters::PrettyLine::RESULT_ANSI.call('interrupted')}
             metadata={}
             runtime=0
             tags=[]

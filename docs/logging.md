@@ -5,7 +5,7 @@ tasks executing concurrently so `CMDx` uses a custom logger to make debugging ea
 
 ## Output
 
-Built-in log formatters are: `Line` (default), `Json`, `KeyValue`, `Logstash`, `Raw`
+Built-in log formatters are: `Line` (default), `Json`, `KeyValue`, `Logstash`, `PrettyLine`, `Raw`
 
 #### Success:
 ```txt
