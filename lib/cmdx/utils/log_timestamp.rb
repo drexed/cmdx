@@ -2,7 +2,7 @@
 
 module CMDx
   module Utils
-    module DatetimeFormatter
+    module LogTimestamp
 
       DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
 

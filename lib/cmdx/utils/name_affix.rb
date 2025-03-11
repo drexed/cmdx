@@ -2,7 +2,7 @@
 
 module CMDx
   module Utils
-    module NameFormatter
+    module NameAffix
 
       AFFIX = proc do |o, &block|
         o == true ? block.call : o

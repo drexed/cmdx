@@ -60,7 +60,7 @@ module CMDx
     end
 
     def method_name
-      @method_name ||= Utils::NameFormatter.call(name, method_source, options)
+      @method_name ||= Utils::NameAffix.call(name, method_source, options)
     end
 
     def method_source

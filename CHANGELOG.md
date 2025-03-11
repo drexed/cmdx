@@ -1,7 +1,8 @@
 ## [Unreleased]
 
 - Add `PrettyLine` and `PrettyJson` log formatter
-- Rename `MethodName` util to `NameFormatter`
+- Rename `MethodName` util to `NameAffix`
+- Rename `DatetimeFormatter` util to `LogTimestamp`
 - Fix not being able to log non hash values
 
 ## [0.1.0] - 2025-03-07

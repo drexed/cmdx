@@ -36,7 +36,7 @@ module CMDx
       def call(severity, time, progname, message)
         sevw = SEVERITY_ANSI.call(severity)
         sevl = SEVERITY_ANSI.call(severity[0])
-        time = Utils::DatetimeFormatter.call(time.utc)
+        time = Utils::LogTimestamp.call(time.utc)
 
         if message.is_a?(Result)
           message = message.to_h.map do |k, v|

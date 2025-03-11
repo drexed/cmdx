@@ -9,7 +9,7 @@ module CMDx
 
         if message.is_a?(Hash)
           message["@version"]   ||= "1"
-          message["@timestamp"] ||= Utils::DatetimeFormatter.call(time.utc)
+          message["@timestamp"] ||= Utils::LogTimestamp.call(time.utc)
         end
 
         JSON.dump(message) << "\n"

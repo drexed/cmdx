@@ -6,7 +6,7 @@ module CMDx
 
       def __cmdx_attr_delegator(*methods, **options)
         methods.each do |method|
-          method_name = Utils::NameFormatter.call(method, options.fetch(:to), options)
+          method_name = Utils::NameAffix.call(method, options.fetch(:to), options)
 
           define_method(method_name) do |*args, **kwargs, &block|
             object = (options[:to] == :class ? self.class : send(options[:to]))
