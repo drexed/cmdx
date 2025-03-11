@@ -4,23 +4,13 @@ module CMDx
   module LogFormatters
     class PrettyLine
 
-      COLORED_KEYS = %i[
-        state status outcome
-      ].freeze
-
       def call(severity, time, progname, message)
-        sevw = LoggerAnsi.call(severity)
-        sevl = LoggerAnsi.call(severity[0])
-        time = Utils::LogTimestamp.call(time.utc)
+        indicator = LoggerAnsi.call(severity[0])
+        severity  = LoggerAnsi.call(severity)
+        timestamp = Utils::LogTimestamp.call(time.utc)
+        message   = PrettyKeyValue.new.call(severity, time, progname, message).chomp
 
-        if message.is_a?(Result)
-          message = message.to_h.map do |k, v|
-            v = ResultAnsi.call(v) if COLORED_KEYS.include?(k)
-            "#{k}=#{v}"
-          end.join(" ")
-        end
-
-        "#{sevl}, [#{time} ##{Process.pid}] #{sevw} -- #{progname || 'CMDx'}: #{message}\n"
+        "#{indicator}, [#{timestamp} ##{Process.pid}] #{severity} -- #{progname || 'CMDx'}: #{message}\n"
       end
 
     end

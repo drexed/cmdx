@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-- Add `PrettyLine` and `PrettyJson` log formatter
+- Add `PrettyKeyValue` and `PrettyLine` log formatter
 - Rename `MethodName` util to `NameAffix`
 - Rename `DatetimeFormatter` util to `LogTimestamp`
 - Rename `Runtime` util to `MonotonicRuntime`
