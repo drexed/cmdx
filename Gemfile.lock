@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (0.1.0)
+    cmdx (0.2.0)
       bigdecimal
       i18n
       logger
