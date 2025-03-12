@@ -121,8 +121,10 @@ module CMDx
         call
       rescue UndefinedCallError => e
         raise(e)
+      rescue Fault => e
+        throw!(e.result, original_exception: e) if Array(task_setting(:task_halt)).include?(e.result.status)
       rescue StandardError => e
-        fail!(reason: "[#{e.class}] #{e.message}", original_exception: e) unless e.is_a?(Fault)
+        fail!(reason: "[#{e.class}] #{e.message}", original_exception: e)
       ensure
         after_call
       end

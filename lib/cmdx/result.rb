@@ -103,11 +103,13 @@ module CMDx
       raise Fault.build(self)
     end
 
-    def throw!(result)
+    def throw!(result, local_metadata = {})
       raise ArgumentError, "must be a Result" unless result.is_a?(Result)
 
-      skip!(**result.metadata) if result.skipped?
-      fail!(**result.metadata) if result.failed?
+      md = result.metadata.merge(local_metadata)
+
+      skip!(**md) if result.skipped?
+      fail!(**md) if result.failed?
     end
 
     def caused_failure

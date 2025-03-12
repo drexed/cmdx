@@ -11,6 +11,7 @@
 - Rename `DatetimeFormatter` util to `LogTimestamp`
 - Rename `Runtime` util to `MonotonicRuntime`
 - Fix logging non hash values from raising an error
+- Fix bubbling of faults with nested halted calls
 - Wrap result logger in a `Logger#with_logger` block
 
 ## [0.1.0] - 2025-03-07
