@@ -2,8 +2,11 @@
 
 ## [0.2.0] - 2025-03-12
 ### Added
-- Add `PrettyKeyValue` and `PrettyLine` log formatter
+- Add `PrettyJson` log formatter
+- Add `PrettyKeyValue` log formatter
+- Add `PrettyLine` log formatter
 ### Changed
+- Make `PrettyLine` the default log formatter
 - Rename `MethodName` util to `NameAffix`
 - Rename `DatetimeFormatter` util to `LogTimestamp`
 - Rename `Runtime` util to `MonotonicRuntime`
