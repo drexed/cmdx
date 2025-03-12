@@ -3,7 +3,7 @@
 module CMDx
   module ResultLogger
 
-    STATUS_TO_LEVEL = {
+    STATUS_TO_SEVERITY = {
       Result::SUCCESS => :info,
       Result::SKIPPED => :warn,
       Result::FAILED => :error
@@ -12,10 +12,12 @@ module CMDx
     module_function
 
     def call(result)
-      logger = result.task.send(:logger)
-      status = STATUS_TO_LEVEL[result.status]
+      logger   = result.task.send(:logger)
+      severity = STATUS_TO_SEVERITY[result.status]
 
-      logger.send(status) { result }
+      logger.with_level(severity) do
+        logger.send(severity) { result }
+      end
     end
 
   end
