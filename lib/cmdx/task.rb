@@ -122,7 +122,7 @@ module CMDx
       rescue UndefinedCallError => e
         raise(e)
       rescue StandardError => e
-        result.fail!(reason: "[#{e.class}] #{e.message}", original_exception: e) unless e.is_a?(Fault)
+        fail!(reason: "[#{e.class}] #{e.message}", original_exception: e) unless e.is_a?(Fault)
       ensure
         after_call
       end
