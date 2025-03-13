@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Changed
+- Revert default log formatter to `Line`
+
 ## [0.2.0] - 2025-03-12
 ### Added
 - Add `PrettyJson` log formatter
