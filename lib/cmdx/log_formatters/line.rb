@@ -4,11 +4,12 @@ module CMDx
   module LogFormatters
     class Line
 
-      def call(severity, time, progname, message)
-        timestamp = Utils::LogTimestamp.call(time.utc)
-        message   = KeyValue.new.call(severity, time, progname, message).chomp
+      def call(severity, time, task, message)
+        t = Utils::LogTimestamp.call(time.utc)
+        m = LoggerSerializer.call(severity, time, task, message)
+        m = m.map { |k, v| "#{k}=#{v}" }.join(" ") if m.is_a?(Hash)
 
-        "#{severity[0]}, [#{timestamp} ##{Process.pid}] #{severity} -- #{progname || 'CMDx'}: #{message}\n"
+        "#{severity[0]}, [#{t} ##{Process.pid}] #{severity} -- #{task.class.name}: #{m}\n"
       end
 
     end

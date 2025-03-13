@@ -13,20 +13,15 @@ module CMDx
     module_function
 
     def call(result)
-      {
-        index: result.index,
-        run_id: result.run.id,
-        type: result.task.is_a?(Batch) ? "Batch" : "Task",
-        class: result.task.class.name,
-        id: result.task.id,
-        state: result.state,
-        status: result.status,
-        outcome: result.outcome,
-        metadata: result.metadata,
-        runtime: result.runtime,
-        tags: result.task.task_setting(:tags),
-        pid: Process.pid
-      }.tap do |hash|
+      TaskSerializer.call(result.task).tap do |hash|
+        hash.merge!(
+          state: result.state,
+          status: result.status,
+          outcome: result.outcome,
+          metadata: result.metadata,
+          runtime: result.runtime
+        )
+
         if result.failed?
           STRIP_FAILURE.call(hash, result, :caused_failure)
           STRIP_FAILURE.call(hash, result, :threw_failure)

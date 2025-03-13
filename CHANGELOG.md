@@ -2,8 +2,10 @@
 
 ### Added
 - Add `progname` to logger instances
+- Add `LoggerSerializer` to standardize log output
 ### Changed
 - Revert default log formatter to `Line`
+- Removed `pid` from result serializer
 
 ## [0.2.0] - 2025-03-12
 ### Added

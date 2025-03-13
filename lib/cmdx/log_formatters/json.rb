@@ -4,9 +4,14 @@ module CMDx
   module LogFormatters
     class Json
 
-      def call(_severity, _time, _progname, message)
-        message = message.to_h if message.is_a?(Result)
-        JSON.dump(message) << "\n"
+      def call(severity, time, task, message)
+        m = LoggerSerializer.call(severity, time, task, message).merge!(
+          severity:,
+          pid: Process.pid,
+          timestamp: Utils::LogTimestamp.call(time.utc)
+        )
+
+        JSON.dump(m) << "\n"
       end
 
     end

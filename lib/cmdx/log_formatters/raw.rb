@@ -4,7 +4,7 @@ module CMDx
   module LogFormatters
     class Raw
 
-      def call(_severity, _time, _progname, message)
+      def call(_severity, _time, _task, message)
         message.inspect << "\n"
       end
 

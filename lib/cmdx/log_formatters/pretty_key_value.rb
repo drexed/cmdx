@@ -4,19 +4,15 @@ module CMDx
   module LogFormatters
     class PrettyKeyValue
 
-      COLORED_KEYS = %i[
-        state status outcome
-      ].freeze
+      def call(severity, time, task, message)
+        m = LoggerSerializer.call(severity, time, task, message, ansi_colorize: true).merge!(
+          severity:,
+          pid: Process.pid,
+          timestamp: Utils::LogTimestamp.call(time.utc)
+        )
 
-      def call(_severity, _time, _progname, message)
-        if message.is_a?(Result)
-          message = message.to_h.map do |k, v|
-            v = ResultAnsi.call(v) if COLORED_KEYS.include?(k)
-            "#{k}=#{v}"
-          end.join(" ")
-        end
-
-        message << "\n"
+        m = m.map { |k, v| "#{k}=#{v}" }.join(" ") if m.is_a?(Hash)
+        m << "\n"
       end
 
     end

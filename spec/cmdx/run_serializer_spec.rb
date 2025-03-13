@@ -14,15 +14,14 @@ RSpec.describe CMDx::RunSerializer do
             index: 0,
             run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
             type: "Task",
-            class: "SimulationTask",
+            task: "SimulationTask",
             id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
             outcome: CMDx::Result::SUCCESS,
             state: CMDx::Result::COMPLETE,
             status: CMDx::Result::SUCCESS,
             metadata: {},
             runtime: 0,
-            tags: [],
-            pid: 3784
+            tags: []
           }
         ]
       )

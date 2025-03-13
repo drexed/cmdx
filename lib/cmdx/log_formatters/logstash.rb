@@ -4,15 +4,15 @@ module CMDx
   module LogFormatters
     class Logstash
 
-      def call(_severity, time, _progname, message)
-        message = message.to_h if message.is_a?(Result)
+      def call(severity, time, task, message)
+        m = LoggerSerializer.call(severity, time, task, message).merge!(
+          severity:,
+          pid: Process.pid,
+          "@version" => "1",
+          "@timestamp" => Utils::LogTimestamp.call(time.utc)
+        )
 
-        if message.is_a?(Hash)
-          message["@version"]   ||= "1"
-          message["@timestamp"] ||= Utils::LogTimestamp.call(time.utc)
-        end
-
-        JSON.dump(message) << "\n"
+        JSON.dump(m) << "\n"
       end
 
     end

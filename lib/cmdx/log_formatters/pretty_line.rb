@@ -4,13 +4,14 @@ module CMDx
   module LogFormatters
     class PrettyLine
 
-      def call(severity, time, progname, message)
-        indicator = LoggerAnsi.call(severity[0])
-        severity  = LoggerAnsi.call(severity)
-        timestamp = Utils::LogTimestamp.call(time.utc)
-        message   = PrettyKeyValue.new.call(severity, time, progname, message).chomp
+      def call(severity, time, task, message)
+        i = LoggerAnsi.call(severity[0])
+        s = LoggerAnsi.call(severity)
+        t = Utils::LogTimestamp.call(time.utc)
+        m = LoggerSerializer.call(severity, time, task, message, ansi_colorize: true)
+        m = m.map { |k, v| "#{k}=#{v}" }.join(" ") if m.is_a?(Hash)
 
-        "#{indicator}, [#{timestamp} ##{Process.pid}] #{severity} -- #{progname || 'CMDx'}: #{message}\n"
+        "#{i}, [#{t} ##{Process.pid}] #{s} -- #{task.class.name}: #{m}\n"
       end
 
     end

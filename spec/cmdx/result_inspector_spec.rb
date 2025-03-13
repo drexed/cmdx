@@ -20,7 +20,6 @@ RSpec.describe CMDx::ResultInspector do
           outcome=success
           metadata={}
           tags=[]
-          pid=3784
           runtime=0
         TEXT
       end
@@ -40,7 +39,6 @@ RSpec.describe CMDx::ResultInspector do
           outcome=interrupted
           metadata={}
           tags=[]
-          pid=3784
           runtime=0
           caused_failure=<[2] SimulationTask: 018c2b95-b764-7615-a924-cc5b910ed1e5>
           threw_failure=<[1] SimulationTask: 018c2b95-b764-7615-a924-cc5b910ed1e5>
