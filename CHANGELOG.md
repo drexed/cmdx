@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+### Added
+- Add `progname` to logger instances
 ### Changed
 - Revert default log formatter to `Line`
 
