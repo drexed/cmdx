@@ -182,6 +182,36 @@ RSpec.describe CMDx::Task do
       end
     end
 
+    context "when bang child failed" do
+      let(:simulate) { :child_failed! }
+
+      it "returns correct result" do
+        expect(result).to be_failed
+        expect(result).not_to be_good
+        expect(result).to be_bad
+        expect(result).to have_attributes(
+          state: CMDx::Result::INTERRUPTED,
+          status: CMDx::Result::FAILED,
+          metadata: { original_exception: an_instance_of(CMDx::Failed) }
+        )
+      end
+    end
+
+    context "when non-bang child failed" do
+      let(:simulate) { :child_failed }
+
+      it "returns correct result" do
+        expect(result).to be_failed
+        expect(result).not_to be_good
+        expect(result).to be_bad
+        expect(result).to have_attributes(
+          state: CMDx::Result::INTERRUPTED,
+          status: CMDx::Result::FAILED,
+          metadata: {}
+        )
+      end
+    end
+
     context "when exception" do
       let(:simulate) { :exception }
 

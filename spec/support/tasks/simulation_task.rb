@@ -11,22 +11,12 @@ class SimulationTask < ApplicationTask
 
   def call
     case context.simulate
-    when :success, NilClass
-      # Do nothing...
-    when :skipped
-      skip!
-    when :failed
-      fail!
-    when /grand_child_/
-      simulation = context.simulate.to_s.sub("grand_", "").to_sym
-      result = SimulationTask.call(context.merge!(simulate: simulation))
-      throw!(result)
-    when /child_/
-      simulation = context.simulate.to_s.sub("child_", "").to_sym
-      result = SimulationTask.call(context.merge!(simulate: simulation))
-      throw!(result)
-    else
-      raise "undefined simulation type: #{context.simulate.inspect}"
+    when :success, NilClass # Do nothing...
+    when :skipped then skip!
+    when :failed then fail!
+    when /grand_child_/ then simulate_task_call("grand_")
+    when /child_/ then simulate_task_call("child_")
+    else raise "undefined simulation type: #{context.simulate.inspect}"
     end
   end
 
@@ -34,6 +24,13 @@ class SimulationTask < ApplicationTask
 
   def trace_result
     (ctx.results ||= []) << "#{self.class.name || 'Unknown'}.#{result.status}"
+  end
+
+  def simulate_task_call(depth_prefix)
+    call_type  = context.simulate.to_s.end_with?("!") ? :call! : :call
+    simulation = context.simulate.to_s.sub(depth_prefix, "").delete("!").to_sym
+    result = SimulationTask.send(call_type, context.merge!(simulate: simulation))
+    throw!(result)
   end
 
 end
