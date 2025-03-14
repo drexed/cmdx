@@ -13,6 +13,11 @@ module CMDx
       @results = Array(attributes[:results])
     end
 
+    def freeze
+      first_result
+      super
+    end
+
     def to_h
       RunSerializer.call(self)
     end

@@ -6,6 +6,7 @@
 ### Changed
 - Revert default log formatter to `Line`
 - Removed `pid` from result serializer
+- Fix serialization of frozen run
 
 ## [0.2.0] - 2025-03-12
 ### Added
