@@ -1,5 +1,6 @@
 ## [Unreleased]
 
+## [0.3.0] - 2025-03-14
 ### Added
 - Add `progname` to logger instances
 - Add `LoggerSerializer` to standardize log output
