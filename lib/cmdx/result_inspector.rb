@@ -3,8 +3,6 @@
 module CMDx
   module ResultInspector
 
-    # TODO: use ansi color here
-
     ORDERED_KEYS = %i[
       task type index id state status outcome metadata
       tags pid runtime caused_failure threw_failure
