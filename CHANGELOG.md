@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Skip assigning log settings if logger is nil
+
 ## [0.3.0] - 2025-03-14
 ### Added
 - Add `progname` to logger instances

@@ -12,7 +12,9 @@ module CMDx
     module_function
 
     def call(result)
-      logger   = result.task.send(:logger)
+      logger = result.task.send(:logger)
+      return if logger.nil?
+
       severity = STATUS_TO_SEVERITY[result.status]
 
       logger.with_level(severity) do
