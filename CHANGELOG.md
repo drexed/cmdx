@@ -7,6 +7,7 @@
 - Revert default log formatter to `Line`
 - Removed `pid` from result serializer
 - Fix serialization of frozen run
+- Fix `call!` not marking state of failure as interrupted
 
 ## [0.2.0] - 2025-03-12
 ### Added

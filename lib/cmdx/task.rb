@@ -103,7 +103,6 @@ module CMDx
     end
 
     def after_call
-      result.send(result.success? ? :complete! : :interrupt!)
       TaskHook.call(self, :"on_#{result.status}")
       TaskHook.call(self, :"on_#{result.state}")
 
@@ -126,6 +125,7 @@ module CMDx
       rescue StandardError => e
         fail!(reason: "[#{e.class}] #{e.message}", original_exception: e)
       ensure
+        result.executed!
         after_call
       end
 
@@ -139,10 +139,12 @@ module CMDx
       rescue UndefinedCallError => e
         raise(e)
       rescue Fault => e
+        result.executed!
         raise(e) if Array(task_setting(:task_halt)).include?(e.result.status)
 
         after_call # HACK: treat as NO-OP
       else
+        result.executed!
         after_call # ELSE: treat as success
       end
 

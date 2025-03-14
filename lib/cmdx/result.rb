@@ -28,6 +28,10 @@ module CMDx
       define_method(:"#{s}?") { state == s }
     end
 
+    def executed!
+      success? ? complete! : interrupt!
+    end
+
     def executed?
       complete? || interrupted?
     end
