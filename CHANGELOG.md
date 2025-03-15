@@ -5,6 +5,7 @@
 ### Changed
 - Skip assigning log settings if logger is nil
 - Improve ANSI escape sequence
+- Improve run inspector output
 
 ## [0.3.0] - 2025-03-14
 ### Added
