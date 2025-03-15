@@ -2,6 +2,7 @@
 
 ### Added
 - Add ansi util
+- Add string to json parsing in hash coercion
 ### Changed
 - Skip assigning log settings if logger is nil
 - Improve ANSI escape sequence

@@ -37,5 +37,13 @@ RSpec.describe CMDx::Coercions::Hash do
         expect(coercion).to eq({ a: 1, b: 2 })
       end
     end
+
+    context "when json" do
+      let(:value) { "{\"a\":1,\"b\":2}" }
+
+      it "returns a hash" do
+        expect(coercion).to eq({ "a" => 1, "b" => 2 })
+      end
+    end
   end
 end
