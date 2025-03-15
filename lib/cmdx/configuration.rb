@@ -14,7 +14,7 @@ module CMDx
 
   def reset_configuration!
     @configuration = LazyStruct.new(
-      logger: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Json.new),
+      logger: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new),
       task_halt: CMDx::Result::FAILED,
       task_timeout: nil,
       batch_halt: CMDx::Result::FAILED,

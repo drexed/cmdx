@@ -3,19 +3,20 @@
 module CMDx
   module LoggerAnsi
 
-    SEVERITY_COLOR_CODES = {
-      "D" => 34, # DEBUG - Blue
-      "I" => 32, # INFO  - Green
-      "W" => 33, # WARN  - Yellow
-      "E" => 31, # ERROR - Red
-      "F" => 35  # FATAL - Magenta
+    SEVERITY_COLORS = {
+      "D" => :blue,
+      "I" => :green,
+      "W" => :yellow,
+      "E" => :red,
+      "F" => :magenta
     }.freeze
 
     module_function
 
     def call(s)
-      c = SEVERITY_COLOR_CODES[s[0]] || 39 # Default
-      "\e[1;#{c}m#{s}\e[0m"
+      color = SEVERITY_COLORS[s[0]] || :default
+
+      Utils::AnsiColor.call(s, color:, mode: :bold)
     end
 
   end

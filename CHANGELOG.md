@@ -1,6 +1,10 @@
 ## [Unreleased]
 
+### Added
+- Add ansi util
+### Changed
 - Skip assigning log settings if logger is nil
+- Improve ANSI escape sequence
 
 ## [0.3.0] - 2025-03-14
 ### Added
