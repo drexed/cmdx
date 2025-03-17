@@ -29,5 +29,13 @@ RSpec.describe CMDx::Coercions::Array do
         expect(coercion).to eq([1])
       end
     end
+
+    context "when json" do
+      let(:value) { "[1,2,\"b\"]" }
+
+      it "returns an array" do
+        expect(coercion).to eq([1, 2, "b"])
+      end
+    end
   end
 end

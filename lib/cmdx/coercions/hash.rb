@@ -8,10 +8,14 @@ module CMDx
 
       def call(value, _options = {})
         case value.class.name
-        when "Hash", "ActionController::Parameters" then value
-        when "Array" then ::Hash[*value]
-        when "String" then call(JSON.parse(value))
-        else raise_coercion_error!
+        when "Hash", "ActionController::Parameters"
+          value
+        when "Array"
+          ::Hash[*value]
+        when "String"
+          value.start_with?("{") ? JSON.parse(value) : raise_coercion_error!
+        else
+          raise_coercion_error!
         end
       rescue ArgumentError, TypeError, JSON::ParserError
         raise_coercion_error!

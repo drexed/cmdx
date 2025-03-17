@@ -7,7 +7,11 @@ module CMDx
       module_function
 
       def call(value, _options = {})
-        Array(value)
+        if value.is_a?(::String) && value.start_with?("[")
+          JSON.parse(value)
+        else
+          Array(value)
+        end
       end
 
     end
