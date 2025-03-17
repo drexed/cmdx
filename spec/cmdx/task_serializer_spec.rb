@@ -13,7 +13,7 @@ RSpec.describe CMDx::TaskSerializer do
         index: 0,
         run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
         type: "Task",
-        task: "SimulationTask",
+        class: "SimulationTask",
         id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
         tags: []
       )

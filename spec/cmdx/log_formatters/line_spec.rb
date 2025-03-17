@@ -13,7 +13,7 @@ RSpec.describe CMDx::LogFormatters::Line do
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
-          task=SimulationTask
+          class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
           tags=[]
           state=complete
@@ -35,7 +35,7 @@ RSpec.describe CMDx::LogFormatters::Line do
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
-          task=SimulationTask
+          class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
           tags=[]
           state=interrupted
@@ -57,7 +57,7 @@ RSpec.describe CMDx::LogFormatters::Line do
           index=0
           run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
           type=Task
-          task=SimulationTask
+          class=SimulationTask
           id=018c2b95-b764-7615-a924-cc5b910ed1e5
           tags=[]
           state=interrupted
@@ -80,7 +80,7 @@ RSpec.describe CMDx::LogFormatters::Line do
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
-            task=SimulationTask
+            class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
             tags=[]
             state=interrupted
@@ -88,8 +88,8 @@ RSpec.describe CMDx::LogFormatters::Line do
             outcome=interrupted
             metadata={}
             runtime=0
-            caused_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", task: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
-            threw_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", task: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
+            caused_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", class: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
+            threw_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", class: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
             origin=CMDx
           LINE
         else
@@ -98,7 +98,7 @@ RSpec.describe CMDx::LogFormatters::Line do
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
-            task=SimulationTask
+            class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
             tags=[]
             state=interrupted
@@ -106,8 +106,8 @@ RSpec.describe CMDx::LogFormatters::Line do
             outcome=interrupted
             metadata={}
             runtime=0
-            caused_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :task=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
-            threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :task=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
+            caused_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
+            threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
             origin=CMDx
           LINE
         end
@@ -124,7 +124,7 @@ RSpec.describe CMDx::LogFormatters::Line do
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
-            task=SimulationTask
+            class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
             tags=[]
             state=interrupted
@@ -132,8 +132,8 @@ RSpec.describe CMDx::LogFormatters::Line do
             outcome=interrupted
             metadata={}
             runtime=0
-            caused_failure={index: 2, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", task: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
-            threw_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", task: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "interrupted", metadata: {}, runtime: 0}
+            caused_failure={index: 2, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", class: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "failed", metadata: {}, runtime: 0}
+            threw_failure={index: 1, run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5", type: "Task", class: "SimulationTask", id: "018c2b95-b764-7615-a924-cc5b910ed1e5", tags: [], state: "interrupted", status: "failed", outcome: "interrupted", metadata: {}, runtime: 0}
             origin=CMDx
           LINE
         else
@@ -142,7 +142,7 @@ RSpec.describe CMDx::LogFormatters::Line do
             index=0
             run_id=018c2b95-b764-7615-a924-cc5b910ed1e5
             type=Task
-            task=SimulationTask
+            class=SimulationTask
             id=018c2b95-b764-7615-a924-cc5b910ed1e5
             tags=[]
             state=interrupted
@@ -150,8 +150,8 @@ RSpec.describe CMDx::LogFormatters::Line do
             outcome=interrupted
             metadata={}
             runtime=0
-            caused_failure={:index=>2, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :task=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
-            threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :task=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"interrupted", :metadata=>{}, :runtime=>0}
+            caused_failure={:index=>2, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"failed", :metadata=>{}, :runtime=>0}
+            threw_failure={:index=>1, :run_id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :type=>"Task", :class=>"SimulationTask", :id=>"018c2b95-b764-7615-a924-cc5b910ed1e5", :tags=>[], :state=>"interrupted", :status=>"failed", :outcome=>"interrupted", :metadata=>{}, :runtime=>0}
             origin=CMDx
           LINE
         end

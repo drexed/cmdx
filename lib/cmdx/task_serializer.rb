@@ -10,7 +10,7 @@ module CMDx
         index: task.result.index,
         run_id: task.run.id,
         type: task.is_a?(Batch) ? "Batch" : "Task",
-        task: task.class.name,
+        class: task.class.name,
         id: task.id,
         tags: task.task_setting(:tags)
       }

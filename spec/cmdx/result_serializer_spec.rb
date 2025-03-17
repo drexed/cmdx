@@ -14,7 +14,7 @@ RSpec.describe CMDx::ResultSerializer do
           index: 0,
           run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           type: "Task",
-          task: "SimulationTask",
+          class: "SimulationTask",
           id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           outcome: CMDx::Result::SUCCESS,
           state: CMDx::Result::COMPLETE,
@@ -34,7 +34,7 @@ RSpec.describe CMDx::ResultSerializer do
           index: 0,
           run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           type: "Task",
-          task: "SimulationTask",
+          class: "SimulationTask",
           id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           outcome: CMDx::Result::INTERRUPTED,
           state: CMDx::Result::INTERRUPTED,
@@ -43,7 +43,7 @@ RSpec.describe CMDx::ResultSerializer do
           runtime: 0,
           tags: [],
           caused_failure: {
-            task: "SimulationTask",
+            class: "SimulationTask",
             id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
             index: 2,
             metadata: {},
@@ -56,7 +56,7 @@ RSpec.describe CMDx::ResultSerializer do
             type: "Task"
           },
           threw_failure: {
-            task: "SimulationTask",
+            class: "SimulationTask",
             id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
             index: 1,
             metadata: {},

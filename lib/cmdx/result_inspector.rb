@@ -4,7 +4,7 @@ module CMDx
   module ResultInspector
 
     ORDERED_KEYS = %i[
-      task type index id state status outcome metadata
+      class type index id state status outcome metadata
       tags pid runtime caused_failure threw_failure
     ].freeze
 
@@ -17,10 +17,10 @@ module CMDx
         value = result[key]
 
         case key
-        when :task
+        when :class
           "#{value}:"
         when :caused_failure, :threw_failure
-          "#{key}=<[#{value[:index]}] #{value[:task]}: #{value[:id]}>"
+          "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
         else
           "#{key}=#{value}"
         end

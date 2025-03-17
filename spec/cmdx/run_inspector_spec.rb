@@ -14,7 +14,7 @@ RSpec.describe CMDx::RunInspector do
 
         {index: 0,
          type: "Task",
-         task: "SimulationTask",
+         class: "SimulationTask",
          id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
          tags: [],
          state: "complete",
