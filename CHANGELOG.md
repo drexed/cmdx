@@ -1,8 +1,11 @@
 ## [Unreleased]
 
+## [0.4.0] - 2025-03-17
+
 ### Added
 - Add ansi util
 - Add string to json parsing in hash coercion
+- Add string to json parsing in array coercion
 ### Changed
 - Skip assigning log settings if logger is nil
 - Improve ANSI escape sequence
