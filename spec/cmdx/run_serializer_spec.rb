@@ -9,6 +9,10 @@ RSpec.describe CMDx::RunSerializer do
     it "returns serialized attributes" do
       expect(run.to_h).to eq(
         id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+        state: CMDx::Result::COMPLETE,
+        status: CMDx::Result::SUCCESS,
+        outcome: CMDx::Result::SUCCESS,
+        runtime: 0,
         results: [
           {
             index: 0,
