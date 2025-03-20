@@ -21,6 +21,7 @@ module CMDx
     def to_h
       RunSerializer.call(self)
     end
+    alias to_a to_h
 
     def to_s
       RunInspector.call(self)

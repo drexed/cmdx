@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+### Added
+- Add `to_a` alias on array of hashes serializers
+
 ## [0.4.0] - 2025-03-17
 
 ### Added

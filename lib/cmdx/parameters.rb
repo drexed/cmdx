@@ -18,6 +18,7 @@ module CMDx
     def to_h
       ParametersSerializer.call(self)
     end
+    alias to_a to_h
 
     def to_s
       ParametersInspector.call(self)
