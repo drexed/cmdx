@@ -26,6 +26,14 @@ module CMDx
     STATES.each do |s|
       # eg: executing?
       define_method(:"#{s}?") { state == s }
+
+      # eg: on_interrupted { ... }
+      define_method(:"on_#{s}") do |&block|
+        raise ArgumentError, "a block is required" unless block
+
+        block.call(self) if send(:"#{s}?")
+        self
+      end
     end
 
     def executed!
@@ -34,6 +42,13 @@ module CMDx
 
     def executed?
       complete? || interrupted?
+    end
+
+    def on_executed(&)
+      raise ArgumentError, "a block is required" unless block_given?
+
+      yield(self) if executed?
+      self
     end
 
     def executing!
@@ -69,14 +84,36 @@ module CMDx
     STATUSES.each do |s|
       # eg: skipped?
       define_method(:"#{s}?") { status == s }
+
+      # eg: on_failed { ... }
+      define_method(:"on_#{s}") do |&block|
+        raise ArgumentError, "a block is required" unless block
+
+        block.call(self) if send(:"#{s}?")
+        self
+      end
     end
 
     def good?
       !failed?
     end
 
+    def on_good(&)
+      raise ArgumentError, "a block is required" unless block_given?
+
+      yield(self) if good?
+      self
+    end
+
     def bad?
       !success?
+    end
+
+    def on_bad(&)
+      raise ArgumentError, "a block is required" unless block_given?
+
+      yield(self) if bad?
+      self
     end
 
     def skip!(**metadata)

@@ -3,6 +3,7 @@
 ### Added
 - Add `to_a` alias on array of hashes serializers
 - Add `state`, `status`, `outcome`, and `runtime` to run serializer
+- Add status and state based callback handlers
 
 ## [0.4.0] - 2025-03-17
 

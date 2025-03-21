@@ -25,6 +25,27 @@ result.interrupted? #=> false
 result.executed?
 ```
 
+## Handlers
+
+Results can be used to trigger state based callbacks. Handlers require a block
+and will have the result available as local variable. Callback handlers can be
+chained and repeated.
+
+```ruby
+result = ProcessOrderTask.call
+result.on_complete { do_work }
+
+# - or -
+
+ProcessOrderTask
+  .call(...)
+  .on_executing { do_work }
+  .on_executed { |result| $statsd.increment(result.state) }
+```
+
+> [!TIP]
+> Handlers help execute you logical branches without `if/else` blocks.
+
 ---
 
 - **Prev:** [Outcomes - Statuses](https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md)
