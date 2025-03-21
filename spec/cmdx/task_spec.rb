@@ -12,19 +12,22 @@ RSpec.describe CMDx::Task do
 
     let(:parent_task) do
       Class.new(SimulationTask) do
-        before_execution  :before_execution_hook
-        after_execution   :after_execution_hook
+        before_execution :before_execution_hook
+        after_execution :after_execution_hook
 
-        on_executing   :on_executing_hook
-        on_complete    :on_complete_hook
+        on_executing :on_executing_hook
+        on_complete :on_complete_hook
         on_interrupted :on_interrupted_hook
+        on_executed :on_executed_hook
 
         before_validation :before_validation_hook
-        after_validation  :after_validation_hook
+        after_validation :after_validation_hook
 
         on_success :on_success_hook
         on_skipped :on_skipped_hook
         on_failed :on_failed_hook
+        on_good :on_good_hook
+        on_bad :on_bad_hook
 
         on_complete :with_conditional_method_hook, if: :truthy?
         on_complete :with_conditional_proc_hook, unless: proc { true }
@@ -76,11 +79,13 @@ RSpec.describe CMDx::Task do
             ChildTask.on_executing_hook
             ChildTask.before_validation_hook
             ChildTask.after_validation_hook
+            ChildTask.on_complete_hook
+            ChildTask.with_conditional_method_hook
+            ChildTask.on_executed_hook
             ChildTask.on_success_hook
             ChildTask.other_success_hook
             ChildTask.proc_success_hook
-            ChildTask.on_complete_hook
-            ChildTask.with_conditional_method_hook
+            ChildTask.on_good_hook
             ChildTask.after_execution_hook
           ]
         )
@@ -97,8 +102,11 @@ RSpec.describe CMDx::Task do
             ChildTask.on_executing_hook
             ChildTask.before_validation_hook
             ChildTask.after_validation_hook
-            ChildTask.on_skipped_hook
             ChildTask.on_interrupted_hook
+            ChildTask.on_executed_hook
+            ChildTask.on_skipped_hook
+            ChildTask.on_good_hook
+            ChildTask.on_bad_hook
             ChildTask.after_execution_hook
           ]
         )
@@ -115,8 +123,10 @@ RSpec.describe CMDx::Task do
             ChildTask.on_executing_hook
             ChildTask.before_validation_hook
             ChildTask.after_validation_hook
-            ChildTask.on_failed_hook
             ChildTask.on_interrupted_hook
+            ChildTask.on_executed_hook
+            ChildTask.on_failed_hook
+            ChildTask.on_bad_hook
             ChildTask.after_execution_hook
           ]
         )

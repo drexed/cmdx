@@ -8,6 +8,9 @@ module CMDx
       :after_validation,
       :before_execution,
       :after_execution,
+      :on_executed,
+      :on_good,
+      :on_bad,
       *Result::STATUSES.map { |s| :"on_#{s}" },
       *Result::STATES.map { |s| :"on_#{s}" }
     ].freeze
@@ -103,8 +106,12 @@ module CMDx
     end
 
     def after_call
-      TaskHook.call(self, :"on_#{result.status}")
       TaskHook.call(self, :"on_#{result.state}")
+      TaskHook.call(self, :on_executed) if result.executed?
+
+      TaskHook.call(self, :"on_#{result.status}")
+      TaskHook.call(self, :on_good) if result.good?
+      TaskHook.call(self, :on_bad) if result.bad?
 
       TaskHook.call(self, :after_execution)
     end

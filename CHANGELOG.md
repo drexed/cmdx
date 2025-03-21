@@ -3,7 +3,11 @@
 ### Added
 - Add `to_a` alias on array of hashes serializers
 - Add `state`, `status`, `outcome`, and `runtime` to run serializer
-- Add status and state based callback handlers
+- Add `on_[state]` and `on_[status]` based result callback handlers
+- Add `on_executed` state task hook
+- Add `on_good` and `on_bad` status task hook
+### Changed
+- Changed status and state hook order
 
 ## [0.4.0] - 2025-03-17
 

@@ -41,13 +41,16 @@ The hook methods support the following options:
 Hook types are executed in the following order:
 
 ```ruby
-1. before_execution
-2. on_executing
-3. before_validation
-4. after_validation
-5. on_[success, skipped, failed]
-6. on_[complete, interrupted]
-7. after_execution
+0. before_execution
+1. on_executing
+2. before_validation
+3. after_validation
+4. on_[complete, interrupted]
+5. on_executed
+6. on_[success, skipped, failed]
+7. on_good
+8. on_bad
+9. after_execution
 ```
 
 > [!IMPORTANT]
