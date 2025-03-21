@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.5.0] - 2025-03-21
+
 ### Added
 - Add `to_a` alias on array of hashes serializers
 - Add `state`, `status`, `outcome`, and `runtime` to run serializer
