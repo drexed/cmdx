@@ -26,19 +26,27 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".on_[STATES]" do
-    it "executes block depending on state" do
-      states = []
+    context "with block" do
+      it "executes block depending on state" do
+        states = []
 
-      result
-        .on_initialized { |r| states << [1, r.state] }
-        .on_executing { |r| states << [2, r.state] }
-        .on_complete { |r| states << [3, r.state] }
-        .on_interrupted { |r| states << [4, r.state] }
-        .on_good { states << [5, "good"] }
-        .on_bad { states << [6, "bad"] }
+        result
+          .on_initialized { |r| states << [1, r.state] }
+          .on_executing { |r| states << [2, r.state] }
+          .on_complete { |r| states << [3, r.state] }
+          .on_interrupted { |r| states << [4, r.state] }
+          .on_good { states << [5, "good"] }
+          .on_bad { states << [6, "bad"] }
 
-      expect(result.success?).to be(true)
-      expect(states).to eq([[3, CMDx::Result::COMPLETE], [5, "good"]])
+        expect(result.success?).to be(true)
+        expect(states).to eq([[3, CMDx::Result::COMPLETE], [5, "good"]])
+      end
+    end
+
+    context "without block" do
+      it "executes block depending on status" do
+        expect { result.on_success }.to raise_error(ArgumentError, "a block is required")
+      end
     end
   end
 
@@ -119,18 +127,26 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".on_[STATUSES]" do
-    it "executes block depending on status" do
-      statuses = []
+    context "with block" do
+      it "executes block depending on status" do
+        statuses = []
 
-      result
-        .on_success { |r| statuses << [1, r.status] }
-        .on_skipped { |r| statuses << [2, r.status] }
-        .on_failed { |r| statuses << [3, r.status] }
-        .on_good { statuses << [4, "good"] }
-        .on_bad { statuses << [5, "bad"] }
+        result
+          .on_success { |r| statuses << [1, r.status] }
+          .on_skipped { |r| statuses << [2, r.status] }
+          .on_failed { |r| statuses << [3, r.status] }
+          .on_good { statuses << [4, "good"] }
+          .on_bad { statuses << [5, "bad"] }
 
-      expect(result.success?).to be(true)
-      expect(statuses).to eq([[1, CMDx::Result::SUCCESS], [4, "good"]])
+        expect(result.success?).to be(true)
+        expect(statuses).to eq([[1, CMDx::Result::SUCCESS], [4, "good"]])
+      end
+    end
+
+    context "without block" do
+      it "executes block depending on status" do
+        expect { result.on_success }.to raise_error(ArgumentError, "a block is required")
+      end
     end
   end
 
