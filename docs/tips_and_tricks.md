@@ -73,6 +73,41 @@ end
 [Learn More](https://api.rubyonrails.org/classes/Object.html#method-i-with_options)
 about its usages on the official Rails docs.
 
+## ActiveRecord Query Log Tags
+
+Automatically append comments to SQL queries with runtime information tags.
+This can be used to trace troublesome SQL statements back to the application
+code that generated these statements.
+
+```ruby
+# in config/application.rb
+config.active_record.query_log_tags_enabled = true
+config.active_record.query_log_tags << :cmdx_task_class
+
+
+class ApplicationTask
+
+  before_execution :set_execution_context
+
+  # -- omitted --
+
+  private
+
+  def set_execution_context
+    ActiveSupport::ExecutionContext.set(cmdx_task_class: self.class.name, &)
+  end
+
+end
+```
+
+[Learn More](https://api.rubyonrails.org/classes/ActiveRecord/QueryLogs.html)
+about its usages on the official Rails docs.
+
+Other examples:
+- [https://build.betterup.com/adding-sidekiq-job-context-to-activerecord-query-log-tags/](https://build.betterup.com/adding-sidekiq-job-context-to-activerecord-query-log-tags/)
+- [https://thoughtbot.com/blog/activerecord-query-log-tags-for-graphql](https://thoughtbot.com/blog/activerecord-query-log-tags-for-graphql)
+
+
 ---
 
 - **Prev:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)

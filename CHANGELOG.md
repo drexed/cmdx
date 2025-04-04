@@ -23,6 +23,7 @@
 - Improve run inspector output
 
 ## [0.3.0] - 2025-03-14
+
 ### Added
 - Add `progname` to logger instances
 - Add `LoggerSerializer` to standardize log output
@@ -33,6 +34,7 @@
 - Fix `call!` not marking state of failure as interrupted
 
 ## [0.2.0] - 2025-03-12
+
 ### Added
 - Add `PrettyJson` log formatter
 - Add `PrettyKeyValue` log formatter
@@ -47,5 +49,6 @@
 - Wrap result logger in a `Logger#with_logger` block
 
 ## [0.1.0] - 2025-03-07
+
 ### Added
 - Initial release
