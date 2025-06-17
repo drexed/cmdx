@@ -84,6 +84,7 @@ module CMDx
 
     end
 
+    # TODO: rename call to perform???
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end

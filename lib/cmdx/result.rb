@@ -7,6 +7,7 @@ module CMDx
 
     attr_reader :task, :state, :status, :metadata
 
+    # TODO: change these argument errors to type errors with invalid is_a?
     def initialize(task)
       raise ArgumentError, "must be a Task or Batch" unless task.is_a?(Task)
 
