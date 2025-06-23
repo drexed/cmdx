@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.6.0] - 2025-06-23
+### Added
+- Add Cursor and Copilot rules
+### Changed
+- Changed ArgumentError to TypeError where checking `is_a?`
+
 ## [0.5.0] - 2025-03-21
 
 ### Added

@@ -16,7 +16,7 @@ module CMDx
           tasks.flatten.map do |task|
             next task if task <= Task
 
-            raise ArgumentError, "must be a Batch or Task"
+            raise TypeError, "must be a Task or Batch"
           end,
           options
         )

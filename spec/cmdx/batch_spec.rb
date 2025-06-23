@@ -14,8 +14,8 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      it "raises an ArgumentError" do
-        expect { batch }.to raise_error(ArgumentError, "must be a Batch or Task")
+      it "raises an TypeError" do
+        expect { batch }.to raise_error(TypeError, "must be a Task or Batch")
       end
     end
 

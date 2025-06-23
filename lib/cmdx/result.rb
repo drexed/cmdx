@@ -7,9 +7,8 @@ module CMDx
 
     attr_reader :task, :state, :status, :metadata
 
-    # TODO: change these argument errors to type errors with invalid is_a?
     def initialize(task)
-      raise ArgumentError, "must be a Task or Batch" unless task.is_a?(Task)
+      raise TypeError, "must be a Task or Batch" unless task.is_a?(Task)
 
       @task     = task
       @state    = INITIALIZED
@@ -146,7 +145,7 @@ module CMDx
     end
 
     def throw!(result, local_metadata = {})
-      raise ArgumentError, "must be a Result" unless result.is_a?(Result)
+      raise TypeError, "must be a Result" unless result.is_a?(Result)
 
       md = result.metadata.merge(local_metadata)
 

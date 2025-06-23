@@ -242,8 +242,8 @@ RSpec.describe CMDx::Result do
     end
 
     context "when not given a result" do
-      it "raises an ArgumentError" do
-        expect { anonymous_result.throw!(nil) }.to raise_error(ArgumentError, "must be a Result")
+      it "raises an TypeError" do
+        expect { anonymous_result.throw!(nil) }.to raise_error(TypeError, "must be a Result")
       end
     end
   end
