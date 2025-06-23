@@ -44,7 +44,7 @@ RSpec.describe CMDx::Result do
 
     context "without block" do
       it "executes block depending on status" do
-        expect { result.on_success }.to raise_error(ArgumentError, "a block is required")
+        expect { result.on_success }.to raise_error(ArgumentError, "block required")
       end
     end
   end
@@ -144,7 +144,7 @@ RSpec.describe CMDx::Result do
 
     context "without block" do
       it "executes block depending on status" do
-        expect { result.on_success }.to raise_error(ArgumentError, "a block is required")
+        expect { result.on_success }.to raise_error(ArgumentError, "block required")
       end
     end
   end

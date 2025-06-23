@@ -9,75 +9,35 @@ require "pp"
 require "securerandom"
 require "time"
 require "timeout"
+require "zeitwerk"
 
-require_relative "cmdx/version"
+module CMDx; end
+
+# Set up Zeitwerk loader for the CMDx gem
+loader = Zeitwerk::Loader.for_gem
+loader.inflector.inflect("cmdx" => "CMDx")
+loader.ignore("#{__dir__}/cmdx/core_ext")
+loader.ignore("#{__dir__}/cmdx/configuration")
+loader.ignore("#{__dir__}/cmdx/faults")
+loader.ignore("#{__dir__}/cmdx/railtie")
+loader.ignore("#{__dir__}/generators")
+loader.ignore("#{__dir__}/locales")
+loader.setup
+
+# Pre-load core extensions to avoid circular dependencies
 require_relative "cmdx/core_ext/object"
 require_relative "cmdx/core_ext/hash"
 require_relative "cmdx/core_ext/module"
-require_relative "cmdx/log_formatters/json"
-require_relative "cmdx/log_formatters/key_value"
-require_relative "cmdx/log_formatters/line"
-require_relative "cmdx/log_formatters/logstash"
-require_relative "cmdx/log_formatters/raw"
-require_relative "cmdx/log_formatters/pretty_json"
-require_relative "cmdx/log_formatters/pretty_key_value"
-require_relative "cmdx/log_formatters/pretty_line"
-require_relative "cmdx/coercions/array"
-require_relative "cmdx/coercions/big_decimal"
-require_relative "cmdx/coercions/boolean"
-require_relative "cmdx/coercions/complex"
-require_relative "cmdx/coercions/date"
-require_relative "cmdx/coercions/date_time"
-require_relative "cmdx/coercions/float"
-require_relative "cmdx/coercions/hash"
-require_relative "cmdx/coercions/integer"
-require_relative "cmdx/coercions/rational"
-require_relative "cmdx/coercions/string"
-require_relative "cmdx/coercions/time"
-require_relative "cmdx/coercions/virtual"
-require_relative "cmdx/validators/custom"
-require_relative "cmdx/validators/exclusion"
-require_relative "cmdx/validators/format"
-require_relative "cmdx/validators/inclusion"
-require_relative "cmdx/validators/length"
-require_relative "cmdx/validators/numeric"
-require_relative "cmdx/validators/presence"
-require_relative "cmdx/utils/ansi_color"
-require_relative "cmdx/utils/log_timestamp"
-require_relative "cmdx/utils/name_affix"
-require_relative "cmdx/utils/monotonic_runtime"
-require_relative "cmdx/error"
-require_relative "cmdx/errors"
-require_relative "cmdx/fault"
-require_relative "cmdx/faults"
-require_relative "cmdx/logger_serializer"
-require_relative "cmdx/logger_ansi"
-require_relative "cmdx/logger"
-require_relative "cmdx/lazy_struct"
-require_relative "cmdx/configuration"
-require_relative "cmdx/context"
-require_relative "cmdx/run"
-require_relative "cmdx/run_serializer"
-require_relative "cmdx/run_inspector"
-require_relative "cmdx/parameter"
-require_relative "cmdx/parameter_value"
-require_relative "cmdx/parameter_validator"
-require_relative "cmdx/parameter_serializer"
-require_relative "cmdx/parameter_inspector"
-require_relative "cmdx/parameters"
-require_relative "cmdx/parameters_serializer"
-require_relative "cmdx/parameters_inspector"
-require_relative "cmdx/result"
-require_relative "cmdx/result_serializer"
-require_relative "cmdx/result_inspector"
-require_relative "cmdx/result_ansi"
-require_relative "cmdx/result_logger"
-require_relative "cmdx/task"
-require_relative "cmdx/task_hook"
-require_relative "cmdx/task_serializer"
-require_relative "cmdx/batch"
-require_relative "cmdx/immutator"
 
+# Pre-load configuration to make module methods available
+# This is acceptable since configuration is fundamental to the framework
+require_relative "cmdx/configuration"
+
+# Pre-load fault classes to make them available at the top level
+# This ensures CMDx::Failed and CMDx::Skipped are always available
+require_relative "cmdx/faults"
+
+# Conditionally load Rails components if Rails is available
 if defined?(Rails::Generators)
   require_relative "generators/cmdx/install_generator"
   require_relative "generators/cmdx/task_generator"

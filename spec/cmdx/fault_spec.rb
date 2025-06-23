@@ -92,7 +92,7 @@ RSpec.describe CMDx::Fault do
           raise fault
         rescue described_class.matches?
           # Do work
-        end.to raise_error(ArgumentError, "a block is required")
+        end.to raise_error(ArgumentError, "block required")
       end
     end
   end

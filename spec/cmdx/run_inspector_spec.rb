@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::RunInspector do
-  include_context "simulation task setup"
+  include_context "with simulation task setup"
 
   let(:inspected_result) { result.run.to_s }
   let(:expected_string_output) do

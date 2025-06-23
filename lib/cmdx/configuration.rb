@@ -7,7 +7,7 @@ module CMDx
   # The configuration system allows customization of default behaviors for tasks,
   # batches, logging, and error handling across the entire application.
   #
-  # Configuration settings are stored in a LazyStruct for flexible attribute access
+  # Configuration settings are stored as instance variables with explicit accessors
   # and can be modified through the configure block pattern. These settings serve
   # as defaults that can be overridden at the task or batch level when needed.
   #
@@ -74,7 +74,59 @@ module CMDx
   # @see Batch Batch-level configuration overrides
   # @see LogFormatters Available logging formatters
   # @see Result Result statuses for halt configuration
-  # @since 1.0.0
+  # @since 0.6.0
+
+  ##
+  # Configuration class that manages CMDx framework settings.
+  # Provides explicit attribute accessors for all configuration options.
+  #
+  # @since 0.6.0
+  class Configuration
+
+    # Default configuration values
+    DEFAULT_HALT    = "failed"
+    DEFAULT_TIMEOUT = nil
+
+    # Configuration attributes
+    attr_accessor :logger, :task_halt, :task_timeout, :batch_halt, :batch_timeout
+
+    ##
+    # Initializes a new configuration with default values.
+    #
+    # @example
+    #   config = CMDx::Configuration.new
+    #   config.task_timeout  #=> nil
+    def initialize
+      @logger        = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+      @task_halt     = "failed"
+      @task_timeout  = nil
+      @batch_halt    = "failed"
+      @batch_timeout = nil
+    end
+
+    ##
+    # Returns a hash representation of the configuration.
+    # Used internally by the framework for configuration merging.
+    #
+    # @return [Hash] configuration attributes as a hash
+    # @example
+    #   config = CMDx.configuration
+    #   config.to_h  #=> { logger: ..., task_halt: "failed", ... }
+    def to_h
+      {
+        logger: @logger,
+        task_halt: @task_halt,
+        task_timeout: @task_timeout,
+        batch_halt: @batch_halt,
+        batch_timeout: @batch_timeout
+      }
+    end
+
+  end
+
+  # Thread-safe configuration access
+  @config_mutex = Mutex.new
+
   module_function
 
   ##
@@ -85,12 +137,15 @@ module CMDx
   # throughout the application lifecycle. It uses lazy initialization,
   # creating the configuration only when first accessed.
   #
-  # @return [LazyStruct] the current configuration object
+  # This method is thread-safe and ensures only one configuration instance
+  # is created even in multi-threaded environments.
+  #
+  # @return [Configuration] the current configuration object
   #
   # @example Accessing configuration values
   #   CMDx.configuration.task_timeout    #=> nil (default)
   #   CMDx.configuration.logger          #=> <Logger instance>
-  #   CMDx.configuration.task_halt       #=> [:failed]
+  #   CMDx.configuration.task_halt       #=> "failed"
   #
   # @example Checking configuration state
   #   config = CMDx.configuration
@@ -101,7 +156,11 @@ module CMDx
   #   # Prefer using CMDx.configure block instead
   #   CMDx.configuration.task_timeout = 60
   def configuration
-    @configuration || reset_configuration!
+    return @configuration if @configuration
+
+    @config_mutex.synchronize do
+      @configuration ||= Configuration.new
+    end
   end
 
   ##
@@ -111,9 +170,11 @@ module CMDx
   #
   # The configuration block yields the current configuration object,
   # allowing you to set multiple options in a single, organized block.
+  # This method is thread-safe and ensures configuration changes are atomic.
   #
-  # @yieldparam config [LazyStruct] the configuration object to modify
-  # @return [LazyStruct] the updated configuration object
+  # @yieldparam config [Configuration] the configuration object to modify
+  # @return [Configuration] the updated configuration object
+  # @raise [ArgumentError] if no block is provided
   #
   # @example Basic configuration
   #   CMDx.configure do |config|
@@ -126,9 +187,9 @@ module CMDx
   #     config.logger = Rails.logger if defined?(Rails)
   #
   #     config.task_halt = if Rails.env.production?
-  #       [CMDx::Result::FAILED]  # Only halt on failures in production
+  #       "failed"  # Only halt on failures in production
   #     else
-  #       [CMDx::Result::FAILED, CMDx::Result::SKIPPED]  # Halt on both in development
+  #       ["failed", "skipped"]  # Halt on both in development
   #     end
   #
   #     config.task_timeout = ENV.fetch('CMDX_TASK_TIMEOUT', 60).to_i
@@ -148,7 +209,11 @@ module CMDx
   #     end
   #   end
   def configure
-    yield(configuration)
+    raise ArgumentError, "block required" unless block_given?
+
+    config = configuration
+    yield(config)
+    config
   end
 
   ##
@@ -156,14 +221,10 @@ module CMDx
   # This method creates a fresh configuration object with framework defaults,
   # discarding any previously set custom values.
   #
-  # Default configuration includes:
-  # - **logger**: STDOUT logger with Line formatter
-  # - **task_halt**: Failed status only
-  # - **task_timeout**: No timeout (nil)
-  # - **batch_halt**: Failed status only
-  # - **batch_timeout**: No timeout (nil)
+  # This operation is thread-safe and atomically replaces the current
+  # configuration with a new instance containing default values.
   #
-  # @return [LazyStruct] the newly created configuration with default values
+  # @return [Configuration] the newly created configuration with default values
   #
   # @example Resetting configuration
   #   # After custom configuration
@@ -187,13 +248,9 @@ module CMDx
   # @note This method is primarily useful for testing or when you need
   #   to return to a known default state.
   def reset_configuration!
-    @configuration = LazyStruct.new(
-      logger: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new),
-      task_halt: CMDx::Result::FAILED,
-      task_timeout: nil,
-      batch_halt: CMDx::Result::FAILED,
-      batch_timeout: nil
-    )
+    @config_mutex.synchronize do
+      @configuration = Configuration.new
+    end
   end
 
 end

@@ -5,6 +5,7 @@ PATH
       bigdecimal
       i18n
       logger
+      zeitwerk
 
 GEM
   remote: https://rubygems.org/
@@ -69,6 +70,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby

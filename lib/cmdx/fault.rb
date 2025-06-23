@@ -83,7 +83,7 @@ module CMDx
   # @see Task Task execution methods (call vs call!)
   # @see CMDx::Skipped Specific fault type for skipped tasks
   # @see CMDx::Failed Specific fault type for failed tasks
-  # @since 1.0.0
+  # @since 0.6.0
   class Fault < Error
 
     __cmdx_attr_delegator :task, :run, :context, to: :result
@@ -211,7 +211,7 @@ module CMDx
       #     retry_with_longer_timeout(e)
       #   end
       def matches?(&block)
-        raise ArgumentError, "a block is required" unless block_given?
+        raise ArgumentError, "block required" unless block_given?
 
         temp_fault = Class.new(self) do
           def self.===(other)

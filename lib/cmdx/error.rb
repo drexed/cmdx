@@ -29,7 +29,7 @@ module CMDx
   #   end
   #
   # @see StandardError Ruby's standard error base class
-  # @since 1.0.0
+  # @since 0.6.0
   Error = Class.new(StandardError)
 
   ##
@@ -70,7 +70,7 @@ module CMDx
   #
   # @see Parameter Parameter type definitions and coercion
   # @see ParameterValue Parameter value processing and coercion
-  # @since 1.0.0
+  # @since 0.6.0
   CoercionError = Class.new(Error)
 
   ##
@@ -111,7 +111,7 @@ module CMDx
   # @see Configuration Timeout configuration options
   # @see Task Task-level timeout settings
   # @see Batch Batch-level timeout settings
-  # @since 1.0.0
+  # @since 0.6.0
   TimeoutError = Class.new(Interrupt)
 
   ##
@@ -153,7 +153,7 @@ module CMDx
   #
   # @see Task Task base class and call method requirement
   # @see Batch Batch base class and call method requirement
-  # @since 1.0.0
+  # @since 0.6.0
   UndefinedCallError = Class.new(Error)
 
   ##
@@ -201,7 +201,7 @@ module CMDx
   #
   # @see Parameter Parameter type definitions
   # @see ParameterValue Type coercion processing
-  # @since 1.0.0
+  # @since 0.6.0
   UnknownCoercionError = Class.new(Error)
 
   ##
@@ -260,7 +260,7 @@ module CMDx
   # @see Parameter Parameter validation options
   # @see ParameterValue Validation processing
   # @see Validators Validation modules (Presence, Format, Length, etc.)
-  # @since 1.0.0
+  # @since 0.6.0
   ValidationError = Class.new(Error)
 
 end

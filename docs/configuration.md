@@ -16,25 +16,22 @@ Run `rails g cmdx:install` to generate a configuration file at `config/initializ
 
 ```ruby
 CMDx.configure do |config|
-  # Define which statuses a bang `call!` will halt and raise a fault.
-  # This option can accept an array of statuses or a single status.
+  # Halt execution and raise fault on these result statuses when using `call!`
   config.task_halt = CMDx::Result::FAILED
 
-  # Enable task timeouts to prevent call execution beyond a defined threshold.
-  # Set to nil to disable timeouts globally.
+  # Global timeout for individual tasks (nil = no timeout)
   config.task_timeout = nil
 
-  # Define which statuses a batch task will halt execution from proceeding to the next step.
-  # By default skipped tasks are treated as a NOOP so processing is continued.
-  # This option can accept an array of statuses or a single status.
+  # Stop batch execution when tasks return these statuses
+  # Note: Skipped tasks continue processing by default
   config.batch_halt = CMDx::Result::FAILED
 
-  # Enable batch timeouts to prevent call execution beyond a defined threshold.
-  # TIP: Remember to account for all defined tasks when setting this value.
+  # Global timeout for entire batch execution (nil = no timeout)
+  # Tip: Account for all tasks when setting this value
   config.batch_timeout = nil
 
-  # Configure the logger instance used for task execution logging.
-  # You can customize the logger, output destination, and formatter.
+  # Logger with formatter - see available formatters at:
+  # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters
   config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
 end
 ```

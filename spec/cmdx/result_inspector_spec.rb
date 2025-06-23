@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::ResultInspector do
-  include_context "simulation task setup"
+  include_context "with simulation task setup"
 
   let(:expected_success_output) do
     <<~TEXT

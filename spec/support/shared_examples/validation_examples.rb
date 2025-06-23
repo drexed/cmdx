@@ -1,55 +1,5 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "a validator" do
-  describe ".call" do
-    context "when value is valid" do
-      it "returns nil without raising error" do
-        expect(validator).to be_nil
-      end
-    end
-
-    context "when value is invalid" do
-      context "with default message" do
-        it "raises ValidationError with default message" do
-          expect { validator }.to raise_error(CMDx::ValidationError, expected_default_message)
-        end
-      end
-
-      context "with custom message" do
-        let(:options) { base_options.merge(validator_key => { message: "custom message" }) }
-
-        it "raises ValidationError with custom message" do
-          expect { validator }.to raise_error(CMDx::ValidationError, "custom message")
-        end
-      end
-    end
-  end
-end
-
-RSpec.shared_examples "a range validator" do
-  describe ".call" do
-    context "when using range values" do
-      let(:options) { range_options }
-
-      context "when value is within range" do
-        let(:value) { range_valid_value }
-
-        it "returns nil without raising error" do
-          expect(validator).to be_nil
-        end
-      end
-
-      context "when value is outside range" do
-        let(:value) { range_invalid_value }
-
-        it "raises ValidationError with range message" do
-          expect { validator }.to raise_error(CMDx::ValidationError, expected_range_message)
-        end
-      end
-    end
-  end
-end
-
 RSpec.shared_examples "a parametric validator" do
   describe ".call" do
     context "when using unsupported options" do

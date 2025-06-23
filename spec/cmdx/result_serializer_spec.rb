@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::ResultSerializer do
-  include_context "simulation task setup"
+  include_context "with simulation task setup"
 
   let(:expected_success_serialized_attributes) do
     {

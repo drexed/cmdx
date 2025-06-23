@@ -1,16 +1,5 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "a log formatter" do
-  describe ".call" do
-    context "when task succeeds" do
-      it "returns correctly formatted log output" do
-        local_io = LogFormatterHelpers.simulation_output(described_class, :success)
-        expect(local_io).to match_log(expected_success_output)
-      end
-    end
-  end
-end
-
 RSpec.shared_examples "a comprehensive log formatter" do
   describe ".call" do
     context "when task succeeds" do

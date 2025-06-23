@@ -31,7 +31,7 @@ module CMDx
   #   end
   #
   # @see Task Task class for hook definitions
-  # @since 1.0.0
+  # @since 0.6.0
   module TaskHook
 
     module_function

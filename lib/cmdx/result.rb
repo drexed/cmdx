@@ -87,7 +87,7 @@ module CMDx
 
       # eg: on_interrupted { ... }
       define_method(:"on_#{s}") do |&block|
-        raise ArgumentError, "a block is required" unless block
+        raise ArgumentError, "block required" unless block
 
         block.call(self) if send(:"#{s}?")
         self
@@ -132,7 +132,7 @@ module CMDx
     # @example
     #   result.on_executed { |r| logger.info "Task finished: #{r.status}" }
     def on_executed(&)
-      raise ArgumentError, "a block is required" unless block_given?
+      raise ArgumentError, "block required" unless block_given?
 
       yield(self) if executed?
       self
@@ -206,7 +206,7 @@ module CMDx
 
       # eg: on_failed { ... }
       define_method(:"on_#{s}") do |&block|
-        raise ArgumentError, "a block is required" unless block
+        raise ArgumentError, "block required" unless block
 
         block.call(self) if send(:"#{s}?")
         self
@@ -232,7 +232,7 @@ module CMDx
     # @example
     #   result.on_good { |r| logger.info "Task completed successfully" }
     def on_good(&)
-      raise ArgumentError, "a block is required" unless block_given?
+      raise ArgumentError, "block required" unless block_given?
 
       yield(self) if good?
       self
@@ -257,7 +257,7 @@ module CMDx
     # @example
     #   result.on_bad { |r| logger.error "Task had issues: #{r.status}" }
     def on_bad(&)
-      raise ArgumentError, "a block is required" unless block_given?
+      raise ArgumentError, "block required" unless block_given?
 
       yield(self) if bad?
       self

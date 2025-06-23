@@ -96,7 +96,7 @@ module CMDx
   # @see Task Task base class with errors attribute
   # @see Parameter Parameter validation integration
   # @see ValidationError Individual validation errors
-  # @since 1.0.0
+  # @since 0.6.0
   class Errors
 
     __cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values, to: :errors

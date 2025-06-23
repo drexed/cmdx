@@ -73,7 +73,7 @@ module CMDx
   # @see Result Result object that gets frozen
   # @see Context Context object that may get frozen
   # @see Run Run object that may get frozen
-  # @since 1.0.0
+  # @since 0.6.0
   module Immutator
 
     module_function

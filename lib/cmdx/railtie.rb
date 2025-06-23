@@ -64,15 +64,8 @@ module CMDx
   # @see Configuration Configuration options for Rails integration
   # @see Task Task base class for command objects
   # @see Batch Batch base class for multi-task operations
-  # @since 1.0.0
+  # @since 0.6.0
   class Railtie < Rails::Railtie
-
-    ##
-    # Command object directory concepts that should be collapsed in autoloaders.
-    # This ensures proper class loading for tasks and batches in Rails applications.
-    #
-    # @return [Array<String>] frozen array of directory names to collapse
-    CONCEPTS = %w[batches tasks].freeze
 
     railtie_name :cmdx
 
@@ -145,8 +138,10 @@ module CMDx
     #   OrderProcessingBatch.call(orders: [...])  # Loads from app/cmds/batches/
     initializer("cmdx.configure_rails_auto_load_paths") do |app|
       app.config.autoload_paths += %w[app/cmds]
+
+      types = %w[batches tasks]
       app.autoloaders.each do |autoloader|
-        CONCEPTS.each do |concept|
+        types.each do |concept|
           dir = app.root.join("app/cmds/#{concept}")
           autoloader.collapse(dir)
         end

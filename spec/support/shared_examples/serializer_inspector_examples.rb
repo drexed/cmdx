@@ -64,7 +64,7 @@ RSpec.shared_examples "a result serializer" do
   end
 end
 
-RSpec.shared_context "simulation task setup" do
+RSpec.shared_context "with simulation task setup" do
   subject(:result) { SimulationTask.call(simulate: simulate) }
 
   let(:simulate) { :success }
