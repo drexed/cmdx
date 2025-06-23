@@ -3,8 +3,10 @@
 ## [0.6.0] - 2025-06-23
 ### Added
 - Add Cursor and Copilot rules
+- Add YARDoc documentation
 ### Changed
 - Changed ArgumentError to TypeError where checking `is_a?`
+- Improve documentation readability, consistency, completeness
 
 ## [0.5.0] - 2025-03-21
 
@@ -20,7 +22,7 @@
 ## [0.4.0] - 2025-03-17
 
 ### Added
-- Add ansi util
+- Add ANSI util
 - Add string to json parsing in hash coercion
 - Add string to json parsing in array coercion
 ### Changed
