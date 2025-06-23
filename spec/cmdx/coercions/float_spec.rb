@@ -5,29 +5,12 @@ require "spec_helper"
 RSpec.describe CMDx::Coercions::Float do
   subject(:coercion) { described_class.call(value) }
 
-  describe ".call" do
-    context "when nil" do
-      let(:value) { nil }
+  let(:expected_nil_error_message) { "could not coerce into a float" }
+  let(:expected_invalid_error_message) { "could not coerce into a float" }
+  let(:correct_type_value) { 1.2 }
+  let(:coercible_value) { 42 }
+  let(:expected_coerced_value) { 42.0 }
+  let(:invalid_coercible_value) { "abc123" }
 
-      it "raises a CoercionError" do
-        expect { coercion }.to raise_error(CMDx::CoercionError, "could not coerce into a float")
-      end
-    end
-
-    context "when invalid" do
-      let(:value) { "abc123" }
-
-      it "raises a CoercionError" do
-        expect { coercion }.to raise_error(CMDx::CoercionError, "could not coerce into a float")
-      end
-    end
-
-    context "when numeric" do
-      let(:value) { 1.2 }
-
-      it "returns a float" do
-        expect(coercion).to be_a(Float)
-      end
-    end
-  end
+  it_behaves_like "a coercion that raises on nil"
 end

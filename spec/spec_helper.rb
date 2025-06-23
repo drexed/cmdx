@@ -13,13 +13,15 @@ end
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[config helpers matchers tasks].each do |dir|
+%w[config helpers matchers tasks shared_examples].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
 end
 
 RSpec.configure do |config|
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
   # Enable flags like --only-failures and --next-failed
   config.example_status_persistence_file_path = ".rspec_status"
 
@@ -34,6 +36,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  # Global test doubles setup - these provide consistent values across all tests
   config.before do
     allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :millisecond).and_return(0)
     allow(Process).to receive(:pid).and_return(3784)

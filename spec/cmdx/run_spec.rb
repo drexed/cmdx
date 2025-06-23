@@ -8,8 +8,8 @@ RSpec.describe CMDx::Run do
   let(:attributes) { {} }
 
   describe "#initialize" do
-    context "without attributes" do
-      it "returns hash of attributes" do
+    context "when no attributes provided" do
+      it "initializes with default attributes" do
         expect(run).to have_attributes(
           id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           results: []
@@ -17,7 +17,7 @@ RSpec.describe CMDx::Run do
       end
     end
 
-    context "with attributes" do
+    context "when attributes provided" do
       let(:attributes) do
         {
           id: 123,
@@ -25,7 +25,7 @@ RSpec.describe CMDx::Run do
         }
       end
 
-      it "returns hash of attributes" do
+      it "initializes with provided attributes" do
         expect(run).to have_attributes(attributes)
       end
     end

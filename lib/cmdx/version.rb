@@ -8,6 +8,6 @@ module CMDx
   # conventions (major.minor.patch).
   #
   # @return [String] the current version
-  VERSION = "1.0.0"
+  VERSION = "0.6.0"
 
 end

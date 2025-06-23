@@ -13,53 +13,52 @@ RSpec.describe CMDx::ParametersSerializer do
     end
   end
 
-  describe ".to_h" do
-    it "returns serialized attributes" do
-      expect(simulation_task.cmd_parameters.to_h).to eq(
-        [
+  let(:serialized_result) { simulation_task.cmd_parameters.to_h }
+  let(:expected_serialized_attributes) do
+    [
+      {
+        source: :context,
+        name: :first_name,
+        type: :virtual,
+        required: true,
+        options: {},
+        children: []
+      },
+      {
+        source: :context,
+        name: :last_name,
+        type: :virtual,
+        required: true,
+        options: {},
+        children: []
+      },
+      {
+        source: :context,
+        name: :address,
+        type: :hash,
+        required: false,
+        options: {},
+        children: [
           {
-            source: :context,
-            name: :first_name,
+            source: :address,
+            name: :city,
             type: :virtual,
             required: true,
             options: {},
             children: []
           },
           {
-            source: :context,
-            name: :last_name,
+            source: :address,
+            name: :state,
             type: :virtual,
-            required: true,
-            options: {},
-            children: []
-          },
-          {
-            source: :context,
-            name: :address,
-            type: :hash,
             required: false,
-            options: {},
-            children: [
-              {
-                source: :address,
-                name: :city,
-                type: :virtual,
-                required: true,
-                options: {},
-                children: []
-              },
-              {
-                source: :address,
-                name: :state,
-                type: :virtual,
-                required: false,
-                options: { default: "USA", desc: "Alpha-2" },
-                children: []
-              }
-            ]
+            options: { default: "USA", desc: "Alpha-2" },
+            children: []
           }
         ]
-      )
-    end
+      }
+    ]
   end
+
+  it_behaves_like "a serializer"
 end

@@ -16,12 +16,11 @@ RSpec.describe CMDx::Result do
     end
   end
 
-  describe ".[STATES]?" do
-    it "returns value depending on state" do
-      expect(initialized_result.initialized?).to be(true)
-      expect(initialized_result.executing?).to be(false)
-      expect(initialized_result.complete?).to be(false)
-      expect(initialized_result.interrupted?).to be(false)
+  describe "state predicate methods" do
+    context "when initialized" do
+      subject(:result) { initialized_result }
+
+      it_behaves_like "result state predicates", CMDx::Result::INITIALIZED
     end
   end
 
@@ -118,11 +117,11 @@ RSpec.describe CMDx::Result do
     end
   end
 
-  describe ".[STATUSES]?" do
-    it "returns value depending on status" do
-      expect(initialized_result.success?).to be(true)
-      expect(initialized_result.skipped?).to be(false)
-      expect(initialized_result.failed?).to be(false)
+  describe "status predicate methods" do
+    context "when initialized with success status" do
+      subject(:result) { initialized_result }
+
+      it_behaves_like "result status predicates", CMDx::Result::SUCCESS
     end
   end
 

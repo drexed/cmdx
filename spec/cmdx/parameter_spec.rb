@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Parameter do
   subject(:result) { simulation_task.call(ctx) }
 
-  let(:ctx) do
+  let(:default_context) do
     {
       title: "Mr.",
       first_name: "John",
@@ -17,6 +17,8 @@ RSpec.describe CMDx::Parameter do
       company: instance_double("Company", name: "Ukea", position: "Cashier")
     }
   end
+
+  let(:ctx) { default_context }
 
   describe "#parameters" do
     context "with valid setup" do

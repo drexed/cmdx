@@ -5,51 +5,14 @@ require "spec_helper"
 RSpec.describe CMDx::Coercions::Date do
   subject(:coercion) { described_class.call(value, options) }
 
-  let(:options) { {} }
+  let(:expected_nil_error_message) { "could not coerce into a date" }
+  let(:expected_invalid_error_message) { "could not coerce into a date" }
+  let(:expected_type_class) { Date }
+  let(:correct_type_value) { Date.new(2022, 7, 17) }
+  let(:invalid_coercible_value) { "abc" }
+  let(:format_options) { { format: "%Y-%m-%d" } }
+  let(:formatted_input_value) { "2001-02-03" }
+  let(:invalid_format_input) { "123" }
 
-  describe ".call" do
-    context "when nil" do
-      let(:value) { nil }
-
-      it "raises a CoercionError" do
-        expect { coercion }.to raise_error(CMDx::CoercionError, "could not coerce into a date")
-      end
-    end
-
-    context "when invalid" do
-      let(:value) { "abc" }
-
-      it "raises a CoercionError" do
-        expect { coercion }.to raise_error(CMDx::CoercionError, "could not coerce into a date")
-      end
-    end
-
-    context "when Date" do
-      let(:value) { Date.new }
-
-      it "returns the date" do
-        expect(coercion).to be_a(Date)
-      end
-    end
-
-    context "with format" do
-      let(:options) { { format: "%Y-%m-%d" } }
-
-      context "when valid" do
-        let(:value) { "2001-02-03" }
-
-        it "returns a date" do
-          expect(coercion).to be_a(Date)
-        end
-      end
-
-      context "when invalid" do
-        let(:value) { "123" }
-
-        it "raises a CoercionError" do
-          expect { coercion }.to raise_error(CMDx::CoercionError, "could not coerce into a date")
-        end
-      end
-    end
-  end
+  it_behaves_like "a coercion with options"
 end

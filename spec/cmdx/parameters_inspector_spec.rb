@@ -16,29 +16,30 @@ RSpec.describe CMDx::ParametersInspector do
     end
   end
 
-  describe ".to_s" do
-    it "returns stringified attributes" do
-      if RubyVersionHelpers.atleast?(3.4)
-        expect(simulation_task.cmd_parameters.to_s).to eq(<<~TXT.gsub("\n", " \n").chomp)
-          Parameter: name=first_name type=virtual source=context required=true options={}
-          Parameter: name=last_name type=virtual source=context required=true options={}
-          Parameter: name=address type=hash source=context required=false options={}
-            ↳ Parameter: name=city type=virtual source=address required=true options={}
-            ↳ Parameter: name=state type=virtual source=address required=false options={default: "USA", desc: "Alpha-2"}
-              ↳ Parameter: name=zipcode type=integer source=state required=false options={}
-          Parameter: name=gender type=virtual source=context required=true options={}
-        TXT
-      else
-        expect(simulation_task.cmd_parameters.to_s).to eq(<<~TXT.gsub("\n", " \n").chomp)
-          Parameter: name=first_name type=virtual source=context required=true options={}
-          Parameter: name=last_name type=virtual source=context required=true options={}
-          Parameter: name=address type=hash source=context required=false options={}
-            ↳ Parameter: name=city type=virtual source=address required=true options={}
-            ↳ Parameter: name=state type=virtual source=address required=false options={:default=>"USA", :desc=>"Alpha-2"}
-              ↳ Parameter: name=zipcode type=integer source=state required=false options={}
-          Parameter: name=gender type=virtual source=context required=true options={}
-        TXT
-      end
-    end
+  let(:inspected_result) { simulation_task.cmd_parameters.to_s }
+  let(:expected_ruby_34_output) do
+    <<~TXT.gsub("\n", " \n").chomp
+      Parameter: name=first_name type=virtual source=context required=true options={}
+      Parameter: name=last_name type=virtual source=context required=true options={}
+      Parameter: name=address type=hash source=context required=false options={}
+        ↳ Parameter: name=city type=virtual source=address required=true options={}
+        ↳ Parameter: name=state type=virtual source=address required=false options={default: "USA", desc: "Alpha-2"}
+          ↳ Parameter: name=zipcode type=integer source=state required=false options={}
+      Parameter: name=gender type=virtual source=context required=true options={}
+    TXT
   end
+
+  let(:expected_legacy_ruby_output) do
+    <<~TXT.gsub("\n", " \n").chomp
+      Parameter: name=first_name type=virtual source=context required=true options={}
+      Parameter: name=last_name type=virtual source=context required=true options={}
+      Parameter: name=address type=hash source=context required=false options={}
+        ↳ Parameter: name=city type=virtual source=address required=true options={}
+        ↳ Parameter: name=state type=virtual source=address required=false options={:default=>"USA", :desc=>"Alpha-2"}
+          ↳ Parameter: name=zipcode type=integer source=state required=false options={}
+      Parameter: name=gender type=virtual source=context required=true options={}
+    TXT
+  end
+
+  it_behaves_like "a conditional inspector"
 end

@@ -9,11 +9,12 @@ RSpec.describe CMDx::ParameterInspector do
     end
   end
 
-  describe ".to_s" do
-    it "returns stringified attribute" do
-      expect(simulation_task.cmd_parameters.first.to_s).to eq(<<~TXT.gsub("\n", " \n").chomp)
-        Parameter: name=first_name type=virtual source=context required=true options={}
-      TXT
-    end
+  let(:inspected_result) { simulation_task.cmd_parameters.first.to_s }
+  let(:expected_string_output) do
+    <<~TXT.gsub("\n", " \n").chomp
+      Parameter: name=first_name type=virtual source=context required=true options={}
+    TXT
   end
+
+  it_behaves_like "an inspector"
 end

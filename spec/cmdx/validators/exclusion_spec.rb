@@ -5,59 +5,34 @@ require "spec_helper"
 RSpec.describe CMDx::Validators::Exclusion do
   subject(:validator) { described_class.call(value, options) }
 
-  let(:value) { 1 }
-  let(:options) do
-    { exclusion: { in: [1, String] } }
-  end
+  let(:validator_key) { :exclusion }
+  let(:base_options) { { exclusion: { in: [1, String] } } }
+  let(:options) { base_options }
 
-  describe ".call" do
-    context "when valid" do
-      let(:value) { 2 }
+  # Collection validator configuration (inverted logic for exclusion)
+  let(:collection_valid_value) { 2 }
+  let(:collection_invalid_value) { "b" }
+  let(:expected_collection_message) { "must not be one of: 1, String" }
 
-      it "returns successfully" do
+  it_behaves_like "a collection validator"
+
+  context "when using range exclusion" do
+    let(:options) { { exclusion: { in: 2..4 } } }
+
+    context "when value is outside excluded range" do
+      let(:value) { 1 }
+
+      it "returns nil without raising error" do
         expect(validator).to be_nil
       end
     end
 
-    context "when invalid" do
-      let(:value) { "b" }
+    context "when value is within excluded range" do
+      let(:options) { { exclusion: { in: 0..2 } } }
+      let(:value) { 1 }
 
-      context "with default message" do
-        it "raises a ValidationError" do
-          expect { validator }.to raise_error(CMDx::ValidationError, "must not be one of: 1, String")
-        end
-      end
-
-      context "with custom message" do
-        let(:options) do
-          { exclusion: { in: [1, String], message: "custom message" } }
-        end
-
-        it "raises a ValidationError" do
-          expect { validator }.to raise_error(CMDx::ValidationError, "custom message")
-        end
-      end
-    end
-
-    context "with range" do
-      let(:options) do
-        { exclusion: { in: 2..4 } }
-      end
-
-      context "when valid" do
-        it "returns successfully" do
-          expect(validator).to be_nil
-        end
-      end
-
-      context "when invalid" do
-        let(:options) do
-          { exclusion: { in: 0..2 } }
-        end
-
-        it "raises a ValidationError" do
-          expect { validator }.to raise_error(CMDx::ValidationError, "must not be within 0 and 2")
-        end
+      it "raises ValidationError with range message" do
+        expect { validator }.to raise_error(CMDx::ValidationError, "must not be within 0 and 2")
       end
     end
   end

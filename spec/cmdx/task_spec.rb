@@ -69,68 +69,56 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    context "when success" do
+    context "when task succeeds" do
       let(:simulate) { :success }
 
-      it "calls hooks in correct order" do
-        expect(result.context.hooks).to eq(
-          %w[
-            ChildTask.before_execution_hook
-            ChildTask.on_executing_hook
-            ChildTask.before_validation_hook
-            ChildTask.after_validation_hook
-            ChildTask.on_complete_hook
-            ChildTask.with_conditional_method_hook
-            ChildTask.on_executed_hook
-            ChildTask.on_success_hook
-            ChildTask.other_success_hook
-            ChildTask.proc_success_hook
-            ChildTask.on_good_hook
-            ChildTask.after_execution_hook
-          ]
-        )
-      end
+      it_behaves_like "task hooks execution", %w[
+        ChildTask.before_execution_hook
+        ChildTask.on_executing_hook
+        ChildTask.before_validation_hook
+        ChildTask.after_validation_hook
+        ChildTask.on_complete_hook
+        ChildTask.with_conditional_method_hook
+        ChildTask.on_executed_hook
+        ChildTask.on_success_hook
+        ChildTask.other_success_hook
+        ChildTask.proc_success_hook
+        ChildTask.on_good_hook
+        ChildTask.after_execution_hook
+      ]
     end
 
-    context "when skipped" do
+    context "when task is skipped" do
       let(:simulate) { :skipped }
 
-      it "calls hooks in correct order" do
-        expect(result.context.hooks).to eq(
-          %w[
-            ChildTask.before_execution_hook
-            ChildTask.on_executing_hook
-            ChildTask.before_validation_hook
-            ChildTask.after_validation_hook
-            ChildTask.on_interrupted_hook
-            ChildTask.on_executed_hook
-            ChildTask.on_skipped_hook
-            ChildTask.on_good_hook
-            ChildTask.on_bad_hook
-            ChildTask.after_execution_hook
-          ]
-        )
-      end
+      it_behaves_like "task hooks execution", %w[
+        ChildTask.before_execution_hook
+        ChildTask.on_executing_hook
+        ChildTask.before_validation_hook
+        ChildTask.after_validation_hook
+        ChildTask.on_interrupted_hook
+        ChildTask.on_executed_hook
+        ChildTask.on_skipped_hook
+        ChildTask.on_good_hook
+        ChildTask.on_bad_hook
+        ChildTask.after_execution_hook
+      ]
     end
 
-    context "when failed" do
+    context "when task fails" do
       let(:simulate) { :failed }
 
-      it "calls hooks in correct order" do
-        expect(result.context.hooks).to eq(
-          %w[
-            ChildTask.before_execution_hook
-            ChildTask.on_executing_hook
-            ChildTask.before_validation_hook
-            ChildTask.after_validation_hook
-            ChildTask.on_interrupted_hook
-            ChildTask.on_executed_hook
-            ChildTask.on_failed_hook
-            ChildTask.on_bad_hook
-            ChildTask.after_execution_hook
-          ]
-        )
-      end
+      it_behaves_like "task hooks execution", %w[
+        ChildTask.before_execution_hook
+        ChildTask.on_executing_hook
+        ChildTask.before_validation_hook
+        ChildTask.after_validation_hook
+        ChildTask.on_interrupted_hook
+        ChildTask.on_executed_hook
+        ChildTask.on_failed_hook
+        ChildTask.on_bad_hook
+        ChildTask.after_execution_hook
+      ]
     end
   end
 
@@ -149,47 +137,20 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    context "when success" do
-      it "returns correct result" do
-        expect(result).to be_success
-        expect(result).to be_good
-        expect(result).not_to be_bad
-        expect(result).to have_attributes(
-          state: CMDx::Result::COMPLETE,
-          status: CMDx::Result::SUCCESS,
-          metadata: {}
-        )
-      end
+    context "when task succeeds" do
+      it_behaves_like "a successful result"
     end
 
-    context "when skipped" do
+    context "when task is skipped" do
       let(:simulate) { :skipped }
 
-      it "returns correct result" do
-        expect(result).to be_skipped
-        expect(result).to be_good
-        expect(result).to be_bad
-        expect(result).to have_attributes(
-          state: CMDx::Result::INTERRUPTED,
-          status: CMDx::Result::SKIPPED,
-          metadata: {}
-        )
-      end
+      it_behaves_like "a skipped result"
     end
 
-    context "when failed" do
+    context "when task fails" do
       let(:simulate) { :failed }
 
-      it "returns correct result" do
-        expect(result).to be_failed
-        expect(result).not_to be_good
-        expect(result).to be_bad
-        expect(result).to have_attributes(
-          state: CMDx::Result::INTERRUPTED,
-          status: CMDx::Result::FAILED,
-          metadata: {}
-        )
-      end
+      it_behaves_like "a failed result"
     end
 
     context "when bang child failed" do

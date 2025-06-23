@@ -97,14 +97,18 @@ module CMDx
       #   })
       #   # => raises ValidationError: "must be at least 8 characters"
       def call(value, options = {})
-        return if case options[:format]
-                  in { with: with, without: without }
-                    value.match?(with) && !value.match?(without)
-                  in { with: with }
-                    value.match?(with)
-                  in { without: without }
-                    !value.match?(without)
-                  end
+        valid = case options[:format]
+                in { with: with, without: without }
+                  value.match?(with) && !value.match?(without)
+                in { with: with }
+                  value.match?(with)
+                in { without: without }
+                  !value.match?(without)
+                else
+                  false
+                end
+
+        return if valid
 
         raise ValidationError, options.dig(:format, :message) || I18n.t(
           "cmdx.validators.format",

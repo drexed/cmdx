@@ -3,11 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::Raw do
-  describe ".call" do
-    it "returns Raw formatted log line" do
-      local_io = LogFormatterHelpers.simulation_output(described_class, :success)
+  let(:expected_result_pattern) { "#<CMDx::Result:" }
 
-      expect(local_io).to include_log("#<CMDx::Result:")
-    end
-  end
+  it_behaves_like "a raw log formatter"
 end

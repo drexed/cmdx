@@ -19,7 +19,7 @@ RSpec.describe CMDx::Batch do
       end
     end
 
-    context "without failed" do
+    context "when all tasks succeed" do
       let(:simulation_batch) do
         Class.new(SimulationBatch) do
           process SimulationTask
@@ -27,7 +27,7 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      it "processes all tasks" do
+      it "processes all tasks successfully" do
         expect(batch.context.results).to contain_exactly(
           "SimulationBatch.success",
           "SimulationTask.success",
@@ -37,7 +37,7 @@ RSpec.describe CMDx::Batch do
       end
     end
 
-    context "with conditional" do
+    context "when using conditional task processing" do
       let(:simulation_batch) do
         Class.new(SimulationBatch) do
           process SimulationTask
@@ -53,7 +53,7 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      it "skips execution of failed conditional" do
+      it "executes only tasks that meet their conditions" do
         expect(batch.context.results).to contain_exactly(
           "SimulationBatch.success",
           "SimulationTask.success",

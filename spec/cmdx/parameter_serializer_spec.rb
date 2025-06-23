@@ -9,18 +9,17 @@ RSpec.describe CMDx::ParameterSerializer do
     end
   end
 
-  describe ".to_h" do
-    it "returns serialized attributes" do
-      expect(simulation_task.cmd_parameters.first.to_h).to eq(
-        {
-          source: :context,
-          name: :first_name,
-          type: :virtual,
-          required: true,
-          options: {},
-          children: []
-        }
-      )
-    end
+  let(:serialized_result) { simulation_task.cmd_parameters.first.to_h }
+  let(:expected_serialized_attributes) do
+    {
+      source: :context,
+      name: :first_name,
+      type: :virtual,
+      required: true,
+      options: {},
+      children: []
+    }
   end
+
+  it_behaves_like "a serializer"
 end

@@ -3,22 +3,22 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Context do
-  subject(:ctx) { described_class.build(name: "John Doe") }
+  subject(:context) { described_class.build(name: "John Doe") }
 
   describe ".build" do
-    context "when context is not frozen" do
-      it "returns same ctx" do
-        other_ctx = described_class.build(ctx)
+    context "when building from unfrozen context" do
+      it "returns the same context instance" do
+        other_context = described_class.build(context)
 
-        expect(ctx.object_id).to eq(other_ctx.object_id)
+        expect(context.object_id).to eq(other_context.object_id)
       end
     end
 
-    context "when context is frozen" do
-      it "returns a new ctx" do
-        other_ctx = described_class.build(ctx.freeze)
+    context "when building from frozen context" do
+      it "returns a new context instance" do
+        other_context = described_class.build(context.freeze)
 
-        expect(ctx.object_id).not_to eq(other_ctx.object_id)
+        expect(context.object_id).not_to eq(other_context.object_id)
       end
     end
   end

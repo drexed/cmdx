@@ -4,9 +4,10 @@ require "spec_helper"
 
 RSpec.describe CMDx::Fault do
   let(:result) { SimulationTask.call(simulate: :skipped) }
+  let(:fault) { described_class.build(result) }
 
   describe "#types" do
-    it "inherits from correct classes" do
+    it "maintains proper inheritance hierarchy" do
       expect(CMDx::Error).to inherit_from(StandardError)
       expect(described_class).to inherit_from(CMDx::Error)
       expect(CMDx::Skipped).to inherit_from(described_class)
@@ -15,21 +16,17 @@ RSpec.describe CMDx::Fault do
   end
 
   describe "#build" do
-    let(:fault) { described_class.build(result) }
-
-    it "instantiates a matching CMDx based fault" do
+    it "instantiates correct fault type based on result" do
       expect(fault.class).to eq(CMDx::Skipped)
     end
   end
 
   describe "#for?" do
-    let(:fault) { described_class.build(result) }
-
-    context "when match" do
-      it "returns true" do
+    context "when fault type matches" do
+      it "catches the exception" do
         begin
           matched = nil
-          raise described_class.build(result)
+          raise fault
         rescue CMDx::Skipped.for?(SimulationTask)
           matched = true
         rescue described_class
@@ -40,11 +37,11 @@ RSpec.describe CMDx::Fault do
       end
     end
 
-    context "when unmatched" do
-      it "returns false" do
+    context "when fault type does not match" do
+      it "does not catch the exception" do
         begin
           matched = nil
-          raise described_class.build(result)
+          raise fault
         rescue CMDx::Failed.for?(SimulationTask)
           matched = true
         rescue described_class
@@ -57,14 +54,12 @@ RSpec.describe CMDx::Fault do
   end
 
   describe "#matches?" do
-    let(:fault) { described_class.build(result) }
-
-    context "with block" do
-      context "when match" do
-        it "return true" do
+    context "when block is provided" do
+      context "when condition matches" do
+        it "catches the exception" do
           begin
             matched = nil
-            raise described_class.build(result)
+            raise fault
           rescue CMDx::Skipped.matches? { |e| e.task.is_a?(SimulationTask) }
             matched = true
           rescue described_class
@@ -75,11 +70,11 @@ RSpec.describe CMDx::Fault do
         end
       end
 
-      context "when unmatch" do
-        it "return false" do
+      context "when condition does not match" do
+        it "does not catch the exception" do
           begin
             matched = nil
-            raise described_class.build(result)
+            raise fault
           rescue CMDx::Failed.matches? { |e| e.task.is_a?(Integer) }
             matched = true
           rescue described_class
@@ -91,10 +86,10 @@ RSpec.describe CMDx::Fault do
       end
     end
 
-    context "without block" do
-      it "raises an ArgumentError" do
+    context "when block is not provided" do
+      it "raises ArgumentError" do
         expect do
-          raise described_class.build(result)
+          raise fault
         rescue described_class.matches?
           # Do work
         end.to raise_error(ArgumentError, "a block is required")
