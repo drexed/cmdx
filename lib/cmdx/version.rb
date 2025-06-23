@@ -2,6 +2,12 @@
 
 module CMDx
 
-  VERSION = "0.5.0"
+  # Current version of the CMDx gem.
+  #
+  # This constant contains the version string following semantic versioning
+  # conventions (major.minor.patch).
+  #
+  # @return [String] the current version
+  VERSION = "1.0.0"
 
 end
