@@ -60,18 +60,12 @@ CMDx.configure do |config|
   when 'development'
     config.logger = Logger.new(STDOUT, formatter: CMDx::LogFormatters::PrettyLine.new)
     config.logger.level = Logger::DEBUG
-    config.task_timeout = nil  # No timeouts in development
-
   when 'test'
     config.logger = Logger.new("log/test.log", formatter: CMDx::LogFormatters::Line.new)
     config.logger.level = Logger::WARN
-    config.task_timeout = 5    # Fast timeouts for tests
-
   when 'production'
     config.logger = Logger.new("log/cmdx.log", formatter: CMDx::LogFormatters::Logstash.new)
     config.logger.level = Logger::INFO
-    config.task_timeout = 120  # 2 minutes per task
-    config.batch_timeout = 600 # 10 minutes per batch
   end
 end
 ```
@@ -81,9 +75,6 @@ end
 ```ruby
 # Environment-based configuration
 CMDx.configure do |config|
-  config.task_timeout = ENV.fetch('CMDX_TASK_TIMEOUT', 60).to_i
-  config.batch_timeout = ENV.fetch('CMDX_BATCH_TIMEOUT', 300).to_i
-
   # Feature flags
   config.logger.level = ENV['CMDX_DEBUG'] ? Logger::DEBUG : Logger::INFO
 
@@ -163,8 +154,7 @@ class ApplicationTask < CMDx::Task
 
   # Global settings
   task_settings!(
-    tags: [:application],
-    task_timeout: 60
+    tags: [:application]
   )
 
   private
@@ -204,7 +194,7 @@ class OrderTask < ApplicationTask
 end
 
 class PaymentTask < ApplicationTask
-  task_settings!(tags: [:payment], task_timeout: 30)
+  task_settings!(tags: [:payment])
 
   before_validation :validate_payment_context
 
@@ -224,8 +214,7 @@ end
 class ProcessOrderTask < OrderTask
   # Multiple tags for categorization
   task_settings!(
-    tags: [:order, :payment, :fulfillment, :critical],
-    task_timeout: 120
+    tags: [:order, :payment, :fulfillment, :critical]
   )
 
   def call
@@ -286,8 +275,6 @@ end
 
 ```ruby
 class BatchProcessLargeDataset < CMDx::Batch
-  task_settings!(batch_timeout: 3600) # 1 hour for large datasets
-
   # Process in chunks to avoid memory issues
   process ProcessChunkDataTask, if: :has_more_data?
   process ProcessChunkTask
@@ -448,8 +435,6 @@ end
 
 ```ruby
 class CheckHealthTask < CMDx::Task
-  task_settings!(task_timeout: 5)
-
   def call
     checks = [
       check_database_connection,
@@ -607,10 +592,6 @@ end
 ```ruby
 # config/initializers/cmdx.rb
 CMDx.configure do |config|
-  # Use environment variables for production settings
-  config.task_timeout = ENV.fetch('CMDX_TASK_TIMEOUT', 60).to_i
-  config.batch_timeout = ENV.fetch('CMDX_BATCH_TIMEOUT', 300).to_i
-
   # Configure logging based on environment
   if ENV['RAILS_LOG_TO_STDOUT'].present?
     config.logger = Logger.new(STDOUT)

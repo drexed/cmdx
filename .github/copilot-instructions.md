@@ -40,3 +40,10 @@ business logic within service/command objects.
 - Create test objects to share across tests
 - Do NOT make tests for obvious or reflective expectations
 - Update tests and update Yardocs as your write code
+
+## Documentation
+- Utilize the YARDoc format when documenting Ruby code
+- Follow these best practices:
+  - Avoid redundant comments that merely restate the code
+  - Keep comments up-to-date with code changes
+  - Keep documentation consistent

@@ -444,12 +444,11 @@ module CMDx
     # Measures and returns the runtime of a block execution.
     #
     # If called without a block, returns the stored runtime value.
-    # If called with a block, executes it with timeout protection and
-    # measures the execution time using monotonic clock.
+    # If called with a block, executes and measures the execution
+    # time using monotonic clock.
     #
     # @yield Block to execute and measure
     # @return [Float] Runtime in seconds
-    # @raise [TimeoutError] If execution exceeds configured timeout
     #
     # @example Getting stored runtime
     #   result.runtime  # => 0.5
@@ -459,15 +458,10 @@ module CMDx
     #     # Task execution logic
     #     perform_work
     #   end  # => 0.5 (and stores the runtime)
-    def runtime(&block)
+    def runtime(&)
       return @runtime unless block_given?
 
-      timeout_type = is_a?(Batch) ? :batch_timeout : :task_timeout
-      timeout_secs = task.task_setting(timeout_type)
-
-      Timeout.timeout(timeout_secs, TimeoutError, "execution exceeded #{timeout_secs} seconds") do
-        @runtime = Utils::MonotonicRuntime.call(&block)
-      end
+      @runtime = Utils::MonotonicRuntime.call(&)
     end
 
     # Converts the result to a hash representation.

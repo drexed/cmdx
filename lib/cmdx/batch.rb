@@ -160,7 +160,7 @@ module CMDx
     # @example Group creation
     #   group = CMDx::Batch::Group.new(
     #     [TaskA, TaskB, TaskC],
-    #     { if: proc { condition }, batch_halt: [:failed] }
+    #     { if: proc { condition }, batch_halt: ["failed"] }
     #   )
     Group = Struct.new(:tasks, :options)
 

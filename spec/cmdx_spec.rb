@@ -40,21 +40,17 @@ RSpec.describe CMDx do
     end
 
     it "returns the configuration instance" do
-      result = described_class.configure { |c| c.task_timeout = 30 }
+      result = described_class.configure { |c| c.task_halt = "failed" }
       expect(result).to be_instance_of(CMDx::Configuration)
     end
 
     it "allows setting configuration attributes" do
       described_class.configure do |config|
-        config.task_timeout = 45
         config.task_halt = %i[failed skipped]
-        config.batch_timeout = 300
       end
 
       config = described_class.configuration
-      expect(config.task_timeout).to eq(45)
       expect(config.task_halt).to eq(%i[failed skipped])
-      expect(config.batch_timeout).to eq(300)
     end
 
     it "allows setting custom logger" do
@@ -72,12 +68,12 @@ RSpec.describe CMDx do
     end
 
     it "preserves changes across multiple configure calls" do
-      described_class.configure { |c| c.task_timeout = 30 }
-      described_class.configure { |c| c.batch_timeout = 60 }
+      described_class.configure { |c| c.task_halt = "failed" }
+      described_class.configure { |c| c.batch_halt = "skipped" }
 
       config = described_class.configuration
-      expect(config.task_timeout).to eq(30)
-      expect(config.batch_timeout).to eq(60)
+      expect(config.task_halt).to eq("failed")
+      expect(config.batch_halt).to eq("skipped")
     end
 
     it "is thread-safe" do
@@ -86,15 +82,15 @@ RSpec.describe CMDx do
 
       10.times do |i|
         threads << Thread.new do
-          described_class.configure { |c| c.task_timeout = i * 10 }
-          results << described_class.configuration.task_timeout
+          described_class.configure { |c| c.task_halt = "test_#{i}" }
+          results << described_class.configuration.task_halt
         end
       end
 
       threads.each(&:join)
 
       # The final value should be one of the set values
-      expect((0..9).map { |i| i * 10 }).to include(described_class.configuration.task_timeout)
+      expect((0..9).map { |i| "test_#{i}" }).to include(described_class.configuration.task_halt)
     end
   end
 
@@ -102,28 +98,26 @@ RSpec.describe CMDx do
     it "returns a new Configuration instance with default values" do
       # Modify configuration
       described_class.configure do |config|
-        config.task_timeout = 99
         config.task_halt = [:custom]
       end
 
       original_config = described_class.configuration
-      expect(original_config.task_timeout).to eq(99)
+      expect(original_config.task_halt).to eq([:custom])
 
       # Reset configuration
       new_config = described_class.reset_configuration!
 
       expect(new_config).to be_instance_of(CMDx::Configuration)
       expect(new_config).not_to be(original_config)
-      expect(new_config.task_timeout).to be_nil
       expect(new_config.task_halt).to eq("failed")
     end
 
     it "subsequent calls to configuration return the new instance" do
-      described_class.configure { |c| c.task_timeout = 123 }
+      described_class.configure { |c| c.task_halt = "custom" }
       described_class.reset_configuration!
 
       config = described_class.configuration
-      expect(config.task_timeout).to be_nil
+      expect(config.task_halt).to eq("failed")
     end
 
     it "is thread-safe" do
@@ -131,19 +125,19 @@ RSpec.describe CMDx do
       threads = []
 
       # Set initial configuration
-      described_class.configure { |c| c.task_timeout = 100 }
+      described_class.configure { |c| c.task_halt = "custom" }
 
       10.times do
         threads << Thread.new do
           described_class.reset_configuration!
-          results << described_class.configuration.task_timeout
+          results << described_class.configuration.task_halt
         end
       end
 
       threads.each(&:join)
 
-      # All results should be nil (default value)
-      expect(results).to all(be_nil)
+      # All results should be "failed" (default value)
+      expect(results).to all(eq("failed"))
     end
   end
 
@@ -152,13 +146,11 @@ RSpec.describe CMDx do
 
     it "configuration is used by task settings" do
       described_class.configure do |config|
-        config.task_timeout = 42
         config.task_halt = "custom"
       end
 
       config_hash = described_class.configuration.to_h
 
-      expect(config_hash[:task_timeout]).to eq(42)
       expect(config_hash[:task_halt]).to eq("custom")
     end
 
@@ -167,8 +159,6 @@ RSpec.describe CMDx do
 
       described_class.configure do |config|
         config.logger = custom_logger
-        config.task_timeout = ENV.fetch("TASK_TIMEOUT", 30).to_i
-        config.batch_timeout = 300
         config.task_halt = ["failed"]
         config.batch_halt = %w[failed skipped]
       end
@@ -176,8 +166,6 @@ RSpec.describe CMDx do
       config = described_class.configuration
 
       expect(config.logger).to eq(custom_logger)
-      expect(config.task_timeout).to eq(30)
-      expect(config.batch_timeout).to eq(300)
       expect(config.task_halt).to eq(["failed"])
       expect(config.batch_halt).to eq(%w[failed skipped])
     end

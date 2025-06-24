@@ -62,7 +62,7 @@ module CMDx
   #   begin
   #     ProcessOrderTask.call!(order_id: 123)
   #   rescue CMDx::Fault => e
-  #     e.result.status           #=> :failed or :skipped
+  #     e.result.status           #=> "failed" or "skipped"
   #     e.result.metadata[:reason] #=> "Insufficient inventory"
   #     e.task.id                 #=> Task instance UUID
   #     e.context.order_id        #=> 123
@@ -104,7 +104,7 @@ module CMDx
     #   result = ProcessOrderTask.call(order_id: 999) # Non-existent order
     #   fault = Fault.new(result)
     #   fault.message #=> "Order not found"
-    #   fault.result  #=> <Result status: :failed>
+    #   fault.result  #=> <Result status: "failed">
     #
     # @example Fault with I18n message
     #   # With custom locale configuration

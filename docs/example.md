@@ -45,7 +45,6 @@ class ProcessOrderTask < CMDx::Task
 
   # Task configuration
   task_settings!(
-    task_timeout: 60,  # 60 second timeout
     tags: ["orders", "payment", "fulfillment"],
     logger: Rails.logger
   )

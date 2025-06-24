@@ -19,16 +19,9 @@ CMDx.configure do |config|
   # Halt execution and raise fault on these result statuses when using `call!`
   config.task_halt = CMDx::Result::FAILED
 
-  # Global timeout for individual tasks (nil = no timeout)
-  config.task_timeout = nil
-
   # Stop batch execution when tasks return these statuses
   # Note: Skipped tasks continue processing by default
   config.batch_halt = CMDx::Result::FAILED
-
-  # Global timeout for entire batch execution (nil = no timeout)
-  # Tip: Account for all tasks when setting this value
-  config.batch_timeout = nil
 
   # Logger with formatter - see available formatters at:
   # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters
@@ -41,9 +34,7 @@ end
 | Option           | Type                    | Default                      | Description |
 | ---------------- | ----------------------- | ---------------------------- | ----------- |
 | `task_halt`      | Symbol, Array<Symbol>   | `CMDx::Result::FAILED`       | Result statuses that cause `call!` to raise faults |
-| `task_timeout`   | Integer, nil            | `nil`                        | Global timeout limit for individual task execution (seconds) |
 | `batch_halt`     | Symbol, Array<Symbol>   | `CMDx::Result::FAILED`       | Result statuses that halt batch execution |
-| `batch_timeout`  | Integer, nil            | `nil`                        | Global timeout limit for entire batch execution (seconds) |
 | `logger`         | Logger                  | `Logger.new($stdout, ...)`   | Logger instance for task execution logging |
 
 ### Environment-Specific Configuration
@@ -58,20 +49,14 @@ CMDx.configure do |config|
   case Rails.env
   when 'development'
     # Pretty formatting for development
-    config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::PrettyLine.new)
-    config.task_timeout = nil    # No timeouts in development
+    config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::PrettyLine.new)   # No timeouts in development
     config.task_halt = [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
-
   when 'test'
     # Silent logging for faster tests
     config.logger = Logger.new('/dev/null')
-    config.task_timeout = 5      # Fast timeouts for tests
-
   when 'production'
     # JSON logging for production systems
     config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::Json.new)
-    config.task_timeout = 120    # 2 minutes per task
-    config.batch_timeout = 1800  # 30 minutes per batch
     config.task_halt = CMDx::Result::FAILED  # Only halt on actual failures
   end
 end
@@ -111,7 +96,6 @@ Fine-tune individual tasks or batches using class-level settings with `task_sett
 class ProcessOrderTask < CMDx::Task
   # Override global settings at the task level
   task_settings!(
-    task_timeout: 60,                    # 60 seconds for this task
     task_halt: [CMDx::Result::FAILED],   # Only halt on failures
     tags: ["orders", "payment"],         # Add tags for logging/debugging
     logger: Rails.logger,                # Use specific logger
@@ -132,9 +116,7 @@ end
 
 | Setting         | Type                    | Description |
 | --------------- | ----------------------- | ----------- |
-| `task_timeout`  | Integer, nil            | Timeout for this specific task (seconds) |
 | `task_halt`     | Symbol, Array<Symbol>   | Result statuses that cause `call!` to raise faults |
-| `batch_timeout` | Integer, nil            | Timeout for batch execution (when used in batches) |
 | `batch_halt`    | Symbol, Array<Symbol>   | Result statuses that halt batch execution |
 | `tags`          | Array<String>           | Tags automatically appended to logs for identification |
 | `logger`        | Logger                  | Custom logger instance for this task |
@@ -199,48 +181,14 @@ class ProcessProductionTask < CMDx::Task
 end
 ```
 
-### Timeout Configuration
-
-Configure timeouts at different levels:
-
-```ruby
-class ProcessQuickTask < CMDx::Task
-  # Fast timeout for simple operations
-  task_settings!(task_timeout: 5)  # 5 seconds
-
-  def call
-    # Quick operation...
-  end
-end
-
-class ProcessLongRunningTask < CMDx::Task
-  # Extended timeout for complex operations
-  task_settings!(task_timeout: 300)  # 5 minutes
-
-  def call
-    # Complex, time-consuming operation...
-  end
-end
-
-class BatchProcessItems < CMDx::Batch
-  # Timeout for entire batch
-  task_settings!(batch_timeout: 1800)  # 30 minutes for whole batch
-
-  process PrepareDataTask      # Individual task timeouts still apply
-  process ProcessDataTask
-  process FinalizeDataTask
-end
-```
-
 ## Configuration Management
 
 ### Accessing Current Configuration
 
 ```ruby
 # Check current global configuration
-CMDx.configuration.task_timeout     #=> nil
 CMDx.configuration.logger           #=> <Logger instance>
-CMDx.configuration.task_halt        #=> :failed
+CMDx.configuration.task_halt        #=> "failed"
 
 # Check task-specific settings
 class ProcessMyTask < CMDx::Task
@@ -248,7 +196,6 @@ class ProcessMyTask < CMDx::Task
 
   def call
     # Access settings within task
-    timeout = task_setting(:task_timeout)  # Gets global default if not overridden
     tags = task_setting(:tags)             # Gets ["test"] from task settings
     halt_statuses = task_setting(:task_halt) # Gets global default
   end
@@ -264,8 +211,7 @@ Reset configuration to defaults (useful for testing):
 CMDx.reset_configuration!
 
 # Verify reset
-CMDx.configuration.task_timeout  #=> nil (default)
-CMDx.configuration.task_halt     #=> :failed (default)
+CMDx.configuration.task_halt     #=> "failed" (default)
 ```
 
 ### Dynamic Configuration
@@ -274,9 +220,6 @@ Configure settings dynamically based on environment variables or runtime conditi
 
 ```ruby
 CMDx.configure do |config|
-  # Environment-based timeout
-  config.task_timeout = ENV.fetch('CMDX_TASK_TIMEOUT', 60).to_i
-
   # Conditional halt behavior
   config.task_halt = if ENV['STRICT_MODE'] == 'true'
     [CMDx::Result::FAILED, CMDx::Result::SKIPPED]

@@ -15,9 +15,7 @@ module CMDx
   #
   # - **logger**: Logger instance for task execution logging
   # - **task_halt**: Result statuses that cause `call!` to raise faults
-  # - **task_timeout**: Global timeout limit for individual task execution
   # - **batch_halt**: Result statuses that halt batch execution
-  # - **batch_timeout**: Global timeout limit for entire batch execution
   #
   # ## Configuration Hierarchy
   #
@@ -28,8 +26,7 @@ module CMDx
   #
   # @example Basic configuration setup
   #   CMDx.configure do |config|
-  #     config.task_timeout = 30      # 30 seconds per task
-  #     config.batch_timeout = 300    # 5 minutes per batch
+
   #     config.task_halt = ["failed"] # Only halt on failures
   #   end
   #
@@ -41,8 +38,7 @@ module CMDx
   #     config.batch_halt = [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
   #
   #     if Rails.env.production?
-  #       config.task_timeout = 60
-  #       config.batch_timeout = 600
+
   #     end
   #   end
   #
@@ -59,14 +55,10 @@ module CMDx
   #     case Rails.env
   #     when 'development'
   #       config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::PrettyLine.new)
-  #       config.task_timeout = nil  # No timeouts in development
   #     when 'test'
   #       config.logger = Logger.new('/dev/null')  # Silent logging
-  #       config.task_timeout = 5    # Fast timeouts for tests
   #     when 'production'
   #       config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::Json.new)
-  #       config.task_timeout = 120  # 2 minutes per task
-  #       config.batch_timeout = 1800 # 30 minutes per batch
   #     end
   #   end
   #
@@ -88,20 +80,17 @@ module CMDx
     DEFAULT_TIMEOUT = nil
 
     # Configuration attributes
-    attr_accessor :logger, :task_halt, :task_timeout, :batch_halt, :batch_timeout
+    attr_accessor :logger, :task_halt, :batch_halt
 
     ##
     # Initializes a new configuration with default values.
     #
     # @example
     #   config = CMDx::Configuration.new
-    #   config.task_timeout  #=> nil
     def initialize
       @logger        = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
       @task_halt     = DEFAULT_HALT
-      @task_timeout  = DEFAULT_TIMEOUT
       @batch_halt    = DEFAULT_HALT
-      @batch_timeout = DEFAULT_TIMEOUT
     end
 
     ##
@@ -116,9 +105,7 @@ module CMDx
       {
         logger: @logger,
         task_halt: @task_halt,
-        task_timeout: @task_timeout,
-        batch_halt: @batch_halt,
-        batch_timeout: @batch_timeout
+        batch_halt: @batch_halt
       }
     end
 
@@ -143,18 +130,12 @@ module CMDx
   # @return [Configuration] the current configuration object
   #
   # @example Accessing configuration values
-  #   CMDx.configuration.task_timeout    #=> nil (default)
   #   CMDx.configuration.logger          #=> <Logger instance>
   #   CMDx.configuration.task_halt       #=> "failed"
   #
   # @example Checking configuration state
   #   config = CMDx.configuration
-  #   config.task_timeout.nil?           #=> true (no timeout by default)
   #   config.logger.class                #=> Logger
-  #
-  # @example Direct configuration access (not recommended)
-  #   # Prefer using CMDx.configure block instead
-  #   CMDx.configuration.task_timeout = 60
   def configuration
     return @configuration if @configuration
 
@@ -178,7 +159,6 @@ module CMDx
   #
   # @example Basic configuration
   #   CMDx.configure do |config|
-  #     config.task_timeout = 30
   #     config.task_halt = ["failed", "skipped"]
   #   end
   #
@@ -192,7 +172,7 @@ module CMDx
   #       ["failed", "skipped"]  # Halt on both in development
   #     end
   #
-  #     config.task_timeout = ENV.fetch('CMDX_TASK_TIMEOUT', 60).to_i
+
   #   end
   #
   # @example Formatter configuration
@@ -228,12 +208,12 @@ module CMDx
   #
   # @example Resetting configuration
   #   # After custom configuration
-  #   CMDx.configure { |c| c.task_timeout = 120 }
-  #   CMDx.configuration.task_timeout  #=> 120
+  #   CMDx.configure { |c| c.task_halt = ["failed"] }
+  #   CMDx.configuration.task_halt  #=> ["failed"]
   #
   #   # Reset to defaults
   #   CMDx.reset_configuration!
-  #   CMDx.configuration.task_timeout  #=> nil
+  #   CMDx.configuration.task_halt  #=> "failed"
   #
   # @example Testing with clean configuration
   #   # In test setup

@@ -209,7 +209,6 @@ end
 ```ruby
 class ProcessConfiguredTask < CMDx::Task
   task_settings!(
-    task_timeout: 60,
     tags: ["critical", "payment"],
     logger: Rails.logger
   )

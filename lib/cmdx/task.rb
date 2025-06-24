@@ -303,7 +303,7 @@ module CMDx
       middlewares = self.class.cmd_middlewares
       return execute_call if middlewares.empty?
 
-      middlewares.call(self, &:execute_call)
+      middlewares.call(self) { |task| task.send(:execute_call) }
     end
 
     ##
@@ -316,7 +316,7 @@ module CMDx
       middlewares = self.class.cmd_middlewares
       return execute_call! if middlewares.empty?
 
-      middlewares.call(self, &:execute_call!)
+      middlewares.call(self) { |task| task.send(:execute_call!) }
     end
 
     private

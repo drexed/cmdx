@@ -334,7 +334,6 @@ result = ProcessUserTask.call(email: "invalid", username: "")
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "email format is not valid. username cannot be empty."
 result.metadata #=> {
              #=>   reason: "email format is not valid. username cannot be empty.",
              #=>   messages: {

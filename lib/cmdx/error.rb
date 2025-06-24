@@ -74,47 +74,6 @@ module CMDx
   CoercionError = Class.new(Error)
 
   ##
-  # Raised when task execution time exceeds the configured timeout limit.
-  # This exception helps prevent runaway tasks and ensures system responsiveness
-  # by enforcing execution time boundaries.
-  #
-  # TimeoutError inherits from Interrupt rather than Error to align with Ruby's
-  # standard timeout behavior and to allow for consistent timeout handling
-  # across the application.
-  #
-  # @example Task with timeout configuration
-  #   class LongRunningTask < CMDx::Task
-  #     task_settings!(task_timeout: 30) # 30 seconds
-  #
-  #     def call
-  #       # Long-running operation that might exceed timeout
-  #       perform_complex_calculation
-  #     end
-  #   end
-  #
-  #   begin
-  #     LongRunningTask.call
-  #   rescue CMDx::TimeoutError => e
-  #     logger.error "Task timed out: #{e.message}"
-  #   end
-  #
-  # @example Global timeout configuration
-  #   CMDx.configure do |config|
-  #     config.task_timeout = 60 # Global 60-second timeout
-  #   end
-  #
-  # @example Batch timeout handling
-  #   class DataProcessingBatch < CMDx::Batch
-  #     task_settings!(batch_timeout: 300) # 5 minutes for entire batch
-  #   end
-  #
-  # @see Configuration Timeout configuration options
-  # @see Task Task-level timeout settings
-  # @see Batch Batch-level timeout settings
-  # @since 0.6.0
-  TimeoutError = Class.new(Interrupt)
-
-  ##
   # Raised when a task class doesn't implement the required `call` method.
   # This exception enforces the CMDx contract that all task classes must
   # provide a `call` method containing their business logic.

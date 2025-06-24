@@ -304,42 +304,6 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".runtime" do
-    context "when within timeout threshold" do
-      subject(:result) { simulation_task.call(simulate:) }
-
-      let(:simulation_task) do
-        Class.new(SimulationTask) do
-          task_settings!(task_timeout: 1)
-
-          def call
-            sleep(0.1)
-          end
-        end
-      end
-
-      it "returns success" do
-        expect(result).to be_success
-      end
-    end
-
-    context "when beyond timeout threshold" do
-      subject(:result) { simulation_task.call(simulate:) }
-
-      let(:simulation_task) do
-        Class.new(SimulationTask) do
-          task_settings!(task_timeout: 0.1)
-
-          def call
-            sleep(1)
-          end
-        end
-      end
-
-      it "raises Timeout error" do
-        expect { result }.to raise_error(CMDx::TimeoutError, "execution exceeded 0.1 seconds")
-      end
-    end
-
     context "when runtime not captured" do
       it "returns nil" do
         expect(initialized_result.runtime).to be_nil

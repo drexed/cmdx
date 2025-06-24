@@ -23,8 +23,8 @@ module CMDx
   #   ParameterValidator.call(task)
   #
   #   if task.failed?
-  #     puts task.result.reason    # => "order_id is a required parameter. email is invalid"
-  #     puts task.errors.messages  # => { order_id: ["is a required parameter"], email: ["is invalid"] }
+  #     puts task.result.metadata[:reason] # => "order_id is a required parameter. email is invalid"
+  #     puts task.errors.messages          # => { order_id: ["is a required parameter"], email: ["is invalid"] }
   #   end
   #
   # @example Successful validation
@@ -53,9 +53,9 @@ module CMDx
     #   ParameterValidator.call(task)
     #
     #   # If validation fails:
-    #   task.failed?        # => true
-    #   task.result.reason  # => "Combined error messages from all failed parameters"
-    #   task.errors.empty?  # => false
+    #   task.failed?                  # => true
+    #   task.result.metadata[:reason] # => "Combined error messages from all failed parameters"
+    #   task.errors.empty?            # => false
     #
     # @example Validation success
     #   task = MyTask.new  # with valid parameters

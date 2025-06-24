@@ -40,7 +40,7 @@ module Cmdx
     # @example Generated initializer content
     #   CMDx.configure do |config|
     #     config.task_halt = CMDx::Result::FAILED
-    #     config.task_timeout = nil
+
     #     # ... additional settings
     #   end
     def copy_initializer_file

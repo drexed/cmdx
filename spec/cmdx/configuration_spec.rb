@@ -15,16 +15,8 @@ RSpec.describe CMDx::Configuration do
       expect(config.task_halt).to eq("failed")
     end
 
-    it "sets default task_timeout to nil" do
-      expect(config.task_timeout).to be_nil
-    end
-
     it "sets default batch_halt to 'failed'" do
       expect(config.batch_halt).to eq("failed")
-    end
-
-    it "sets default batch_timeout to nil" do
-      expect(config.batch_timeout).to be_nil
     end
   end
 
@@ -35,16 +27,14 @@ RSpec.describe CMDx::Configuration do
       result = config.to_h
 
       expect(result).to be_a(Hash)
-      expect(result.keys).to match_array(%i[logger task_halt task_timeout batch_halt batch_timeout])
+      expect(result.keys).to match_array(%i[logger task_halt batch_halt])
     end
 
     it "returns current attribute values" do
-      config.task_timeout = 30
       config.task_halt = %i[failed skipped]
 
       result = config.to_h
 
-      expect(result[:task_timeout]).to eq(30)
       expect(result[:task_halt]).to eq(%i[failed skipped])
       expect(result[:logger]).to be_a(Logger)
     end
@@ -64,19 +54,9 @@ RSpec.describe CMDx::Configuration do
       expect(config.task_halt).to eq(%i[failed skipped])
     end
 
-    it "allows reading and writing task_timeout" do
-      config.task_timeout = 60
-      expect(config.task_timeout).to eq(60)
-    end
-
     it "allows reading and writing batch_halt" do
       config.batch_halt = "skipped"
       expect(config.batch_halt).to eq("skipped")
-    end
-
-    it "allows reading and writing batch_timeout" do
-      config.batch_timeout = 300
-      expect(config.batch_timeout).to eq(300)
     end
   end
 end

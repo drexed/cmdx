@@ -5,7 +5,6 @@ CMDx.configure do |config|
   config.task_halt = CMDx::Result::FAILED
 
   # Global timeout for individual tasks (nil = no timeout)
-  config.task_timeout = nil
 
   # Stop batch execution when tasks return these statuses
   # Note: Skipped tasks continue processing by default
@@ -13,7 +12,6 @@ CMDx.configure do |config|
 
   # Global timeout for entire batch execution (nil = no timeout)
   # Tip: Account for all tasks when setting this value
-  config.batch_timeout = nil
 
   # Logger with formatter - see available formatters at:
   # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters

@@ -6,7 +6,6 @@ AllCops:
   NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
-  TargetRubyVersion: 3.1.0
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
 Layout/EmptyLinesAroundAttributeAccessor:
@@ -17,6 +16,9 @@ Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/LineLength:
   Enabled: false
+Lint/MissingSuper:
+  Exclude:
+    - 'lib/cmdx/middlewares/**/*'
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:

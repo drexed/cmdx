@@ -13,6 +13,8 @@
 - Changed ArgumentError to TypeError where checking `is_a?`
 - Improve documentation readability, consistency, completeness
 - Improve test readability, consistency, completeness
+### Removed
+- Removed configuration `task_timeout` and `batch_timeout`
 
 ## [0.5.0] - 2025-03-21
 
