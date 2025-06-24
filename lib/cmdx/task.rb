@@ -110,14 +110,10 @@ module CMDx
     #   @return [Result] alias for result
     alias res result
 
-    private_class_method :new
-
     ##
     # Initializes a new task instance with the given context parameters.
-    # Tasks cannot be instantiated directly; use the class-level call methods.
     #
     # @param context [Hash, Context] parameters and configuration for task execution
-    # @api private
     def initialize(context = {})
       @id      = SecureRandom.uuid
       @errors  = Errors.new
@@ -253,8 +249,8 @@ module CMDx
       #   result.success? #=> true or false
       #   result.context.order #=> processed order
       def call(...)
-        instance = send(:new, ...)
-        instance.send(:execute_call)
+        instance = new(...)
+        instance.perform
         instance.result
       end
 
@@ -272,8 +268,8 @@ module CMDx
       #     # Handle failure
       #   end
       def call!(...)
-        instance = send(:new, ...)
-        instance.send(:execute_call!)
+        instance = new(...)
+        instance.perform!
         instance.result
       end
 
@@ -296,6 +292,31 @@ module CMDx
     #   end
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
+    end
+
+    ##
+    # Executes the task with full exception handling for the non-bang call method.
+    # Captures all exceptions and converts them to appropriate result states.
+    #
+    # @return [void]
+    def perform
+      middlewares = self.class.cmd_middlewares
+      return execute_call if middlewares.empty?
+
+      middlewares.call(self, &:execute_call)
+    end
+
+    ##
+    # Executes the task with exception propagation for the bang call method.
+    # Allows exceptions to bubble up for external handling.
+    #
+    # @return [void]
+    # @raise [Fault] if task fails and task_halt includes the failure status
+    def perform!
+      middlewares = self.class.cmd_middlewares
+      return execute_call! if middlewares.empty?
+
+      middlewares.call(self, &:execute_call!)
     end
 
     private
@@ -354,44 +375,11 @@ module CMDx
     end
 
     ##
-    # Executes the task with full exception handling for the non-bang call method.
-    # Captures all exceptions and converts them to appropriate result states.
-    #
-    # @return [void]
-    # @api private
-    def execute_call
-      middlewares = self.class.cmd_middlewares
-
-      if middlewares.empty?
-        execute_task_directly
-      else
-        middlewares.call(self, &:execute_task_directly)
-      end
-    end
-
-    ##
-    # Executes the task with exception propagation for the bang call method.
-    # Allows exceptions to bubble up for external handling.
-    #
-    # @return [void]
-    # @raise [Fault] if task fails and task_halt includes the failure status
-    # @api private
-    def execute_call!
-      middlewares = self.class.cmd_middlewares
-
-      if middlewares.empty?
-        execute_task_directly!
-      else
-        middlewares.call(self, &:execute_task_directly!)
-      end
-    end
-
-    ##
     # Executes the task directly without middleware for the non-bang call method.
     #
     # @return [void]
     # @api private
-    def execute_task_directly
+    def execute_call
       result.runtime do
         before_call
         call
@@ -414,7 +402,7 @@ module CMDx
     #
     # @return [void]
     # @api private
-    def execute_task_directly!
+    def execute_call!
       result.runtime do
         before_call
         call

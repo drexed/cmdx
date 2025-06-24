@@ -89,6 +89,36 @@ previous_result = ValidateOrderTask.call(order_id: 123)
 result = ProcessOrderTask.call(previous_result.context)
 ```
 
+## Direct Instantiation
+
+Tasks can be instantiated directly using the `new` method, providing more flexibility for advanced use cases, testing, and custom execution patterns:
+
+```ruby
+# Direct instantiation
+task = ProcessOrderTask.new(order_id: 123, notify_customer: true)
+
+# Access task properties before execution
+task.id                    #=> "abc123..." (unique task ID)
+task.context.order_id      #=> 123
+task.context.notify_customer #=> true
+task.result.state          #=> "initialized"
+
+# Manual execution (advanced use case)
+task.perform
+task.result.success?       #=> true/false
+```
+
+### Direct vs Class Method Execution
+
+| Approach | Use Case | Benefits |
+|----------|----------|----------|
+| `TaskClass.call(...)` | Standard execution | Simple, consistent, handles all lifecycle |
+| `TaskClass.call!(...)` | Exception-based flow | Automatic fault raising |
+| `TaskClass.new(...).perform` | Advanced scenarios | Full control, testing, custom patterns |
+
+> [!NOTE]
+> Direct instantiation gives you access to the task instance before and after execution, but you're responsible for calling the execution method. Use class methods (`call`/`call!`) for standard use cases.
+
 ## Result Propagation (`throw!`)
 
 The `throw!` method enables result propagation, allowing tasks to bubble up failures from subtasks while preserving the original fault information:
@@ -211,7 +241,7 @@ result.interrupted? #=> true for failed/skipped
 - **Leverage `throw!`** for fault propagation in complex workflows
 
 > [!IMPORTANT]
-> Tasks are single-use objects. Once executed, they are frozen and cannot be called again. Create a new task call to execute a new instance of the same task.
+> Tasks are single-use objects. Once executed, they are frozen and cannot be called again. Create a new task instance (using `call`, `call!`, or `new`) to execute the same task again.
 
 ---
 

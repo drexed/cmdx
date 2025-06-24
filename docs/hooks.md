@@ -83,16 +83,16 @@ CMDx provides comprehensive lifecycle hooks organized by execution phase:
 Hooks execute in a precise order during task lifecycle:
 
 ```ruby
-1. before_execution     # Setup and preparation
-2. on_executing         # Task begins running
-3. before_validation    # Pre-validation setup
-4. after_validation     # Post-validation logic
-5. [call method]        # Your business logic
-6. on_[complete|interrupted]  # Based on execution state
-7. on_executed          # Task finished (any outcome)
-8. on_[success|skipped|failed]  # Based on execution status
-9. on_[good|bad]        # Based on outcome classification
-10. after_execution     # Cleanup and finalization
+1. before_execution            # Setup and preparation
+2. on_executing                # Task begins running
+3. before_validation           # Pre-validation setup
+4. after_validation            # Post-validation logic
+5. [call method]               # Your business logic
+6. on_[complete|interrupted]   # Based on execution state
+7. on_executed                 # Task finished (any outcome)
+8. on_[success|skipped|failed] # Based on execution status
+9. on_[good|bad]               # Based on outcome classification
+10. after_execution            # Cleanup and finalization
 ```
 
 > [!IMPORTANT]

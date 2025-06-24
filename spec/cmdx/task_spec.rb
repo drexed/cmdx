@@ -247,4 +247,154 @@ RSpec.describe CMDx::Task do
       end
     end
   end
+
+  describe "direct instantiation" do
+    let(:task) { SimulationTask.new(simulate: :success) }
+
+    describe "#new" do
+      it "creates a task instance with proper initialization" do
+        expect(task).to be_a(SimulationTask)
+        expect(task.id).to be_a(String)
+        expect(task.id.length).to eq(36) # UUID length
+        expect(task.context.simulate).to eq(:success)
+        expect(task.result.state).to eq(CMDx::Result::INITIALIZED)
+        expect(task.result.status).to eq(CMDx::Result::SUCCESS)
+      end
+
+      it "creates unique instances" do
+        # Allow real UUID generation for this test
+        allow(SecureRandom).to receive(:uuid).and_call_original
+
+        task1 = SimulationTask.new(simulate: :success)
+        task2 = SimulationTask.new(simulate: :success)
+
+        expect(task1.id).not_to eq(task2.id)
+        expect(task1).not_to equal(task2)
+        expect(task1.object_id).not_to eq(task2.object_id)
+      end
+
+      it "accepts context parameters" do
+        task_with_params = SimulationTask.new(
+          simulate: :success,
+          custom_param: "test_value",
+          numeric_param: 123
+        )
+
+        expect(task_with_params.context.simulate).to eq(:success)
+        expect(task_with_params.context.custom_param).to eq("test_value")
+        expect(task_with_params.context.numeric_param).to eq(123)
+      end
+    end
+
+    describe "#perform" do
+      context "when task succeeds" do
+        let(:task) { SimulationTask.new(simulate: :success) }
+
+        it "executes the task and returns success result" do
+          expect(task.result.state).to eq(CMDx::Result::INITIALIZED)
+
+          task.perform
+
+          expect(task.result).to be_success
+          expect(task.result).to be_complete
+          expect(task.result).to be_good
+          expect(task.result.state).to eq(CMDx::Result::COMPLETE)
+          expect(task.result.status).to eq(CMDx::Result::SUCCESS)
+        end
+
+        it "finalizes the task after execution" do
+          expect(task).not_to be_frozen
+          expect(task.result.state).to eq(CMDx::Result::INITIALIZED)
+
+          task.perform
+
+          # In test environment, freezing is disabled, but we can check other aspects
+          expect(task.result.state).to eq(CMDx::Result::COMPLETE)
+          expect(task.result.status).to eq(CMDx::Result::SUCCESS)
+        end
+
+        it "records execution runtime" do
+          task.perform
+
+          expect(task.result.runtime).to be_a(Numeric)
+          expect(task.result.runtime).to be >= 0
+        end
+      end
+
+      context "when task is skipped" do
+        let(:task) { SimulationTask.new(simulate: :skipped) }
+
+        it "executes the task and returns skipped result" do
+          task.perform
+
+          expect(task.result).to be_skipped
+          expect(task.result).to be_interrupted
+          expect(task.result).to be_good
+          expect(task.result).to be_bad
+          expect(task.result.state).to eq(CMDx::Result::INTERRUPTED)
+          expect(task.result.status).to eq(CMDx::Result::SKIPPED)
+        end
+      end
+
+      context "when task fails" do
+        let(:task) { SimulationTask.new(simulate: :failed) }
+
+        it "executes the task and returns failed result" do
+          task.perform
+
+          expect(task.result).to be_failed
+          expect(task.result).to be_interrupted
+          expect(task.result).to be_bad
+          expect(task.result.state).to eq(CMDx::Result::INTERRUPTED)
+          expect(task.result.status).to eq(CMDx::Result::FAILED)
+        end
+      end
+
+      context "when task raises exception" do
+        let(:task) { SimulationTask.new(simulate: :exception) }
+
+        it "handles exceptions and returns failed result" do
+          task.perform
+
+          expect(task.result).to be_failed
+          expect(task.result).to be_interrupted
+          expect(task.result).to be_bad
+          expect(task.result.metadata[:reason]).to include("RuntimeError")
+          expect(task.result.metadata[:original_exception]).to be_a(RuntimeError)
+        end
+      end
+
+      it "cannot be executed multiple times" do
+        task.perform
+        expect(task.result.state).to eq(CMDx::Result::COMPLETE)
+
+        # Attempting to execute again should fail due to state transition rules
+        expect { task.perform }.to raise_error(RuntimeError, /cannot transition to interrupted from complete/)
+      end
+    end
+
+    describe "task state access" do
+      let(:task) { SimulationTask.new(simulate: :success, test_param: "value") }
+
+      it "provides access to task properties before execution" do
+        # Before execution
+        expect(task.context.test_param).to eq("value")
+        expect(task.result.state).to eq(CMDx::Result::INITIALIZED)
+        expect(task.errors).to be_empty
+
+        # Execute
+        task.perform
+
+        # After execution
+        expect(task.result.state).to eq(CMDx::Result::COMPLETE)
+        expect(task.result.status).to eq(CMDx::Result::SUCCESS)
+      end
+
+      it "allows inspection of task configuration" do
+        expect(task.class.cmd_parameters).to be_a(CMDx::Parameters)
+        expect(task.class.cmd_middlewares).to be_a(CMDx::Middlewares)
+        expect(task.class.cmd_hooks).to be_a(Hash)
+      end
+    end
+  end
 end

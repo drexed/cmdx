@@ -164,7 +164,7 @@ RSpec.describe CMDx::Middlewares do
       it_behaves_like "short-circuiting middleware"
 
       it "executes remaining middleware in reverse order" do
-        result = subject
+        result = subject # rubocop:disable RSpec/NamedSubject
 
         expect(task.context.middleware_calls).to eq(
           %w[

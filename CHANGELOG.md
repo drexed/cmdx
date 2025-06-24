@@ -6,6 +6,8 @@
 - Add middleware support for tasks
 - Add Cursor and Copilot rules
 - Add YARDoc documentation
+- Add `perform!` and `perform` alias to class `call!` and `call`
+- Allow direct instantiation of Task and Batch objects
 ### Changed
 - Changed configuration to be a PORO class
 - Changed ArgumentError to TypeError where checking `is_a?`

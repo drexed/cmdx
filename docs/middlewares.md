@@ -144,34 +144,6 @@ class ProcessOrderTask < CMDx::Task
 end
 ```
 
-## Middleware Registry
-
-Each task maintains its own middleware collection that extends Array, providing full array-like functionality:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  use LoggingMiddleware
-  use AuthenticationMiddleware
-
-  # Array-like operations
-  def self.middleware_count
-    cmd_middlewares.size
-  end
-
-  def self.clear_middleware
-    cmd_middlewares.clear
-  end
-
-  def self.add_middleware_directly
-    cmd_middlewares << [CachingMiddleware, [ttl: 300], nil]
-  end
-
-  def self.find_middleware(klass)
-    cmd_middlewares.find { |middleware| middleware[0] == klass }
-  end
-end
-```
-
 ## Middleware Inheritance
 
 Middleware is inherited from parent classes, enabling architectural patterns:
@@ -228,98 +200,22 @@ end
 ```ruby
 class MonitoringMiddleware < CMDx::Middleware
   def call(task, callable)
-    start_time = Time.current
+    result = callable.call(task)
 
-    begin
-      result = callable.call(task)
-
-      MetricsService.record_success(
-        task: task.class.name,
-        duration: Time.current - start_time
-      )
-
-      result
-    rescue => error
-      MetricsService.record_failure(
-        task: task.class.name,
-        duration: Time.current - start_time,
-        error: error.class.name
-      )
-
-      raise
-    end
-  end
-end
-```
-
-### Error Handling Middleware
-
-```ruby
-class ErrorHandlingMiddleware < CMDx::Middleware
-  def call(task, callable)
-    callable.call(task)
-  rescue StandardError => error
-    ErrorReporter.notify(error, {
+    MetricsService.record_success(
       task: task.class.name,
-      context: task.context.to_h,
-      task_id: task.id
-    })
-
-    task.fail!(
-      reason: "Unexpected error occurred",
-      original_exception: error
+      duration: result.runtime
     )
 
-    task.result
-  end
-end
-```
+    result
+  rescue => error
+    MetricsService.record_failure(
+      task: task.class.name,
+      duration: Time.current - start_time,
+      error: error.class.name
+    )
 
-### Transaction Middleware
-
-```ruby
-class TransactionMiddleware < CMDx::Middleware
-  def call(task, callable)
-    ActiveRecord::Base.transaction do
-      result = callable.call(task)
-
-      if result.failed?
-        raise ActiveRecord::Rollback
-      end
-
-      result
-    end
-  rescue ActiveRecord::Rollback
-    task.result
-  end
-end
-```
-
-## Array-like Interface
-
-The middleware collection extends Array, providing all standard array operations:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  use LoggingMiddleware
-  use AuthenticationMiddleware
-
-  # Array operations work directly
-  def self.inspect_middleware
-    puts "Middleware count: #{cmd_middlewares.size}"
-    puts "Empty: #{cmd_middlewares.empty?}"
-
-    cmd_middlewares.each_with_index do |middleware, index|
-      puts "[#{index}] #{middleware[0].name}"
-    end
-
-    # Filter middleware
-    auth_middleware = cmd_middlewares.select { |mw| mw[0].name.include?('Auth') }
-    puts "Auth middleware: #{auth_middleware.size}"
-
-    # Direct array access
-    first_middleware = cmd_middlewares.first
-    last_middleware = cmd_middlewares.last
+    raise
   end
 end
 ```
