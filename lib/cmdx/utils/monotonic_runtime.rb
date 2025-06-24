@@ -76,11 +76,9 @@ module CMDx
       # @note Uses millisecond precision for practical performance monitoring
       # @note Monotonic clock ensures accurate timing regardless of system clock changes
       def call(&)
-        start = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+        now = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
         yield
-        finish = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
-
-        finish - start
+        Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - now
       end
 
     end
