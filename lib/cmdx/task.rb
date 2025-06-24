@@ -72,6 +72,7 @@ module CMDx
     ].freeze
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
+    __cmdx_attr_setting :cmd_middlewares, default: -> { Middlewares.new }
     __cmdx_attr_setting :cmd_parameters, default: -> { Parameters.new }
     __cmdx_attr_setting :cmd_hooks, default: {}
 
@@ -186,6 +187,24 @@ module CMDx
       #   task_settings!(timeout: 60, retries: 3)
       def task_settings!(**options)
         task_settings.merge!(options)
+      end
+
+      ##
+      # Adds middleware to the task execution stack.
+      #
+      # Middleware can wrap task execution to provide cross-cutting concerns
+      # like logging, authentication, caching, or error handling.
+      #
+      # @param middleware [Class, Object, Proc] middleware to add
+      # @param args [Array] arguments for middleware instantiation
+      # @param block [Proc] block for middleware instantiation
+      # @return [Middlewares] updated middleware registry
+      # @example
+      #   use LoggingMiddleware
+      #   use AuthenticationMiddleware, "admin"
+      #   use CachingMiddleware.new(ttl: 300)
+      def use(middleware, ...)
+        cmd_middlewares.use(middleware, ...)
       end
 
       ##
@@ -341,6 +360,38 @@ module CMDx
     # @return [void]
     # @api private
     def execute_call
+      middlewares = self.class.cmd_middlewares
+
+      if middlewares.empty?
+        execute_task_directly
+      else
+        middlewares.call(self, &:execute_task_directly)
+      end
+    end
+
+    ##
+    # Executes the task with exception propagation for the bang call method.
+    # Allows exceptions to bubble up for external handling.
+    #
+    # @return [void]
+    # @raise [Fault] if task fails and task_halt includes the failure status
+    # @api private
+    def execute_call!
+      middlewares = self.class.cmd_middlewares
+
+      if middlewares.empty?
+        execute_task_directly!
+      else
+        middlewares.call(self, &:execute_task_directly!)
+      end
+    end
+
+    ##
+    # Executes the task directly without middleware for the non-bang call method.
+    #
+    # @return [void]
+    # @api private
+    def execute_task_directly
       result.runtime do
         before_call
         call
@@ -359,13 +410,11 @@ module CMDx
     end
 
     ##
-    # Executes the task with exception propagation for the bang call method.
-    # Allows exceptions to bubble up for external handling.
+    # Executes the task directly without middleware for the bang call method.
     #
     # @return [void]
-    # @raise [Fault] if task fails and task_halt includes the failure status
     # @api private
-    def execute_call!
+    def execute_task_directly!
       result.runtime do
         before_call
         call

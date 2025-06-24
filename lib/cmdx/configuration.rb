@@ -30,7 +30,7 @@ module CMDx
   #   CMDx.configure do |config|
   #     config.task_timeout = 30      # 30 seconds per task
   #     config.batch_timeout = 300    # 5 minutes per batch
-  #     config.task_halt = [:failed]  # Only halt on failures
+  #     config.task_halt = ["failed"] # Only halt on failures
   #   end
   #
   # @example Rails initializer configuration
@@ -179,7 +179,7 @@ module CMDx
   # @example Basic configuration
   #   CMDx.configure do |config|
   #     config.task_timeout = 30
-  #     config.task_halt = [:failed, :skipped]
+  #     config.task_halt = ["failed", "skipped"]
   #   end
   #
   # @example Complex configuration with conditionals

@@ -1,12 +1,16 @@
 ## [Unreleased]
 
-## [0.6.0] - 2025-06-23
+## [0.6.0] - 2025-06-24
 ### Added
+- Zeitwerk gem loader
+- Add middleware support for tasks
 - Add Cursor and Copilot rules
 - Add YARDoc documentation
 ### Changed
+- Changed configuration to be a PORO class
 - Changed ArgumentError to TypeError where checking `is_a?`
 - Improve documentation readability, consistency, completeness
+- Improve test readability, consistency, completeness
 
 ## [0.5.0] - 2025-03-21
 
