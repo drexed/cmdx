@@ -98,10 +98,10 @@ module CMDx
     #   config.task_timeout  #=> nil
     def initialize
       @logger        = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-      @task_halt     = "failed"
-      @task_timeout  = nil
-      @batch_halt    = "failed"
-      @batch_timeout = nil
+      @task_halt     = DEFAULT_HALT
+      @task_timeout  = DEFAULT_TIMEOUT
+      @batch_halt    = DEFAULT_HALT
+      @batch_timeout = DEFAULT_TIMEOUT
     end
 
     ##
