@@ -49,7 +49,7 @@ module CMDx
   # @see Task Task class for execution context
   # @see Batch Batch class for multi-task execution
   # @see Run Run class for execution grouping
-  # @since 0.6.0
+  # @since 1.0.0
   module TaskSerializer
 
     module_function

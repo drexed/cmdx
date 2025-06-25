@@ -65,7 +65,7 @@ module CMDx
   # @see Fault Base fault class with advanced matching capabilities
   # @see Failed Failed fault type for error conditions
   # @see Result#skip! Method for triggering skipped faults
-  # @since 0.6.0
+  # @since 1.0.0
   Skipped = Class.new(Fault)
 
   ##
@@ -161,7 +161,7 @@ module CMDx
   # @see Fault Base fault class with advanced matching capabilities
   # @see Skipped Skipped fault type for conditional interruptions
   # @see Result#fail! Method for triggering failed faults
-  # @since 0.6.0
+  # @since 1.0.0
   Failed = Class.new(Fault)
 
 end

@@ -136,7 +136,7 @@ module CMDx
   # @see Task Base class providing hooks, parameters, and result tracking
   # @see Context Shared data object passed between tasks
   # @see Result Task execution results and status tracking
-  # @since 0.6.0
+  # @since 1.0.0
   class Batch < Task
 
     ##

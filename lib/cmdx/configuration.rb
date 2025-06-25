@@ -66,13 +66,13 @@ module CMDx
   # @see Batch Batch-level configuration overrides
   # @see LogFormatters Available logging formatters
   # @see Result Result statuses for halt configuration
-  # @since 0.6.0
+  # @since 1.0.0
 
   ##
   # Configuration class that manages CMDx framework settings.
   # Provides explicit attribute accessors for all configuration options.
   #
-  # @since 0.6.0
+  # @since 1.0.0
   class Configuration
 
     # Default configuration values

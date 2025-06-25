@@ -76,7 +76,7 @@ module CMDx
   # @see Task Task execution methods (call vs call!)
   # @see CMDx::Skipped Specific fault type for skipped tasks
   # @see CMDx::Failed Specific fault type for failed tasks
-  # @since 0.6.0
+  # @since 1.0.0
   class Fault < Error
 
     __cmdx_attr_delegator :task, :run, :context, to: :result

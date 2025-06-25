@@ -56,7 +56,7 @@ module CMDx
   #
   # @see Context Context class that inherits from LazyStruct
   # @see Configuration Configuration class that uses LazyStruct
-  # @since 0.6.0
+  # @since 1.0.0
   class LazyStruct
 
     ##

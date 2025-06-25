@@ -37,7 +37,7 @@ module CMDx
   #   end)
   #
   # @see Middleware Base middleware class
-  # @since 0.6.0
+  # @since 1.0.0
   class Middlewares < Array
 
     # Adds middleware to the registry.

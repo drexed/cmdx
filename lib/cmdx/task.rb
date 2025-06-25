@@ -51,7 +51,7 @@ module CMDx
   # @see Context Context object for parameter access
   # @see Parameters Parameter definition and validation
   # @see Batch Batch for executing multiple tasks
-  # @since 0.6.0
+  # @since 1.0.0
   class Task
 
     ##

@@ -22,7 +22,7 @@ module Cmdx
   #   app/cmds/send_email_task.rb
   #   app/cmds/process_payment_task.rb
   #
-  # @since 0.6.0
+  # @since 1.0.0
   class TaskGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path("templates", __dir__)

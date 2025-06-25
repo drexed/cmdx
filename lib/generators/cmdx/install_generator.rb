@@ -17,7 +17,7 @@ module Cmdx
   # @example Generated file location
   #   config/initializers/cmdx.rb
   #
-  # @since 0.6.0
+  # @since 1.0.0
   class InstallGenerator < Rails::Generators::Base
 
     source_root File.expand_path("templates", __dir__)

@@ -21,7 +21,7 @@ module Cmdx
   #   app/cmds/order_processing_batch.rb
   #   app/cmds/payment_batch.rb
   #
-  # @since 0.6.0
+  # @since 1.0.0
   class BatchGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path("templates", __dir__)

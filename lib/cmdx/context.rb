@@ -133,7 +133,7 @@ module CMDx
   # @see Task Task base class that uses Context for parameter storage
   # @see Run Run execution context that Context belongs to
   # @see Parameter Parameter definitions that populate Context
-  # @since 0.6.0
+  # @since 1.0.0
   class Context < LazyStruct
 
     ##

@@ -64,7 +64,7 @@ module CMDx
   # @see Configuration Configuration options for Rails integration
   # @see Task Task base class for command objects
   # @see Batch Batch base class for multi-task operations
-  # @since 0.6.0
+  # @since 1.0.0
   class Railtie < Rails::Railtie
 
     railtie_name :cmdx

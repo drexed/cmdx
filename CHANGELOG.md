@@ -1,6 +1,10 @@
 ## [Unreleased]
 
-## [0.6.0] - 2025-06-24
+## [1.0.0] - 2025-06-25
+
+> [!IMPORTANT]
+> This should be a safe upgrade but some of the changes were big that it warranted a major version bump.
+
 ### Added
 - Zeitwerk gem loader
 - Add middleware support for tasks
