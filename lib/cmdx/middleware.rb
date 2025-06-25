@@ -51,7 +51,7 @@ module CMDx
   #     end
   #   end
   #
-  # @see Middlewares management
+  # @see MiddlewareRegistry management
   # @see Task middleware integration
   class Middleware
 

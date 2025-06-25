@@ -392,7 +392,7 @@ RSpec.describe CMDx::Task do
 
       it "allows inspection of task configuration" do
         expect(task.class.cmd_parameters).to be_a(CMDx::Parameters)
-        expect(task.class.cmd_middlewares).to be_a(CMDx::Middlewares)
+        expect(task.class.cmd_middlewares).to be_a(CMDx::MiddlewareRegistry)
         expect(task.class.cmd_hooks).to be_a(Hash)
       end
     end

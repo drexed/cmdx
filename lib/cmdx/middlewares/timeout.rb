@@ -84,7 +84,7 @@ module CMDx
   # @see CMDx::Middlewares::Timeout The middleware that raises this error
   TimeoutError = Class.new(Interrupt)
 
-  class Middlewares
+  module Middlewares
     class Timeout < CMDx::Middleware
 
       # @return [Integer, Float] The timeout value in seconds

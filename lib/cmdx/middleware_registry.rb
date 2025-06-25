@@ -2,34 +2,34 @@
 
 module CMDx
   ##
-  # The Middlewares collection provides a Rack-style middleware chain that wraps
+  # The MiddlewareRegistry collection provides a Rack-style middleware chain that wraps
   # task execution with cross-cutting concerns like logging, authentication,
   # caching, and more. Middleware can short-circuit execution by returning
   # early without calling the next middleware in the chain.
   #
-  # The Middlewares collection extends Array to provide specialized functionality for
+  # The MiddlewareRegistry collection extends Array to provide specialized functionality for
   # managing collections of middleware definitions within CMDx tasks. It handles
   # middleware execution coordination, chaining, and inspection.
   #
   # @example Basic middleware usage
-  #   middlewares = Middlewares.new
-  #   middlewares.use(LoggingMiddleware)
-  #   middlewares.use(AuthenticationMiddleware, required_role: :admin)
-  #   middlewares.use(CachingMiddleware, ttl: 300)
+  #   middleware_registry = MiddlewareRegistry.new
+  #   middleware_registry.use(LoggingMiddleware)
+  #   middleware_registry.use(AuthenticationMiddleware, required_role: :admin)
+  #   middleware_registry.use(CachingMiddleware, ttl: 300)
   #
-  #   result = middlewares.call(task) do |t|
+  #   result = middleware_registry.call(task) do |t|
   #     t.call
   #     t.result
   #   end
   #
   # @example Array-like operations
-  #   middlewares << [LoggingMiddleware, [], nil]
-  #   middlewares.size  # => 1
-  #   middlewares.empty?  # => false
-  #   middlewares.each { |middleware| puts middleware.inspect }
+  #   middleware_registry << [LoggingMiddleware, [], nil]
+  #   middleware_registry.size  # => 1
+  #   middleware_registry.empty?  # => false
+  #   middleware_registry.each { |middleware| puts middleware.inspect }
   #
   # @example Using proc middleware
-  #   middlewares.use(proc do |task, callable|
+  #   middleware_registry.use(proc do |task, callable|
   #     puts "Before task execution"
   #     result = callable.call(task)
   #     puts "After task execution"
@@ -38,14 +38,14 @@ module CMDx
   #
   # @see Middleware Base middleware class
   # @since 1.0.0
-  class Middlewares < Array
+  class MiddlewareRegistry < Array
 
     # Adds middleware to the registry.
     #
     # @param middleware [Class, Object, Proc] The middleware to add
     # @param args [Array] Arguments to pass to middleware constructor
     # @param block [Proc] Block to pass to middleware constructor
-    # @return [Middlewares] self for method chaining
+    # @return [MiddlewareRegistry] self for method chaining
     #
     # @example Add middleware class
     #   registry.use(LoggingMiddleware, log_level: :info)

@@ -72,7 +72,7 @@ module CMDx
     ].freeze
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
-    __cmdx_attr_setting :cmd_middlewares, default: -> { Middlewares.new }
+    __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new }
     __cmdx_attr_setting :cmd_parameters, default: -> { Parameters.new }
     __cmdx_attr_setting :cmd_hooks, default: {}
 
@@ -194,7 +194,7 @@ module CMDx
       # @param middleware [Class, Object, Proc] middleware to add
       # @param args [Array] arguments for middleware instantiation
       # @param block [Proc] block for middleware instantiation
-      # @return [Middlewares] updated middleware registry
+      # @return [MiddlewareRegistry] updated middleware registry
       # @example
       #   use LoggingMiddleware
       #   use AuthenticationMiddleware, "admin"

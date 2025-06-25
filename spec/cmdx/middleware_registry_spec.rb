@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Middlewares do
+RSpec.describe CMDx::MiddlewareRegistry do
   include_context "with middleware chain behavior"
 
   let(:middleware_class) do
