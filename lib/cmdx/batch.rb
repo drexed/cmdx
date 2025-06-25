@@ -11,14 +11,6 @@ module CMDx
   # parameter validation, result tracking, and configuration. The key difference
   # is that batches coordinate other tasks rather than implementing business logic directly.
   #
-  # ## Key Features
-  #
-  # - **Sequential Execution**: Tasks execute in FIFO (first-in, first-out) order
-  # - **Context Propagation**: Shared context object passes data between tasks
-  # - **Conditional Processing**: Support for `:if` and `:unless` conditions
-  # - **Configurable Halting**: Control when execution stops based on task results
-  # - **Grouped Processing**: Organize tasks into logical groups with shared options
-  # - **Inherited Configuration**: Leverage task-level settings and hooks
   #
   # ## Execution Flow
   #

@@ -4,6 +4,15 @@ Halting stops execution of a task with explicit intent signaling. Tasks provide
 two primary halt methods that control execution flow and result in different
 outcomes, each serving specific use cases in business logic.
 
+## Table of Contents
+
+- [Skip (`skip!`)](#skip-skip)
+- [Fail (`fail!`)](#fail-fail)
+- [Metadata Enrichment](#metadata-enrichment)
+- [State Transitions](#state-transitions)
+- [Exception Behavior](#exception-behavior)
+- [The Reason Key](#the-reason-key)
+
 ## Skip (`skip!`)
 
 The `skip!` method indicates that a task did not meet the criteria to continue
@@ -14,7 +23,7 @@ conditions.
 ### Basic Usage
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
 
   def call
     context.order = Order.find(context.order_id)
@@ -35,7 +44,7 @@ end
 ### Common Skip Scenarios
 
 ```ruby
-class SendNotificationTask < CMDx::Task
+class SendUserNotificationTask < CMDx::Task
   required :user_id, type: :integer
   optional :force, type: :boolean, default: false
 
@@ -57,6 +66,9 @@ class SendNotificationTask < CMDx::Task
 end
 ```
 
+> [!NOTE]
+> Use `skip!` when a task cannot or should not execute under current conditions, but this is not an error. Skipped tasks are considered successful outcomes.
+
 ## Fail (`fail!`)
 
 The `fail!` method indicates that a task encountered an error condition that
@@ -66,7 +78,7 @@ task explicitly determines that execution cannot continue successfully.
 ### Basic Usage
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessOrderPaymentTask < CMDx::Task
 
   def call
     context.payment = Payment.find(context.payment_id)
@@ -87,7 +99,7 @@ end
 ### Detailed Failure Handling
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUserAccountTask < CMDx::Task
   required :email, type: :string
   required :password, type: :string
 
@@ -116,6 +128,9 @@ class CreateUserTask < CMDx::Task
 end
 ```
 
+> [!IMPORTANT]
+> Use `fail!` when a task encounters an error that prevents successful completion. Failed tasks represent error conditions that need to be handled or corrected.
+
 ## Metadata Enrichment
 
 Both halt methods accept metadata to provide context about the interruption.
@@ -124,7 +139,7 @@ Metadata is stored as a hash and becomes available through the result object.
 ### Structured Metadata
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
 
   def call
     context.order = Order.find(context.order_id)
@@ -157,17 +172,17 @@ end
 ### Accessing Metadata
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 # Check result status
-result.skipped?  #=> true
-result.failed?   #=> false
+result.skipped?                #=> true
+result.failed?                 #=> false
 
 # Access metadata
-result.metadata[:reason]           #=> "Order was cancelled"
-result.metadata[:order_id]         #=> 123
-result.metadata[:cancelled_at]     #=> 2023-01-01 10:00:00 UTC
-result.metadata[:reason_code]      #=> "customer_request"
+result.metadata[:reason]       #=> "Order was cancelled"
+result.metadata[:order_id]     #=> 123
+result.metadata[:cancelled_at] #=> 2023-01-01 10:00:00 UTC
+result.metadata[:reason_code]  #=> "customer_request"
 ```
 
 ## State Transitions
@@ -185,7 +200,7 @@ Halt methods trigger specific state and status transitions:
 - **Result**: `good? = false`, `bad? = true`
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 # State information
 result.state        #=> "interrupted"
@@ -206,7 +221,7 @@ Halt methods behave differently depending on the call method used:
 Returns a result object without raising exceptions:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 case result.status
 when "success"
@@ -223,7 +238,7 @@ Raises fault exceptions based on `task_halt` configuration:
 
 ```ruby
 begin
-  result = ProcessOrderTask.call!(order_id: 123)
+  result = ProcessUserOrderTask.call!(order_id: 123)
   puts "Success: #{result.context.order.id}"
 rescue CMDx::Skipped => e
   puts "Skipped: #{e.message}"
@@ -233,6 +248,9 @@ rescue CMDx::Failed => e
   puts "Error code: #{e.result.metadata[:error_code]}"
 end
 ```
+
+> [!WARNING]
+> The `call!` method raises exceptions for halt conditions based on the `task_halt` configuration. The `call` method always returns result objects without raising exceptions.
 
 ## The Reason Key
 
@@ -251,28 +269,11 @@ fail!(reason: "Credit card expired", code: "EXPIRED_CARD")
 skip!(status: "redundant", timestamp: Time.current)
 
 # Fallback: Default message if no reason provided
-skip!  # Exception message: "no reason given"
+skip! # Exception message: "no reason given"
 ```
 
-## Best Practices
-
-### Skip Usage Guidelines
-- Use for conditional logic that makes execution unnecessary
-- Use for early returns when prerequisites aren't met
-- Use for business logic that determines operations are redundant
-- Generally indicates "success" in that nothing went wrong
-
-### Fail Usage Guidelines
-- Use for validation errors that prevent execution
-- Use for business rule violations that constitute errors
-- Use for resource unavailability or constraint violations
-- Always indicates an error condition requiring attention
-
-### Metadata Guidelines
-- Always include a `:reason` key for clarity
-- Add structured data for programmatic handling
-- Include error codes for categorization
-- Provide actionable information where possible
+> [!TIP]
+> Always try to include a `:reason` key in metadata when using halt methods. This provides clear context for debugging and creates meaningful exception messages when using `call!`.
 
 ---
 

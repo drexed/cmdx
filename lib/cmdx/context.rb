@@ -11,14 +11,6 @@ module CMDx
   # dynamic attribute assignment and provide a convenient API for data manipulation throughout
   # the task execution lifecycle.
   #
-  # ## Key Features
-  #
-  # - **Dynamic Attributes**: Access and assign attributes using method calls or hash syntax
-  # - **Data Persistence**: Maintains data across task execution and between related tasks
-  # - **Flexible Input**: Accepts any hash-like object for initialization
-  # - **Inter-task Communication**: Enables data sharing between tasks in batches or workflows
-  # - **LazyStruct Foundation**: Inherits all LazyStruct capabilities for data manipulation
-  # - **Run Integration**: Automatically associated with execution runs for tracking
   #
   # ## Usage Patterns
   #

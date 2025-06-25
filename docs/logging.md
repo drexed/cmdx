@@ -1,15 +1,26 @@
 # Logging
 
-CMDx provides comprehensive automatic logging for task execution with structured data, customizable formatters, and intelligent severity mapping. The framework logs all task results after completion with rich metadata for debugging and monitoring.
+CMDx provides comprehensive automatic logging for task execution with structured data, customizable formatters, and intelligent severity mapping. All task results are logged after completion with rich metadata for debugging and monitoring.
 
-## Key Features
-
-- **Automatic Result Logging**: Tasks automatically log their execution results after completion
-- **Structured Data**: Rich metadata including execution timing, states, statuses, and failure chains
-- **Multiple Formatters**: 8 built-in formatters for different output needs and environments
-- **ANSI Colorization**: Enhanced terminal output with color-coded severity and status indicators
-- **Configurable Levels**: Global and task-specific log level configuration
-- **Thread-Safe**: Designed for concurrent task execution environments
+## Table of Contents
+- [Log Formatters](#log-formatters)
+  - [Standard Formatters](#standard-formatters)
+  - [Stylized Formatters (ANSI Colors)](#stylized-formatters-ansi-colors)
+- [Sample Output](#sample-output)
+  - [Success Result](#success-result)
+  - [Skipped Result](#skipped-result)
+  - [Failed Result](#failed-result)
+  - [Failure Chain (Batch Workflows)](#failure-chain-batch-workflows)
+- [Configuration](#configuration)
+  - [Global Configuration](#global-configuration)
+  - [Task-Specific Configuration](#task-specific-configuration)
+  - [Environment-Specific Configuration](#environment-specific-configuration)
+- [Severity Mapping](#severity-mapping)
+- [Manual Logging](#manual-logging)
+- [Advanced Formatter Usage](#advanced-formatter-usage)
+  - [Custom Formatter](#custom-formatter)
+  - [Multi-Destination Logging](#multi-destination-logging)
+- [Log Data Structure](#log-data-structure)
 
 ## Log Formatters
 
@@ -23,6 +34,10 @@ CMDx provides 8 built-in log formatters organized into standard and stylized cat
 - **`Raw`** - Minimal output containing only the message content
 
 ### Stylized Formatters (ANSI Colors)
+
+> [!NOTE]
+> Stylized formatters include ANSI color codes for terminal readability and are best suited for development environments.
+
 - **`PrettyLine`** - Colorized line format (default)
 - **`PrettyJson`** - Human-readable multi-line JSON with syntax highlighting
 - **`PrettyKeyValue`** - Colorized key=value pairs for terminal readability
@@ -31,22 +46,22 @@ CMDx provides 8 built-in log formatters organized into standard and stylized cat
 
 ### Success Result
 ```txt
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- ProcessOrderTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=complete status=success outcome=success metadata={order_id: 123, confirmation: "ABC123"} runtime=0.45 origin=CMDx
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- CreateOrderTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=CreateOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=complete status=success outcome=success metadata={order_id: 123, confirmation: "ABC123"} runtime=0.45 origin=CMDx
 ```
 
 ### Skipped Result
 ```txt
-W, [2022-07-17T18:43:15.000000 #3784] WARN -- ProcessOrderTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=skipped outcome=skipped metadata={reason: "Order already processed", existing_order_id: 456} runtime=0.02 origin=CMDx
+W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePaymentTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ValidatePaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=skipped outcome=skipped metadata={reason: "Order already processed"} runtime=0.02 origin=CMDx
 ```
 
 ### Failed Result
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessOrderTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=failed metadata={reason: "Payment validation failed", error_code: "PAYMENT_INVALID", retry_allowed: true} runtime=0.15 origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessPaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=failed metadata={reason: "Payment declined", error_code: "INSUFFICIENT_FUNDS"} runtime=0.15 origin=CMDx
 ```
 
-### Failure Chain (Batch/Complex Workflows)
+### Failure Chain (Batch Workflows)
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessOrderBatch: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Batch class=ProcessOrderBatch id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed", metadata: {error_code: "INVALID_CARD"}} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderBatch: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Batch class=CreateOrderBatch id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
 ```
 
 ## Configuration
@@ -57,15 +72,15 @@ Configure logging globally in your CMDx initializer:
 
 ```ruby
 CMDx.configure do |config|
-  # Basic logger setup
+  # Development environment
   config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::PrettyLine.new)
 
-  # Production environment example
+  # Production environment
   config.logger = Logger.new("log/cmdx.log", formatter: CMDx::LogFormatters::Json.new)
   config.logger.level = Logger::INFO
 
   # ELK stack integration
-  config.logger = Logger.new("log/cmdx-logstash.log", formatter: CMDx::LogFormatters::Logstash.new)
+  config.logger = Logger.new("log/logstash.log", formatter: CMDx::LogFormatters::Logstash.new)
 end
 ```
 
@@ -74,7 +89,7 @@ end
 Override logging settings for individual tasks:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class SendEmailTask < CMDx::Task
   task_settings!(
     logger: Rails.logger,
     log_formatter: CMDx::LogFormatters::Json.new,
@@ -118,7 +133,8 @@ end
 
 ## Severity Mapping
 
-CMDx automatically maps result statuses to appropriate log severity levels:
+> [!IMPORTANT]
+> CMDx automatically maps result statuses to appropriate log severity levels. Manual log level overrides are not recommended.
 
 | Result Status | Log Level | Use Case |
 | ------------- | --------- | -------- |
@@ -133,25 +149,25 @@ Access the configured logger within tasks for custom log messages:
 ```ruby
 class ProcessOrderTask < CMDx::Task
   def call
-    logger.info "Starting order processing for order #{context.order_id}"
+    logger.info "Starting order processing", order_id: context.order_id
 
-    # Debug logging with block for performance
+    # Performance-optimized debug logging
     logger.debug { "Order details: #{context.order.inspect}" }
 
     # Structured logging
     logger.info "Payment processed", {
       order_id: context.order_id,
       amount: context.order.total,
-      payment_method: context.payment_method.type
+      payment_method: context.payment_method
     }
 
-    # Error logging with exception details
+    # Exception handling with logging
     begin
-      risky_operation
+      validate_inventory
     rescue StandardError => e
-      logger.error "Operation failed: #{e.message}", {
+      logger.error "Inventory validation failed: #{e.message}", {
         exception: e.class.name,
-        backtrace: e.backtrace.first(5)
+        order_id: context.order_id
       }
       raise
     end
@@ -160,27 +176,6 @@ end
 ```
 
 ## Advanced Formatter Usage
-
-### JSON Formatter for Structured Logging
-
-```ruby
-class ProcessApiTask < CMDx::Task
-  task_settings!(
-    logger: Logger.new("log/api.log", formatter: CMDx::LogFormatters::Json.new)
-  )
-
-  def call
-    logger.info "API request initiated", {
-      endpoint: context.endpoint,
-      method: context.http_method,
-      user_id: context.user_id
-    }
-  end
-end
-
-# Sample JSON output:
-# {"severity":"INFO","pid":1234,"timestamp":"2022-07-17T18:43:15.000000","endpoint":"/api/orders","method":"POST","user_id":123,"origin":"CMDx"}
-```
 
 ### Custom Formatter
 
@@ -208,6 +203,9 @@ end
 ```
 
 ### Multi-Destination Logging
+
+> [!TIP]
+> Use multi-destination logging to send output to both console and files simultaneously during development.
 
 ```ruby
 class MultiLogger
@@ -243,13 +241,13 @@ end
 
 CMDx logs contain comprehensive execution metadata:
 
-### Standard Fields
+#### Standard Fields
 - `severity` - Log level (INFO, WARN, ERROR)
 - `pid` - Process ID for multi-process debugging
 - `timestamp` - ISO 8601 formatted execution time
 - `origin` - Always "CMDx" for filtering
 
-### Task Identification
+#### Task Identification
 - `index` - Position in execution sequence
 - `run_id` - Unique identifier for execution run
 - `type` - Task or Batch
@@ -257,114 +255,16 @@ CMDx logs contain comprehensive execution metadata:
 - `id` - Unique task instance identifier
 - `tags` - Custom tags for categorization
 
-### Execution Information
+#### Execution Information
 - `state` - Execution lifecycle state (initialized, executing, complete, interrupted)
 - `status` - Business logic outcome (success, skipped, failed)
 - `outcome` - Final result classification
 - `metadata` - Custom data from skip!/fail! calls
 - `runtime` - Execution time in seconds
 
-### Failure Chain (Complex Workflows)
+#### Failure Chain (Complex Workflows)
 - `caused_failure` - Original failing task information
 - `threw_failure` - Task that propagated the failure
-
-## Best Practices
-
-### Performance Optimization
-
-```ruby
-class ProcessOptimizedTask < CMDx::Task
-  def call
-    # Use block form for expensive debug logging
-    logger.debug { expensive_debug_data.inspect }
-
-    # Avoid string interpolation in log messages when possible
-    logger.info "Processing item", { item_id: context.item_id }
-
-    # Use appropriate log levels
-    logger.debug "Detailed processing steps"  # Development only
-    logger.info "Major milestones"            # Production relevant
-    logger.warn "Recoverable issues"          # Attention needed
-    logger.error "Critical failures"          # Immediate action required
-  end
-end
-```
-
-### Structured Logging
-
-```ruby
-class ProcessStructuredLoggingTask < CMDx::Task
-  def call
-    # Include contextual information
-    logger.info "Task started", {
-      user_id: context.user_id,
-      request_id: context.request_id,
-      feature_flags: context.feature_flags
-    }
-
-    # Log business events
-    logger.info "Order validated", {
-      order_id: context.order.id,
-      validation_rules: applied_rules,
-      validation_time: validation_duration
-    }
-  end
-end
-```
-
-### Security Considerations
-
-```ruby
-class ProcessSecureLoggingTask < CMDx::Task
-  def call
-    # Never log sensitive information
-    logger.info "Payment processed", {
-      order_id: context.order_id,
-      amount: context.amount,
-      # ❌ DON'T: credit_card_number: context.payment.card_number
-      payment_method: context.payment.card_type,
-      last_four: context.payment.card_number.last(4)
-    }
-
-    # Sanitize user input in logs
-    logger.debug "User input received", {
-      sanitized_input: sanitize_for_logging(context.user_input)
-    }
-  end
-
-  private
-
-  def sanitize_for_logging(input)
-    # Remove or mask sensitive patterns
-    input.to_s.gsub(/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, '[CARD_NUMBER]')
-  end
-end
-```
-
-### Monitoring Integration
-
-```ruby
-# Application Performance Monitoring integration
-class ProcessMonitoredTask < CMDx::Task
-  after_execution :send_metrics_to_apm
-
-  private
-
-  def send_metrics_to_apm
-    NewRelic::Agent.record_metric(
-      "Custom/CMDx/#{self.class.name}",
-      result.runtime
-    )
-
-    if result.failed?
-      NewRelic::Agent.notice_error(
-        StandardError.new(result.metadata[:reason]),
-        custom_params: result.metadata
-      )
-    end
-  end
-end
-```
 
 ---
 

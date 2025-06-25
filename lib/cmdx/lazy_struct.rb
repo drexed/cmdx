@@ -11,14 +11,6 @@ module CMDx
   # automatically creating getter and setter methods for any key-value pairs stored within it.
   # All keys are normalized to symbols for consistent access patterns.
   #
-  # ## Key Features
-  #
-  # - **Dynamic Method Access**: Access values using method calls (e.g., `struct.name`)
-  # - **Hash-like Interface**: Standard hash operations like `[]`, `[]=`, `merge!`, etc.
-  # - **Key Normalization**: All keys are converted to symbols for consistency
-  # - **Method Missing Support**: Automatic getter/setter method generation
-  # - **Deep Access**: Support for nested value access via `dig`
-  # - **Immutable-friendly**: Supports freezing while maintaining functionality
   #
   # @example Basic usage
   #   struct = LazyStruct.new(name: "John", age: 30)

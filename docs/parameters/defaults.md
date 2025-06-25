@@ -5,92 +5,108 @@ resolve to `nil`. Defaults ensure tasks have sensible values for optional
 parameters while maintaining flexibility for callers to override when needed.
 Defaults work seamlessly with coercion, validation, and nested parameters.
 
+## Table of Contents
+
+- [Default Value Fundamentals](#default-value-fundamentals)
+  - [Fixed Value Defaults](#fixed-value-defaults)
+  - [Callable Defaults](#callable-defaults)
+  - [Context-Aware Defaults](#context-aware-defaults)
+- [Defaults with Type Coercion](#defaults-with-type-coercion)
+- [Defaults with Validation](#defaults-with-validation)
+- [Nested Parameter Defaults](#nested-parameter-defaults)
+- [Conditional Defaults](#conditional-defaults)
+- [Default Value Caching](#default-value-caching)
+- [Error Handling with Defaults](#error-handling-with-defaults)
+
 ## Default Value Fundamentals
 
-Defaults are specified using the `:default` option and are applied when a
-parameter value resolves to `nil`. This includes cases where optional parameters
-are not provided in call arguments or when source objects return `nil` values.
+> [!NOTE]
+> Defaults are specified using the `:default` option and are applied when a parameter value resolves to `nil`. This includes cases where optional parameters are not provided in call arguments or when source objects return `nil` values.
 
 ### Fixed Value Defaults
 
 The simplest defaults use fixed values that are applied consistently:
 
 ```ruby
-class FixedDefaultTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
 
-  # Simple value defaults
   required :user_id, type: :integer
   optional :priority, type: :string, default: "normal"
-  optional :active, type: :boolean, default: true
-  optional :retry_count, type: :integer, default: 3
+  optional :send_confirmation, type: :boolean, default: true
+  optional :max_retries, type: :integer, default: 3
 
-  # Complex value defaults
-  optional :tags, type: :array, default: []
-  optional :metadata, type: :hash, default: {}
+  optional :notification_tags, type: :array, default: []
+  optional :order_metadata, type: :hash, default: {}
   optional :created_at, type: :datetime, default: -> { Time.current }
 
   def call
-    user_id      #=> provided value (required)
-    priority     #=> "normal" if not provided
-    active       #=> true if not provided
-    retry_count  #=> 3 if not provided
-    tags         #=> [] if not provided
-    metadata     #=> {} if not provided
-    created_at   #=> current time if not provided
+    user_id            #=> provided value (required)
+    priority           #=> "normal" if not provided
+    send_confirmation  #=> true if not provided
+    max_retries        #=> 3 if not provided
+    notification_tags  #=> [] if not provided
+    order_metadata     #=> {} if not provided
+    created_at         #=> current time if not provided
   end
 
 end
 
 # Defaults applied for missing parameters
-FixedDefaultTask.call(user_id: 123)
-# priority: "normal", active: true, retry_count: 3, tags: [], metadata: {}, created_at: <current time>
+ProcessUserOrderTask.call(user_id: 12345)
+# priority: "normal", send_confirmation: true, max_retries: 3, etc.
 
 # Explicit values override defaults
-FixedDefaultTask.call(
-  user_id: 123,
+ProcessUserOrderTask.call(
+  user_id: 12345,
   priority: "urgent",
-  active: false,
-  tags: ["important"]
+  send_confirmation: false,
+  notification_tags: ["rush_order"]
 )
 ```
 
 ### Callable Defaults
 
-Use procs, lambdas, or method symbols for dynamic defaults that are evaluated
-at parameter resolution time:
+> [!TIP]
+> Use procs, lambdas, or method symbols for dynamic defaults that are evaluated at parameter resolution time. This is especially useful for timestamps, UUIDs, and context-dependent values.
 
 ```ruby
-class DynamicDefaultTask < CMDx::Task
+class SendOrderNotificationTask < CMDx::Task
 
-  # Proc defaults
-  optional :timestamp, type: :datetime, default: -> { Time.current }
-  optional :request_id, type: :string, default: -> { SecureRandom.uuid }
+  required :order_id, type: :integer
 
-  # Lambda defaults with context access
-  optional :environment, type: :string, default: -> { Rails.env }
-  optional :user_locale, type: :string, default: -> { I18n.default_locale.to_s }
+  # Dynamic defaults using procs
+  optional :sent_at, type: :datetime, default: -> { Time.current }
+  optional :tracking_id, type: :string, default: -> { SecureRandom.uuid }
+
+  # Environment-aware defaults
+  optional :notification_service, type: :string, default: -> { Rails.env.production? ? "sendgrid" : "mock" }
+  optional :sender_email, type: :string, default: -> { Rails.application.credentials.sender_email }
 
   # Method symbol defaults
-  optional :cache_key, type: :string, default: :generate_cache_key
-  optional :expiry_time, type: :datetime, default: :calculate_expiry
+  optional :template_name, type: :string, default: :determine_template
+  optional :delivery_time, type: :datetime, default: :calculate_delivery_window
 
   def call
-    timestamp    #=> current time when parameter is accessed
-    request_id   #=> unique UUID when parameter is accessed
-    environment  #=> current Rails environment
-    user_locale  #=> default locale as string
-    cache_key    #=> result of generate_cache_key method
-    expiry_time  #=> result of calculate_expiry method
+    sent_at              #=> current time when accessed
+    tracking_id          #=> unique UUID when accessed
+    notification_service #=> production or test service
+    sender_email         #=> configured sender email
+    template_name        #=> result of determine_template method
+    delivery_time        #=> result of calculate_delivery_window method
   end
 
   private
 
-  def generate_cache_key
-    "task_#{context.user_id}_#{Time.current.to_i}"
+  def determine_template
+    order.priority == "urgent" ? "urgent_order" : "standard_order"
   end
 
-  def calculate_expiry
-    1.hour.from_now
+  def calculate_delivery_window
+    order.priority == "urgent" ? 15.minutes.from_now : 1.hour.from_now
+  end
+
+  def order
+    @order ||= Order.find(order_id)
   end
 
 end
@@ -98,55 +114,37 @@ end
 
 ### Context-Aware Defaults
 
-Defaults can access the task context and other parameters for intelligent
-fallback behavior:
-
 ```ruby
-class ContextAwareDefaultTask < CMDx::Task
+class ProcessUserPaymentTask < CMDx::Task
 
   required :user_id, type: :integer
-  optional :account_id, type: :integer, source: :user, default: :default_account_id
+  required :amount, type: :float
 
-  # Default based on other parameters
-  optional :notification_email,
-    type: :string,
-    default: -> { user.email }
-
-  # Conditional defaults
-  optional :theme,
-    type: :string,
-    default: -> { user.premium? ? "premium" : "standard" }
-
-  # Complex conditional logic
-  optional :rate_limit,
-    type: :integer,
-    default: -> { determine_rate_limit }
+  optional :payment_method_id, type: :integer, default: :default_payment_method
+  optional :billing_email, type: :string, default: -> { user.email }
+  optional :currency, type: :string, default: -> { user.preferred_currency || "USD" }
+  optional :processing_fee, type: :float, default: -> { calculate_processing_fee }
 
   def call
-    user_id            #=> provided value
-    account_id         #=> user's default account ID
-    notification_email #=> user's email address
-    theme              #=> "premium" or "standard" based on user type
-    rate_limit         #=> calculated based on user attributes
+    payment_method_id #=> user's default payment method
+    billing_email     #=> user's email address
+    currency          #=> user's preferred currency or USD
+    processing_fee    #=> calculated based on amount and user tier
   end
 
   private
 
   def user
-    @user ||= User.find(context.user_id)
+    @user ||= User.find(user_id)
   end
 
-  def default_account_id
-    user.accounts.primary.id
+  def default_payment_method
+    user.payment_methods.primary&.id || user.payment_methods.first&.id
   end
 
-  def determine_rate_limit
-    case user.subscription_tier
-    when "basic" then 100
-    when "premium" then 1000
-    when "enterprise" then 10000
-    else 50
-    end
+  def calculate_processing_fee
+    base_fee = amount * 0.029
+    user.premium_member? ? base_fee * 0.5 : base_fee
   end
 
 end
@@ -154,39 +152,37 @@ end
 
 ## Defaults with Type Coercion
 
-Defaults work seamlessly with type coercion, with the default value being
-subject to the same coercion rules as provided values:
+> [!IMPORTANT]
+> Defaults work seamlessly with type coercion, with the default value being subject to the same coercion rules as provided values.
 
 ```ruby
-class CoercionDefaultTask < CMDx::Task
+class ConfigureOrderSettingsTask < CMDx::Task
 
   # String defaults coerced to integers
-  optional :max_retries, type: :integer, default: "5"  # => 5
+  optional :max_items, type: :integer, default: "50"
 
-  # Hash defaults coerced from JSON
-  optional :config, type: :hash, default: '{"enabled": true}'  # => {"enabled" => true}
+  # JSON string defaults coerced to hash
+  optional :shipping_config, type: :hash, default: '{"carrier": "ups", "speed": "standard"}'
 
-  # Array defaults from strings
-  optional :tags, type: :array, default: "[]"  # => []
+  # String defaults coerced to arrays
+  optional :allowed_countries, type: :array, default: '["US", "CA", "UK"]'
 
-  # Boolean defaults from strings
-  optional :active, type: :boolean, default: "true"  # => true
+  # String defaults coerced to booleans
+  optional :require_signature, type: :boolean, default: "true"
 
-  # Date defaults from strings
-  optional :start_date, type: :date, default: "2023-01-01"  # => Date object
+  # String defaults coerced to dates
+  optional :embargo_date, type: :date, default: "2024-01-01"
 
   # Dynamic defaults with coercion
-  optional :current_timestamp,
-    type: :string,
-    default: -> { Time.current.to_i }  # Integer coerced to string
+  optional :order_number, type: :string, default: -> { Time.current.to_i }
 
   def call
-    max_retries        #=> 5 (integer)
-    config             #=> {"enabled" => true} (hash)
-    tags               #=> [] (array)
-    active             #=> true (boolean)
-    start_date         #=> Date object
-    current_timestamp  #=> "1640995200" (string)
+    max_items         #=> 50 (integer)
+    shipping_config   #=> {"carrier" => "ups", "speed" => "standard"} (hash)
+    allowed_countries #=> ["US", "CA", "UK"] (array)
+    require_signature #=> true (boolean)
+    embargo_date      #=> Date object
+    order_number      #=> "1640995200" (string from integer)
   end
 
 end
@@ -194,47 +190,42 @@ end
 
 ## Defaults with Validation
 
-Default values are subject to the same validation rules as provided values,
-ensuring consistency and catching configuration errors:
+> [!WARNING]
+> Default values are subject to the same validation rules as provided values, ensuring consistency and catching configuration errors early.
 
 ```ruby
-class ValidatedDefaultTask < CMDx::Task
+class ValidateOrderPriorityTask < CMDx::Task
 
-  # Default must pass validation
-  optional :priority,
-    type: :string,
-    default: "normal",
-    inclusion: { in: %w[low normal high urgent] }
+  required :order_id, type: :integer
 
-  # Numeric default with validation
-  optional :timeout,
-    type: :integer,
-    default: 30,
-    numeric: { min: 1, max: 300 }
+  # Default must pass inclusion validation
+  optional :priority, type: :string, default: "standard",
+    inclusion: { in: %w[low standard high urgent] }
+
+  # Numeric default with range validation
+  optional :processing_timeout, type: :integer, default: 300,
+    numeric: { min: 60, max: 3600 }
 
   # Email default with format validation
-  optional :notification_email,
-    type: :string,
-    default: -> { "admin@#{Rails.application.config.domain}" },
+  optional :escalation_email, type: :string,
+    default: -> { "support@#{Rails.application.config.domain}" },
     format: { with: /@/ }
 
   # Custom validation with default
-  optional :api_key,
-    type: :string,
-    default: -> { generate_api_key },
-    custom: { validator: ApiKeyValidator }
+  optional :approval_code, type: :string, default: :generate_approval_code,
+    custom: { validator: ApprovalCodeValidator }
 
   def call
-    priority           #=> "normal" (validated)
-    timeout            #=> 30 (validated range)
-    notification_email #=> admin email (validated format)
-    api_key            #=> generated key (custom validated)
+    priority           #=> "standard" (validated against inclusion list)
+    processing_timeout #=> 300 (validated within range)
+    escalation_email   #=> support email (validated format)
+    approval_code      #=> generated code (custom validated)
   end
 
   private
 
-  def generate_api_key
-    "key_#{SecureRandom.hex(16)}"
+  def generate_approval_code
+    "APV_#{SecureRandom.hex(8).upcase}"
   end
 
 end
@@ -242,62 +233,74 @@ end
 
 ## Nested Parameter Defaults
 
-Defaults work with nested parameters, allowing complex default structures:
-
 ```ruby
-class NestedDefaultTask < CMDx::Task
+class ProcessOrderShippingTask < CMDx::Task
+
+  required :order_id, type: :integer
 
   # Parent parameter with default
-  optional :shipping_config, type: :hash, default: {} do
-    optional :method, type: :string, default: "standard"
+  optional :shipping_details, type: :hash, default: {} do
+    optional :carrier, type: :string, default: "fedex"
     optional :expedited, type: :boolean, default: false
+    optional :insurance_required, type: :boolean, default: -> { order_value > 500 }
 
-    optional :address, type: :hash, default: {} do
+    optional :delivery_address, type: :hash, default: -> { customer_default_address } do
       optional :country, type: :string, default: "US"
       optional :state, type: :string, default: -> { determine_default_state }
+      optional :requires_appointment, type: :boolean, default: false
     end
   end
 
-  # Nested defaults with complex logic
-  optional :user_preferences, type: :hash, default: -> { default_preferences } do
-    optional :theme, type: :string, default: "light"
-    optional :language, type: :string, default: "en"
+  # Complex nested defaults
+  optional :notification_preferences, type: :hash, default: -> { customer_notification_defaults } do
+    optional :email_updates, type: :boolean, default: true
+    optional :sms_updates, type: :boolean, default: false
 
-    optional :notifications, type: :hash, default: {} do
-      optional :email, type: :boolean, default: true
-      optional :sms, type: :boolean, default: false
-      optional :frequency, type: :string, default: "daily"
+    optional :delivery_window, type: :hash, default: {} do
+      optional :preferred_time, type: :string, default: "anytime"
+      optional :weekend_delivery, type: :boolean, default: false
     end
   end
 
   def call
-    # Parent defaults
-    shipping_config    #=> {} if not provided
-    user_preferences   #=> result of default_preferences if not provided
+    # Parent defaults applied when not provided
+    shipping_details         #=> {} if not provided
+    notification_preferences #=> customer defaults if not provided
 
-    # Child defaults (only if parent is provided or has default)
-    method       #=> "standard"
-    expedited    #=> false
-    country      #=> "US"
-    state        #=> result of determine_default_state
-
-    theme        #=> "light"
-    language     #=> "en"
-    email        #=> true (notification email)
-    sms          #=> false (notification sms)
-    frequency    #=> "daily"
+    # Child defaults (when parent exists)
+    carrier                  #=> "fedex"
+    expedited                #=> false
+    insurance_required       #=> true if order > $500
+    country                  #=> "US"
+    state                    #=> determined by logic
+    email_updates            #=> true
+    preferred_time           #=> "anytime"
+    weekend_delivery         #=> false
   end
 
   private
 
-  def determine_default_state
-    context.user&.address&.state || "CA"
+  def order
+    @order ||= Order.find(order_id)
   end
 
-  def default_preferences
+  def order_value
+    order.total_amount
+  end
+
+  def customer_default_address
+    order.customer.default_shipping_address&.to_hash || {}
+  end
+
+  def determine_default_state
+    order.customer.billing_address&.state || "CA"
+  end
+
+  def customer_notification_defaults
+    prefs = order.customer.notification_preferences
     {
-      theme: context.user&.premium? ? "premium" : "light",
-      language: context.user&.locale || "en"
+      email_updates: prefs.email_enabled?,
+      sms_updates: prefs.sms_enabled?
     }
   end
 
@@ -306,58 +309,64 @@ end
 
 ## Conditional Defaults
 
-Implement sophisticated default logic based on runtime conditions:
-
 ```ruby
-class ConditionalDefaultTask < CMDx::Task
+class ProcessOrderPaymentTask < CMDx::Task
 
   required :user_id, type: :integer
-  required :action_type, type: :string
+  required :order_type, type: :string
+  required :amount, type: :float
 
-  # Different defaults based on action type
-  optional :timeout,
-    type: :integer,
-    default: -> { action_timeout }
+  # Different timeouts based on order type
+  optional :payment_timeout, type: :integer, default: -> { determine_payment_timeout }
 
-  # User-specific defaults
-  optional :notification_method,
-    type: :string,
-    default: -> { user_preferred_notification }
+  # User tier-specific defaults
+  optional :processing_priority, type: :string, default: -> { user_processing_priority }
 
   # Environment-specific defaults
-  optional :cache_duration,
-    type: :integer,
-    default: -> { Rails.env.production? ? 3600 : 60 }
+  optional :fraud_check_level, type: :string,
+    default: -> { Rails.env.production? ? "strict" : "relaxed" }
 
-  # Feature flag defaults
-  optional :use_new_algorithm,
-    type: :boolean,
-    default: -> { FeatureFlag.enabled?(:new_algorithm, user) }
+  # Feature flag-based defaults
+  optional :use_instant_processing, type: :boolean,
+    default: -> { FeatureFlag.enabled?(:instant_processing, user) }
+
+  # Amount-based conditional defaults
+  optional :requires_manual_review, type: :boolean,
+    default: -> { amount > manual_review_threshold }
 
   def call
-    timeout              #=> varies by action type
-    notification_method  #=> user's preferred method
-    cache_duration       #=> 3600 in production, 60 elsewhere
-    use_new_algorithm    #=> based on feature flag
+    payment_timeout        #=> varies by order type
+    processing_priority    #=> based on user tier
+    fraud_check_level      #=> environment-dependent
+    use_instant_processing #=> feature flag controlled
+    requires_manual_review #=> amount-dependent
   end
 
   private
 
   def user
-    @user ||= User.find(context.user_id)
+    @user ||= User.find(user_id)
   end
 
-  def action_timeout
-    case action_type
-    when "quick" then 5
-    when "standard" then 30
-    when "long_running" then 300
-    else 60
+  def determine_payment_timeout
+    case order_type
+    when "express" then 30
+    when "standard" then 300
+    when "subscription" then 600
+    else 180
     end
   end
 
-  def user_preferred_notification
-    user.notification_preferences.primary_method || "email"
+  def user_processing_priority
+    case user.membership_tier
+    when "premium" then "high"
+    when "gold" then "highest"
+    else "normal"
+    end
+  end
+
+  def manual_review_threshold
+    user.trusted_customer? ? 10000 : 1000
   end
 
 end
@@ -365,52 +374,60 @@ end
 
 ## Default Value Caching
 
-For expensive default calculations, consider caching strategies:
+> [!TIP]
+> For expensive default calculations, implement caching strategies to improve performance while maintaining accuracy.
 
 ```ruby
-class CachedDefaultTask < CMDx::Task
+class GenerateOrderReportTask < CMDx::Task
 
-  # Cache expensive calculations
-  optional :user_stats,
-    type: :hash,
-    default: -> { cached_user_stats }
+  required :user_id, type: :integer
 
-  # Cache with expiration
-  optional :market_data,
-    type: :hash,
-    default: -> { cached_market_data }
+  # Cache expensive user analytics
+  optional :user_analytics, type: :hash, default: -> { cached_user_analytics }
+
+  # Cache market data with shorter expiration
+  optional :pricing_data, type: :hash, default: -> { cached_pricing_data }
+
+  # Cache user preferences
+  optional :report_settings, type: :hash, default: -> { cached_user_report_settings }
 
   def call
-    user_stats   #=> cached user statistics
-    market_data  #=> cached market data with expiration
+    user_analytics  #=> cached user analytics (1 hour TTL)
+    pricing_data    #=> cached pricing data (15 minutes TTL)
+    report_settings #=> cached user settings (24 hours TTL)
   end
 
   private
 
-  def cached_user_stats
-    Rails.cache.fetch("user_stats_#{context.user_id}", expires_in: 1.hour) do
-      calculate_user_stats
+  def cached_user_analytics
+    Rails.cache.fetch("user_analytics_#{user_id}", expires_in: 1.hour) do
+      calculate_user_analytics
     end
   end
 
-  def cached_market_data
-    Rails.cache.fetch("market_data", expires_in: 15.minutes) do
-      fetch_market_data_from_api
+  def cached_pricing_data
+    Rails.cache.fetch("pricing_data", expires_in: 15.minutes) do
+      PricingService.fetch_current_rates
     end
   end
 
-  def calculate_user_stats
-    # Expensive calculation
-    { orders: user.orders.count, revenue: user.orders.sum(:total) }
+  def cached_user_report_settings
+    Rails.cache.fetch("report_settings_#{user_id}", expires_in: 24.hours) do
+      user.report_preferences.to_hash
+    end
   end
 
-  def fetch_market_data_from_api
-    # External API call
-    MarketDataService.fetch_current_data
+  def calculate_user_analytics
+    {
+      total_orders: user.orders.count,
+      lifetime_value: user.orders.sum(:total),
+      avg_order_value: user.orders.average(:total),
+      last_order_date: user.orders.maximum(:created_at)
+    }
   end
 
   def user
-    @user ||= User.find(context.user_id)
+    @user ||= User.find(user_id)
   end
 
 end
@@ -418,99 +435,63 @@ end
 
 ## Error Handling with Defaults
 
-Default value calculation can fail, and these failures are handled gracefully:
+> [!WARNING]
+> Default value calculation can fail. Implement proper error handling to provide safe fallbacks and maintain task reliability.
 
 ```ruby
-class SafeDefaultTask < CMDx::Task
+class ProcessOrderAnalyticsTask < CMDx::Task
 
-  # Safe default with fallback
-  optional :external_data,
-    type: :hash,
-    default: -> { fetch_external_data_safely }
+  required :order_id, type: :integer
 
-  # Default with error handling
-  optional :calculated_value,
-    type: :integer,
-    default: -> { safe_calculation }
+  # Safe external data fetching with fallback
+  optional :market_trends, type: :hash, default: -> { fetch_market_trends_safely }
+
+  # Safe calculation with error handling
+  optional :predicted_delivery, type: :datetime, default: -> { calculate_delivery_safely }
+
+  # Database query with fallback
+  optional :similar_orders, type: :array, default: -> { find_similar_orders_safely }
 
   def call
-    external_data    #=> external data or safe fallback
-    calculated_value #=> calculated value or default fallback
+    market_trends      #=> market data or safe fallback
+    predicted_delivery #=> calculated delivery or default estimate
+    similar_orders     #=> similar orders or empty array
   end
 
   private
 
-  def fetch_external_data_safely
-    ExternalService.fetch_data
-  rescue ExternalService::Error => e
-    Rails.logger.warn("Failed to fetch external data: #{e.message}")
-    { error: "unavailable" }  # Safe fallback
+  def order
+    @order ||= Order.find(order_id)
   end
 
-  def safe_calculation
-    complex_calculation
-  rescue => e
-    Rails.logger.error("Calculation failed: #{e.message}")
-    0  # Safe numeric fallback
+  def fetch_market_trends_safely
+    MarketAnalyticsService.fetch_trends(order.category)
+  rescue MarketAnalyticsService::Error, Net::TimeoutError => e
+    Rails.logger.warn("Failed to fetch market trends: #{e.message}")
+    { trend: "stable", confidence: "low" }
   end
 
-  def complex_calculation
-    # Potentially failing calculation
-    (context.value_a * context.value_b) / context.divisor
+  def calculate_delivery_safely
+    DeliveryEstimator.calculate(order)
+  rescue DeliveryEstimator::Error => e
+    Rails.logger.error("Delivery calculation failed: #{e.message}")
+    # Safe fallback based on shipping method
+    case order.shipping_method
+    when "express" then 2.days.from_now
+    when "standard" then 5.days.from_now
+    else 7.days.from_now
+    end
   end
 
-end
-```
-
-## Best Practices
-
-### Default Value Selection
-
-```ruby
-class BestPracticeDefaultTask < CMDx::Task
-
-  # Use sensible defaults that work in most cases
-  optional :page_size, type: :integer, default: 20
-  optional :sort_order, type: :string, default: "asc"
-
-  # Use empty collections for array/hash parameters
-  optional :filters, type: :array, default: []
-  optional :options, type: :hash, default: {}
-
-  # Use boolean defaults that represent the most common case
-  optional :send_notifications, type: :boolean, default: true
-  optional :cache_results, type: :boolean, default: true
-
-  # Use nil for optional references that may not exist
-  optional :parent_id, type: :integer, default: nil
-
-  def call
-    # Predictable, sensible defaults available
+  def find_similar_orders_safely
+    Order.similar_to(order).limit(10).to_a
+  rescue ActiveRecord::StatementInvalid => e
+    Rails.logger.error("Similar orders query failed: #{e.message}")
+    []
   end
 
 end
 ```
-
-### Performance Optimization
-
-- **Lazy evaluation**: Use procs/lambdas for expensive defaults
-- **Caching**: Cache expensive default calculations
-- **Simple values**: Prefer simple default values over complex calculations
-- **Conditional logic**: Keep default logic simple and fast
-
-### Error Prevention
-
-- **Validation**: Ensure defaults pass validation rules
-- **Type compatibility**: Ensure defaults are compatible with coercion types
-- **Error handling**: Handle failures in dynamic default calculations
-- **Testing**: Test default behavior thoroughly, especially for dynamic defaults
-
-### Documentation and Maintenance
-
-- **Document defaults**: Clearly document the purpose and behavior of defaults
-- **Consistent patterns**: Use consistent default patterns across related parameters
-- **Review regularly**: Review defaults periodically to ensure they remain appropriate
-- **Version carefully**: Consider backward compatibility when changing defaults
 
 ---
 

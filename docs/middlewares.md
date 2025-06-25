@@ -1,70 +1,85 @@
 # Middlewares
 
-Middlewares provide a Rack-style wrapper system around task execution, enabling cross-cutting concerns like logging, authentication, caching, and error handling. Middleware can wrap task execution to provide additional functionality while maintaining clean separation of concerns.
+Middleware provides Rack-style wrappers around task execution for cross-cutting concerns like authentication, logging, caching, and error handling.
 
-## Key Features
+## Table of Contents
 
-- **Rack-style Architecture**: Familiar middleware pattern for Ruby developers
-- **Execution Wrapping**: Wrap task execution with before/after logic
-- **Short-circuiting**: Middleware can halt execution and return early
-- **Flexible Types**: Support class, instance, and proc-based middleware
-- **Inheritance Support**: Middleware is inherited from parent task classes
-- **Composable Stack**: Build complex behavior by composing simple middleware
+- [Using Middleware](#using-middleware)
+  - [Class Middleware](#class-middleware)
+  - [Instance Middleware](#instance-middleware)
+  - [Proc Middleware](#proc-middleware)
+- [Execution Order](#execution-order)
+- [Short-circuiting](#short-circuiting)
+- [Inheritance](#inheritance)
+- [Built-in Middleware](#built-in-middleware)
+  - [Timeout Middleware](#timeout-middleware)
+- [Writing Custom Middleware](#writing-custom-middleware)
 
-> [!TIP]
-> Middleware is inheritable, making it perfect for setting up global cross-cutting concerns like authentication, logging, metrics collection, or error handling across all tasks.
+## Using Middleware
 
-## Middleware Declaration
+Declare middleware using the `use` method in your task classes:
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  # Class-based middleware
   use AuthenticationMiddleware
-  use LoggingMiddleware
+  use LoggingMiddleware, level: :info
   use CachingMiddleware, ttl: 300
 
   def call
-    # Business logic implementation
+    context.order = Order.find(order_id)
+    context.order.process!
   end
 end
 ```
 
-## Middleware Types
-
-CMDx supports three types of middleware, each with different use cases:
-
 ### Class Middleware
 
+The most common pattern - pass the middleware class with optional initialization arguments:
+
 ```ruby
-class LoggingMiddleware < CMDx::Middleware
-  def initialize(level: :info)
-    @level = level
+class AuditMiddleware < CMDx::Middleware
+  def initialize(action:, resource_type:)
+    @action = action
+    @resource_type = resource_type
   end
 
   def call(task, callable)
-    Rails.logger.public_send(@level, "Starting #{task.class.name}")
-
     result = callable.call(task)
 
-    Rails.logger.public_send(@level, "Finished #{task.class.name}: #{result.status}")
+    if result.success?
+      AuditLog.create!(
+        action: @action,
+        resource_type: @resource_type,
+        resource_id: task.context.id,
+        user_id: task.context.current_user.id
+      )
+    end
+
     result
   end
 end
 
 class ProcessOrderTask < CMDx::Task
-  use LoggingMiddleware, level: :debug
+  use AuditMiddleware, action: 'process', resource_type: 'Order'
 
   def call
-    # Business logic
+    context.order = Order.find(order_id)
+    context.order.process!
   end
 end
 ```
 
 ### Instance Middleware
 
+Pre-configured middleware instances for complex initialization:
+
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  use LoggingMiddleware.new(level: :warn)
+  use LoggingMiddleware.new(
+    level: :debug,
+    formatter: JSON::JSONFormatter.new,
+    tags: ['order', 'payment']
+  )
 
   def call
     # Business logic
@@ -74,12 +89,16 @@ end
 
 ### Proc Middleware
 
+Inline middleware for simple cases:
+
 ```ruby
 class ProcessOrderTask < CMDx::Task
   use proc { |task, callable|
-    puts "Before task execution"
+    start_time = Time.current
     result = callable.call(task)
-    puts "After task execution"
+    duration = Time.current - start_time
+
+    Rails.logger.info "#{task.class.name} completed in #{duration}s"
     result
   }
 
@@ -91,75 +110,115 @@ end
 
 ## Execution Order
 
-Middleware executes in a nested fashion, with the first declared middleware wrapping all subsequent middleware and the task execution:
+Middleware executes in nested fashion - first declared wraps all others:
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  use FirstMiddleware      # Outermost wrapper
-  use SecondMiddleware     # Middle wrapper
-  use ThirdMiddleware      # Innermost wrapper
+  use TimingMiddleware         # 1st: outermost
+  use AuthenticationMiddleware # 2nd: middle
+  use ValidationMiddleware     # 3rd: innermost
 
   def call
-    # Core business logic
+    # Core logic executes last
   end
 end
 
 # Execution flow:
-# 1. FirstMiddleware before
-# 2.   SecondMiddleware before
-# 3.     ThirdMiddleware before
-# 4.       [task.call method]
-# 5.     ThirdMiddleware after
-# 6.   SecondMiddleware after
-# 7. FirstMiddleware after
+# 1. TimingMiddleware before
+# 2.   AuthenticationMiddleware before
+# 3.     ValidationMiddleware before
+# 4.       [task execution]
+# 5.     ValidationMiddleware after
+# 6.   AuthenticationMiddleware after
+# 7. TimingMiddleware after
 ```
 
 > [!IMPORTANT]
-> Middleware executes in declaration order for "before" logic and reverse order for "after" logic, creating a nested execution pattern.
+> Middleware executes in declaration order for setup and reverse order for cleanup, creating proper nesting.
 
-## Short-circuiting Execution
+## Short-circuiting
 
-Middleware can halt execution by not calling the next middleware in the chain:
+Middleware can halt execution by not calling the next callable:
 
 ```ruby
-class AuthenticationMiddleware < CMDx::Middleware
+class RateLimitMiddleware < CMDx::Middleware
+  def initialize(limit: 100, window: 1.hour)
+    @limit = limit
+    @window = window
+  end
+
   def call(task, callable)
-    unless task.context.user&.authenticated?
-      task.fail!(reason: "Authentication required")
+    key = "rate_limit:#{task.context.current_user.id}"
+    current_count = Rails.cache.read(key) || 0
+
+    if current_count >= @limit
+      task.fail!(reason: "Rate limit exceeded: #{@limit} requests per hour")
       return task.result
     end
 
+    Rails.cache.write(key, current_count + 1, expires_in: @window)
     callable.call(task)
   end
 end
 
-class ProcessOrderTask < CMDx::Task
-  use AuthenticationMiddleware
+class SendEmailTask < CMDx::Task
+  use RateLimitMiddleware, limit: 50, window: 1.hour
 
   def call
-    # This will only execute if authentication passes
-    context.order = Order.find(order_id)
-    context.order.process!
+    # Only executes if rate limit check passes
+    EmailService.deliver(
+      to: email_address,
+      subject: subject,
+      body: message_body
+    )
   end
 end
 ```
 
-## Middleware Inheritance
+## Inheritance
 
-Middleware is inherited from parent classes, enabling architectural patterns:
+Middleware is inherited from parent classes, enabling application-wide patterns:
 
 ```ruby
 class ApplicationTask < CMDx::Task
-  # Global middleware for all tasks
-  use RequestIdMiddleware
-  use LoggingMiddleware
-  use MetricsMiddleware
+  use RequestIdMiddleware      # All tasks get request tracking
+  use PerformanceMiddleware    # All tasks get performance monitoring
+  use ErrorReportingMiddleware # All tasks get error reporting
 end
 
 class ProcessOrderTask < ApplicationTask
-  # Inherits all ApplicationTask middleware plus these specific ones
-  use AuthenticationMiddleware
-  use CachingMiddleware, ttl: 300
+  use AuthenticationMiddleware  # Specific to order processing
+  use OrderValidationMiddleware # Domain-specific validation
+
+  def call
+    # Inherits all ApplicationTask middleware plus order-specific ones
+  end
+end
+```
+
+> [!TIP]
+> Middleware is inherited by subclasses, making it ideal for setting up global concerns across all tasks in your application.
+
+## Built-in Middleware
+
+### Timeout Middleware
+
+Enforces execution time limits:
+
+```ruby
+class ProcessLargeReportTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: 300 # 5 minutes
+
+  def call
+    # Long-running report generation
+  end
+end
+
+# Conditional timeout
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout,
+      seconds: 60,
+      unless: -> { Rails.env.development? }
 
   def call
     # Business logic
@@ -167,168 +226,68 @@ class ProcessOrderTask < ApplicationTask
 end
 ```
 
-## Practical Examples
+> [!WARNING]
+> Tasks that exceed their timeout will be interrupted with a `CMDx::TimeoutError` and automatically marked as failed.
 
-### Authentication Middleware
+## Writing Custom Middleware
 
-```ruby
-class AuthenticationMiddleware < CMDx::Middleware
-  def initialize(required_role: nil)
-    @required_role = required_role
-  end
-
-  def call(task, callable)
-    user = task.context.current_user
-
-    unless user&.authenticated?
-      task.fail!(reason: "Authentication required")
-      return task.result
-    end
-
-    if @required_role && !user.has_role?(@required_role)
-      task.fail!(reason: "Insufficient permissions")
-      return task.result
-    end
-
-    callable.call(task)
-  end
-end
-```
-
-### Monitoring Middleware
+Inherit from `CMDx::Middleware` and implement the `call` method:
 
 ```ruby
-class MonitoringMiddleware < CMDx::Middleware
+class DatabaseTransactionMiddleware < CMDx::Middleware
   def call(task, callable)
-    result = callable.call(task)
-
-    MetricsService.record_success(
-      task: task.class.name,
-      duration: result.runtime
-    )
-
-    result
-  rescue => error
-    MetricsService.record_failure(
-      task: task.class.name,
-      duration: Time.current - start_time,
-      error: error.class.name
-    )
-
-    raise
-  end
-end
-```
-
-## Advanced Patterns
-
-### Conditional Middleware
-
-```ruby
-class ConditionalCachingMiddleware < CMDx::Middleware
-  def call(task, callable)
-    if task.context.cache_enabled?
-      cache_key = "task:#{task.class.name}:#{task.context.cache_key}"
-
-      cached_result = Rails.cache.read(cache_key)
-      return cached_result if cached_result
-
+    ActiveRecord::Base.transaction do
       result = callable.call(task)
 
-      Rails.cache.write(cache_key, result, expires_in: 1.hour) if result.success?
+      # Rollback transaction if task failed
+      raise ActiveRecord::Rollback if result.failed?
+
       result
-    else
-      callable.call(task)
     end
   end
 end
-```
 
-### Context Modification
+class CircuitBreakerMiddleware < CMDx::Middleware
+  def initialize(failure_threshold: 5, reset_timeout: 60)
+    @failure_threshold = failure_threshold
+    @reset_timeout = reset_timeout
+  end
 
-```ruby
-class RequestContextMiddleware < CMDx::Middleware
   def call(task, callable)
-    # Add request context information
-    task.context.request_id = SecureRandom.uuid
-    task.context.started_at = Time.current
-    task.context.environment = Rails.env
+    circuit_key = "circuit:#{task.class.name}"
+
+    if circuit_open?(circuit_key)
+      task.fail!(reason: "Circuit breaker is open")
+      return task.result
+    end
 
     result = callable.call(task)
 
-    # Add completion information
-    task.context.completed_at = Time.current
-    task.context.duration = task.context.completed_at - task.context.started_at
+    if result.failed?
+      increment_failures(circuit_key)
+    else
+      reset_circuit(circuit_key)
+    end
 
     result
-  end
-end
-```
-
-### Retry Middleware
-
-```ruby
-class RetryMiddleware < CMDx::Middleware
-  def initialize(max_attempts: 3, backoff: 1.0)
-    @max_attempts = max_attempts
-    @backoff = backoff
-  end
-
-  def call(task, callable)
-    attempts = 0
-
-    begin
-      attempts += 1
-      callable.call(task)
-    rescue StandardError => error
-      if attempts < @max_attempts && retryable_error?(error)
-        sleep(@backoff * attempts)
-        retry
-      else
-        raise
-      end
-    end
   end
 
   private
 
-  def retryable_error?(error)
-    error.is_a?(Net::TimeoutError) ||
-    error.is_a?(Net::HTTPServerException)
+  def circuit_open?(key)
+    failures = Rails.cache.read("#{key}:failures") || 0
+    failures >= @failure_threshold
+  end
+
+  def increment_failures(key)
+    Rails.cache.increment("#{key}:failures", 1, expires_in: @reset_timeout)
+  end
+
+  def reset_circuit(key)
+    Rails.cache.delete("#{key}:failures")
   end
 end
 ```
-
-## Best Practices
-
-### Middleware Design
-
-- **Single Responsibility**: Each middleware should handle one concern
-- **Fail Fast**: Validate conditions early and short-circuit when appropriate
-- **Preserve Context**: Avoid modifying task context unless necessary
-- **Handle Errors Gracefully**: Consider how errors should propagate through the stack
-
-### Performance Considerations
-
-- **Minimize Overhead**: Keep middleware logic lightweight
-- **Avoid Blocking Operations**: Use async processing when possible
-- **Cache Expensive Operations**: Store results when they can be reused
-- **Monitor Execution Time**: Track middleware performance in production
-
-### Error Handling
-
-- **Propagate Appropriately**: Decide whether to handle, transform, or propagate errors
-- **Log Contextually**: Include relevant task and middleware information
-- **Maintain Stack Integrity**: Ensure middleware doesn't break the execution chain
-- **Use Result Objects**: Prefer task.fail!() over raising exceptions when possible
-
-### Registry Management
-
-- **Array-like Operations**: Use standard Array methods for inspection and manipulation
-- **Inheritance Aware**: Consider how middleware inheritance affects behavior
-- **Order Dependent**: Be mindful of middleware execution order
-- **Environment Specific**: Use different middleware for different environments
-- **Testing Isolation**: Use `clear` method to reset middleware collection in tests
 
 ---
 

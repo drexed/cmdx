@@ -4,10 +4,28 @@ A CMDx::Batch orchestrates sequential execution of multiple tasks in a linear pi
 
 Batches inherit from Task, gaining all task capabilities including hooks, parameter validation, result tracking, and configuration. The key difference is that batches coordinate other tasks rather than implementing business logic directly.
 
-> [!WARNING]
-> Do **NOT** define a `call` method in batch classes. The batch class automatically provides the call logic.
+## Table of Contents
+
+- [Basic Usage](#basic-usage)
+- [Task Declaration](#task-declaration)
+- [Context Propagation](#context-propagation)
+- [Conditional Execution](#conditional-execution)
+- [Halt Behavior](#halt-behavior)
+  - [Default Behavior](#default-behavior)
+  - [Class-Level Configuration](#class-level-configuration)
+  - [Group-Level Configuration](#group-level-configuration)
+  - [Available Result Statuses](#available-result-statuses)
+- [Process Method Options](#process-method-options)
+  - [Condition Callables](#condition-callables)
+- [Nested Batches](#nested-batches)
+- [Error Handling](#error-handling)
+- [Task Settings Integration](#task-settings-integration)
+- [Generator](#generator)
 
 ## Basic Usage
+
+> [!WARNING]
+> Do **NOT** define a `call` method in batch classes. The batch class automatically provides the call logic.
 
 ```ruby
 class BatchProcessOrders < CMDx::Batch
@@ -31,7 +49,7 @@ end
 
 ## Task Declaration
 
-Tasks are declared using the `process` method and organized into groups with shared execution options. Multiple calls to `process` create separate groups that can have different conditional logic and halt behavior.
+Tasks are declared using the `process` method and organized into groups with shared execution options:
 
 ```ruby
 class BatchSendNotifications < CMDx::Batch
@@ -41,20 +59,14 @@ class BatchSendNotifications < CMDx::Batch
   # Multiple tasks in one declaration (grouped)
   process SendEmailTask, SendSmsTask, SendPushTask
 
-  # Tasks with specific options
+  # Tasks with conditions
   process SendWebhookTask, if: proc { context.webhook_enabled? }
-  process SendSmsTask, unless: :sms_disabled?
-
-  # Critical tasks with custom halt behavior
-  process CoreTask1, CoreTask2, batch_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
-
-  # Optional tasks that never halt execution
-  process OptionalTask1, OptionalTask2, batch_halt: []
+  process SendSlackTask, unless: :slack_disabled?
 
   private
 
-  def sms_disabled?
-    !context.user.sms_enabled?
+  def slack_disabled?
+    !context.user.slack_enabled?
   end
 end
 ```
@@ -62,32 +74,21 @@ end
 > [!IMPORTANT]
 > Process steps are executed in the order they are declared (FIFO: first in, first out).
 
-## Execution Flow
-
-Batch execution follows a structured algorithm:
-
-1. **Group Iteration**: Process each group in declaration order
-2. **Condition Evaluation**: Check `:if`/`:unless` conditions for the group
-3. **Task Execution**: Run each task in the group sequentially
-4. **Result Evaluation**: Check task result against halt conditions
-5. **Halt Decision**: Stop execution if halt conditions are met, otherwise continue
-6. **Context Propagation**: Pass updated context to next task/group
-
 ## Context Propagation
 
 The context object is shared across all tasks in the batch, creating a data pipeline:
 
 ```ruby
 class BatchProcessEcommerce < CMDx::Batch
-  process ValidateOrderTask      # Sets context.validation_result
-  process CalculateTaxTask       # Uses context.order, sets context.tax_amount
-  process ChargePaymentTask      # Uses context.tax_amount, sets context.payment_id
-  process FulfillOrderTask       # Uses context.payment_id, sets context.tracking_number
+  process ValidateOrderTask # Sets context.validation_result
+  process CalculateTaxTask  # Uses context.order, sets context.tax_amount
+  process ChargePaymentTask # Uses context.tax_amount, sets context.payment_id
+  process FulfillOrderTask  # Uses context.payment_id, sets context.tracking_number
 end
 
 result = BatchProcessEcommerce.call(order: order)
 # Final context contains data from all executed tasks
-result.context.validation_result  # From ValidateOrderTask
+result.context.validation_result # From ValidateOrderTask
 result.context.tax_amount        # From CalculateTaxTask
 result.context.payment_id        # From ChargePaymentTask
 result.context.tracking_number   # From FulfillOrderTask
@@ -98,23 +99,22 @@ result.context.tracking_number   # From FulfillOrderTask
 Tasks can be executed conditionally using `:if` and `:unless` options. Conditions can be procs, lambdas, or method names:
 
 ```ruby
-class BatchProcessConditional < CMDx::Batch
-  # Always execute
-  process BaseTask
+class BatchProcessUser < CMDx::Batch
+  process ValidateUserTask
 
   # Proc condition
-  process PremiumTask, if: proc { context.user.premium? }
+  process UpgradeToPremiumTask, if: proc { context.user.premium? }
 
   # Lambda condition
-  process InternationalTask, unless: -> { context.order.domestic? }
+  process ProcessInternationalTask, unless: -> { context.user.domestic? }
 
   # Method condition
-  process DebugTask, if: :debug_enabled?
+  process LogDebugInfoTask, if: :debug_enabled?
 
   # Complex condition
-  process AdvancedTask, if: proc {
+  process SendSpecialOfferTask, if: proc {
     context.user.active? &&
-    context.feature_enabled?(:advanced_features) &&
+    context.feature_enabled?(:offers) &&
     Time.current.hour.between?(9, 17)
   }
 
@@ -135,10 +135,10 @@ Batches control execution flow through halt behavior, which determines when to s
 By default, batches halt on `FAILED` status but continue on `SKIPPED`. This reflects the philosophy that skipped tasks are bypass mechanisms, not execution blockers.
 
 ```ruby
-class BatchProcessWithDefaultHalt < CMDx::Batch
-  process TaskA    # If this fails, batch stops
-  process TaskB    # If this is skipped, batch continues
-  process TaskC    # This only runs if TaskA succeeds
+class BatchProcessData < CMDx::Batch
+  process LoadDataTask     # If this fails, batch stops
+  process ValidateDataTask # If this is skipped, batch continues
+  process SaveDataTask     # This only runs if LoadDataTask and ValidateDataTask don't fail
 end
 ```
 
@@ -147,21 +147,21 @@ end
 Configure halt behavior for the entire batch using `task_settings!`:
 
 ```ruby
-class BatchProcessStrict < CMDx::Batch
+class BatchProcessCriticalData < CMDx::Batch
   # Halt on both failed and skipped results
   task_settings!(batch_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
-  process CriticalTask
-  process AnotherCriticalTask
+  process LoadCriticalDataTask
+  process ValidateCriticalDataTask
 end
 
-class BatchProcessPermissive < CMDx::Batch
+class BatchProcessOptionalData < CMDx::Batch
   # Never halt, always continue
   task_settings!(batch_halt: [])
 
-  process OptionalTask1
-  process OptionalTask2
-  process OptionalTask3
+  process TryLoadDataTask
+  process TryValidateDataTask
+  process TrySaveDataTask
 end
 ```
 
@@ -170,16 +170,16 @@ end
 Different groups can have different halt behavior:
 
 ```ruby
-class BatchProcessFlexible < CMDx::Batch
+class BatchProcessUserAccount < CMDx::Batch
   # Critical tasks - halt on any failure or skip
-  process CoreTask1, CoreTask2,
+  process CreateUserTask, ValidateUserTask,
     batch_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
 
   # Optional tasks - never halt execution
-  process OptionalTask1, OptionalTask2, batch_halt: []
+  process SendWelcomeEmailTask, CreateProfileTask, batch_halt: []
 
   # Notification tasks - use default behavior (halt on failed only)
-  process NotifyTask1, NotifyTask2
+  process NotifyAdminTask, LogUserCreationTask
 end
 ```
 
@@ -206,18 +206,18 @@ The `process` method supports the following options:
 Conditions can be provided in several formats:
 
 ```ruby
-class BatchProcessWithConditions < CMDx::Batch
+class BatchProcessAccount < CMDx::Batch
   # Proc - executed in batch instance context
-  process TaskA, if: proc { context.user.admin? }
+  process UpgradeAccountTask, if: proc { context.user.admin? }
 
   # Lambda - executed in batch instance context
-  process TaskB, unless: -> { context.maintenance_mode? }
+  process MaintenanceModeTask, unless: -> { context.maintenance_mode? }
 
   # Symbol - method name called on batch instance
-  process TaskC, if: :feature_enabled?
+  process AdvancedFeatureTask, if: :feature_enabled?
 
   # String - method name called on batch instance
-  process TaskD, unless: "skip_task?"
+  process OptionalTask, unless: "skip_task?"
 
   private
 
@@ -236,25 +236,25 @@ end
 Batches can process other batches, creating hierarchical workflows:
 
 ```ruby
-class BatchPreProcess < CMDx::Batch
+class BatchPreProcessData < CMDx::Batch
   process ValidateInputTask
   process SanitizeDataTask
 end
 
-class BatchProcessCore < CMDx::Batch
+class BatchProcessData < CMDx::Batch
   process TransformDataTask
-  process ProcessBusinessLogicTask
+  process ApplyBusinessLogicTask
 end
 
-class BatchPostProcess < CMDx::Batch
+class BatchPostProcessData < CMDx::Batch
   process GenerateReportTask
   process SendNotificationTask
 end
 
-class BatchProcessMaster < CMDx::Batch
-  process BatchPreProcess
-  process BatchProcessCore, if: proc { context.pre_processing_successful? }
-  process BatchPostProcess, unless: proc { context.skip_post_processing? }
+class BatchProcessCompleteData < CMDx::Batch
+  process BatchPreProcessData
+  process BatchProcessData, if: proc { context.pre_processing_successful? }
+  process BatchPostProcessData, unless: proc { context.skip_post_processing? }
 end
 ```
 
@@ -263,13 +263,13 @@ end
 Batch execution follows the same error handling patterns as individual tasks:
 
 ```ruby
-class BatchHandleErrors < CMDx::Batch
-  process TaskA  # May raise exceptions
-  process TaskB  # May fail validation
-  process TaskC  # May return fault results
+class BatchProcessUserData < CMDx::Batch
+  process LoadUserDataTask # May raise exceptions
+  process ValidateUserTask # May fail validation
+  process SaveUserDataTask # May return fault results
 end
 
-result = BatchHandleErrors.call(data: invalid_data)
+result = BatchProcessUserData.call(data: user_data)
 
 case result.status
 when "success"
@@ -289,7 +289,7 @@ end
 Batches support all task settings and can be configured like regular tasks:
 
 ```ruby
-class BatchProcessConfigured < CMDx::Batch
+class BatchProcessPayment < CMDx::Batch
   # Configure batch-specific settings
   task_settings!(
     batch_halt: [CMDx::Result::FAILED],
@@ -306,7 +306,7 @@ class BatchProcessConfigured < CMDx::Batch
   after_execution :cleanup_resources
 
   process ValidateOrderTask
-  process ProcessOrderTask
+  process ProcessPaymentTask
   process NotifyUserTask, if: proc { context.notify_user }
 
   private
@@ -337,13 +337,10 @@ class BatchProcessOrder < ApplicationBatch
 end
 ```
 
-The generator:
-- Creates batch files in `app/commands/batch_[name].rb`
-- Inherits from `ApplicationBatch` if available, otherwise `CMDx::Batch`
-- Handles proper naming conventions (removes "Batch" prefix if provided)
-- Follows Rails generator conventions for class names and file paths
+> [!NOTE]
+> The generator creates batch files in `app/commands/batch_[name].rb`, inherits from `ApplicationBatch` if available (otherwise `CMDx::Batch`) and handles proper naming conventions.
 
 ---
 
-- **Prev:** [Hooks](https://github.com/drexed/cmdx/blob/main/docs/hooks.md)
+- **Prev:** [Middlewares](https://github.com/drexed/cmdx/blob/main/docs/middlewares.md)
 - **Next:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)

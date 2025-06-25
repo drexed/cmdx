@@ -10,13 +10,6 @@ module CMDx
   # encounter `skip!` or `fail!` conditions. They carry the full context of the
   # interrupted task, including the result object with its metadata and execution state.
   #
-  # ## Key Features
-  #
-  # - **Result Integration**: Direct access to the task result that caused the fault
-  # - **Context Delegation**: Automatic delegation to task, run, and context objects
-  # - **Dynamic Subclassing**: Automatic fault type creation based on result status
-  # - **Advanced Matching**: Sophisticated exception matching with `for?` and `matches?`
-  # - **I18n Support**: Internationalized error messages with fallback defaults
   #
   # ## Fault Types
   #

@@ -5,10 +5,18 @@ of CMDx, encapsulating business logic within a structured, reusable object. Whil
 CMDx offers extensive features like parameter validation, hooks, and state tracking,
 only a `call` method is required to create a functional task.
 
+## Table of Contents
+
+- [Basic Task Structure](#basic-task-structure)
+- [Task Execution](#task-execution)
+- [Inheritance and Application Tasks](#inheritance-and-application-tasks)
+- [Generator](#generator)
+- [Task Lifecycle](#task-lifecycle)
+
 ## Basic Task Structure
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
 
   def call
     # Your business logic here
@@ -29,10 +37,10 @@ Tasks are executed using class-level call methods, not by instantiating objects 
 
 ```ruby
 # Execute a task
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 # Access the result
-result.success?     #=> true
+result.success?      #=> true
 result.context.order #=> <Order id: 123>
 ```
 
@@ -46,38 +54,29 @@ class ApplicationTask < CMDx::Task
   # Shared configuration and functionality
 end
 
-# app/tasks/process_order_task.rb
-class ProcessOrderTask < ApplicationTask
+# app/tasks/process_user_order_task.rb
+class ProcessUserOrderTask < ApplicationTask
   def call
     # Implementation
   end
 end
 ```
 
-## Available Features
-
-Tasks can leverage many built-in features:
-
-- **Parameter validation** with required/optional parameters
-- **Type coercion** for automatic data conversion
-- **Hooks** for lifecycle event handling
-- **State tracking** with success/failure/skip states
-- **Context storage** for data sharing between tasks
-- **Error handling** with custom exceptions
-- **Logging** with structured output
-
 ## Generator
 
 Rails applications can use the built-in generator to create task templates:
 
 ```bash
-rails g cmdx:task ProcessOrder
+rails g cmdx:task ProcessUserOrder
 ```
 
-This creates `app/tasks/process_order_task.rb` with:
+This creates `app/tasks/process_user_order_task.rb` with:
 - Proper inheritance from `ApplicationTask` (if available) or `CMDx::Task`
 - Basic structure with parameter definitions
 - Template implementation
+
+> [!TIP]
+> Use the generator to maintain consistent task structure and naming conventions across your application.
 
 ## Task Lifecycle
 
@@ -88,13 +87,6 @@ Every task follows a predictable lifecycle:
 3. **Execution** - The `call` method runs business logic
 4. **Completion** - Result finalized with state and status
 5. **Freezing** - Task becomes immutable after execution
-
-## Best Practices
-
-- **Design tasks to be small and focused** on a single responsibility
-- **Compose complex workflows** by calling multiple tasks rather than building monolithic task objects
-- **Use consistent naming conventions** following `Verb + Noun + Task` pattern
-- **Leverage inheritance** for shared functionality across related tasks
 
 > [!IMPORTANT]
 > Tasks are single-use objects. Once executed, they are frozen and cannot

@@ -5,6 +5,18 @@ the progress of tasks through their complete execution journey. States provide
 insight into where a task is in its lifecycle and enable lifecycle-based
 decision making and monitoring.
 
+## Table of Contents
+
+- [State Definitions](#state-definitions)
+- [State Transitions](#state-transitions)
+- [State Predicates](#state-predicates)
+- [State-Based Callbacks](#state-based-callbacks)
+- [State vs Status Distinction](#state-vs-status-distinction)
+- [State Inspection and Monitoring](#state-inspection-and-monitoring)
+- [State-Based Conditional Logic](#state-based-conditional-logic)
+- [State Transitions in Complex Workflows](#state-transitions-in-complex-workflows)
+- [State Persistence and Logging](#state-persistence-and-logging)
+
 ## State Definitions
 
 | State         | Description |
@@ -24,12 +36,15 @@ initialized -> executing -> complete    (successful execution)
 initialized -> executing -> interrupted (failed/halted execution)
 ```
 
+> [!IMPORTANT]
+> States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
+
 ### Automatic State Management
 
 States are automatically managed during task execution and should **never** be modified manually:
 
 ```ruby
-task = ProcessOrderTask.new
+task = ProcessUserOrderTask.new
 task.result.state #=> "initialized"
 
 # During task execution, states transition automatically:
@@ -37,7 +52,7 @@ task.result.state #=> "initialized"
 # 2. executing -> complete (successful completion)
 # 3. executing -> interrupted (on failure/halt)
 
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 result.state #=> "complete" (if successful)
 ```
 
@@ -46,7 +61,7 @@ result.state #=> "complete" (if successful)
 These methods handle state transitions internally and are not intended for direct use:
 
 ```ruby
-result = ProcessOrderTask.new.result
+result = ProcessUserOrderTask.new.result
 
 # Internal state transition methods
 result.executing!   # initialized -> executing
@@ -55,12 +70,15 @@ result.interrupt!   # executing -> interrupted
 result.executed!    # executing -> complete OR interrupted (based on status)
 ```
 
+> [!WARNING]
+> State transition methods (`executing!`, `complete!`, `interrupt!`) are for internal framework use only. Never call these methods directly in your application code.
+
 ## State Predicates
 
 Use state predicates to check the current execution lifecycle:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Check current state
 result.initialized? #=> false (after execution)
@@ -102,7 +120,7 @@ end
 Results provide callback methods for state-based conditional execution:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Individual state callbacks
 result
@@ -119,7 +137,7 @@ result
 ### Callback Chaining and Combinations
 
 ```ruby
-ProcessOrderTask
+ProcessUserOrderTask
   .call(order_id: 123)
   .on_complete { |result|
     # Only runs if task completed successfully
@@ -138,6 +156,9 @@ ProcessOrderTask
   }
 ```
 
+> [!TIP]
+> Use state-based callbacks for lifecycle event handling. The `on_executed` callback is particularly useful for cleanup operations that should run regardless of success or failure.
+
 ## State vs Status Distinction
 
 Understanding the difference between states and statuses is crucial:
@@ -146,7 +167,7 @@ Understanding the difference between states and statuses is crucial:
 - **Status**: Execution outcome (`success`, `skipped`, `failed`)
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # State indicates WHERE in the lifecycle
 result.state    #=> "complete" (finished executing)
@@ -155,7 +176,7 @@ result.state    #=> "complete" (finished executing)
 result.status   #=> "success" (executed successfully)
 
 # Both can be different for interrupted tasks
-failed_result = FailingTask.call rescue nil
+failed_result = ProcessFailingOrderTask.call
 failed_result.state   #=> "interrupted" (execution stopped)
 failed_result.status  #=> "failed" (outcome was failure)
 ```
@@ -171,12 +192,15 @@ failed_result.status  #=> "failed" (outcome was failure)
 | `interrupted` | `failed`  | Task stopped due to failure |
 | `interrupted` | `skipped` | Task stopped by skip condition |
 
+> [!NOTE]
+> State tracks the execution lifecycle (where the task is), while status tracks the outcome (how the task ended). Both provide valuable but different information about task execution.
+
 ## State Inspection and Monitoring
 
 States provide valuable information for monitoring and debugging:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Basic state information
 puts "Execution state: #{result.state}"
@@ -187,7 +211,7 @@ result.to_h[:state]  #=> "complete"
 
 # Human-readable inspection
 result.to_s
-#=> "ProcessOrderTask: type=Task index=0 state=complete status=success outcome=success..."
+#=> "ProcessUserOrderTask: type=Task index=0 state=complete status=success outcome=success..."
 ```
 
 ## State-Based Conditional Logic
@@ -241,27 +265,27 @@ end
 For workflows with multiple tasks, state tracking becomes more complex:
 
 ```ruby
-class ProcessComplexWorkflowTask < CMDx::Task
+class ProcessOrderWorkflowTask < CMDx::Task
   def call
     # Each subtask goes through its own state lifecycle
-    first_result = FirstStepTask.call(context)   # states: init -> exec -> complete
-    second_result = SecondStepTask.call(context) # states: init -> exec -> complete
+    first_result = ValidateOrderDataTask.call(context)    # states: init -> exec -> complete
+    second_result = ProcessOrderPaymentTask.call(context) # states: init -> exec -> complete
 
     # Main task state reflects its own execution
     context.workflow_completed = true
   end
 end
 
-result = ProcessComplexWorkflowTask.call
+result = ProcessOrderWorkflowTask.call
 run = result.run
 
 # Main task state
 result.state            #=> "complete"
 
 # Individual task states
-run.results[0].state    #=> "complete" (ProcessComplexWorkflowTask)
-run.results[1].state    #=> "complete" (FirstStepTask)
-run.results[2].state    #=> "complete" (SecondStepTask)
+run.results[0].state    #=> "complete" (ProcessOrderWorkflowTask)
+run.results[1].state    #=> "complete" (ValidateOrderDataTask)
+run.results[2].state    #=> "complete" (ProcessOrderPaymentTask)
 ```
 
 ## State Persistence and Logging
@@ -269,12 +293,12 @@ run.results[2].state    #=> "complete" (SecondStepTask)
 States are automatically captured in result serialization:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Hash representation includes state
 result.to_h
 #=> {
-#     class: "ProcessOrderTask",
+#     class: "ProcessUserOrderTask",
 #     index: 0,
 #     state: "complete",
 #     status: "success",
@@ -294,29 +318,6 @@ result.run.to_h
 #     ]
 #   }
 ```
-
-## Best Practices
-
-### State Checking
-
-- **Use `executed?`** to check if a task has finished (regardless of outcome)
-- **Use `complete?`** to check for successful execution lifecycle completion
-- **Use `interrupted?`** to detect execution problems or halts
-- **Avoid manual state modification** - states are automatically managed
-
-### Callback Usage
-
-- **Use state callbacks** for lifecycle-based logic (cleanup, monitoring)
-- **Combine state and status callbacks** for comprehensive result handling
-- **Chain callbacks** for fluent result processing
-- **Use `on_executed`** for logic that should run regardless of success/failure
-
-### Monitoring and Debugging
-
-- **Include state information** in logging and monitoring
-- **Use state transitions** to track task execution flow
-- **Monitor interrupted states** for system health
-- **Combine state and status information** for complete execution picture
 
 ---
 

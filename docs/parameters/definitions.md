@@ -2,14 +2,27 @@
 
 Parameters provide a contract to verify that task execution arguments match expected requirements and structure. They define the interface between task callers and task implementation, enabling automatic validation, type coercion, and method generation for clean parameter access within tasks.
 
+## Table of Contents
+
+- [Parameter Fundamentals](#parameter-fundamentals)
+- [Parameter Sources](#parameter-sources)
+- [Nested Parameters](#nested-parameters)
+- [Parameter Method Generation](#parameter-method-generation)
+- [Parameter Options and Configuration](#parameter-options-and-configuration)
+- [Parameter Introspection](#parameter-introspection)
+- [Error Handling](#error-handling)
+
 ## Parameter Fundamentals
 
-Parameters are defined using `required` and `optional` class methods that automatically create accessor methods within task instances. Parameters are resolved from call arguments and made available as instance methods matching the parameter names.
+Parameters are defined using `required` and `optional` class methods that automatically create accessor methods within task instances. Parameters are matched from call arguments and made available as instance methods.
+
+> [!IMPORTANT]
+> Required parameters must be provided in call arguments or task execution will fail.
 
 ### Basic Parameter Definition
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class CreateOrderTask < CMDx::Task
   # Must be provided in call arguments
   required :order_id
 
@@ -18,31 +31,25 @@ class ProcessOrderTask < CMDx::Task
 
   # Multiple parameters in one declaration
   required :customer_id, :product_id
-  optional :notes, :metadata
+  optional :notes, :shipping_method
 
   def call
-    order_id    #=> 123 (from call arguments)
-    priority    #=> "high" (from call arguments) or nil
-    customer_id #=> 456 (from call arguments)
-    notes       #=> "Special handling" or nil
+    order_id        #=> 123 (from call arguments)
+    priority        #=> "high" or nil
+    customer_id     #=> 456 (from call arguments)
+    shipping_method #=> "express" or nil
   end
 end
 
 # Parameters passed as keyword arguments
-ProcessOrderTask.call(
+CreateOrderTask.call(
   order_id: 123,
   customer_id: 456,
+  product_id: 789,
   priority: "high",
-  notes: "Special handling"
+  shipping_method: "express"
 )
 ```
-
-### Parameter Requirements
-
-- **Required parameters** must be provided in call arguments or task execution fails
-- **Optional parameters** return `nil` if not provided in call arguments
-- **Parameter names** become instance methods accessible within the task
-- **Call arguments** are matched to parameter names using symbol keys
 
 ## Parameter Sources
 
@@ -64,7 +71,6 @@ class UpdateUserTask < CMDx::Task
   end
 end
 
-# Context receives all call arguments
 UpdateUserTask.call(user_id: 123, email: "user@example.com")
 ```
 
@@ -73,17 +79,17 @@ UpdateUserTask.call(user_id: 123, email: "user@example.com")
 ```ruby
 class ProcessUserOrderTask < CMDx::Task
   # Delegate to user object
-  required :user_id, source: :user
-  required :name, source: :user
+  required :name, :email, source: :user
 
   # Delegate to order object
-  required :total, source: :order
+  required :total, :status, source: :order
   optional :discount, source: :order
 
   def call
-    user_id  #=> delegates to user.user_id
     name     #=> delegates to user.name
+    email    #=> delegates to user.email
     total    #=> delegates to order.total
+    status   #=> delegates to order.status
     discount #=> delegates to order.discount
   end
 
@@ -98,7 +104,6 @@ class ProcessUserOrderTask < CMDx::Task
   end
 end
 
-# Only need IDs in call arguments
 ProcessUserOrderTask.call(user_id: 123, order_id: 456)
 ```
 
@@ -109,20 +114,14 @@ class ProcessDynamicParameterTask < CMDx::Task
   # Lambda source for dynamic resolution
   required :company_name, source: -> { user.company }
 
-  # Proc source with complex logic
-  optional :region, source: proc {
-    user.address&.country == "US" ? user.address.state : user.address.country
-  }
-
   # Method name sources
   required :account_type, source: :determine_account_type
-  optional :access_level, source: "calculate_access_level"
+  optional :access_level, source: :calculate_access_level
 
   def call
-    company_name  #=> resolved via lambda
-    region        #=> resolved via proc logic
-    account_type  #=> result of determine_account_type method
-    access_level  #=> result of calculate_access_level method
+    company_name #=> resolved via lambda
+    account_type #=> result of determine_account_type method
+    access_level #=> result of calculate_access_level method
   end
 
   private
@@ -132,63 +131,55 @@ class ProcessDynamicParameterTask < CMDx::Task
   end
 
   def determine_account_type
-    context.user.premium? ? "premium" : "standard"
+    user.premium? ? "premium" : "standard"
   end
 
   def calculate_access_level
-    context.user.admin? ? "admin" : "user"
+    user.admin? ? "admin" : "user"
   end
 end
 ```
 
 ## Nested Parameters
 
-Nested parameters allow complex parameter structures where child parameters automatically inherit their parent as the source. This enables validation and access of structured data while maintaining clean parameter definitions.
+Nested parameters allow complex parameter structures where child parameters automatically inherit their parent as the source. This enables validation and access of structured data.
+
+> [!NOTE]
+> Child parameters are only required when their parent parameter is provided.
 
 ### Basic Nesting
 
 ```ruby
-class ProcessShippingTask < CMDx::Task
+class CreateShippingLabelTask < CMDx::Task
   # Parent parameter with nested children
   required :shipping_address do
-    required :street, :city, :state
-    optional :apartment, :unit
+    required :street, :city, :state, :zip_code
+    optional :apartment_number
   end
 
   # Optional parent with required children
   optional :billing_address do
-    required :street, :city  # Only required if billing_address provided
+    required :street, :city # Only required if billing_address provided
     optional :same_as_shipping
   end
 
   def call
     # Parent parameter access
-    shipping_address #=> { street: "123 Main St", city: "Miami", state: "FL" }
+    shipping_address #=> { street: "123 Main St", city: "Miami", ... }
 
     # Child parameter access (delegates to parent)
-    street     #=> "123 Main St" (from shipping_address.street)
-    city       #=> "Miami" (from shipping_address.city)
-    apartment  #=> nil (optional, not provided)
-
-    # Conditional child access
-    if billing_address
-      # These are available because billing_address was provided
-      billing_street = street  # Would access billing_address.street
-      billing_city = city      # Would access billing_address.city
-    end
+    street           #=> "123 Main St" (from shipping_address.street)
+    city             #=> "Miami" (from shipping_address.city)
+    apartment_number #=> nil (optional, not provided)
   end
 end
 
-# Nested data in call arguments
-ProcessShippingTask.call(
+CreateShippingLabelTask.call(
   shipping_address: {
     street: "123 Main St",
     city: "Miami",
-    state: "FL"
-  },
-  billing_address: {
-    street: "456 Oak Ave",
-    city: "Orlando"
+    state: "FL",
+    zip_code: "33101"
   }
 )
 ```
@@ -196,7 +187,7 @@ ProcessShippingTask.call(
 ### Multi-Level Nesting
 
 ```ruby
-class ProcessComplexDataTask < CMDx::Task
+class CreateUserProfileTask < CMDx::Task
   required :user do
     required :name, :email
 
@@ -209,23 +200,14 @@ class ProcessComplexDataTask < CMDx::Task
         required :notifications  # Required if preferences provided
       end
     end
-
-    optional :addresses do
-      required :primary do
-        required :street, :city
-        optional :apartment
-      end
-      optional :secondary
-    end
   end
 
   def call
     # Access at any nesting level
-    name        #=> delegates to user.name
-    email       #=> delegates to user.email
-    age         #=> delegates to user.profile.age
-    theme       #=> delegates to user.profile.preferences.theme
-    street      #=> delegates to user.addresses.primary.street
+    name  #=> delegates to user.name
+    email #=> delegates to user.email
+    age   #=> delegates to user.profile.age
+    theme #=> delegates to user.profile.preferences.theme
   end
 end
 ```
@@ -239,73 +221,62 @@ class ValidateOrderTask < CMDx::Task
     required :total, type: :float
 
     optional :customer do
-      required :email, format: { with: /@/ }  # Required if customer provided
-      optional :phone, format: { with: /\d{10}/ }
-    end
-
-    optional :shipping do
-      required :method, inclusion: { in: %w[standard express overnight] }
-      required :address do  # Required if shipping provided
-        required :street, :city, :state
-        optional :apartment
-      end
+      required :email, format: { with: /@/ }
+      optional :phone, format: { with: /\A\d{10}\z/ }
     end
   end
 
   def call
-    # All nested validations automatically enforced
-    items  #=> validated as array
-    total  #=> validated as float
-    email  #=> validated with regex (if customer provided)
-    method #=> validated against inclusion list (if shipping provided)
+    items #=> validated as array
+    total #=> validated as float
+    email #=> validated with regex (if customer provided)
+    phone #=> validated phone format (if provided)
   end
 end
 ```
 
 ## Parameter Method Generation
 
-Parameters automatically generate accessor methods with configurable naming
-to prevent conflicts and enable flexible parameter access patterns.
+Parameters automatically generate accessor methods that delegate to their configured sources.
 
-### Method Name Resolution
+> [!TIP]
+> Parameter names become instance methods accessible within the task.
 
 ```ruby
-class ProcessMethodGenerationTask < CMDx::Task
-
+class ProcessPaymentTask < CMDx::Task
   # Standard method generation
-  required :user_id        # Generates: user_id method
+  required :payment_id # Generates: payment_id method
 
   # Custom source with method name
-  required :account_name, source: :account  # Generates: account_name method
+  required :account_name, source: :account # Generates: account_name method
 
   # Nested parameter method generation
-  required :address do
-    required :street       # Generates: street method (delegates to address.street)
-    required :postal_code  # Generates: postal_code method
+  required :billing_info do
+    required :card_number  # Generates: card_number method
+    required :expiry_date  # Generates: expiry_date method
   end
 
   def call
-    user_id      #=> accesses context.user_id
+    payment_id   #=> accesses context.payment_id
     account_name #=> accesses account.account_name
-    street       #=> accesses address.street
-    postal_code  #=> accesses address.postal_code
+    card_number  #=> accesses billing_info.card_number
+    expiry_date  #=> accesses billing_info.expiry_date
   end
 
   private
 
   def account
-    @account ||= Account.find(user_id)
+    @account ||= Account.find(context.account_id)
   end
-
 end
 ```
 
-### Parameter Options and Configuration
+## Parameter Options and Configuration
 
 Parameters support extensive configuration options for validation, coercion, defaults, and custom behavior:
 
 ```ruby
-class ProcessConfigurableParameterTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
   # Basic configuration
   required :user_id, type: :integer
   optional :priority, type: :string, default: "normal"
@@ -319,14 +290,13 @@ class ProcessConfigurableParameterTask < CMDx::Task
   # Complex configuration
   optional :metadata,
     type: :hash,
-    default: {},
-    custom: { validator: MetadataValidator }
+    default: {}
 
   # Nested with configuration
   required :shipping_info do
     required :method,
       type: :string,
-      inclusion: { in: %w[standard express] }
+      inclusion: { in: %w[standard express overnight] }
 
     required :address, type: :hash do
       required :street, :city, type: :string, presence: true
@@ -335,21 +305,20 @@ class ProcessConfigurableParameterTask < CMDx::Task
   end
 
   def call
-    # All parameters available with validation and coercion applied
-    user_id       #=> integer (coerced)
-    priority      #=> "normal" (default) or provided value
-    email         #=> validated string with @ symbol
-    metadata      #=> hash (coerced) with custom validation
-    method        #=> validated against inclusion list
-    street        #=> validated non-empty string
-    zip           #=> validated 5-digit string
+    user_id  #=> integer (coerced)
+    priority #=> "normal" (default) or provided value
+    email    #=> validated string with @ symbol
+    metadata #=> hash (coerced)
+    method   #=> validated against inclusion list
+    street   #=> validated non-empty string
+    zip      #=> validated 5-digit string
   end
 end
 ```
 
 ## Parameter Introspection
 
-Tasks provide access to their parameter definitions for introspection, debugging, and dynamic behavior:
+Tasks provide access to their parameter definitions for introspection and debugging:
 
 ```ruby
 class ProcessIntrospectionTask < CMDx::Task
@@ -365,20 +334,16 @@ class ProcessIntrospectionTask < CMDx::Task
     # Access parameter definitions
     params = self.class.cmd_parameters
 
-    params.size                    #=> 3 (user_id, email, address)
-    params.first.name              #=> :user_id
-    params.first.required?         #=> true
-    params.first.type              #=> :integer
+    params.size            #=> 3 (user_id, email, address)
+    params.first.name      #=> :user_id
+    params.first.required? #=> true
+    params.first.type      #=> :integer
 
     # Nested parameter access
     address_param = params.find { |p| p.name == :address }
-    address_param.children.size    #=> 3 (street, city, apartment)
+    address_param.children.size            #=> 3
     address_param.children.first.name      #=> :street
     address_param.children.first.required? #=> true
-
-    # Parameter serialization
-    params.to_h  #=> Array of parameter hash representations
-    params.to_s  #=> Human-readable parameter descriptions
   end
 end
 ```
@@ -387,8 +352,11 @@ end
 
 Parameter validation failures result in structured error information:
 
+> [!WARNING]
+> Invalid parameters will cause task execution to fail with detailed error messages.
+
 ```ruby
-class ProcessValidationExampleTask < CMDx::Task
+class ValidateUserTask < CMDx::Task
   required :age, type: :integer, numeric: { min: 18, max: 120 }
   required :email, type: :string, format: { with: /@/ }
   optional :phone, type: :string, format: { with: /\A\d{10}\z/ }
@@ -399,7 +367,7 @@ class ProcessValidationExampleTask < CMDx::Task
 end
 
 # Invalid parameters
-result = ProcessValidationExampleTask.call(
+result = ValidateUserTask.call(
   age: "invalid",
   email: "not-an-email",
   phone: "123"
@@ -416,36 +384,6 @@ result.metadata
 #     }
 #   }
 ```
-
-## Best Practices
-
-### Parameter Design
-
-- **Use descriptive parameter names** that clearly indicate their purpose
-- **Prefer `required` for essential business data**, `optional` for configuration
-- **Group related parameters using nesting** for complex data structures
-- **Use appropriate types** for automatic coercion and validation
-
-### Source Selection
-
-- **Use default `:context` source** for simple call arguments
-- **Use custom sources** for computed or derived values
-- **Use proc/lambda sources** for dynamic resolution
-- **Avoid complex logic in source definitions** - delegate to private methods
-
-### Validation Strategy
-
-- **Apply validation at parameter level** rather than in business logic
-- **Use built-in validators** for common patterns (format, presence, inclusion)
-- **Create custom validators** for business-specific rules
-- **Provide clear, actionable error messages**
-
-### Nested Parameters
-
-- **Use nesting for logically grouped parameters**
-- **Keep nesting levels reasonable** (typically 2-3 levels maximum)
-- **Make parent parameters optional** when child parameters are conditional
-- **Consider the trade-off** between nesting and flat parameter structures
 
 ---
 

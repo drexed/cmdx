@@ -2,6 +2,18 @@
 
 Calling a task executes the business logic within it. Tasks provide two execution methods that handle success and failure scenarios differently. Understanding when to use each method is crucial for proper error handling and control flow.
 
+## Table of Contents
+
+- [Execution Methods Overview](#execution-methods-overview)
+- [Non-bang Call (`call`)](#non-bang-call-call)
+- [Bang Call (`call!`)](#bang-call-call)
+- [Parameter Passing](#parameter-passing)
+- [Direct Instantiation](#direct-instantiation)
+- [Result Propagation (`throw!`)](#result-propagation-throw)
+- [Result Callbacks](#result-callbacks)
+- [Task State Lifecycle](#task-state-lifecycle)
+- [Return Value Details](#return-value-details)
+
 ## Execution Methods Overview
 
 | Method | Returns | Exceptions | Use Case |
@@ -11,31 +23,31 @@ Calling a task executes the business logic within it. Tasks provide two executio
 
 ## Non-bang Call (`call`)
 
-The `call` method always returns a `CMDx::Result` object regardless of the execution outcome. This is the preferred method for most use cases as it provides consistent error handling without exceptions.
+The `call` method always returns a `CMDx::Result` object regardless of execution outcome. This is the preferred method for most use cases.
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 12345)
 
 # Check execution state
-result.success?     #=> true/false
-result.failed?      #=> true/false
-result.skipped?     #=> true/false
+result.success?         #=> true/false
+result.failed?          #=> true/false
+result.skipped?         #=> true/false
 
 # Access result data
-result.context.order_id #=> 123
+result.context.order_id #=> 12345
 result.runtime          #=> 0.05 (seconds)
-result.state           #=> "complete"
-result.status          #=> "success"
+result.state            #=> "complete"
+result.status           #=> "success"
 ```
 
 ### Handling Different Outcomes
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 12345)
 
 case result.status
 when "success"
-  puts "Order processed: #{result.context.order.id}"
+  puts "Order processed: #{result.context.order_id}"
 when "skipped"
   puts "Order skipped: #{result.metadata[:reason]}"
 when "failed"
@@ -49,75 +61,74 @@ The bang `call!` method raises a `CMDx::Fault` exception when tasks fail or are 
 
 ```ruby
 begin
-  result = ProcessOrderTask.call!(order_id: 123)
-  puts "Success: #{result.context.order.id}"
+  result = ProcessOrderTask.call!(order_id: 12345)
+  puts "Order processed: #{result.context.order_id}"
 rescue CMDx::Failed => e
   # Handle failure
-  retry_job(e.result)
+  RetryOrderJob.perform_later(e.result.context.order_id)
 rescue CMDx::Skipped => e
   # Handle skip
-  log_skip(e.result)
+  Rails.logger.info("Order skipped: #{e.result.metadata[:reason]}")
 end
 ```
 
 ### Exception Types
 
-Different task outcomes raise specific exceptions:
-
-- **`CMDx::Failed`** - Raised when task execution fails
-- **`CMDx::Skipped`** - Raised when task execution is skipped
-- **Other custom exceptions** based on `task_halt` configuration
+| Exception | Raised When | Purpose |
+|-----------|-------------|---------|
+| `CMDx::Failed` | Task execution fails | Handle failure scenarios |
+| `CMDx::Skipped` | Task execution is skipped | Handle skip scenarios |
 
 ## Parameter Passing
 
-Both call methods accept parameters that become available in the task context:
+Both methods accept parameters that become available in the task context:
 
 ```ruby
-# Pass parameters directly
+# Direct parameters
 result = ProcessOrderTask.call(
-  order_id: 123,
+  order_id: 12345,
   notify_customer: true,
   priority: "high"
 )
 
-# Pass existing context
-existing_context = CMDx::Context.build(order_id: 123)
+# Existing context
+existing_context = CMDx::Context.build(order_id: 12345)
 result = ProcessOrderTask.call(existing_context)
 
-# Pass result context from another task
-previous_result = ValidateOrderTask.call(order_id: 123)
-result = ProcessOrderTask.call(previous_result.context)
+# From another task result
+validation_result = ValidateOrderTask.call(order_id: 12345)
+result = ProcessOrderTask.call(validation_result.context)
 ```
 
 ## Direct Instantiation
 
-Tasks can be instantiated directly using the `new` method, providing more flexibility for advanced use cases, testing, and custom execution patterns:
+Tasks can be instantiated directly for advanced use cases, testing, and custom execution patterns:
 
 ```ruby
 # Direct instantiation
-task = ProcessOrderTask.new(order_id: 123, notify_customer: true)
+task = ProcessOrderTask.new(order_id: 12345, notify_customer: true)
 
-# Access task properties before execution
-task.id                    #=> "abc123..." (unique task ID)
-task.context.order_id      #=> 123
+# Access properties before execution
+task.id                      #=> "abc123..." (unique task ID)
+task.context.order_id        #=> 12345
 task.context.notify_customer #=> true
-task.result.state          #=> "initialized"
+task.result.state            #=> "initialized"
 
-# Manual execution (advanced use case)
+# Manual execution
 task.perform
-task.result.success?       #=> true/false
+task.result.success?         #=> true/false
 ```
 
-### Direct vs Class Method Execution
+### Execution Approaches
 
 | Approach | Use Case | Benefits |
 |----------|----------|----------|
-| `TaskClass.call(...)` | Standard execution | Simple, consistent, handles all lifecycle |
+| `TaskClass.call(...)` | Standard execution | Simple, handles full lifecycle |
 | `TaskClass.call!(...)` | Exception-based flow | Automatic fault raising |
-| `TaskClass.new(...).perform` | Advanced scenarios | Full control, testing, custom patterns |
+| `TaskClass.new(...).perform` | Advanced scenarios | Full control, testing flexibility |
 
 > [!NOTE]
-> Direct instantiation gives you access to the task instance before and after execution, but you're responsible for calling the execution method. Use class methods (`call`/`call!`) for standard use cases.
+> Direct instantiation gives you access to the task instance before and after execution, but you must call the execution method manually.
 
 ## Result Propagation (`throw!`)
 
@@ -133,7 +144,8 @@ class ProcessOrderTask < CMDx::Task
     throw!(payment_result) if payment_result.failed?
 
     # Continue with main logic
-    finalize_order
+    context.order = Order.find(context.order_id)
+    finalize_order_processing
   end
 end
 ```
@@ -144,28 +156,28 @@ Results support fluent callback patterns for conditional logic:
 
 ```ruby
 ProcessOrderTask
-  .call(order_id: 123)
+  .call(order_id: 12345)
   .on_success { |result|
-    NotificationService.call(result.context)
+    SendOrderConfirmationTask.call(result.context)
   }
   .on_failed { |result|
-    ErrorReporter.notify(result.metadata)
+    Honeybadger.notify(result.metadata[:error])
   }
   .on_executed { |result|
-    MetricsService.record_execution_time(result.runtime)
+    StatsD.timing('order.processing_time', result.runtime)
   }
 ```
 
 ### Available Callbacks
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 12345)
 
 # State-based callbacks
 result
-  .on_complete { |r| handle_completion(r) }
+  .on_complete { |r| cleanup_resources(r) }
   .on_interrupted { |r| handle_interruption(r) }
-  .on_executed { |r| cleanup_resources(r) }
+  .on_executed { |r| log_execution_time(r) }
 
 # Status-based callbacks
 result
@@ -184,10 +196,10 @@ result
 Tasks progress through defined states during execution:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 12345)
 
 # Execution states
-result.state  #=> "initialized" -> "executing" -> "complete"/"interrupted"
+result.state #=> "initialized" -> "executing" -> "complete"/"interrupted"
 
 # Outcome statuses
 result.status #=> "success"/"failed"/"skipped"
@@ -198,13 +210,13 @@ result.status #=> "success"/"failed"/"skipped"
 The `Result` object provides comprehensive execution information:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 12345)
 
 # Execution metadata
-result.id           #=> "abc123..."  (unique task execution ID)
+result.id           #=> "abc123..."  (unique execution ID)
 result.runtime      #=> 0.05         (execution time in seconds)
 result.task         #=> ProcessOrderTask instance
-result.run          #=> Run object for tracking related executions
+result.run          #=> Run object for tracking executions
 
 # Context and metadata
 result.context      #=> Context with all task data
@@ -217,31 +229,8 @@ result.complete?    #=> true when execution finished
 result.interrupted? #=> true for failed/skipped
 ```
 
-## Best Practices
-
-### When to Use `call`
-
-- **Application controllers** where you handle results explicitly
-- **Services** where consistent return values are important
-- **Testing scenarios** where you need to inspect all outcomes
-- **Batch processing** where exceptions would interrupt the flow
-
-### When to Use `call!`
-
-- **Background jobs** with retry mechanisms
-- **Pipeline operations** where failures should halt execution
-- **Scenarios** where exception-based control flow is preferred
-- **Workflow orchestration** where failures need immediate attention
-
-### Result Handling
-
-- **Use callbacks** for clean conditional execution
-- **Check specific statuses** rather than just success/failure
-- **Preserve result context** when chaining tasks
-- **Leverage `throw!`** for fault propagation in complex workflows
-
 > [!IMPORTANT]
-> Tasks are single-use objects. Once executed, they are frozen and cannot be called again. Create a new task instance (using `call`, `call!`, or `new`) to execute the same task again.
+> Tasks are single-use objects. Once executed, they are frozen and cannot be called again. Create a new task instance to execute the same task again.
 
 ---
 

@@ -5,15 +5,28 @@ complete information about the execution outcome, state, timing, and any data
 produced during the task lifecycle. Results serve as the primary interface for
 inspecting task execution outcomes and chaining task operations.
 
+## Table of Contents
+
+- [Core Result Attributes](#core-result-attributes)
+- [State and Status Information](#state-and-status-information)
+- [Execution Outcome Analysis](#execution-outcome-analysis)
+- [Runtime and Performance](#runtime-and-performance)
+- [Failure Chain Analysis](#failure-chain-analysis)
+- [Index and Position](#index-and-position)
+- [Result Callbacks and Chaining](#result-callbacks-and-chaining)
+- [Serialization and Inspection](#serialization-and-inspection)
+- [Advanced Result Operations](#advanced-result-operations)
+- [Integration with Other Components](#integration-with-other-components)
+
 ## Core Result Attributes
 
 Every result provides access to essential execution information:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 # Core objects
-result.task     #=> <ProcessOrderTask instance>
+result.task     #=> <ProcessUserOrderTask instance>
 result.context  #=> <CMDx::Context with all task data>
 result.run      #=> <CMDx::Run execution tracking>
 result.metadata #=> Hash with execution metadata
@@ -25,12 +38,15 @@ result.status   #=> "success" (execution outcome)
 result.runtime  #=> 0.5 (execution time in seconds)
 ```
 
+> [!NOTE]
+> Result objects are immutable after task execution completes. All result data reflects the final state of the task execution and cannot be modified.
+
 ## State and Status Information
 
 Results provide comprehensive methods for checking execution state and status:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # State predicates (execution lifecycle)
 result.initialized? #=> false (after execution)
@@ -54,7 +70,7 @@ result.bad?         #=> false (skipped or failed)
 Results provide additional methods for understanding execution outcomes:
 
 ```ruby
-result = ComplexWorkflowTask.call
+result = ProcessOrderWorkflowTask.call
 
 # Outcome determination
 result.outcome      #=> "success" (combines state and status)
@@ -71,7 +87,7 @@ result.outcome == result.state     #=> may differ based on failure type
 Results capture detailed timing information:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Execution timing
 result.runtime      #=> 0.5 (total execution time in seconds)
@@ -88,7 +104,7 @@ end #=> returns execution time and stores it
 For failed results, comprehensive failure analysis is available:
 
 ```ruby
-result = ComplexWorkflowTask.call
+result = ProcessOrderWorkflowTask.call
 
 if result.failed?
   # Find the original cause of failure
@@ -111,12 +127,15 @@ if result.failed?
 end
 ```
 
+> [!IMPORTANT]
+> Failure chain analysis is only available for failed results. Use these methods to trace the root cause of failures in complex task workflows.
+
 ## Index and Position
 
 Results track their position within execution runs:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Position in execution sequence
 result.index        #=> 0 (first task in run)
@@ -130,7 +149,7 @@ result.run.results[result.index] == result #=> true
 Results support fluent callback patterns for conditional logic:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # State-based callbacks
 result
@@ -153,10 +172,10 @@ result
 ### Callback Chaining Examples
 
 ```ruby
-ProcessOrderTask
+ProcessUserOrderTask
   .call(order_id: 123)
   .on_success { |result|
-    NotificationService.call(result.context)
+    SendOrderNotificationTask.call(result.context)
   }
   .on_failed { |result|
     ErrorReporter.notify(result.metadata)
@@ -166,6 +185,9 @@ ProcessOrderTask
   }
 ```
 
+> [!TIP]
+> Use result callbacks for clean, functional-style conditional logic. Callbacks return the result object, enabling method chaining and fluent interfaces.
+
 ## Serialization and Inspection
 
 Results provide comprehensive serialization and inspection capabilities:
@@ -173,11 +195,11 @@ Results provide comprehensive serialization and inspection capabilities:
 ### Hash Serialization
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 result.to_h
 #=> {
-#     class: "ProcessOrderTask",
+#     class: "ProcessUserOrderTask",
 #     type: "Task",
 #     index: 0,
 #     id: "abc123...",
@@ -194,10 +216,10 @@ result.to_h
 ### Human-Readable Inspection
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 result.to_s
-#=> "ProcessOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
+#=> "ProcessUserOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
 ```
 
 ### Failure Chain Serialization
@@ -205,20 +227,20 @@ result.to_s
 Failed results include failure chain information:
 
 ```ruby
-failed_result = ComplexTask.call
+failed_result = ProcessOrderWorkflowTask.call
 
 failed_result.to_h
 #=> {
 #     # ... standard result data ...
 #     caused_failure: {
-#       class: "ValidationTask",
+#       class: "ValidateUserOrderTask",
 #       index: 1,
 #       id: "xyz789...",
 #       state: "interrupted",
 #       status: "failed"
 #     },
 #     threw_failure: {
-#       class: "ProcessingTask",
+#       class: "ProcessOrderPaymentTask",
 #       index: 2,
 #       id: "uvw123...",
 #       state: "interrupted",
@@ -227,6 +249,9 @@ failed_result.to_h
 #   }
 ```
 
+> [!NOTE]
+> Serialized results include complete failure chain information for debugging and audit trails. Use `to_h` for structured data and `to_s` for human-readable output.
+
 ## Advanced Result Operations
 
 ### Result Propagation
@@ -234,12 +259,12 @@ failed_result.to_h
 Results can propagate failures to other results:
 
 ```ruby
-class ProcessParentTask < CMDx::Task
+class ProcessOrderBatchTask < CMDx::Task
   def call
-    child_result = ChildTask.call(context)
+    child_result = ValidateOrderDataTask.call(context)
 
     # Propagate child failure with additional context
-    throw!(child_result, parent_context: "During parent execution") if child_result.failed?
+    throw!(child_result, parent_context: "During batch processing") if child_result.failed?
   end
 end
 ```
@@ -247,7 +272,7 @@ end
 ### Conditional Processing
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 case result.status
 when "success"
@@ -268,7 +293,7 @@ end
 ### With Context
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 
 # Context is accessible through result
 result.context.order_id     #=> 123
@@ -281,7 +306,7 @@ result.ctx == result.context #=> true
 ### With Run
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Run provides execution context
 result.run.id               #=> "run-uuid"
@@ -293,37 +318,14 @@ result.run.status           #=> delegates to result.status
 ### With Task
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Task instance is accessible
-result.task.class.name      #=> "ProcessOrderTask"
+result.task.class.name      #=> "ProcessUserOrderTask"
 result.task.id              #=> "task-uuid"
 result.task.context         #=> same as result.context
 result.task.result          #=> same as result
 ```
-
-## Best Practices
-
-### Result Inspection
-
-- **Use `result.good?` and `result.bad?`** for general outcome checking
-- **Use specific status predicates** (`success?`, `failed?`, `skipped?`) for precise logic
-- **Leverage callback methods** for clean conditional execution
-- **Use `to_h` for serialization** and logging
-- **Use `to_s` for human-readable** debugging output
-
-### Error Handling
-
-- **Check `result.failed?`** before accessing failure chain methods
-- **Use `result.metadata`** to access structured error information
-- **Leverage failure chain methods** for debugging complex workflows
-- **Consider `outcome`** for unified state/status representation
-
-### Performance Monitoring
-
-- **Use `result.runtime`** for performance tracking
-- **Monitor `result.index`** for execution order analysis
-- **Combine with run-level metrics** for comprehensive monitoring
 
 ---
 

@@ -2,6 +2,18 @@
 
 Statuses represent the outcome of task execution logic, indicating how the task's business logic concluded. Statuses differ from execution states by focusing on the business outcome rather than the technical execution lifecycle. Understanding statuses is crucial for implementing proper business logic branching and error handling.
 
+## Table of Contents
+
+- [Status Definitions](#status-definitions)
+- [Status Characteristics](#status-characteristics)
+- [Status Predicates](#status-predicates)
+- [Status Transitions](#status-transitions)
+- [Status-Based Callbacks](#status-based-callbacks)
+- [Status Metadata](#status-metadata)
+- [Outcome-Based Logic](#outcome-based-logic)
+- [Status Serialization and Inspection](#status-serialization-and-inspection)
+- [Status vs State vs Outcome](#status-vs-state-vs-outcome)
+
 ## Status Definitions
 
 | Status    | Description |
@@ -9,6 +21,9 @@ Statuses represent the outcome of task execution logic, indicating how the task'
 | `success` | Task execution completed successfully with expected business outcome |
 | `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary |
 | `failed`  | Task stopped execution due to business rule violations, validation errors, or exceptions |
+
+> [!NOTE]
+> Statuses focus on business outcomes, not technical execution states. A task can be technically "complete" but have a "failed" status if business logic determined the operation could not succeed.
 
 ## Status Characteristics
 
@@ -35,7 +50,7 @@ Statuses represent the outcome of task execution logic, indicating how the task'
 Use status predicates to check execution outcomes:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Individual status checks
 result.success? #=> true/false
@@ -100,10 +115,13 @@ failed -> success     # ❌ Cannot transition
 failed -> skipped     # ❌ Cannot transition
 ```
 
+> [!IMPORTANT]
+> Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.
+
 ### Status Transition Examples
 
 ```ruby
-class ProcessConditionalTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
   def call
     # Task starts with success status
     context.result.success? #=> true
@@ -132,7 +150,7 @@ end
 Results provide comprehensive callback methods for status-based logic:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Individual status callbacks
 result
@@ -149,7 +167,7 @@ result
 ### Advanced Callback Patterns
 
 ```ruby
-ProcessOrderTask
+ProcessUserOrderTask
   .call(order_id: 123)
   .on_success { |result|
     # Business success logic
@@ -183,6 +201,9 @@ ProcessOrderTask
   }
 ```
 
+> [!TIP]
+> Use status-based callbacks for business logic branching. The `on_good` and `on_bad` callbacks are particularly useful for handling success/skip vs failed outcomes respectively.
+
 ## Status Metadata
 
 Statuses carry rich metadata providing context about execution outcomes:
@@ -190,7 +211,7 @@ Statuses carry rich metadata providing context about execution outcomes:
 ### Success Metadata
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
   def call
     # Success metadata can include business context
     context.order = Order.find(context.order_id)
@@ -203,7 +224,7 @@ class ProcessOrderTask < CMDx::Task
   end
 end
 
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 result.success?  #=> true
 result.metadata  #=> {} (usually empty for success)
 ```
@@ -211,7 +232,7 @@ result.metadata  #=> {} (usually empty for success)
 ### Skip Metadata
 
 ```ruby
-class ProcessConditionalTask < CMDx::Task
+class ProcessUserOrderTask < CMDx::Task
   def call
     order = Order.find(context.order_id)
 
@@ -228,7 +249,7 @@ class ProcessConditionalTask < CMDx::Task
   end
 end
 
-result = ProcessConditionalTask.call(order_id: 123)
+result = ProcessUserOrderTask.call(order_id: 123)
 if result.skipped?
   result.metadata[:reason]              #=> "Order already processed"
   result.metadata[:processed_at]        #=> 2023-10-01 10:30:00 UTC
@@ -240,7 +261,7 @@ end
 ### Failure Metadata
 
 ```ruby
-class ValidateDataTask < CMDx::Task
+class ValidateOrderDataTask < CMDx::Task
   def call
     unless context.order.valid?
       fail!(
@@ -254,7 +275,7 @@ class ValidateDataTask < CMDx::Task
   end
 end
 
-result = ValidateDataTask.call(order_id: 123)
+result = ValidateOrderDataTask.call(order_id: 123)
 if result.failed?
   result.metadata[:reason]      #=> "Order validation failed"
   result.metadata[:errors]      #=> ["Name can't be blank", "Email is invalid"]
@@ -263,6 +284,9 @@ if result.failed?
   result.metadata[:failed_at]   #=> 2023-10-01 10:30:00 UTC
 end
 ```
+
+> [!TIP]
+> Always try to include rich metadata with skip and fail operations. This information is invaluable for debugging, user feedback, and automated error handling.
 
 ## Outcome-Based Logic
 
@@ -327,7 +351,7 @@ end
 Statuses are fully captured in result serialization:
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Hash representation
 result.to_h[:status]  #=> "success"
@@ -335,7 +359,7 @@ result.to_h[:status]  #=> "success"
 # Full serialization includes status
 result.to_h
 #=> {
-#     class: "ProcessOrderTask",
+#     class: "ProcessUserOrderTask",
 #     index: 0,
 #     state: "complete",
 #     status: "success",
@@ -346,7 +370,7 @@ result.to_h
 
 # Human-readable inspection
 result.to_s
-#=> "ProcessOrderTask: type=Task index=0 state=complete status=success outcome=success..."
+#=> "ProcessUserOrderTask: type=Task index=0 state=complete status=success outcome=success..."
 ```
 
 ## Status vs State vs Outcome
@@ -358,7 +382,7 @@ Understanding the relationship between these concepts:
 - **Outcome**: Combined representation for unified logic
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessUserOrderTask.call
 
 # Different scenarios
 result.state    #=> "complete"
@@ -375,36 +399,6 @@ failed_result.state     #=> "interrupted" (execution stopped)
 failed_result.status    #=> "failed" (business outcome)
 failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)
 ```
-
-## Best Practices
-
-### Status Checking
-
-- **Use `good?` and `bad?`** for general outcome categorization
-- **Use specific status predicates** for precise business logic
-- **Always check status** before accessing status-specific metadata
-- **Consider using callbacks** for clean status-based execution
-
-### Metadata Usage
-
-- **Provide rich, structured metadata** for skips and failures
-- **Include business-relevant context** (error codes, retry flags, timestamps)
-- **Use consistent metadata structure** across similar tasks
-- **Include actionable information** for error handling
-
-### Error Handling
-
-- **Distinguish between business logic failures** and technical exceptions
-- **Provide clear, actionable error messages** in metadata
-- **Include retry indicators** for transient failures
-- **Log appropriate detail level** based on status
-
-### Status Transitions
-
-- **Only transition from success** to skipped/failed
-- **Use `skip!` for business logic** that determines execution is unnecessary
-- **Use `fail!` for business rule violations** or validation errors
-- **Let automatic exception handling** create failed status for technical errors
 
 ---
 

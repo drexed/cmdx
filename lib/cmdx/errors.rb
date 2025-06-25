@@ -10,14 +10,6 @@ module CMDx
   # automatically collecting validation failures and providing convenient methods for
   # error reporting and user feedback.
   #
-  # ## Key Features
-  #
-  # - **Hash-like Interface**: Familiar methods like `[]`, `[]=`, `key?`, `empty?`
-  # - **Error Accumulation**: Multiple errors per attribute with automatic deduplication
-  # - **Message Formatting**: Full message generation with attribute prefixes
-  # - **Rails Compatibility**: Method aliases matching ActiveModel::Errors interface
-  # - **Iteration Support**: Enumerable-like methods for processing errors
-  # - **Validation Integration**: Seamless integration with parameter validation
   #
   # @example Basic error management
   #   errors = Errors.new
