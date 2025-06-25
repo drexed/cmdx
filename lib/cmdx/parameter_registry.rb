@@ -3,34 +3,34 @@
 module CMDx
   # Parameter collection class for managing multiple parameter definitions.
   #
-  # The Parameters class extends Array to provide specialized functionality for
+  # The ParameterRegistry class extends Array to provide specialized functionality for
   # managing collections of Parameter instances within CMDx tasks. It handles
   # validation coordination, serialization, and inspection of parameter groups.
   #
   # @example Basic parameter collection usage
-  #   parameters = Parameters.new
-  #   parameters << Parameter.new(:user_id, klass: Task, type: :integer)
-  #   parameters << Parameter.new(:email, klass: Task, type: :string)
-  #   parameters.valid?  # => true (if all parameters are valid)
+  #   parameter_registry = ParameterRegistry.new
+  #   parameter_registry << Parameter.new(:user_id, klass: Task, type: :integer)
+  #   parameter_registry << Parameter.new(:email, klass: Task, type: :string)
+  #   parameter_registry.valid?  # => true (if all parameters are valid)
   #
   # @example Parameter collection validation
-  #   parameters.validate!(task_instance)  # Validates all parameters
-  #   parameters.invalid?  # => true if any parameter failed validation
+  #   parameter_registry.validate!(task_instance)  # Validates all parameters
+  #   parameter_registry.invalid?  # => true if any parameter failed validation
   #
   # @example Parameter collection serialization
-  #   parameters.to_h  # => Array of parameter hash representations
-  #   parameters.to_s  # => Human-readable parameter descriptions
+  #   parameter_registry.to_h  # => Array of parameter hash representations
+  #   parameter_registry.to_s  # => Human-readable parameter descriptions
   #
   # @see CMDx::Parameter Individual parameter definitions
   # @see CMDx::Task Task parameter integration
-  class Parameters < Array
+  class ParameterRegistry < Array
 
     # Checks if any parameters in the collection are invalid.
     #
     # @return [Boolean] true if any parameter has validation errors, false otherwise
     #
     # @example
-    #   parameters.invalid?  # => true if validation errors exist
+    #   parameter_registry.invalid?  # => true if validation errors exist
     def invalid?
       !valid?
     end
@@ -40,7 +40,7 @@ module CMDx
     # @return [Boolean] true if all parameters are valid, false otherwise
     #
     # @example
-    #   parameters.valid?  # => true if no validation errors exist
+    #   parameter_registry.valid?  # => true if no validation errors exist
     def valid?
       all?(&:valid?)
     end
@@ -56,11 +56,11 @@ module CMDx
     #
     # @example Validating parameters
     #   task = ProcessOrderTask.new
-    #   parameters.validate!(task)  # Validates all parameters
+    #   parameter_registry.validate!(task)  # Validates all parameters
     #
     # @example Validation with nested parameters
     #   # Validates parent parameters and all nested child parameters
-    #   parameters.validate!(task_with_nested_params)
+    #   parameter_registry.validate!(task_with_nested_params)
     def validate!(task)
       each { |p| recursive_validate!(task, p) }
     end
@@ -73,7 +73,7 @@ module CMDx
     # @return [Array<Hash>] Array of serialized parameter data
     #
     # @example
-    #   parameters.to_h
+    #   parameter_registry.to_h
     #   # => [
     #   #   {
     #   #     source: :context,
@@ -98,7 +98,7 @@ module CMDx
     # @return [String] Multi-line parameter descriptions
     #
     # @example
-    #   parameters.to_s
+    #   parameter_registry.to_s
     #   # => "Parameter: name=user_id type=integer source=context required=true
     #   #     Parameter: name=email type=string source=context required=false"
     def to_s

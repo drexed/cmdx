@@ -49,7 +49,7 @@ module CMDx
   #
   # @see Result Result object for execution outcomes
   # @see Context Context object for parameter access
-  # @see Parameters Parameter definition and validation
+  # @see ParameterRegistry Parameter definition and validation
   # @see Batch Batch for executing multiple tasks
   # @since 1.0.0
   class Task
@@ -73,7 +73,7 @@ module CMDx
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new }
-    __cmdx_attr_setting :cmd_parameters, default: -> { Parameters.new }
+    __cmdx_attr_setting :cmd_parameters, default: -> { ParameterRegistry.new }
     __cmdx_attr_setting :cmd_hooks, default: {}
 
     __cmdx_attr_delegator :task_setting, :task_setting?, to: :class
@@ -209,7 +209,7 @@ module CMDx
       # @param attributes [Array<Symbol>] parameter names
       # @param options [Hash] parameter options (type, default, validations, etc.)
       # @param block [Proc] block for nested parameter definitions
-      # @return [Parameters] updated parameters collection
+      # @return [ParameterRegistry] updated parameters collection
       # @example
       #   optional :timeout, type: :integer, default: 30
       #   optional :options, type: :hash do
@@ -226,7 +226,7 @@ module CMDx
       # @param attributes [Array<Symbol>] parameter names
       # @param options [Hash] parameter options (type, validations, etc.)
       # @param block [Proc] block for nested parameter definitions
-      # @return [Parameters] updated parameters collection
+      # @return [ParameterRegistry] updated parameters collection
       # @example
       #   required :user_id, type: :integer
       #   required :profile, type: :hash do

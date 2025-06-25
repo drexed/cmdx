@@ -9,31 +9,31 @@ module CMDx
   # combines them into a cohesive multi-parameter description.
   #
   # @example Basic parameters collection inspection
-  #   parameters = Parameters.new
-  #   parameters << Parameter.new(:user_id, klass: Task, type: :integer, required: true)
-  #   parameters << Parameter.new(:email, klass: Task, type: :string, required: false)
+  #   parameter_registry = ParameterRegistry.new
+  #   parameter_registry << Parameter.new(:user_id, klass: Task, type: :integer, required: true)
+  #   parameter_registry << Parameter.new(:email, klass: Task, type: :string, required: false)
   #
-  #   ParametersInspector.call(parameters)
+  #   ParametersInspector.call(parameter_registry)
   #   # => "Parameter: name=user_id type=integer source=context required=true options={}
   #   #     Parameter: name=email type=string source=context required=false options={}"
   #
   # @example Empty parameters collection
-  #   empty_parameters = Parameters.new
-  #   ParametersInspector.call(empty_parameters)
+  #   empty_parameter_registry = ParameterRegistry.new
+  #   ParametersInspector.call(empty_parameter_registry)
   #   # => ""
   #
   # @example Parameters with validation options
-  #   parameters = Parameters.new
-  #   parameters << Parameter.new(:age, klass: Task, type: :integer,
+  #   parameter_registry = ParameterRegistry.new
+  #   parameter_registry << Parameter.new(:age, klass: Task, type: :integer,
   #                              numeric: { within: 18..120 }, required: true)
-  #   parameters << Parameter.new(:website, klass: Task, type: :string,
+  #   parameter_registry << Parameter.new(:website, klass: Task, type: :string,
   #                              format: { with: /^https?:\/\// }, required: false)
   #
-  #   ParametersInspector.call(parameters)
+  #   ParametersInspector.call(parameter_registry)
   #   # => "Parameter: name=age type=integer source=context required=true options={numeric: {within: 18..120}}
   #   #     Parameter: name=website type=string source=context required=false options={format: {with: /^https?:\/\//}}"
   #
-  # @see CMDx::Parameters Parameter collection management
+  # @see CMDx::ParameterRegistry Parameter collection management
   # @see CMDx::ParameterInspector Individual parameter inspection
   # @see CMDx::Parameter Parameter definition and configuration
   module ParametersInspector
@@ -46,7 +46,7 @@ module CMDx
     # using ParameterInspector, then joins them with newlines to create a
     # comprehensive multi-parameter description.
     #
-    # @param parameters [CMDx::Parameters] The parameters collection to inspect
+    # @param parameters [CMDx::ParameterRegistry] The parameters collection to inspect
     # @return [String] Multi-line formatted parameter descriptions
     #
     # @example Inspecting multiple parameters
@@ -56,11 +56,11 @@ module CMDx
     #   #     Parameter: name=age type=integer source=context required=true"
     #
     # @example Inspecting empty collection
-    #   ParametersInspector.call(Parameters.new)
+    #   ParametersInspector.call(ParameterRegistry.new)
     #   # => ""
     #
     # @example Inspecting single parameter collection
-    #   single_param_collection = Parameters.new
+    #   single_param_collection = ParameterRegistry.new
     #   single_param_collection << Parameter.new(:name, klass: Task)
     #   ParametersInspector.call(single_param_collection)
     #   # => "Parameter: name=name type=virtual source=context required=false options={}"

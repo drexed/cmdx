@@ -9,8 +9,8 @@ module CMDx
   # comprehensive data structure suitable for inspection, logging, and data interchange.
   #
   # @example Basic parameters collection serialization
-  #   parameters = Parameters.new
-  #   parameters << Parameter.new(:user_id, klass: Task, type: :integer, required: true)
+  #   parameter_registry = ParameterRegistry.new
+  #   parameter_registry << Parameter.new(:user_id, klass: Task, type: :integer, required: true)
   #   parameters << Parameter.new(:email, klass: Task, type: :string, required: false)
   #
   #   ParametersSerializer.call(parameters)
@@ -34,22 +34,22 @@ module CMDx
   #   # ]
   #
   # @example Empty parameters collection
-  #   empty_parameters = Parameters.new
-  #   ParametersSerializer.call(empty_parameters)
+  #   empty_parameter_registry = ParameterRegistry.new
+  #   ParametersSerializer.call(empty_parameter_registry)
   #   # => []
   #
   # @example Parameters with validation and nested structures
-  #   parameters = Parameters.new
-  #   parameters << Parameter.new(:age, klass: Task, type: :integer,
+  #   parameter_registry = ParameterRegistry.new
+  #   parameter_registry << Parameter.new(:age, klass: Task, type: :integer,
   #                              numeric: { within: 18..120 }, required: true)
   #
   #   address_param = Parameter.new(:address, klass: Task) do
   #     required :street, :city
   #     optional :apartment
   #   end
-  #   parameters << address_param
+  #   parameter_registry << address_param
   #
-  #   ParametersSerializer.call(parameters)
+  #   ParametersSerializer.call(parameter_registry)
   #   # => [
   #   #   {
   #   #     source: :context,
@@ -73,7 +73,7 @@ module CMDx
   #   #   }
   #   # ]
   #
-  # @see CMDx::Parameters Parameter collection management
+  # @see CMDx::ParameterRegistry Parameter collection management
   # @see CMDx::ParameterSerializer Individual parameter serialization
   # @see CMDx::Parameter Parameter definition and configuration
   module ParametersSerializer
@@ -86,7 +86,7 @@ module CMDx
     # to its hash representation using the Parameter#to_h method, which delegates
     # to ParameterSerializer.
     #
-    # @param parameters [CMDx::Parameters] The parameters collection to serialize
+    # @param parameters [CMDx::ParameterRegistry] The parameters collection to serialize
     # @return [Array<Hash>] Array of serialized parameter data structures
     #
     # @example Serializing multiple parameters
@@ -97,11 +97,11 @@ module CMDx
     #   # ]
     #
     # @example Serializing empty collection
-    #   ParametersSerializer.call(Parameters.new)
+    #   ParametersSerializer.call(ParameterRegistry.new)
     #   # => []
     #
     # @example Serializing single parameter collection
-    #   single_param_collection = Parameters.new
+    #   single_param_collection = ParameterRegistry.new
     #   single_param_collection << Parameter.new(:name, klass: Task, type: :string)
     #   ParametersSerializer.call(single_param_collection)
     #   # => [

@@ -18,6 +18,7 @@
 - Changed ArgumentError to TypeError where checking `is_a?`
 - Improve documentation readability, consistency, completeness
 - Improve test readability, consistency, completeness
+- Renames `Parameters` to `ParameterRegistry`
 ### Removed
 - Removed configuration `task_timeout` and `batch_timeout`
 
