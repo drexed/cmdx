@@ -50,6 +50,7 @@ Or install it yourself as:
   - [States](https://github.com/drexed/cmdx/blob/main/docs/outcomes/states.md)
   - [Statuses](https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md)
 - [Hooks](https://github.com/drexed/cmdx/blob/main/docs/hooks.md)
+- [Middlewares](https://github.com/drexed/cmdx/blob/main/docs/middlewares.md)
 - [Batch](https://github.com/drexed/cmdx/blob/main/docs/batch.md)
 - [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
 - [Tips & Tricks](https://github.com/drexed/cmdx/blob/main/docs/tips_and_tricks.md)

@@ -316,4 +316,101 @@ RSpec.describe CMDx::Result do
       end
     end
   end
+
+  describe ".to_s" do
+    it "returns a string representation" do
+      expect(result.to_s).to be_a(String)
+    end
+  end
+
+  describe "pattern matching" do
+    describe "#deconstruct" do
+      it "returns array with state and status" do
+        expect(result.deconstruct).to eq(%w[complete success])
+      end
+
+      it "supports array pattern matching" do
+        matched = case result
+                  in ["complete", "success"]
+                    true
+                  else
+                    false
+                  end
+
+        expect(matched).to be(true)
+      end
+
+      it "matches failed results" do
+        failed_result = SimulationTask.call(simulate: :fail)
+
+        matched = case failed_result
+                  in ["interrupted", "failed"]
+                    true
+                  else
+                    false
+                  end
+
+        expect(matched).to be(true)
+      end
+    end
+
+    describe "#deconstruct_keys" do
+      it "returns hash with all attributes when keys is nil" do
+        keys_hash = result.deconstruct_keys(nil)
+
+        expect(keys_hash).to include(
+          state: "complete",
+          status: "success",
+          metadata: {},
+          executed: true,
+          good: true,
+          bad: false
+        )
+      end
+
+      it "returns specific keys when requested" do
+        keys_hash = result.deconstruct_keys(%i[state status])
+
+        expect(keys_hash).to eq({
+                                  state: "complete",
+                                  status: "success"
+                                })
+      end
+
+      it "supports hash pattern matching" do
+        matched = case result
+                  in { state: "complete", status: "success" }
+                    true
+                  else
+                    false
+                  end
+
+        expect(matched).to be(true)
+      end
+
+      it "matches against boolean attributes" do
+        matched = case result
+                  in { good: true, bad: false }
+                    true
+                  else
+                    false
+                  end
+
+        expect(matched).to be(true)
+      end
+
+      it "matches failed results with metadata" do
+        failed_result = SimulationTask.call(simulate: :fail)
+
+        matched = case failed_result
+                  in { state: "interrupted", status: "failed", metadata: Hash }
+                    true
+                  else
+                    false
+                  end
+
+        expect(matched).to be(true)
+      end
+    end
+  end
 end

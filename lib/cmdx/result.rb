@@ -496,5 +496,59 @@ module CMDx
       ResultInspector.call(to_h)
     end
 
+    # Deconstructs the result for array pattern matching.
+    #
+    # Enables pattern matching with array syntax to match against
+    # state and status in order.
+    #
+    # @return [Array<String>] Array containing [state, status]
+    #
+    # @example Array pattern matching
+    #   result = ProcessOrderTask.call(order_id: 123)
+    #   case result
+    #   in ["complete", "success"]
+    #     puts "Task completed successfully"
+    #   in ["interrupted", "failed"]
+    #     puts "Task failed"
+    #   end
+    def deconstruct
+      [state, status]
+    end
+
+    # Deconstructs the result for hash pattern matching.
+    #
+    # Enables pattern matching with hash syntax to match against
+    # specific result attributes.
+    #
+    # @param keys [Array<Symbol>] Specific keys to extract (optional)
+    # @return [Hash] Hash containing result attributes
+    #
+    # @example Hash pattern matching
+    #   result = ProcessOrderTask.call(order_id: 123)
+    #   case result
+    #   in { state: "complete", status: "success" }
+    #     puts "Success!"
+    #   in { state: "interrupted", status: "failed", metadata: { reason: String => reason } }
+    #     puts "Failed: #{reason}"
+    #   end
+    #
+    # @example Specific key extraction
+    #   result.deconstruct_keys([:state, :status])
+    #   # => { state: "complete", status: "success" }
+    def deconstruct_keys(keys)
+      attributes = {
+        state: state,
+        status: status,
+        metadata: metadata,
+        executed: executed?,
+        good: good?,
+        bad: bad?
+      }
+
+      return attributes if keys.nil?
+
+      attributes.slice(*keys)
+    end
+
   end
 end

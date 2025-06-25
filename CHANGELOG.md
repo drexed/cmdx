@@ -12,6 +12,7 @@
 - Add YARDoc documentation
 - Add `perform!` and `perform` alias to class `call!` and `call`
 - Allow direct instantiation of Task and Batch objects
+- Add pattern matching of results
 ### Changed
 - Changed configuration to be a PORO class
 - Changed ArgumentError to TypeError where checking `is_a?`

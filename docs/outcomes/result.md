@@ -14,6 +14,7 @@ inspecting task execution outcomes and chaining task operations.
 - [Failure Chain Analysis](#failure-chain-analysis)
 - [Index and Position](#index-and-position)
 - [Result Callbacks and Chaining](#result-callbacks-and-chaining)
+- [Pattern Matching](#pattern-matching)
 - [Serialization and Inspection](#serialization-and-inspection)
 - [Advanced Result Operations](#advanced-result-operations)
 - [Integration with Other Components](#integration-with-other-components)
@@ -187,6 +188,85 @@ ProcessUserOrderTask
 
 > [!TIP]
 > Use result callbacks for clean, functional-style conditional logic. Callbacks return the result object, enabling method chaining and fluent interfaces.
+
+## Pattern Matching
+
+Results support Ruby's pattern matching (Ruby 3.0+) through array and hash deconstruction:
+
+### Array Pattern Matching
+
+Match against state and status in order:
+
+```ruby
+result = ProcessUserOrderTask.call
+
+case result
+in ["complete", "success"]
+  puts "Task completed successfully"
+in ["interrupted", "failed"]
+  puts "Task failed during execution"
+in ["complete", "skipped"]
+  puts "Task was skipped but completed"
+end
+```
+
+### Hash Pattern Matching
+
+Match against specific result attributes:
+
+```ruby
+result = ProcessUserOrderTask.call
+
+case result
+in { state: "complete", status: "success" }
+  puts "Perfect execution!"
+in { state: "interrupted", status: "failed", metadata: { retryable: true } }
+  puts "Failed but can retry"
+in { good: true }
+  puts "Execution went well overall"
+in { bad: true, metadata: { reason: String => reason } }
+  puts "Something went wrong: #{reason}"
+end
+```
+
+### Advanced Pattern Matching
+
+Combine patterns for complex matching logic:
+
+```ruby
+results = BatchProcessTask.call.run.results
+
+results.each do |result|
+  case result
+  in { state: "complete", status: "success", metadata: { processed_count: n } } if n > 100
+    puts "High-volume processing completed: #{n} items"
+  in { executed: true, runtime: time } if time > 5.0
+    puts "Long-running task completed in #{time}s"
+  in { bad: true, metadata: { error_code: code } }
+    handle_error_by_code(code)
+  else
+    puts "Standard result: #{result}"
+  end
+end
+```
+
+### Pattern Matching with Guards
+
+Use guard clauses for conditional matching:
+
+```ruby
+case result
+in { status: "failed", metadata: { attempts: n } } if n < 3
+  retry_task(result)
+in { status: "failed", metadata: { attempts: n } } if n >= 3
+  give_up_task(result)
+in { runtime: time } if time > threshold
+  log_performance_issue(result)
+end
+```
+
+> [!NOTE]
+> Pattern matching requires Ruby 3.0+. The `deconstruct` method returns `[state, status]` for array patterns, while `deconstruct_keys` provides hash access to `state`, `status`, `metadata`, `executed`, `good`, and `bad` attributes.
 
 ## Serialization and Inspection
 
