@@ -8,6 +8,7 @@ as the `call` method, enabling rich integration patterns.
 
 - [Overview](#overview)
 - [Hook Declaration](#hook-declaration)
+- [Hook Classes](#hook-classes)
 - [Available Hooks](#available-hooks)
   - [Validation Hooks](#validation-hooks)
   - [Execution Hooks](#execution-hooks)
@@ -23,6 +24,8 @@ as the `call` method, enabling rich integration patterns.
 
 ## Hook Declaration
 
+Hooks can be declared in multiple ways: method names, procs/lambdas, Hook class instances, or blocks.
+
 ```ruby
 class ProcessOrderTask < CMDx::Task
   # Method name declaration
@@ -31,11 +34,15 @@ class ProcessOrderTask < CMDx::Task
   # Proc/lambda declaration
   on_complete -> { send_telemetry_data }
 
+  # Hook class declaration
+  before_execution LoggingHook.new(:debug)
+  on_success NotificationHook.new([:email, :slack])
+
   # Multiple hooks for same event
   on_success :increment_counter, :send_notification
 
   # Conditional execution
-  on_failure :alert_support, if: :critical_order?
+  on_failed :alert_support, if: :critical_order?
   after_execution :cleanup_resources, unless: :preserve_data?
 
   # Block declaration
@@ -56,6 +63,59 @@ class ProcessOrderTask < CMDx::Task
 
   def preserve_data?
     Rails.env.development?
+  end
+end
+```
+
+## Hook Classes
+
+For complex hook logic or reusable patterns, you can create Hook classes similar to Middleware classes. Hook classes inherit from `CMDx::Hook` and implement the `call(task, hook_type)` method.
+
+### Creating Hook Classes
+
+```ruby
+class NotificationHook < CMDx::Hook
+  def initialize(channels)
+    @channels = Array(channels)
+  end
+
+  def call(task, hook_type)
+    return unless hook_type == :on_success
+
+    @channels.each do |channel|
+      NotificationService.send(channel, "Task #{task.class.name} completed")
+    end
+  end
+end
+```
+
+### Registering Hook Classes
+
+Hook classes can be registered using the `register` class method (recommended) or by directly calling the HookRegistry:
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  # Recommended: Use the register class method
+  register :before_execution, LoggingHook.new(:debug)
+  register :on_success, NotificationHook.new([:email, :slack])
+  register :on_failure, :alert_admin, if: :critical?
+
+  # Alternative: Direct HookRegistry access (less common)
+  # cmd_hooks.register(:after_execution, CleanupHook.new)
+
+  # Traditional hook definitions still work alongside Hook classes
+  before_validation :validate_order_data
+  on_success :update_metrics
+
+  def call
+    context.order = Order.find(order_id)
+    context.order.process!
+  end
+
+  private
+
+  def critical?
+    context.order.value > 10_000
   end
 end
 ```

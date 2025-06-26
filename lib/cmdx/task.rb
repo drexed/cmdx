@@ -73,10 +73,10 @@ module CMDx
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
+    __cmdx_attr_setting :cmd_hooks, default: -> { HookRegistry.new }
     __cmdx_attr_setting :cmd_parameters, default: -> { ParameterRegistry.new }
-    __cmdx_attr_setting :cmd_hooks, default: {}
 
-    __cmdx_attr_delegator :task_setting, :task_setting?, to: :class
+    __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?, to: :class
     __cmdx_attr_delegator :skip!, :fail!, :throw!, to: :result
 
     ##
@@ -149,8 +149,7 @@ module CMDx
       # @return [Array] updated hooks array
       HOOKS.each do |hook|
         define_method(hook) do |*callables, **options, &block|
-          callables << block if block_given?
-          (cmd_hooks[hook] ||= []).push([callables, options]).uniq!
+          cmd_hooks.register(hook, *callables, **options, &block)
         end
       end
 
@@ -201,6 +200,27 @@ module CMDx
       #   use CachingMiddleware.new(ttl: 300)
       def use(middleware, ...)
         cmd_middlewares.use(middleware, ...)
+      end
+
+      ##
+      # Registers hooks for the task execution lifecycle.
+      #
+      # Hooks can observe or modify task execution at specific lifecycle
+      # points like before validation, on success, after execution, etc.
+      #
+      # @param hook [Symbol] The hook type to register for
+      # @param callables [Array<Symbol, Proc, Hook, #call>] Methods, callables, or Hook instances to execute
+      # @param options [Hash] Conditions for hook execution
+      # @option options [Symbol, Proc, #call] :if condition that must be truthy
+      # @option options [Symbol, Proc, #call] :unless condition that must be falsy
+      # @param block [Proc] Block to execute as part of the hook
+      # @return [HookRegistry] updated hook registry
+      # @example
+      #   register :before_execution, LoggingHook.new(:debug)
+      #   register :on_success, NotificationHook.new([:email, :slack])
+      #   register :on_failure, :alert_admin, if: :critical?
+      def register(hook, ...)
+        cmd_hooks.register(hook, ...)
       end
 
       ##
@@ -300,10 +320,9 @@ module CMDx
     #
     # @return [void]
     def perform
-      middlewares = self.class.cmd_middlewares
-      return execute_call if middlewares.empty?
+      return execute_call if cmd_middlewares.empty?
 
-      middlewares.call(self) { |task| task.send(:execute_call) }
+      cmd_middlewares.call(self) { |task| task.send(:execute_call) }
     end
 
     ##
@@ -313,10 +332,9 @@ module CMDx
     # @return [void]
     # @raise [Fault] if task fails and task_halt includes the failure status
     def perform!
-      middlewares = self.class.cmd_middlewares
-      return execute_call! if middlewares.empty?
+      return execute_call! if cmd_middlewares.empty?
 
-      middlewares.call(self) { |task| task.send(:execute_call!) }
+      cmd_middlewares.call(self) { |task| task.send(:execute_call!) }
     end
 
     private
@@ -337,14 +355,14 @@ module CMDx
     # @return [void]
     # @api private
     def before_call
-      TaskHook.call(self, :before_execution)
+      cmd_hooks.call(self, :before_execution)
 
       result.executing!
-      TaskHook.call(self, :on_executing)
+      cmd_hooks.call(self, :on_executing)
 
-      TaskHook.call(self, :before_validation)
+      cmd_hooks.call(self, :before_validation)
       ParameterValidator.call(self)
-      TaskHook.call(self, :after_validation)
+      cmd_hooks.call(self, :after_validation)
     end
 
     ##
@@ -354,14 +372,14 @@ module CMDx
     # @return [void]
     # @api private
     def after_call
-      TaskHook.call(self, :"on_#{result.state}")
-      TaskHook.call(self, :on_executed) if result.executed?
+      cmd_hooks.call(self, :"on_#{result.state}")
+      cmd_hooks.call(self, :on_executed) if result.executed?
 
-      TaskHook.call(self, :"on_#{result.status}")
-      TaskHook.call(self, :on_good) if result.good?
-      TaskHook.call(self, :on_bad) if result.bad?
+      cmd_hooks.call(self, :"on_#{result.status}")
+      cmd_hooks.call(self, :on_good) if result.good?
+      cmd_hooks.call(self, :on_bad) if result.bad?
 
-      TaskHook.call(self, :after_execution)
+      cmd_hooks.call(self, :after_execution)
     end
 
     ##

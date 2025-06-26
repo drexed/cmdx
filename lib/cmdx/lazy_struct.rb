@@ -248,7 +248,7 @@ module CMDx
     #   struct = LazyStruct.new(name: "John", age: 30)
     #   struct.inspect  #=> '#<CMDx::LazyStruct:name="John" :age=30>'
     def inspect
-      "#<#{self.class}#{@table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
+      "#<#{self.class.name}#{@table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
     end
     alias to_s inspect
 
