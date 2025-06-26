@@ -16,6 +16,7 @@ module CMDx
   # - **logger**: Logger instance for task execution logging
   # - **task_halt**: Result statuses that cause `call!` to raise faults
   # - **batch_halt**: Result statuses that halt batch execution
+  # - **middlewares**: Global middleware registry applied to all tasks
   #
   # ## Configuration Hierarchy
   #
@@ -26,20 +27,21 @@ module CMDx
   #
   # @example Basic configuration setup
   #   CMDx.configure do |config|
-
+  #     config.logger = Logger.new($stdout)
   #     config.task_halt = ["failed"] # Only halt on failures
+  #     config.middlewares.use CMDx::Middlewares::Timeout, 30
   #   end
   #
   # @example Rails initializer configuration
   #   # config/initializers/cmdx.rb
   #   CMDx.configure do |config|
-  #     config.logger = Rails.logger
+  #     config.logger = Logger.new($stdout)
   #     config.task_halt = CMDx::Result::FAILED
   #     config.batch_halt = [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
   #
-  #     if Rails.env.production?
-
-  #     end
+  #     # Add global middlewares
+  #     config.middlewares.use CMDx::Middlewares::Timeout, 30
+  #     config.middlewares.use AuthenticationMiddleware if Rails.env.production?
   #   end
   #
   # @example Custom logger configuration
@@ -76,11 +78,10 @@ module CMDx
   class Configuration
 
     # Default configuration values
-    DEFAULT_HALT    = "failed"
-    DEFAULT_TIMEOUT = nil
+    DEFAULT_HALT = "failed"
 
     # Configuration attributes
-    attr_accessor :logger, :task_halt, :batch_halt
+    attr_accessor :logger, :middlewares, :task_halt, :batch_halt
 
     ##
     # Initializes a new configuration with default values.
@@ -88,9 +89,10 @@ module CMDx
     # @example
     #   config = CMDx::Configuration.new
     def initialize
-      @logger        = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-      @task_halt     = DEFAULT_HALT
-      @batch_halt    = DEFAULT_HALT
+      @logger      = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+      @middlewares = MiddlewareRegistry.new
+      @task_halt   = DEFAULT_HALT
+      @batch_halt  = DEFAULT_HALT
     end
 
     ##
@@ -104,6 +106,7 @@ module CMDx
     def to_h
       {
         logger: @logger,
+        middlewares: @middlewares,
         task_halt: @task_halt,
         batch_halt: @batch_halt
       }

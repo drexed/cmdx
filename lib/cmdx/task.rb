@@ -72,7 +72,7 @@ module CMDx
     ].freeze
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
-    __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new }
+    __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
     __cmdx_attr_setting :cmd_parameters, default: -> { ParameterRegistry.new }
     __cmdx_attr_setting :cmd_hooks, default: {}
 

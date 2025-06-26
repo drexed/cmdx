@@ -7,6 +7,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 - [Configuration Hierarchy](#configuration-hierarchy)
 - [Global Configuration](#global-configuration)
   - [Configuration Options](#configuration-options)
+  - [Global Middlewares](#global-middlewares)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
   - [Batch Configuration](#batch-configuration)
@@ -57,7 +58,24 @@ end
 | `task_halt`   | String, Array<String> | `"failed"`     | Result statuses that cause `call!` to raise faults |
 | `batch_halt`  | String, Array<String> | `"failed"`     | Result statuses that halt batch execution |
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
+| `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 
+### Global Middlewares
+
+Configure middlewares that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add middlewares without arguments
+  config.middlewares.use CMDx::Middlewares::Timeout
+
+  # Add middlewares with arguments
+  config.middlewares.use CMDx::Middlewares::Timeout, seconds: 30
+
+  # Add middleware instances
+  config.middlewares.use CMDx::Middlewares::Timeout.new(seconds: 30)
+end
+```
 
 ## Task Settings
 
@@ -114,8 +132,9 @@ end
 
 ```ruby
 # Global configuration
-CMDx.configuration.logger    #=> <Logger instance>
-CMDx.configuration.task_halt #=> "failed"
+CMDx.configuration.logger      #=> <Logger instance>
+CMDx.configuration.task_halt   #=> "failed"
+CMDx.configuration.middlewares #=> <MiddlewareRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task
