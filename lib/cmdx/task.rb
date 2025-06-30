@@ -71,13 +71,19 @@ module CMDx
       *Result::STATES.map { |s| :"on_#{s}" }
     ].freeze
 
-    __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
-    __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
-    __cmdx_attr_setting :cmd_hooks, default: -> { HookRegistry.new(CMDx.configuration.hooks) }
-    __cmdx_attr_setting :cmd_parameters, default: -> { ParameterRegistry.new }
+    __cmdx_attr_setting :task_settings,
+                        default: -> { CMDx.configuration.to_h.merge(tags: []) }
+    __cmdx_attr_setting :cmd_middlewares,
+                        default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
+    __cmdx_attr_setting :cmd_hooks,
+                        default: -> { HookRegistry.new(CMDx.configuration.hooks) }
+    __cmdx_attr_setting :cmd_parameters,
+                        default: -> { ParameterRegistry.new }
 
-    __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?, to: :class
-    __cmdx_attr_delegator :skip!, :fail!, :throw!, to: :result
+    __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?,
+                          to: :class
+    __cmdx_attr_delegator :skip!, :fail!, :throw!,
+                          to: :result
 
     # @return [String] unique identifier for this task instance
     # @return [Errors] collection of validation and execution errors

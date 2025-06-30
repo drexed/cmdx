@@ -30,7 +30,9 @@ module CMDx
   # @see CMDx::Validators Parameter validation modules
   class ParameterValue
 
-    __cmdx_attr_delegator :parent, :method_source, :name, :options, :required?, :optional?, :type, to: :parameter, private: true
+    __cmdx_attr_delegator :parent, :method_source, :name, :options, :required?, :optional?, :type,
+                          to: :parameter,
+                          private: true
 
     # @return [CMDx::Task] The task instance being processed
     # @return [CMDx::Parameter] The parameter definition being processed

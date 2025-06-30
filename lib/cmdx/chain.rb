@@ -71,8 +71,10 @@ module CMDx
   # @see CMDx::Correlator Thread-safe correlation ID management
   class Chain
 
-    __cmdx_attr_delegator :index, to: :results
-    __cmdx_attr_delegator :state, :status, :outcome, :runtime, to: :first_result
+    __cmdx_attr_delegator :index,
+                          to: :results
+    __cmdx_attr_delegator :state, :status, :outcome, :runtime,
+                          to: :first_result
 
     # @return [String] Correlation identifier for tracking across request boundaries (inherits from CMDx::Correlator)
     # @return [Array<CMDx::Result>] Collection of results from related task executions
@@ -136,82 +138,6 @@ module CMDx
     def freeze
       first_result
       super
-    end
-
-    # Gets the index of a specific result within this chain.
-    #
-    # Delegates to the results array to find the index of a given result,
-    # enabling position tracking within the execution sequence.
-    #
-    # @param result [CMDx::Result] The result to find the index for
-    # @return [Integer, nil] The zero-based index or nil if not found
-    #
-    # @example
-    #   chain.index(result)  # => 0 for first result, 1 for second, etc.
-    #
-    # @note This method is delegated from the results array via __cmdx_attr_delegator
-    def index(result)
-      results.index(result)
-    end
-
-    # Gets the execution state of the chain.
-    #
-    # Delegates to the first result's state, representing the overall
-    # execution state of the chain based on the primary task.
-    #
-    # @return [String] The execution state (initialized, executing, complete, interrupted)
-    #
-    # @example
-    #   chain.state  # => "complete"
-    #
-    # @note This method is delegated from the first result via __cmdx_attr_delegator
-    def state
-      first_result&.state
-    end
-
-    # Gets the execution status of the chain.
-    #
-    # Delegates to the first result's status, representing the overall
-    # execution outcome of the chain based on the primary task.
-    #
-    # @return [String] The execution status (success, skipped, failed)
-    #
-    # @example
-    #   chain.status  # => "success"
-    #
-    # @note This method is delegated from the first result via __cmdx_attr_delegator
-    def status
-      first_result&.status
-    end
-
-    # Gets the execution outcome of the chain.
-    #
-    # Delegates to the first result's outcome, representing the final
-    # outcome of the chain based on the primary task.
-    #
-    # @return [String] The execution outcome
-    #
-    # @example
-    #   chain.outcome  # => "success"
-    #
-    # @note This method is delegated from the first result via __cmdx_attr_delegator
-    def outcome
-      first_result&.outcome
-    end
-
-    # Gets the total runtime of the chain.
-    #
-    # Delegates to the first result's runtime, representing the execution
-    # time of the primary task in the chain.
-    #
-    # @return [Float] Runtime in seconds
-    #
-    # @example
-    #   chain.runtime  # => 0.5
-    #
-    # @note This method is delegated from the first result via __cmdx_attr_delegator
-    def runtime
-      first_result&.runtime
     end
 
     # Converts the chain to a hash representation.
