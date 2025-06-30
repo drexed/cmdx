@@ -251,17 +251,81 @@ end
 The middleware follows a hierarchical precedence system for determining correlation IDs:
 
 ```ruby
-# 1. Thread-local correlation takes highest precedence
-CMDx::Correlator.id = "api-request-123"
-ProcessApiRequestTask.call # Uses "api-request-123"
+# 1. Explicit correlation ID takes highest precedence
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: "fixed-correlation-123"
+end
+ProcessOrderTask.call # Always uses "fixed-correlation-123"
 
-# 2. Existing run ID used when no thread correlation
-task_with_run = ProcessOrderTask.call(run: { id: "order-run-456" })
-# Uses "order-run-456"
+# 2. Thread-local correlation when no explicit ID
+CMDx::Correlator.id = "api-request-456"
+ProcessApiRequestTask.call # Uses "api-request-456"
 
-# 3. Generated UUID when neither exists
+# 3. Existing run ID when no explicit or thread correlation
+task_with_run = ProcessOrderTask.call(run: { id: "order-run-789" })
+# Uses "order-run-789"
+
+# 4. Generated UUID when none of the above exist
 CMDx::Correlator.clear
 ProcessOrderTask.call # Uses generated UUID
+```
+
+#### Explicit Correlation IDs
+
+Set fixed correlation IDs for specific tasks or workflows:
+
+```ruby
+class ProcessPaymentTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: "payment-processing"
+
+  def call
+    # Always uses "payment-processing" as correlation ID
+    # Useful for grouping all payment operations
+    context.payment = PaymentService.charge(payment_params)
+  end
+end
+
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}" }
+
+  def call
+    # Dynamic correlation ID based on order
+    # All operations for this order share the same correlation
+    ValidateOrderTask.call(context)
+    ProcessPaymentTask.call(context)
+  end
+end
+```
+
+#### Conditional Correlation
+
+Apply correlation middleware conditionally based on environment or task state:
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  # Only apply correlation in production environments
+  use CMDx::Middlewares::Correlate, unless: -> { Rails.env.development? }
+
+  def call
+    context.order = Order.find(order_id)
+    context.order.process!
+  end
+end
+
+class SendEmailTask < CMDx::Task
+  # Apply correlation only when tracing is enabled
+  use CMDx::Middlewares::Correlate, if: :tracing_enabled?
+
+  def call
+    EmailService.deliver(email_params)
+  end
+
+  private
+
+  def tracing_enabled?
+    context.enable_tracing == true
+  end
+end
 ```
 
 #### Scoped Correlation Context
@@ -311,8 +375,11 @@ class ApiController < ApplicationController
   before_action :set_correlation_id
 
   def process_order
-    # Correlation ID established from request header
+    # Option 1: Use thread-local correlation (inherited by all tasks)
     result = ProcessOrderTask.call(order_params)
+
+    # Option 2: Use explicit correlation ID for this specific request
+    # result = ProcessOrderTask.call(order_params.merge(correlation_id: @correlation_id))
 
     if result.success?
       render json: { order: result.context.order, correlation_id: result.run.id }
@@ -324,9 +391,9 @@ class ApiController < ApplicationController
   private
 
   def set_correlation_id
-    correlation_id = request.headers['X-Correlation-ID'] || SecureRandom.uuid
-    CMDx::Correlator.id = correlation_id
-    response.headers['X-Correlation-ID'] = correlation_id
+    @correlation_id = request.headers['X-Correlation-ID'] || SecureRandom.uuid
+    CMDx::Correlator.id = @correlation_id
+    response.headers['X-Correlation-ID'] = @correlation_id
   end
 end
 
@@ -334,8 +401,21 @@ class ProcessOrderTask < CMDx::Task
   use CMDx::Middlewares::Correlate
 
   def call
-    # Inherits correlation ID from controller
+    # Inherits correlation ID from controller thread context
     # All subtasks will share the same correlation ID
+    ValidateOrderDataTask.call(context)
+    ChargePaymentTask.call(context)
+    SendConfirmationEmailTask.call(context)
+  end
+end
+
+# Alternative: Task-specific correlation for API endpoints
+class ProcessApiOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: -> { "api-order-#{context.request_id}" }
+
+  def call
+    # Uses correlation ID specific to this API request
+    # Overrides any thread-local correlation
     ValidateOrderDataTask.call(context)
     ChargePaymentTask.call(context)
     SendConfirmationEmailTask.call(context)

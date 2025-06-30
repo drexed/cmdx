@@ -23,8 +23,53 @@ RSpec.describe CMDx::Middlewares::Correlate do
     end
   end
 
+  describe "initialization" do
+    it "accepts an explicit correlation ID" do
+      middleware = described_class.new(id: "explicit-123")
+      expect(middleware.id).to eq("explicit-123")
+    end
+
+    it "accepts conditional options" do
+      proc_condition = -> { false }
+      middleware = described_class.new(if: :some_condition, unless: proc_condition)
+
+      expect(middleware.conditional[:if]).to eq(:some_condition)
+      expect(middleware.conditional[:unless]).to eq(proc_condition)
+      expect(middleware.conditional.keys).to contain_exactly(:if, :unless)
+    end
+
+    it "initializes with empty options by default" do
+      middleware = described_class.new
+      expect(middleware.id).to be_nil
+      expect(middleware.conditional).to eq({})
+    end
+  end
+
   describe "#call" do
     context "correlation ID precedence" do
+      context "when explicit correlation ID is provided" do
+        let(:explicit_id) { "explicit-correlation-123" }
+        let(:middleware_with_id) { described_class.new(id: explicit_id) }
+
+        before { CMDx::Correlator.id = "thread-correlation-456" }
+
+        it "uses the explicit correlation ID over thread correlation" do
+          expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
+          expect(callable).to receive(:call).with(task).and_return(result)
+
+          middleware_with_id.call(task, callable)
+        end
+
+        it "uses the explicit correlation ID over run ID" do
+          task_with_run = build_task.new
+          allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation-789"))
+
+          expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
+
+          middleware_with_id.call(task_with_run, callable)
+        end
+      end
+
       context "when thread correlation ID exists" do
         let(:thread_correlation) { "thread-correlation-123" }
 
@@ -211,6 +256,97 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
     end
 
+    context "conditional execution" do
+      let(:test_task) { build_task.new }
+
+      context "with :if condition" do
+        it "executes correlation when :if condition is true" do
+          middleware = described_class.new(if: -> { true })
+
+          expect(CMDx::Correlator).to receive(:use).and_call_original
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "skips correlation when :if condition is false" do
+          middleware = described_class.new(if: -> { false })
+
+          expect(CMDx::Correlator).not_to receive(:use)
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "works with symbol conditions" do
+          middleware = described_class.new(if: :correlation_enabled?)
+
+          allow(test_task).to receive(:correlation_enabled?).and_return(true)
+          expect(CMDx::Correlator).to receive(:use).and_call_original
+
+          middleware.call(test_task, callable)
+        end
+      end
+
+      context "with :unless condition" do
+        it "executes correlation when :unless condition is false" do
+          middleware = described_class.new(unless: -> { false })
+
+          expect(CMDx::Correlator).to receive(:use).and_call_original
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "skips correlation when :unless condition is true" do
+          middleware = described_class.new(unless: -> { true })
+
+          expect(CMDx::Correlator).not_to receive(:use)
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "works with symbol conditions" do
+          middleware = described_class.new(unless: :correlation_disabled?)
+
+          allow(test_task).to receive(:correlation_disabled?).and_return(false)
+          expect(CMDx::Correlator).to receive(:use).and_call_original
+
+          middleware.call(test_task, callable)
+        end
+      end
+
+      context "with both :if and :unless conditions" do
+        it "executes when both conditions are satisfied" do
+          middleware = described_class.new(if: -> { true }, unless: -> { false })
+
+          expect(CMDx::Correlator).to receive(:use).and_call_original
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "skips when :if condition is false" do
+          middleware = described_class.new(if: -> { false }, unless: -> { false })
+
+          expect(CMDx::Correlator).not_to receive(:use)
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+
+        it "skips when :unless condition is true" do
+          middleware = described_class.new(if: -> { true }, unless: -> { true })
+
+          expect(CMDx::Correlator).not_to receive(:use)
+          expect(callable).to receive(:call).with(test_task).and_return(result)
+
+          middleware.call(test_task, callable)
+        end
+      end
+    end
+
     context "thread safety" do
       it "maintains separate correlation contexts per thread" do
         correlations = {}
@@ -251,22 +387,28 @@ RSpec.describe CMDx::Middlewares::Correlate do
         # Test all precedence scenarios in one comprehensive test
         results = {}
 
-        # Scenario 1: Thread correlation takes precedence over run ID
+        # Scenario 1: Explicit ID takes precedence over everything
+        middleware_with_id = described_class.new(id: "explicit-correlation")
         CMDx::Correlator.id = "thread-correlation"
         task_with_run = build_task.new
         allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation"))
 
+        expect(CMDx::Correlator).to receive(:use).with("explicit-correlation").and_call_original
+        middleware_with_id.call(task_with_run, callable)
+        results[:explicit_over_all] = true
+
+        # Scenario 2: Thread correlation takes precedence over run ID
         expect(CMDx::Correlator).to receive(:use).with("thread-correlation").and_call_original
         middleware.call(task_with_run, callable)
         results[:thread_over_run] = true
 
-        # Scenario 2: Run ID used when no thread correlation
+        # Scenario 3: Run ID used when no thread correlation
         CMDx::Correlator.clear
         expect(CMDx::Correlator).to receive(:use).with("run-correlation").and_call_original
         middleware.call(task_with_run, callable)
         results[:run_when_no_thread] = true
 
-        # Scenario 3: Generated ID when neither thread nor run correlation
+        # Scenario 4: Generated ID when no explicit, thread, or run correlation
         task_without_run_id = build_task.new
         mock_run = double("run", id: nil)
         allow(task_without_run_id).to receive(:run).and_return(mock_run)
@@ -277,6 +419,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         results[:generated_when_none] = true
 
         expect(results).to eq({
+                                explicit_over_all: true,
                                 thread_over_run: true,
                                 run_when_no_thread: true,
                                 generated_when_none: true
