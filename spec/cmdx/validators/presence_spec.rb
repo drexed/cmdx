@@ -21,13 +21,13 @@ RSpec.describe CMDx::Validators::Presence do
   context "when value is empty" do
     let(:value) { [] }
 
-    context "with default message" do
+    context "when using default message" do
       it "raises ValidationError with default message" do
         expect { validator }.to raise_error(CMDx::ValidationError, expected_default_message)
       end
     end
 
-    context "with custom message" do
+    context "when using custom message" do
       let(:options) { { presence: { message: "custom message" } } }
 
       it "raises ValidationError with custom message" do

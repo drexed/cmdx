@@ -33,13 +33,13 @@ RSpec.describe CMDx::Validators::Custom do
     context "when value fails custom validation" do
       let(:value) { invalid_value }
 
-      context "with default message" do
+      context "when using default message" do
         it "raises ValidationError with default message" do
           expect { validator }.to raise_error(CMDx::ValidationError, expected_default_message)
         end
       end
 
-      context "with custom message" do
+      context "when using custom message" do
         let(:options) { base_options.merge(validator_key => base_options[validator_key].merge(message: "custom message")) }
 
         it "raises ValidationError with custom message" do
@@ -52,13 +52,13 @@ RSpec.describe CMDx::Validators::Custom do
   context "when using localized error messages" do
     let(:value) { invalid_value }
 
-    context "with :en locale" do
+    context "when using :en locale" do
       it "raises ValidationError with English message" do
         expect { validator }.to raise_error(CMDx::ValidationError, "is not valid")
       end
     end
 
-    context "with :es locale" do
+    context "when using :es locale" do
       before { I18n.locale = :es }
       after { I18n.locale = :en }
 

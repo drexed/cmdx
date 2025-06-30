@@ -6,7 +6,7 @@ RSpec.describe CMDx::Context do
   subject(:context) { described_class.build(name: "John Doe") }
 
   describe ".build" do
-    context "when building from unfrozen context" do
+    context "when context is unfrozen" do
       it "returns the same context instance" do
         other_context = described_class.build(context)
 
@@ -14,7 +14,7 @@ RSpec.describe CMDx::Context do
       end
     end
 
-    context "when building from frozen context" do
+    context "when context is frozen" do
       it "returns a new context instance" do
         other_context = described_class.build(context.freeze)
 

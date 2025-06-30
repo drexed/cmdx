@@ -21,7 +21,7 @@ RSpec.describe CMDx::Parameter do
   let(:ctx) { default_context }
 
   describe "#parameters" do
-    context "with valid setup" do
+    context "when setup is valid" do
       let(:simulation_task) do
         Class.new(SimulationTask) do
           required :first_name, :last_name
@@ -93,7 +93,7 @@ RSpec.describe CMDx::Parameter do
       end
     end
 
-    context "with :as option with multiple parameters" do
+    context "when using :as option with multiple parameters" do
       let(:simulation_task) do
         Class.new(SimulationTask) do
           required :first_name, :last_name, as: :name
@@ -126,7 +126,7 @@ RSpec.describe CMDx::Parameter do
     end
 
     context "when object params" do
-      context "with filled present nested values" do
+      context "when nested values are filled and present" do
         let(:ctx) { {} }
         let(:simulation_task) do
           Class.new(SimulationTask) do
@@ -168,7 +168,7 @@ RSpec.describe CMDx::Parameter do
         end
       end
 
-      context "when empty nested values" do
+      context "when nested values are empty" do
         let(:ctx) { {} }
         let(:simulation_task) do
           Class.new(SimulationTask) do
@@ -208,7 +208,7 @@ RSpec.describe CMDx::Parameter do
         end
       end
 
-      context "when missing nested values" do
+      context "when nested values are missing" do
         let(:ctx) { {} }
         let(:simulation_task) do
           Class.new(SimulationTask) do
@@ -276,7 +276,7 @@ RSpec.describe CMDx::Parameter do
       end
     end
 
-    context "with default option" do
+    context "when using default option" do
       let(:ctx) do
         {
           title: "Mr.",
@@ -307,7 +307,7 @@ RSpec.describe CMDx::Parameter do
       end
     end
 
-    context "with as option" do
+    context "when using as option" do
       let(:simulation_task) do
         Class.new(SimulationTask) do
           required :last_name, as: :surname
@@ -331,8 +331,8 @@ RSpec.describe CMDx::Parameter do
       end
     end
 
-    context "with prefix option" do
-      context "with true" do
+    context "when using prefix option" do
+      context "when set to true" do
         let(:simulation_task) do
           Class.new(SimulationTask) do
             required :last_name, prefix: true
@@ -356,7 +356,7 @@ RSpec.describe CMDx::Parameter do
         end
       end
 
-      context "with value" do
+      context "when set to value" do
         let(:simulation_task) do
           Class.new(SimulationTask) do
             required :last_name, prefix: :given_
@@ -381,8 +381,8 @@ RSpec.describe CMDx::Parameter do
       end
     end
 
-    context "with suffix option" do
-      context "with true" do
+    context "when using suffix option" do
+      context "when set to true" do
         let(:simulation_task) do
           Class.new(SimulationTask) do
             required :last_name, suffix: true
@@ -406,7 +406,7 @@ RSpec.describe CMDx::Parameter do
         end
       end
 
-      context "with value" do
+      context "when set to value" do
         let(:simulation_task) do
           Class.new(SimulationTask) do
             required :last_name, suffix: :_given

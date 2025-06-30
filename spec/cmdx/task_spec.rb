@@ -123,7 +123,7 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".call" do
-    context "when call not implemented" do
+    context "when call is not implemented" do
       let(:simulation_task) do
         Class.new(ApplicationTask) do
           def self.name
@@ -153,7 +153,7 @@ RSpec.describe CMDx::Task do
       it_behaves_like "a failed result"
     end
 
-    context "when bang child failed" do
+    context "when bang child fails" do
       let(:simulate) { :child_failed! }
 
       it "returns correct result" do
@@ -168,7 +168,7 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    context "when non-bang child failed" do
+    context "when non-bang child fails" do
       let(:simulate) { :child_failed }
 
       it "returns correct result" do
@@ -183,7 +183,7 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    context "when exception" do
+    context "when exception occurs" do
       let(:simulate) { :exception }
 
       it "returns correct result" do
@@ -203,13 +203,13 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".call!" do
-    context "when success" do
+    context "when task succeeds" do
       it "does not raise an error" do
         expect { SimulationTask.call!(simulate:) }.not_to raise_error
       end
     end
 
-    context "when skipped" do
+    context "when task is skipped" do
       let(:simulate) { :skipped }
 
       context "without skipped task_halt option" do
@@ -231,18 +231,18 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    context "when failed" do
+    context "when task fails" do
       let(:simulate) { :failed }
 
-      it "raise Failed fault" do
+      it "raises Failed fault" do
         expect { SimulationTask.call!(simulate:) }.to raise_error(CMDx::Failed)
       end
     end
 
-    context "when exception" do
+    context "when exception occurs" do
       let(:simulate) { :exception }
 
-      it "raise RuntimeError" do
+      it "raises RuntimeError" do
         expect { SimulationTask.call!(simulate:) }.to raise_error(RuntimeError, "undefined simulation type: :exception")
       end
     end

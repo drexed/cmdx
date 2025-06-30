@@ -17,7 +17,7 @@ RSpec.describe CMDx::Result do
   end
 
   describe "state predicate methods" do
-    context "when initialized" do
+    context "when result is initialized" do
       subject(:result) { initialized_result }
 
       it_behaves_like "result state predicates", CMDx::Result::INITIALIZED
@@ -25,7 +25,7 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".on_[STATES]" do
-    context "with block" do
+    context "when called with block" do
       it "executes block depending on state" do
         states = []
 
@@ -42,8 +42,8 @@ RSpec.describe CMDx::Result do
       end
     end
 
-    context "without block" do
-      it "executes block depending on status" do
+    context "when called without block" do
+      it "raises ArgumentError" do
         expect { result.on_success }.to raise_error(ArgumentError, "block required")
       end
     end
@@ -126,7 +126,7 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".on_[STATUSES]" do
-    context "with block" do
+    context "when called with block" do
       it "executes block depending on status" do
         statuses = []
 
@@ -142,8 +142,8 @@ RSpec.describe CMDx::Result do
       end
     end
 
-    context "without block" do
-      it "executes block depending on status" do
+    context "when called without block" do
+      it "raises ArgumentError" do
         expect { result.on_success }.to raise_error(ArgumentError, "block required")
       end
     end
@@ -192,13 +192,13 @@ RSpec.describe CMDx::Result do
   end
 
   describe ".halt!" do
-    context "when success" do
+    context "when result is successful" do
       it "does nothing" do
         expect { result.halt! }.not_to raise_error
       end
     end
 
-    context "when skipped" do
+    context "when result is skipped" do
       let(:simulate) { :skipped }
 
       it "raises a Skipped fault" do
@@ -206,7 +206,7 @@ RSpec.describe CMDx::Result do
       end
     end
 
-    context "when failed" do
+    context "when result is failed" do
       let(:simulate) { :failed }
 
       it "raises a Failed fault" do
@@ -218,13 +218,13 @@ RSpec.describe CMDx::Result do
   describe ".throw!" do
     let(:anonymous_result) { described_class.new(result.task) }
 
-    context "when success" do
+    context "when result is successful" do
       it "does nothing" do
         expect { anonymous_result.throw!(result) }.not_to raise_error
       end
     end
 
-    context "when skipped" do
+    context "when result is skipped" do
       let(:simulate) { :skipped }
 
       it "raises a Skipped fault" do
@@ -232,7 +232,7 @@ RSpec.describe CMDx::Result do
       end
     end
 
-    context "when failed" do
+    context "when result is failed" do
       let(:simulate) { :failed }
 
       it "raises a Failed fault" do

@@ -25,13 +25,13 @@ RSpec.describe CMDx::Validators::Format do
     context "when value does not match pattern" do
       let(:value) { invalid_value }
 
-      context "with default message" do
+      context "when using default message" do
         it "raises ValidationError with default message" do
           expect { validator }.to raise_error(CMDx::ValidationError, expected_default_message)
         end
       end
 
-      context "with custom message" do
+      context "when using custom message" do
         let(:options) { base_options.merge(validator_key => base_options[validator_key].merge(message: "custom message")) }
 
         it "raises ValidationError with custom message" do
@@ -55,13 +55,13 @@ RSpec.describe CMDx::Validators::Format do
     context "when value matches excluded pattern" do
       let(:value) { valid_value }
 
-      context "with default message" do
+      context "when using default message" do
         it "raises ValidationError with default message" do
           expect { validator }.to raise_error(CMDx::ValidationError, expected_default_message)
         end
       end
 
-      context "with custom message" do
+      context "when using custom message" do
         let(:options) { { format: { without: URI::MailTo::EMAIL_REGEXP, message: "custom message" } } }
 
         it "raises ValidationError with custom message" do
