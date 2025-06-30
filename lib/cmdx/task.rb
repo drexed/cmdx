@@ -115,7 +115,7 @@ module CMDx
     #
     # @param context [Hash, Context] parameters and configuration for task execution
     def initialize(context = {})
-      @id      = SecureRandom.uuid
+      @id      = CMDx::Correlator.generate
       @errors  = Errors.new
       @context = Context.build(context)
       @run = @context.run || begin

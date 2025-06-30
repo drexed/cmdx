@@ -13,6 +13,7 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
 - [Inheritance](#inheritance)
 - [Built-in Middleware](#built-in-middleware)
   - [Timeout Middleware](#timeout-middleware)
+  - [Correlate Middleware](#correlate-middleware)
 - [Writing Custom Middleware](#writing-custom-middleware)
 
 ## Using Middleware
@@ -228,6 +229,125 @@ end
 
 > [!WARNING]
 > Tasks that exceed their timeout will be interrupted with a `CMDx::TimeoutError` and automatically marked as failed.
+
+### Correlate Middleware
+
+Manages correlation IDs for request tracing across task boundaries. This middleware automatically establishes correlation contexts during task execution, enabling you to trace related operations through distributed systems and complex business workflows.
+
+```ruby
+class ProcessApiRequestTask < CMDx::Task
+  use CMDx::Middlewares::Correlate
+
+  def call
+    # Correlation ID is automatically managed
+    # Run ID reflects the established correlation context
+    context.api_response = ExternalService.call(request_data)
+  end
+end
+```
+
+#### Correlation Precedence
+
+The middleware follows a hierarchical precedence system for determining correlation IDs:
+
+```ruby
+# 1. Thread-local correlation takes highest precedence
+CMDx::Correlator.id = "api-request-123"
+ProcessApiRequestTask.call # Uses "api-request-123"
+
+# 2. Existing run ID used when no thread correlation
+task_with_run = ProcessOrderTask.call(run: { id: "order-run-456" })
+# Uses "order-run-456"
+
+# 3. Generated UUID when neither exists
+CMDx::Correlator.clear
+ProcessOrderTask.call # Uses generated UUID
+```
+
+#### Scoped Correlation Context
+
+Use correlation blocks to establish correlation contexts for groups of related tasks:
+
+```ruby
+class ProcessOrderWorkflowTask < CMDx::Task
+  use CMDx::Middlewares::Correlate
+
+  def call
+    # Establish correlation context for entire workflow
+    CMDx::Correlator.use("order-workflow-#{order_id}") do
+      ValidateOrderTask.call(context)
+      ProcessPaymentTask.call(context)
+      SendConfirmationTask.call(context)
+      UpdateInventoryTask.call(context)
+    end
+  end
+end
+```
+
+#### Global Correlation Setup
+
+Apply correlation middleware globally to all tasks:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  use CMDx::Middlewares::Correlate # All tasks get correlation management
+end
+
+class ProcessOrderTask < ApplicationTask
+  def call
+    # Automatically inherits correlation management
+    context.order = Order.find(order_id)
+    context.order.process!
+  end
+end
+```
+
+#### Request Tracing Integration
+
+Combine with request identifiers for comprehensive tracing:
+
+```ruby
+class ApiController < ApplicationController
+  before_action :set_correlation_id
+
+  def process_order
+    # Correlation ID established from request header
+    result = ProcessOrderTask.call(order_params)
+
+    if result.success?
+      render json: { order: result.context.order, correlation_id: result.run.id }
+    else
+      render json: { error: result.reason }, status: 422
+    end
+  end
+
+  private
+
+  def set_correlation_id
+    correlation_id = request.headers['X-Correlation-ID'] || SecureRandom.uuid
+    CMDx::Correlator.id = correlation_id
+    response.headers['X-Correlation-ID'] = correlation_id
+  end
+end
+
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate
+
+  def call
+    # Inherits correlation ID from controller
+    # All subtasks will share the same correlation ID
+    ValidateOrderDataTask.call(context)
+    ChargePaymentTask.call(context)
+    SendConfirmationEmailTask.call(context)
+  end
+end
+```
+
+> [!TIP]
+> The Correlate middleware integrates seamlessly with the CMDx logging system. All task execution logs automatically include the correlation ID, making it easy to trace related operations across your application.
+
+> [!NOTE]
+> Correlation IDs are thread-safe and automatically propagate through task hierarchies when using shared context. This makes the middleware ideal for distributed tracing and debugging complex business workflows.
 
 ## Writing Custom Middleware
 

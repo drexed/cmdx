@@ -7,6 +7,7 @@ A run represents a collection of related task executions that share a common exe
 - [Automatic Run Creation](#automatic-run-creation)
 - [Run Inheritance](#run-inheritance)
 - [Run Structure and Metadata](#run-structure-and-metadata)
+- [Correlation ID Integration](#correlation-id-integration)
 - [State Delegation](#state-delegation)
 - [Result Filtering and Statistics](#result-filtering-and-statistics)
 - [Serialization and Logging](#serialization-and-logging)
@@ -69,6 +70,97 @@ run.status  #=> "success"
 run.outcome #=> "success"
 run.runtime #=> 0.5
 ```
+
+## Correlation ID Integration
+
+Runs automatically integrate with the correlation tracking system, providing seamless request tracing across task boundaries. The run ID serves as the correlation identifier, enabling you to trace execution flows through distributed systems and complex business logic.
+
+### Automatic Correlation Inheritance
+
+Runs inherit correlation IDs using a hierarchical precedence system:
+
+```ruby
+# 1. Explicit run ID takes highest precedence
+result = ProcessUserOrderTask.call(run: { id: "custom-correlation-123" })
+result.run.id #=> "custom-correlation-123"
+
+# 2. Thread-local correlation ID is used if no explicit ID
+CMDx::Correlator.id = "thread-correlation-456"
+result = ProcessUserOrderTask.call
+result.run.id #=> "thread-correlation-456"
+
+# 3. Generated UUID when no correlation exists
+CMDx::Correlator.clear
+result = ProcessUserOrderTask.call
+result.run.id #=> "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated)
+```
+
+### Cross-Task Correlation Propagation
+
+When tasks call subtasks with shared context, correlation IDs automatically propagate:
+
+```ruby
+class ProcessUserOrderTask < CMDx::Task
+  def call
+    # Set correlation for this execution context
+    CMDx::Correlator.id = "user-order-correlation-123"
+
+    context.order = Order.find(order_id)
+
+    # Subtasks inherit the same correlation ID
+    SendOrderConfirmationTask.call(context)
+    NotifyWarehousePartnersTask.call(context)
+  end
+end
+
+result = ProcessUserOrderTask.call(order_id: 456)
+run = result.run
+
+# All tasks share the same correlation ID
+run.id #=> "user-order-correlation-123"
+run.results.all? { |r| r.run.id == "user-order-correlation-123" } #=> true
+```
+
+### Correlation Context Management
+
+Use correlation blocks to manage correlation scope:
+
+```ruby
+# Correlation applies only within the block
+CMDx::Correlator.use("api-request-789") do
+  result = ProcessApiRequestTask.call(request_data: data)
+  result.run.id #=> "api-request-789"
+
+  # Nested task calls inherit the same correlation
+  AuditLogTask.call(result.context)
+end
+
+# Outside the block, correlation context is restored
+result = AnotherTask.call
+result.run.id #=> different correlation ID
+```
+
+### Middleware Integration
+
+The `CMDx::Middlewares::Correlate` middleware automatically manages correlation contexts during task execution:
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  # Apply correlate middleware globally or per-task
+  use CMDx::Middlewares::Correlate
+
+  def call
+    # Correlation is automatically managed
+    # Run ID reflects the established correlation context
+  end
+end
+```
+
+> [!TIP]
+> Run IDs serve as correlation identifiers, making it easy to trace related operations across your application. Use `CMDx::Correlator.use` blocks to establish correlation contexts for groups of related tasks.
+
+> [!NOTE]
+> Correlation IDs are particularly useful for debugging distributed systems, API request tracing, and understanding complex business workflows. All logs and results automatically include the run ID for correlation.
 
 ## State Delegation
 

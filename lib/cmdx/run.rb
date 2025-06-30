@@ -1,35 +1,56 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Run execution context for tracking related task executions.
+  # Run execution context for tracking related task executions with correlation support.
   #
   # The Run class represents a collection of related task executions that share
   # a common execution context. It provides unified tracking, indexing, and
   # reporting for groups of tasks executed together, enabling comprehensive
   # monitoring of complex business logic workflows.
   #
-  # @example Basic run usage
+  # ## Correlation ID Integration
+  #
+  # Run instances automatically inherit correlation IDs from the current thread's
+  # correlation context via CMDx::Correlator. This enables seamless request
+  # tracking across task boundaries without explicit parameter passing.
+  #
+  # The run ID follows this precedence:
+  # 1. Explicitly provided `:id` attribute
+  # 2. Current thread's correlation ID (via CMDx::Correlator.id)
+  # 3. Generated UUID (via CMDx::Correlator.generate)
+  #
+  # @example Basic run usage with automatic correlation
+  #   CMDx::Correlator.id = "req-12345"
   #   result = ProcessOrderTask.call(order_id: 123)
   #   run = result.run
-  #   run.id        # => "018c2b95-b764-7615-a924-cc5b910ed1e5"
+  #   run.id        # => "req-12345" (inherited from correlator)
   #   run.results   # => [#<CMDx::Result...>]
   #   run.state     # => "complete"
   #   run.status    # => "success"
   #
-  # @example Run with multiple related tasks
-  #   class ProcessOrderTask < CMDx::Task
-  #     def call
-  #       # Subtasks inherit the same run_id for tracking
-  #       SendEmailConfirmationTask.call(context)
-  #       NotifyPartnerWarehousesTask.call(context)
+  # @example Run with multiple related tasks sharing correlation
+  #   CMDx::Correlator.use("batch-operation-456") do
+  #     class ProcessOrderTask < CMDx::Task
+  #       def call
+  #         # Subtasks inherit the same correlation ID for tracking
+  #         SendEmailConfirmationTask.call(context)
+  #         NotifyPartnerWarehousesTask.call(context)
+  #       end
   #     end
+  #
+  #     result = ProcessOrderTask.call(order_id: 123)
+  #     run = result.run
+  #     run.id  # => "batch-operation-456" (same across all tasks)
+  #     run.results.size  # => 3 (ProcessOrderTask + 2 subtasks)
+  #     run.results.map(&:task).map(&:class)
+  #     # => [ProcessOrderTask, SendEmailConfirmationTask, NotifyPartnerWarehousesTask]
   #   end
   #
-  #   result = ProcessOrderTask.call(order_id: 123)
-  #   run = result.run
-  #   run.results.size  # => 3 (ProcessOrderTask + 2 subtasks)
-  #   run.results.map(&:task).map(&:class)
-  #   # => [ProcessOrderTask, SendEmailConfirmationTask, NotifyPartnerWarehousesTask]
+  # @example Explicit run ID overrides correlation
+  #   CMDx::Correlator.id = "req-12345"
+  #   context = { order_id: 123, run: { id: "custom-run-789" } }
+  #   result = ProcessOrderTask.call(context)
+  #   result.run.id  # => "custom-run-789" (explicit ID takes precedence)
   #
   # @example Run state and outcome tracking
   #   result = ComplexTask.call
@@ -47,38 +68,58 @@ module CMDx
   # @see CMDx::Result Individual task execution results
   # @see CMDx::Task Task execution and run context
   # @see CMDx::Context Context sharing between related tasks
+  # @see CMDx::Correlator Thread-safe correlation ID management
   class Run
 
     __cmdx_attr_delegator :index, to: :results
     __cmdx_attr_delegator :state, :status, :outcome, :runtime, to: :first_result
 
-    # @return [String] Unique identifier for this run execution
+    # @return [String] Correlation identifier for tracking across request boundaries (inherits from CMDx::Correlator)
     # @return [Array<CMDx::Result>] Collection of results from related task executions
     attr_reader :id, :results
 
-    # Initializes a new Run instance.
+    # Initializes a new Run instance with automatic correlation ID inheritance.
     #
-    # Creates a run context for tracking related task executions with a
-    # unique identifier and optional initial results collection.
+    # Creates a run context for tracking related task executions with an
+    # identifier that follows the correlation precedence hierarchy:
+    # 1. Explicitly provided `:id` attribute
+    # 2. Current thread's correlation ID (via CMDx::Correlator.id)
+    # 3. Generated UUID (via CMDx::Correlator.generate)
+    #
+    # This automatic correlation inheritance enables seamless request tracking
+    # across task boundaries without requiring manual correlation ID management.
     #
     # @param attributes [Hash] Run initialization attributes
-    # @option attributes [String] :id (SecureRandom.uuid) Unique run identifier
+    # @option attributes [String] :id (correlation ID or generated UUID) Run identifier
     # @option attributes [Array<CMDx::Result>] :results ([]) Initial results collection
     #
-    # @example Creating a new run
+    # @example Creating a run with automatic correlation inheritance
+    #   CMDx::Correlator.id = "req-12345"
     #   run = Run.new
-    #   run.id  # => "018c2b95-b764-7615-a924-cc5b910ed1e5"
+    #   run.id  # => "req-12345" (inherited from current correlation)
     #
-    # @example Creating a run with custom ID
-    #   run = Run.new(id: "custom-run-123")
-    #   run.id  # => "custom-run-123"
+    # @example Creating a run with explicit ID (overrides correlation)
+    #   CMDx::Correlator.id = "req-12345"
+    #   run = Run.new(id: "custom-run-789")
+    #   run.id  # => "custom-run-789" (explicit ID takes precedence)
+    #
+    # @example Creating a run without correlation context
+    #   CMDx::Correlator.clear  # No correlation ID set
+    #   run = Run.new
+    #   run.id  # => "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated UUID)
     #
     # @example Creating a run with initial results
     #   existing_results = [result1, result2]
     #   run = Run.new(results: existing_results)
     #   run.results.size  # => 2
+    #
+    # @example Block-based correlation context
+    #   CMDx::Correlator.use("batch-operation") do
+    #     run = Run.new
+    #     run.id  # => "batch-operation" (from correlation context)
+    #   end
     def initialize(attributes = {})
-      @id      = attributes[:id] || SecureRandom.uuid
+      @id      = attributes[:id] || CMDx::Correlator.id || CMDx::Correlator.generate
       @results = Array(attributes[:results])
     end
 
