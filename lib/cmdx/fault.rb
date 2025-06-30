@@ -81,9 +81,7 @@ module CMDx
 
     __cmdx_attr_delegator :task, :chain, :context, to: :result
 
-    ##
-    # @!attribute [r] result
-    #   @return [Result] the result object that caused this fault
+    # @return [Result] the result object that caused this fault
     attr_reader :result
 
     ##

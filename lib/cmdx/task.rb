@@ -79,35 +79,17 @@ module CMDx
     __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?, to: :class
     __cmdx_attr_delegator :skip!, :fail!, :throw!, to: :result
 
-    ##
-    # @!attribute [r] id
-    #   @return [String] unique identifier for this task instance
-
-    ##
-    # @!attribute [r] errors
-    #   @return [Errors] collection of validation and execution errors
-
-    ##
-    # @!attribute [r] context
-    #   @return [Context] parameter context for this task execution
-
-    ##
-    # @!attribute [r] result
-    #   @return [Result] execution result tracking state and status
-
-    ##
-    # @!attribute [r] chain
-    #   @return [Chain] execution chain containing this task and related executions
+    # @return [String] unique identifier for this task instance
+    # @return [Errors] collection of validation and execution errors
+    # @return [Context] parameter context for this task execution
+    # @return [Result] execution result tracking state and status
+    # @return [Chain] execution chain containing this task and related executions
     attr_reader :id, :errors, :context, :result, :chain
 
-    ##
-    # @!attribute [r] ctx
-    #   @return [Context] alias for context
+    # @return [Context] alias for context
     alias ctx context
 
-    ##
-    # @!attribute [r] res
-    #   @return [Result] alias for result
+    # @return [Result] alias for result
     alias res result
 
     ##

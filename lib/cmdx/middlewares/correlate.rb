@@ -159,10 +159,8 @@ module CMDx
     class Correlate < CMDx::Middleware
 
       # @return [String, nil] The explicit correlation ID to use
-      attr_reader :id
-
       # @return [Hash] The conditional options for correlation application
-      attr_reader :conditional
+      attr_reader :id, :conditional
 
       ##
       # Initializes the Correlate middleware with optional configuration.

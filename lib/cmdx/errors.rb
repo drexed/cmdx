@@ -93,9 +93,7 @@ module CMDx
 
     __cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values, to: :errors
 
-    ##
-    # @!attribute [r] errors
-    #   @return [Hash] internal hash storing error messages by attribute
+    # @return [Hash] internal hash storing error messages by attribute
     attr_reader :errors
 
     ##

@@ -136,9 +136,7 @@ module CMDx
   # @since 1.0.0
   class Context < LazyStruct
 
-    ##
-    # @!attribute [r] chain
-    #   @return [Chain] the execution chain that this context belongs to
+    # @return [Chain] the execution chain that this context belongs to
     attr_reader :chain
 
     ##
