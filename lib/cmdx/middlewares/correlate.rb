@@ -250,7 +250,10 @@ module CMDx
         return callable.call(task) unless task.__cmdx_eval(conditional)
 
         # Get correlation ID using yield for dynamic generation
-        correlation_id = task.__cmdx_yield(id) || CMDx::Correlator.id || task.chain.id || CMDx::Correlator.generate
+        correlation_id = task.__cmdx_yield(id) ||
+                         CMDx::Correlator.id ||
+                         task.chain.id ||
+                         CMDx::Correlator.generate
 
         # Execute task with correlation context
         CMDx::Correlator.use(correlation_id) do
