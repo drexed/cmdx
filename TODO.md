@@ -15,3 +15,5 @@
 - Task mocking and stubbing helpers
 - Workflow testing with predefined contexts
 - Assertion helpers for task outcomes and side effects
+- Update specs to use new test helpers
+- Add a `docs/testing.md` for the assertion helpers
