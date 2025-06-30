@@ -61,6 +61,35 @@ module CMDx
     #   result = ProcessOrderTask.call(order_id: 123)
     #   result.context.correlation_used  # => "order-processing-123"
     #
+    # @example Middleware with dynamic correlation ID using procs
+    #   class ProcessOrderTask < CMDx::Task
+    #     use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.current.to_i}" }
+    #
+    #     def call
+    #       # Uses dynamically generated correlation ID
+    #       context.correlation_used = CMDx::Correlator.id
+    #     end
+    #   end
+    #
+    #   result = ProcessOrderTask.call(order_id: 456)
+    #   result.context.correlation_used  # => "order-456-1703123456"
+    #
+    # @example Middleware with method-based correlation ID
+    #   class ProcessOrderTask < CMDx::Task
+    #     use CMDx::Middlewares::Correlate, id: :generate_order_correlation
+    #
+    #     def call
+    #       # Uses correlation ID from generate_order_correlation method
+    #       context.correlation_used = CMDx::Correlator.id
+    #     end
+    #
+    #     private
+    #
+    #     def generate_order_correlation
+    #       "order-#{order_id}-#{context.request_id}"
+    #     end
+    #   end
+    #
     # @example Conditional correlation based on environment
     #   class ProcessOrderTask < CMDx::Task
     #     use CMDx::Middlewares::Correlate, unless: -> { Rails.env.test? }
@@ -139,7 +168,7 @@ module CMDx
       # Initializes the Correlate middleware with optional configuration.
       #
       # @param options [Hash] configuration options for the middleware
-      # @option options [String] :id explicit correlation ID to use (takes precedence over all other sources)
+      # @option options [String, Symbol, Proc] :id explicit correlation ID to use (takes precedence over all other sources)
       # @option options [Proc, Symbol, Boolean] :if condition that must be true for middleware to execute
       # @option options [Proc, Symbol, Boolean] :unless condition that must be false for middleware to execute
       #
@@ -168,6 +197,8 @@ module CMDx
       #
       # The correlation ID determination follows this precedence:
       # 1. Explicit correlation ID (provided during middleware initialization)
+      #    - String/Symbol: Used as-is or called as method if task responds to it
+      #    - Proc/Lambda: Executed in task context for dynamic generation
       # 2. Current thread correlation (CMDx::Correlator.id)
       # 3. Task's run ID (task.run.id)
       # 4. Generated UUID (CMDx::Correlator.generate)
@@ -185,20 +216,28 @@ module CMDx
       #   # Task executed within correlation context
       #
       # @example Correlation ID precedence in action
-      #   # Scenario 1: Explicit correlation ID takes precedence
+      #   # Scenario 1: Explicit string correlation ID takes precedence
       #   middleware = CMDx::Middlewares::Correlate.new(id: "explicit-123")
       #   middleware.call(task, callable)  # Uses "explicit-123"
       #
-      #   # Scenario 2: Thread correlation when no explicit ID
+      #   # Scenario 2: Dynamic correlation ID using proc
+      #   middleware = CMDx::Middlewares::Correlate.new(id: -> { "dynamic-#{order_id}" })
+      #   middleware.call(task, callable)  # Uses result of proc execution
+      #
+      #   # Scenario 3: Method-based correlation ID
+      #   middleware = CMDx::Middlewares::Correlate.new(id: :correlation_method)
+      #   middleware.call(task, callable)  # Uses task.correlation_method if it exists
+      #
+      #   # Scenario 4: Thread correlation when no explicit ID
       #   CMDx::Correlator.id = "thread-correlation"
       #   middleware = CMDx::Middlewares::Correlate.new
       #   middleware.call(task, callable)  # Uses "thread-correlation"
       #
-      #   # Scenario 3: Run ID when no explicit or thread correlation
+      #   # Scenario 5: Run ID when no explicit or thread correlation
       #   CMDx::Correlator.clear
       #   middleware.call(task, callable)  # Uses task.run.id
       #
-      #   # Scenario 4: Generated UUID when no other correlation exists
+      #   # Scenario 6: Generated UUID when no other correlation exists
       #   CMDx::Correlator.clear
       #   # Assuming task.run.id is nil
       #   middleware.call(task, callable)  # Uses generated UUID
@@ -212,8 +251,8 @@ module CMDx
         # Check if correlation should be applied based on conditions
         return callable.call(task) unless task.__cmdx_eval(conditional)
 
-        # Get correlation ID from current thread, run, or generate new one
-        correlation_id = id || CMDx::Correlator.id || task.run.id || CMDx::Correlator.generate
+        # Get correlation ID using yield for dynamic generation
+        correlation_id = task.__cmdx_yield(id) || CMDx::Correlator.id || task.run.id || CMDx::Correlator.generate
 
         # Execute task with correlation context
         CMDx::Correlator.use(correlation_id) do

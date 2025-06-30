@@ -252,10 +252,30 @@ The middleware follows a hierarchical precedence system for determining correlat
 
 ```ruby
 # 1. Explicit correlation ID takes highest precedence
+
+# 1a. Static string ID
 class ProcessOrderTask < CMDx::Task
   use CMDx::Middlewares::Correlate, id: "fixed-correlation-123"
 end
 ProcessOrderTask.call # Always uses "fixed-correlation-123"
+
+# 1b. Dynamic proc/lambda ID
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{rand(1000)}" }
+end
+ProcessOrderTask.call(order_id: 456) # Uses "order-456-847" (random number varies)
+
+# 1c. Method-based ID
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: :correlation_method
+
+  private
+
+  def correlation_method
+    "custom-#{order_id}"
+  end
+end
+ProcessOrderTask.call(order_id: 789) # Uses "custom-789"
 
 # 2. Thread-local correlation when no explicit ID
 CMDx::Correlator.id = "api-request-456"
@@ -272,9 +292,10 @@ ProcessOrderTask.call # Uses generated UUID
 
 #### Explicit Correlation IDs
 
-Set fixed correlation IDs for specific tasks or workflows:
+Set fixed or dynamic correlation IDs for specific tasks or workflows using strings, method names, or procs:
 
 ```ruby
+# Static string correlation ID
 class ProcessPaymentTask < CMDx::Task
   use CMDx::Middlewares::Correlate, id: "payment-processing"
 
@@ -285,14 +306,42 @@ class ProcessPaymentTask < CMDx::Task
   end
 end
 
+# Dynamic correlation ID using proc/lambda
 class ProcessOrderTask < CMDx::Task
-  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}" }
+  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.current.to_i}" }
 
   def call
-    # Dynamic correlation ID based on order
-    # All operations for this order share the same correlation
+    # Dynamic correlation ID based on order and timestamp
+    # Each execution gets a unique correlation ID
     ValidateOrderTask.call(context)
     ProcessPaymentTask.call(context)
+  end
+end
+
+# Method-based correlation ID
+class ProcessApiRequestTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: :generate_correlation_id
+
+  def call
+    # Uses correlation ID from generate_correlation_id method
+    context.api_response = ExternalService.call(request_data)
+  end
+
+  private
+
+  def generate_correlation_id
+    "api-#{context.request_id}-#{context.user_id}"
+  end
+end
+
+# Symbol fallback when method doesn't exist
+class ProcessBatchTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: :batch_processing
+
+  def call
+    # Uses :batch_processing as correlation ID (symbol as-is)
+    # since task doesn't respond to batch_processing method
+    context.batch_results = process_batch_items
   end
 end
 ```

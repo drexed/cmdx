@@ -48,25 +48,90 @@ RSpec.describe CMDx::Middlewares::Correlate do
   describe "#call" do
     context "correlation ID precedence" do
       context "when explicit correlation ID is provided" do
-        let(:explicit_id) { "explicit-correlation-123" }
-        let(:middleware_with_id) { described_class.new(id: explicit_id) }
+        context "with string ID" do
+          let(:explicit_id) { "explicit-correlation-123" }
+          let(:middleware_with_id) { described_class.new(id: explicit_id) }
 
-        before { CMDx::Correlator.id = "thread-correlation-456" }
+          before { CMDx::Correlator.id = "thread-correlation-456" }
 
-        it "uses the explicit correlation ID over thread correlation" do
-          expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
-          expect(callable).to receive(:call).with(task).and_return(result)
+          it "uses the explicit correlation ID over thread correlation" do
+            expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
+            expect(callable).to receive(:call).with(task).and_return(result)
 
-          middleware_with_id.call(task, callable)
+            middleware_with_id.call(task, callable)
+          end
+
+          it "uses the explicit correlation ID over run ID" do
+            task_with_run = build_task.new
+            allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation-789"))
+
+            expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
+
+            middleware_with_id.call(task_with_run, callable)
+          end
         end
 
-        it "uses the explicit correlation ID over run ID" do
-          task_with_run = build_task.new
-          allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation-789"))
+        context "with proc ID" do
+          let(:middleware_with_proc) { described_class.new(id: proc_id) }
+          let(:task_with_order) { build_task.new }
 
-          expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
+          before do
+            allow(task_with_order).to receive(:order_id).and_return(456)
+          end
 
-          middleware_with_id.call(task_with_run, callable)
+          context "using simple proc" do
+            let(:proc_id) { -> { "simple-proc-correlation" } }
+
+            it "evaluates the proc to generate correlation ID" do
+              expect(CMDx::Correlator).to receive(:use).with("simple-proc-correlation").and_call_original
+              expect(callable).to receive(:call).with(task_with_order).and_return(result)
+
+              middleware_with_proc.call(task_with_order, callable)
+            end
+
+            it "uses proc result over thread correlation" do
+              CMDx::Correlator.id = "thread-correlation"
+
+              expect(CMDx::Correlator).to receive(:use).with("simple-proc-correlation").and_call_original
+
+              middleware_with_proc.call(task_with_order, callable)
+            end
+          end
+
+          context "using proc with dynamic content" do
+            let(:proc_id) { -> { "dynamic-proc-#{rand(1000)}" } }
+
+            it "evaluates the proc to generate dynamic correlation ID" do
+              expect(CMDx::Correlator).to receive(:use).with(String).and_call_original
+              expect(callable).to receive(:call).with(task_with_order).and_return(result)
+
+              middleware_with_proc.call(task_with_order, callable)
+            end
+          end
+        end
+
+        context "with method symbol ID" do
+          let(:middleware_with_method) { described_class.new(id: :generate_correlation_id) }
+          let(:task_with_method) { build_task.new }
+
+          before do
+            allow(task_with_method).to receive(:generate_correlation_id).and_return("method-generated-789")
+          end
+
+          it "calls the method on task to generate correlation ID" do
+            expect(task_with_method).to receive(:generate_correlation_id).and_return("method-generated-789")
+            expect(CMDx::Correlator).to receive(:use).with("method-generated-789").and_call_original
+            expect(callable).to receive(:call).with(task_with_method).and_return(result)
+
+            middleware_with_method.call(task_with_method, callable)
+          end
+
+          it "falls back to symbol value if method doesn't exist" do
+            task_without_method = build_task.new
+            expect(CMDx::Correlator).to receive(:use).with(:generate_correlation_id).and_call_original
+
+            middleware_with_method.call(task_without_method, callable)
+          end
         end
       end
 
@@ -387,7 +452,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         # Test all precedence scenarios in one comprehensive test
         results = {}
 
-        # Scenario 1: Explicit ID takes precedence over everything
+        # Scenario 1: Explicit string ID takes precedence over everything
         middleware_with_id = described_class.new(id: "explicit-correlation")
         CMDx::Correlator.id = "thread-correlation"
         task_with_run = build_task.new
@@ -397,18 +462,31 @@ RSpec.describe CMDx::Middlewares::Correlate do
         middleware_with_id.call(task_with_run, callable)
         results[:explicit_over_all] = true
 
-        # Scenario 2: Thread correlation takes precedence over run ID
+        # Scenario 2: Explicit proc ID takes precedence over everything
+        middleware_with_proc = described_class.new(id: -> { "proc-generated-#{Time.now.to_i.to_s[-3..-1]}" })
+        expect(CMDx::Correlator).to receive(:use).with(String).and_call_original
+        middleware_with_proc.call(task_with_run, callable)
+        results[:proc_over_all] = true
+
+        # Scenario 3: Method-based ID takes precedence over thread/run
+        middleware_with_method = described_class.new(id: :test_correlation_method)
+        allow(task_with_run).to receive(:test_correlation_method).and_return("method-generated")
+        expect(CMDx::Correlator).to receive(:use).with("method-generated").and_call_original
+        middleware_with_method.call(task_with_run, callable)
+        results[:method_over_all] = true
+
+        # Scenario 4: Thread correlation takes precedence over run ID
         expect(CMDx::Correlator).to receive(:use).with("thread-correlation").and_call_original
         middleware.call(task_with_run, callable)
         results[:thread_over_run] = true
 
-        # Scenario 3: Run ID used when no thread correlation
+        # Scenario 5: Run ID used when no thread correlation
         CMDx::Correlator.clear
         expect(CMDx::Correlator).to receive(:use).with("run-correlation").and_call_original
         middleware.call(task_with_run, callable)
         results[:run_when_no_thread] = true
 
-        # Scenario 4: Generated ID when no explicit, thread, or run correlation
+        # Scenario 6: Generated ID when no explicit, thread, or run correlation
         task_without_run_id = build_task.new
         mock_run = double("run", id: nil)
         allow(task_without_run_id).to receive(:run).and_return(mock_run)
@@ -420,10 +498,39 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
         expect(results).to eq({
                                 explicit_over_all: true,
+                                proc_over_all: true,
+                                method_over_all: true,
                                 thread_over_run: true,
                                 run_when_no_thread: true,
                                 generated_when_none: true
                               })
+      end
+    end
+
+    context "__cmdx_yield integration" do
+      it "handles different types of ID values correctly" do
+        test_task = build_task.new
+        allow(test_task).to receive(:custom_method).and_return("custom-result")
+
+        # String ID - returned as-is
+        middleware_string = described_class.new(id: "static-string")
+        expect(CMDx::Correlator).to receive(:use).with("static-string").and_call_original
+        middleware_string.call(test_task, callable)
+
+        # Symbol ID that matches a method - method is called
+        middleware_method = described_class.new(id: :custom_method)
+        expect(CMDx::Correlator).to receive(:use).with("custom-result").and_call_original
+        middleware_method.call(test_task, callable)
+
+        # Symbol ID that doesn't match a method - symbol returned as-is
+        middleware_symbol = described_class.new(id: :nonexistent_method)
+        expect(CMDx::Correlator).to receive(:use).with(:nonexistent_method).and_call_original
+        middleware_symbol.call(test_task, callable)
+
+        # Proc ID - executed in task context
+        middleware_proc = described_class.new(id: -> { "proc-#{object_id}" })
+        expect(CMDx::Correlator).to receive(:use).with(String).and_call_original
+        middleware_proc.call(test_task, callable)
       end
     end
   end
