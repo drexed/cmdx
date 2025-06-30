@@ -46,22 +46,22 @@ CMDx provides 8 built-in log formatters organized into standard and stylized cat
 
 ### Success Result
 ```txt
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CreateOrderTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=CreateOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=complete status=success outcome=success metadata={order_id: 123, confirmation: "ABC123"} runtime=0.45 origin=CMDx
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- CreateOrderTask: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=CreateOrderTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=complete status=success outcome=success metadata={order_id: 123, confirmation: "ABC123"} runtime=0.45 origin=CMDx
 ```
 
 ### Skipped Result
 ```txt
-W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePaymentTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ValidatePaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=skipped outcome=skipped metadata={reason: "Order already processed"} runtime=0.02 origin=CMDx
+W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePaymentTask: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ValidatePaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=skipped outcome=skipped metadata={reason: "Order already processed"} runtime=0.02 origin=CMDx
 ```
 
 ### Failed Result
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessPaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=failed metadata={reason: "Payment declined", error_code: "INSUFFICIENT_FUNDS"} runtime=0.15 origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessPaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=failed metadata={reason: "Payment declined", error_code: "INSUFFICIENT_FUNDS"} runtime=0.15 origin=CMDx
 ```
 
 ### Failure Chain (Batch Workflows)
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderBatch: index=0 run_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Batch class=CreateOrderBatch id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderBatch: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Batch class=CreateOrderBatch id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
 ```
 
 ## Configuration
@@ -249,7 +249,7 @@ CMDx logs contain comprehensive execution metadata:
 
 #### Task Identification
 - `index` - Position in execution sequence
-- `run_id` - Unique identifier for execution run
+- `chain_id` - Unique identifier for execution chain
 - `type` - Task or Batch
 - `class` - Task class name
 - `id` - Unique task instance identifier

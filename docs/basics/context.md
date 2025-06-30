@@ -217,4 +217,4 @@ about the `LazyStruct` public API that powers context functionality.
 ---
 
 - **Prev:** [Basics - Call](https://github.com/drexed/cmdx/blob/main/docs/basics/call.md)
-- **Next:** [Basics - Run](https://github.com/drexed/cmdx/blob/main/docs/basics/run.md)
+- **Next:** [Basics - Chain](https://github.com/drexed/cmdx/blob/main/docs/basics/chain.md)

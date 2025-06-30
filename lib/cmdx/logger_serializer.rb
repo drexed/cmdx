@@ -16,7 +16,7 @@ module CMDx
   #   # => {
   #   #   origin: "CMDx",
   #   #   index: 0,
-  #   #   run_id: "...",
+  #   #   chain_id: "...",
   #   #   type: "Task",
   #   #   class: "ProcessOrderTask",
   #   #   id: "...",
@@ -36,7 +36,7 @@ module CMDx
   #   #   metadata: {},
   #   #   runtime: 0.5,
   #   #   index: 0,
-  #   #   run_id: "...",
+  #   #   chain_id: "...",
   #   #   # ... other result data
   #   # }
   #
@@ -78,7 +78,7 @@ module CMDx
     #   # => {
     #   #   origin: "CMDx",
     #   #   index: 0,
-    #   #   run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+    #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   type: "Task",
     #   #   class: "MyTask",
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
@@ -99,7 +99,7 @@ module CMDx
     #   #   metadata: {},
     #   #   runtime: 0.001,
     #   #   index: 0,
-    #   #   run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+    #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   type: "Task",
     #   #   class: "MyTask",
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
@@ -119,7 +119,7 @@ module CMDx
     #   #   action: "process",
     #   #   item_id: 123,
     #   #   index: 0,
-    #   #   run_id: "...",
+    #   #   chain_id: "...",
     #   #   type: "Task",
     #   #   class: "MyTask",
     #   #   id: "...",

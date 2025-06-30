@@ -16,11 +16,11 @@ module CMDx
   # The Immutator employs a selective freezing strategy:
   # 1. **Task Instance**: Always frozen to prevent method calls and modifications
   # 2. **Result Object**: Always frozen to preserve execution outcome
-  # 3. **Context Object**: Frozen only for the first task in a run (index 0)
-  # 4. **Run Object**: Frozen only for the first task in a run (index 0)
+  # 3. **Context Object**: Frozen only for the first task in a chain (index 0)
+  # 4. **Chain Object**: Frozen only for the first task in a chain (index 0)
   #
-  # This selective approach allows subsequent tasks in a batch or run to continue
-  # using the shared context and run objects while ensuring completed tasks remain
+  # This selective approach allows subsequent tasks in a batch or chain to continue
+  # using the shared context and chain objects while ensuring completed tasks remain
   # immutable.
   #
   # ## Test Environment Handling
@@ -43,7 +43,7 @@ module CMDx
   #   result = ProcessOrderTask.call(order_id: 123)
   #   result.frozen?         #=> true
   #   result.task.frozen?    #=> true
-  #   result.context.frozen? #=> true (if first task in run)
+  #   result.context.frozen? #=> true (if first task in chain)
   #
   # @example Attempting to modify frozen task (will raise error)
   #   result = ProcessOrderTask.call(order_id: 123)
@@ -59,7 +59,7 @@ module CMDx
   #   end
   #
   #   result = OrderBatch.call(order_id: 123)
-  #   # First task freezes context and run
+  #   # First task freezes context and chain
   #   # Second task can still use unfrozen context for execution
   #   # But both task instances are individually frozen
   #
@@ -72,7 +72,7 @@ module CMDx
   # @see Task Task execution lifecycle
   # @see Result Result object that gets frozen
   # @see Context Context object that may get frozen
-  # @see Run Run object that may get frozen
+  # @see Chain Chain object that may get frozen
   # @since 1.0.0
   module Immutator
 
@@ -81,34 +81,34 @@ module CMDx
     ##
     # Freezes task-related objects to ensure immutability after execution.
     # This method is called automatically during task termination and implements
-    # a selective freezing strategy based on task position within a run.
+    # a selective freezing strategy based on task position within a chain.
     #
     # The freezing process:
     # 1. Checks if running in test environment and skips freezing if so
     # 2. Always freezes the task instance and its result
-    # 3. Freezes context and run only for the first task (index 0) in a run
+    # 3. Freezes context and chain only for the first task (index 0) in a chain
     #
     # This selective approach ensures that:
     # - Completed tasks cannot be modified or re-executed
     # - Results remain immutable and trustworthy
-    # - Shared objects (context/run) remain available for subsequent tasks
+    # - Shared objects (context/chain) remain available for subsequent tasks
     # - Test environments can continue to function with mocking/stubbing
     #
     # @param task [Task] the task instance to freeze along with its associated objects
     # @return [void]
     #
-    # @example First task in run (freezes everything)
+    # @example First task in chain (freezes everything)
     #   task = ProcessOrderTask.call(order_id: 123)
     #   # task.result.index == 0
     #   Immutator.call(task)
-    #   # Freezes: task, result, context, run
+    #   # Freezes: task, result, context, chain
     #
-    # @example Subsequent task in run (selective freezing)
+    # @example Subsequent task in chain (selective freezing)
     #   # After first task has run
     #   task = SendEmailTask.call(context)
     #   # task.result.index == 1
     #   Immutator.call(task)
-    #   # Freezes: task, result (context and run remain unfrozen)
+    #   # Freezes: task, result (context and chain remain unfrozen)
     #
     # @example Test environment (no freezing)
     #   ENV["RAILS_ENV"] = "test"
@@ -130,7 +130,7 @@ module CMDx
       return unless task.result.index.zero?
 
       task.context.freeze
-      task.run.freeze
+      task.chain.freeze
     end
 
   end

@@ -195,7 +195,7 @@ Automatically tag SQL queries for better debugging:
 # config/application.rb
 config.active_record.query_log_tags_enabled = true
 config.active_record.query_log_tags << :cmdx_task_class
-config.active_record.query_log_tags << :cmdx_run_id
+config.active_record.query_log_tags << :cmdx_chain_id
 
 # app/commands/application_task.rb
 class ApplicationTask < CMDx::Task
@@ -206,13 +206,13 @@ class ApplicationTask < CMDx::Task
   def set_execution_context
     ActiveSupport::ExecutionContext.set(
       cmdx_task_class: self.class.name,
-      cmdx_run_id: run.id
+      cmdx_chain_id: chain.id
     )
   end
 end
 
 # SQL queries will now include comments like:
-# /*cmdx_task_class:ProcessOrderTask,cmdx_run_id:018c2b95-b764-7615*/ SELECT * FROM orders WHERE id = 1
+# /*cmdx_task_class:ProcessOrderTask,cmdx_chain_id:018c2b95-b764-7615*/ SELECT * FROM orders WHERE id = 1
 ```
 
 ---

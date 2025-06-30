@@ -59,7 +59,7 @@ module CMDx
   #     e.result.metadata[:reason] #=> "Insufficient inventory"
   #     e.task.id                 #=> Task instance UUID
   #     e.context.order_id        #=> 123
-  #     e.run.id                  #=> Run instance UUID
+  #     e.chain.id                  #=> Chain instance UUID
   #   end
   #
   # @example Fault propagation with throw!
@@ -79,7 +79,7 @@ module CMDx
   # @since 1.0.0
   class Fault < Error
 
-    __cmdx_attr_delegator :task, :run, :context, to: :result
+    __cmdx_attr_delegator :task, :chain, :context, to: :result
 
     ##
     # @!attribute [r] result
@@ -198,9 +198,9 @@ module CMDx
       #   rescue CMDx::Fault.matches? { |f|
       #     f.result.failed? &&
       #     f.result.metadata[:reason]&.include?("timeout") &&
-      #     f.run.results.count(&:failed?) < 3
+      #     f.chain.results.count(&:failed?) < 3
       #   } => e
-      #     # Retry if it's a timeout with fewer than 3 failures in the run
+      #     # Retry if it's a timeout with fewer than 3 failures in the chain
       #     retry_with_longer_timeout(e)
       #   end
       def matches?(&block)

@@ -61,9 +61,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
             middleware_with_id.call(task, callable)
           end
 
-          it "uses the explicit correlation ID over run ID" do
+          it "uses the explicit correlation ID over chain ID" do
             task_with_run = build_task.new
-            allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation-789"))
+            allow(task_with_run).to receive(:chain).and_return(CMDx::Chain.new(id: "chain-correlation-789"))
 
             expect(CMDx::Correlator).to receive(:use).with(explicit_id).and_call_original
 
@@ -147,10 +147,10 @@ RSpec.describe CMDx::Middlewares::Correlate do
           middleware.call(task, callable)
         end
 
-        it "prefers thread correlation over run ID" do
-          # Create task with run that has a different ID
+        it "prefers thread correlation over chain ID" do
+          # Create task with chain that has a different ID
           task_with_run = build_task.new
-          allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation-456"))
+          allow(task_with_run).to receive(:chain).and_return(CMDx::Chain.new(id: "chain-correlation-456"))
 
           CMDx::Correlator.id = "thread-correlation-456"
 
@@ -160,22 +160,22 @@ RSpec.describe CMDx::Middlewares::Correlate do
         end
       end
 
-      context "when no thread correlation but run ID exists" do
-        let(:run_with_id) { CMDx::Run.new(id: "run-correlation-789") }
+      context "when no thread correlation but chain ID exists" do
+        let(:chain_with_id) { CMDx::Chain.new(id: "chain-correlation-789") }
         let(:task_with_run) { build_task.new }
 
         before do
-          allow(task_with_run).to receive(:run).and_return(run_with_id)
+          allow(task_with_run).to receive(:chain).and_return(chain_with_id)
         end
 
-        it "uses the run ID as correlation" do
-          expect(CMDx::Correlator).to receive(:use).with("run-correlation-789").and_call_original
+        it "uses the chain ID as correlation" do
+          expect(CMDx::Correlator).to receive(:use).with("chain-correlation-789").and_call_original
 
           middleware.call(task_with_run, callable)
         end
       end
 
-      context "when no thread correlation or run ID exists" do
+      context "when no thread correlation or chain ID exists" do
         let(:generated_id) { "generated-uuid-123" }
 
         before do
@@ -209,9 +209,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
         original_correlation = "original-correlation"
         CMDx::Correlator.id = original_correlation
 
-        # Create task with different run ID
+        # Create task with different chain ID
         task_with_run = build_task.new
-        allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "task-specific-correlation"))
+        allow(task_with_run).to receive(:chain).and_return(CMDx::Chain.new(id: "task-specific-correlation"))
 
         middleware.call(task_with_run, callable)
 
@@ -235,9 +235,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
         original_correlation = "original-correlation"
         CMDx::Correlator.id = original_correlation
 
-        # Create task with different run ID
+        # Create task with different chain ID
         task_with_run = build_task.new
-        allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "task-specific-correlation"))
+        allow(task_with_run).to receive(:chain).and_return(CMDx::Chain.new(id: "task-specific-correlation"))
 
         expect(callable).to receive(:call).and_raise(test_error)
 
@@ -301,13 +301,13 @@ RSpec.describe CMDx::Middlewares::Correlate do
         expect(correlation_stack[0]).to eq(correlation_stack[1]) # Same correlation across nested calls
       end
 
-      it "uses run ID as correlation when no thread correlation exists" do
+      it "uses chain ID as correlation when no thread correlation exists" do
         CMDx::Correlator.clear
 
-        # Create task with specific run ID
+        # Create task with specific chain ID
         task_with_run = build_task.new
-        run_with_id = CMDx::Run.new(id: "specific-run-id")
-        allow(task_with_run).to receive(:run).and_return(run_with_id)
+        chain_with_id = CMDx::Chain.new(id: "specific-chain-id")
+        allow(task_with_run).to receive(:chain).and_return(chain_with_id)
 
         captured_correlation = nil
         expect(callable).to receive(:call) do |task|
@@ -317,7 +317,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
         middleware.call(task_with_run, callable)
 
-        expect(captured_correlation).to eq("specific-run-id")
+        expect(captured_correlation).to eq("specific-chain-id")
       end
     end
 
@@ -456,7 +456,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         middleware_with_id = described_class.new(id: "explicit-correlation")
         CMDx::Correlator.id = "thread-correlation"
         task_with_run = build_task.new
-        allow(task_with_run).to receive(:run).and_return(CMDx::Run.new(id: "run-correlation"))
+        allow(task_with_run).to receive(:chain).and_return(CMDx::Chain.new(id: "chain-correlation"))
 
         expect(CMDx::Correlator).to receive(:use).with("explicit-correlation").and_call_original
         middleware_with_id.call(task_with_run, callable)
@@ -468,40 +468,40 @@ RSpec.describe CMDx::Middlewares::Correlate do
         middleware_with_proc.call(task_with_run, callable)
         results[:proc_over_all] = true
 
-        # Scenario 3: Method-based ID takes precedence over thread/run
+        # Scenario 3: Method-based ID takes precedence over thread/chain
         middleware_with_method = described_class.new(id: :test_correlation_method)
         allow(task_with_run).to receive(:test_correlation_method).and_return("method-generated")
         expect(CMDx::Correlator).to receive(:use).with("method-generated").and_call_original
         middleware_with_method.call(task_with_run, callable)
         results[:method_over_all] = true
 
-        # Scenario 4: Thread correlation takes precedence over run ID
+        # Scenario 4: Thread correlation takes precedence over chain ID
         expect(CMDx::Correlator).to receive(:use).with("thread-correlation").and_call_original
         middleware.call(task_with_run, callable)
-        results[:thread_over_run] = true
+        results[:thread_over_chain] = true
 
-        # Scenario 5: Run ID used when no thread correlation
+        # Scenario 5: Chain ID used when no thread correlation
         CMDx::Correlator.clear
-        expect(CMDx::Correlator).to receive(:use).with("run-correlation").and_call_original
+        expect(CMDx::Correlator).to receive(:use).with("chain-correlation").and_call_original
         middleware.call(task_with_run, callable)
-        results[:run_when_no_thread] = true
+        results[:chain_when_no_thread] = true
 
-        # Scenario 6: Generated ID when no explicit, thread, or run correlation
-        task_without_run_id = build_task.new
-        mock_run = double("run", id: nil)
-        allow(task_without_run_id).to receive(:run).and_return(mock_run)
+        # Scenario 6: Generated ID when no explicit, thread, or chain correlation
+        task_without_chain_id = build_task.new
+        mock_chain = double("chain", id: nil)
+        allow(task_without_chain_id).to receive(:chain).and_return(mock_chain)
 
         expect(CMDx::Correlator).to receive(:generate).and_return("generated-id")
         expect(CMDx::Correlator).to receive(:use).with("generated-id").and_call_original
-        middleware.call(task_without_run_id, callable)
+        middleware.call(task_without_chain_id, callable)
         results[:generated_when_none] = true
 
         expect(results).to eq({
                                 explicit_over_all: true,
                                 proc_over_all: true,
                                 method_over_all: true,
-                                thread_over_run: true,
-                                run_when_no_thread: true,
+                                thread_over_chain: true,
+                                chain_when_no_thread: true,
                                 generated_when_none: true
                               })
       end

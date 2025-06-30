@@ -277,15 +277,15 @@ class ProcessOrderWorkflowTask < CMDx::Task
 end
 
 result = ProcessOrderWorkflowTask.call
-run = result.run
+chain = result.chain
 
 # Main task state
 result.state            #=> "complete"
 
 # Individual task states
-run.results[0].state    #=> "complete" (ProcessOrderWorkflowTask)
-run.results[1].state    #=> "complete" (ValidateOrderDataTask)
-run.results[2].state    #=> "complete" (ProcessOrderPaymentTask)
+chain.results[0].state  #=> "complete" (ProcessOrderWorkflowTask)
+chain.results[1].state  #=> "complete" (ValidateOrderDataTask)
+chain.results[2].state  #=> "complete" (ProcessOrderPaymentTask)
 ```
 
 ## State Persistence and Logging
@@ -306,10 +306,10 @@ result.to_h
 #     # ... other attributes
 #   }
 
-# Run-level state aggregation
-result.run.to_h
+# Chain-level state aggregation
+result.chain.to_h
 #=> {
-#     id: "run-uuid...",
+#     id: "chain-uuid...",
 #     state: "complete",      # Derived from first result
 #     status: "success",      # Derived from first result
 #     results: [

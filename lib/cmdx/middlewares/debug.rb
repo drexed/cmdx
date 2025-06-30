@@ -19,7 +19,7 @@ module CMDx
 
       def call(task, callable)
         callable.call(task)
-        puts task.run if task.result.index.zero? && task.__cmdx_eval(conditional)
+        puts task.chain if task.result.index.zero? && task.__cmdx_eval(conditional)
         task.result
       end
 

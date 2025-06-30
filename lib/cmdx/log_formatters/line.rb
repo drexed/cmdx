@@ -53,7 +53,7 @@ module CMDx
       #
       # @example Debug log entry with detailed metadata
       #   output = formatter.call("DEBUG", Time.now, task, debug_info)
-      #   # => "D, [2022-07-17T18:43:15.000000 #1234] DEBUG -- ProcessOrderTask: index=0 run_id=... metadata={...}\n"
+      #   # => "D, [2022-07-17T18:43:15.000000 #1234] DEBUG -- ProcessOrderTask: index=0 chain_id=... metadata={...}\n"
       #
       # @example Error log entry with failure chain
       #   output = formatter.call("ERROR", Time.now, task, error_details)

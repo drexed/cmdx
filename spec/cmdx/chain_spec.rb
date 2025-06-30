@@ -2,15 +2,15 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Run do
-  subject(:run) { described_class.new(attributes) }
+RSpec.describe CMDx::Chain do
+  subject(:chain) { described_class.new(attributes) }
 
   let(:attributes) { {} }
 
   describe "#initialize" do
     context "when no attributes provided" do
       it "initializes with default attributes" do
-        expect(run).to have_attributes(
+        expect(chain).to have_attributes(
           id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           results: []
         )
@@ -26,7 +26,7 @@ RSpec.describe CMDx::Run do
       end
 
       it "initializes with provided attributes" do
-        expect(run).to have_attributes(attributes)
+        expect(chain).to have_attributes(attributes)
       end
     end
   end

@@ -23,7 +23,7 @@ CMDx provides two primary fault types that inherit from the base `CMDx::Fault` c
 - **`CMDx::Failed`** - Raised when a task fails via `fail!`
 
 Both fault types provide full access to the task execution context, including
-the result object, task instance, context data, and run information.
+the result object, task instance, context data, and chain information.
 
 > [!NOTE]
 > All fault exceptions (`CMDx::Skipped`, `CMDx::Failed`, and `CMDx::Fault`) inherit from the base `CMDx::Fault` class and provide access to the complete task execution context.
@@ -70,9 +70,9 @@ rescue CMDx::Fault => e
   e.context.order_id         #=> 123
   e.context.customer_email   #=> "user@example.com"
 
-  # Run information
-  e.run.id                   #=> "def456..."
-  e.run.results.size         #=> 3
+  # Chain information
+  e.chain.id                 #=> "def456..."
+  e.chain.results.size       #=> 3
 end
 ```
 
@@ -141,9 +141,9 @@ begin
 rescue CMDx::Fault.matches? { |f|
   f.result.failed? &&
   f.result.metadata[:reason]&.include?("timeout") &&
-  f.run.results.count(&:failed?) < 3
+  f.chain.results.count(&:failed?) < 3
 } => e
-  # Retry if it's a timeout with fewer than 3 failures in the run
+  # Retry if it's a timeout with fewer than 3 failures in the chain
   retry_with_longer_timeout(e)
 rescue CMDx::Fault.matches? { |f|
   f.result.skipped? &&

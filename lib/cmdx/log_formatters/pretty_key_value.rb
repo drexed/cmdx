@@ -23,7 +23,7 @@ module CMDx
     #   end
     #
     # @example Sample pretty key-value output (with ANSI colors)
-    #   severity=INFO pid=1234 timestamp=2022-07-17T18:43:15.000000 index=0 run_id=018c2b95-b764-7615 type=Task class=ProcessOrderTask state=complete status=success outcome=success runtime=15
+    #   severity=INFO pid=1234 timestamp=2022-07-17T18:43:15.000000 index=0 chain_id=018c2b95-b764-7615 type=Task class=ProcessOrderTask state=complete status=success outcome=success runtime=15
     #   # Colors applied: severity levels, status values, class names, etc.
     #
     # @see CMDx::LogFormatters::KeyValue For plain key-value formatting without colors

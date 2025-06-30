@@ -23,7 +23,7 @@ module CMDx
     #   end
     #
     # @example Sample key-value output
-    #   severity=INFO pid=1234 timestamp=2022-07-17T18:43:15.000000 index=0 run_id=018c2b95-b764-7615 type=Task class=ProcessOrderTask id=018c2b95-b764-7615 tags=[] state=complete status=success outcome=success metadata={} runtime=15 origin=CMDx
+    #   severity=INFO pid=1234 timestamp=2022-07-17T18:43:15.000000 index=0 chain_id=018c2b95-b764-7615 type=Task class=ProcessOrderTask id=018c2b95-b764-7615 tags=[] state=complete status=success outcome=success metadata={} runtime=15 origin=CMDx
     #
     # @see CMDx::LogFormatters::PrettyKeyValue For ANSI-colorized key-value formatting
     # @see CMDx::LoggerSerializer For details on serialized data structure

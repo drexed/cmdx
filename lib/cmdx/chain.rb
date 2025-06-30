@@ -1,34 +1,34 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Run execution context for tracking related task executions with correlation support.
+  # Chain execution context for tracking related task executions with correlation support.
   #
-  # The Run class represents a collection of related task executions that share
+  # The Chain class represents a collection of related task executions that share
   # a common execution context. It provides unified tracking, indexing, and
   # reporting for groups of tasks executed together, enabling comprehensive
   # monitoring of complex business logic workflows.
   #
   # ## Correlation ID Integration
   #
-  # Run instances automatically inherit correlation IDs from the current thread's
+  # Chain instances automatically inherit correlation IDs from the current thread's
   # correlation context via CMDx::Correlator. This enables seamless request
   # tracking across task boundaries without explicit parameter passing.
   #
-  # The run ID follows this precedence:
+  # The chain ID follows this precedence:
   # 1. Explicitly provided `:id` attribute
   # 2. Current thread's correlation ID (via CMDx::Correlator.id)
   # 3. Generated UUID (via CMDx::Correlator.generate)
   #
-  # @example Basic run usage with automatic correlation
+  # @example Basic chain usage with automatic correlation
   #   CMDx::Correlator.id = "req-12345"
   #   result = ProcessOrderTask.call(order_id: 123)
-  #   run = result.run
-  #   run.id        # => "req-12345" (inherited from correlator)
-  #   run.results   # => [#<CMDx::Result...>]
-  #   run.state     # => "complete"
-  #   run.status    # => "success"
+  #   chain = result.chain
+  #   chain.id        # => "req-12345" (inherited from correlator)
+  #   chain.results   # => [#<CMDx::Result...>]
+  #   chain.state     # => "complete"
+  #   chain.status    # => "success"
   #
-  # @example Run with multiple related tasks sharing correlation
+  # @example Chain with multiple related tasks sharing correlation
   #   CMDx::Correlator.use("batch-operation-456") do
   #     class ProcessOrderTask < CMDx::Task
   #       def call
@@ -39,37 +39,37 @@ module CMDx
   #     end
   #
   #     result = ProcessOrderTask.call(order_id: 123)
-  #     run = result.run
-  #     run.id  # => "batch-operation-456" (same across all tasks)
-  #     run.results.size  # => 3 (ProcessOrderTask + 2 subtasks)
-  #     run.results.map(&:task).map(&:class)
+  #     chain = result.chain
+  #     chain.id  # => "batch-operation-456" (same across all tasks)
+  #     chain.results.size  # => 3 (ProcessOrderTask + 2 subtasks)
+  #     chain.results.map(&:task).map(&:class)
   #     # => [ProcessOrderTask, SendEmailConfirmationTask, NotifyPartnerWarehousesTask]
   #   end
   #
-  # @example Explicit run ID overrides correlation
+  # @example Explicit chain ID overrides correlation
   #   CMDx::Correlator.id = "req-12345"
-  #   context = { order_id: 123, run: { id: "custom-run-789" } }
+  #   context = { order_id: 123, chain: { id: "custom-chain-789" } }
   #   result = ProcessOrderTask.call(context)
-  #   result.run.id  # => "custom-run-789" (explicit ID takes precedence)
+  #   result.chain.id  # => "custom-chain-789" (explicit ID takes precedence)
   #
-  # @example Run state and outcome tracking
+  # @example Chain state and outcome tracking
   #   result = ComplexTask.call
-  #   run = result.run
+  #   chain = result.chain
   #
-  #   run.state     # => Delegates to first result's state
-  #   run.status    # => Delegates to first result's status
-  #   run.outcome   # => Delegates to first result's outcome
-  #   run.runtime   # => Delegates to first result's runtime
+  #   chain.state     # => Delegates to first result's state
+  #   chain.status    # => Delegates to first result's status
+  #   chain.outcome   # => Delegates to first result's outcome
+  #   chain.runtime   # => Delegates to first result's runtime
   #
-  # @example Run inspection and debugging
-  #   run.to_h      # => Hash representation of run and all results
-  #   run.to_s      # => Human-readable run summary with all tasks
+  # @example Chain inspection and debugging
+  #   chain.to_h      # => Hash representation of chain and all results
+  #   chain.to_s      # => Human-readable chain summary with all tasks
   #
   # @see CMDx::Result Individual task execution results
-  # @see CMDx::Task Task execution and run context
+  # @see CMDx::Task Task execution and chain context
   # @see CMDx::Context Context sharing between related tasks
   # @see CMDx::Correlator Thread-safe correlation ID management
-  class Run
+  class Chain
 
     __cmdx_attr_delegator :index, to: :results
     __cmdx_attr_delegator :state, :status, :outcome, :runtime, to: :first_result
@@ -78,9 +78,9 @@ module CMDx
     # @return [Array<CMDx::Result>] Collection of results from related task executions
     attr_reader :id, :results
 
-    # Initializes a new Run instance with automatic correlation ID inheritance.
+    # Initializes a new Chain instance with automatic correlation ID inheritance.
     #
-    # Creates a run context for tracking related task executions with an
+    # Creates a chain context for tracking related task executions with an
     # identifier that follows the correlation precedence hierarchy:
     # 1. Explicitly provided `:id` attribute
     # 2. Current thread's correlation ID (via CMDx::Correlator.id)
@@ -89,56 +89,56 @@ module CMDx
     # This automatic correlation inheritance enables seamless request tracking
     # across task boundaries without requiring manual correlation ID management.
     #
-    # @param attributes [Hash] Run initialization attributes
-    # @option attributes [String] :id (correlation ID or generated UUID) Run identifier
+    # @param attributes [Hash] Chain initialization attributes
+    # @option attributes [String] :id (correlation ID or generated UUID) Chain identifier
     # @option attributes [Array<CMDx::Result>] :results ([]) Initial results collection
     #
-    # @example Creating a run with automatic correlation inheritance
+    # @example Creating a chain with automatic correlation inheritance
     #   CMDx::Correlator.id = "req-12345"
-    #   run = Run.new
-    #   run.id  # => "req-12345" (inherited from current correlation)
+    #   chain = Chain.new
+    #   chain.id  # => "req-12345" (inherited from current correlation)
     #
-    # @example Creating a run with explicit ID (overrides correlation)
+    # @example Creating a chain with explicit ID (overrides correlation)
     #   CMDx::Correlator.id = "req-12345"
-    #   run = Run.new(id: "custom-run-789")
-    #   run.id  # => "custom-run-789" (explicit ID takes precedence)
+    #   chain = Chain.new(id: "custom-chain-789")
+    #   chain.id  # => "custom-chain-789" (explicit ID takes precedence)
     #
-    # @example Creating a run without correlation context
+    # @example Creating a chain without correlation context
     #   CMDx::Correlator.clear  # No correlation ID set
-    #   run = Run.new
-    #   run.id  # => "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated UUID)
+    #   chain = Chain.new
+    #   chain.id  # => "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated UUID)
     #
-    # @example Creating a run with initial results
+    # @example Creating a chain with initial results
     #   existing_results = [result1, result2]
-    #   run = Run.new(results: existing_results)
-    #   run.results.size  # => 2
+    #   chain = Chain.new(results: existing_results)
+    #   chain.results.size  # => 2
     #
     # @example Block-based correlation context
     #   CMDx::Correlator.use("batch-operation") do
-    #     run = Run.new
-    #     run.id  # => "batch-operation" (from correlation context)
+    #     chain = Chain.new
+    #     chain.id  # => "batch-operation" (from correlation context)
     #   end
     def initialize(attributes = {})
       @id      = attributes[:id] || CMDx::Correlator.id || CMDx::Correlator.generate
       @results = Array(attributes[:results])
     end
 
-    # Freezes the run and ensures first result is memoized.
+    # Freezes the chain and ensures first result is memoized.
     #
     # Ensures the first result is cached before freezing to prevent
     # issues with delegation after the object becomes immutable.
     #
-    # @return [Run] The frozen run instance
+    # @return [Chain] The frozen chain instance
     #
     # @example
-    #   run.freeze
-    #   run.frozen?  # => true
+    #   chain.freeze
+    #   chain.frozen?  # => true
     def freeze
       first_result
       super
     end
 
-    # Gets the index of a specific result within this run.
+    # Gets the index of a specific result within this chain.
     #
     # Delegates to the results array to find the index of a given result,
     # enabling position tracking within the execution sequence.
@@ -147,82 +147,82 @@ module CMDx
     # @return [Integer, nil] The zero-based index or nil if not found
     #
     # @example
-    #   run.index(result)  # => 0 for first result, 1 for second, etc.
+    #   chain.index(result)  # => 0 for first result, 1 for second, etc.
     #
     # @note This method is delegated from the results array via __cmdx_attr_delegator
     def index(result)
       results.index(result)
     end
 
-    # Gets the execution state of the run.
+    # Gets the execution state of the chain.
     #
     # Delegates to the first result's state, representing the overall
-    # execution state of the run based on the primary task.
+    # execution state of the chain based on the primary task.
     #
     # @return [String] The execution state (initialized, executing, complete, interrupted)
     #
     # @example
-    #   run.state  # => "complete"
+    #   chain.state  # => "complete"
     #
     # @note This method is delegated from the first result via __cmdx_attr_delegator
     def state
       first_result&.state
     end
 
-    # Gets the execution status of the run.
+    # Gets the execution status of the chain.
     #
     # Delegates to the first result's status, representing the overall
-    # execution outcome of the run based on the primary task.
+    # execution outcome of the chain based on the primary task.
     #
     # @return [String] The execution status (success, skipped, failed)
     #
     # @example
-    #   run.status  # => "success"
+    #   chain.status  # => "success"
     #
     # @note This method is delegated from the first result via __cmdx_attr_delegator
     def status
       first_result&.status
     end
 
-    # Gets the execution outcome of the run.
+    # Gets the execution outcome of the chain.
     #
     # Delegates to the first result's outcome, representing the final
-    # outcome of the run based on the primary task.
+    # outcome of the chain based on the primary task.
     #
     # @return [String] The execution outcome
     #
     # @example
-    #   run.outcome  # => "success"
+    #   chain.outcome  # => "success"
     #
     # @note This method is delegated from the first result via __cmdx_attr_delegator
     def outcome
       first_result&.outcome
     end
 
-    # Gets the total runtime of the run.
+    # Gets the total runtime of the chain.
     #
     # Delegates to the first result's runtime, representing the execution
-    # time of the primary task in the run.
+    # time of the primary task in the chain.
     #
     # @return [Float] Runtime in seconds
     #
     # @example
-    #   run.runtime  # => 0.5
+    #   chain.runtime  # => 0.5
     #
     # @note This method is delegated from the first result via __cmdx_attr_delegator
     def runtime
       first_result&.runtime
     end
 
-    # Converts the run to a hash representation.
+    # Converts the chain to a hash representation.
     #
-    # Serializes the run and all its results into a structured hash
+    # Serializes the chain and all its results into a structured hash
     # suitable for logging, debugging, and data interchange.
     #
-    # @return [Hash] Structured hash representation of the run
+    # @return [Hash] Structured hash representation of the chain
     #
     # @example
-    #   run.to_h
+    #   chain.to_h
     #   # => {
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   state: "complete",
@@ -235,21 +235,21 @@ module CMDx
     #   #   ]
     #   # }
     def to_h
-      RunSerializer.call(self)
+      ChainSerializer.call(self)
     end
     alias to_a to_h
 
-    # Converts the run to a string representation for inspection.
+    # Converts the chain to a string representation for inspection.
     #
-    # Creates a comprehensive, human-readable summary of the run including
+    # Creates a comprehensive, human-readable summary of the chain including
     # all task results with formatted headers and footers.
     #
-    # @return [String] Formatted run summary with task details
+    # @return [String] Formatted chain summary with task details
     #
     # @example
-    #   run.to_s
+    #   chain.to_s
     #   # => "
-    #   #   run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
     #   #   ================================================
     #   #
     #   #   ProcessOrderTask: index=0 state=complete status=success ...
@@ -259,12 +259,12 @@ module CMDx
     #   #   state: complete | status: success | outcome: success | runtime: 0.5
     #   #   "
     def to_s
-      RunInspector.call(self)
+      ChainInspector.call(self)
     end
 
     private
 
-    # Gets the first result in the run with memoization.
+    # Gets the first result in the chain with memoization.
     #
     # Caches the first result to avoid repeated array access and ensure
     # consistent delegation behavior.

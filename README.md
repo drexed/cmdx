@@ -34,7 +34,7 @@ Or install it yourself as:
   - [Setup](https://github.com/drexed/cmdx/blob/main/docs/basics/setup.md)
   - [Call](https://github.com/drexed/cmdx/blob/main/docs/basics/call.md)
   - [Context](https://github.com/drexed/cmdx/blob/main/docs/basics/context.md)
-  - [Run](https://github.com/drexed/cmdx/blob/main/docs/basics/run.md)
+  - [Chain](https://github.com/drexed/cmdx/blob/main/docs/basics/chain.md)
 - Interruptions
   - [Halt](https://github.com/drexed/cmdx/blob/main/docs/interruptions/halt.md)
   - [Faults](https://github.com/drexed/cmdx/blob/main/docs/interruptions/faults.md)

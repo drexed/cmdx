@@ -7,8 +7,8 @@ module CMDx
   # about the task execution context and identification.
   #
   # The serialized format includes:
-  # - Execution index within the run
-  # - Run identifier for grouping related tasks
+  # - Execution index within the chain
+  # - Chain identifier for grouping related tasks
   # - Task type (Task vs Batch)
   # - Class name for identification
   # - Unique task instance ID
@@ -23,7 +23,7 @@ module CMDx
   #   TaskSerializer.call(task)
   #   #=> {
   #   #     index: 1,
-  #   #     run_id: "abc123...",
+  #   #     chain_id: "abc123...",
   #   #     type: "Task",
   #   #     class: "ProcessOrderTask",
   #   #     id: "def456...",
@@ -39,7 +39,7 @@ module CMDx
   #   TaskSerializer.call(batch)
   #   #=> {
   #   #     index: 1,
-  #   #     run_id: "abc123...",
+  #   #     chain_id: "abc123...",
   #   #     type: "Batch",
   #   #     class: "OrderProcessingBatch",
   #   #     id: "ghi789...",
@@ -48,7 +48,7 @@ module CMDx
   #
   # @see Task Task class for execution context
   # @see Batch Batch class for multi-task execution
-  # @see Run Run class for execution grouping
+  # @see Chain Chain class for execution grouping
   # @since 1.0.0
   module TaskSerializer
 
@@ -60,8 +60,8 @@ module CMDx
     #
     # @param task [Task, Batch] the task instance to serialize
     # @return [Hash] serialized task data with the following keys:
-    #   - :index [Integer] position within the execution run
-    #   - :run_id [String] identifier of the containing run
+    #   - :index [Integer] position within the execution chain
+    #   - :chain_id [String] identifier of the containing chain
     #   - :type [String] "Task" or "Batch" based on instance type
     #   - :class [String] class name of the task
     #   - :id [String] unique identifier for this task instance
@@ -80,7 +80,7 @@ module CMDx
     def call(task)
       {
         index: task.result.index,
-        run_id: task.run.id,
+        chain_id: task.chain.id,
         type: task.is_a?(Batch) ? "Batch" : "Task",
         class: task.class.name,
         id: task.id,

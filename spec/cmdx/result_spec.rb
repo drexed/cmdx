@@ -260,7 +260,7 @@ RSpec.describe CMDx::Result do
         expect(result.threw_failure).to eq(result)
         expect(result).to be_threw_failure
         expect(result).not_to be_thrown_failure
-        expect(result.run.results.size).to eq(1)
+        expect(result.chain.results.size).to eq(1)
       end
     end
 
@@ -276,7 +276,7 @@ RSpec.describe CMDx::Result do
         expect(result.threw_failure).not_to eq(result)
         expect(result).not_to be_threw_failure
         expect(result).to be_thrown_failure
-        expect(result.run.results.size).to eq(2)
+        expect(result.chain.results.size).to eq(2)
       end
     end
 
@@ -292,7 +292,7 @@ RSpec.describe CMDx::Result do
         expect(result.threw_failure).not_to eq(result)
         expect(result).not_to be_threw_failure
         expect(result).to be_thrown_failure
-        expect(result.run.results.size).to eq(3)
+        expect(result.chain.results.size).to eq(3)
       end
     end
   end

@@ -28,7 +28,7 @@ module CMDx
     #     "pid": 1234,
     #     "timestamp": "2022-07-17T18:43:15.000000",
     #     "index": 0,
-    #     "run_id": "018c2b95-b764-7615",
+    #     "chain_id": "018c2b95-b764-7615",
     #     "type": "Task",
     #     "class": "ProcessOrderTask",
     #     "state": "complete",

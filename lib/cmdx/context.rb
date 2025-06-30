@@ -131,15 +131,15 @@ module CMDx
   #
   # @see LazyStruct Base class providing dynamic attribute functionality
   # @see Task Task base class that uses Context for parameter storage
-  # @see Run Run execution context that Context belongs to
+  # @see Chain Chain execution context that Context belongs to
   # @see Parameter Parameter definitions that populate Context
   # @since 1.0.0
   class Context < LazyStruct
 
     ##
-    # @!attribute [r] run
-    #   @return [Run] the execution run that this context belongs to
-    attr_reader :run
+    # @!attribute [r] chain
+    #   @return [Chain] the execution chain that this context belongs to
+    attr_reader :chain
 
     ##
     # Builds a Context instance from the given input, with intelligent handling

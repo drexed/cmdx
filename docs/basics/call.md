@@ -216,7 +216,7 @@ result = ProcessOrderTask.call(order_id: 12345)
 result.id           #=> "abc123..."  (unique execution ID)
 result.runtime      #=> 0.05         (execution time in seconds)
 result.task         #=> ProcessOrderTask instance
-result.run          #=> Run object for tracking executions
+result.chain        #=> Chain object for tracking executions
 
 # Context and metadata
 result.context      #=> Context with all task data

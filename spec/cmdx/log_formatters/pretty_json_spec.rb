@@ -7,7 +7,7 @@ RSpec.describe CMDx::LogFormatters::PrettyJson do
     <<~LINE
       {
         "index": 0,
-        "run_id": "018c2b95-b764-7615-a924-cc5b910ed1e5",
+        "chain_id": "018c2b95-b764-7615-a924-cc5b910ed1e5",
         "type": "Task",
         "class": "SimulationTask",
         "id": "018c2b95-b764-7615-a924-cc5b910ed1e5",

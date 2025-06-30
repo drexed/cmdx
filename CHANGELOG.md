@@ -1,9 +1,6 @@
 ## [Unreleased]
 
-## [1.0.0] - 2025-06-25
-
-> [!IMPORTANT]
-> This should be a safe upgrade but some of the changes were big that it warranted a major version bump.
+## [1.0.0] - unreleased
 
 ### Added
 - Zeitwerk gem loader
@@ -22,6 +19,7 @@
 - Improve test readability, consistency, completeness
 - Renames `Parameters` to `ParameterRegistry`
 - Convert hooks hash to a registry
+- Rename `Run` and its associated items to `Chain`
 ### Removed
 - Removed configuration `task_timeout` and `batch_timeout`
 

@@ -29,7 +29,7 @@ result = ProcessUserOrderTask.call(order_id: 123)
 # Core objects
 result.task     #=> <ProcessUserOrderTask instance>
 result.context  #=> <CMDx::Context with all task data>
-result.run      #=> <CMDx::Run execution tracking>
+result.chain    #=> <CMDx::Chain execution tracking>
 result.metadata #=> Hash with execution metadata
 
 # Execution information
@@ -133,16 +133,16 @@ end
 
 ## Index and Position
 
-Results track their position within execution runs:
+Results track their position within execution chains:
 
 ```ruby
 result = ProcessUserOrderTask.call
 
 # Position in execution sequence
-result.index        #=> 0 (first task in run)
+result.index        #=> 0 (first task in chain)
 
-# Access via run
-result.run.results[result.index] == result #=> true
+# Access via chain
+result.chain.results[result.index] == result #=> true
 ```
 
 ## Result Callbacks and Chaining
@@ -234,7 +234,7 @@ end
 Combine patterns for complex matching logic:
 
 ```ruby
-results = BatchProcessTask.call.run.results
+results = BatchProcessTask.call.chain.results
 
 results.each do |result|
   case result
@@ -283,7 +283,7 @@ result.to_h
 #     type: "Task",
 #     index: 0,
 #     id: "abc123...",
-#     run_id: "def456...",
+#     chain_id: "def456...",
 #     tags: [],
 #     state: "complete",
 #     status: "success",
@@ -383,16 +383,16 @@ result.context.processed_at #=> (set during task execution)
 result.ctx == result.context #=> true
 ```
 
-### With Run
+### With Chain
 
 ```ruby
 result = ProcessUserOrderTask.call
 
-# Run provides execution context
-result.run.id               #=> "run-uuid"
-result.run.results.size     #=> 1 (or more if subtasks executed)
-result.run.state            #=> delegates to result.state
-result.run.status           #=> delegates to result.status
+# Chain provides execution context
+result.chain.id             #=> "chain-uuid"
+result.chain.results.size   #=> 1 (or more if subtasks executed)
+result.chain.state          #=> delegates to result.state
+result.chain.status         #=> delegates to result.status
 ```
 
 ### With Task

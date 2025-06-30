@@ -2,14 +2,14 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::RunInspector do
+RSpec.describe CMDx::ChainInspector do
   include_context "with simulation task setup"
 
-  let(:inspected_result) { result.run.to_s }
+  let(:inspected_result) { result.chain.to_s }
   let(:expected_string_output) do
     <<~TEXT
 
-      run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+      chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
       =================================================================
 
       {index: 0,

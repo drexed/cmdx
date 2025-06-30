@@ -31,11 +31,11 @@ module CMDx
   #   result2.throw!(result1) if result1.failed?  # Propagate failure
   #
   # @see CMDx::Task Task execution and result creation
-  # @see CMDx::Run Run execution context and result tracking
+  # @see CMDx::Chain Chain execution context and result tracking
   # @see CMDx::Fault Fault handling for result failures
   class Result
 
-    __cmdx_attr_delegator :context, :run, to: :task
+    __cmdx_attr_delegator :context, :chain, to: :task
 
     # @return [CMDx::Task] The task instance that generated this result
     # @return [String] The current execution state (initialized, executing, complete, interrupted)
@@ -367,7 +367,7 @@ module CMDx
     def caused_failure
       return unless failed?
 
-      run.results.reverse.find(&:failed?)
+      chain.results.reverse.find(&:failed?)
     end
 
     # Checks if this result was the original cause of failure.
@@ -392,7 +392,7 @@ module CMDx
     def threw_failure
       return unless failed?
 
-      results = run.results.select(&:failed?)
+      results = chain.results.select(&:failed?)
       results.find { |r| r.index > index } || results.last
     end
 
@@ -418,14 +418,14 @@ module CMDx
       failed? && !caused_failure?
     end
 
-    # Gets the index of this result within the execution run.
+    # Gets the index of this result within the execution chain.
     #
-    # @return [Integer] The zero-based index of this result in the run
+    # @return [Integer] The zero-based index of this result in the chain
     #
     # @example
     #   result.index  # => 0 for first result, 1 for second, etc.
     def index
-      run.index(self)
+      chain.index(self)
     end
 
     # Gets the outcome of the result based on state and status.

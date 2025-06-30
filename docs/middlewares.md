@@ -431,7 +431,7 @@ class ProcessApiRequestTask < CMDx::Task
 
   def call
     # Correlation ID is automatically managed
-    # Run ID reflects the established correlation context
+    # Chain ID reflects the established correlation context
     context.api_response = ExternalService.call(request_data)
   end
 end
@@ -472,9 +472,9 @@ ProcessOrderTask.call(order_id: 789) # Uses "custom-789"
 CMDx::Correlator.id = "api-request-456"
 ProcessApiRequestTask.call # Uses "api-request-456"
 
-# 3. Existing run ID when no explicit or thread correlation
-task_with_run = ProcessOrderTask.call(run: { id: "order-run-789" })
-# Uses "order-run-789"
+# 3. Existing chain ID when no explicit or thread correlation
+task_with_run = ProcessOrderTask.call(chain: { id: "order-chain-789" })
+# Uses "order-chain-789"
 
 # 4. Generated UUID when none of the above exist
 CMDx::Correlator.clear
@@ -622,7 +622,7 @@ class ApiController < ApplicationController
     # result = ProcessOrderTask.call(order_params.merge(correlation_id: @correlation_id))
 
     if result.success?
-      render json: { order: result.context.order, correlation_id: result.run.id }
+      render json: { order: result.context.order, correlation_id: result.chain.id }
     else
       render json: { error: result.reason }, status: 422
     end

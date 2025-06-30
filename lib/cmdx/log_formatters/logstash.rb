@@ -23,7 +23,7 @@ module CMDx
     #   end
     #
     # @example Sample Logstash JSON output
-    #   {"@version":"1","@timestamp":"2022-07-17T18:43:15.000000","severity":"INFO","pid":1234,"index":0,"run_id":"018c2b95-b764-7615","type":"Task","class":"ProcessOrderTask","id":"018c2b95-b764-7615","tags":[],"state":"complete","status":"success","outcome":"success","metadata":{},"runtime":15,"origin":"CMDx"}
+    #   {"@version":"1","@timestamp":"2022-07-17T18:43:15.000000","severity":"INFO","pid":1234,"index":0,"chain_id":"018c2b95-b764-7615","type":"Task","class":"ProcessOrderTask","id":"018c2b95-b764-7615","tags":[],"state":"complete","status":"success","outcome":"success","metadata":{},"runtime":15,"origin":"CMDx"}
     #
     # @example Logstash configuration for CMDx logs
     #   input {

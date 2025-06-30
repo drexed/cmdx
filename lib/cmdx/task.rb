@@ -96,9 +96,9 @@ module CMDx
     #   @return [Result] execution result tracking state and status
 
     ##
-    # @!attribute [r] run
-    #   @return [Run] execution run containing this task and related executions
-    attr_reader :id, :errors, :context, :result, :run
+    # @!attribute [r] chain
+    #   @return [Chain] execution chain containing this task and related executions
+    attr_reader :id, :errors, :context, :result, :chain
 
     ##
     # @!attribute [r] ctx
@@ -118,11 +118,11 @@ module CMDx
       @id      = CMDx::Correlator.generate
       @errors  = Errors.new
       @context = Context.build(context)
-      @run = @context.run || begin
-        run = Run.new(@context.delete!(:run).to_h)
-        @context.instance_variable_set(:@run, run)
+      @chain = @context.chain || begin
+        chain = Chain.new(@context.delete!(:chain).to_h)
+        @context.instance_variable_set(:@chain, chain)
       end
-      @run.results << @result = Result.new(self)
+      @chain.results << @result = Result.new(self)
     end
 
     class << self

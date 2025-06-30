@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Run serialization utility for converting Run objects to hash representations.
+  # Chain serialization utility for converting Chain objects to hash representations.
   #
-  # The RunSerializer module provides functionality to serialize Run instances
+  # The ChainSerializer module provides functionality to serialize Chain instances
   # into structured hash representations suitable for inspection, logging,
   # debugging, and data interchange. It creates comprehensive data structures
-  # that include run metadata and all associated task results.
+  # that include chain metadata and all associated task results.
   #
-  # @example Basic run serialization
+  # @example Basic chain serialization
   #   result = ProcessOrderTask.call(order_id: 123)
-  #   run = result.run
+  #   chain = result.chain
   #
-  #   RunSerializer.call(run)
+  #   ChainSerializer.call(chain)
   #   # => {
   #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
   #   #   state: "complete",
@@ -25,7 +25,7 @@ module CMDx
   #   #       type: "Task",
   #   #       index: 0,
   #   #       id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-  #   #       run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+  #   #       chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
   #   #       tags: [],
   #   #       state: "complete",
   #   #       status: "success",
@@ -36,7 +36,7 @@ module CMDx
   #   #   ]
   #   # }
   #
-  # @example Run with multiple tasks
+  # @example Chain with multiple tasks
   #   class ComplexTask < CMDx::Task
   #     def call
   #       SubTask1.call(context)
@@ -45,9 +45,9 @@ module CMDx
   #   end
   #
   #   result = ComplexTask.call
-  #   run = result.run
+  #   chain = result.chain
   #
-  #   RunSerializer.call(run)
+  #   ChainSerializer.call(chain)
   #   # => {
   #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
   #   #   state: "complete",
@@ -61,11 +61,11 @@ module CMDx
   #   #   ]
   #   # }
   #
-  # @example Failed run serialization
+  # @example Failed chain serialization
   #   failed_result = FailingTask.call
-  #   failed_run = failed_result.run
+  #   failed_chain = failed_result.chain
   #
-  #   RunSerializer.call(failed_run)
+  #   ChainSerializer.call(failed_chain)
   #   # => {
   #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
   #   #   state: "interrupted",
@@ -85,26 +85,26 @@ module CMDx
   #   #   ]
   #   # }
   #
-  # @see CMDx::Run Run execution context and result tracking
+  # @see CMDx::Chain Chain execution context and result tracking
   # @see CMDx::ResultSerializer Individual result serialization
-  # @see CMDx::RunInspector Human-readable run formatting
-  module RunSerializer
+  # @see CMDx::ChainInspector Human-readable chain formatting
+  module ChainSerializer
 
     module_function
 
-    # Converts a Run object to a hash representation.
+    # Converts a Chain object to a hash representation.
     #
-    # Serializes a Run instance into a structured hash containing run metadata
-    # and all associated task results. The run-level data is derived from the
+    # Serializes a Chain instance into a structured hash containing chain metadata
+    # and all associated task results. The chain-level data is derived from the
     # first result in the collection, while all individual results are included
     # in their full serialized form.
     #
-    # @param run [CMDx::Run] The run object to serialize
-    # @return [Hash] Structured hash representation of the run and all results
+    # @param chain [CMDx::Chain] The chain object to serialize
+    # @return [Hash] Structured hash representation of the chain and all results
     #
-    # @example Simple run serialization
-    #   run = SimpleTask.call.run
-    #   RunSerializer.call(run)
+    # @example Simple chain serialization
+    #   chain = SimpleTask.call.chain
+    #   ChainSerializer.call(chain)
     #   # => {
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   state: "complete",
@@ -117,7 +117,7 @@ module CMDx
     #   #       type: "Task",
     #   #       index: 0,
     #   #       id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #       run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+    #   #       chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #       tags: [],
     #   #       state: "complete",
     #   #       status: "success",
@@ -128,15 +128,15 @@ module CMDx
     #   #   ]
     #   # }
     #
-    # @example Multi-task run serialization
+    # @example Multi-task chain serialization
     #   class ParentTask < CMDx::Task
     #     def call
     #       ChildTask.call(context)
     #     end
     #   end
     #
-    #   run = ParentTask.call.run
-    #   RunSerializer.call(run)
+    #   chain = ParentTask.call.chain
+    #   ChainSerializer.call(chain)
     #   # => {
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   state: "complete",      # From first result (ParentTask)
@@ -149,9 +149,9 @@ module CMDx
     #   #   ]
     #   # }
     #
-    # @example Empty run serialization
-    #   empty_run = Run.new
-    #   RunSerializer.call(empty_run)
+    # @example Empty chain serialization
+    #   empty_chain = Chain.new
+    #   ChainSerializer.call(empty_chain)
     #   # => {
     #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
     #   #   state: nil,
@@ -160,14 +160,14 @@ module CMDx
     #   #   runtime: nil,
     #   #   results: []
     #   # }
-    def call(run)
+    def call(chain)
       {
-        id: run.id,
-        state: run.state,
-        status: run.status,
-        outcome: run.outcome,
-        runtime: run.runtime,
-        results: run.results.map(&:to_h)
+        id: chain.id,
+        state: chain.state,
+        status: chain.status,
+        outcome: chain.outcome,
+        runtime: chain.runtime,
+        results: chain.results.map(&:to_h)
       }
     end
 

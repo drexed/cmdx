@@ -1,5 +1,3 @@
-# Rename Run to Chain
-
 # Parallel Task Execution
 - Batch support for concurrent task execution using thread pools or async patterns
 - Safe parallel execution with shared context handling

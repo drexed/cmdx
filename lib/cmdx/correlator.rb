@@ -19,16 +19,16 @@ module CMDx
   #
   # ## Integration with CMDx Runs
   #
-  # When a new CMDx::Run is created, it automatically uses the current thread's correlation
-  # ID as its run identifier if available, falling back to UUID generation if none exists.
+  # When a new CMDx::Chain is created, it automatically uses the current thread's correlation
+  # ID as its chain identifier if available, falling back to UUID generation if none exists.
   #
   # @example Basic correlation usage
   #   CMDx::Correlator.id = "req-12345"
   #   CMDx::Correlator.id  # => "req-12345"
   #
-  #   # Run automatically inherits correlation ID
+  #   # Chain automatically inherits correlation ID
   #   result = ProcessOrderTask.call(order_id: 123)
-  #   result.run.id  # => "req-12345"
+  #   result.chain.id  # => "req-12345"
   #
   # @example Block-based correlation context
   #   CMDx::Correlator.use("batch-operation-456") do
@@ -69,7 +69,7 @@ module CMDx
   #     end
   #   end
   #
-  # @see CMDx::Run Run execution context that inherits correlation IDs
+  # @see CMDx::Chain Chain execution context that inherits correlation IDs
   # @since 1.0.0
   module Correlator
 

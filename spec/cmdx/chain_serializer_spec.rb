@@ -2,10 +2,10 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::RunSerializer do
+RSpec.describe CMDx::ChainSerializer do
   include_context "with simulation task setup"
 
-  let(:serialized_result) { result.run.to_h }
+  let(:serialized_result) { result.chain.to_h }
   let(:expected_serialized_attributes) do
     {
       id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
@@ -16,7 +16,7 @@ RSpec.describe CMDx::RunSerializer do
       results: [
         {
           index: 0,
-          run_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+          chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
           type: "Task",
           class: "SimulationTask",
           id: "018c2b95-b764-7615-a924-cc5b910ed1e5",

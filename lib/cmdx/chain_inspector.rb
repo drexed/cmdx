@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Run inspection utility for generating comprehensive run summaries.
+  # Chain inspection utility for generating comprehensive chain summaries.
   #
-  # The RunInspector module provides functionality to convert Run instances
+  # The ChainInspector module provides functionality to convert Chain instances
   # into detailed, human-readable string representations. It creates formatted
-  # summaries that include run metadata, all task results, and summary statistics
+  # summaries that include chain metadata, all task results, and summary statistics
   # with visual separators for easy debugging and monitoring.
   #
-  # @example Basic run inspection
+  # @example Basic chain inspection
   #   result = ProcessOrderTask.call(order_id: 123)
-  #   run = result.run
+  #   chain = result.chain
   #
-  #   RunInspector.call(run)
+  #   ChainInspector.call(chain)
   #   # => "
-  #   #   run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+  #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
   #   #   ================================================
   #   #
   #   #   {
@@ -34,7 +34,7 @@ module CMDx
   #   #   state: complete | status: success | outcome: success | runtime: 0.5
   #   #   "
   #
-  # @example Run with multiple tasks
+  # @example Chain with multiple tasks
   #   class ComplexTask < CMDx::Task
   #     def call
   #       SubTask1.call(context)
@@ -43,21 +43,21 @@ module CMDx
   #   end
   #
   #   result = ComplexTask.call
-  #   RunInspector.call(result.run)
+  #   ChainInspector.call(result.chain)
   #   # => Shows formatted output with all three task results and summary
   #
-  # @example Failed run inspection
-  #   # When a run contains failed tasks, the summary reflects the failure state
-  #   RunInspector.call(failed_run)
+  # @example Failed chain inspection
+  #   # When a chain contains failed tasks, the summary reflects the failure state
+  #   ChainInspector.call(failed_chain)
   #   # => Shows all task results with failure information and failed summary
   #
-  # @see CMDx::Run Run execution context and result tracking
+  # @see CMDx::Chain Chain execution context and result tracking
   # @see CMDx::Result Individual result inspection via to_h
-  module RunInspector
+  module ChainInspector
 
-    # Keys to display in the run summary footer.
+    # Keys to display in the chain summary footer.
     #
-    # These keys represent the most important run-level information
+    # These keys represent the most important chain-level information
     # that should be displayed in the summary footer for quick reference.
     FOOTER_KEYS = %i[
       state status outcome runtime
@@ -65,23 +65,23 @@ module CMDx
 
     module_function
 
-    # Converts a Run instance to a comprehensive string representation.
+    # Converts a Chain instance to a comprehensive string representation.
     #
     # Creates a formatted summary that includes:
-    # - Run header with unique ID
+    # - Chain header with unique ID
     # - Visual separator line
     # - Pretty-printed hash representation of each result
     # - Visual separator line
-    # - Summary footer with key run statistics
+    # - Summary footer with key chain statistics
     #
-    # @param run [CMDx::Run] The run instance to inspect
-    # @return [String] Formatted run summary with task details and statistics
+    # @param chain [CMDx::Chain] The chain instance to inspect
+    # @return [String] Formatted chain summary with task details and statistics
     #
-    # @example Single task run
-    #   run = SimpleTask.call.run
-    #   RunInspector.call(run)
+    # @example Single task chain
+    #   chain = SimpleTask.call.chain
+    #   ChainInspector.call(chain)
     #   # => "
-    #   #   run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
     #   #   ================================================
     #   #
     #   #   {
@@ -98,7 +98,7 @@ module CMDx
     #   #   state: complete | status: success | outcome: success | runtime: 0.1
     #   #   "
     #
-    # @example Multi-task run
+    # @example Multi-task chain
     #   class ParentTask < CMDx::Task
     #     def call
     #       ChildTask1.call(context)
@@ -106,10 +106,10 @@ module CMDx
     #     end
     #   end
     #
-    #   run = ParentTask.call.run
-    #   RunInspector.call(run)
+    #   chain = ParentTask.call.chain
+    #   ChainInspector.call(chain)
     #   # => "
-    #   #   run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
     #   #   ================================================
     #   #
     #   #   { class: "ParentTask", index: 0, state: "complete", status: "success", ... }
@@ -120,11 +120,11 @@ module CMDx
     #   #   state: complete | status: success | outcome: success | runtime: 0.5
     #   #   "
     #
-    # @example Failed run inspection
-    #   failed_run = FailingTask.call.run
-    #   RunInspector.call(failed_run)
+    # @example Failed chain inspection
+    #   failed_chain = FailingTask.call.chain
+    #   ChainInspector.call(failed_chain)
     #   # => "
-    #   #   run: 018c2b95-b764-7615-a924-cc5b910ed1e5
+    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
     #   #   ================================================
     #   #
     #   #   { class: "FailingTask", state: "interrupted", status: "failed", metadata: { reason: "Error" }, ... }
@@ -132,14 +132,14 @@ module CMDx
     #   #   ================================================
     #   #   state: interrupted | status: failed | outcome: failed | runtime: 0.1
     #   #   "
-    def call(run)
-      header = "\nrun: #{run.id}"
-      footer = FOOTER_KEYS.map { |key| "#{key}: #{run.send(key)}" }.join(" | ")
+    def call(chain)
+      header = "\nchain: #{chain.id}"
+      footer = FOOTER_KEYS.map { |key| "#{key}: #{chain.send(key)}" }.join(" | ")
       spacer = "=" * [header.size, footer.size].max
 
-      run
+      chain
         .results
-        .map { |r| r.to_h.except(:run_id).pretty_inspect }
+        .map { |r| r.to_h.except(:chain_id).pretty_inspect }
         .unshift(header, "#{spacer}\n")
         .push(spacer, "#{footer}\n\n")
         .join("\n")
