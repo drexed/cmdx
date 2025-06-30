@@ -30,6 +30,25 @@ module CMDx
   # @since 1.0.0
   class HookRegistry < Hash
 
+    ##
+    # Initializes a new HookRegistry.
+    #
+    # @param registry [HookRegistry, Hash, nil] Optional registry to copy from
+    #
+    # @example Initialize empty registry
+    #   registry = HookRegistry.new
+    #
+    # @example Initialize with existing registry
+    #   global_hooks = HookRegistry.new
+    #   task_hooks = HookRegistry.new(global_hooks)
+    def initialize(registry = nil)
+      super()
+
+      registry&.each do |hook_type, hook_definitions|
+        self[hook_type] = hook_definitions.dup
+      end
+    end
+
     # Registers a hook for the given hook type.
     #
     # @param hook [Symbol] The hook type (e.g., :before_validation, :on_success)

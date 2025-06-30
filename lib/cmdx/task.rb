@@ -73,7 +73,7 @@ module CMDx
 
     __cmdx_attr_setting :task_settings, default: -> { CMDx.configuration.to_h.merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares, default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
-    __cmdx_attr_setting :cmd_hooks, default: -> { HookRegistry.new }
+    __cmdx_attr_setting :cmd_hooks, default: -> { HookRegistry.new(CMDx.configuration.hooks) }
     __cmdx_attr_setting :cmd_parameters, default: -> { ParameterRegistry.new }
 
     __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?, to: :class

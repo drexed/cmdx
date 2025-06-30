@@ -8,6 +8,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 - [Global Configuration](#global-configuration)
   - [Configuration Options](#configuration-options)
   - [Global Middlewares](#global-middlewares)
+  - [Global Hooks](#global-hooks)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
   - [Batch Configuration](#batch-configuration)
@@ -59,6 +60,7 @@ end
 | `batch_halt`  | String, Array<String> | `"failed"`     | Result statuses that halt batch execution |
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
+| `hooks`       | HookRegistry          | Empty registry | Global hook registry applied to all tasks |
 
 ### Global Middlewares
 
@@ -74,6 +76,31 @@ CMDx.configure do |config|
 
   # Add middleware instances
   config.middlewares.use CMDx::Middlewares::Timeout.new(seconds: 30)
+end
+```
+
+### Global Hooks
+
+Configure hooks that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add method hooks
+  config.hooks.register :before_execution, :log_task_start
+  config.hooks.register :after_execution, :log_task_end
+
+  # Add hook instances
+  config.hooks.register :on_success, NotificationHook.new([:slack])
+  config.hooks.register :on_failure, AlertHook.new(severity: :critical)
+
+  # Add conditional hooks
+  config.hooks.register :on_failure, :page_admin, if: :production?
+  config.hooks.register :before_validation, :skip_validation, unless: :validate_params?
+
+  # Add proc hooks
+  config.hooks.register :on_complete, proc { |task, hook_type|
+    Metrics.increment("task.#{task.class.name.underscore}.completed")
+  }
 end
 ```
 
@@ -135,6 +162,7 @@ end
 CMDx.configuration.logger      #=> <Logger instance>
 CMDx.configuration.task_halt   #=> "failed"
 CMDx.configuration.middlewares #=> <MiddlewareRegistry instance>
+CMDx.configuration.hooks       #=> <HookRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task

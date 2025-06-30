@@ -63,6 +63,17 @@ RSpec.describe CMDx do
       expect(described_class.configuration.logger).to eq(custom_logger)
     end
 
+    it "allows adding global hooks" do
+      described_class.configure do |config|
+        config.hooks.register(:before_execution, :log_start)
+        config.hooks.register(:on_success, :track_success)
+      end
+
+      hooks = described_class.configuration.hooks
+      expect(hooks[:before_execution]).to eq([[[:log_start], {}]])
+      expect(hooks[:on_success]).to eq([[[:track_success], {}]])
+    end
+
     it "raises ArgumentError when no block is given" do
       expect { described_class.configure }.to raise_error(ArgumentError, "block required")
     end
@@ -161,6 +172,8 @@ RSpec.describe CMDx do
         config.logger = custom_logger
         config.task_halt = ["failed"]
         config.batch_halt = %w[failed skipped]
+        config.hooks.register(:before_execution, :setup_context)
+        config.hooks.register(:on_failure, :alert_admin, if: :production?)
       end
 
       config = described_class.configuration
@@ -168,6 +181,8 @@ RSpec.describe CMDx do
       expect(config.logger).to eq(custom_logger)
       expect(config.task_halt).to eq(["failed"])
       expect(config.batch_halt).to eq(%w[failed skipped])
+      expect(config.hooks[:before_execution]).to eq([[[:setup_context], {}]])
+      expect(config.hooks[:on_failure]).to eq([[[:alert_admin], { if: :production? }]])
     end
   end
 end

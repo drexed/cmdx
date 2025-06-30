@@ -17,6 +17,7 @@ module CMDx
   # - **task_halt**: Result statuses that cause `call!` to raise faults
   # - **batch_halt**: Result statuses that halt batch execution
   # - **middlewares**: Global middleware registry applied to all tasks
+  # - **hooks**: Global hook registry applied to all tasks
   #
   # ## Configuration Hierarchy
   #
@@ -42,6 +43,11 @@ module CMDx
   #     # Add global middlewares
   #     config.middlewares.use CMDx::Middlewares::Timeout, 30
   #     config.middlewares.use AuthenticationMiddleware if Rails.env.production?
+  #
+  #     # Add global hooks
+  #     config.hooks.register :before_execution, :log_task_start
+  #     config.hooks.register :on_success, NotificationHook.new([:slack])
+  #     config.hooks.register :on_failure, :alert_admin, if: :production?
   #   end
   #
   # @example Custom logger configuration
@@ -81,7 +87,7 @@ module CMDx
     DEFAULT_HALT = "failed"
 
     # Configuration attributes
-    attr_accessor :logger, :middlewares, :task_halt, :batch_halt
+    attr_accessor :logger, :middlewares, :hooks, :task_halt, :batch_halt
 
     ##
     # Initializes a new configuration with default values.
@@ -91,6 +97,7 @@ module CMDx
     def initialize
       @logger      = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
       @middlewares = MiddlewareRegistry.new
+      @hooks       = HookRegistry.new
       @task_halt   = DEFAULT_HALT
       @batch_halt  = DEFAULT_HALT
     end
@@ -107,6 +114,7 @@ module CMDx
       {
         logger: @logger,
         middlewares: @middlewares,
+        hooks: @hooks,
         task_halt: @task_halt,
         batch_halt: @batch_halt
       }

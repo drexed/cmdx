@@ -13,12 +13,15 @@
 - Add `perform!` and `perform` alias to class `call!` and `call`
 - Allow direct instantiation of Task and Batch objects
 - Add pattern matching of results
+- Add a `Hook` class
+- Add hooks via configuration
 ### Changed
 - Changed configuration to be a PORO class
 - Changed ArgumentError to TypeError where checking `is_a?`
 - Improve documentation readability, consistency, completeness
 - Improve test readability, consistency, completeness
 - Renames `Parameters` to `ParameterRegistry`
+- Convert hooks hash to a registry
 ### Removed
 - Removed configuration `task_timeout` and `batch_timeout`
 

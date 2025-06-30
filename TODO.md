@@ -1,5 +1,3 @@
-# Configure middlewares via configuration
-
 # Distributed Tracing
 - Request correlation across task boundaries
 
