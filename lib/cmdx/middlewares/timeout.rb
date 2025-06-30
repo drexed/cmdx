@@ -6,16 +6,63 @@ module CMDx
   # Timeout middleware that enforces execution time limits on tasks.
   #
   # This middleware wraps task execution with timeout protection, automatically
-  # failing tasks that exceed their configured timeout duration. If no timeout
-  # is specified, it defaults to 3 seconds. Optionally supports conditional
-  # timeout application based on task or context state.
+  # failing tasks that exceed their configured timeout duration. The timeout
+  # value can be static, dynamic, or method-based. If no timeout is specified,
+  # it defaults to 3 seconds. Optionally supports conditional timeout application
+  # based on task or context state.
   #
-  # @example Hash-based timeout configuration
+  # ## Timeout Value Types
+  #
+  # The middleware supports multiple ways to specify timeout values:
+  # - **Static values** (Integer/Float): Fixed timeout duration
+  # - **Method symbols**: Calls the specified method on the task for dynamic calculation
+  # - **Procs/Lambdas**: Executed in task context for runtime timeout determination
+  #
+  # ## Conditional Execution
+  #
+  # The middleware supports conditional timeout application using `:if` and `:unless` options:
+  # - `:if` - Only applies timeout when the condition evaluates to true
+  # - `:unless` - Only applies timeout when the condition evaluates to false
+  # - Conditions can be Procs, method symbols, or boolean values
+  #
+  # @example Static timeout configuration
   #   class ProcessOrderTask < CMDx::Task
   #     use CMDx::Middlewares::Timeout, seconds: 30 # 30 seconds
   #
   #     def call
   #       # Task logic that might take too long
+  #     end
+  #   end
+  #
+  # @example Dynamic timeout using proc
+  #   class ProcessOrderTask < CMDx::Task
+  #     use CMDx::Middlewares::Timeout, seconds: -> { complex_order? ? 60 : 30 }
+  #
+  #     def call
+  #       # Task logic with dynamic timeout based on order complexity
+  #     end
+  #
+  #     private
+  #
+  #     def complex_order?
+  #       context.order_items.count > 10
+  #     end
+  #   end
+  #
+  # @example Method-based timeout
+  #   class ProcessOrderTask < CMDx::Task
+  #     use CMDx::Middlewares::Timeout, seconds: :calculate_timeout
+  #
+  #     def call
+  #       # Task logic with method-calculated timeout
+  #     end
+  #
+  #     private
+  #
+  #     def calculate_timeout
+  #       base_timeout = 30
+  #       base_timeout += (context.order_items.count * 2)
+  #       base_timeout
   #     end
   #   end
   #
@@ -85,7 +132,7 @@ module CMDx
   module Middlewares
     class Timeout < CMDx::Middleware
 
-      # @return [Integer, Float] The timeout value in seconds
+      # @return [Integer, Float, Symbol, Proc] The timeout value in seconds
       attr_reader :seconds
 
       # @return [Hash] The conditional options for timeout application
@@ -95,13 +142,22 @@ module CMDx
       # Initializes the timeout middleware.
       #
       # @param options [Hash] Configuration options for the timeout middleware
-      # @option options [Integer, Float] :seconds Timeout value in seconds.
+      # @option options [Integer, Float, Symbol, Proc] :seconds Timeout value in seconds.
+      #   - Integer/Float: Used as-is for static timeout
+      #   - Symbol: Called as method on task if it exists, otherwise used as numeric value
+      #   - Proc/Lambda: Executed in task context for dynamic timeout calculation
       #   Defaults to 3 seconds if not provided.
       # @option options [Symbol, Proc] :if Condition that must be truthy for timeout to be applied
       # @option options [Symbol, Proc] :unless Condition that must be falsy for timeout to be applied
       #
-      # @example Hash-based configuration
+      # @example Static timeout configuration
       #   CMDx::Middlewares::Timeout.new(seconds: 30)
+      #
+      # @example Dynamic timeout with proc
+      #   CMDx::Middlewares::Timeout.new(seconds: -> { heavy_operation? ? 120 : 30 })
+      #
+      # @example Method-based timeout
+      #   CMDx::Middlewares::Timeout.new(seconds: :calculate_timeout_limit)
       #
       # @example Using default timeout (3 seconds)
       #   CMDx::Middlewares::Timeout.new
@@ -118,22 +174,40 @@ module CMDx
       # Executes the task with conditional timeout protection.
       #
       # Evaluates the conditional options to determine if timeout should be applied.
-      # If conditions are met, wraps the task execution with a timeout mechanism
-      # that will interrupt execution if it exceeds the configured time limit.
-      # If conditions are not met, executes the task without timeout protection.
+      # If conditions are met, resolves the timeout value using and wraps the task
+      # execution with a timeout mechanism that will interrupt execution if it exceeds
+      # the configured time limit. If conditions are not met, executes the task
+      # without timeout protection.
+      #
+      # The timeout value determination follows this precedence:
+      # 1. Explicit timeout value (provided during middleware initialization)
+      #    - Integer/Float: Used as-is for static timeout
+      #    - Symbol: Called as method on task if it exists, otherwise used as numeric value
+      #    - Proc/Lambda: Executed in task context for dynamic timeout calculation
+      # 2. Default value of 3 seconds if no timeout is specified
       #
       # @param task [CMDx::Task] The task instance to execute
       # @param callable [#call] The next middleware or task execution callable
       # @return [CMDx::Result] The task execution result
       # @raise [TimeoutError] If execution exceeds the configured timeout and conditions are met
       #
-      # @example Successful execution within timeout
+      # @example Static timeout - successful execution
       #   # Task completes in 5 seconds, timeout is 30 seconds, condition is true
       #   result = task.call  # => success
       #
-      # @example Timeout exceeded
+      # @example Static timeout - timeout exceeded
       #   # Task would take 60 seconds, timeout is 30 seconds, condition is true
       #   result = task.call  # => failed with timeout error
+      #
+      # @example Dynamic timeout with proc
+      #   # Task uses proc to calculate 120 seconds for complex operation
+      #   # Task completes in 90 seconds
+      #   result = task.call  # => success
+      #
+      # @example Method-based timeout
+      #   # Task calls :timeout_limit method which returns 45 seconds
+      #   # Task completes in 30 seconds
+      #   result = task.call  # => success
       #
       # @example Condition not met
       #   # Task takes 60 seconds, timeout is 30 seconds, but condition is false
@@ -142,8 +216,11 @@ module CMDx
         # Check if timeout should be applied based on conditions
         return callable.call(task) unless task.__cmdx_eval(conditional)
 
+        # Get seconds using yield for dynamic generation
+        limit = task.__cmdx_yield(seconds) || 3
+
         # Apply timeout protection
-        ::Timeout.timeout(seconds, TimeoutError, "execution exceeded #{@seconds} seconds") do
+        ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds") do
           callable.call(task)
         end
       rescue TimeoutError => e

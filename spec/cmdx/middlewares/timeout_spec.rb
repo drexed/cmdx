@@ -22,6 +22,19 @@ RSpec.describe CMDx::Middlewares::Timeout do
       expect(middleware.seconds).to eq(30)
       expect(middleware.conditional).to eq(if: condition, unless: :skip?)
     end
+
+    it "accepts proc-based timeout values" do
+      timeout_proc = -> { 45 }
+      middleware = described_class.new(seconds: timeout_proc)
+      expect(middleware.seconds).to eq(timeout_proc)
+      expect(middleware.conditional).to eq({})
+    end
+
+    it "accepts symbol-based timeout values" do
+      middleware = described_class.new(seconds: :calculate_timeout)
+      expect(middleware.seconds).to eq(:calculate_timeout)
+      expect(middleware.conditional).to eq({})
+    end
   end
 
   describe "timeout behavior" do
@@ -201,6 +214,132 @@ RSpec.describe CMDx::Middlewares::Timeout do
         )
         expect(result).to be_success
         expect(result.context.value).to eq("completed")
+      end
+    end
+  end
+
+  describe "dynamic timeout generation" do
+    context "with method-based timeout" do
+      let(:task_class) do
+        Class.new(CMDx::Task) do
+          use CMDx::Middlewares::Timeout, seconds: :calculate_timeout
+
+          def call
+            sleep_duration = context.sleep_duration || 0.1
+            sleep(sleep_duration)
+            context.value = "completed"
+          end
+
+          private
+
+          def calculate_timeout
+            # Return different timeouts based on context
+            context.operation_type == "complex" ? 3 : 1
+          end
+        end
+      end
+
+      it "uses method-calculated timeout for complex operations" do
+        result = task_class.call(sleep_duration: 2, operation_type: "complex")
+        expect(result).to be_success
+        expect(result.context.value).to eq("completed")
+      end
+
+      it "uses method-calculated timeout for simple operations" do
+        result = task_class.call(sleep_duration: 2, operation_type: "simple")
+        expect(result).to be_failed
+        expect(result.metadata).to include(
+          reason: "[CMDx::TimeoutError] execution exceeded 1 seconds"
+        )
+      end
+    end
+
+    context "with combined dynamic timeout and conditions" do
+      let(:task_class) do
+        Class.new(CMDx::Task) do
+          use CMDx::Middlewares::Timeout,
+              seconds: :dynamic_timeout,
+              unless: proc { context.skip_timeout? }
+
+          def call
+            sleep_duration = context.sleep_duration || 0.1
+            sleep(sleep_duration)
+            context.value = "completed"
+          end
+
+          private
+
+          def dynamic_timeout
+            context.priority == "high" ? 4 : 1
+          end
+        end
+      end
+
+      it "applies dynamic timeout when condition allows" do
+        result = task_class.call(
+          sleep_duration: 2,
+          priority: "high",
+          skip_timeout?: false
+        )
+        expect(result).to be_success
+        expect(result.context.value).to eq("completed")
+      end
+
+      it "skips timeout entirely when condition prevents it" do
+        result = task_class.call(
+          sleep_duration: 10,
+          priority: "low",
+          skip_timeout?: true
+        )
+        expect(result).to be_success
+        expect(result.context.value).to eq("completed")
+      end
+
+      it "applies short dynamic timeout for low priority when condition allows" do
+        result = task_class.call(
+          sleep_duration: 2,
+          priority: "low",
+          skip_timeout?: false
+        )
+        expect(result).to be_failed
+        expect(result.metadata).to include(
+          reason: "[CMDx::TimeoutError] execution exceeded 1 seconds"
+        )
+      end
+    end
+
+    context "timeout precedence and fallback" do
+      let(:task_class_with_nil_timeout) do
+        Class.new(CMDx::Task) do
+          use CMDx::Middlewares::Timeout, seconds: :returns_nil
+
+          def call
+            sleep_duration = context.sleep_duration || 0.1
+            sleep(sleep_duration)
+            context.value = "completed"
+          end
+
+          private
+
+          def returns_nil
+            nil
+          end
+        end
+      end
+
+      it "falls back to default timeout when method returns nil" do
+        # Should use default 3 seconds when method returns nil
+        result = task_class_with_nil_timeout.call(sleep_duration: 2)
+        expect(result).to be_success
+        expect(result.context.value).to eq("completed")
+      end
+
+      it "times out with default when exceeding fallback timeout" do
+        result = task_class_with_nil_timeout.call(sleep_duration: 4)
+        expect(result).to be_failed
+        expect(result.metadata).to include(
+          reason: "[CMDx::TimeoutError] execution exceeded 3 seconds"
+        )
       end
     end
   end

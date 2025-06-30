@@ -204,7 +204,9 @@ end
 
 ### Timeout Middleware
 
-Enforces execution time limits:
+Enforces execution time limits with support for static and dynamic timeout values.
+
+#### Basic Usage
 
 ```ruby
 class ProcessLargeReportTask < CMDx::Task
@@ -215,20 +217,209 @@ class ProcessLargeReportTask < CMDx::Task
   end
 end
 
-# Conditional timeout
+# Default timeout (3 seconds when no value specified)
+class QuickValidationTask < CMDx::Task
+  use CMDx::Middlewares::Timeout # Uses 3 seconds default
+
+  def call
+    # Fast validation logic
+  end
+end
+```
+
+#### Dynamic Timeout Generation
+
+The middleware supports dynamic timeout calculation using method names, procs, and lambdas:
+
+```ruby
+# Method-based timeout calculation
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: :calculate_timeout
+
+  def call
+    # Task execution with dynamic timeout
+    context.order = Order.find(order_id)
+    context.order.process!
+  end
+
+  private
+
+  def calculate_timeout
+    # Dynamic timeout based on order complexity
+    base_timeout = 30
+    base_timeout += (context.order_items.count * 2) # 2 seconds per item
+    base_timeout += 60 if context.payment_method == "bank_transfer" # Extra time for bank transfers
+    base_timeout
+  end
+end
+
+# Proc-based timeout for inline calculation
+class ProcessBatchTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: -> {
+    context.batch_size > 100 ? 120 : 60
+  }
+
+  def call
+    # Processes batch with timeout based on size
+    context.batch_items.each { |item| process_item(item) }
+  end
+end
+
+# Context-aware timeout calculation
+class GenerateReportTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: :report_timeout
+
+  def call
+    context.report = ReportGenerator.create(report_params)
+  end
+
+  private
+
+  def report_timeout
+    case context.report_type
+    when "summary" then 30
+    when "detailed" then 120
+    when "comprehensive" then 300
+    else 60
+    end
+  end
+end
+```
+
+#### Timeout Precedence
+
+The middleware follows this precedence for determining timeout values:
+
+1. **Explicit timeout value** (provided during middleware initialization)
+   - Integer/Float: Used as-is for static timeout
+   - Symbol: Called as method on task if it exists
+   - Proc/Lambda: Executed in task context for dynamic calculation
+2. **Default value** of 3 seconds if no timeout is specified or resolved value is nil
+
+```ruby
+# Static timeout - highest precedence when specified
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: 45 # Always 45 seconds
+end
+
+# Method-based timeout - calls task method
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: :dynamic_timeout
+
+  private
+  def dynamic_timeout
+    context.priority == "high" ? 120 : 60
+  end
+end
+
+# Default fallback when method returns nil
+class ProcessOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: :might_return_nil
+
+  private
+  def might_return_nil
+    nil # Falls back to 3 seconds default
+  end
+end
+```
+
+#### Conditional Timeout
+
+Apply timeout middleware conditionally based on environment or task state:
+
+```ruby
+# Environment-based conditional timeout
 class ProcessOrderTask < CMDx::Task
   use CMDx::Middlewares::Timeout,
       seconds: 60,
       unless: -> { Rails.env.development? }
 
   def call
-    # Business logic
+    # No timeout in development, 60 seconds in other environments
+    context.order = Order.find(order_id)
+    context.order.process!
+  end
+end
+
+# Context-based conditional timeout
+class SendEmailTask < CMDx::Task
+  use CMDx::Middlewares::Timeout,
+      seconds: 30,
+      if: :timeout_enabled?
+
+  def call
+    EmailService.deliver(email_params)
+  end
+
+  private
+
+  def timeout_enabled?
+    !context.background_job?
+  end
+end
+
+# Combined dynamic timeout with conditions
+class ProcessComplexOrderTask < CMDx::Task
+  use CMDx::Middlewares::Timeout,
+      seconds: :calculate_timeout,
+      unless: :skip_timeout?
+
+  def call
+    # Complex order processing
+    ValidateOrderTask.call(context)
+    ProcessPaymentTask.call(context)
+    UpdateInventoryTask.call(context)
+  end
+
+  private
+
+  def calculate_timeout
+    context.order_complexity == "high" ? 180 : 90
+  end
+
+  def skip_timeout?
+    Rails.env.test? || context.disable_timeouts?
+  end
+end
+```
+
+#### Global Timeout Configuration
+
+Apply timeout middleware globally with inheritance:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: 60 # Default 60 seconds for all tasks
+end
+
+class QuickTask < ApplicationTask
+  use CMDx::Middlewares::Timeout, seconds: 15 # Override with 15 seconds
+
+  def call
+    # Fast operation with shorter timeout
+  end
+end
+
+class LongRunningTask < ApplicationTask
+  use CMDx::Middlewares::Timeout, seconds: :dynamic_timeout
+
+  def call
+    # Long operation with dynamic timeout
+  end
+
+  private
+
+  def dynamic_timeout
+    context.data_size > 1000 ? 300 : 120
   end
 end
 ```
 
 > [!WARNING]
 > Tasks that exceed their timeout will be interrupted with a `CMDx::TimeoutError` and automatically marked as failed.
+
+> [!TIP]
+> Use dynamic timeout calculation to adjust execution limits based on actual task complexity, data size, or business requirements. This provides better resource utilization while maintaining appropriate safety limits.
 
 ### Correlate Middleware
 
