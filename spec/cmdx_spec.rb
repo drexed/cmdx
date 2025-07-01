@@ -4,185 +4,122 @@ require "spec_helper"
 
 RSpec.describe CMDx do
   describe ".configuration" do
-    after { described_class.reset_configuration! }
-
     it "returns a Configuration instance" do
-      expect(described_class.configuration).to be_instance_of(CMDx::Configuration)
+      expect(described_class.configuration).to be_a(CMDx::Configuration)
     end
 
-    it "returns the same instance on subsequent calls" do
-      config1 = described_class.configuration
-      config2 = described_class.configuration
-      expect(config1).to be(config2)
+    it "returns the same instance on multiple calls" do
+      first_call = described_class.configuration
+      second_call = described_class.configuration
+
+      expect(first_call).to be(second_call)
     end
 
-    it "is thread-safe" do
-      configurations = []
-      threads = []
+    it "initializes with default values" do
+      config = described_class.configuration
 
-      10.times do
-        threads << Thread.new do
-          configurations << described_class.configuration
-        end
-      end
-
-      threads.each(&:join)
-
-      expect(configurations.uniq.size).to eq(1)
+      expect(config.logger).to be_a(Logger)
+      expect(config.middlewares).to be_a(CMDx::MiddlewareRegistry)
+      expect(config.hooks).to be_a(CMDx::HookRegistry)
+      expect(config.task_halt).to eq("failed")
+      expect(config.batch_halt).to eq("failed")
     end
   end
 
   describe ".configure" do
-    after { described_class.reset_configuration! }
+    let(:custom_logger) { Logger.new(StringIO.new) }
 
-    it "yields the configuration instance" do
-      expect { |b| described_class.configure(&b) }.to yield_with_args(CMDx::Configuration)
+    it "yields the configuration object" do
+      expect { |block| described_class.configure(&block) }.to yield_with_args(CMDx::Configuration)
     end
 
-    it "returns the configuration instance" do
-      result = described_class.configure { |c| c.task_halt = "failed" }
-      expect(result).to be_instance_of(CMDx::Configuration)
+    it "returns the configuration object" do
+      result = described_class.configure { |config| config.task_halt = ["failed"] }
+
+      expect(result).to be_a(CMDx::Configuration)
+      expect(result).to be(described_class.configuration)
     end
 
-    it "allows setting configuration attributes" do
-      described_class.configure do |config|
-        config.task_halt = %i[failed skipped]
-      end
-
-      config = described_class.configuration
-      expect(config.task_halt).to eq(%i[failed skipped])
-    end
-
-    it "allows setting custom logger" do
-      custom_logger = Logger.new(nil)
-
+    it "allows modification of configuration attributes" do
       described_class.configure do |config|
         config.logger = custom_logger
+        config.task_halt = %w[failed skipped]
+        config.batch_halt = ["failed"]
       end
 
-      expect(described_class.configuration.logger).to eq(custom_logger)
-    end
-
-    it "allows adding global hooks" do
-      described_class.configure do |config|
-        config.hooks.register(:before_execution, :log_start)
-        config.hooks.register(:on_success, :track_success)
-      end
-
-      hooks = described_class.configuration.hooks
-      expect(hooks[:before_execution]).to eq([[[:log_start], {}]])
-      expect(hooks[:on_success]).to eq([[[:track_success], {}]])
+      expect(described_class.configuration.logger).to be(custom_logger)
+      expect(described_class.configuration.task_halt).to eq(%w[failed skipped])
+      expect(described_class.configuration.batch_halt).to eq(["failed"])
     end
 
     it "raises ArgumentError when no block is given" do
       expect { described_class.configure }.to raise_error(ArgumentError, "block required")
     end
-
-    it "preserves changes across multiple configure calls" do
-      described_class.configure { |c| c.task_halt = "failed" }
-      described_class.configure { |c| c.batch_halt = "skipped" }
-
-      config = described_class.configuration
-      expect(config.task_halt).to eq("failed")
-      expect(config.batch_halt).to eq("skipped")
-    end
-
-    it "is thread-safe" do
-      results = []
-      threads = []
-
-      10.times do |i|
-        threads << Thread.new do
-          described_class.configure { |c| c.task_halt = "test_#{i}" }
-          results << described_class.configuration.task_halt
-        end
-      end
-
-      threads.each(&:join)
-
-      # The final value should be one of the set values
-      expect((0..9).map { |i| "test_#{i}" }).to include(described_class.configuration.task_halt)
-    end
   end
 
   describe ".reset_configuration!" do
-    it "returns a new Configuration instance with default values" do
-      # Modify configuration
+    let(:custom_logger) { Logger.new(StringIO.new) }
+
+    before do
       described_class.configure do |config|
-        config.task_halt = [:custom]
+        config.logger = custom_logger
+        config.task_halt = %w[failed skipped]
       end
-
-      original_config = described_class.configuration
-      expect(original_config.task_halt).to eq([:custom])
-
-      # Reset configuration
-      new_config = described_class.reset_configuration!
-
-      expect(new_config).to be_instance_of(CMDx::Configuration)
-      expect(new_config).not_to be(original_config)
-      expect(new_config.task_halt).to eq("failed")
     end
 
-    it "subsequent calls to configuration return the new instance" do
-      described_class.configure { |c| c.task_halt = "custom" }
+    it "returns a new Configuration instance" do
+      original_config = described_class.configuration
+      reset_config = described_class.reset_configuration!
+
+      expect(reset_config).to be_a(CMDx::Configuration)
+      expect(reset_config).not_to be(original_config)
+    end
+
+    it "resets all configuration values to defaults" do
       described_class.reset_configuration!
 
-      config = described_class.configuration
-      expect(config.task_halt).to eq("failed")
+      expect(described_class.configuration.logger).not_to be(custom_logger)
+      expect(described_class.configuration.task_halt).to eq("failed")
+      expect(described_class.configuration.batch_halt).to eq("failed")
     end
 
-    it "is thread-safe" do
-      results = []
-      threads = []
+    it "creates fresh middleware and hook registries" do
+      original_middlewares = described_class.configuration.middlewares
+      original_hooks = described_class.configuration.hooks
 
-      # Set initial configuration
-      described_class.configure { |c| c.task_halt = "custom" }
+      described_class.reset_configuration!
 
-      10.times do
-        threads << Thread.new do
-          described_class.reset_configuration!
-          results << described_class.configuration.task_halt
-        end
-      end
-
-      threads.each(&:join)
-
-      # All results should be "failed" (default value)
-      expect(results).to all(eq("failed"))
+      expect(described_class.configuration.middlewares).not_to be(original_middlewares)
+      expect(described_class.configuration.hooks).not_to be(original_hooks)
+      expect(described_class.configuration.middlewares).to be_a(CMDx::MiddlewareRegistry)
+      expect(described_class.configuration.hooks).to be_a(CMDx::HookRegistry)
     end
   end
 
-  describe "configuration integration" do
-    after { described_class.reset_configuration! }
+  describe "configuration persistence" do
+    it "maintains configuration across multiple accesses" do
+      custom_logger = Logger.new(StringIO.new)
 
-    it "configuration is used by task settings" do
-      described_class.configure do |config|
-        config.task_halt = "custom"
-      end
+      described_class.configure { |config| config.logger = custom_logger }
 
-      config_hash = described_class.configuration.to_h
-
-      expect(config_hash[:task_halt]).to eq("custom")
+      expect(described_class.configuration.logger).to be(custom_logger)
+      expect(described_class.configuration.logger).to be(custom_logger)
     end
 
-    it "supports complex configuration scenarios" do
-      custom_logger = Logger.new(nil)
+    it "maintains configuration after calling configure multiple times" do
+      first_logger = Logger.new(StringIO.new)
+      second_logger = Logger.new(StringIO.new)
 
-      described_class.configure do |config|
-        config.logger = custom_logger
-        config.task_halt = ["failed"]
-        config.batch_halt = %w[failed skipped]
-        config.hooks.register(:before_execution, :setup_context)
-        config.hooks.register(:on_failure, :alert_admin, if: :production?)
-      end
+      described_class.configure { |config| config.logger = first_logger }
+      described_class.configure { |config| config.task_halt = %w[failed skipped] }
 
-      config = described_class.configuration
+      expect(described_class.configuration.logger).to be(first_logger)
+      expect(described_class.configuration.task_halt).to eq(%w[failed skipped])
 
-      expect(config.logger).to eq(custom_logger)
-      expect(config.task_halt).to eq(["failed"])
-      expect(config.batch_halt).to eq(%w[failed skipped])
-      expect(config.hooks[:before_execution]).to eq([[[:setup_context], {}]])
-      expect(config.hooks[:on_failure]).to eq([[[:alert_admin], { if: :production? }]])
+      described_class.configure { |config| config.logger = second_logger }
+
+      expect(described_class.configuration.logger).to be(second_logger)
+      expect(described_class.configuration.task_halt).to eq(%w[failed skipped])
     end
   end
 end

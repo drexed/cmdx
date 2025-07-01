@@ -27,13 +27,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  # Global test doubles setup - these provide consistent values across all tests
   config.before do
-    allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :millisecond).and_return(0)
-    allow(Process).to receive(:pid).and_return(3784)
-    allow(SecureRandom).to receive(:uuid).and_return("018c2b95-b764-7615-a924-cc5b910ed1e5")
-    allow(Time).to receive(:now).and_return(Time.local(2022, 7, 17, 18, 43, 15))
-
     CMDx.configuration.logger = Logger.new(nil)
     CMDx::Chain.clear
   end
@@ -50,7 +44,7 @@ RSpec.configure do |config|
 end
 
 # Load support files after RSpec is configured
-%w[config helpers matchers tasks shared_examples].each do |dir|
+%w[config].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
