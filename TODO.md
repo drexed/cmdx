@@ -3,11 +3,6 @@
 - Safe parallel execution with shared context handling
 - Configurable concurrency limits and thread safety options
 
-# Enhanced Debugging
-- Interactive debugger integration for task execution
-- Step-through debugging for batch workflows
-- Context inspection and modification tools
-
 # Testing Utilities
 - Task mocking and stubbing helpers
 - Workflow testing with predefined contexts

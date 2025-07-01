@@ -72,9 +72,37 @@ module CMDx
     #   log_line = "#{colored_severity}: #{message}"
     #   # => "\e[1;31mERROR\e[0m: Task failed with validation errors"
     def call(s)
-      color = SEVERITY_COLORS[s[0]] || :default
+      Utils::AnsiColor.call(s, color: color(s), mode: :bold)
+    end
 
-      Utils::AnsiColor.call(s, color:, mode: :bold)
+    # Determines the appropriate color for a severity string.
+    #
+    # Extracts the first character from the severity string and maps it to
+    # the corresponding color symbol using the SEVERITY_COLORS hash. If no
+    # mapping is found for the first character, returns the default color.
+    #
+    # @param s [String] The severity string to determine color for
+    # @return [Symbol] The color symbol for the severity level
+    #
+    # @example Mapping severity levels to colors
+    #   color("DEBUG")    # => :blue
+    #   color("INFO")     # => :green
+    #   color("WARN")     # => :yellow
+    #   color("ERROR")    # => :red
+    #   color("FATAL")    # => :magenta
+    #
+    # @example Unknown severity level
+    #   color("CUSTOM")   # => :default
+    #   color("TRACE")    # => :default
+    #
+    # @example Case sensitivity
+    #   color("debug")    # => :default (lowercase 'd' not mapped)
+    #   color("Debug")    # => :blue (uppercase 'D' is mapped)
+    #
+    # @note This method only considers the first character of the input string
+    # @see SEVERITY_COLORS The mapping hash used for color determination
+    def color(s)
+      SEVERITY_COLORS[s[0]] || :default
     end
 
   end

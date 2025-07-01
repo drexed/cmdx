@@ -80,9 +80,43 @@ module CMDx
     #   puts "Task #{colored_state} with #{colored_status}"
     #   # => "Task complete with success" (with appropriate colors)
     def call(s)
-      color = STATE_COLORS[s] || STATUS_COLORS[s] || :default
+      Utils::AnsiColor.call(s, color: color(s))
+    end
 
-      Utils::AnsiColor.call(s, color:)
+    # Determines the appropriate color for a result state or status string.
+    #
+    # Looks up the input string in both the STATE_COLORS and STATUS_COLORS
+    # mapping hashes to find the corresponding color symbol. First checks
+    # STATE_COLORS, then STATUS_COLORS, and falls back to the default color
+    # if no mapping is found in either hash.
+    #
+    # @param s [String] The state or status string to determine color for
+    # @return [Symbol] The color symbol for the state or status
+    #
+    # @example Result state color mapping
+    #   color("initialized")  # => :blue
+    #   color("executing")    # => :yellow
+    #   color("complete")     # => :green
+    #   color("interrupted")  # => :red
+    #
+    # @example Result status color mapping
+    #   color("success")      # => :green
+    #   color("skipped")      # => :yellow
+    #   color("failed")       # => :red
+    #
+    # @example Unknown state or status
+    #   color("unknown")      # => :default
+    #   color("pending")      # => :default
+    #
+    # @example Precedence behavior
+    #   # If a string exists in both hashes, STATE_COLORS takes precedence
+    #   color("some_value")   # => STATE_COLORS["some_value"] || STATUS_COLORS["some_value"] || :default
+    #
+    # @note STATE_COLORS mapping is checked before STATUS_COLORS mapping
+    # @see STATE_COLORS The mapping hash for result states
+    # @see STATUS_COLORS The mapping hash for result statuses
+    def color(s)
+      STATE_COLORS[s] || STATUS_COLORS[s] || :default
     end
 
   end
