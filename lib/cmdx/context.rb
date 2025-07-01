@@ -136,9 +136,6 @@ module CMDx
   # @since 1.0.0
   class Context < LazyStruct
 
-    # @return [Chain] the execution chain that this context belongs to
-    attr_reader :chain
-
     ##
     # Builds a Context instance from the given input, with intelligent handling
     # of existing Context objects to avoid unnecessary object creation.

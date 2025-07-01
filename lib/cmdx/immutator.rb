@@ -131,6 +131,8 @@ module CMDx
 
       task.context.freeze
       task.chain.freeze
+
+      Chain.clear
     end
 
   end

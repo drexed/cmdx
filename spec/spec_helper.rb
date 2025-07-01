@@ -8,10 +8,6 @@ require "rspec"
 
 require "cmdx"
 
-CMDx.configure do |config|
-  config.logger = Logger.new(nil)
-end
-
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
 RSpec.configure do |config|
@@ -37,6 +33,14 @@ RSpec.configure do |config|
     allow(Process).to receive(:pid).and_return(3784)
     allow(SecureRandom).to receive(:uuid).and_return("018c2b95-b764-7615-a924-cc5b910ed1e5")
     allow(Time).to receive(:now).and_return(Time.local(2022, 7, 17, 18, 43, 15))
+
+    CMDx.configuration.logger = Logger.new(nil)
+    CMDx::Chain.clear
+  end
+
+  config.after do
+    CMDx.reset_configuration!
+    CMDx::Chain.clear
   end
 
   config.after(:all) do

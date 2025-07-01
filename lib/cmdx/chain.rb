@@ -1,143 +1,139 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Chain execution context for tracking related task executions with correlation support.
+  # Thread-local chain that tracks task execution results within a correlation context.
   #
-  # The Chain class represents a collection of related task executions that share
-  # a common execution context. It provides unified tracking, indexing, and
-  # reporting for groups of tasks executed together, enabling comprehensive
-  # monitoring of complex business logic workflows.
+  # A Chain represents a sequence of task executions that are logically related,
+  # typically within the same request or operation flow. It provides thread-local
+  # storage to ensure that tasks executing in the same thread share the same chain
+  # while maintaining isolation across different threads.
   #
-  # ## Correlation ID Integration
+  # @example Basic usage with automatic chain creation
+  #   # Chain is automatically created when first task runs
+  #   result1 = MyTask.call(data: "first")
+  #   result2 = MyTask.call(data: "second")
   #
-  # Chain instances automatically inherit correlation IDs from the current thread's
-  # correlation context via CMDx::Correlator. This enables seamless request
-  # tracking across task boundaries without explicit parameter passing.
+  #   result1.chain.id == result2.chain.id  #=> true
+  #   result1.index                         #=> 0
+  #   result2.index                         #=> 1
   #
-  # The chain ID follows this precedence:
-  # 1. Explicitly provided `:id` attribute
-  # 2. Current thread's correlation ID (via CMDx::Correlator.id)
-  # 3. Generated UUID (via CMDx::Correlator.generate)
+  # @example Using custom chain ID
+  #   chain = CMDx::Chain.new(id: "custom-correlation-123")
+  #   CMDx::Chain.current = chain
   #
-  # @example Basic chain usage with automatic correlation
-  #   CMDx::Correlator.id = "req-12345"
-  #   result = ProcessOrderTask.call(order_id: 123)
-  #   chain = result.chain
-  #   chain.id        # => "req-12345" (inherited from correlator)
-  #   chain.results   # => [#<CMDx::Result...>]
-  #   chain.state     # => "complete"
-  #   chain.status    # => "success"
+  #   result = MyTask.call(data: "test")
+  #   result.chain.id  #=> "custom-correlation-123"
   #
-  # @example Chain with multiple related tasks sharing correlation
-  #   CMDx::Correlator.use("batch-operation-456") do
-  #     class ProcessOrderTask < CMDx::Task
-  #       def call
-  #         # Subtasks inherit the same correlation ID for tracking
-  #         SendEmailConfirmationTask.call(context)
-  #         NotifyPartnerWarehousesTask.call(context)
-  #       end
-  #     end
-  #
-  #     result = ProcessOrderTask.call(order_id: 123)
-  #     chain = result.chain
-  #     chain.id  # => "batch-operation-456" (same across all tasks)
-  #     chain.results.size  # => 3 (ProcessOrderTask + 2 subtasks)
-  #     chain.results.map(&:task).map(&:class)
-  #     # => [ProcessOrderTask, SendEmailConfirmationTask, NotifyPartnerWarehousesTask]
+  # @example Thread isolation
+  #   # Each thread gets its own chain
+  #   Thread.new do
+  #     result = MyTask.call(data: "thread1")
+  #     result.chain.id  #=> unique ID for this thread
   #   end
   #
-  # @example Explicit chain ID overrides correlation
-  #   CMDx::Correlator.id = "req-12345"
-  #   context = { order_id: 123, chain: { id: "custom-chain-789" } }
-  #   result = ProcessOrderTask.call(context)
-  #   result.chain.id  # => "custom-chain-789" (explicit ID takes precedence)
+  #   Thread.new do
+  #     result = MyTask.call(data: "thread2")
+  #     result.chain.id  #=> different unique ID
+  #   end
   #
-  # @example Chain state and outcome tracking
-  #   result = ComplexTask.call
-  #   chain = result.chain
+  # @example Temporary chain context
+  #   CMDx::Chain.use(id: "temp-correlation") do
+  #     result = MyTask.call(data: "test")
+  #     result.chain.id  #=> "temp-correlation"
+  #   end
+  #   # Original chain is restored after block
   #
-  #   chain.state     # => Delegates to first result's state
-  #   chain.status    # => Delegates to first result's status
-  #   chain.outcome   # => Delegates to first result's outcome
-  #   chain.runtime   # => Delegates to first result's runtime
-  #
-  # @example Chain inspection and debugging
-  #   chain.to_h      # => Hash representation of chain and all results
-  #   chain.to_s      # => Human-readable chain summary with all tasks
-  #
-  # @see CMDx::Result Individual task execution results
-  # @see CMDx::Task Task execution and chain context
-  # @see CMDx::Context Context sharing between related tasks
-  # @see CMDx::Correlator Thread-safe correlation ID management
+  # @see CMDx::Correlator
+  # @since 1.0.0
   class Chain
 
-    __cmdx_attr_delegator :index,
+    # Thread-local storage key for the current chain
+    THREAD_KEY = :cmdx_correlation_chain
+
+    __cmdx_attr_delegator :index, :first, :last, :size,
                           to: :results
     __cmdx_attr_delegator :state, :status, :outcome, :runtime,
-                          to: :first_result
+                          to: :first
 
-    # @return [String] Correlation identifier for tracking across request boundaries (inherits from CMDx::Correlator)
-    # @return [Array<CMDx::Result>] Collection of results from related task executions
+    # @!attribute [r] id
+    #   @return [String] the unique identifier for this chain
+    # @!attribute [r] results
+    #   @return [Array<CMDx::Result>] the collection of task results in this chain
     attr_reader :id, :results
 
-    # Initializes a new Chain instance with automatic correlation ID inheritance.
+    # Creates a new chain instance.
     #
-    # Creates a chain context for tracking related task executions with an
-    # identifier that follows the correlation precedence hierarchy:
-    # 1. Explicitly provided `:id` attribute
-    # 2. Current thread's correlation ID (via CMDx::Correlator.id)
-    # 3. Generated UUID (via CMDx::Correlator.generate)
+    # @param attributes [Hash] configuration options for the chain
+    # @option attributes [String] :id custom identifier for the chain.
+    #   If not provided, uses the current correlator ID or generates a new UUID.
     #
-    # This automatic correlation inheritance enables seamless request tracking
-    # across task boundaries without requiring manual correlation ID management.
+    # @example Create chain with default ID
+    #   chain = CMDx::Chain.new
+    #   chain.id  #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
     #
-    # @param attributes [Hash] Chain initialization attributes
-    # @option attributes [String] :id (correlation ID or generated UUID) Chain identifier
-    # @option attributes [Array<CMDx::Result>] :results ([]) Initial results collection
-    #
-    # @example Creating a chain with automatic correlation inheritance
-    #   CMDx::Correlator.id = "req-12345"
-    #   chain = Chain.new
-    #   chain.id  # => "req-12345" (inherited from current correlation)
-    #
-    # @example Creating a chain with explicit ID (overrides correlation)
-    #   CMDx::Correlator.id = "req-12345"
-    #   chain = Chain.new(id: "custom-chain-789")
-    #   chain.id  # => "custom-chain-789" (explicit ID takes precedence)
-    #
-    # @example Creating a chain without correlation context
-    #   CMDx::Correlator.clear  # No correlation ID set
-    #   chain = Chain.new
-    #   chain.id  # => "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated UUID)
-    #
-    # @example Creating a chain with initial results
-    #   existing_results = [result1, result2]
-    #   chain = Chain.new(results: existing_results)
-    #   chain.results.size  # => 2
-    #
-    # @example Block-based correlation context
-    #   CMDx::Correlator.use("batch-operation") do
-    #     chain = Chain.new
-    #     chain.id  # => "batch-operation" (from correlation context)
-    #   end
+    # @example Create chain with custom ID
+    #   chain = CMDx::Chain.new(id: "user-session-123")
+    #   chain.id  #=> "user-session-123"
     def initialize(attributes = {})
       @id      = attributes[:id] || CMDx::Correlator.id || CMDx::Correlator.generate
-      @results = Array(attributes[:results])
+      @results = []
     end
 
-    # Freezes the chain and ensures first result is memoized.
-    #
-    # Ensures the first result is cached before freezing to prevent
-    # issues with delegation after the object becomes immutable.
-    #
-    # @return [Chain] The frozen chain instance
-    #
-    # @example
-    #   chain.freeze
-    #   chain.frozen?  # => true
-    def freeze
-      first_result
-      super
+    class << self
+
+      # Returns the current thread-local chain.
+      #
+      # @return [CMDx::Chain, nil] the chain for the current thread, or nil if none exists
+      #
+      # @example
+      #   CMDx::Chain.current  #=> nil (no chain set)
+      #
+      #   MyTask.call(data: "test")
+      #   CMDx::Chain.current  #=> #<CMDx::Chain:0x... @id="018c2b95...">
+      def current
+        Thread.current[THREAD_KEY]
+      end
+
+      # Sets the current thread-local chain.
+      #
+      # @param chain [CMDx::Chain, nil] the chain to set for the current thread
+      # @return [CMDx::Chain, nil] the chain that was set
+      #
+      # @example
+      #   chain = CMDx::Chain.new(id: "custom-id")
+      #   CMDx::Chain.current = chain
+      #   CMDx::Chain.current.id  #=> "custom-id"
+      def current=(chain)
+        Thread.current[THREAD_KEY] = chain
+      end
+
+      # Clears the current thread-local chain.
+      #
+      # @return [nil]
+      #
+      # @example
+      #   CMDx::Chain.current  #=> #<CMDx::Chain:0x...>
+      #   CMDx::Chain.clear
+      #   CMDx::Chain.current  #=> nil
+      def clear
+        Thread.current[THREAD_KEY] = nil
+      end
+
+      # Adds a result to the current chain, creating a new chain if none exists.
+      #
+      # This method is typically called internally by the task execution framework
+      # and should not be used directly in application code.
+      #
+      # @param result [CMDx::Result] the task result to add to the chain
+      # @return [CMDx::Chain] the chain containing the result
+      #
+      # @api private
+      def build(result)
+        self.current ||= new
+        current.results << result
+        current
+      end
+
     end
 
     # Converts the chain to a hash representation.
@@ -186,20 +182,6 @@ module CMDx
     #   #   "
     def to_s
       ChainInspector.call(self)
-    end
-
-    private
-
-    # Gets the first result in the chain with memoization.
-    #
-    # Caches the first result to avoid repeated array access and ensure
-    # consistent delegation behavior.
-    #
-    # @return [CMDx::Result, nil] The first result or nil if no results
-    def first_result
-      return @first_result if defined?(@first_result)
-
-      @first_result = @results.first
     end
 
   end

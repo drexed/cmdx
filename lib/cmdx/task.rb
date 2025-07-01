@@ -106,11 +106,8 @@ module CMDx
       @id      = CMDx::Correlator.generate
       @errors  = Errors.new
       @context = Context.build(context)
-      @chain = @context.chain || begin
-        chain = Chain.new(@context.delete!(:chain).to_h)
-        @context.instance_variable_set(:@chain, chain)
-      end
-      @chain.results << @result = Result.new(self)
+      @result  = Result.new(self)
+      @chain   = Chain.build(@result)
     end
 
     class << self
@@ -413,10 +410,15 @@ module CMDx
         before_call
         call
       rescue UndefinedCallError => e
+        Chain.clear
         raise(e)
       rescue Fault => e
         result.executed!
-        raise(e) if Array(task_setting(:task_halt)).include?(e.result.status)
+
+        if Array(task_setting(:task_halt)).include?(e.result.status)
+          Chain.clear
+          raise(e)
+        end
 
         after_call # HACK: treat as NO-OP
       else

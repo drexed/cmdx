@@ -5,7 +5,9 @@ require "spec_helper"
 RSpec.describe CMDx::Chain do
   subject(:chain) { described_class.new(attributes) }
 
-  let(:attributes) { {} }
+  let(:attributes) do
+    {}
+  end
 
   describe "#initialize" do
     context "when no attributes provided" do
@@ -19,14 +21,11 @@ RSpec.describe CMDx::Chain do
 
     context "when attributes provided" do
       let(:attributes) do
-        {
-          id: 123,
-          results: [1, 2, 3]
-        }
+        { id: 123 }
       end
 
       it "initializes with provided attributes" do
-        expect(chain).to have_attributes(attributes)
+        expect(chain.id).to eq(123)
       end
     end
   end

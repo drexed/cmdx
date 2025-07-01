@@ -1,9 +1,10 @@
 # Basics - Chain
 
-A chain represents a collection of related task executions that share a common execution context. Chains provide unified tracking, indexing, and reporting for task workflows, making it easy to monitor complex business logic and identify all tasks involved in a single operation.
+A chain represents a collection of related task executions that share a common execution context. Chains provide unified tracking, indexing, and reporting for task workflows using thread-local storage to automatically group related tasks without manual coordination.
 
 ## Table of Contents
 
+- [Thread-Local Chain Management](#thread-local-chain-management)
 - [Automatic Chain Creation](#automatic-chain-creation)
 - [Chain Inheritance](#chain-inheritance)
 - [Chain Structure and Metadata](#chain-structure-and-metadata)
@@ -14,43 +15,69 @@ A chain represents a collection of related task executions that share a common e
 - [Task Indexing](#task-indexing)
 - [Chain Lifecycle](#chain-lifecycle)
 
+## Thread-Local Chain Management
+
+Chains use thread-local storage to automatically group related task executions within the same thread while maintaining isolation across different threads:
+
+```ruby
+# Each thread gets its own chain context
+Thread.new do
+  result = ProcessOrderTask.call(order_id: 123)
+  result.chain.id  # => unique ID for this thread
+end
+
+Thread.new do
+  result = ProcessOrderTask.call(order_id: 456)
+  result.chain.id  # => different unique ID
+end
+
+# Access the current thread's chain
+CMDx::Chain.current  # => current chain or nil
+CMDx::Chain.clear    # => clears current thread's chain
+```
+
 ## Automatic Chain Creation
 
-Every task execution automatically creates or joins a chain context:
+Every task execution automatically creates or joins a thread-local chain context:
 
 ```ruby
 # Single task creates its own chain
 result = ProcessUserOrderTask.call(order_id: 123)
 result.chain.id           #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
 result.chain.results.size #=> 1
+
+# Subsequent tasks in the same thread join the existing chain
+result2 = AnotherTask.call(data: "test")
+result2.chain.id == result.chain.id  #=> true
+result2.chain.results.size           #=> 2
 ```
 
 ## Chain Inheritance
 
-When tasks call other tasks using shared context, they automatically inherit the parent's chain, creating a cohesive execution trail:
+When tasks call other tasks within the same thread, they automatically inherit the current chain, creating a cohesive execution trail:
 
 ```ruby
 class ProcessUserOrderTask < CMDx::Task
   def call
     context.order = Order.find(order_id)
 
-    # Subtasks inherit the ProcessUserOrderTask chain_id
-    SendOrderConfirmationTask.call(context)
-    NotifyWarehousePartnersTask.call(context)
+    # Subtasks automatically inherit the current thread's chain
+    SendOrderConfirmationTask.call(order_id: order_id)
+    NotifyWarehousePartnersTask.call(order_id: order_id)
   end
 end
 
 result = ProcessUserOrderTask.call(order_id: 123)
 chain = result.chain
 
-# All related tasks share the same chain
+# All related tasks share the same chain automatically
 chain.results.size #=> 3
 chain.results.map(&:task).map(&:class)
 #=> [ProcessUserOrderTask, SendOrderConfirmationTask, NotifyWarehousePartnersTask]
 ```
 
 > [!NOTE]
-> When passing context between tasks, subtasks automatically inherit the parent's chain_id, creating a unified execution trail for debugging and monitoring purposes.
+> Tasks automatically inherit the current thread's chain, creating a unified execution trail for debugging and monitoring purposes without any manual chain management.
 
 ## Chain Structure and Metadata
 
@@ -73,18 +100,33 @@ chain.runtime #=> 0.5
 
 ## Correlation ID Integration
 
-Chains automatically integrate with the correlation tracking system, providing seamless request tracing across task boundaries. The chain ID serves as the correlation identifier, enabling you to trace execution flows through distributed systems and complex business logic.
+Chains automatically integrate with the correlation tracking system through thread-local storage, providing seamless request tracing across task boundaries. The chain ID serves as the correlation identifier, enabling you to trace execution flows through distributed systems and complex business logic.
+
+### Custom Chain IDs
+
+You can specify custom chain IDs for specific correlation contexts:
+
+```ruby
+# Create a chain with custom ID
+chain = CMDx::Chain.new(id: "user-session-123")
+CMDx::Chain.current = chain
+
+result = ProcessUserOrderTask.call(order_id: 123)
+result.chain.id #=> "user-session-123"
+```
 
 ### Automatic Correlation Inheritance
 
 Chains inherit correlation IDs using a hierarchical precedence system:
 
 ```ruby
-# 1. Explicit chain ID takes highest precedence
-result = ProcessUserOrderTask.call(chain: { id: "custom-correlation-123" })
+# 1. Existing chain ID takes precedence
+CMDx::Chain.current = CMDx::Chain.new(id: "custom-correlation-123")
+result = ProcessUserOrderTask.call(order_id: 123)
 result.chain.id #=> "custom-correlation-123"
 
-# 2. Thread-local correlation ID is used if no explicit ID
+# 2. Thread-local correlation ID is used if no chain exists
+CMDx::Chain.clear
 CMDx::Correlator.id = "thread-correlation-456"
 result = ProcessUserOrderTask.call
 result.chain.id #=> "thread-correlation-456"
@@ -97,21 +139,21 @@ result.chain.id #=> "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated)
 
 ### Cross-Task Correlation Propagation
 
-When tasks call subtasks with shared context, correlation IDs automatically propagate:
+When tasks call subtasks within the same thread, correlation IDs automatically propagate:
 
 ```ruby
 class ProcessUserOrderTask < CMDx::Task
   def call
-    # Set correlation for this execution context
-    CMDx::Correlator.id = "user-order-correlation-123"
-
     context.order = Order.find(order_id)
 
-    # Subtasks inherit the same correlation ID
-    SendOrderConfirmationTask.call(context)
-    NotifyWarehousePartnersTask.call(context)
+    # Subtasks inherit the same correlation ID automatically
+    SendOrderConfirmationTask.call(order_id: order_id)
+    NotifyWarehousePartnersTask.call(order_id: order_id)
   end
 end
+
+# Set correlation for this execution context
+CMDx::Chain.current = CMDx::Chain.new(id: "user-order-correlation-123")
 
 result = ProcessUserOrderTask.call(order_id: 456)
 chain = result.chain
@@ -132,7 +174,7 @@ CMDx::Correlator.use("api-request-789") do
   result.chain.id #=> "api-request-789"
 
   # Nested task calls inherit the same correlation
-  AuditLogTask.call(result.context)
+  AuditLogTask.call(audit_data: data)
 end
 
 # Outside the block, correlation context is restored
@@ -157,7 +199,7 @@ end
 ```
 
 > [!TIP]
-> Chain IDs serve as correlation identifiers, making it easy to trace related operations across your application. Use `CMDx::Correlator.use` blocks to establish correlation contexts for groups of related tasks.
+> Chain IDs serve as correlation identifiers, making it easy to trace related operations across your application. The thread-local storage ensures automatic correlation without manual chain management.
 
 > [!NOTE]
 > Correlation IDs are particularly useful for debugging distributed systems, API request tracing, and understanding complex business workflows. All logs and results automatically include the chain ID for correlation.
@@ -169,8 +211,8 @@ Chain state information delegates to the first (primary) result, representing th
 ```ruby
 class ProcessOrderTask < CMDx::Task
   def call
-    ValidateOrderDataTask.call(context)   # Success
-    ProcessOrderPaymentTask.call(context) # Failed
+    ValidateOrderDataTask.call(order_id: order_id)   # Success
+    ProcessOrderPaymentTask.call(order_id: order_id) # Failed
   end
 end
 
@@ -236,11 +278,15 @@ chain.to_h
 
 # Human-readable summary
 puts chain.to_s
-#   Task name                     Index   Chain ID      Task ID   etc
-# -----------------------------------------------------------------
-#=> ProcessUserOrderTask          0       foobar123   abc123    ...
-#=> SendOrderConfirmationTask     1       foobar123   def456    ...
-#=> NotifyWarehousePartnersTask   2       foobar123   ghi789    ...
+#   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
+#   ================================================
+#
+#   ProcessUserOrderTask: index=0 state=complete status=success ...
+#   SendOrderConfirmationTask: index=1 state=complete status=success ...
+#   NotifyWarehousePartnersTask: index=2 state=complete status=success ...
+#
+#   ================================================
+#   state: complete | status: success | outcome: success | runtime: 0.5
 ```
 
 ## Task Indexing
@@ -269,14 +315,14 @@ end
 
 Chains follow a predictable lifecycle:
 
-1. **Creation** - New chain created for initial task
-2. **Inheritance** - Subtasks join existing chain via context passing
+1. **Creation** - New chain created for initial task execution in thread
+2. **Inheritance** - Subsequent tasks in the same thread automatically join existing chain
 3. **Population** - Results added as tasks execute
 4. **Completion** - Chain state reflects overall execution
-5. **Freezing** - Chain becomes immutable with final state
+5. **Cleanup** - Thread-local chain cleared when no longer needed
 
 > [!TIP]
-> Use chains for monitoring complex workflows. The automatic inheritance through context passing makes it easy to track all related operations without manual coordination.
+> Use chains for monitoring complex workflows. The automatic thread-local inheritance makes it easy to track all related operations without manual coordination.
 
 ---
 
