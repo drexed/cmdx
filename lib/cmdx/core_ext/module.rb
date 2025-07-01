@@ -102,7 +102,7 @@ module CMDx
       #
       # @example Dynamic default with proc
       #   class Task
-      #     __cmdx_attr_setting :timestamp, default: -> { Time.current }
+      #     __cmdx_attr_setting :timestamp, default: -> { Time.now }
       #   end
       #   # Task.timestamp => current time (evaluated lazily)
       #

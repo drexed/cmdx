@@ -128,13 +128,13 @@ class ProcessUserOrderTask < CMDx::Task
 
     # Conditional skip
     if context.order.already_processed?
-      skip!("Order already processed")
+      skip!(reason: "Order already processed")
       # Status is now skipped, execution halts
     end
 
     # Conditional failure
     unless context.user.has_permission?
-      fail!("Insufficient permissions")
+      fail!(reason: "Insufficient permissions")
       # Status is now failed, execution halts
     end
 
@@ -219,7 +219,7 @@ class ProcessUserOrderTask < CMDx::Task
 
     # Success status typically has empty metadata
     # but can include business-relevant information
-    context.processing_time = Time.current - context.start_time
+    context.processing_time = Time.now - context.start_time
     context.confirmation_number = generate_confirmation
   end
 end
@@ -269,7 +269,7 @@ class ValidateOrderDataTask < CMDx::Task
         errors: context.order.errors.full_messages,
         error_code: "VALIDATION_FAILED",
         retryable: false,
-        failed_at: Time.current
+        failed_at: Time.now
       )
     end
   end

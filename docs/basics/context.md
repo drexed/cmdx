@@ -68,7 +68,7 @@ class ProcessUserOrderTask < CMDx::Task
     # Direct assignment
     context.user = User.find(user_id)
     context.order = Order.find(order_id)
-    context.processed_at = Time.current
+    context.processed_at = Time.now
 
     # Hash-style assignment
     context[:status] = "processing"
@@ -81,7 +81,7 @@ class ProcessUserOrderTask < CMDx::Task
     context.merge!(
       status: "completed",
       processed_by: current_user.id,
-      completion_time: Time.current
+      completion_time: Time.now
     )
 
     # Removing data

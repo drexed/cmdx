@@ -115,7 +115,7 @@ class BatchProcessUser < CMDx::Batch
   process SendSpecialOfferTask, if: proc {
     context.user.active? &&
     context.feature_enabled?(:offers) &&
-    Time.current.hour.between?(9, 17)
+    Time.now.hour.between?(9, 17)
   }
 
   private
@@ -312,7 +312,7 @@ class BatchProcessPayment < CMDx::Batch
   private
 
   def setup_context
-    context.start_time = Time.current
+    context.start_time = Time.now
   end
 
   def cleanup_resources

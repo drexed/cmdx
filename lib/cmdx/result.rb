@@ -107,7 +107,7 @@ module CMDx
     #   result.complete?  # => true (if status was success)
     #
     # @example Failed execution
-    #   result.fail!("Something went wrong")
+    #   result.fail!(reason: "Something went wrong")
     #   result.executed!
     #   result.interrupted?  # => true
     def executed!
@@ -324,7 +324,7 @@ module CMDx
     # @raise [CMDx::Fault] If result status is not success
     #
     # @example
-    #   result.fail!("Something went wrong")
+    #   result.fail!(reason: "Something went wrong")
     #   result.halt!  # Raises CMDx::Fault
     def halt!
       return if success?

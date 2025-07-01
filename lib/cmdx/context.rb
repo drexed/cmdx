@@ -26,7 +26,7 @@ module CMDx
   #
   #     def call
   #       context.order = Order.find(order_id)
-  #       context.processed_at = Time.current
+  #       context.processed_at = Time.now
   #
   #       if notify_customer
   #         context.notification_sent = send_notification
@@ -49,7 +49,7 @@ module CMDx
   #       context.validation_errors = validate(context.processed_data)
   #
   #       # Hash-style assignment
-  #       context[:metadata] = { processed_at: Time.current }
+  #       context[:metadata] = { processed_at: Time.now }
   #       context["summary"] = generate_summary
   #
   #       # Batch assignment

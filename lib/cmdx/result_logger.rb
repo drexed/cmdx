@@ -20,7 +20,7 @@ module CMDx
   #
   # @example Skipped task result logging
   #   task = ProcessOrderTask.new
-  #   task.skip!("Order already processed")
+  #   task.skip!(reason: "Order already processed")
   #   ResultLogger.call(task.result)
   #   # Logs at WARN level: "ProcessOrderTask was skipped"
   #
@@ -66,13 +66,13 @@ module CMDx
     #
     # @example Logging a failed result
     #   task = ProcessOrderTask.new
-    #   task.fail!("Invalid order ID")
+    #   task.fail!(reason: "Invalid order ID")
     #   ResultLogger.call(task.result)
     #   # Logs at ERROR level with failure details
     #
     # @example Logging a skipped result
     #   task = ProcessOrderTask.new
-    #   task.skip!("Order already processed")
+    #   task.skip!(reason: "Order already processed")
     #   ResultLogger.call(task.result)
     #   # Logs at WARN level with skip reason
     #

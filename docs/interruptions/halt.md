@@ -29,10 +29,10 @@ class ProcessUserOrderTask < CMDx::Task
     context.order = Order.find(context.order_id)
 
     # Skip if order is already processed
-    skip!("Order already processed") if context.order.processed?
+    skip!(reason: "Order already processed") if context.order.processed?
 
     # Skip if prerequisites aren't met
-    skip!("Payment method not configured") unless context.order.payment_method
+    skip!(reason: "Payment method not configured") unless context.order.payment_method
 
     # Continue with business logic
     context.order.process!
@@ -53,12 +53,12 @@ class SendUserNotificationTask < CMDx::Task
 
     # Skip based on user preferences
     unless force || context.user.notifications_enabled?
-      skip!("User has notifications disabled")
+      skip!(reason: "User has notifications disabled")
     end
 
     # Skip if already notified recently
     if context.user.last_notification_sent > 1.hour.ago
-      skip!("Notification already sent recently")
+      skip!(reason: "Notification already sent recently")
     end
 
     NotificationService.send(context.user)
@@ -84,10 +84,10 @@ class ProcessOrderPaymentTask < CMDx::Task
     context.payment = Payment.find(context.payment_id)
 
     # Fail on validation errors
-    fail!("Payment amount must be positive") unless context.payment.amount > 0
+    fail!(reason: "Payment amount must be positive") unless context.payment.amount > 0
 
     # Fail on business rule violations
-    fail!("Insufficient funds") unless sufficient_funds?
+    fail!(reason: "Insufficient funds") unless sufficient_funds?
 
     # Continue with processing
     process_payment
@@ -266,7 +266,7 @@ skip!(reason: "User already has an active session")
 fail!(reason: "Credit card expired", code: "EXPIRED_CARD")
 
 # Acceptable: Other metadata without reason
-skip!(status: "redundant", timestamp: Time.current)
+skip!(status: "redundant", timestamp: Time.now)
 
 # Fallback: Default message if no reason provided
 skip! # Exception message: "no reason given"

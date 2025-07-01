@@ -45,7 +45,7 @@ module CMDx
   #
   #     def call
   #       context.user = User.find(user_id)
-  #       context.processed_at = Time.current
+  #       context.processed_at = Time.now
   #       context.result_data = {status: "complete"}
   #     end
   #   end
@@ -82,7 +82,7 @@ module CMDx
               "must be respond to `to_h`"
       end
 
-      @table = args.transform_keys(&:to_sym)
+      @table = args.transform_keys { |k| symbolized_key(k) }
     end
 
     ##
@@ -97,7 +97,7 @@ module CMDx
     #   struct["name"]   #=> "John"
     #   struct[:missing] #=> nil
     def [](key)
-      @table[key.to_sym]
+      @table[symbolized_key(key)]
     end
 
     ##
@@ -121,7 +121,7 @@ module CMDx
     # @example Key not found
     #   struct.fetch!(:missing)  #=> raises KeyError
     def fetch!(key, ...)
-      @table.fetch(key.to_sym, ...)
+      @table.fetch(symbolized_key(key), ...)
     end
 
     ##
@@ -137,7 +137,7 @@ module CMDx
     #   struct.name  #=> "John"
     #   struct.age   #=> 30
     def store!(key, value)
-      @table[key.to_sym] = value
+      @table[symbolized_key(key)] = value
     end
     alias []= store!
 
@@ -169,7 +169,7 @@ module CMDx
     #   struct.delete!(:missing)  #=> nil
     #   struct.delete!(:missing) { "not found" }  #=> "not found"
     def delete!(key, &)
-      @table.delete(key.to_sym, &)
+      @table.delete(symbolized_key(key), &)
     end
     alias delete_field! delete!
 
@@ -204,13 +204,7 @@ module CMDx
     #   struct.dig(:user, :profile, :name)  #=> "John"
     #   struct.dig(:user, :missing, :name)  #=> nil
     def dig(key, *keys)
-      begin
-        key = key.to_sym
-      rescue NoMethodError
-        raise TypeError, "#{key} is not a symbol nor a string"
-      end
-
-      @table.dig(key, *keys)
+      @table.dig(symbolized_key(key), *keys)
     end
 
     ##
@@ -271,7 +265,7 @@ module CMDx
     #
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
-      @table.fetch(method_name.to_sym) do
+      @table.fetch(symbolized_key(method_name)) do
         store!(method_name[0..-2], args.first) if method_name.end_with?("=")
       end
     end
@@ -292,7 +286,32 @@ module CMDx
     #
     # @api private
     def respond_to_missing?(method_name, include_private = false)
-      @table.key?(method_name.to_sym) || super
+      @table.key?(symbolized_key(method_name)) || super
+    end
+
+    ##
+    # Converts a key to a symbol for consistent internal storage.
+    # This method normalizes all keys to symbols regardless of their input type,
+    # ensuring consistent access patterns throughout the LazyStruct.
+    #
+    # @param key [Object] the key to convert to a symbol
+    # @return [Symbol] the key converted to a symbol
+    # @raise [TypeError] if the key cannot be converted to a symbol (doesn't respond to `to_sym`)
+    #
+    # @example Valid key conversion
+    #   symbolized_key("name")    #=> :name
+    #   symbolized_key(:name)     #=> :name
+    #   symbolized_key("123")     #=> :"123"
+    #
+    # @example Invalid key conversion
+    #   symbolized_key(Object.new)  #=> raises TypeError
+    #   symbolized_key(123)         #=> raises TypeError
+    #
+    # @api private
+    def symbolized_key(key)
+      key.to_sym
+    rescue NoMethodError
+      raise TypeError, "#{key} is not a symbol nor a string"
     end
 
   end

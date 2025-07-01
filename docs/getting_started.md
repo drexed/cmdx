@@ -56,7 +56,7 @@ class ProcessOrderTask < CMDx::Task
     elsif context.order.completed?
       skip!(reason: "Already processed")
     else
-      context.order.update!(status: 'completed', completed_at: Time.current)
+      context.order.update!(status: 'completed', completed_at: Time.now)
       EmailService.send_confirmation(context.order) if send_email
     end
   end

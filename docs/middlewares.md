@@ -95,9 +95,9 @@ Inline middleware for simple cases:
 ```ruby
 class ProcessOrderTask < CMDx::Task
   use proc { |task, callable|
-    start_time = Time.current
+    start_time = Time.now
     result = callable.call(task)
-    duration = Time.current - start_time
+    duration = Time.now - start_time
 
     Rails.logger.info "#{task.class.name} completed in #{duration}s"
     result
@@ -499,7 +499,7 @@ end
 
 # Dynamic correlation ID using proc/lambda
 class ProcessOrderTask < CMDx::Task
-  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.current.to_i}" }
+  use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.now.to_i}" }
 
   def call
     # Dynamic correlation ID based on order and timestamp

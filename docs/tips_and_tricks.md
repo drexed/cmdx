@@ -155,7 +155,7 @@ class ProcessChunkDataTask < CMDx::Task
     context.current_offset = offset + chunk_size
 
     # Skip if no more data
-    skip!("No more data to process") if context.current_chunk.empty?
+    skip!(reason: "No more data to process") if context.current_chunk.empty?
   end
 end
 ```

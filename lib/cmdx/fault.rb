@@ -121,13 +121,13 @@ module CMDx
       #
       # @example Building a skipped fault
       #   result = MyTask.call(param: "value")
-      #   result.skip!("Not needed")
+      #   result.skip!(reason: "Not needed")
       #   fault = Fault.build(result)
       #   fault.class #=> CMDx::Skipped
       #
       # @example Building a failed fault
       #   result = MyTask.call(param: "invalid")
-      #   result.fail!("Validation error")
+      #   result.fail!(reason: "Validation error")
       #   fault = Fault.build(result)
       #   fault.class #=> CMDx::Failed
       def build(result)

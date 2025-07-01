@@ -37,7 +37,7 @@ class ProcessUserOrderTask < CMDx::Task
 
   optional :notification_tags, type: :array, default: []
   optional :order_metadata, type: :hash, default: {}
-  optional :created_at, type: :datetime, default: -> { Time.current }
+  optional :created_at, type: :datetime, default: -> { Time.now }
 
   def call
     user_id            #=> provided value (required)
@@ -75,7 +75,7 @@ class SendOrderNotificationTask < CMDx::Task
   required :order_id, type: :integer
 
   # Dynamic defaults using procs
-  optional :sent_at, type: :datetime, default: -> { Time.current }
+  optional :sent_at, type: :datetime, default: -> { Time.now }
   optional :tracking_id, type: :string, default: -> { SecureRandom.uuid }
 
   # Environment-aware defaults
@@ -174,7 +174,7 @@ class ConfigureOrderSettingsTask < CMDx::Task
   optional :embargo_date, type: :date, default: "2024-01-01"
 
   # Dynamic defaults with coercion
-  optional :order_number, type: :string, default: -> { Time.current.to_i }
+  optional :order_number, type: :string, default: -> { Time.now.to_i }
 
   def call
     max_items         #=> 50 (integer)

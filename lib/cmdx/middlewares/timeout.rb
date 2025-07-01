@@ -222,7 +222,7 @@ module CMDx
           callable.call(task)
         end
       rescue TimeoutError => e
-        task.fail!(reason: "[#{e.class}] #{e.message}", original_exception: e, seconds:)
+        task.fail!(reason: "[#{e.class}] #{e.message}", original_exception: e, seconds: limit)
         task.result
       end
 

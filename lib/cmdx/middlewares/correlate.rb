@@ -63,7 +63,7 @@ module CMDx
     #
     # @example Middleware with dynamic correlation ID using procs
     #   class ProcessOrderTask < CMDx::Task
-    #     use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.current.to_i}" }
+    #     use CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.now.to_i}" }
     #
     #     def call
     #       # Uses dynamically generated correlation ID

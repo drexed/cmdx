@@ -122,7 +122,7 @@ class ProcessOrderPaymentTask < CMDx::Task
 
   def call
     if context.simulate_fault
-      fail!("Controlled failure") # Becomes CMDx::Failed
+      fail!(reason: "Controlled failure") # Becomes CMDx::Failed
     else
       raise StandardError, "Uncontrolled error" # Remains StandardError
     end
@@ -181,7 +181,7 @@ class ProcessOrderWithHaltTask < CMDx::Task
   task_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
-    fail!("This is a controlled failure")
+    fail!(reason: "This is a controlled failure")
   end
 end
 
@@ -212,10 +212,10 @@ class ProcessUserOrderTask < CMDx::Task
     process_order_data
   rescue ActiveRecord::RecordNotFound => e
     # Handle specific database errors gracefully
-    skip!("Order not found: #{e.message}")
+    skip!(reason: "Order not found: #{e.message}")
   rescue Net::TimeoutError => e
     # Handle timeout errors as retryable failures
-    fail!("Order processing timed out", error_code: "TIMEOUT", retryable: true)
+    fail!(reason: "Order processing timed out", error_code: "TIMEOUT", retryable: true)
   rescue StandardError => e
     # Let other exceptions bubble up for automatic handling
     raise e

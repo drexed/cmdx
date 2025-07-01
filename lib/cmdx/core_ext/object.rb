@@ -80,7 +80,7 @@ module CMDx
       #   user.__cmdx_eval(if: :active?, unless: :banned?)  # => active AND not banned
       #
       # @example With procs
-      #   user.__cmdx_eval(if: -> { Time.current.monday? }) # => true if today is Monday
+      #   user.__cmdx_eval(if: -> { Time.now.monday? }) # => true if today is Monday
       def __cmdx_eval(options = {})
         if options[:if] && options[:unless]
           __cmdx_try(options[:if]) && !__cmdx_try(options[:unless])

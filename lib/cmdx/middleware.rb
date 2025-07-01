@@ -28,7 +28,7 @@ module CMDx
   #
   #     def call(task, callable)
   #       unless task.context.user&.has_role?(@required_role)
-  #         task.fail!("Insufficient permissions")
+  #         task.fail!(reason: "Insufficient permissions")
   #         return task.result
   #       end
   #       callable.call(task)

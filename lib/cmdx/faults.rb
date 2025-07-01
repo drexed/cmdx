@@ -20,7 +20,7 @@ module CMDx
   #
   #     def call
   #       context.order = Order.find(order_id)
-  #       skip!("Order already processed") if context.order.processed?
+  #       skip!(reason: "Order already processed") if context.order.processed?
   #
   #       context.order.process!
   #     end
@@ -47,7 +47,7 @@ module CMDx
   #       context.user = User.find(user_id)
   #
   #       unless force || context.user.notifications_enabled?
-  #         skip!("User has notifications disabled")
+  #         skip!(reason: "User has notifications disabled")
   #       end
   #
   #       NotificationService.send(context.user)
@@ -86,11 +86,11 @@ module CMDx
   #
   #     def call
   #       unless payment_amount > 0
-  #         fail!("Payment amount must be positive", code: "INVALID_AMOUNT")
+  #         fail!(reason: "Payment amount must be positive", code: "INVALID_AMOUNT")
   #       end
   #
   #       unless valid_payment_method?
-  #         fail!("Invalid payment method", code: "INVALID_METHOD")
+  #         fail!(reason: "Invalid payment method", code: "INVALID_METHOD")
   #       end
   #
   #       process_payment

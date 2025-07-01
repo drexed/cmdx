@@ -259,7 +259,7 @@ module CMDx
       #     process ConditionalTask, if: proc {
       #       context.user.active? &&
       #       context.feature_enabled?(:new_feature) &&
-      #       Time.current.hour.between?(9, 17)
+      #       Time.now.hour.between?(9, 17)
       #     }
       #
       #     # Conditional with custom halt behavior

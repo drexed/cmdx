@@ -93,7 +93,7 @@ class ProcessOrderTask < CMDx::Task
   private
 
   def validate_business_rules
-    fail!("Orders cannot be processed outside business hours") unless business_hours?
+    fail!(reason: "Orders cannot be processed outside business hours") unless business_hours?
   end
 
   def load_dependencies
@@ -138,7 +138,7 @@ class ProcessOrderTask < CMDx::Task
   end
 
   def business_hours?
-    Time.current.hour.between?(9, 17) && Time.current.weekday?
+    Time.now.hour.between?(9, 17) && Time.now.weekday?
   end
 
   def critical_order?
@@ -146,7 +146,7 @@ class ProcessOrderTask < CMDx::Task
   end
 
   def days_inactive
-    (Time.current - context.order.last_activity).to_i / 1.day
+    (Time.now - context.order.last_activity).to_i / 1.day
   end
 
   def unavailable_items

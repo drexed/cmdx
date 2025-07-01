@@ -32,7 +32,7 @@ module CMDx
   #       validate_password
   #
   #       if errors.present?
-  #         fail!("Validation failed", validation_errors: errors.full_messages)
+  #         fail!(reason: "Validation failed", validation_errors: errors.full_messages)
   #       end
   #
   #       create_user

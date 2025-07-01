@@ -47,7 +47,7 @@ class ProcessOrderTask < CMDx::Task
 
   # Block declaration
   before_execution do
-    context.processing_start = Time.current
+    context.processing_start = Time.now
   end
 
   def call

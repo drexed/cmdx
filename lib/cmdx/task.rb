@@ -17,7 +17,7 @@ module CMDx
   #     def call
   #       # Business logic here
   #       context.order = Order.find(order_id)
-  #       skip!("Order already processed") if context.order.processed?
+  #       skip!(reason: "Order already processed") if context.order.processed?
   #
   #       context.order.process!
   #       NotificationService.call(order_id: order_id) if notify_user
@@ -308,10 +308,10 @@ module CMDx
     # @example
     #   def call
     #     context.user = User.find(user_id)
-    #     fail!("User not found") unless context.user
+    #     fail!(reason: "User not found") unless context.user
     #
     #     context.user.activate!
-    #     context.activation_date = Time.current
+    #     context.activation_date = Time.now
     #   end
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"

@@ -148,7 +148,7 @@ rescue CMDx::Fault.matches? { |f|
 rescue CMDx::Fault.matches? { |f|
   f.result.skipped? &&
   f.context.priority == "low" &&
-  Time.current.hour.between?(22, 6)
+  Time.now.hour.between?(22, 6)
 } => e
   # Skip low-priority tasks during off-hours
   schedule_for_business_hours(e.context)
@@ -218,7 +218,7 @@ class ProcessOrderWorkflowTask < CMDx::Task
       # Propagate with additional context
       throw!(step1_result, {
         workflow_stage: "initial_validation",
-        attempted_at: Time.current,
+        attempted_at: Time.now,
         can_retry: true
       })
     end
@@ -270,7 +270,7 @@ class ProcessUserOrderTask < CMDx::Task
   task_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
-    skip!("Order already processed") if already_processed?
+    skip!(reason: "Order already processed") if already_processed?
     # This will NOT raise an exception on call!
   end
 end
@@ -280,7 +280,7 @@ class ValidateUserDataTask < CMDx::Task
   task_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def call
-    skip!("Validation not required") if skip_validation?
+    skip!(reason: "Validation not required") if skip_validation?
     # This WILL raise an exception on call!
   end
 end
