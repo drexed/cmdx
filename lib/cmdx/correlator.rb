@@ -201,6 +201,11 @@ module CMDx
     #     CMDx::Correlator.id  # => "original" (still restored)
     #   end
     def use(value)
+      unless value.is_a?(String) || value.is_a?(Symbol)
+        raise TypeError,
+              "must be a String or Symbol"
+      end
+
       previous_id = id
       self.id = value
       yield

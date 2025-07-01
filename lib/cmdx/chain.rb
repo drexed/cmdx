@@ -129,6 +129,8 @@ module CMDx
       #
       # @api private
       def build(result)
+        raise TypeError, "must be a Result" unless result.is_a?(Result)
+
         self.current ||= new
         current.results << result
         current
