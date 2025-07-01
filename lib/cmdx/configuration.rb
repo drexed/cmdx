@@ -122,9 +122,6 @@ module CMDx
 
   end
 
-  # Thread-safe configuration access
-  @config_mutex = Mutex.new
-
   module_function
 
   ##
@@ -134,9 +131,6 @@ module CMDx
   # The configuration is stored as a module-level variable and persists
   # throughout the application lifecycle. It uses lazy initialization,
   # creating the configuration only when first accessed.
-  #
-  # This method is thread-safe and ensures only one configuration instance
-  # is created even in multi-threaded environments.
   #
   # @return [Configuration] the current configuration object
   #
@@ -150,9 +144,7 @@ module CMDx
   def configuration
     return @configuration if @configuration
 
-    @config_mutex.synchronize do
-      @configuration ||= Configuration.new
-    end
+    @configuration ||= Configuration.new
   end
 
   ##
@@ -162,7 +154,6 @@ module CMDx
   #
   # The configuration block yields the current configuration object,
   # allowing you to set multiple options in a single, organized block.
-  # This method is thread-safe and ensures configuration changes are atomic.
   #
   # @yieldparam config [Configuration] the configuration object to modify
   # @return [Configuration] the updated configuration object
@@ -212,9 +203,6 @@ module CMDx
   # This method creates a fresh configuration object with framework defaults,
   # discarding any previously set custom values.
   #
-  # This operation is thread-safe and atomically replaces the current
-  # configuration with a new instance containing default values.
-  #
   # @return [Configuration] the newly created configuration with default values
   #
   # @example Resetting configuration
@@ -239,9 +227,7 @@ module CMDx
   # @note This method is primarily useful for testing or when you need
   #   to return to a known default state.
   def reset_configuration!
-    @config_mutex.synchronize do
-      @configuration = Configuration.new
-    end
+    @configuration = Configuration.new
   end
 
 end
