@@ -5,15 +5,15 @@ require "spec_helper"
 RSpec.describe CMDx::Batch do
   describe ".batch_groups" do
     it "returns an empty array when no groups are defined" do
-      batch_class = Class.new(described_class)
+      batch_class = create_batch_class
 
       expect(batch_class.batch_groups).to eq([])
     end
 
     it "returns array of defined groups" do
-      task_a = Class.new(CMDx::Task)
-      task_b = Class.new(CMDx::Task)
-      batch_class = Class.new(described_class) do
+      task_a = create_task_class(name: "TaskA")
+      task_b = create_task_class(name: "TaskB")
+      batch_class = create_batch_class(name: "TestBatch") do
         process task_a
         process task_b
       end
@@ -26,10 +26,10 @@ RSpec.describe CMDx::Batch do
     end
 
     it "preserves task declaration order" do
-      task_a = Class.new(CMDx::Task)
-      task_b = Class.new(CMDx::Task)
-      task_c = Class.new(CMDx::Task)
-      batch_class = Class.new(described_class) do
+      task_a = create_task_class(name: "TaskA")
+      task_b = create_task_class(name: "TaskB")
+      task_c = create_task_class(name: "TaskC")
+      batch_class = create_batch_class(name: "OrderTestBatch") do
         process task_c
         process task_a
         process task_b
@@ -42,10 +42,10 @@ RSpec.describe CMDx::Batch do
     end
 
     it "maintains groups across multiple process calls" do
-      task_a = Class.new(CMDx::Task)
-      task_b = Class.new(CMDx::Task)
-      task_c = Class.new(CMDx::Task)
-      batch_class = Class.new(described_class)
+      task_a = create_task_class(name: "TaskA")
+      task_b = create_task_class(name: "TaskB")
+      task_c = create_task_class(name: "TaskC")
+      batch_class = create_batch_class(name: "MultiProcessBatch")
 
       batch_class.process task_a
       batch_class.process task_b, task_c
@@ -57,17 +57,17 @@ RSpec.describe CMDx::Batch do
     end
 
     it "inherits empty groups from parent class" do
-      parent_batch = Class.new(described_class)
+      parent_batch = create_batch_class(name: "ParentBatch")
       child_batch = Class.new(parent_batch)
 
       expect(child_batch.batch_groups).to eq([])
     end
 
     it "does not share groups between different batch classes" do
-      task_a = Class.new(CMDx::Task)
-      task_b = Class.new(CMDx::Task)
-      batch_class_one = Class.new(described_class)
-      batch_class_two = Class.new(described_class)
+      task_a = create_task_class(name: "TaskA")
+      task_b = create_task_class(name: "TaskB")
+      batch_class_one = create_batch_class(name: "BatchOne")
+      batch_class_two = create_batch_class(name: "BatchTwo")
 
       batch_class_one.process task_a
       batch_class_two.process task_b
@@ -80,9 +80,9 @@ RSpec.describe CMDx::Batch do
   end
 
   describe ".process" do
-    let(:batch_class) { Class.new(described_class) }
-    let(:task_a) { Class.new(CMDx::Task) }
-    let(:task_b) { Class.new(CMDx::Task) }
+    let(:batch_class) { create_batch_class(name: "ProcessTestBatch") }
+    let(:task_a) { create_task_class(name: "TaskA") }
+    let(:task_b) { create_task_class(name: "TaskB") }
 
     it "creates group with single task" do
       batch_class.process task_a
@@ -121,7 +121,7 @@ RSpec.describe CMDx::Batch do
     end
 
     it "allows nested batch classes" do
-      nested_batch = Class.new(described_class)
+      nested_batch = create_batch_class(name: "NestedBatch")
       batch_class.process nested_batch
 
       group = batch_class.batch_groups.first
@@ -136,8 +136,8 @@ RSpec.describe CMDx::Batch do
     end
 
     it "preserves order of task addition" do
-      task_c = Class.new(CMDx::Task)
-      task_d = Class.new(CMDx::Task)
+      task_c = create_task_class(name: "TaskC")
+      task_d = create_task_class(name: "TaskD")
 
       batch_class.process task_a, task_b
       batch_class.process task_c
@@ -151,8 +151,8 @@ RSpec.describe CMDx::Batch do
   end
 
   describe "::Group" do
-    let(:task_a) { Class.new(CMDx::Task) }
-    let(:task_b) { Class.new(CMDx::Task) }
+    let(:task_a) { create_task_class(name: "TaskA") }
+    let(:task_b) { create_task_class(name: "TaskB") }
 
     describe "#initialize" do
       it "sets tasks and options" do
@@ -182,24 +182,11 @@ RSpec.describe CMDx::Batch do
   end
 
   describe "#call" do
-    let(:simple_task) do
-      Class.new(CMDx::Task) do
-        def call
-          context.executed = true
-        end
-      end
-    end
-
-    let(:failing_task) do
-      Class.new(CMDx::Task) do
-        def call
-          fail!(reason: "Task failed")
-        end
-      end
-    end
+    let(:simple_task) { create_simple_task(name: "SimpleTask") }
+    let(:failing_task) { create_failing_task(name: "FailingTask", reason: "Task failed") }
 
     context "when batch has no groups" do
-      let(:batch_class) { Class.new(described_class) }
+      let(:batch_class) { create_batch_class(name: "EmptyBatch") }
 
       it "returns successful result" do
         result = batch_class.call(test: "data")
@@ -212,7 +199,7 @@ RSpec.describe CMDx::Batch do
     context "when all tasks succeed" do
       it "executes all tasks and returns success" do
         task = simple_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "SuccessfulBatch") do
           process task
         end
 
@@ -226,7 +213,7 @@ RSpec.describe CMDx::Batch do
     context "when task fails with default halt behavior" do
       it "stops execution on failure" do
         task = failing_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "FailingBatch") do
           process task
         end
 
@@ -239,7 +226,7 @@ RSpec.describe CMDx::Batch do
     context "when groups have custom halt behavior" do
       it "respects group-level batch_halt setting" do
         task = failing_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "CustomHaltBatch") do
           process task, batch_halt: []
         end
 
@@ -249,13 +236,9 @@ RSpec.describe CMDx::Batch do
       end
 
       it "handles multiple halt statuses" do
-        skipping_task = Class.new(CMDx::Task) do
-          def call
-            skip!(reason: "Skipping task")
-          end
-        end
+        skipping_task = create_skipping_task(name: "SkippingTask", reason: "Skipping task")
 
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "MultiHaltBatch") do
           process skipping_task, batch_halt: %w[failed skipped]
         end
 
@@ -268,7 +251,7 @@ RSpec.describe CMDx::Batch do
     context "when using conditional execution" do
       it "evaluates if conditions" do
         task = simple_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "ConditionalIfBatch") do
           process task, if: proc { context.should_run }
         end
 
@@ -281,7 +264,7 @@ RSpec.describe CMDx::Batch do
 
       it "evaluates unless conditions" do
         task = simple_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "ConditionalUnlessBatch") do
           process task, unless: proc { context.should_skip }
         end
 
@@ -294,7 +277,7 @@ RSpec.describe CMDx::Batch do
 
       it "supports symbol method conditions" do
         task = simple_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "SymbolMethodBatch") do
           process task, if: :should_execute?
 
           private
@@ -314,7 +297,7 @@ RSpec.describe CMDx::Batch do
 
     context "when handling edge cases" do
       it "handles empty task arrays in groups" do
-        batch_class = Class.new(described_class)
+        batch_class = create_batch_class(name: "EmptyGroupBatch")
         batch_class.instance_variable_set(:@batch_groups, [described_class::Group.new([], {})])
 
         result = batch_class.call(test: "data")
@@ -324,7 +307,7 @@ RSpec.describe CMDx::Batch do
 
       it "handles groups with empty options" do
         task = simple_task
-        batch_class = Class.new(described_class) do
+        batch_class = create_batch_class(name: "EmptyOptionsBatch") do
           process task
         end
 
@@ -338,7 +321,7 @@ RSpec.describe CMDx::Batch do
 
   describe "integration scenarios" do
     let(:counter_task_one) do
-      Class.new(CMDx::Task) do
+      create_task_class(name: "CounterTaskOne") do
         def call
           context.counter ||= 0
           context.counter += 1
@@ -349,7 +332,7 @@ RSpec.describe CMDx::Batch do
     end
 
     let(:failing_task) do
-      Class.new(CMDx::Task) do
+      create_task_class(name: "FailingTask") do
         def call
           context.executed_tasks ||= []
           context.executed_tasks << "failing_task"
@@ -360,7 +343,7 @@ RSpec.describe CMDx::Batch do
 
     it "executes simple batch workflow" do
       task = counter_task_one
-      batch_class = Class.new(described_class) do
+      batch_class = create_batch_class(name: "SimpleWorkflowBatch") do
         process task
         process task
       end
@@ -373,7 +356,7 @@ RSpec.describe CMDx::Batch do
 
     it "stops execution on first failure with default halt behavior" do
       # Create separate counter task classes to avoid shared state
-      counter_task_two = Class.new(CMDx::Task) do
+      counter_task_two = create_task_class(name: "CounterTaskTwo") do
         def call
           context.counter ||= 0
           context.counter += 1
@@ -385,7 +368,7 @@ RSpec.describe CMDx::Batch do
       task_one = counter_task_one
       task_two = counter_task_two
       failing = failing_task
-      batch_class = Class.new(described_class) do
+      batch_class = create_batch_class(name: "FailureHaltBatch") do
         process task_one
         process failing
         process task_two
@@ -400,7 +383,7 @@ RSpec.describe CMDx::Batch do
     it "continues execution with custom halt behavior" do
       counter = counter_task_one
       failing = failing_task
-      batch_class = Class.new(described_class) do
+      batch_class = create_batch_class(name: "ContinueOnFailureBatch") do
         process counter
         process failing, batch_halt: []
         process counter
@@ -414,13 +397,13 @@ RSpec.describe CMDx::Batch do
 
     it "handles conditional execution with context data" do
       counter = counter_task_one
-      conditional_task = Class.new(CMDx::Task) do
+      conditional_task = create_task_class(name: "ConditionalTask") do
         def call
           context.conditional_executed = true
         end
       end
 
-      batch_class = Class.new(described_class) do
+      batch_class = create_batch_class(name: "ConditionalExecutionBatch") do
         process counter
         process conditional_task, if: proc { context.counter > 0 }
       end
@@ -433,12 +416,12 @@ RSpec.describe CMDx::Batch do
 
     it "handles nested batch execution" do
       counter = counter_task_one
-      inner_batch = Class.new(described_class) do
+      inner_batch = create_batch_class(name: "InnerBatch") do
         process counter
         process counter
       end
 
-      outer_batch = Class.new(described_class) do
+      outer_batch = create_batch_class(name: "OuterBatch") do
         process counter
         process inner_batch
         process counter
@@ -451,14 +434,14 @@ RSpec.describe CMDx::Batch do
     end
 
     it "preserves context across all tasks" do
-      data_task = Class.new(CMDx::Task) do
+      data_task = create_task_class(name: "DataTask") do
         def call
           context.shared_data ||= []
           context.shared_data << "task_#{object_id}"
         end
       end
 
-      batch_class = Class.new(described_class) do
+      batch_class = create_batch_class(name: "ContextPreservationBatch") do
         process data_task
         process data_task
         process data_task

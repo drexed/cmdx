@@ -29,19 +29,15 @@ RSpec.describe "Task Basics", type: :integration do
       it "executes task with call method" do
         result = simple_task.call
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result).to be_success
-        expect(result.context.executed).to be(true)
-        expect(result.context.execution_time).to be_a(Time)
+        expect(result).to be_successful_task
+        expect(result).to have_context(executed: true, execution_time: be_a(Time))
       end
 
       it "maintains task lifecycle states" do
         result = simple_task.call
 
-        expect(result.state).to eq("complete")
-        expect(result.status).to eq("success")
-        expect(result.runtime).to be >= 0
-        expect(result.executed?).to be(true)
+        expect(result).to be_successful_task
+        expect(result).to have_runtime(be >= 0)
       end
 
       it "prevents multiple executions" do
@@ -57,19 +53,18 @@ RSpec.describe "Task Basics", type: :integration do
       it "validates required parameters" do
         result = parameterized_task.call(user_id: 123)
 
-        expect(result).to be_success
-        expect(result.context.user_id).to eq(123)
-        expect(result.context.user[:id]).to eq(123)
-        expect(result.context.notification_sent).to be(true)
+        expect(result).to be_successful_task(user_id: 123)
+        expect(result).to have_context(
+          user: { id: 123, name: "User 123" },
+          notification_sent: true
+        )
       end
 
       it "uses optional parameter defaults" do
         result = parameterized_task.call(user_id: 456, notify_user: false)
 
-        expect(result).to be_success
-        expect(result.context.user_id).to eq(456)
-        expect(result.context.notify_user).to be(false)
-        expect(result.context.notification_sent).to be(false)
+        expect(result).to be_successful_task(user_id: 456, notify_user: false)
+        expect(result).to have_context(notification_sent: false)
       end
     end
 
@@ -108,11 +103,13 @@ RSpec.describe "Task Basics", type: :integration do
       it "inherits functionality from parent class" do
         result = inherited_task.call
 
-        expect(result).to be_success
-        expect(result.context.app_name).to eq("MyApp")
-        expect(result.context.execution_started_at).to be_a(Time)
-        expect(result.context.specific_work_done).to be(true)
-        expect(result.context.cleanup_performed).to be(true)
+        expect(result).to be_successful_task
+        expect(result).to have_context(
+          app_name: "MyApp",
+          execution_started_at: be_a(Time),
+          specific_work_done: true,
+          cleanup_performed: true
+        )
       end
     end
   end
@@ -146,27 +143,22 @@ RSpec.describe "Task Basics", type: :integration do
       it "returns result for successful execution" do
         result = successful_task.call
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result).to be_success
-        expect(result.context.operation_result).to eq("success")
+        expect(result).to be_successful_task
+        expect(result).to have_context(operation_result: "success")
       end
 
       it "returns result for failed execution" do
         result = failing_task.call
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result).to be_failed
-        expect(result.metadata[:reason]).to eq("Something went wrong")
-        expect(result.metadata[:error_code]).to eq("ERR001")
+        expect(result).to be_failed_task
+        expect(result).to have_metadata(reason: "Something went wrong", error_code: "ERR001")
       end
 
       it "returns result for skipped execution" do
         result = skipping_task.call
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result).to be_skipped
-        expect(result.metadata[:reason]).to eq("Conditions not met")
-        expect(result.metadata[:condition]).to eq("user_inactive")
+        expect(result).to be_skipped_task
+        expect(result).to have_metadata(reason: "Conditions not met", condition: "user_inactive")
       end
     end
 
@@ -174,15 +166,14 @@ RSpec.describe "Task Basics", type: :integration do
       it "returns result for successful execution" do
         result = successful_task.call!
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result).to be_success
-        expect(result.context.operation_result).to eq("success")
+        expect(result).to be_successful_task
+        expect(result).to have_context(operation_result: "success")
       end
 
       it "raises exception for failed execution" do
         expect { failing_task.call! }.to raise_error(CMDx::Failed) do |error|
-          expect(error.result).to be_failed
-          expect(error.result.metadata[:reason]).to eq("Something went wrong")
+          expect(error.result).to be_failed_task
+          expect(error.result).to have_metadata(reason: "Something went wrong")
         end
       end
 
@@ -197,8 +188,8 @@ RSpec.describe "Task Basics", type: :integration do
         end
 
         expect { skip_task.call! }.to raise_error(CMDx::Skipped) do |error|
-          expect(error.result).to be_skipped
-          expect(error.result.metadata[:reason]).to eq("Conditions not met")
+          expect(error.result).to be_skipped_task
+          expect(error.result).to have_metadata(reason: "Conditions not met")
         end
       end
     end
@@ -243,7 +234,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "propagates failure from subtask" do
         result = parent_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to eq("Subtask failed")
         expect(result.context.parent_work_done).to be_nil
       end
@@ -302,7 +293,7 @@ RSpec.describe "Task Basics", type: :integration do
           settings: { source: "api", debug: true }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.processed_user_id).to eq(123)
         expect(result.context.processed_order_id).to eq(456)
         expect(result.context.processed_metadata).to eq({ type: "order", version: 2 })
@@ -313,7 +304,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "handles nil values gracefully" do
         result = context_reader_task.call(user_id: 123)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.processed_user_id).to eq(123)
         expect(result.context.processed_order_id).to be_nil
         expect(result.context.processed_metadata).to be_nil
@@ -326,7 +317,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "supports various modification patterns" do
         result = context_modifier_task.call(user_id: 789)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user).to eq({ id: 789, name: "User 789" })
         expect(result.context.processed_at).to be_a(Time)
         expect(result.context.status).to eq("completed")
@@ -420,7 +411,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "creates chain for single task execution" do
         result = chain_aware_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.chain).to be_a(CMDx::Chain)
         expect(result.chain.id).to match(/\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/)
         expect(result.chain.results.size).to eq(1)
@@ -433,7 +424,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "maintains chain across subtask calls" do
         result = subtask_caller_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.chain.results.size).to be >= 1
 
         # Chain maintains shared ID across results
@@ -547,7 +538,7 @@ RSpec.describe "Task Basics", type: :integration do
                                    .on_executed { |_r| executed_called = true }
                                    .on_failed { |_r| raise "Should not be called" }
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(success_called).to be(true)
         expect(complete_called).to be(true)
         expect(executed_called).to be(true)
@@ -580,7 +571,7 @@ RSpec.describe "Task Basics", type: :integration do
                                       .on_executed { |_r| executed_called = true }
                                       .on_success { |_r| raise "Should not be called" }
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(failed_called).to be(true)
         expect(interrupted_called).to be(true)
         expect(executed_called).to be(true)
@@ -637,7 +628,7 @@ RSpec.describe "Task Basics", type: :integration do
                                    .on_complete { |_r| execution_log << "complete" }
                                    .on_good { |_r| execution_log << "good" }
 
-        expect(result).to be_a(CMDx::Result)
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[executed success complete good])
       end
     end

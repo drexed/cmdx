@@ -43,7 +43,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "executes class middleware with initialization arguments" do
         result = test_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[timing_before task_execution timing_after])
         expect(result.context.result).to eq("success")
       end
@@ -91,7 +91,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "executes instance middleware with pre-configured settings" do
         result = test_task.call(user_id: 123)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[validation_before task_execution validation_after])
         expect(result.context.processed).to be(true)
       end
@@ -100,7 +100,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         result = test_task.call(name: "test")
 
         expect(result).to be_failed
-        expect(result.metadata[:reason]).to eq("Missing required field: user_id")
+        expect(result).to have_metadata(reason: "Missing required field: user_id")
         expect(execution_log).to eq(["validation_before"])
       end
     end
@@ -126,7 +126,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "executes proc middleware for inline functionality" do
         result = test_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[proc_before task_execution proc_after])
         expect(result.context.inline_result).to eq("processed")
       end
@@ -194,7 +194,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "executes middleware in nested order with proper before/after sequencing" do
         result = test_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[
                                       timing_before
                                       auth_before
@@ -264,7 +264,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
           execution_log.clear
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           expect(execution_log).to include("rate_limit_check", "rate_limit_passed", "task_execution", "rate_limit_after")
           expect(result.context.request_processed).to be(true)
         end
@@ -281,7 +281,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         result = test_task.call
 
         expect(result).to be_failed
-        expect(result.metadata[:reason]).to eq("Rate limit exceeded")
+        expect(result).to have_metadata(reason: "Rate limit exceeded")
         expect(result.metadata[:attempts]).to eq(4)
         expect(execution_log).to eq(%w[rate_limit_check rate_limit_exceeded])
         expect(execution_log).not_to include("task_execution")
@@ -338,7 +338,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "inherits middleware from parent class and executes in proper order" do
         result = child_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[
                                       app_logging_before
                                       specific_before
@@ -371,7 +371,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         result = test_task.call
 
         expect(result).to be_failed
-        expect(result.metadata[:reason]).to match(/execution exceeded.*seconds/i)
+        expect(result).to have_metadata(reason: match(/execution exceeded.*seconds/i))
         expect(execution_log).to eq(["task_start"])
         expect(execution_log).not_to include("task_end")
       end
@@ -397,7 +397,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "calculates timeout dynamically based on task context" do
         result = test_task.call(batch_size: 10)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(["task_execution"])
         expect(result.context.items_processed).to eq(10)
       end
@@ -423,7 +423,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "uses proc to determine timeout value" do
         result = test_task.call(batch_size: 5)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(["task_execution"])
         expect(result.context.processed).to be(true)
       end
@@ -451,7 +451,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "sets correlation ID during task execution" do
         result = test_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(captured_correlation_id.last).to eq("correlation-123")
         expect(result.context.work_completed).to be(true)
       end
@@ -481,7 +481,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "generates correlation ID dynamically using method" do
         result = test_task.call(request_id: "abc123")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(captured_correlation_id.last).to match(/^req-abc123-\d+$/)
         expect(result.context.processed).to be(true)
       end
@@ -511,7 +511,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "generates correlation ID using method" do
         result = test_task.call(session_id: "sess_456")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(captured_correlation_id.last).to eq("method-generated-sess_456")
         expect(result.context.session_processed).to be(true)
       end
@@ -578,7 +578,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "commits transaction on successful task execution" do
         result = successful_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[transaction_begin task_execution transaction_commit])
         expect(result.context.transaction_committed).to be(true)
         expect(result.context.data_saved).to be(true)
@@ -587,7 +587,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "rolls back transaction on failed task execution" do
         result = failing_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to eq("Business logic error")
         expect(execution_log).to eq(%w[transaction_begin task_execution transaction_rollback])
         expect(result.context.transaction_rolled_back).to be(true)
@@ -660,7 +660,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "allows execution when circuit is closed" do
         result = test_task.call(should_fail: false)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to include("circuit_check", "circuit_closed", "task_execution", "circuit_reset")
         expect(result.context.success).to be(true)
       end
@@ -670,7 +670,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         2.times do
           execution_log.clear
           result = test_task.call(should_fail: true)
-          expect(result).to be_failed
+          expect(result).to be_failed_task
         end
 
         expect(execution_log).to include("circuit_opened")
@@ -682,12 +682,10 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         begin
           result = test_task.call(should_fail: false)
           expect(result).to be_failed
-          expect(result.metadata[:reason]).to eq("Circuit breaker is open")
-          expect(result.metadata[:failures]).to eq(2)
+          expect(result).to have_metadata(reason: "Circuit breaker is open", failures: 2)
         rescue CMDx::Failed => e
           # The circuit breaker is short-circuiting by raising an exception
-          expect(e.result.metadata[:reason]).to eq("Circuit breaker is open")
-          expect(e.result.metadata[:failures]).to eq(2)
+          expect(e.result).to have_metadata(reason: "Circuit breaker is open", failures: 2)
         end
 
         expect(execution_log).to eq(%w[circuit_check circuit_open])
@@ -810,7 +808,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       it "processes order successfully with full middleware chain" do
         result = order_task.call(user_token: "abc123", amount: 100.0)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq(%w[
                                       auth_check
                                       rate_limit_check
@@ -834,7 +832,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
         result = order_task.call(amount: 100.0)
 
         expect(result).to be_failed
-        expect(result.metadata[:reason]).to eq("Authentication required")
+        expect(result).to have_metadata(reason: "Authentication required")
         expect(execution_log).to eq(["auth_check"])
       end
     end

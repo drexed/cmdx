@@ -75,7 +75,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "returns skipped result without raising exception" do
         result = order_processing_task.call(order_id: 123)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.state).to eq("interrupted")
         expect(result.status).to eq("skipped")
         expect(result.good?).to be(true)
@@ -101,7 +101,7 @@ RSpec.describe "Task Interruptions", type: :integration do
 
         result = disabled_notification_task.call(user_id: 456)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.metadata[:user_id]).to eq(456)
         expect(result.metadata[:preference]).to eq("notifications_disabled")
         expect(result.metadata[:reason]).to eq("User has notifications disabled")
@@ -112,7 +112,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "returns skipped result without raising exception by default" do
         result = order_processing_task.call!(order_id: 123)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.metadata[:reason]).to eq("Order not in pending status")
       end
     end
@@ -211,7 +211,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "returns failed result without raising exception" do
         result = payment_processing_task.call(payment_amount: -10.0, payment_method: "credit_card")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.state).to eq("interrupted")
         expect(result.status).to eq("failed")
         expect(result.good?).to be(false)
@@ -286,7 +286,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "captures all unhandled exceptions as failed results" do
         result = exception_task.call(simulate_error: "runtime_error")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.state).to eq("interrupted")
         expect(result.metadata[:reason]).to eq("[StandardError] Something went wrong")
         expect(result.metadata[:original_exception]).to be_a(StandardError)
@@ -296,7 +296,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "captures NameError exceptions" do
         result = exception_task.call(simulate_error: "no_method_error")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("NameError")
         expect(result.metadata[:reason]).to include("non_existent_method_call")
         expect(result.metadata[:original_exception]).to be_a(NameError)
@@ -609,7 +609,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "propagates failure from subtask" do
         result = parent_task.call(subtask_type: "failing")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to eq("Subtask validation failed")
         expect(result.metadata[:component]).to eq("data_validator")
         expect(result.context.parent_started).to be(true)
@@ -619,7 +619,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "continues execution when subtask is skipped" do
         result = parent_task.call(subtask_type: "skipping")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.parent_started).to be(true)
         expect(result.context.parent_completed).to be(true)
       end
@@ -627,7 +627,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "propagates with additional metadata" do
         result = propagating_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:workflow_stage]).to eq("initial_validation")
         expect(result.metadata[:can_retry]).to be(true)
         expect(result.metadata[:propagated_by]).to eq(propagating_task.name)
@@ -753,14 +753,14 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "returns skipped result without exception" do
         result = lenient_task.call!(operation: "skip")
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.metadata[:reason]).to eq("Operation skipped")
       end
 
       it "returns failed result without exception" do
         result = lenient_task.call!(operation: "fail")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to eq("Operation failed")
       end
     end
@@ -769,7 +769,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "returns skipped result without exception" do
         result = failure_only_task.call!(mode: "skip")
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.metadata[:reason]).to eq("Mode skipped")
       end
 
@@ -826,7 +826,7 @@ RSpec.describe "Task Interruptions", type: :integration do
     it "handles comprehensive skip scenarios" do
       result = data_processing_workflow.call(data_source: "redis")
 
-      expect(result).to be_skipped
+      expect(result).to be_skipped_task
       expect(result.metadata[:provided_source]).to eq("redis")
       expect(result.metadata[:supported_sources]).to eq(%w[database api file])
     end
@@ -834,14 +834,14 @@ RSpec.describe "Task Interruptions", type: :integration do
     it "handles validation skip requests" do
       result = data_processing_workflow.call(data_source: "api", skip_validation: true)
 
-      expect(result).to be_skipped
+      expect(result).to be_skipped_task
       expect(result.metadata[:skip_reason]).to eq("manual_override")
     end
 
     it "handles infrastructure failure scenarios" do
       result = data_processing_workflow.call(data_source: "database", db_unavailable: true)
 
-      expect(result).to be_failed
+      expect(result).to be_failed_task
       expect(result.metadata[:code]).to eq("DB_UNAVAILABLE")
       expect(result.metadata[:retry_after]).to eq(30)
       expect(result.metadata[:fallback_available]).to be(true)
@@ -850,7 +850,7 @@ RSpec.describe "Task Interruptions", type: :integration do
     it "completes successfully under normal conditions" do
       result = data_processing_workflow.call(data_source: "file")
 
-      expect(result).to be_success
+      expect(result).to be_successful_task
       expect(result.context.data_processed).to be(true)
       expect(result.context.record_count).to be_between(100, 1000)
     end

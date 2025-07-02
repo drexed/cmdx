@@ -27,7 +27,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs traditional single-line format" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect(log_line).to match(/I, \[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6} #\d+\] INFO -- .+/)
           expect(log_line).to include("state=complete")
@@ -52,7 +52,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs compact single-line JSON" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect { JSON.parse(log_line) }.not_to raise_error
 
@@ -79,7 +79,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs space-separated key=value pairs" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect(log_line).to match(/\w+=\w+/)
           expect(log_line).to include("status=success")
@@ -103,7 +103,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs ELK stack compatible JSON with @version and @timestamp" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect { JSON.parse(log_line) }.not_to raise_error
 
@@ -130,7 +130,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs minimal content with only the message" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect(log_line).not_to be_empty
           # Raw formatter should not include timestamp or log level prefixes
@@ -156,7 +156,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs colorized line format for terminal readability" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect(log_line).not_to be_empty
           # Check for success status pattern (may be wrapped in ANSI color codes)
@@ -179,7 +179,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs human-readable multi-line JSON" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_output_str = log_output.string
           expect(log_output_str).not_to be_empty
           # Pretty JSON should span multiple lines
@@ -202,7 +202,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         it "outputs colorized key=value pairs for terminal" do
           result = test_task.call
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           log_line = log_output.string.strip
           expect(log_line).not_to be_empty
           expect(log_line).to match(/\w+=\w+/)
@@ -230,7 +230,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "logs at INFO level for success results" do
         result = success_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         log_line = log_output.string
         expect(log_line).to include("INFO")
         expect(log_line).to include("status=success")
@@ -252,7 +252,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "logs at WARN level for skipped results" do
         result = skipped_task.call
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         log_line = log_output.string
         expect(log_line).to include("WARN")
         expect(log_line).to include("status=skipped")
@@ -275,7 +275,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "logs at ERROR level for failed results" do
         result = failed_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         log_line = log_output.string
         expect(log_line).to include("ERROR")
         expect(log_line).to include("status=failed")
@@ -307,7 +307,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
 
         result = task_class.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         log_line = log_output.string.strip
         expect { JSON.parse(log_line) }.not_to raise_error
 
@@ -336,7 +336,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "overrides global settings with task-specific configuration" do
         result = configured_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         log_line = log_output.string.strip
         expect(log_line).to match(/\w+=\w+/)
         expect(log_line).to include("status=success")
@@ -364,7 +364,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "inherits logging configuration from parent class" do
         result = child_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         log_line = log_output.string
         expect(log_line).to include("INFO")
         expect(log_line).to include("status=success")
@@ -391,7 +391,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "includes all required log fields for success results" do
         result = success_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         parsed_log = JSON.parse(log_output.string.strip)
 
         # Standard fields
@@ -438,7 +438,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "includes failure metadata in log output" do
         result = failed_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         parsed_log = JSON.parse(log_output.string.strip)
 
         expect(parsed_log["status"]).to eq("failed")
@@ -472,7 +472,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "includes skip metadata in log output" do
         result = skipped_task.call(user_id: 789)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         parsed_log = JSON.parse(log_output.string.strip)
 
         expect(parsed_log["status"]).to eq("skipped")
@@ -528,7 +528,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "allows manual logging within task execution" do
         result = manual_logging_task.call(order_id: 12_345)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         # CMDx automatically logs task completion, so we expect manual logs + 1 automatic log
         expect(captured_logs.size).to be >= 4
 
@@ -593,7 +593,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
           payment_method: "credit_card"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         # CMDx automatically logs task completion, so we expect manual log + automatic log
         expect(captured_logs.size).to be >= 1
 
@@ -634,7 +634,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "logs exceptions with structured error information" do
         result = exception_logging_task.call(order_id: 789, stock_level: 1, quantity: 5)
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         # CMDx automatically logs task failure, so we expect manual logs + automatic log
         expect(captured_logs.size).to be >= 2
 
@@ -684,7 +684,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "uses custom formatter for specialized output" do
         result = custom_formatter_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         log_line = log_output.string
         expect(log_line).to include("✅")
         expect(log_line).to match(/type=Task.*status=success/)
@@ -747,7 +747,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "sends output to multiple destinations with different formats" do
         result = multi_destination_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
 
         # Console output (PrettyLine format)
         console_log = console_output.string
@@ -821,7 +821,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         end_time = Time.now
         execution_time = end_time - start_time
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_time).to be < 1.0 # Should complete quickly
 
         log_line = log_output.string.strip
@@ -859,7 +859,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "avoids expensive debug computations when level is higher" do
         result = debug_logging_task.call(data: { large: "dataset" })
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.debug_optimized).to be(true)
 
         # Debug message should not appear in output due to log level

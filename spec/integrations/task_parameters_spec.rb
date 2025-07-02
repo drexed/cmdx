@@ -49,13 +49,15 @@ RSpec.describe "Task Parameters", type: :integration do
           notes: "Rush delivery"
         )
 
-        expect(result).to be_success
-        expect(result.context.order).to eq({
-                                             id: "ORD-123",
-                                             customer_id: "CUST-456",
-                                             priority: "high",
-                                             notes: "Rush delivery"
-                                           })
+        expect(result).to be_successful_task
+        expect(result).to have_context(
+          order: {
+            id: "ORD-123",
+            customer_id: "CUST-456",
+            priority: "high",
+            notes: "Rush delivery"
+          }
+        )
       end
 
       it "handles missing optional parameters" do
@@ -64,7 +66,7 @@ RSpec.describe "Task Parameters", type: :integration do
           customer_id: "CUST-101"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order[:id]).to eq("ORD-789")
         expect(result.context.order[:customer_id]).to eq("CUST-101")
         expect(result.context.order[:priority]).to be_nil
@@ -74,8 +76,8 @@ RSpec.describe "Task Parameters", type: :integration do
       it "fails when required parameters are missing" do
         result = basic_order_task.call(order_id: "ORD-999")
 
-        expect(result).to be_failed
-        expect(result.metadata[:reason]).to include("customer_id is a required parameter")
+        expect(result).to be_failed_task
+        expect(result).to have_metadata(reason: include("customer_id is a required parameter"))
       end
     end
 
@@ -89,12 +91,16 @@ RSpec.describe "Task Parameters", type: :integration do
           metadata: "{\"source\": \"api\"}"
         )
 
-        expect(result).to be_success
-        expect(result.context.processed_data[:user_id]).to eq(12_345)
-        expect(result.context.processed_data[:amount]).to eq(199.99)
-        expect(result.context.processed_data[:is_active]).to be(true)
-        expect(result.context.processed_data[:tags]).to eq(%w[premium vip])
-        expect(result.context.processed_data[:metadata]).to eq({ "source" => "api" })
+        expect(result).to be_successful_task
+        expect(result).to have_context(
+          processed_data: {
+            user_id: 12_345,
+            amount: 199.99,
+            is_active: true,
+            tags: %w[premium vip],
+            metadata: { "source" => "api" }
+          }
+        )
       end
 
       it "applies default values for optional parameters" do
@@ -104,7 +110,7 @@ RSpec.describe "Task Parameters", type: :integration do
           is_active: false
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.processed_data[:tags]).to eq([])
         expect(result.context.processed_data[:metadata]).to eq({})
       end
@@ -162,7 +168,7 @@ RSpec.describe "Task Parameters", type: :integration do
           username: "johndoe"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:email]).to eq("user@example.com")
       end
 
@@ -173,7 +179,7 @@ RSpec.describe "Task Parameters", type: :integration do
           status: "active"
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("is an invalid format")
       end
     end
@@ -186,7 +192,7 @@ RSpec.describe "Task Parameters", type: :integration do
           status: "active"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:age]).to eq(30)
       end
 
@@ -197,7 +203,7 @@ RSpec.describe "Task Parameters", type: :integration do
           status: "active"
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("age must be within 18 and 120")
       end
     end
@@ -210,7 +216,7 @@ RSpec.describe "Task Parameters", type: :integration do
           status: "pending"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:status]).to eq("pending")
       end
 
@@ -221,7 +227,7 @@ RSpec.describe "Task Parameters", type: :integration do
           status: "invalid"
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("must be one of:")
       end
     end
@@ -235,7 +241,7 @@ RSpec.describe "Task Parameters", type: :integration do
           username: "johndoe"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:username]).to eq("johndoe")
       end
 
@@ -247,7 +253,7 @@ RSpec.describe "Task Parameters", type: :integration do
           username: "jo"
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("username length must be within 3 and 20")
       end
     end
@@ -260,7 +266,7 @@ RSpec.describe "Task Parameters", type: :integration do
           credit_score: 750
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.validated_data[:password_valid]).to be(true)
       end
 
@@ -271,7 +277,7 @@ RSpec.describe "Task Parameters", type: :integration do
           credit_score: 750
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("must contain uppercase, lowercase, and digit")
       end
 
@@ -282,7 +288,7 @@ RSpec.describe "Task Parameters", type: :integration do
           credit_score: 750
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("must not be one of:")
       end
     end
@@ -339,7 +345,7 @@ RSpec.describe "Task Parameters", type: :integration do
           created_at: "2023-12-25 14:30:00"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.coerced_values[:quantity]).to eq(42)
         expect(result.context.coerced_values[:price]).to eq(199.99)
         expect(result.context.coerced_values[:enabled]).to be(true)
@@ -364,7 +370,7 @@ RSpec.describe "Task Parameters", type: :integration do
             created_at: "2023-01-01 00:00:00"
           )
 
-          expect(result).to be_success
+          expect(result).to be_successful_task
           expect(result.context.coerced_values[:enabled]).to be(expected)
         end
       end
@@ -380,7 +386,7 @@ RSpec.describe "Task Parameters", type: :integration do
           extra_data: "{\"key\": \"value\", \"count\": 42}"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.coerced_values[:item_list]).to eq(%w[item1 item2 item3])
         expect(result.context.coerced_values[:extra_data]).to eq({ "key" => "value", "count" => 42 })
       end
@@ -390,12 +396,12 @@ RSpec.describe "Task Parameters", type: :integration do
       it "tries types in order until one succeeds" do
         # Float coercion should succeed
         result = multi_type_task.call(amount: "149.99")
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.multi_type_values[:amount]).to eq(149.99)
 
         # Integer coercion should succeed when float fails
         result = multi_type_task.call(amount: "150")
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.multi_type_values[:amount]).to eq(150)
       end
 
@@ -405,7 +411,7 @@ RSpec.describe "Task Parameters", type: :integration do
           amount: 100,
           config: "{\"setting\": \"value\"}"
         )
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.multi_type_values[:config]).to eq({ "setting" => "value" })
 
         # String coercion should succeed when hash fails
@@ -413,7 +419,7 @@ RSpec.describe "Task Parameters", type: :integration do
           amount: 100,
           config: "simple string config"
         )
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.multi_type_values[:config]).to eq("simple string config")
       end
     end
@@ -472,7 +478,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "applies defaults for missing optional parameters" do
         result = defaults_task.call(order_id: "ORD-123")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_data[:priority]).to eq("normal")
         expect(result.context.order_data[:notification_enabled]).to be(true)
         expect(result.context.order_data[:max_retries]).to eq(3)
@@ -488,7 +494,7 @@ RSpec.describe "Task Parameters", type: :integration do
           max_retries: 5
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_data[:priority]).to eq("urgent")
         expect(result.context.order_data[:notification_enabled]).to be(false)
         expect(result.context.order_data[:max_retries]).to eq(5)
@@ -503,7 +509,7 @@ RSpec.describe "Task Parameters", type: :integration do
 
         result = dynamic_defaults_task.call(user_id: 500)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.dynamic_data[:created_at]).to eq(freeze_time)
         expect(result.context.dynamic_data[:tracking_id]).to eq("test-uuid-123")
         expect(result.context.dynamic_data[:priority]).to eq("high")
@@ -513,7 +519,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "evaluates method-based defaults" do
         result = dynamic_defaults_task.call(user_id: 1500)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.dynamic_data[:priority]).to eq("normal")
       end
     end
@@ -597,7 +603,7 @@ RSpec.describe "Task Parameters", type: :integration do
           }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_details[:shipping][:street]).to eq("123 Main St")
         expect(result.context.order_details[:shipping][:apartment]).to eq("Apt 4B")
       end
@@ -613,7 +619,7 @@ RSpec.describe "Task Parameters", type: :integration do
           }
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:reason]).to include("is an invalid format")
       end
 
@@ -632,7 +638,7 @@ RSpec.describe "Task Parameters", type: :integration do
           }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_details[:billing][:street]).to eq("Same Street")
         expect(result.context.order_details[:billing][:same_as_shipping]).to be(false)
       end
@@ -656,7 +662,7 @@ RSpec.describe "Task Parameters", type: :integration do
           }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_profile[:name]).to eq("John Doe")
         expect(result.context.user_profile[:age]).to eq(30)
         expect(result.context.user_profile[:theme]).to eq("dark")
@@ -677,7 +683,7 @@ RSpec.describe "Task Parameters", type: :integration do
           }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_profile[:name]).to eq("Jane Smith")
         expect(result.context.user_profile[:age]).to eq(25)
         expect(result.context.user_profile[:bio]).to be_nil
@@ -769,7 +775,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "delegates parameter access to specified sources" do
         result = source_delegation_task.call(user_id: 42)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:user_id]).to eq(42)
         expect(result.context.user_data[:name]).to eq("User 42")
         expect(result.context.user_data[:email]).to eq("user42@example.com")
@@ -780,7 +786,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "handles different source types for different users" do
         result = source_delegation_task.call(user_id: 150)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:account_type]).to eq("standard")
       end
     end
@@ -789,7 +795,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "resolves parameters from lambda and method sources" do
         result = dynamic_source_task.call(order_id: 75)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_summary[:total_amount]).to eq(750.0)
         expect(result.context.order_summary[:customer_name]).to eq("Customer 75")
         expect(result.context.order_summary[:shipping_method]).to eq("standard")
@@ -798,7 +804,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "handles conditional logic in source methods" do
         result = dynamic_source_task.call(order_id: 150)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order_summary[:shipping_method]).to eq("express")
       end
     end
@@ -884,7 +890,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "resolves parameter name conflicts through namespacing" do
         result = namespaced_parameters_task.call
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.invoice_data[:customer_name]).to eq("John Customer")
         expect(result.context.invoice_data[:customer_email]).to eq("john@customer.com")
         expect(result.context.invoice_data[:company_name]).to eq("ACME Corp")
@@ -898,7 +904,7 @@ RSpec.describe "Task Parameters", type: :integration do
       it "generates method names based on source names" do
         result = automatic_namespacing_task.call(user_id: 123)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.namespaced_data[:context_user_id]).to eq(123)
         expect(result.context.namespaced_data[:profile_data_profile]).to eq({ theme: "dark", language: "en" })
         expect(result.context.namespaced_data[:account_account_settings_account]).to eq({ notifications: true, privacy: "private" })
@@ -931,7 +937,7 @@ RSpec.describe "Task Parameters", type: :integration do
           bio: "A" * 150
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.metadata[:messages]).to be_a(Hash)
         expect(result.metadata[:messages][:email]).to include("must be a valid email address")
         expect(result.metadata[:messages][:age]).to include("must be between 18 and 65")
@@ -949,7 +955,7 @@ RSpec.describe "Task Parameters", type: :integration do
           bio: "A short bio"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.validation_passed).to be(true)
       end
     end

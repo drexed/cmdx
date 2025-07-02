@@ -31,7 +31,6 @@ RSpec.describe "Task Outcomes", type: :integration do
         result = successful_task.call(order_id: 12_345, priority: "high")
 
         # Core result attributes
-        expect(result).to be_a(CMDx::Result)
         expect(result.task).to be_a(successful_task)
         expect(result.context).to be_a(CMDx::Context)
         expect(result.chain).to be_a(CMDx::Chain)
@@ -40,10 +39,9 @@ RSpec.describe "Task Outcomes", type: :integration do
         # Execution information
         expect(result.to_h[:id]).to be_a(String)
         expect(result.to_h[:id]).to match(/\A[\w-]+\z/)
-        expect(result.state).to eq("complete")
-        expect(result.status).to eq("success")
-        expect(result.runtime).to be >= 0
-        expect(result.index).to eq(0)
+        expect(result).to be_successful_task
+        expect(result).to have_runtime(be >= 0)
+        expect(result).to have_chain_index(0)
       end
 
       it "provides access to task context and data" do
@@ -63,15 +61,15 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "measures execution runtime accurately" do
         result = long_running_task.call
 
-        expect(result.runtime).to be >= 90
-        expect(result.runtime).to be < 150
-        expect(result.context.heavy_operation_completed).to be(true)
+        expect(result).to have_runtime(be >= 90)
+        expect(result).to have_runtime(be < 150)
+        expect(result).to have_context(heavy_operation_completed: true)
       end
 
       it "tracks position in execution chain" do
         result = successful_task.call(order_id: 111)
 
-        expect(result.index).to eq(0)
+        expect(result).to have_chain_index(0)
         expect(result.chain.results[result.index]).to eq(result)
         expect(result.chain.results.size).to eq(1)
       end
@@ -139,20 +137,19 @@ RSpec.describe "Task Outcomes", type: :integration do
         result = state_tracking_task.call
 
         # After execution completion
-        expect(result.initialized?).to be(false)
-        expect(result.executing?).to be(false)
-        expect(result.complete?).to be(true)
-        expect(result.interrupted?).to be(false)
-        expect(result.executed?).to be(true)
+        expect(result).not_to be_initialized
+        expect(result).not_to be_executing
+        expect(result).to be_complete
+        expect(result).not_to be_interrupted
+        expect(result).to be_executed
       end
 
       it "maintains state consistency for successful tasks" do
         result = state_tracking_task.call
 
-        expect(result.state).to eq("complete")
-        expect(result.complete?).to be(true)
-        expect(result.executed?).to be(true)
-        expect(result.context.business_logic_executed).to be(true)
+        expect(result).to be_complete
+        expect(result).to be_executed
+        expect(result).to have_context(business_logic_executed: true)
       end
     end
 
@@ -160,21 +157,21 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "tracks state transitions for failed tasks" do
         result = interrupting_task.call
 
-        expect(result.initialized?).to be(false)
-        expect(result.executing?).to be(false)
-        expect(result.complete?).to be(false)
-        expect(result.interrupted?).to be(true)
-        expect(result.executed?).to be(true)
+        expect(result).not_to be_initialized
+        expect(result).not_to be_executing
+        expect(result).not_to be_complete
+        expect(result).to be_interrupted
+        expect(result).to be_executed
       end
 
       it "tracks state transitions for skipped tasks" do
         result = skipping_task.call
 
-        expect(result.initialized?).to be(false)
-        expect(result.executing?).to be(false)
-        expect(result.complete?).to be(false)
-        expect(result.interrupted?).to be(true)
-        expect(result.executed?).to be(true)
+        expect(result).not_to be_initialized
+        expect(result).not_to be_executing
+        expect(result).not_to be_complete
+        expect(result).to be_interrupted
+        expect(result).to be_executed
       end
     end
 
@@ -235,27 +232,27 @@ RSpec.describe "Task Outcomes", type: :integration do
         result = state_tracking_task.call
 
         # State indicates WHERE in lifecycle
-        expect(result.state).to eq("complete")
+        expect(result).to be_complete
         # Status indicates HOW execution ended
-        expect(result.status).to eq("success")
+        expect(result).to be_success
       end
 
       it "distinguishes between state and status for failed tasks" do
         result = interrupting_task.call
 
         # State indicates WHERE in lifecycle
-        expect(result.state).to eq("interrupted")
+        expect(result).to be_interrupted
         # Status indicates HOW execution ended
-        expect(result.status).to eq("failed")
+        expect(result).to be_failed
       end
 
       it "distinguishes between state and status for skipped tasks" do
         result = skipping_task.call
 
         # State indicates WHERE in lifecycle
-        expect(result.state).to eq("interrupted")
+        expect(result).to be_interrupted
         # Status indicates HOW execution ended
-        expect(result.status).to eq("skipped")
+        expect(result).to be_skipped
       end
     end
   end
@@ -327,7 +324,7 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "maintains success status with minimal metadata" do
         result = successful_order_task.call(order_id: 456)
 
-        expect(result.status).to eq("success")
+        expect(result).to be_success
         expect(result.metadata).to be_empty
         expect(result.context.order[:status]).to eq("completed")
         expect(result.context.notification_sent).to be(true)
@@ -348,11 +345,13 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "preserves detailed skip metadata" do
         result = conditional_skip_task.call(order_id: 101)
 
-        expect(result.status).to eq("skipped")
-        expect(result.metadata[:reason]).to eq("Order already processed")
-        expect(result.metadata[:processed_at]).to be_a(Time)
-        expect(result.metadata[:original_processor]).to eq("system")
-        expect(result.metadata[:skip_code]).to eq("DUPLICATE_ORDER")
+        expect(result).to be_skipped_task
+        expect(result).to have_metadata(
+          reason: "Order already processed",
+          processed_at: be_a(Time),
+          original_processor: "system",
+          skip_code: "DUPLICATE_ORDER"
+        )
       end
     end
 
@@ -370,12 +369,14 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "preserves comprehensive failure metadata" do
         result = validation_failure_task.call(email: "bad-format")
 
-        expect(result.status).to eq("failed")
-        expect(result.metadata[:reason]).to eq("Invalid email format")
-        expect(result.metadata[:errors]).to eq(["Email must contain @"])
-        expect(result.metadata[:error_code]).to eq("VALIDATION_FAILED")
-        expect(result.metadata[:retryable]).to be(false)
-        expect(result.metadata[:failed_at]).to be_a(Time)
+        expect(result).to be_failed_task
+        expect(result).to have_metadata(
+          reason: "Invalid email format",
+          errors: ["Email must contain @"],
+          error_code: "VALIDATION_FAILED",
+          retryable: false,
+          failed_at: be_a(Time)
+        )
       end
     end
 
@@ -594,15 +595,14 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "identifies original failure causes" do
         result = propagating_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.caused_failure?).to be(false)
         expect(result.thrown_failure?).to be(true)
 
         original_failure = result.caused_failure
         expect(original_failure).to be_a(CMDx::Result)
         expect(original_failure.caused_failure?).to be(true)
-        expect(original_failure.metadata[:reason]).to eq("Database connection failed")
-        expect(original_failure.metadata[:error_code]).to eq("DB_CONNECTION_ERROR")
+        expect(original_failure).to have_metadata(reason: "Database connection failed", error_code: "DB_CONNECTION_ERROR")
       end
 
       it "tracks failure propagation chain" do
@@ -640,14 +640,13 @@ RSpec.describe "Task Outcomes", type: :integration do
       it "handles complex failure chain analysis" do
         result = complex_workflow_task.call
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.caused_failure?).to be(false)
         expect(result.thrown_failure?).to be(true)
 
         # Find the root cause
         original_failure = result.caused_failure
-        expect(original_failure.metadata[:reason]).to eq("Invalid email format")
-        expect(original_failure.metadata[:error_code]).to eq("VALIDATION_FAILED")
+        expect(original_failure).to have_metadata(reason: "Invalid email format", error_code: "VALIDATION_FAILED")
 
         # Verify the propagation
         expect(result.metadata[:workflow_step]).to eq("email_validation")

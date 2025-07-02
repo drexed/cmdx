@@ -9,9 +9,12 @@ require "rspec"
 
 require "cmdx"
 
+require "cmdx/rspec/result_matchers"
+require "cmdx/rspec/task_matchers"
+
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[helpers config].each do |dir|
+%w[helpers config matchers].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }

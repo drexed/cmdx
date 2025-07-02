@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "securerandom"
-
 module CMDx
   module Testing
     # Task builder utilities for creating test task classes

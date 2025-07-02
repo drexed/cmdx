@@ -66,7 +66,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "processes the order through the complete pipeline" do
         result = order_processing_batch.call(order_id: 123)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.order[:id]).to eq(123)
         expect(result.context.order[:status]).to eq("fulfilled")
         expect(result.context.validation_passed).to be(true)
@@ -120,7 +120,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "halts execution after payment failure" do
         result = failing_batch.call(order_id: 123)
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.context.validation_passed).to be(true)
         expect(result.context.tax_amount).to eq(10.0)
         expect(result.context.payment_id).to be_nil
@@ -201,7 +201,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           name: "John Doe"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.user_data[:email]).to eq("user@example.com")
         expect(result.context.user_account).to include(
           email: "user@example.com",
@@ -220,7 +220,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           name: "A"
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.context.user_data).to be_nil
         expect(result.context.user_account).to be_nil
         expect(result.context.welcome_email_sent).to be_nil
@@ -274,7 +274,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           disable_notifications: false
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.always_executed).to be(true)
         expect(result.context.premium_feature_activated).to be(true)
         expect(result.context.notification_sent).to be(true)
@@ -288,7 +288,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           disable_notifications: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.always_executed).to be(true)
         expect(result.context.premium_feature_activated).to be_nil
         expect(result.context.notification_sent).to be_nil
@@ -302,7 +302,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           disable_notifications: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.always_executed).to be(true)
         expect(result.context.premium_feature_activated).to be(true)
         expect(result.context.notification_sent).to be_nil
@@ -355,7 +355,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "halts on skipped critical task" do
         result = strict_batch.call(test_mode: true)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(result.context.critical_operation_completed).to be_nil
         expect(result.context.optional_completed).to be_nil
         expect(result.context.cleanup_performed).to be_nil
@@ -378,7 +378,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "continues after skipped critical task" do
         result = flexible_batch.call(test_mode: true, service_down: false)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.critical_operation_completed).to be_nil
         expect(result.context.optional_completed).to be(true)
         expect(result.context.cleanup_performed).to be(true)
@@ -390,7 +390,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           service_down: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.critical_operation_completed).to be(true)
         expect(result.context.optional_completed).to be_nil
         expect(result.context.cleanup_performed).to be(true)
@@ -504,7 +504,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           skip_reporting: false
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.input_validated).to be(true)
         expect(result.context.data_sanitized).to be(true)
         expect(result.context.pre_processing_complete).to be(true)
@@ -522,7 +522,7 @@ RSpec.describe "Batch Workflows", type: :integration do
           skip_post_processing: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.pre_processing_complete).to be(true)
         expect(result.context.core_processing_complete).to be(true)
         expect(result.context.report_generated).to be_nil
@@ -605,7 +605,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "processes data through the complete pipeline" do
         result = data_pipeline_batch.call(source: "file")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.data_loaded).to be(true)
         expect(result.context.validation_stats[:total]).to be > 0
         expect(result.context.transformed_data).to all(match(/^RECORD_\d+$/))
@@ -631,7 +631,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "fails at the data loading stage" do
         result = data_pipeline_batch.call(source: "invalid_source")
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(result.context.data_loaded).to be_nil
         expect(result.context.validation_stats).to be_nil
         expect(result.context.transformed_data).to be_nil
@@ -686,7 +686,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "completes without using fallback" do
         result = resilient_batch.call(service_down: false)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.operation_completed).to be(true)
         expect(result.context.fallback_used).to be_nil
         expect(result.context.resources_cleaned).to be(true)
@@ -697,7 +697,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       it "uses fallback and completes successfully" do
         result = resilient_batch.call(service_down: true)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.operation_completed).to be_nil
         expect(result.context.fallback_used).to be(true)
         expect(result.context.fallback_result).to eq("Alternative processing completed")

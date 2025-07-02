@@ -81,7 +81,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes method-based hooks in correct order" do
         result = order_processing_task.call(order_id: 123)
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq([
                                       "order_execution:locked",
                                       "order_validation:exists_check",
@@ -126,7 +126,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes proc and lambda hooks correctly" do
         result = user_registration_task.call(email: "user@example.com", username: "newuser")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to include(
           "validation:email_format_check",
           "success:welcome_email_queued",
@@ -166,7 +166,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes block-based hooks with access to context" do
         result = file_processing_task.call(file_path: "/tmp/test.csv")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log.first).to eq("file_processing:started")
         expect(execution_log.last).to match(/file_processing:completed:\d+\.\d+/)
         expect(execution_log).to include("file_processing:success:cleanup_temp_files")
@@ -216,7 +216,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes multiple hooks in declaration order" do
         result = payment_processing_task.call(amount: 99.99, payment_method: "credit_card")
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to eq([
                                       "payment_success:balance_updated",
                                       "payment_success:receipt_sent",
@@ -275,7 +275,7 @@ RSpec.describe "Task Hooks Integration" do
     it "executes all hook types in correct order" do
       result = comprehensive_task.call(user_id: 456)
 
-      expect(result).to be_success
+      expect(result).to be_successful_task
       expect(execution_log).to eq([
                                     "2:before_execution",
                                     "3:on_executing",
@@ -333,7 +333,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes failure hooks in correct order" do
         result = failing_task.call(will_fail: true)
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(execution_log).to eq([
                                       "2:before_execution",
                                       "3:on_executing",
@@ -392,7 +392,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes skip hooks in correct order" do
         result = skipping_task.call(should_skip: true)
 
-        expect(result).to be_skipped
+        expect(result).to be_skipped_task
         expect(execution_log).to eq([
                                       "2:before_execution",
                                       "3:on_executing",
@@ -481,7 +481,7 @@ RSpec.describe "Task Hooks Integration" do
           user_type: "premium"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to include("conditional:notification_sent")
         expect(execution_log).to include("conditional:detailed_log")
         expect(execution_log).not_to include("conditional:expensive_setup")
@@ -495,7 +495,7 @@ RSpec.describe "Task Hooks Integration" do
           retry_count: 1
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(execution_log).to include("conditional:retry_scheduled")
         expect(execution_log).to include("conditional:expensive_setup")
         expect(execution_log).not_to include("conditional:notification_sent")
@@ -535,7 +535,7 @@ RSpec.describe "Task Hooks Integration" do
           maintenance_mode: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).not_to include("unless:validation_performed")
         expect(execution_log).not_to include("unless:metrics_sent")
       end
@@ -546,7 +546,7 @@ RSpec.describe "Task Hooks Integration" do
           maintenance_mode: false
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to include("unless:validation_performed")
         expect(execution_log).to include("unless:metrics_sent")
       end
@@ -592,7 +592,7 @@ RSpec.describe "Task Hooks Integration" do
     it "inherits hooks from parent class and executes them correctly" do
       result = order_processing_task.call(order_id: 789)
 
-      expect(result).to be_success
+      expect(result).to be_successful_task
 
       # Should include both inherited and class-specific hooks
       expect(execution_log).to include("#{order_processing_task.name}:task_start")
@@ -641,7 +641,7 @@ RSpec.describe "Task Hooks Integration" do
       it "executes both inherited and class-specific failure hooks" do
         result = failing_order_task.call(order_id: 999)
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
         expect(execution_log).to include("#{failing_order_task.name}:task_start")
         expect(execution_log).to include("#{failing_order_task.name}:order_loaded")
         expect(execution_log).to include("#{failing_order_task.name}:payment_refunded")
@@ -754,7 +754,7 @@ RSpec.describe "Task Hooks Integration" do
           payload: { name: "John Doe", email: "john@example.com" }
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
 
         # Hook class executions
         expect(execution_log).to include("hook_class:logging:debug:before_execution:#{api_integration_task.name}")
@@ -810,7 +810,7 @@ RSpec.describe "Task Hooks Integration" do
           enable_metrics: true
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).to include("hook_class:metric:start:conditional_task")
         expect(execution_log).to include("hook_class:metric:success:conditional_task")
       end
@@ -821,7 +821,7 @@ RSpec.describe "Task Hooks Integration" do
           enable_metrics: false
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(execution_log).not_to include("hook_class:metric:start:conditional_task")
         expect(execution_log).not_to include("hook_class:metric:success:conditional_task")
       end
@@ -947,7 +947,7 @@ RSpec.describe "Task Hooks Integration" do
           priority: "high"
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
 
         # Validation hooks
         expect(execution_log).to include("ecommerce:validation:order_exists")
@@ -1076,7 +1076,7 @@ RSpec.describe "Task Hooks Integration" do
           batch_size: 500
         )
 
-        expect(result).to be_success
+        expect(result).to be_successful_task
         expect(result.context.processing_stats[:records_processed]).to eq(5000)
 
         expect(execution_log).to include("data:execution:initialized")
@@ -1096,7 +1096,7 @@ RSpec.describe "Task Hooks Integration" do
           retry_on_failure: true
         )
 
-        expect(result).to be_failed
+        expect(result).to be_failed_task
 
         expect(execution_log).to include("data:execution:initialized")
         expect(execution_log).to include("data:failure:details_logged")
