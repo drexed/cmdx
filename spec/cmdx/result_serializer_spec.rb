@@ -44,9 +44,20 @@ RSpec.describe CMDx::ResultSerializer do
       end
 
       it "delegates to TaskSerializer for task information" do
-        expect(CMDx::TaskSerializer).to receive(:call).with(task).and_call_original
+        # Create a fresh task instance to avoid state contamination
+        fresh_task = Class.new(CMDx::Task) do
+          def call
+            context.processed = true
+          end
+        end
 
-        described_class.call(result)
+        fresh_instance = fresh_task.new
+        fresh_instance.perform
+        fresh_result = fresh_instance.result
+
+        expect(CMDx::TaskSerializer).to receive(:call).with(fresh_instance).and_call_original
+
+        described_class.call(fresh_result)
       end
     end
 
