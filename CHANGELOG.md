@@ -21,6 +21,7 @@
 - Convert hooks hash to a registry
 - Rename `Run` and its associated items to `Chain`
 - Convert `Chain` to use threads instead of passing context
+- Immutator now uses a `SKIP_CMDX_FREEZING` env var instead of `RACK_ENV` or `RAILS_ENV`
 ### Removed
 - Removed configuration `task_timeout` and `batch_timeout`
 

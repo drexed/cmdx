@@ -320,19 +320,16 @@ RSpec.describe CMDx::Task do
     end
 
     it "freezes task after execution" do
-      # Temporarily disable test environment detection to test freezing behavior
-      original_rails_env = ENV.fetch("RAILS_ENV", nil)
-      original_rack_env = ENV.fetch("RACK_ENV", nil)
-      ENV.delete("RAILS_ENV")
-      ENV.delete("RACK_ENV")
+      # Temporarily disable freezing skip to test freezing behavior
+      original_env = ENV.fetch("SKIP_CMDX_FREEZING", nil)
+      ENV.delete("SKIP_CMDX_FREEZING")
 
       task.perform
 
       expect(task).to be_frozen
 
       # Restore original environment
-      ENV["RAILS_ENV"] = original_rails_env if original_rails_env
-      ENV["RACK_ENV"] = original_rack_env if original_rack_env
+      ENV["SKIP_CMDX_FREEZING"] = original_env if original_env
     end
 
     it "calls middleware when present" do

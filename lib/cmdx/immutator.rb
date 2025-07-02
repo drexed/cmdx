@@ -64,7 +64,7 @@ module CMDx
   #   # But both task instances are individually frozen
   #
   # @example Test environment behavior
-  #   # In test environment (RAILS_ENV=test or RACK_ENV=test)
+  #   # In test environment (SKIP_CMDX_FREEZING=1)
   #   result = ProcessOrderTask.call(order_id: 123)
   #   result.frozen?      #=> false (freezing disabled)
   #   result.task.frozen? #=> false (allows stubbing/mocking)
@@ -123,7 +123,8 @@ module CMDx
     #   with test frameworks that need to stub or mock objects.
     def call(task)
       # Stubbing on frozen objects is not allowed
-      return if (ENV.fetch("RAILS_ENV", nil) || ENV.fetch("RACK_ENV", nil)) == "test"
+      skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)
+      return if Coercions::Boolean.call(skip_freezing)
 
       task.freeze
       task.result.freeze

@@ -50,7 +50,7 @@ module CMDx
       #   Coercions::Boolean.call("1")      # => true
       #   Coercions::Boolean.call("0")      # => false
       def call(value, _options = {})
-        case value.to_s
+        case value.to_s.downcase
         when FALSEY then false
         when TRUTHY then true
         else

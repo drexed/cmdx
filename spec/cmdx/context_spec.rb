@@ -120,23 +120,34 @@ RSpec.describe CMDx::Context do
         object
       end
 
-      it "raises an error because object lacks transform_keys method" do
-        expect { described_class.build(hash_like_object) }.to raise_error(NoMethodError, /undefined method.*transform_keys/)
+      it "converts object using to_h method" do
+        context = described_class.build(hash_like_object)
+
+        expect(context).to be_a(described_class)
+        expect(context.converted).to be(true)
+        expect(context[:method]).to eq("to_h") # Use hash-style access to avoid conflict with Object#method
+        expect(context.data).to eq([1, 2, 3])
       end
 
-      it "raises error for objects with empty to_h result" do
+      it "handles objects with empty to_h result" do
         empty_object = Object.new
         def empty_object.to_h
           {}
         end
 
-        expect { described_class.build(empty_object) }.to raise_error(NoMethodError, /undefined method.*transform_keys/)
+        context = described_class.build(empty_object)
+
+        expect(context).to be_a(described_class)
+        expect(context.to_h).to eq({})
       end
     end
 
     context "when given nil" do
-      it "raises an error because nil lacks transform_keys" do
-        expect { described_class.build(nil) }.to raise_error(NoMethodError, /undefined method.*transform_keys.*for nil/)
+      it "creates an empty Context instance" do
+        context = described_class.build(nil)
+
+        expect(context).to be_a(described_class)
+        expect(context.to_h).to eq({})
       end
     end
 
@@ -334,7 +345,7 @@ RSpec.describe CMDx::Context do
     end
 
     context "when handling various input formats" do
-      it "raises error for ActionController::Parameters-like objects" do
+      it "handles ActionController::Parameters-like objects" do
         # Simulate Rails params object
         params_like = Object.new
         def params_like.to_h
@@ -344,7 +355,11 @@ RSpec.describe CMDx::Context do
           }
         end
 
-        expect { described_class.build(params_like) }.to raise_error(NoMethodError, /undefined method.*transform_keys/)
+        context = described_class.build(params_like)
+
+        expect(context).to be_a(described_class)
+        expect(context.user).to eq({ "name" => "John", "email" => "john@example.com" })
+        expect(context.settings).to eq({ "notifications" => "true" })
       end
 
       it "handles mixed symbol and string keys in hashes" do

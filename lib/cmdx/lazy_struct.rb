@@ -82,7 +82,7 @@ module CMDx
               "must be respond to `to_h`"
       end
 
-      @table = args.transform_keys { |k| symbolized_key(k) }
+      @table = args.to_h.transform_keys { |k| symbolized_key(k) }
     end
 
     ##
@@ -97,7 +97,7 @@ module CMDx
     #   struct["name"]   #=> "John"
     #   struct[:missing] #=> nil
     def [](key)
-      @table[symbolized_key(key)]
+      table[symbolized_key(key)]
     end
 
     ##
@@ -121,7 +121,7 @@ module CMDx
     # @example Key not found
     #   struct.fetch!(:missing)  #=> raises KeyError
     def fetch!(key, ...)
-      @table.fetch(symbolized_key(key), ...)
+      table.fetch(symbolized_key(key), ...)
     end
 
     ##
@@ -137,7 +137,7 @@ module CMDx
     #   struct.name  #=> "John"
     #   struct.age   #=> 30
     def store!(key, value)
-      @table[symbolized_key(key)] = value
+      table[symbolized_key(key)] = value
     end
     alias []= store!
 
@@ -169,7 +169,7 @@ module CMDx
     #   struct.delete!(:missing)  #=> nil
     #   struct.delete!(:missing) { "not found" }  #=> "not found"
     def delete!(key, &)
-      @table.delete(symbolized_key(key), &)
+      table.delete(symbolized_key(key), &)
     end
     alias delete_field! delete!
 
@@ -204,7 +204,7 @@ module CMDx
     #   struct.dig(:user, :profile, :name)  #=> "John"
     #   struct.dig(:user, :missing, :name)  #=> nil
     def dig(key, *keys)
-      @table.dig(symbolized_key(key), *keys)
+      table.dig(symbolized_key(key), *keys)
     end
 
     ##
@@ -217,7 +217,7 @@ module CMDx
     # @example
     #   struct.each_pair { |key, value| puts "#{key}: #{value}" }
     def each_pair(&)
-      @table.each_pair(&)
+      table.each_pair(&)
     end
 
     ##
@@ -230,7 +230,7 @@ module CMDx
     #   struct = LazyStruct.new(name: "John", age: 30)
     #   struct.to_h  #=> {:name => "John", :age => 30}
     def to_h(&)
-      @table.to_h(&)
+      table.to_h(&)
     end
 
     ##
@@ -242,11 +242,15 @@ module CMDx
     #   struct = LazyStruct.new(name: "John", age: 30)
     #   struct.inspect  #=> '#<CMDx::LazyStruct:name="John" :age=30>'
     def inspect
-      "#<#{self.class.name}#{@table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
+      "#<#{self.class.name}#{table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
     end
     alias to_s inspect
 
     private
+
+    def table
+      @table ||= {}
+    end
 
     ##
     # Handles dynamic method calls for attribute access and assignment.
@@ -265,7 +269,7 @@ module CMDx
     #
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
-      @table.fetch(symbolized_key(method_name)) do
+      table.fetch(symbolized_key(method_name)) do
         store!(method_name[0..-2], args.first) if method_name.end_with?("=")
       end
     end
@@ -286,7 +290,7 @@ module CMDx
     #
     # @api private
     def respond_to_missing?(method_name, include_private = false)
-      @table.key?(symbolized_key(method_name)) || super
+      table.key?(symbolized_key(method_name)) || super
     end
 
     ##
