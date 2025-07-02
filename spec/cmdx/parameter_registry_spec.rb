@@ -5,9 +5,9 @@ require "spec_helper"
 RSpec.describe CMDx::ParameterRegistry do
   subject(:registry) { described_class.new }
 
-  let(:valid_parameter) { double("ValidParameter", valid?: true, method_name: :param1, children: []) }
-  let(:invalid_parameter) { double("InvalidParameter", valid?: false, method_name: :param2, children: []) }
-  let(:task) { double("Task") }
+  let(:valid_parameter) { mock_parameter(valid?: true, method_name: :param1, children: []) }
+  let(:invalid_parameter) { mock_parameter(valid?: false, method_name: :param2, children: []) }
+  let(:task) { mock_task }
 
   describe "Array behavior" do
     it "extends Array class" do
@@ -35,7 +35,7 @@ RSpec.describe CMDx::ParameterRegistry do
     context "when all parameters are valid" do
       before do
         registry << valid_parameter
-        registry << double("AnotherValidParameter", valid?: true)
+        registry << mock_parameter(valid?: true)
       end
 
       it "returns true" do
@@ -57,7 +57,7 @@ RSpec.describe CMDx::ParameterRegistry do
     context "when all parameters are invalid" do
       before do
         registry << invalid_parameter
-        registry << double("AnotherInvalidParameter", valid?: false)
+        registry << mock_parameter(valid?: false)
       end
 
       it "returns false" do
@@ -116,12 +116,13 @@ RSpec.describe CMDx::ParameterRegistry do
     end
 
     context "when parameters have children" do
-      let(:child_parameter) { double("ChildParameter", method_name: :child_param, children: []) }
+      let(:child_parameter) { mock_parameter(method_name: :child_param, children: []) }
       let(:parent_parameter) do
-        double("ParentParameter",
-               method_name: :parent_param,
-               children: [child_parameter],
-               valid?: true)
+        mock_parameter(
+          method_name: :parent_param,
+          children: [child_parameter],
+          valid?: true
+        )
       end
 
       before do
@@ -137,17 +138,19 @@ RSpec.describe CMDx::ParameterRegistry do
     end
 
     context "when parameters have nested children" do
-      let(:grandchild_parameter) { double("GrandchildParameter", method_name: :grandchild_param, children: []) }
+      let(:grandchild_parameter) { mock_parameter(method_name: :grandchild_param, children: []) }
       let(:child_parameter) do
-        double("ChildParameter",
-               method_name: :child_param,
-               children: [grandchild_parameter])
+        mock_parameter(
+          method_name: :child_param,
+          children: [grandchild_parameter]
+        )
       end
       let(:parent_parameter) do
-        double("ParentParameter",
-               method_name: :parent_param,
-               children: [child_parameter],
-               valid?: true)
+        mock_parameter(
+          method_name: :parent_param,
+          children: [child_parameter],
+          valid?: true
+        )
       end
 
       before do
@@ -173,19 +176,21 @@ RSpec.describe CMDx::ParameterRegistry do
     end
 
     context "when multiple parameters have children" do
-      let(:first_child_param) { double("Child1", method_name: :child1, children: []) }
-      let(:second_child_param) { double("Child2", method_name: :child2, children: []) }
+      let(:first_child_param) { mock_parameter(method_name: :child1, children: []) }
+      let(:second_child_param) { mock_parameter(method_name: :child2, children: []) }
       let(:first_parent_param) do
-        double("Parent1",
-               method_name: :parent1,
-               children: [first_child_param],
-               valid?: true)
+        mock_parameter(
+          method_name: :parent1,
+          children: [first_child_param],
+          valid?: true
+        )
       end
       let(:second_parent_param) do
-        double("Parent2",
-               method_name: :parent2,
-               children: [second_child_param],
-               valid?: true)
+        mock_parameter(
+          method_name: :parent2,
+          children: [second_child_param],
+          valid?: true
+        )
       end
 
       before do
@@ -224,18 +229,20 @@ RSpec.describe CMDx::ParameterRegistry do
 
   describe "complex scenarios" do
     context "when registry has mixed parameter types with complex hierarchies" do
-      let(:leaf_param) { double("LeafParam", method_name: :leaf, children: [], valid?: true) }
+      let(:leaf_param) { mock_parameter(method_name: :leaf, children: [], valid?: true) }
       let(:branch_param) do
-        double("BranchParam",
-               method_name: :branch,
-               children: [leaf_param],
-               valid?: false)
+        mock_parameter(
+          method_name: :branch,
+          children: [leaf_param],
+          valid?: false
+        )
       end
       let(:root_param) do
-        double("RootParam",
-               method_name: :root,
-               children: [branch_param],
-               valid?: true)
+        mock_parameter(
+          method_name: :root,
+          children: [branch_param],
+          valid?: true
+        )
       end
 
       before do
@@ -261,7 +268,7 @@ RSpec.describe CMDx::ParameterRegistry do
     context "when working with large parameter collections" do
       before do
         10.times do |i|
-          param = double("Parameter#{i}", method_name: :"param#{i}", children: [], valid?: true)
+          param = mock_parameter(method_name: :"param#{i}", children: [], valid?: true)
           registry << param
         end
       end
@@ -280,7 +287,7 @@ RSpec.describe CMDx::ParameterRegistry do
 
     context "when parameters raise exceptions during validation" do
       let(:failing_parameter) do
-        double("FailingParameter", method_name: :failing_param, children: [], valid?: true)
+        mock_parameter(method_name: :failing_param, children: [], valid?: true)
       end
 
       before do

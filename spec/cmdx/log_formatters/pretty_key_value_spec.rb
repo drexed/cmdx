@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::PrettyKeyValue do
   describe "#call" do
-    let(:task) { double("Task", class: double("TaskClass", name: "TestTask")) }
+    let(:task) { mock_task(class: double(name: "TestTask")) }
     let(:time) { Time.new(2022, 7, 17, 20, 43, 15) }
     let(:serialized_data) do
       {
@@ -85,14 +85,13 @@ RSpec.describe CMDx::LogFormatters::PrettyKeyValue do
 
     context "with ANSI color integration" do
       let(:result_message) do
-        double("Result",
-               to_h: {
-                 state: "complete",
-                 status: "success",
-                 outcome: "success",
-                 runtime: 15
-               },
-               is_a?: true)
+        mock_result(to_h: {
+                      state: "complete",
+                      status: "success",
+                      outcome: "success",
+                      runtime: 15
+                    },
+                    is_a?: true)
       end
 
       before do

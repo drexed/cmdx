@@ -6,10 +6,10 @@ RSpec.describe CMDx::Middlewares::Correlate do
   subject(:middleware) { described_class.new(options) }
 
   let(:options) { {} }
-  let(:task) { double("task", chain: chain, __cmdx_eval: true, __cmdx_yield: nil) }
-  let(:chain) { double("chain", id: "chain-123") }
+  let(:task) { mock_task(chain: chain, __cmdx_eval: true, __cmdx_yield: nil) }
+  let(:chain) { mock_chain(id: "chain-123") }
   let(:callable) { double("callable") }
-  let(:result) { double("result") }
+  let(:result) { mock_result }
 
   before do
     allow(callable).to receive(:call).with(task).and_return(result)

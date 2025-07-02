@@ -4,14 +4,12 @@ require "spec_helper"
 
 RSpec.describe CMDx::ResultLogger do
   describe ".call" do
-    let(:logger) { instance_double(Logger) }
-    let(:task) { instance_double(CMDx::Task) }
+    let(:logger) { mock_logger }
+    let(:task) { mock_task }
 
     context "when logging a successful result" do
       let(:result) do
-        instance_double(CMDx::Result,
-                        task: task,
-                        status: CMDx::Result::SUCCESS)
+        mock_success_result(task: task)
       end
 
       before do
@@ -45,9 +43,7 @@ RSpec.describe CMDx::ResultLogger do
 
     context "when logging a failed result" do
       let(:result) do
-        instance_double(CMDx::Result,
-                        task: task,
-                        status: CMDx::Result::FAILED)
+        mock_failed_result(task: task)
       end
 
       before do
@@ -73,9 +69,7 @@ RSpec.describe CMDx::ResultLogger do
 
     context "when logging a skipped result" do
       let(:result) do
-        instance_double(CMDx::Result,
-                        task: task,
-                        status: CMDx::Result::SKIPPED)
+        mock_skipped_result(task: task)
       end
 
       before do
@@ -101,7 +95,7 @@ RSpec.describe CMDx::ResultLogger do
 
     context "when no logger is configured" do
       let(:result) do
-        instance_double(CMDx::Result, task: task)
+        mock_result(task: task)
       end
 
       before do
@@ -130,9 +124,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "maps success status to info level" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SUCCESS)
+        result = mock_success_result(task: task)
 
         expect(logger).to receive(:with_level).with(:info)
         allow(logger).to receive(:info)
@@ -141,9 +133,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "maps failed status to error level" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::FAILED)
+        result = mock_failed_result(task: task)
 
         expect(logger).to receive(:with_level).with(:error)
         allow(logger).to receive(:error)
@@ -152,9 +142,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "maps skipped status to warn level" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SKIPPED)
+        result = mock_skipped_result(task: task)
 
         expect(logger).to receive(:with_level).with(:warn)
         allow(logger).to receive(:warn)
@@ -166,9 +154,7 @@ RSpec.describe CMDx::ResultLogger do
     context "with logger integration" do
       let(:actual_logger) { Logger.new(StringIO.new) }
       let(:result) do
-        instance_double(CMDx::Result,
-                        task: task,
-                        status: CMDx::Result::SUCCESS)
+        mock_success_result(task: task)
       end
 
       before do
@@ -193,9 +179,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "uses correct severity for success status" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SUCCESS)
+        result = mock_success_result(task: task)
 
         expect(logger).to receive(:with_level).with(:info)
         allow(logger).to receive(:info)
@@ -204,9 +188,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "uses correct severity for failed status" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::FAILED)
+        result = mock_failed_result(task: task)
 
         expect(logger).to receive(:with_level).with(:error)
         allow(logger).to receive(:error)
@@ -215,9 +197,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "uses correct severity for skipped status" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SKIPPED)
+        result = mock_skipped_result(task: task)
 
         expect(logger).to receive(:with_level).with(:warn)
         allow(logger).to receive(:warn)
@@ -233,9 +213,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "passes result object to logger block for success" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SUCCESS)
+        result = mock_success_result(task: task)
 
         expect(logger).to receive(:info) do |&block|
           expect(block.call).to eq(result)
@@ -245,9 +223,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "passes result object to logger block for failure" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::FAILED)
+        result = mock_failed_result(task: task)
 
         expect(logger).to receive(:error) do |&block|
           expect(block.call).to eq(result)
@@ -257,9 +233,7 @@ RSpec.describe CMDx::ResultLogger do
       end
 
       it "passes result object to logger block for skip" do
-        result = instance_double(CMDx::Result,
-                                 task: task,
-                                 status: CMDx::Result::SKIPPED)
+        result = mock_skipped_result(task: task)
 
         expect(logger).to receive(:warn) do |&block|
           expect(block.call).to eq(result)

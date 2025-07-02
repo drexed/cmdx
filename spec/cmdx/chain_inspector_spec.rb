@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::ChainInspector do
   describe ".call" do
     let(:chain_id) { "018c2b95-b764-7615-a924-cc5b910ed1e5" }
-    let(:chain) { double("Chain") }
+    let(:chain) { mock_chain }
 
     before do
       allow(chain).to receive_messages(
@@ -54,7 +54,7 @@ RSpec.describe CMDx::ChainInspector do
     end
 
     context "when chain has single result" do
-      let(:result) { double("Result") }
+      let(:result) { mock_result }
       let(:result_hash) do
         {
           class: "SimpleTask",
@@ -107,9 +107,9 @@ RSpec.describe CMDx::ChainInspector do
     end
 
     context "when chain has multiple results" do
-      let(:parent_result) { double("ParentResult") }
-      let(:child_result_one) { double("ChildResult1") }
-      let(:child_result_two) { double("ChildResult2") }
+      let(:parent_result) { mock_result }
+      let(:child_result_one) { mock_result }
+      let(:child_result_two) { mock_result }
       let(:parent_result_hash) { { class: "ParentTask", index: 0 } }
       let(:child_result_one_hash) { { class: "ChildTask1", index: 1 } }
       let(:child_result_two_hash) { { class: "ChildTask2", index: 2 } }
@@ -240,7 +240,7 @@ RSpec.describe CMDx::ChainInspector do
     end
 
     context "when handling complex result structures" do
-      let(:result) { double("ComplexResult") }
+      let(:result) { mock_result }
       let(:complex_hash) do
         {
           class: "ComplexTask",
@@ -272,7 +272,7 @@ RSpec.describe CMDx::ChainInspector do
     end
 
     context "when result to_h raises errors" do
-      let(:result) { double("FaultyResult") }
+      let(:result) { mock_result }
 
       before do
         allow(chain).to receive(:results).and_return([result])

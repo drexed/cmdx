@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::MiddlewareRegistry do
   subject(:registry) { described_class.new }
 
-  let(:task) { double("Task") }
+  let(:task) { mock_task }
   let(:execution_block) { proc { |_t| "final_result" } }
 
   describe "Array behavior" do
@@ -14,7 +14,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     it "can store middleware definitions" do
-      middleware_class = Class.new
+      middleware_class = create_middleware_class
       registry << [middleware_class, [], nil]
 
       expect(registry.size).to eq(1)
@@ -22,8 +22,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     it "supports array operations" do
-      middleware1 = Class.new
-      middleware2 = Class.new
+      middleware1 = create_middleware_class
+      middleware2 = create_middleware_class
       registry << [middleware1, [], nil]
       registry << [middleware2, [], nil]
 
@@ -36,7 +36,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
   describe "#use" do
     context "when adding middleware class without arguments" do
-      let(:middleware_class) { Class.new }
+      let(:middleware_class) { create_middleware_class }
 
       it "adds middleware to registry" do
         result = registry.use(middleware_class)
@@ -48,7 +48,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     context "when adding middleware class with arguments" do
-      let(:middleware_class) { Class.new }
+      let(:middleware_class) { create_middleware_class }
 
       it "stores arguments with middleware" do
         registry.use(middleware_class, :arg1, :arg2, key: "value")
@@ -59,7 +59,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     context "when adding middleware class with block" do
-      let(:middleware_class) { Class.new }
+      let(:middleware_class) { create_middleware_class }
       let(:block) { proc { "config" } }
 
       it "stores block with middleware" do
@@ -93,9 +93,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     context "when chaining multiple middleware additions" do
-      let(:first_middleware) { Class.new }
-      let(:second_middleware) { Class.new }
-      let(:third_middleware) { Class.new }
+      let(:first_middleware) { create_middleware_class }
+      let(:second_middleware) { create_middleware_class }
+      let(:third_middleware) { create_middleware_class }
 
       it "allows method chaining" do
         result = registry.use(first_middleware).use(second_middleware).use(third_middleware)
@@ -124,7 +124,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when registry has single middleware class" do
       let(:middleware_class) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             callable.call(task)
           end
@@ -177,30 +177,34 @@ RSpec.describe CMDx::MiddlewareRegistry do
     context "when registry has multiple middleware" do
       let(:execution_order) { [] }
       let(:outer_middleware) do
-        Class.new do
+        create_middleware_class do
+          attr_reader :order_tracker
+
           def initialize(order_tracker)
             @order_tracker = order_tracker
           end
 
           def call(task, callable)
-            @order_tracker << "middleware1_before"
+            order_tracker << "middleware1_before"
             result = callable.call(task)
-            @order_tracker << "middleware1_after"
+            order_tracker << "middleware1_after"
             result
           end
         end
       end
 
       let(:inner_middleware) do
-        Class.new do
+        create_middleware_class do
+          attr_reader :order_tracker
+
           def initialize(order_tracker)
             @order_tracker = order_tracker
           end
 
           def call(task, callable)
-            @order_tracker << "middleware2_before"
+            order_tracker << "middleware2_before"
             result = callable.call(task)
-            @order_tracker << "middleware2_after"
+            order_tracker << "middleware2_after"
             result
           end
         end
@@ -229,7 +233,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when middleware short-circuits execution" do
       let(:short_circuit_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             return "short_circuited" if task.should_stop?
 
@@ -239,7 +243,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       let(:second_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             callable.call(task)
           end
@@ -270,7 +274,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when middleware modifies result" do
       let(:result_modifying_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             result = callable.call(task)
             "modified: #{result}"
@@ -291,14 +295,16 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when middleware has initialization parameters" do
       let(:parameterized_middleware) do
-        Class.new do
+        create_middleware_class do
+          attr_reader :prefix
+
           def initialize(prefix)
             @prefix = prefix
           end
 
           def call(task, callable)
             result = callable.call(task)
-            "#{@prefix}: #{result}"
+            "#{prefix}: #{result}"
           end
         end
       end
@@ -316,14 +322,16 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when middleware has initialization block" do
       let(:block_configured_middleware) do
-        Class.new do
+        create_middleware_class do
+          attr_reader :config
+
           def initialize(&block)
             @config = yield if block
           end
 
           def call(task, callable)
             result = callable.call(task)
-            @config ? "#{@config}: #{result}" : result
+            config ? "#{config}: #{result}" : result
           end
         end
       end
@@ -341,7 +349,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when mixing different middleware types" do
       let(:class_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             result = callable.call(task)
             "class: #{result}"
@@ -371,7 +379,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when middleware raises exceptions" do
       let(:failing_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(_task, _callable)
             raise StandardError, "middleware failed"
           end
@@ -389,7 +397,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when execution block raises exceptions" do
       let(:logging_middleware) do
-        Class.new do
+        create_middleware_class do
           def call(task, callable)
             callable.call(task)
           rescue StandardError => e

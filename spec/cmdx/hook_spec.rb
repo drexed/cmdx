@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Hook do
   describe "#call" do
     let(:hook) { described_class.new }
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
     let(:hook_type) { :before_validation }
 
     it "raises UndefinedCallError when not implemented" do
@@ -42,7 +42,7 @@ RSpec.describe CMDx::Hook do
   end
 
   describe "subclass implementation" do
-    let(:task) { double("Task", class: double(name: "TestTask")) }
+    let(:task) { mock_task(class: double(name: "TestTask")) }
     let(:hook_type) { :on_success }
 
     context "when subclass implements call method" do
@@ -134,15 +134,17 @@ RSpec.describe CMDx::Hook do
         end
       end
       let(:hook) { hook_class.new }
-      let(:result) { double("Result", status: "completed") }
-      let(:task_with_result) { double("Task", result: result) }
+      let(:result) { mock_result(status: "completed") }
+      let(:task_with_result) { mock_task(result: result) }
 
       it "can interact with task properties" do
         expect(hook.call(task_with_result, hook_type)).to eq("completed")
       end
 
       it "handles tasks without expected properties" do
-        expect(hook.call(task, hook_type)).to be_nil
+        task_without_result = double("Task")
+        allow(task_without_result).to receive(:respond_to?).with(:result).and_return(false)
+        expect(hook.call(task_without_result, hook_type)).to be_nil
       end
     end
 
@@ -225,7 +227,7 @@ RSpec.describe CMDx::Hook do
       end
 
       hook = specialized_hook.new
-      expect(hook.call(double("Task"), :test)).to eq("base specialized")
+      expect(hook.call(mock_task, :test)).to eq("base specialized")
     end
 
     it "allows hooks to share common functionality" do
@@ -242,7 +244,7 @@ RSpec.describe CMDx::Hook do
       end
 
       hook = logging_hook.new
-      task = double("Task", class: double(name: "MyTask"))
+      task = mock_task(class: double(name: "MyTask"))
 
       expect(hook.call(task, :test)).to eq("Logged: MyTask - test")
     end
@@ -257,7 +259,7 @@ RSpec.describe CMDx::Hook do
       end
       hook = hook_class.new
 
-      result = hook.call(double("Task"), :test, "extra", key: "value")
+      result = hook.call(mock_task, :test, "extra", key: "value")
       expect(result[2]).to eq(["extra"])
       expect(result[3]).to eq(key: "value")
     end
@@ -270,8 +272,8 @@ RSpec.describe CMDx::Hook do
       end
       hook = hook_class.new
 
-      result_with_block = hook.call(double("Task"), :test) { "block executed" }
-      result_without_block = hook.call(double("Task"), :test)
+      result_with_block = hook.call(mock_task, :test) { "block executed" }
+      result_without_block = hook.call(mock_task, :test)
 
       expect(result_with_block).to eq("block executed")
       expect(result_without_block).to eq("no block")

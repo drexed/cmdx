@@ -4,10 +4,10 @@ require "spec_helper"
 
 RSpec.describe CMDx::Immutator do
   describe ".call" do
-    let(:chain) { double("Chain") }
-    let(:context) { double("Context") }
-    let(:result) { double("Result", index: result_index) }
-    let(:task) { double("Task", result: result, context: context, chain: chain) }
+    let(:chain) { mock_chain }
+    let(:context) { mock_context }
+    let(:result) { mock_result(index: result_index) }
+    let(:task) { mock_task(result: result, context: context, chain: chain) }
     let(:result_index) { 0 }
 
     before do

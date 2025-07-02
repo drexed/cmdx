@@ -6,10 +6,10 @@ RSpec.describe CMDx::Middlewares::Timeout do
   subject(:middleware) { described_class.new(options) }
 
   let(:options) { {} }
-  let(:task) { double("task", __cmdx_eval: true, __cmdx_yield: nil, fail!: nil, result: failed_result) }
+  let(:task) { mock_task(__cmdx_eval: true, __cmdx_yield: nil, fail!: nil, result: failed_result) }
   let(:callable) { double("callable") }
-  let(:result) { double("result") }
-  let(:failed_result) { double("failed_result") }
+  let(:result) { mock_result }
+  let(:failed_result) { mock_result }
 
   before do
     allow(callable).to receive(:call).with(task).and_return(result)

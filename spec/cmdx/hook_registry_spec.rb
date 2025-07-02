@@ -243,7 +243,7 @@ RSpec.describe CMDx::HookRegistry do
 
   describe "#call" do
     let(:registry) { described_class.new }
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
 
     before do
       allow(task).to receive(:__cmdx_eval).and_return(true)
@@ -409,7 +409,7 @@ RSpec.describe CMDx::HookRegistry do
 
   describe "integration scenarios" do
     let(:registry) { described_class.new }
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
 
     before do
       allow(task).to receive(:__cmdx_eval).and_return(true)

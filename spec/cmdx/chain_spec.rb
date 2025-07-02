@@ -89,7 +89,7 @@ RSpec.describe CMDx::Chain do
   end
 
   describe ".build" do
-    let(:result) { double("Result") }
+    let(:result) { mock_result }
 
     before do
       allow(result).to receive(:is_a?).with(CMDx::Result).and_return(true)
@@ -280,9 +280,9 @@ RSpec.describe CMDx::Chain do
 
   describe "attribute delegation" do
     let(:chain) { described_class.new }
-    let(:first_result) { double("FirstResult") }
-    let(:middle_result) { double("MiddleResult") }
-    let(:last_result) { double("LastResult") }
+    let(:first_result) { mock_result }
+    let(:middle_result) { mock_result }
+    let(:last_result) { mock_result }
 
     before do
       chain.results.push(first_result, middle_result, last_result)
@@ -391,9 +391,9 @@ RSpec.describe CMDx::Chain do
 
   describe "integration scenarios" do
     context "when building multiple results" do
-      let(:first_task_result) { double("FirstTaskResult") }
-      let(:second_task_result) { double("SecondTaskResult") }
-      let(:third_task_result) { double("ThirdTaskResult") }
+      let(:first_task_result) { mock_result }
+      let(:second_task_result) { mock_result }
+      let(:third_task_result) { mock_result }
 
       before do
         [first_task_result, second_task_result, third_task_result].each do |result|
@@ -423,7 +423,7 @@ RSpec.describe CMDx::Chain do
     end
 
     context "when clearing and rebuilding chains" do
-      let(:result) { double("Result") }
+      let(:result) { mock_result }
 
       before do
         allow(result).to receive(:is_a?).with(CMDx::Result).and_return(true)
@@ -443,7 +443,7 @@ RSpec.describe CMDx::Chain do
     end
 
     context "when using custom correlation IDs" do
-      let(:result) { double("Result") }
+      let(:result) { mock_result }
 
       before do
         allow(result).to receive(:is_a?).with(CMDx::Result).and_return(true)

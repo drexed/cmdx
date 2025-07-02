@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::ChainSerializer do
   describe ".call" do
     let(:chain_id) { "018c2b95-b764-7615-a924-cc5b910ed1e5" }
-    let(:chain) { double("Chain") }
+    let(:chain) { mock_chain }
 
     before do
       allow(chain).to receive_messages(
@@ -47,7 +47,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when chain has single result" do
-      let(:task_result) { double("Result") }
+      let(:task_result) { mock_result }
       let(:result_hash) do
         {
           class: "SimpleTask",
@@ -100,9 +100,9 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when chain has multiple results" do
-      let(:parent_result) { double("ParentResult") }
-      let(:child_result_one) { double("ChildResult1") }
-      let(:child_result_two) { double("ChildResult2") }
+      let(:parent_result) { mock_result }
+      let(:child_result_one) { mock_result }
+      let(:child_result_two) { mock_result }
       let(:parent_result_hash) { { class: "ParentTask", index: 0, state: "complete" } }
       let(:child_result_one_hash) { { class: "ChildTask1", index: 1, state: "complete" } }
       let(:child_result_two_hash) { { class: "ChildTask2", index: 2, state: "complete" } }
@@ -149,7 +149,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when chain has failed state" do
-      let(:failed_result) { double("FailedResult") }
+      let(:failed_result) { mock_result }
       let(:failed_result_hash) do
         {
           class: "FailingTask",
@@ -218,7 +218,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when handling different data types" do
-      let(:complex_result) { double("ComplexResult") }
+      let(:complex_result) { mock_result }
       let(:complex_result_hash) do
         {
           class: "ComplexTask",
@@ -298,7 +298,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when result to_h method raises errors" do
-      let(:faulty_result) { double("FaultyResult") }
+      let(:faulty_result) { mock_result }
 
       before do
         allow(chain).to receive(:results).and_return([faulty_result])
@@ -311,7 +311,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when result to_h returns unexpected values" do
-      let(:odd_result) { double("OddResult") }
+      let(:odd_result) { mock_result }
 
       before do
         allow(chain).to receive(:results).and_return([odd_result])
@@ -352,7 +352,7 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when results array is frozen" do
-      let(:frozen_results) { [double("Result")].freeze }
+      let(:frozen_results) { [mock_result].freeze }
 
       before do
         allow(chain).to receive(:results).and_return(frozen_results)

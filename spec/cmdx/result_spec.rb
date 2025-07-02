@@ -3,16 +3,9 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Result do
-  let(:task_class) do
-    Class.new(CMDx::Task) do
-      def call
-        # Implementation
-      end
-    end
-  end
-
+  let(:task_class) { create_simple_task(name: "TestTask") }
   let(:task) { task_class.new }
-  let(:chain) { double("Chain", index: 0, results: [], id: "test_chain_id") }
+  let(:chain) { mock_chain(index: 0, results: [], id: "test_chain_id") }
 
   # Helper methods to create results in specific states for status checking
   let(:skipped_result) do

@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Middleware do
-  let(:task) { double("Task") }
+  let(:task) { mock_task }
   let(:callable) { double("Callable") }
 
   describe "#call" do
@@ -19,7 +19,7 @@ RSpec.describe CMDx::Middleware do
       subject(:middleware) { custom_middleware_class.new }
 
       let(:custom_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           def call(task, callable)
             callable.call(task)
           end
@@ -46,7 +46,7 @@ RSpec.describe CMDx::Middleware do
       subject(:middleware) { logging_middleware_class.new }
 
       let(:logging_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           attr_reader :logged_messages
 
           def initialize
@@ -54,9 +54,9 @@ RSpec.describe CMDx::Middleware do
           end
 
           def call(task, callable)
-            @logged_messages << "Before execution"
+            logged_messages << "Before execution"
             result = callable.call(task)
-            @logged_messages << "After execution"
+            logged_messages << "After execution"
             result
           end
         end
@@ -77,7 +77,7 @@ RSpec.describe CMDx::Middleware do
       subject(:middleware) { short_circuit_middleware_class.new }
 
       let(:short_circuit_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           def call(task, callable)
             return "short-circuited" if task.should_skip?
 
@@ -110,7 +110,7 @@ RSpec.describe CMDx::Middleware do
 
     context "when subclass accepts initialization parameters" do
       let(:parameterized_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           attr_reader :config
 
           def initialize(config = {})
@@ -152,7 +152,7 @@ RSpec.describe CMDx::Middleware do
       subject(:middleware) { state_modifying_middleware_class.new }
 
       let(:state_modifying_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           def call(task, callable)
             task.add_metadata("middleware_executed", true)
             callable.call(task)
@@ -176,7 +176,7 @@ RSpec.describe CMDx::Middleware do
       subject(:middleware) { exception_handling_middleware_class.new }
 
       let(:exception_handling_middleware_class) do
-        Class.new(described_class) do
+        create_middleware_class do
           def call(task, callable)
             callable.call(task)
           rescue StandardError => e
@@ -206,13 +206,13 @@ RSpec.describe CMDx::Middleware do
 
   describe "inheritance" do
     it "can be subclassed" do
-      subclass = Class.new(described_class)
+      subclass = create_middleware_class
 
       expect(subclass.superclass).to eq(described_class)
     end
 
     it "allows multiple levels of inheritance" do
-      base_middleware = Class.new(described_class)
+      base_middleware = create_middleware_class
       derived_middleware = Class.new(base_middleware)
 
       expect(derived_middleware.ancestors).to include(base_middleware, described_class)

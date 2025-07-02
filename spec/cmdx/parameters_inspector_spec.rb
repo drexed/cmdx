@@ -15,7 +15,7 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters collection has single parameter" do
-      let(:parameter) { double("Parameter", to_s: "Parameter: name=user_id type=integer source=context required=true options={}") }
+      let(:parameter) { mock_parameter(to_s: "Parameter: name=user_id type=integer source=context required=true options={}") }
 
       before do
         parameter_registry << parameter
@@ -35,8 +35,8 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters collection has multiple parameters" do
-      let(:first_parameter) { double("FirstParameter", to_s: "Parameter: name=user_id type=integer source=context required=true options={}") }
-      let(:second_parameter) { double("SecondParameter", to_s: "Parameter: name=email type=string source=context required=false options={}") }
+      let(:first_parameter) { mock_parameter(to_s: "Parameter: name=user_id type=integer source=context required=true options={}") }
+      let(:second_parameter) { mock_parameter(to_s: "Parameter: name=email type=string source=context required=false options={}") }
 
       before do
         parameter_registry << first_parameter
@@ -70,7 +70,7 @@ RSpec.describe CMDx::ParametersInspector do
     context "when parameters collection has many parameters" do
       before do
         5.times do |i|
-          param = double("Parameter#{i}", to_s: "Parameter: name=param#{i} type=string source=context required=false options={}")
+          param = mock_parameter(to_s: "Parameter: name=param#{i} type=string source=context required=false options={}")
           parameter_registry << param
         end
       end
@@ -92,9 +92,9 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters have different string representations" do
-      let(:simple_parameter) { double("SimpleParameter", to_s: "Parameter: name=id type=integer") }
-      let(:complex_parameter) { double("ComplexParameter", to_s: "Parameter: name=email type=string source=context required=true options={format: {with: /email/}}") }
-      let(:minimal_parameter) { double("MinimalParameter", to_s: "Parameter: name=flag") }
+      let(:simple_parameter) { mock_parameter(to_s: "Parameter: name=id type=integer") }
+      let(:complex_parameter) { mock_parameter(to_s: "Parameter: name=email type=string source=context required=true options={format: {with: /email/}}") }
+      let(:minimal_parameter) { mock_parameter(to_s: "Parameter: name=flag") }
 
       before do
         parameter_registry << simple_parameter
@@ -122,8 +122,8 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters return empty string representations" do
-      let(:empty_parameter) { double("EmptyParameter", to_s: "") }
-      let(:normal_parameter) { double("NormalParameter", to_s: "Parameter: name=user_id type=integer") }
+      let(:empty_parameter) { mock_parameter(to_s: "") }
+      let(:normal_parameter) { mock_parameter(to_s: "Parameter: name=user_id type=integer") }
 
       before do
         parameter_registry << empty_parameter
@@ -141,8 +141,8 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters contain newlines in their string representations" do
-      let(:multiline_parameter) { double("MultilineParameter", to_s: "Parameter: name=complex\nwith multiple lines") }
-      let(:normal_parameter) { double("NormalParameter", to_s: "Parameter: name=simple") }
+      let(:multiline_parameter) { mock_parameter(to_s: "Parameter: name=complex\nwith multiple lines") }
+      let(:normal_parameter) { mock_parameter(to_s: "Parameter: name=simple") }
 
       before do
         parameter_registry << multiline_parameter
@@ -165,9 +165,9 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when dealing with parameter ordering" do
-      let(:first_parameter) { double("FirstParameter", to_s: "First") }
-      let(:second_parameter) { double("SecondParameter", to_s: "Second") }
-      let(:third_parameter) { double("ThirdParameter", to_s: "Third") }
+      let(:first_parameter) { mock_parameter(to_s: "First") }
+      let(:second_parameter) { mock_parameter(to_s: "Second") }
+      let(:third_parameter) { mock_parameter(to_s: "Third") }
 
       before do
         parameter_registry << first_parameter
@@ -184,8 +184,8 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameter registry is modified after creation" do
-      let(:initial_parameter) { double("InitialParameter", to_s: "Initial parameter") }
-      let(:added_parameter) { double("AddedParameter", to_s: "Added parameter") }
+      let(:initial_parameter) { mock_parameter(to_s: "Initial parameter") }
+      let(:added_parameter) { mock_parameter(to_s: "Added parameter") }
 
       before do
         parameter_registry << initial_parameter
@@ -202,8 +202,8 @@ RSpec.describe CMDx::ParametersInspector do
     end
 
     context "when parameters raise exceptions during to_s" do
-      let(:failing_parameter) { double("FailingParameter") }
-      let(:normal_parameter) { double("NormalParameter", to_s: "Normal parameter") }
+      let(:failing_parameter) { mock_parameter }
+      let(:normal_parameter) { mock_parameter(to_s: "Normal parameter") }
 
       before do
         parameter_registry << failing_parameter

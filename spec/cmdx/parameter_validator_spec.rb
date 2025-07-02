@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::ParameterValidator do
   describe ".call" do
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
     let(:task_class) { double("TaskClass") }
     let(:cmd_parameters) { double("Parameters") }
     let(:errors) { double("Errors") }

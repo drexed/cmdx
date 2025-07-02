@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::ResultSerializer do
   describe ".call" do
     let(:task_class) do
-      Class.new(CMDx::Task) do
+      create_task_class(name: "ProcessingTask") do
         def call
           context.processed = true
         end
@@ -36,7 +36,7 @@ RSpec.describe CMDx::ResultSerializer do
         serialized = described_class.call(result)
 
         expect(serialized).to include(
-          class: nil,
+          class: "ProcessingTask",
           type: "Task",
           index: 0
         )
@@ -45,13 +45,13 @@ RSpec.describe CMDx::ResultSerializer do
 
       it "delegates to TaskSerializer for task information" do
         # Create a fresh task instance to avoid state contamination
-        fresh_task = Class.new(CMDx::Task) do
+        fresh_task_class = create_task_class(name: "FreshTask") do
           def call
             context.processed = true
           end
         end
 
-        fresh_instance = fresh_task.new
+        fresh_instance = fresh_task_class.new
         fresh_instance.perform
         fresh_result = fresh_instance.result
 
@@ -62,16 +62,17 @@ RSpec.describe CMDx::ResultSerializer do
     end
 
     context "when serializing a failed result" do
-      let(:failed_task) do
-        Class.new(CMDx::Task) do
-          def call
-            fail!(reason: "Validation failed", code: 422, errors: ["Invalid email"])
-          end
-        end
+      let(:failed_task_class) do
+        create_failing_task(
+          name: "ValidationTask",
+          reason: "Validation failed",
+          code: 422,
+          errors: ["Invalid email"]
+        )
       end
 
       let(:result) do
-        instance = failed_task.new
+        instance = failed_task_class.new
         instance.perform
         instance.result
       end
@@ -100,16 +101,15 @@ RSpec.describe CMDx::ResultSerializer do
     end
 
     context "when serializing a skipped result" do
-      let(:skipped_task) do
-        Class.new(CMDx::Task) do
-          def call
-            skip!(reason: "Order already processed")
-          end
-        end
+      let(:skipped_task_class) do
+        create_skipping_task(
+          name: "OrderTask",
+          reason: "Order already processed"
+        )
       end
 
       let(:result) do
-        instance = skipped_task.new
+        instance = skipped_task_class.new
         instance.perform
         instance.result
       end
@@ -127,28 +127,27 @@ RSpec.describe CMDx::ResultSerializer do
     end
 
     context "when result has failure chain information" do
-      let(:failing_task) do
-        Class.new(CMDx::Task) do
-          def call
-            fail!(reason: "Processing failed")
-          end
-        end
+      let(:failing_task_class) do
+        create_failing_task(
+          name: "ProcessingTask",
+          reason: "Processing failed"
+        )
       end
 
       let(:caused_failure_result) do
-        instance = failing_task.new
+        instance = failing_task_class.new
         instance.perform
         instance.result
       end
 
       let(:threw_failure_result) do
-        instance = failing_task.new
+        instance = failing_task_class.new
         instance.perform
         instance.result
       end
 
       let(:main_result) do
-        instance = failing_task.new
+        instance = failing_task_class.new
         instance.perform
         result = instance.result
 
@@ -213,16 +212,15 @@ RSpec.describe CMDx::ResultSerializer do
     end
 
     context "when result does not have failure chain" do
-      let(:simple_failed_task) do
-        Class.new(CMDx::Task) do
-          def call
-            fail!(reason: "Simple failure")
-          end
-        end
+      let(:simple_failed_task_class) do
+        create_failing_task(
+          name: "SimpleFailedTask",
+          reason: "Simple failure"
+        )
       end
 
       let(:result) do
-        instance = simple_failed_task.new
+        instance = simple_failed_task_class.new
         instance.perform
         result = instance.result
 
@@ -254,13 +252,12 @@ RSpec.describe CMDx::ResultSerializer do
       end
 
       it "correctly identifies failed outcome" do
-        failed_task = Class.new(CMDx::Task) do
-          def call
-            fail!(reason: "Test failure")
-          end
-        end
+        failed_task_class = create_failing_task(
+          name: "FailedOutcomeTask",
+          reason: "Test failure"
+        )
 
-        instance = failed_task.new
+        instance = failed_task_class.new
         instance.perform
         serialized = described_class.call(instance.result)
 
@@ -268,13 +265,12 @@ RSpec.describe CMDx::ResultSerializer do
       end
 
       it "correctly identifies skipped outcome" do
-        skipped_task = Class.new(CMDx::Task) do
-          def call
-            skip!(reason: "Test skip")
-          end
-        end
+        skipped_task_class = create_skipping_task(
+          name: "SkippedOutcomeTask",
+          reason: "Test skip"
+        )
 
-        instance = skipped_task.new
+        instance = skipped_task_class.new
         instance.perform
         serialized = described_class.call(instance.result)
 

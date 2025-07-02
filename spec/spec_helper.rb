@@ -4,11 +4,18 @@ ENV["SKIP_CMDX_FREEZING"] = "1"
 ENV["TZ"] = "UTC"
 
 require "bundler/setup"
+require "ostruct"
 require "rspec"
 
 require "cmdx"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
+
+%w[helpers config].each do |dir|
+  Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
+     .sort_by { |f| [f.split("/").size, f] }
+     .each { |f| load(f) }
+end
 
 RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
@@ -27,6 +34,13 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.include CMDx::Testing::TaskBuilders
+  config.include CMDx::Testing::TaskHelpers
+  config.include CMDx::Testing::BatchBuilders
+  config.include CMDx::Testing::BatchHelpers
+  config.include CMDx::Testing::HookBuilders
+  config.include CMDx::Testing::MiddlewareBuilders
+
   config.before do
     CMDx.reset_configuration!
     CMDx.configuration.logger = Logger.new(nil)
@@ -44,11 +58,4 @@ RSpec.configure do |config|
     temp_path = spec_path.join("generators/tmp")
     FileUtils.remove_dir(temp_path) if File.directory?(temp_path)
   end
-end
-
-# Load support files after RSpec is configured
-%w[config].each do |dir|
-  Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
-     .sort_by { |f| [f.split("/").size, f] }
-     .each { |f| load(f) }
 end

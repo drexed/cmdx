@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::Raw do
   describe "#call" do
-    let(:task) { double("Task", class: double("TaskClass", name: "TestTask")) }
+    let(:task) { mock_task(class: double(name: "TestTask")) }
     let(:time) { Time.utc(2022, 7, 17, 18, 43, 15.123456) }
 
     context "with basic functionality" do
@@ -32,8 +32,8 @@ RSpec.describe CMDx::LogFormatters::Raw do
       end
 
       it "ignores task parameter" do
-        task1 = double("Task1")
-        task2 = double("Task2")
+        task1 = mock_task
+        task2 = mock_task
 
         result1 = described_class.new.call("INFO", time, task1, "message")
         result2 = described_class.new.call("INFO", time, task2, "message")

@@ -4,19 +4,15 @@ require "spec_helper"
 
 RSpec.describe CMDx::TaskSerializer do
   let(:task_result) do
-    double("Result", index: 1)
+    mock_result(index: 1)
   end
 
   let(:task_chain) do
-    double("Chain", id: "chain-abc-123")
+    mock_chain(id: "chain-abc-123")
   end
 
   let(:task_class) do
-    Class.new(CMDx::Task) do
-      def self.name
-        "ProcessOrderTask"
-      end
-
+    create_task_class(name: "ProcessOrderTask") do
       task_settings!(tags: %i[order payment])
 
       def call
@@ -26,24 +22,32 @@ RSpec.describe CMDx::TaskSerializer do
   end
 
   let(:batch_class) do
-    Class.new(CMDx::Batch) do
-      def self.name
-        "OrderProcessingBatch"
-      end
-
+    create_batch_class(name: "OrderProcessingBatch") do
       task_settings!(tags: %i[batch orders])
     end
   end
 
   let(:task_instance) do
-    instance = task_class.new
-    allow(instance).to receive_messages(id: "task-def-456", result: task_result, chain: task_chain)
+    instance = mock_task(
+      id: "task-def-456",
+      result: task_result,
+      chain: task_chain,
+      class: task_class
+    )
+    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+    allow(instance).to receive(:is_a?).with(CMDx::Batch).and_return(false)
     instance
   end
 
   let(:batch_instance) do
-    instance = batch_class.new
-    allow(instance).to receive_messages(id: "batch-ghi-789", result: task_result, chain: task_chain)
+    instance = mock_task(
+      id: "batch-ghi-789",
+      result: task_result,
+      chain: task_chain,
+      class: batch_class
+    )
+    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[batch orders])
+    allow(instance).to receive(:is_a?).with(CMDx::Batch).and_return(true)
     instance
   end
 
@@ -126,11 +130,7 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task has no tags" do
       let(:tagless_task_class) do
-        Class.new(CMDx::Task) do
-          def self.name
-            "TaglessTask"
-          end
-
+        create_task_class(name: "TaglessTask") do
           def call
             # Implementation
           end
@@ -138,8 +138,13 @@ RSpec.describe CMDx::TaskSerializer do
       end
 
       let(:tagless_task) do
-        instance = tagless_task_class.new
-        allow(instance).to receive_messages(id: "task-xyz-999", result: task_result, chain: task_chain)
+        instance = mock_task(
+          id: "task-xyz-999",
+          result: task_result,
+          chain: task_chain,
+          class: tagless_task_class
+        )
+        allow(instance).to receive(:task_setting).with(:tags).and_return([])
         instance
       end
 
@@ -152,15 +157,27 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task has different index values" do
       it "serializes index 0" do
-        allow(task_result).to receive(:index).and_return(0)
-        serialized_data = described_class.call(task_instance)
+        task_with_index_zero = mock_task(
+          id: "task-def-456",
+          result: mock_result(index: 0),
+          chain: task_chain,
+          class: task_class
+        )
+        allow(task_with_index_zero).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_index_zero)
 
         expect(serialized_data[:index]).to eq(0)
       end
 
       it "serializes higher index values" do
-        allow(task_result).to receive(:index).and_return(42)
-        serialized_data = described_class.call(task_instance)
+        task_with_high_index = mock_task(
+          id: "task-def-456",
+          result: mock_result(index: 42),
+          chain: task_chain,
+          class: task_class
+        )
+        allow(task_with_high_index).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_high_index)
 
         expect(serialized_data[:index]).to eq(42)
       end
@@ -168,15 +185,27 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task has different chain ids" do
       it "serializes different chain id format" do
-        allow(task_chain).to receive(:id).and_return("550e8400-e29b-41d4-a716-446655440000")
-        serialized_data = described_class.call(task_instance)
+        task_with_uuid_chain = mock_task(
+          id: "task-def-456",
+          result: task_result,
+          chain: mock_chain(id: "550e8400-e29b-41d4-a716-446655440000"),
+          class: task_class
+        )
+        allow(task_with_uuid_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_uuid_chain)
 
         expect(serialized_data[:chain_id]).to eq("550e8400-e29b-41d4-a716-446655440000")
       end
 
       it "serializes short chain id" do
-        allow(task_chain).to receive(:id).and_return("abc")
-        serialized_data = described_class.call(task_instance)
+        task_with_short_chain = mock_task(
+          id: "task-def-456",
+          result: task_result,
+          chain: mock_chain(id: "abc"),
+          class: task_class
+        )
+        allow(task_with_short_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_short_chain)
 
         expect(serialized_data[:chain_id]).to eq("abc")
       end
@@ -184,15 +213,27 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task has different id formats" do
       it "serializes UUID format id" do
-        allow(task_instance).to receive(:id).and_return("550e8400-e29b-41d4-a716-446655440000")
-        serialized_data = described_class.call(task_instance)
+        task_with_uuid_id = mock_task(
+          id: "550e8400-e29b-41d4-a716-446655440000",
+          result: task_result,
+          chain: task_chain,
+          class: task_class
+        )
+        allow(task_with_uuid_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_uuid_id)
 
         expect(serialized_data[:id]).to eq("550e8400-e29b-41d4-a716-446655440000")
       end
 
       it "serializes short id" do
-        allow(task_instance).to receive(:id).and_return("xyz")
-        serialized_data = described_class.call(task_instance)
+        task_with_short_id = mock_task(
+          id: "xyz",
+          result: task_result,
+          chain: task_chain,
+          class: task_class
+        )
+        allow(task_with_short_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        serialized_data = described_class.call(task_with_short_id)
 
         expect(serialized_data[:id]).to eq("xyz")
       end
@@ -200,11 +241,7 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task has various tag configurations" do
       it "serializes string tags" do
-        task_with_string_tags = Class.new(CMDx::Task) do
-          def self.name
-            "StringTagTask"
-          end
-
+        task_with_string_tags = create_task_class(name: "StringTagTask") do
           task_settings!(tags: %w[urgent payment])
 
           def call
@@ -212,8 +249,13 @@ RSpec.describe CMDx::TaskSerializer do
           end
         end
 
-        instance = task_with_string_tags.new
-        allow(instance).to receive_messages(id: "task-str-123", result: task_result, chain: task_chain)
+        instance = mock_task(
+          id: "task-str-123",
+          result: task_result,
+          chain: task_chain,
+          class: task_with_string_tags
+        )
+        allow(instance).to receive(:task_setting).with(:tags).and_return(%w[urgent payment])
 
         serialized_data = described_class.call(instance)
 
@@ -221,11 +263,7 @@ RSpec.describe CMDx::TaskSerializer do
       end
 
       it "serializes mixed tag types" do
-        task_with_mixed_tags = Class.new(CMDx::Task) do
-          def self.name
-            "MixedTagTask"
-          end
-
+        task_with_mixed_tags = create_task_class(name: "MixedTagTask") do
           task_settings!(tags: [:symbol, "string", 123])
 
           def call
@@ -233,8 +271,13 @@ RSpec.describe CMDx::TaskSerializer do
           end
         end
 
-        instance = task_with_mixed_tags.new
-        allow(instance).to receive_messages(id: "task-mix-123", result: task_result, chain: task_chain)
+        instance = mock_task(
+          id: "task-mix-123",
+          result: task_result,
+          chain: task_chain,
+          class: task_with_mixed_tags
+        )
+        allow(instance).to receive(:task_setting).with(:tags).and_return([:symbol, "string", 123])
 
         serialized_data = described_class.call(instance)
 
@@ -242,11 +285,7 @@ RSpec.describe CMDx::TaskSerializer do
       end
 
       it "serializes single tag" do
-        task_with_single_tag = Class.new(CMDx::Task) do
-          def self.name
-            "SingleTagTask"
-          end
-
+        task_with_single_tag = create_task_class(name: "SingleTagTask") do
           task_settings!(tags: [:important])
 
           def call
@@ -254,8 +293,13 @@ RSpec.describe CMDx::TaskSerializer do
           end
         end
 
-        instance = task_with_single_tag.new
-        allow(instance).to receive_messages(id: "task-single-123", result: task_result, chain: task_chain)
+        instance = mock_task(
+          id: "task-single-123",
+          result: task_result,
+          chain: task_chain,
+          class: task_with_single_tag
+        )
+        allow(instance).to receive(:task_setting).with(:tags).and_return([:important])
 
         serialized_data = described_class.call(instance)
 
@@ -265,7 +309,7 @@ RSpec.describe CMDx::TaskSerializer do
 
     context "when task class has complex names" do
       let(:namespaced_task_class) do
-        stub_const("TestNamespace::NamespacedTask", Class.new(CMDx::Task) do
+        stub_const("TestNamespace::NamespacedTask", create_task_class(name: "TestNamespace::NamespacedTask") do
           def call
             # Implementation
           end
@@ -273,8 +317,13 @@ RSpec.describe CMDx::TaskSerializer do
       end
 
       it "serializes namespaced class name" do
-        instance = namespaced_task_class.new
-        allow(instance).to receive_messages(id: "namespaced-123", result: task_result, chain: task_chain)
+        instance = mock_task(
+          id: "namespaced-123",
+          result: task_result,
+          chain: task_chain,
+          class: namespaced_task_class
+        )
+        allow(instance).to receive(:task_setting).with(:tags).and_return([])
 
         serialized_data = described_class.call(instance)
 

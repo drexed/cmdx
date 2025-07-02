@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::Line do
   describe "#call" do
-    let(:task) { double("Task", class: double("TaskClass", name: "TestTask")) }
+    let(:task) { mock_task(class: double(name: "TestTask")) }
     let(:time) { Time.utc(2022, 7, 17, 18, 43, 15.123456) }
     let(:serialized_data) do
       {

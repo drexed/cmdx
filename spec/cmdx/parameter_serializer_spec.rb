@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::ParameterSerializer do
-  let(:task_class) { Class.new(CMDx::Task) }
+  let(:task_class) { create_simple_task }
 
   describe ".call" do
     context "when serializing basic parameter information" do

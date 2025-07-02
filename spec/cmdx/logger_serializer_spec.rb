@@ -6,7 +6,7 @@ RSpec.describe CMDx::LoggerSerializer do
   describe ".call" do
     let(:severity) { :info }
     let(:time) { Time.now }
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
     let(:task_serializer_data) do
       {
         index: 0,

@@ -16,7 +16,7 @@ RSpec.describe CMDx::ParametersSerializer do
 
     context "when parameters collection has single parameter" do
       let(:parameter_hash) { { source: :context, name: :user_id, type: :integer, required: true, options: {}, children: [] } }
-      let(:parameter) { double("Parameter", to_h: parameter_hash) }
+      let(:parameter) { mock_parameter(to_h: parameter_hash) }
 
       before do
         parameter_registry << parameter
@@ -38,8 +38,8 @@ RSpec.describe CMDx::ParametersSerializer do
     context "when parameters collection has multiple parameters" do
       let(:first_parameter_hash) { { source: :context, name: :user_id, type: :integer, required: true, options: {}, children: [] } }
       let(:second_parameter_hash) { { source: :context, name: :email, type: :string, required: false, options: {}, children: [] } }
-      let(:first_parameter) { double("FirstParameter", to_h: first_parameter_hash) }
-      let(:second_parameter) { double("SecondParameter", to_h: second_parameter_hash) }
+      let(:first_parameter) { mock_parameter(to_h: first_parameter_hash) }
+      let(:second_parameter) { mock_parameter(to_h: second_parameter_hash) }
 
       before do
         parameter_registry << first_parameter
@@ -71,7 +71,7 @@ RSpec.describe CMDx::ParametersSerializer do
       before do
         5.times do |i|
           param_hash = { source: :context, name: :"param#{i}", type: :string, required: false, options: {}, children: [] }
-          param = double("Parameter#{i}", to_h: param_hash)
+          param = mock_parameter(to_h: param_hash)
           parameter_registry << param
         end
       end
@@ -104,9 +104,9 @@ RSpec.describe CMDx::ParametersSerializer do
         }
       end
       let(:minimal_parameter_hash) { { name: :flag } }
-      let(:simple_parameter) { double("SimpleParameter", to_h: simple_parameter_hash) }
-      let(:complex_parameter) { double("ComplexParameter", to_h: complex_parameter_hash) }
-      let(:minimal_parameter) { double("MinimalParameter", to_h: minimal_parameter_hash) }
+      let(:simple_parameter) { mock_parameter(to_h: simple_parameter_hash) }
+      let(:complex_parameter) { mock_parameter(to_h: complex_parameter_hash) }
+      let(:minimal_parameter) { mock_parameter(to_h: minimal_parameter_hash) }
 
       before do
         parameter_registry << simple_parameter
@@ -150,7 +150,7 @@ RSpec.describe CMDx::ParametersSerializer do
           ]
         }
       end
-      let(:parent_parameter) { double("ParentParameter", to_h: parent_parameter_hash) }
+      let(:parent_parameter) { mock_parameter(to_h: parent_parameter_hash) }
 
       before do
         parameter_registry << parent_parameter
@@ -167,9 +167,9 @@ RSpec.describe CMDx::ParametersSerializer do
     end
 
     context "when parameters return empty hash representations" do
-      let(:empty_parameter) { double("EmptyParameter", to_h: {}) }
+      let(:empty_parameter) { mock_parameter(to_h: {}) }
       let(:normal_parameter_hash) { { name: :user_id, type: :integer } }
-      let(:normal_parameter) { double("NormalParameter", to_h: normal_parameter_hash) }
+      let(:normal_parameter) { mock_parameter(to_h: normal_parameter_hash) }
 
       before do
         parameter_registry << empty_parameter
@@ -186,9 +186,9 @@ RSpec.describe CMDx::ParametersSerializer do
     end
 
     context "when dealing with parameter ordering" do
-      let(:first_parameter) { double("FirstParameter", to_h: { name: :first, order: 1 }) }
-      let(:second_parameter) { double("SecondParameter", to_h: { name: :second, order: 2 }) }
-      let(:third_parameter) { double("ThirdParameter", to_h: { name: :third, order: 3 }) }
+      let(:first_parameter) { mock_parameter(to_h: { name: :first, order: 1 }) }
+      let(:second_parameter) { mock_parameter(to_h: { name: :second, order: 2 }) }
+      let(:third_parameter) { mock_parameter(to_h: { name: :third, order: 3 }) }
 
       before do
         parameter_registry << first_parameter
@@ -205,8 +205,8 @@ RSpec.describe CMDx::ParametersSerializer do
     end
 
     context "when parameter registry is modified after creation" do
-      let(:initial_parameter) { double("InitialParameter", to_h: { name: :initial }) }
-      let(:added_parameter) { double("AddedParameter", to_h: { name: :added }) }
+      let(:initial_parameter) { mock_parameter(to_h: { name: :initial }) }
+      let(:added_parameter) { mock_parameter(to_h: { name: :added }) }
 
       before do
         parameter_registry << initial_parameter
@@ -241,7 +241,7 @@ RSpec.describe CMDx::ParametersSerializer do
           }
         }
       end
-      let(:complex_parameter) { double("ComplexParameter", to_h: complex_parameter_hash) }
+      let(:complex_parameter) { mock_parameter(to_h: complex_parameter_hash) }
 
       before do
         parameter_registry << complex_parameter
@@ -261,8 +261,8 @@ RSpec.describe CMDx::ParametersSerializer do
     end
 
     context "when parameters raise exceptions during to_h" do
-      let(:failing_parameter) { double("FailingParameter") }
-      let(:normal_parameter) { double("NormalParameter", to_h: { name: :normal }) }
+      let(:failing_parameter) { mock_parameter }
+      let(:normal_parameter) { mock_parameter(to_h: { name: :normal }) }
 
       before do
         parameter_registry << failing_parameter
@@ -276,8 +276,8 @@ RSpec.describe CMDx::ParametersSerializer do
     end
 
     context "when parameters return nil from to_h" do
-      let(:nil_parameter) { double("NilParameter", to_h: nil) }
-      let(:normal_parameter) { double("NormalParameter", to_h: { name: :normal }) }
+      let(:nil_parameter) { mock_parameter(to_h: nil) }
+      let(:normal_parameter) { mock_parameter(to_h: { name: :normal }) }
 
       before do
         parameter_registry << nil_parameter

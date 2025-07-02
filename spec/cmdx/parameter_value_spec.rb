@@ -5,8 +5,8 @@ require "spec_helper"
 RSpec.describe CMDx::ParameterValue do
   describe "#initialize" do
     context "when creating a parameter value processor" do
-      let(:task) { double("Task") }
-      let(:parameter) { double("Parameter") }
+      let(:task) { mock_task }
+      let(:parameter) { mock_parameter }
 
       it "stores the task instance" do
         processor = described_class.new(task, parameter)
@@ -23,18 +23,19 @@ RSpec.describe CMDx::ParameterValue do
   end
 
   describe "#call" do
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
     let(:parameter) do
-      double("Parameter",
-             method_source: :context,
-             name: :user_id,
-             options: {},
-             required?: true,
-             optional?: false,
-             type: :integer,
-             parent: nil)
+      mock_parameter(
+        method_source: :context,
+        name: :user_id,
+        options: {},
+        required?: true,
+        optional?: false,
+        type: :integer,
+        parent: nil
+      )
     end
-    let(:context) { double("Context", user_id: "42") }
+    let(:context) { mock_context(user_id: "42") }
     let(:processor) { described_class.new(task, parameter) }
 
     before do
@@ -75,14 +76,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when parameter has default value" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :priority,
-               options: { default: "normal" },
-               required?: false,
-               optional?: true,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :priority,
+          options: { default: "normal" },
+          required?: false,
+          optional?: true,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -101,14 +103,15 @@ RSpec.describe CMDx::ParameterValue do
     context "when parameter has callable default value" do
       let(:default_proc) { -> { "calculated_default" } }
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :computed,
-               options: { default: default_proc },
-               required?: false,
-               optional?: true,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :computed,
+          options: { default: default_proc },
+          required?: false,
+          optional?: true,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -126,8 +129,8 @@ RSpec.describe CMDx::ParameterValue do
   end
 
   describe "type coercion" do
-    let(:task) { double("Task") }
-    let(:context) { double("Context") }
+    let(:task) { mock_task }
+    let(:context) { mock_context }
     let(:processor) { described_class.new(task, parameter) }
 
     before do
@@ -138,14 +141,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to integer" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :integer,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :integer,
+          parent: nil
+        )
       end
 
       it "coerces string to integer" do
@@ -173,14 +177,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to string" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "coerces integer to string" do
@@ -202,14 +207,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to boolean" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :boolean,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :boolean,
+          parent: nil
+        )
       end
 
       it "coerces truthy values to true" do
@@ -231,14 +237,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to float" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :float,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :float,
+          parent: nil
+        )
       end
 
       it "coerces string to float" do
@@ -260,14 +267,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to array" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :array,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :array,
+          parent: nil
+        )
       end
 
       it "keeps array as array" do
@@ -289,14 +297,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to hash" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :hash,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :hash,
+          parent: nil
+        )
       end
 
       it "keeps hash as hash" do
@@ -311,14 +320,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when coercing to virtual" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :virtual,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :virtual,
+          parent: nil
+        )
       end
 
       it "returns the source object directly" do
@@ -332,14 +342,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when using multiple type fallbacks" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: %i[integer float],
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: %i[integer float],
+          parent: nil
+        )
       end
 
       it "tries first type successfully" do
@@ -368,14 +379,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when using unknown coercion type" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :unknown_type,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :unknown_type,
+          parent: nil
+        )
       end
 
       it "raises UnknownCoercionError" do
@@ -387,8 +399,8 @@ RSpec.describe CMDx::ParameterValue do
   end
 
   describe "parameter validation" do
-    let(:task) { double("Task") }
-    let(:context) { double("Context", value: "test") }
+    let(:task) { mock_task }
+    let(:context) { mock_context(value: "test") }
     let(:processor) { described_class.new(task, parameter) }
 
     before do
@@ -400,14 +412,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating presence" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { presence: true },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { presence: true },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "passes validation for present value" do
@@ -425,14 +438,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating format" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { format: { with: /\Atest\z/ } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { format: { with: /\Atest\z/ } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "passes validation for matching format" do
@@ -450,14 +464,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating length" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { length: { min: 2, max: 10 } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { length: { min: 2, max: 10 } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "passes validation for valid length" do
@@ -481,14 +496,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating inclusion" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { inclusion: { in: %w[red green blue] } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { inclusion: { in: %w[red green blue] } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "passes validation for included value" do
@@ -508,14 +524,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating exclusion" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { exclusion: { in: %w[forbidden banned] } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { exclusion: { in: %w[forbidden banned] } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       it "passes validation for allowed value" do
@@ -533,14 +550,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when validating numeric constraints" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { numeric: { min: 0, max: 100 } },
-               required?: true,
-               optional?: false,
-               type: :integer,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { numeric: { min: 0, max: 100 } },
+          required?: true,
+          optional?: false,
+          type: :integer,
+          parent: nil
+        )
       end
 
       before do
@@ -569,14 +587,15 @@ RSpec.describe CMDx::ParameterValue do
     context "when using custom validation" do
       let(:custom_validator) { ->(value, _options) { value != "invalid" } }
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :value,
-               options: { custom: { validator: custom_validator } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :value,
+          options: { custom: { validator: custom_validator } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -598,8 +617,8 @@ RSpec.describe CMDx::ParameterValue do
   end
 
   describe "optional parameter handling" do
-    let(:task) { double("Task") }
-    let(:context) { double("Context") }
+    let(:task) { mock_task }
+    let(:context) { mock_context }
     let(:processor) { described_class.new(task, parameter) }
 
     before do
@@ -609,14 +628,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when optional parameter is missing from source" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :optional_value,
-               options: { presence: true },
-               required?: false,
-               optional?: true,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :optional_value,
+          options: { presence: true },
+          required?: false,
+          optional?: true,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -633,14 +653,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when optional parameter has allow_nil validation" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :nullable_value,
-               options: { presence: { allow_nil: true } },
-               required?: false,
-               optional?: true,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :nullable_value,
+          options: { presence: { allow_nil: true } },
+          required?: false,
+          optional?: true,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -657,14 +678,15 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when parameter has conditional validation" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :conditional_value,
-               options: { presence: { if: :should_validate? } },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :conditional_value,
+          options: { presence: { if: :should_validate? } },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do
@@ -682,8 +704,8 @@ RSpec.describe CMDx::ParameterValue do
   end
 
   describe "complex parameter scenarios" do
-    let(:task) { double("Task") }
-    let(:context) { double("Context") }
+    let(:task) { mock_task }
+    let(:context) { mock_context }
     let(:processor) { described_class.new(task, parameter) }
 
     before do
@@ -692,16 +714,17 @@ RSpec.describe CMDx::ParameterValue do
     end
 
     context "when parameter has nested parent" do
-      let(:parent_parameter) { double("Parameter", optional?: false) }
+      let(:parent_parameter) { mock_parameter(optional?: false) }
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :nested_value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: parent_parameter)
+        mock_parameter(
+          method_source: :context,
+          name: :nested_value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: parent_parameter
+        )
       end
 
       before do
@@ -717,16 +740,17 @@ RSpec.describe CMDx::ParameterValue do
     end
 
     context "when source is nil and parent is optional" do
-      let(:parent_parameter) { double("Parameter", optional?: true) }
+      let(:parent_parameter) { mock_parameter(optional?: true) }
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :child_value,
-               options: {},
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: parent_parameter)
+        mock_parameter(
+          method_source: :context,
+          name: :child_value,
+          options: {},
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: parent_parameter
+        )
       end
 
       before do
@@ -742,18 +766,19 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when combining multiple validations" do
       let(:parameter) do
-        double("Parameter",
-               method_source: :context,
-               name: :complex_value,
-               options: {
-                 presence: true,
-                 length: { min: 3 },
-                 format: { with: /\A[a-z]+\z/ }
-               },
-               required?: true,
-               optional?: false,
-               type: :string,
-               parent: nil)
+        mock_parameter(
+          method_source: :context,
+          name: :complex_value,
+          options: {
+            presence: true,
+            length: { min: 3 },
+            format: { with: /\A[a-z]+\z/ }
+          },
+          required?: true,
+          optional?: false,
+          type: :string,
+          parent: nil
+        )
       end
 
       before do

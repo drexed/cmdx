@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "ostruct"
 
 RSpec.describe "Task Parameters", type: :integration do
   describe "Parameter Definitions and Basic Usage" do

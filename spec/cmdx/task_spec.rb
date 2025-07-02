@@ -4,11 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::Task do
   let(:task_class) do
-    Class.new(described_class) do
-      def call
-        # Basic implementation for testing
-      end
-    end
+    create_simple_task
   end
 
   describe ".call" do
@@ -50,11 +46,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "raises exception for failures when task_halt includes status" do
-      failing_task = Class.new(described_class) do
-        def call
-          fail!(reason: "Something went wrong")
-        end
-      end
+      failing_task = create_failing_task(reason: "Something went wrong")
 
       expect { failing_task.call! }.to raise_error(CMDx::Failed)
     end
@@ -115,7 +107,7 @@ RSpec.describe CMDx::Task do
 
   describe ".use" do
     let(:middleware_class) do
-      Class.new do
+      create_middleware_class(name: "TestMiddleware") do
         def initialize(options = {})
           @options = options
         end
@@ -286,7 +278,7 @@ RSpec.describe CMDx::Task do
     subject(:task) { task_class.new }
 
     it "raises UndefinedCallError when not implemented" do
-      undefined_task = Class.new(described_class)
+      undefined_task = create_task_class
       instance = undefined_task.new
 
       expect { instance.call }.to raise_error(CMDx::UndefinedCallError)
@@ -307,11 +299,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "handles exceptions gracefully" do
-      failing_task = Class.new(described_class) do
-        def call
-          raise StandardError, "Something went wrong"
-        end
-      end
+      failing_task = create_erroring_task(reason: "Something went wrong")
 
       instance = failing_task.new
       instance.perform
@@ -334,14 +322,14 @@ RSpec.describe CMDx::Task do
 
     it "calls middleware when present" do
       middleware_called = false
-      middleware = Class.new do
+      middleware_class = create_middleware_class(name: "TrackingMiddleware") do
         define_method(:call) do |task, next_callable|
           middleware_called = true
           next_callable.call(task)
         end
       end
 
-      task_class.use(middleware.new)
+      task_class.use(middleware_class.new)
       task.perform
 
       expect(middleware_called).to be(true)
@@ -358,11 +346,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "raises exceptions for failures" do
-      failing_task = Class.new(described_class) do
-        def call
-          fail!(reason: "Something went wrong")
-        end
-      end
+      failing_task = create_failing_task(reason: "Something went wrong")
 
       instance = failing_task.new
 
@@ -371,14 +355,14 @@ RSpec.describe CMDx::Task do
 
     it "calls middleware when present" do
       middleware_called = false
-      middleware = Class.new do
+      middleware_class = create_middleware_class(name: "TrackingMiddleware") do
         define_method(:call) do |task, next_callable|
           middleware_called = true
           next_callable.call(task)
         end
       end
 
-      task_class.use(middleware.new)
+      task_class.use(middleware_class.new)
       task.perform!
 
       expect(middleware_called).to be(true)
@@ -430,7 +414,7 @@ RSpec.describe CMDx::Task do
 
   describe "parameter handling" do
     let(:parameterized_task) do
-      Class.new(described_class) do
+      create_task_class(name: "ParameterizedTask") do
         required :user_id, type: :integer
         optional :notify, type: :boolean, default: true
 
@@ -471,7 +455,7 @@ RSpec.describe CMDx::Task do
     let(:hook_tracking) { [] }
     let(:hooked_task) do
       tracking = hook_tracking
-      Class.new(described_class) do
+      create_task_class(name: "HookedTask") do
         before_execution -> { tracking << :before_execution }
         after_execution -> { tracking << :after_execution }
         on_success -> { tracking << :on_success }
@@ -503,11 +487,7 @@ RSpec.describe CMDx::Task do
 
   describe "error handling" do
     let(:error_task) do
-      Class.new(described_class) do
-        def call
-          raise StandardError, "Test error"
-        end
-      end
+      create_erroring_task(reason: "Test error")
     end
 
     it "captures exceptions in perform" do
@@ -528,7 +508,7 @@ RSpec.describe CMDx::Task do
 
   describe "result state management" do
     let(:state_task) do
-      Class.new(described_class) do
+      create_task_class(name: "StateTask") do
         def call
           context.processed = true
         end
@@ -542,7 +522,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "transitions to executing during call" do
-      task_with_hook = Class.new(described_class) do
+      task_with_hook = create_task_class(name: "TaskWithHook") do
         on_executing do
           context.executing_captured = result.executing?
         end

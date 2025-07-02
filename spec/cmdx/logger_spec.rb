@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe CMDx::Logger do
   describe ".call" do
-    let(:task) { double("Task") }
+    let(:task) { mock_task }
 
     context "when no logger is configured" do
       before do
@@ -19,7 +19,7 @@ RSpec.describe CMDx::Logger do
     end
 
     context "when logger is configured" do
-      let(:logger) { double("Logger") }
+      let(:logger) { mock_logger }
 
       before do
         allow(task).to receive(:task_setting).with(:logger).and_return(logger)
@@ -194,7 +194,7 @@ RSpec.describe CMDx::Logger do
     end
 
     context "when task setting methods raise errors" do
-      let(:logger) { double("Logger") }
+      let(:logger) { mock_logger }
 
       before do
         allow(task).to receive(:task_setting).with(:logger).and_return(logger)
@@ -208,7 +208,7 @@ RSpec.describe CMDx::Logger do
     end
 
     context "when logger assignment methods raise errors" do
-      let(:logger) { double("Logger") }
+      let(:logger) { mock_logger }
       let(:formatter) { double("Formatter") }
 
       before do

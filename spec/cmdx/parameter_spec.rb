@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Parameter do
-  let(:task_class) { Class.new(CMDx::Task) }
+  let(:task_class) { create_simple_task }
 
   describe "initialization" do
     context "when creating a basic parameter" do
