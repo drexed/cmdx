@@ -142,7 +142,7 @@ RSpec.describe "Task Basics", type: :integration do
       end
     end
 
-    context "using non-bang call method" do
+    context "when using non-bang call method" do
       it "returns result for successful execution" do
         result = successful_task.call
 
@@ -170,7 +170,7 @@ RSpec.describe "Task Basics", type: :integration do
       end
     end
 
-    context "using bang call method" do
+    context "when using bang call method" do
       it "returns result for successful execution" do
         result = successful_task.call!
 

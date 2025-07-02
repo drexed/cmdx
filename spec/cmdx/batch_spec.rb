@@ -66,16 +66,16 @@ RSpec.describe CMDx::Batch do
     it "does not share groups between different batch classes" do
       task_a = Class.new(CMDx::Task)
       task_b = Class.new(CMDx::Task)
-      batch_class_1 = Class.new(described_class)
-      batch_class_2 = Class.new(described_class)
+      batch_class_one = Class.new(described_class)
+      batch_class_two = Class.new(described_class)
 
-      batch_class_1.process task_a
-      batch_class_2.process task_b
+      batch_class_one.process task_a
+      batch_class_two.process task_b
 
-      expect(batch_class_1.batch_groups.size).to eq(1)
-      expect(batch_class_2.batch_groups.size).to eq(1)
-      expect(batch_class_1.batch_groups.first.tasks).to eq([task_a])
-      expect(batch_class_2.batch_groups.first.tasks).to eq([task_b])
+      expect(batch_class_one.batch_groups.size).to eq(1)
+      expect(batch_class_two.batch_groups.size).to eq(1)
+      expect(batch_class_one.batch_groups.first.tasks).to eq([task_a])
+      expect(batch_class_two.batch_groups.first.tasks).to eq([task_b])
     end
   end
 
@@ -265,7 +265,7 @@ RSpec.describe CMDx::Batch do
       end
     end
 
-    context "conditional execution" do
+    context "when using conditional execution" do
       it "evaluates if conditions" do
         task = simple_task
         batch_class = Class.new(described_class) do
@@ -312,7 +312,7 @@ RSpec.describe CMDx::Batch do
       end
     end
 
-    context "edge cases" do
+    context "when handling edge cases" do
       it "handles empty task arrays in groups" do
         batch_class = Class.new(described_class)
         batch_class.instance_variable_set(:@batch_groups, [described_class::Group.new([], {})])
@@ -337,7 +337,7 @@ RSpec.describe CMDx::Batch do
   end
 
   describe "integration scenarios" do
-    let(:counter_task) do
+    let(:counter_task_one) do
       Class.new(CMDx::Task) do
         def call
           context.counter ||= 0
@@ -359,7 +359,7 @@ RSpec.describe CMDx::Batch do
     end
 
     it "executes simple batch workflow" do
-      task = counter_task
+      task = counter_task_one
       batch_class = Class.new(described_class) do
         process task
         process task
@@ -373,7 +373,7 @@ RSpec.describe CMDx::Batch do
 
     it "stops execution on first failure with default halt behavior" do
       # Create separate counter task classes to avoid shared state
-      counter_task_1 = Class.new(CMDx::Task) do
+      counter_task_two = Class.new(CMDx::Task) do
         def call
           context.counter ||= 0
           context.counter += 1
@@ -382,20 +382,13 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      counter_task_2 = Class.new(CMDx::Task) do
-        def call
-          context.counter ||= 0
-          context.counter += 1
-          context.executed_tasks ||= []
-          context.executed_tasks << "counter_#{context.counter}"
-        end
-      end
-
+      task_one = counter_task_one
+      task_two = counter_task_two
       failing = failing_task
       batch_class = Class.new(described_class) do
-        process counter_task_1
+        process task_one
         process failing
-        process counter_task_2
+        process task_two
       end
 
       result = batch_class.call(test: "data")
@@ -405,7 +398,7 @@ RSpec.describe CMDx::Batch do
     end
 
     it "continues execution with custom halt behavior" do
-      counter = counter_task
+      counter = counter_task_one
       failing = failing_task
       batch_class = Class.new(described_class) do
         process counter
@@ -420,7 +413,7 @@ RSpec.describe CMDx::Batch do
     end
 
     it "handles conditional execution with context data" do
-      counter = counter_task
+      counter = counter_task_one
       conditional_task = Class.new(CMDx::Task) do
         def call
           context.conditional_executed = true
@@ -439,7 +432,7 @@ RSpec.describe CMDx::Batch do
     end
 
     it "handles nested batch execution" do
-      counter = counter_task
+      counter = counter_task_one
       inner_batch = Class.new(described_class) do
         process counter
         process counter

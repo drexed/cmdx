@@ -107,18 +107,18 @@ RSpec.describe CMDx::ChainInspector do
     end
 
     context "when chain has multiple results" do
-      let(:result1) { double("Result1") }
-      let(:result2) { double("Result2") }
-      let(:result3) { double("Result3") }
-      let(:result1_hash) { { class: "ParentTask", index: 0 } }
-      let(:result2_hash) { { class: "ChildTask1", index: 1 } }
-      let(:result3_hash) { { class: "ChildTask2", index: 2 } }
+      let(:parent_result) { double("ParentResult") }
+      let(:child_result_one) { double("ChildResult1") }
+      let(:child_result_two) { double("ChildResult2") }
+      let(:parent_result_hash) { { class: "ParentTask", index: 0 } }
+      let(:child_result_one_hash) { { class: "ChildTask1", index: 1 } }
+      let(:child_result_two_hash) { { class: "ChildTask2", index: 2 } }
 
       before do
-        allow(chain).to receive(:results).and_return([result1, result2, result3])
+        allow(chain).to receive(:results).and_return([parent_result, child_result_one, child_result_two])
 
-        [result1, result2, result3].each_with_index do |result, i|
-          hash = [result1_hash, result2_hash, result3_hash][i]
+        [parent_result, child_result_one, child_result_two].each_with_index do |result, i|
+          hash = [parent_result_hash, child_result_one_hash, child_result_two_hash][i]
           allow(result).to receive(:to_h).and_return(hash)
           allow(hash).to receive(:except).with(:chain_id).and_return(hash)
           allow(hash).to receive(:pretty_inspect).and_return("{ class: \"Task#{i + 1}\" }")
@@ -147,10 +147,8 @@ RSpec.describe CMDx::ChainInspector do
       it "processes each result individually" do
         described_class.call(chain)
 
-        [result1_hash, result2_hash, result3_hash].each do |hash|
-          expect(hash).to have_received(:except).with(:chain_id)
-          expect(hash).to have_received(:pretty_inspect)
-        end
+        expect([parent_result_hash, child_result_one_hash, child_result_two_hash]).to all(have_received(:except).with(:chain_id))
+        expect([parent_result_hash, child_result_one_hash, child_result_two_hash]).to all(have_received(:pretty_inspect))
       end
     end
 

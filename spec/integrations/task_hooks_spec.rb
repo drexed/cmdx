@@ -829,7 +829,7 @@ RSpec.describe "Task Hooks Integration" do
   end
 
   describe "Real-world Integration Scenarios" do
-    context "e-commerce order processing pipeline" do
+    context "when using e-commerce order processing pipeline" do
       let(:ecommerce_order_task) do
         log = execution_log
         notification_svc = notification_service
@@ -977,7 +977,7 @@ RSpec.describe "Task Hooks Integration" do
       end
     end
 
-    context "data processing pipeline with error recovery" do
+    context "when using data processing pipeline with error recovery" do
       let(:data_processing_task) do
         log = execution_log
         Class.new(CMDx::Task) do

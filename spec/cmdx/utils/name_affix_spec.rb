@@ -223,7 +223,7 @@ RSpec.describe CMDx::Utils::NameAffix do
       end
     end
 
-    context "edge cases" do
+    context "when handling edge cases" do
       it "handles nil method name" do
         result = described_class.call(nil, "source", prefix: true)
 
@@ -255,7 +255,7 @@ RSpec.describe CMDx::Utils::NameAffix do
       end
     end
 
-    context "delegation scenarios" do
+    context "when using delegation scenarios" do
       it "creates namespaced method names" do
         result = described_class.call(:count, "users", prefix: true)
 
@@ -287,7 +287,7 @@ RSpec.describe CMDx::Utils::NameAffix do
       end
     end
 
-    context "method generation patterns" do
+    context "when using method generation patterns" do
       it "creates boolean method names" do
         methods = %i[valid empty present authenticated].map do |method|
           described_class.call(method, "user", suffix: "?")

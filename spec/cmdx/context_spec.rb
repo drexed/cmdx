@@ -151,7 +151,7 @@ RSpec.describe CMDx::Context do
       end
     end
 
-    context "optimization behavior" do
+    context "when testing optimization behavior" do
       it "avoids object creation for reusable contexts" do
         original = described_class.new(data: "test")
         reused = described_class.build(original)

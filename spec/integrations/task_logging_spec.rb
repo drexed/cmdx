@@ -769,7 +769,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
 
     after { ENV["RAILS_ENV"] = original_rails_env }
 
-    context "in development environment" do
+    context "when in development environment" do
       before { ENV["RAILS_ENV"] = "development" }
 
       it "uses development-appropriate log configuration" do
@@ -779,7 +779,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       end
     end
 
-    context "in test environment" do
+    context "when in test environment" do
       before { ENV["RAILS_ENV"] = "test" }
 
       it "uses test-appropriate log configuration" do
@@ -787,7 +787,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       end
     end
 
-    context "in production environment" do
+    context "when in production environment" do
       before { ENV["RAILS_ENV"] = "production" }
 
       it "uses production-appropriate log configuration" do

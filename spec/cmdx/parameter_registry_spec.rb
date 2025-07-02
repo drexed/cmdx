@@ -173,24 +173,24 @@ RSpec.describe CMDx::ParameterRegistry do
     end
 
     context "when multiple parameters have children" do
-      let(:child1) { double("Child1", method_name: :child1, children: []) }
-      let(:child2) { double("Child2", method_name: :child2, children: []) }
-      let(:parent1) do
+      let(:first_child_param) { double("Child1", method_name: :child1, children: []) }
+      let(:second_child_param) { double("Child2", method_name: :child2, children: []) }
+      let(:first_parent_param) do
         double("Parent1",
                method_name: :parent1,
-               children: [child1],
+               children: [first_child_param],
                valid?: true)
       end
-      let(:parent2) do
+      let(:second_parent_param) do
         double("Parent2",
                method_name: :parent2,
-               children: [child2],
+               children: [second_child_param],
                valid?: true)
       end
 
       before do
-        registry << parent1
-        registry << parent2
+        registry << first_parent_param
+        registry << second_parent_param
       end
 
       it "validates all parameters and their children" do

@@ -144,7 +144,7 @@ RSpec.describe CMDx::Utils::LogTimestamp do
       end
     end
 
-    context "format consistency" do
+    context "when checking format consistency" do
       it "always returns consistent date format" do
         time1 = Time.new(2022, 1, 1, 0, 0, 0, 0)
         time2 = Time.new(2022, 12, 31, 23, 59, 59, 0)

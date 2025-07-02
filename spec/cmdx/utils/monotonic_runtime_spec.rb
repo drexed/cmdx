@@ -110,10 +110,8 @@ RSpec.describe CMDx::Utils::MonotonicRuntime do
         results << described_class.call { [1, 2, 3] }
         results << described_class.call { { key: "value" } }
 
-        results.each do |result|
-          expect(result).to be_a(Integer)
-          expect(result).to be >= 0
-        end
+        expect(results).to all(be_a(Integer))
+        expect(results).to all(be >= 0)
       end
 
       it "handles complex return values" do

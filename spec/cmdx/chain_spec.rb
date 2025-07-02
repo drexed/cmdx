@@ -119,7 +119,7 @@ RSpec.describe CMDx::Chain do
         described_class.current = existing_chain
       end
 
-      it "uses the existing chain" do
+      it "uses the existing chain when building" do
         chain = described_class.build(result)
 
         expect(chain).to be(existing_chain)
@@ -131,10 +131,11 @@ RSpec.describe CMDx::Chain do
         expect(existing_chain.results).to include(result)
       end
 
-      it "returns the existing chain" do
+      it "returns the same existing chain instance" do
         chain = described_class.build(result)
 
         expect(chain).to be(existing_chain)
+        expect(chain.object_id).to eq(existing_chain.object_id)
       end
     end
 
@@ -279,12 +280,12 @@ RSpec.describe CMDx::Chain do
 
   describe "attribute delegation" do
     let(:chain) { described_class.new }
-    let(:result1) { double("Result1") }
-    let(:result2) { double("Result2") }
-    let(:result3) { double("Result3") }
+    let(:first_result) { double("FirstResult") }
+    let(:middle_result) { double("MiddleResult") }
+    let(:last_result) { double("LastResult") }
 
     before do
-      chain.results.push(result1, result2, result3)
+      chain.results.push(first_result, middle_result, last_result)
     end
 
     describe "delegation to results" do
@@ -293,23 +294,23 @@ RSpec.describe CMDx::Chain do
       end
 
       it "delegates first to results" do
-        expect(chain.first).to be(result1)
+        expect(chain.first).to be(first_result)
       end
 
       it "delegates last to results" do
-        expect(chain.last).to be(result3)
+        expect(chain.last).to be(last_result)
       end
 
       it "delegates index to results" do
-        allow(chain.results).to receive(:index).with(result2).and_return(1)
+        allow(chain.results).to receive(:index).with(middle_result).and_return(1)
 
-        expect(chain.index(result2)).to eq(1)
+        expect(chain.index(middle_result)).to eq(1)
       end
     end
 
     describe "delegation to first result" do
       before do
-        allow(result1).to receive_messages(state: "complete", status: "success", outcome: "processed", runtime: 0.5)
+        allow(first_result).to receive_messages(state: "complete", status: "success", outcome: "processed", runtime: 0.5)
       end
 
       it "delegates state to first result" do
@@ -390,34 +391,34 @@ RSpec.describe CMDx::Chain do
 
   describe "integration scenarios" do
     context "when building multiple results" do
-      let(:result1) { double("Result1") }
-      let(:result2) { double("Result2") }
-      let(:result3) { double("Result3") }
+      let(:first_task_result) { double("FirstTaskResult") }
+      let(:second_task_result) { double("SecondTaskResult") }
+      let(:third_task_result) { double("ThirdTaskResult") }
 
       before do
-        [result1, result2, result3].each do |result|
+        [first_task_result, second_task_result, third_task_result].each do |result|
           allow(result).to receive(:is_a?).with(CMDx::Result).and_return(true)
         end
       end
 
       it "maintains the same chain across multiple builds" do
-        chain1 = described_class.build(result1)
-        chain2 = described_class.build(result2)
-        chain3 = described_class.build(result3)
+        chain1 = described_class.build(first_task_result)
+        chain2 = described_class.build(second_task_result)
+        chain3 = described_class.build(third_task_result)
 
         expect(chain1).to be(chain2)
         expect(chain2).to be(chain3)
-        expect(chain1.results).to eq([result1, result2, result3])
+        expect(chain1.results).to eq([first_task_result, second_task_result, third_task_result])
       end
 
       it "preserves result order" do
-        described_class.build(result1)
-        described_class.build(result2)
-        chain = described_class.build(result3)
+        described_class.build(first_task_result)
+        described_class.build(second_task_result)
+        chain = described_class.build(third_task_result)
 
-        expect(chain.results[0]).to be(result1)
-        expect(chain.results[1]).to be(result2)
-        expect(chain.results[2]).to be(result3)
+        expect(chain.results[0]).to be(first_task_result)
+        expect(chain.results[1]).to be(second_task_result)
+        expect(chain.results[2]).to be(third_task_result)
       end
     end
 

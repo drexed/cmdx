@@ -64,11 +64,11 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
 
       it "calls the callable without correlation setup" do
-        result = middleware.call(task, callable)
+        actual_result = middleware.call(task, callable)
 
         expect(callable).to have_received(:call).with(task)
         expect(CMDx::Correlator).not_to have_received(:use)
-        expect(result).to eq(result)
+        expect(actual_result).to eq(result)
       end
     end
 
@@ -97,9 +97,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
         end
 
         it "returns the callable result" do
-          result = middleware.call(task, callable)
+          actual_result = middleware.call(task, callable)
 
-          expect(result).to eq(result)
+          expect(actual_result).to eq(result)
         end
       end
 

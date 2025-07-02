@@ -107,9 +107,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
         pairs = content.split
         expect(pairs.length).to be > 10
-        pairs.each do |pair|
-          expect(pair).to include("=")
-        end
+        expect(pairs).to all(include("="))
       end
     end
 

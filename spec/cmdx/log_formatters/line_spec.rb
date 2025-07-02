@@ -115,9 +115,7 @@ RSpec.describe CMDx::LogFormatters::Line do
 
         pairs = message_part.split
         expect(pairs.length).to be > 5
-        pairs.each do |pair|
-          expect(pair).to include("=")
-        end
+        expect(pairs).to all(include("="))
       end
     end
 

@@ -71,9 +71,6 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
             result = callable.call(task)
             @log << "validation_after"
             result
-          rescue CMDx::Fault
-            # Let the fault propagate to maintain CMDx behavior
-            raise
           end
         end
       end
@@ -244,9 +241,6 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
             result = callable.call(task)
             @log << "rate_limit_after"
             result
-          rescue CMDx::Fault
-            # Let the fault propagate to maintain CMDx behavior
-            raise
           end
         end
       end
@@ -641,9 +635,6 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
               end
 
               result
-            rescue CMDx::Fault
-              # Let the fault propagate to maintain CMDx behavior
-              raise
             end
           end
         end
@@ -728,9 +719,6 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
             result = callable.call(task)
             @log << "auth_complete"
             result
-          rescue CMDx::Fault
-            # Let the fault propagate to maintain CMDx behavior
-            raise
           end
         end
       end
@@ -755,9 +743,6 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
             result = callable.call(task)
             @log << "rate_limit_passed"
             result
-          rescue CMDx::Fault
-            # Let the fault propagate to maintain CMDx behavior
-            raise
           end
         end
       end

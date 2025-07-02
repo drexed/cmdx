@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Style/CaseEquality
+
 require "spec_helper"
 
 RSpec.describe CMDx::Fault do
@@ -417,7 +419,7 @@ RSpec.describe CMDx::Fault do
           true
         end
 
-        matcher === regular_error # rubocop:disable Lint/Void, Style/CaseEquality
+        matcher === regular_error # rubocop:disable Lint/Void
 
         expect(block_called).to be(false)
       end
@@ -547,3 +549,5 @@ RSpec.describe CMDx::Fault do
     end
   end
 end
+
+# rubocop:enable Style/CaseEquality

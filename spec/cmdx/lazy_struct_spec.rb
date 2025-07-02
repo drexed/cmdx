@@ -234,41 +234,41 @@ RSpec.describe CMDx::LazyStruct do
   end
 
   describe "#eql?" do
-    let(:struct1) { described_class.new(name: "John", age: 30) }
-    let(:struct2) { described_class.new(name: "John", age: 30) }
-    let(:struct3) { described_class.new(name: "Jane", age: 25) }
+    let(:john_struct) { described_class.new(name: "John", age: 30) }
+    let(:john_struct_duplicate) { described_class.new(name: "John", age: 30) }
+    let(:jane_struct) { described_class.new(name: "Jane", age: 25) }
 
     context "when structs have same data" do
       it "returns true" do
-        expect(struct1.eql?(struct2)).to be(true)
+        expect(john_struct.eql?(john_struct_duplicate)).to be(true)
       end
     end
 
     context "when structs have different data" do
       it "returns false" do
-        expect(struct1.eql?(struct3)).to be(false)
+        expect(john_struct.eql?(jane_struct)).to be(false)
       end
     end
 
     context "when comparing with different class" do
       it "returns false" do
-        expect(struct1.eql?({})).to be(false)
+        expect(john_struct.eql?({})).to be(false)
       end
     end
 
     context "when comparing with nil" do
       it "returns false" do
-        expect(struct1.eql?(nil)).to be(false)
+        expect(john_struct.eql?(nil)).to be(false)
       end
     end
   end
 
   describe "#==" do
-    let(:struct1) { described_class.new(name: "John") }
-    let(:struct2) { described_class.new(name: "John") }
+    let(:first_john_struct) { described_class.new(name: "John") }
+    let(:second_john_struct) { described_class.new(name: "John") }
 
     it "is an alias for eql?" do
-      expect(struct1 == struct2).to be(true)
+      expect(first_john_struct == second_john_struct).to be(true)
     end
   end
 
@@ -284,12 +284,6 @@ RSpec.describe CMDx::LazyStruct do
 
       it "returns nested value with string keys" do
         result = struct.dig("user", :profile, :name)
-
-        expect(result).to eq("John")
-      end
-
-      it "returns nested value with mixed key types" do
-        result = struct.dig(:user, :profile, :name)
 
         expect(result).to eq("John")
       end

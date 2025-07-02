@@ -153,7 +153,7 @@ module CMDx
     #   struct.merge!(age: 30, city: "NYC")
     #   struct.to_h  #=> {:name => "John", :age => 30, :city => "NYC"}
     def merge!(args = {})
-      args.to_h.each { |key, value| store!(key, value) }
+      args.to_h.each { |key, value| store!(symbolized_key(key), value) }
       self
     end
 

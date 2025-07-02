@@ -264,18 +264,16 @@ RSpec.describe CMDx::TaskSerializer do
     end
 
     context "when task class has complex names" do
-      it "serializes namespaced class name" do
-        module TestNamespace
-          class NamespacedTask < CMDx::Task
-
-            def call
-              # Implementation
-            end
-
+      let(:namespaced_task_class) do
+        stub_const("TestNamespace::NamespacedTask", Class.new(CMDx::Task) do
+          def call
+            # Implementation
           end
-        end
+        end)
+      end
 
-        instance = TestNamespace::NamespacedTask.new
+      it "serializes namespaced class name" do
+        instance = namespaced_task_class.new
         allow(instance).to receive_messages(id: "namespaced-123", result: task_result, chain: task_chain)
 
         serialized_data = described_class.call(instance)

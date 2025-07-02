@@ -100,24 +100,24 @@ RSpec.describe CMDx::ChainSerializer do
     end
 
     context "when chain has multiple results" do
-      let(:result1) { double("Result1") }
-      let(:result2) { double("Result2") }
-      let(:result3) { double("Result3") }
-      let(:result1_hash) { { class: "ParentTask", index: 0, state: "complete" } }
-      let(:result2_hash) { { class: "ChildTask1", index: 1, state: "complete" } }
-      let(:result3_hash) { { class: "ChildTask2", index: 2, state: "complete" } }
+      let(:parent_result) { double("ParentResult") }
+      let(:child_result_one) { double("ChildResult1") }
+      let(:child_result_two) { double("ChildResult2") }
+      let(:parent_result_hash) { { class: "ParentTask", index: 0, state: "complete" } }
+      let(:child_result_one_hash) { { class: "ChildTask1", index: 1, state: "complete" } }
+      let(:child_result_two_hash) { { class: "ChildTask2", index: 2, state: "complete" } }
 
       before do
-        allow(chain).to receive(:results).and_return([result1, result2, result3])
-        allow(result1).to receive(:to_h).and_return(result1_hash)
-        allow(result2).to receive(:to_h).and_return(result2_hash)
-        allow(result3).to receive(:to_h).and_return(result3_hash)
+        allow(chain).to receive(:results).and_return([parent_result, child_result_one, child_result_two])
+        allow(parent_result).to receive(:to_h).and_return(parent_result_hash)
+        allow(child_result_one).to receive(:to_h).and_return(child_result_one_hash)
+        allow(child_result_two).to receive(:to_h).and_return(child_result_two_hash)
       end
 
       it "includes all results in results array" do
         result = described_class.call(chain)
 
-        expect(result[:results]).to eq([result1_hash, result2_hash, result3_hash])
+        expect(result[:results]).to eq([parent_result_hash, child_result_one_hash, child_result_two_hash])
       end
 
       it "maintains result order" do
@@ -132,9 +132,9 @@ RSpec.describe CMDx::ChainSerializer do
       it "calls to_h on each result" do
         described_class.call(chain)
 
-        expect(result1).to have_received(:to_h)
-        expect(result2).to have_received(:to_h)
-        expect(result3).to have_received(:to_h)
+        expect(parent_result).to have_received(:to_h)
+        expect(child_result_one).to have_received(:to_h)
+        expect(child_result_two).to have_received(:to_h)
       end
 
       it "handles different result structures" do

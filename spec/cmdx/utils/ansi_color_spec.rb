@@ -202,7 +202,7 @@ RSpec.describe CMDx::Utils::AnsiColor do
       end
     end
 
-    context "error handling" do
+    context "when handling errors" do
       it "raises KeyError for invalid color" do
         expect do
           described_class.call("Text", color: :invalid_color)

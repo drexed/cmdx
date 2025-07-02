@@ -384,6 +384,7 @@ RSpec.describe CMDx::Correlator do
 
     it "does not interfere with correlation contexts across threads" do
       results = {}
+      results.compare_by_identity
       threads = []
 
       3.times do |i|
@@ -392,7 +393,7 @@ RSpec.describe CMDx::Correlator do
           described_class.use(correlation_id) do
             # Simulate some work
             sleep(0.01)
-            results[Thread.current.object_id] = described_class.id
+            results[Thread.current] = described_class.id
           end
         end
       end
@@ -433,13 +434,13 @@ RSpec.describe CMDx::Correlator do
 
           # Simulate nested service calls
           described_class.use("service-call-1") do
-            correlation_operations << [:service_1, described_class.id]
+            correlation_operations << [:service_one, described_class.id]
           end
 
           correlation_operations << [:between_services, described_class.id]
 
           described_class.use("service-call-2") do
-            correlation_operations << [:service_2, described_class.id]
+            correlation_operations << [:service_two, described_class.id]
           end
 
           correlation_operations << [:end, described_class.id]
@@ -447,9 +448,9 @@ RSpec.describe CMDx::Correlator do
 
         expected_operations = [
           [:start, "request-abc123"],
-          [:service_1, "service-call-1"],
+          [:service_one, "service-call-1"],
           [:between_services, "request-abc123"],
-          [:service_2, "service-call-2"],
+          [:service_two, "service-call-2"],
           [:end, "request-abc123"]
         ]
 

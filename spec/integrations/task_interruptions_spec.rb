@@ -233,22 +233,30 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "raises CMDx::Failed exception for failures" do
         expect do
           user_creation_task.call!(email: "invalid-email", password: "pass")
-        end.to raise_error(CMDx::Failed) do |error|
-          expect(error.message).to eq("Invalid email format")
-          expect(error.result.metadata[:code]).to eq("EMAIL_FORMAT_ERROR")
-          expect(error.result.metadata[:field]).to eq("email")
-          expect(error.task).to be_a(user_creation_task)
+        end.to raise_error(CMDx::Failed)
+
+        begin
+          user_creation_task.call!(email: "invalid-email", password: "pass")
+        rescue CMDx::Failed => e
+          expect(e.message).to eq("Invalid email format")
+          expect(e.result.metadata[:code]).to eq("EMAIL_FORMAT_ERROR")
+          expect(e.result.metadata[:field]).to eq("email")
+          expect(e.task).to be_a(user_creation_task)
         end
       end
 
       it "provides access to complete fault context" do
         expect do
           payment_processing_task.call!(payment_amount: -5.0, payment_method: "credit_card")
-        end.to raise_error(CMDx::Failed) do |error|
-          expect(error.context.payment_amount).to eq(-5.0)
-          expect(error.context.payment_method).to eq("credit_card")
-          expect(error.chain).to be_a(CMDx::Chain)
-          expect(error.result.runtime).to be_a(Numeric).or be_nil
+        end.to raise_error(CMDx::Failed)
+
+        begin
+          payment_processing_task.call!(payment_amount: -5.0, payment_method: "credit_card")
+        rescue CMDx::Failed => e
+          expect(e.context.payment_amount).to eq(-5.0)
+          expect(e.context.payment_method).to eq("credit_card")
+          expect(e.chain).to be_a(CMDx::Chain)
+          expect(e.result.runtime).to be_a(Numeric).or be_nil
         end
       end
     end
@@ -315,8 +323,12 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "propagates NameError exceptions" do
         expect do
           exception_task.call!(simulate_error: "no_method_error")
-        end.to raise_error(NameError) do |error|
-          expect(error.message).to include("non_existent_method_call")
+        end.to raise_error(NameError)
+
+        begin
+          exception_task.call!(simulate_error: "no_method_error")
+        rescue NameError => e
+          expect(e.message).to include("non_existent_method_call")
         end
       end
     end
@@ -627,19 +639,27 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "raises original fault type when propagated" do
         expect do
           parent_task.call!(subtask_type: "failing")
-        end.to raise_error(CMDx::Failed) do |error|
-          expect(error.message).to eq("Subtask validation failed")
-          expect(error.result.metadata[:component]).to eq("data_validator")
+        end.to raise_error(CMDx::Failed)
+
+        begin
+          parent_task.call!(subtask_type: "failing")
+        rescue CMDx::Failed => e
+          expect(e.message).to eq("Subtask validation failed")
+          expect(e.result.metadata[:component]).to eq("data_validator")
         end
       end
 
       it "maintains fault chain information" do
         expect do
           propagating_task.call!
-        end.to raise_error(CMDx::Failed) do |error|
-          expect(error.result.metadata[:reason]).to eq("Subtask validation failed")
-          expect(error.result.metadata[:workflow_stage]).to eq("initial_validation")
-          expect(error.chain.results.size).to be >= 1
+        end.to raise_error(CMDx::Failed)
+
+        begin
+          propagating_task.call!
+        rescue CMDx::Failed => e
+          expect(e.result.metadata[:reason]).to eq("Subtask validation failed")
+          expect(e.result.metadata[:workflow_stage]).to eq("initial_validation")
+          expect(e.chain.results.size).to be >= 1
         end
       end
     end
@@ -707,16 +727,24 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "raises exception for skipped tasks" do
         expect do
           strict_task.call!(action: "skip")
-        end.to raise_error(CMDx::Skipped) do |error|
-          expect(error.result.metadata[:action_type]).to eq("conditional")
+        end.to raise_error(CMDx::Skipped)
+
+        begin
+          strict_task.call!(action: "skip")
+        rescue CMDx::Skipped => e
+          expect(e.result.metadata[:action_type]).to eq("conditional")
         end
       end
 
       it "raises exception for failed tasks" do
         expect do
           strict_task.call!(action: "fail")
-        end.to raise_error(CMDx::Failed) do |error|
-          expect(error.result.metadata[:error_level]).to eq("critical")
+        end.to raise_error(CMDx::Failed)
+
+        begin
+          strict_task.call!(action: "fail")
+        rescue CMDx::Failed => e
+          expect(e.result.metadata[:error_level]).to eq("critical")
         end
       end
     end

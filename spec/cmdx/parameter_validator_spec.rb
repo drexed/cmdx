@@ -167,11 +167,11 @@ RSpec.describe CMDx::ParameterValidator do
     end
 
     context "when task has complex error structure" do
-      let(:full_messages) { ["field_1 cannot be blank", "field_2 is too short"] }
+      let(:full_messages) { ["field_one cannot be blank", "field_two is too short"] }
       let(:messages_hash) do
         {
-          field_1: ["cannot be blank"],
-          field_2: ["is too short", "must be at least 3 characters"]
+          field_one: ["cannot be blank"],
+          field_two: ["is too short", "must be at least 3 characters"]
         }
       end
 
@@ -183,15 +183,15 @@ RSpec.describe CMDx::ParameterValidator do
 
       it "preserves complex message structure in messages parameter" do
         expect(task).to receive(:fail!) do |args|
-          expect(args[:messages][:field_1]).to eq(["cannot be blank"])
-          expect(args[:messages][:field_2]).to eq(["is too short", "must be at least 3 characters"])
+          expect(args[:messages][:field_one]).to eq(["cannot be blank"])
+          expect(args[:messages][:field_two]).to eq(["is too short", "must be at least 3 characters"])
         end
 
         described_class.call(task)
       end
 
       it "uses only full_messages for reason formatting" do
-        expected_reason = "field_1 cannot be blank. field_2 is too short"
+        expected_reason = "field_one cannot be blank. field_two is too short"
 
         expect(task).to receive(:fail!).with(
           reason: expected_reason,

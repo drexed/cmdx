@@ -46,10 +46,11 @@ RSpec.describe CMDx::Errors do
       expect(errors["email"]).to eq(["is required"])
     end
 
-    it "modifies the errors collection" do
+    it "modifies the errors collection directly" do
       errors.add(:email, "is required")
 
-      expect(errors[:email]).to eq(["is required"])
+      expect(errors.errors[:email]).to eq(["is required"])
+      expect(errors.errors.size).to eq(1)
     end
 
     it "handles multiple attributes independently" do
@@ -617,12 +618,14 @@ RSpec.describe CMDx::Errors do
       end
     end
 
+    # rubocop:disable Style/PreferredHashMethods
     describe "#has_key?" do
       it "acts as alias for key?" do
-        expect(errors.key?(:email)).to eq(errors.key?(:email))
-        expect(errors.key?(:email)).to be(true)
+        expect(errors.has_key?(:email)).to eq(errors.key?(:email))
+        expect(errors.has_key?(:email)).to be(true)
       end
     end
+    # rubocop:enable Style/PreferredHashMethods
 
     describe "#include?" do
       it "acts as alias for key?" do

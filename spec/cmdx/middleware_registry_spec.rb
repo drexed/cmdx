@@ -93,12 +93,12 @@ RSpec.describe CMDx::MiddlewareRegistry do
     end
 
     context "when chaining multiple middleware additions" do
-      let(:middleware1) { Class.new }
-      let(:middleware2) { Class.new }
-      let(:middleware3) { Class.new }
+      let(:first_middleware) { Class.new }
+      let(:second_middleware) { Class.new }
+      let(:third_middleware) { Class.new }
 
       it "allows method chaining" do
-        result = registry.use(middleware1).use(middleware2).use(middleware3)
+        result = registry.use(first_middleware).use(second_middleware).use(third_middleware)
 
         expect(registry.size).to eq(3)
         expect(result).to eq(registry)
@@ -176,7 +176,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
     context "when registry has multiple middleware" do
       let(:execution_order) { [] }
-      let(:middleware1) do
+      let(:outer_middleware) do
         Class.new do
           def initialize(order_tracker)
             @order_tracker = order_tracker
@@ -191,7 +191,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
         end
       end
 
-      let(:middleware2) do
+      let(:inner_middleware) do
         Class.new do
           def initialize(order_tracker)
             @order_tracker = order_tracker
@@ -207,8 +207,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(middleware1, execution_order)
-        registry.use(middleware2, execution_order)
+        registry.use(outer_middleware, execution_order)
+        registry.use(inner_middleware, execution_order)
       end
 
       it "executes middleware in correct order" do
