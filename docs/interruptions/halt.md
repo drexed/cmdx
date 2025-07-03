@@ -41,31 +41,6 @@ class ProcessUserOrderTask < CMDx::Task
 end
 ```
 
-### Common Skip Scenarios
-
-```ruby
-class SendUserNotificationTask < CMDx::Task
-  required :user_id, type: :integer
-  optional :force, type: :boolean, default: false
-
-  def call
-    context.user = User.find(user_id)
-
-    # Skip based on user preferences
-    unless force || context.user.notifications_enabled?
-      skip!(reason: "User has notifications disabled")
-    end
-
-    # Skip if already notified recently
-    if context.user.last_notification_sent > 1.hour.ago
-      skip!(reason: "Notification already sent recently")
-    end
-
-    NotificationService.send(context.user)
-  end
-end
-```
-
 > [!NOTE]
 > Use `skip!` when a task cannot or should not execute under current conditions, but this is not an error. Skipped tasks are considered successful outcomes.
 
@@ -93,38 +68,6 @@ class ProcessOrderPaymentTask < CMDx::Task
     process_payment
   end
 
-end
-```
-
-### Detailed Failure Handling
-
-```ruby
-class CreateUserAccountTask < CMDx::Task
-  required :email, type: :string
-  required :password, type: :string
-
-  def call
-    # Fail with detailed error information
-    if User.exists?(email: email)
-      fail!(
-        "Email already exists",
-        code: "EMAIL_EXISTS",
-        field: "email",
-        suggested_action: "Use different email or login instead"
-      )
-    end
-
-    # Fail on validation errors
-    unless valid_password_format?
-      fail!(
-        "Password must be at least 8 characters with special characters",
-        code: "INVALID_PASSWORD",
-        requirements: ["8+ characters", "special characters", "numbers"]
-      )
-    end
-
-    context.user = User.create!(email: email, password: password)
-  end
 end
 ```
 
