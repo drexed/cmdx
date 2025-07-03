@@ -254,14 +254,14 @@ class ProcessOrderTask < CMDx::Task
 end
 
 # Proc-based timeout for inline calculation
-class ProcessBatchTask < CMDx::Task
+class ProcessWorkflowTask < CMDx::Task
   use CMDx::Middlewares::Timeout, seconds: -> {
-    context.batch_size > 100 ? 120 : 60
+    context.workflow_size > 100 ? 120 : 60
   }
 
   def call
-    # Processes batch with timeout based on size
-    context.batch_items.each { |item| process_item(item) }
+    # Processes workflow with timeout based on size
+    context.workflow_items.each { |item| process_item(item) }
   end
 end
 
@@ -526,13 +526,13 @@ class ProcessApiRequestTask < CMDx::Task
 end
 
 # Symbol fallback when method doesn't exist
-class ProcessBatchTask < CMDx::Task
-  use CMDx::Middlewares::Correlate, id: :batch_processing
+class ProcessWorkflowTask < CMDx::Task
+  use CMDx::Middlewares::Correlate, id: :workflow_processing
 
   def call
-    # Uses :batch_processing as correlation ID (symbol as-is)
-    # since task doesn't respond to batch_processing method
-    context.batch_results = process_batch_items
+    # Uses :workflow_processing as correlation ID (symbol as-is)
+    # since task doesn't respond to workflow_processing method
+    context.workflow_results = process_workflow_items
   end
 end
 ```
@@ -732,4 +732,4 @@ end
 ---
 
 - **Prev:** [Callbacks](callbacks.md)
-- **Next:** [Batch](batch.md)
+- **Next:** [Workflow](workflow.md)

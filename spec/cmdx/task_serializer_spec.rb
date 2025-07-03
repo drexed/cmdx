@@ -21,9 +21,9 @@ RSpec.describe CMDx::TaskSerializer do
     end
   end
 
-  let(:batch_class) do
-    create_batch_class(name: "OrderProcessingBatch") do
-      task_settings!(tags: %i[batch orders])
+  let(:workflow_class) do
+    create_workflow_class(name: "OrderProcessingWorkflow") do
+      task_settings!(tags: %i[workflow orders])
     end
   end
 
@@ -35,19 +35,19 @@ RSpec.describe CMDx::TaskSerializer do
       class: task_class
     )
     allow(instance).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-    allow(instance).to receive(:is_a?).with(CMDx::Batch).and_return(false)
+    allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(false)
     instance
   end
 
-  let(:batch_instance) do
+  let(:workflow_instance) do
     instance = mock_task(
-      id: "batch-ghi-789",
+      id: "workflow-ghi-789",
       result: task_result,
       chain: task_chain,
-      class: batch_class
+      class: workflow_class
     )
-    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[batch orders])
-    allow(instance).to receive(:is_a?).with(CMDx::Batch).and_return(true)
+    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[workflow orders])
+    allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(true)
     instance
   end
 
@@ -90,14 +90,14 @@ RSpec.describe CMDx::TaskSerializer do
       end
     end
 
-    context "when serializing a batch" do
-      subject(:serialized_data) { described_class.call(batch_instance) }
+    context "when serializing a workflow" do
+      subject(:serialized_data) { described_class.call(workflow_instance) }
 
       it "returns a hash" do
         expect(serialized_data).to be_a(Hash)
       end
 
-      it "includes the batch index from result" do
+      it "includes the workflow index from result" do
         expect(serialized_data[:index]).to eq(1)
       end
 
@@ -105,20 +105,20 @@ RSpec.describe CMDx::TaskSerializer do
         expect(serialized_data[:chain_id]).to eq("chain-abc-123")
       end
 
-      it "sets type as Batch" do
-        expect(serialized_data[:type]).to eq("Batch")
+      it "sets type as Workflow" do
+        expect(serialized_data[:type]).to eq("Workflow")
       end
 
       it "includes the class name" do
-        expect(serialized_data[:class]).to eq("OrderProcessingBatch")
+        expect(serialized_data[:class]).to eq("OrderProcessingWorkflow")
       end
 
-      it "includes the batch id" do
-        expect(serialized_data[:id]).to eq("batch-ghi-789")
+      it "includes the workflow id" do
+        expect(serialized_data[:id]).to eq("workflow-ghi-789")
       end
 
-      it "includes the batch tags" do
-        expect(serialized_data[:tags]).to eq(%i[batch orders])
+      it "includes the workflow tags" do
+        expect(serialized_data[:tags]).to eq(%i[workflow orders])
       end
 
       it "includes all expected keys" do

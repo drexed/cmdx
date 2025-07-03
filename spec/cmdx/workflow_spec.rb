@@ -2,23 +2,23 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Batch do
-  describe ".batch_groups" do
+RSpec.describe CMDx::Workflow do
+  describe ".workflow_groups" do
     it "returns an empty array when no groups are defined" do
-      batch_class = create_batch_class
+      workflow_class = create_workflow_class
 
-      expect(batch_class.batch_groups).to eq([])
+      expect(workflow_class.workflow_groups).to eq([])
     end
 
     it "returns array of defined groups" do
       task_a = create_task_class(name: "TaskA")
       task_b = create_task_class(name: "TaskB")
-      batch_class = create_batch_class(name: "TestBatch") do
+      workflow_class = create_workflow_class(name: "TestWorkflow") do
         process task_a
         process task_b
       end
 
-      groups = batch_class.batch_groups
+      groups = workflow_class.workflow_groups
 
       expect(groups.size).to eq(2)
       expect(groups.first.tasks).to eq([task_a])
@@ -29,13 +29,13 @@ RSpec.describe CMDx::Batch do
       task_a = create_task_class(name: "TaskA")
       task_b = create_task_class(name: "TaskB")
       task_c = create_task_class(name: "TaskC")
-      batch_class = create_batch_class(name: "OrderTestBatch") do
+      workflow_class = create_workflow_class(name: "OrderTestWorkflow") do
         process task_c
         process task_a
         process task_b
       end
 
-      groups = batch_class.batch_groups
+      groups = workflow_class.workflow_groups
       tasks = groups.map(&:tasks).flatten
 
       expect(tasks).to eq([task_c, task_a, task_b])
@@ -45,105 +45,105 @@ RSpec.describe CMDx::Batch do
       task_a = create_task_class(name: "TaskA")
       task_b = create_task_class(name: "TaskB")
       task_c = create_task_class(name: "TaskC")
-      batch_class = create_batch_class(name: "MultiProcessBatch")
+      workflow_class = create_workflow_class(name: "MultiProcessWorkflow")
 
-      batch_class.process task_a
-      batch_class.process task_b, task_c
+      workflow_class.process task_a
+      workflow_class.process task_b, task_c
 
-      groups = batch_class.batch_groups
+      groups = workflow_class.workflow_groups
       expect(groups.size).to eq(2)
       expect(groups.first.tasks).to eq([task_a])
       expect(groups.last.tasks).to eq([task_b, task_c])
     end
 
     it "inherits empty groups from parent class" do
-      parent_batch = create_batch_class(name: "ParentBatch")
-      child_batch = Class.new(parent_batch)
+      parent_workflow = create_workflow_class(name: "ParentWorkflow")
+      child_workflow = Class.new(parent_workflow)
 
-      expect(child_batch.batch_groups).to eq([])
+      expect(child_workflow.workflow_groups).to eq([])
     end
 
-    it "does not share groups between different batch classes" do
+    it "does not share groups between different workflow classes" do
       task_a = create_task_class(name: "TaskA")
       task_b = create_task_class(name: "TaskB")
-      batch_class_one = create_batch_class(name: "BatchOne")
-      batch_class_two = create_batch_class(name: "BatchTwo")
+      workflow_class_one = create_workflow_class(name: "WorkflowOne")
+      workflow_class_two = create_workflow_class(name: "WorkflowTwo")
 
-      batch_class_one.process task_a
-      batch_class_two.process task_b
+      workflow_class_one.process task_a
+      workflow_class_two.process task_b
 
-      expect(batch_class_one.batch_groups.size).to eq(1)
-      expect(batch_class_two.batch_groups.size).to eq(1)
-      expect(batch_class_one.batch_groups.first.tasks).to eq([task_a])
-      expect(batch_class_two.batch_groups.first.tasks).to eq([task_b])
+      expect(workflow_class_one.workflow_groups.size).to eq(1)
+      expect(workflow_class_two.workflow_groups.size).to eq(1)
+      expect(workflow_class_one.workflow_groups.first.tasks).to eq([task_a])
+      expect(workflow_class_two.workflow_groups.first.tasks).to eq([task_b])
     end
   end
 
   describe ".process" do
-    let(:batch_class) { create_batch_class(name: "ProcessTestBatch") }
+    let(:workflow_class) { create_workflow_class(name: "ProcessTestWorkflow") }
     let(:task_a) { create_task_class(name: "TaskA") }
     let(:task_b) { create_task_class(name: "TaskB") }
 
     it "creates group with single task" do
-      batch_class.process task_a
+      workflow_class.process task_a
 
-      group = batch_class.batch_groups.first
+      group = workflow_class.workflow_groups.first
       expect(group.tasks).to eq([task_a])
       expect(group.options).to eq({})
     end
 
     it "creates group with multiple tasks" do
-      batch_class.process task_a, task_b
+      workflow_class.process task_a, task_b
 
-      group = batch_class.batch_groups.first
+      group = workflow_class.workflow_groups.first
       expect(group.tasks).to eq([task_a, task_b])
     end
 
     it "accepts options for group configuration" do
-      batch_class.process task_a, task_b, if: proc { true }, batch_halt: ["failed"]
+      workflow_class.process task_a, task_b, if: proc { true }, workflow_halt: ["failed"]
 
-      group = batch_class.batch_groups.first
+      group = workflow_class.workflow_groups.first
       expect(group.options[:if]).to be_a(Proc)
-      expect(group.options[:batch_halt]).to eq(["failed"])
+      expect(group.options[:workflow_halt]).to eq(["failed"])
     end
 
     it "handles flattened task arrays" do
-      batch_class.process [task_a, task_b]
+      workflow_class.process [task_a, task_b]
 
-      group = batch_class.batch_groups.first
+      group = workflow_class.workflow_groups.first
       expect(group.tasks).to eq([task_a, task_b])
     end
 
     it "raises error for non-task classes" do
       expect do
-        batch_class.process String
-      end.to raise_error(TypeError, "must be a Task or Batch")
+        workflow_class.process String
+      end.to raise_error(TypeError, "must be a Task or Workflow")
     end
 
-    it "allows nested batch classes" do
-      nested_batch = create_batch_class(name: "NestedBatch")
-      batch_class.process nested_batch
+    it "allows nested workflow classes" do
+      nested_workflow = create_workflow_class(name: "NestedWorkflow")
+      workflow_class.process nested_workflow
 
-      group = batch_class.batch_groups.first
-      expect(group.tasks).to eq([nested_batch])
+      group = workflow_class.workflow_groups.first
+      expect(group.tasks).to eq([nested_workflow])
     end
 
     it "creates separate groups for multiple process calls" do
-      batch_class.process task_a
-      batch_class.process task_b
+      workflow_class.process task_a
+      workflow_class.process task_b
 
-      expect(batch_class.batch_groups.size).to eq(2)
+      expect(workflow_class.workflow_groups.size).to eq(2)
     end
 
     it "preserves order of task addition" do
       task_c = create_task_class(name: "TaskC")
       task_d = create_task_class(name: "TaskD")
 
-      batch_class.process task_a, task_b
-      batch_class.process task_c
-      batch_class.process task_d
+      workflow_class.process task_a, task_b
+      workflow_class.process task_c
+      workflow_class.process task_d
 
-      groups = batch_class.batch_groups
+      groups = workflow_class.workflow_groups
       expect(groups[0].tasks).to eq([task_a, task_b])
       expect(groups[1].tasks).to eq([task_c])
       expect(groups[2].tasks).to eq([task_d])
@@ -156,7 +156,7 @@ RSpec.describe CMDx::Batch do
 
     describe "#initialize" do
       it "sets tasks and options" do
-        options = { batch_halt: [:failed] }
+        options = { workflow_halt: [:failed] }
         group = described_class::Group.new([task_a, task_b], options)
 
         expect(group.tasks).to eq([task_a, task_b])
@@ -173,7 +173,7 @@ RSpec.describe CMDx::Batch do
 
     describe "#to_a" do
       it "returns array representation" do
-        options = { batch_halt: [:failed] }
+        options = { workflow_halt: [:failed] }
         group = described_class::Group.new([task_a], options)
 
         expect(group.to_a).to eq([[task_a], options])
@@ -185,11 +185,11 @@ RSpec.describe CMDx::Batch do
     let(:simple_task) { create_simple_task(name: "SimpleTask") }
     let(:failing_task) { create_failing_task(name: "FailingTask", reason: "Task failed") }
 
-    context "when batch has no groups" do
-      let(:batch_class) { create_batch_class(name: "EmptyBatch") }
+    context "when workflow has no groups" do
+      let(:workflow_class) { create_workflow_class(name: "EmptyWorkflow") }
 
       it "returns successful result" do
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result).to be_a(CMDx::Result)
         expect(result.status).to eq("success")
@@ -199,11 +199,11 @@ RSpec.describe CMDx::Batch do
     context "when all tasks succeed" do
       it "executes all tasks and returns success" do
         task = simple_task
-        batch_class = create_batch_class(name: "SuccessfulBatch") do
+        workflow_class = create_workflow_class(name: "SuccessfulWorkflow") do
           process task
         end
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("success")
         expect(result.context.executed).to be(true)
@@ -213,24 +213,24 @@ RSpec.describe CMDx::Batch do
     context "when task fails with default halt behavior" do
       it "stops execution on failure" do
         task = failing_task
-        batch_class = create_batch_class(name: "FailingBatch") do
+        workflow_class = create_workflow_class(name: "FailingWorkflow") do
           process task
         end
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("failed")
       end
     end
 
     context "when groups have custom halt behavior" do
-      it "respects group-level batch_halt setting" do
+      it "respects group-level workflow_halt setting" do
         task = failing_task
-        batch_class = create_batch_class(name: "CustomHaltBatch") do
-          process task, batch_halt: []
+        workflow_class = create_workflow_class(name: "CustomHaltWorkflow") do
+          process task, workflow_halt: []
         end
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("success")
       end
@@ -238,11 +238,11 @@ RSpec.describe CMDx::Batch do
       it "handles multiple halt statuses" do
         skipping_task = create_skipping_task(name: "SkippingTask", reason: "Skipping task")
 
-        batch_class = create_batch_class(name: "MultiHaltBatch") do
-          process skipping_task, batch_halt: %w[failed skipped]
+        workflow_class = create_workflow_class(name: "MultiHaltWorkflow") do
+          process skipping_task, workflow_halt: %w[failed skipped]
         end
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("skipped")
       end
@@ -251,33 +251,33 @@ RSpec.describe CMDx::Batch do
     context "when using conditional execution" do
       it "evaluates if conditions" do
         task = simple_task
-        batch_class = create_batch_class(name: "ConditionalIfBatch") do
+        workflow_class = create_workflow_class(name: "ConditionalIfWorkflow") do
           process task, if: proc { context.should_run }
         end
 
-        result = batch_class.call(should_run: true)
+        result = workflow_class.call(should_run: true)
         expect(result.context.executed).to be(true)
 
-        result = batch_class.call(should_run: false)
+        result = workflow_class.call(should_run: false)
         expect(result.context.executed).to be_nil
       end
 
       it "evaluates unless conditions" do
         task = simple_task
-        batch_class = create_batch_class(name: "ConditionalUnlessBatch") do
+        workflow_class = create_workflow_class(name: "ConditionalUnlessWorkflow") do
           process task, unless: proc { context.should_skip }
         end
 
-        result = batch_class.call(should_skip: false)
+        result = workflow_class.call(should_skip: false)
         expect(result.context.executed).to be(true)
 
-        result = batch_class.call(should_skip: true)
+        result = workflow_class.call(should_skip: true)
         expect(result.context.executed).to be_nil
       end
 
       it "supports symbol method conditions" do
         task = simple_task
-        batch_class = create_batch_class(name: "SymbolMethodBatch") do
+        workflow_class = create_workflow_class(name: "SymbolMethodWorkflow") do
           process task, if: :should_execute?
 
           private
@@ -287,31 +287,31 @@ RSpec.describe CMDx::Batch do
           end
         end
 
-        result = batch_class.call(enabled: true)
+        result = workflow_class.call(enabled: true)
         expect(result.context.executed).to be(true)
 
-        result = batch_class.call(enabled: false)
+        result = workflow_class.call(enabled: false)
         expect(result.context.executed).to be_nil
       end
     end
 
     context "when handling edge cases" do
       it "handles empty task arrays in groups" do
-        batch_class = create_batch_class(name: "EmptyGroupBatch")
-        batch_class.instance_variable_set(:@batch_groups, [described_class::Group.new([], {})])
+        workflow_class = create_workflow_class(name: "EmptyGroupWorkflow")
+        workflow_class.instance_variable_set(:@workflow_groups, [described_class::Group.new([], {})])
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("success")
       end
 
       it "handles groups with empty options" do
         task = simple_task
-        batch_class = create_batch_class(name: "EmptyOptionsBatch") do
+        workflow_class = create_workflow_class(name: "EmptyOptionsWorkflow") do
           process task
         end
 
-        result = batch_class.call(test: "data")
+        result = workflow_class.call(test: "data")
 
         expect(result.status).to eq("success")
         expect(result.context.executed).to be(true)
@@ -341,14 +341,14 @@ RSpec.describe CMDx::Batch do
       end
     end
 
-    it "executes simple batch workflow" do
+    it "executes simple workflow workflow" do
       task = counter_task_one
-      batch_class = create_batch_class(name: "SimpleWorkflowBatch") do
+      workflow_class = create_workflow_class(name: "SimpleWorkflowWorkflow") do
         process task
         process task
       end
 
-      result = batch_class.call(test: "data")
+      result = workflow_class.call(test: "data")
 
       expect(result.status).to eq("success")
       expect(result.context.executed_tasks).to eq(%w[counter_1 counter_2])
@@ -368,13 +368,13 @@ RSpec.describe CMDx::Batch do
       task_one = counter_task_one
       task_two = counter_task_two
       failing = failing_task
-      batch_class = create_batch_class(name: "FailureHaltBatch") do
+      workflow_class = create_workflow_class(name: "FailureHaltWorkflow") do
         process task_one
         process failing
         process task_two
       end
 
-      result = batch_class.call(test: "data")
+      result = workflow_class.call(test: "data")
 
       expect(result.context.executed_tasks).to eq(%w[counter_1 failing_task])
       expect(result.status).to eq("failed")
@@ -383,13 +383,13 @@ RSpec.describe CMDx::Batch do
     it "continues execution with custom halt behavior" do
       counter = counter_task_one
       failing = failing_task
-      batch_class = create_batch_class(name: "ContinueOnFailureBatch") do
+      workflow_class = create_workflow_class(name: "ContinueOnFailureWorkflow") do
         process counter
-        process failing, batch_halt: []
+        process failing, workflow_halt: []
         process counter
       end
 
-      result = batch_class.call(test: "data")
+      result = workflow_class.call(test: "data")
 
       expect(result.context.executed_tasks).to eq(%w[counter_1 failing_task counter_2])
       expect(result.status).to eq("success")
@@ -403,31 +403,31 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      batch_class = create_batch_class(name: "ConditionalExecutionBatch") do
+      workflow_class = create_workflow_class(name: "ConditionalExecutionWorkflow") do
         process counter
         process conditional_task, if: proc { context.counter > 0 }
       end
 
-      result = batch_class.call(test: "data")
+      result = workflow_class.call(test: "data")
 
       expect(result.context.conditional_executed).to be(true)
       expect(result.status).to eq("success")
     end
 
-    it "handles nested batch execution" do
+    it "handles nested workflow execution" do
       counter = counter_task_one
-      inner_batch = create_batch_class(name: "InnerBatch") do
+      inner_workflow = create_workflow_class(name: "InnerWorkflow") do
         process counter
         process counter
       end
 
-      outer_batch = create_batch_class(name: "OuterBatch") do
+      outer_workflow = create_workflow_class(name: "OuterWorkflow") do
         process counter
-        process inner_batch
+        process inner_workflow
         process counter
       end
 
-      result = outer_batch.call(test: "data")
+      result = outer_workflow.call(test: "data")
 
       expect(result.status).to eq("success")
       expect(result.context.counter).to eq(4)
@@ -441,13 +441,13 @@ RSpec.describe CMDx::Batch do
         end
       end
 
-      batch_class = create_batch_class(name: "ContextPreservationBatch") do
+      workflow_class = create_workflow_class(name: "ContextPreservationWorkflow") do
         process data_task
         process data_task
         process data_task
       end
 
-      result = batch_class.call(test: "data")
+      result = workflow_class.call(test: "data")
 
       expect(result.status).to eq("success")
       expect(result.context.shared_data.size).to eq(3)

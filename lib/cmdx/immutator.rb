@@ -19,7 +19,7 @@ module CMDx
   # 3. **Context Object**: Frozen only for the first task in a chain (index 0)
   # 4. **Chain Object**: Frozen only for the first task in a chain (index 0)
   #
-  # This selective approach allows subsequent tasks in a batch or chain to continue
+  # This selective approach allows subsequent tasks in a workflow or chain to continue
   # using the shared context and chain objects while ensuring completed tasks remain
   # immutable.
   #
@@ -50,15 +50,15 @@ module CMDx
   #   result.context.new_field = "value"  #=> FrozenError
   #   result.task.call                    #=> FrozenError
   #
-  # @example Batch execution with selective freezing
-  #   class OrderBatch < CMDx::Batch
+  # @example Workflow execution with selective freezing
+  #   class OrderWorkflow < CMDx::Workflow
   #     def call
   #       ProcessOrderTask.call(context)
   #       SendEmailTask.call(context)
   #     end
   #   end
   #
-  #   result = OrderBatch.call(order_id: 123)
+  #   result = OrderWorkflow.call(order_id: 123)
   #   # First task freezes context and chain
   #   # Second task can still use unfrozen context for execution
   #   # But both task instances are individually frozen

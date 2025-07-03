@@ -10,7 +10,7 @@ CMDx provides comprehensive automatic logging for task execution with structured
   - [Success Result](#success-result)
   - [Skipped Result](#skipped-result)
   - [Failed Result](#failed-result)
-  - [Failure Chain (Batch Workflows)](#failure-chain-batch-workflows)
+  - [Failure Chain (Workflow Workflows)](#failure-chain-workflow-workflows)
 - [Configuration](#configuration)
   - [Global Configuration](#global-configuration)
   - [Task-Specific Configuration](#task-specific-configuration)
@@ -59,9 +59,9 @@ W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePaymentTask: index=0 chain
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Task class=ProcessPaymentTask id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=failed metadata={reason: "Payment declined", error_code: "INSUFFICIENT_FUNDS"} runtime=0.15 origin=CMDx
 ```
 
-### Failure Chain (Batch Workflows)
+### Failure Chain (Workflow Workflows)
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderBatch: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Batch class=CreateOrderBatch id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderWorkflow: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Workflow class=CreateOrderWorkflow id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
 ```
 
 ## Configuration
@@ -250,7 +250,7 @@ CMDx logs contain comprehensive execution metadata:
 #### Task Identification
 - `index` - Position in execution sequence
 - `chain_id` - Unique identifier for execution chain
-- `type` - Task or Batch
+- `type` - Task or Workflow
 - `class` - Task class name
 - `id` - Unique task instance identifier
 - `tags` - Custom tags for categorization
@@ -268,5 +268,5 @@ CMDx logs contain comprehensive execution metadata:
 
 ---
 
-- **Prev:** [Batch](batch.md)
+- **Prev:** [Workflow](workflow.md)
 - **Next:** [Tips & Tricks](tips_and_tricks.md)

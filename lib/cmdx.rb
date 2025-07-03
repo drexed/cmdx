@@ -42,7 +42,7 @@ require_relative "cmdx/faults"
 if defined?(Rails::Generators)
   require_relative "generators/cmdx/install_generator"
   require_relative "generators/cmdx/task_generator"
-  require_relative "generators/cmdx/batch_generator"
+  require_relative "generators/cmdx/workflow_generator"
 end
 
 # Load the Railtie last after everything else is required so we don't

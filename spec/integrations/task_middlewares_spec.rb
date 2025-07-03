@@ -384,18 +384,18 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
           use CMDx::Middlewares::Timeout, seconds: :calculate_timeout
 
           define_method :calculate_timeout do
-            context.batch_size ? context.batch_size * 0.05 : 0.1
+            context.workflow_size ? context.workflow_size * 0.05 : 0.1
           end
 
           define_method :call do
             log << "task_execution"
-            context.items_processed = context.batch_size || 1
+            context.items_processed = context.workflow_size || 1
           end
         end
       end
 
       it "calculates timeout dynamically based on task context" do
-        result = test_task.call(batch_size: 10)
+        result = test_task.call(workflow_size: 10)
 
         expect(result).to be_successful_task
         expect(execution_log).to eq(["task_execution"])
@@ -410,7 +410,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
           use CMDx::Middlewares::Timeout, seconds: :calculate_timeout
 
           define_method :calculate_timeout do
-            context.batch_size ? context.batch_size * 0.05 : 0.1
+            context.workflow_size ? context.workflow_size * 0.05 : 0.1
           end
 
           define_method :call do
@@ -421,7 +421,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       end
 
       it "uses proc to determine timeout value" do
-        result = test_task.call(batch_size: 5)
+        result = test_task.call(workflow_size: 5)
 
         expect(result).to be_successful_task
         expect(execution_log).to eq(["task_execution"])

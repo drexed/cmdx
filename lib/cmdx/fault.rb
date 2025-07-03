@@ -37,7 +37,7 @@ module CMDx
   #
   # @example Task-specific fault handling
   #   begin
-  #     OrderProcessingBatch.call!(orders: orders)
+  #     OrderProcessingWorkflow.call!(orders: orders)
   #   rescue CMDx::Fault.for?(ProcessOrderTask, ValidateOrderTask) => e
   #     # Handle faults only from specific task types
   #     retry_order_processing(e.context.order_id)
@@ -144,7 +144,7 @@ module CMDx
       #
       # @example Matching specific task types
       #   begin
-      #     OrderBatch.call!(orders: orders)
+      #     OrderWorkflow.call!(orders: orders)
       #   rescue CMDx::Fault.for?(ProcessOrderTask, ValidateOrderTask) => e
       #     # Only handle faults from these specific task types
       #     handle_order_processing_error(e)
@@ -153,7 +153,7 @@ module CMDx
       # @example Multiple task matching
       #   payment_tasks = [ProcessPaymentTask, ValidateCardTask, ChargeCardTask]
       #   begin
-      #     PaymentBatch.call!(payment_data: data)
+      #     PaymentWorkflow.call!(payment_data: data)
       #   rescue CMDx::Failed.for?(*payment_tasks) => e
       #     # Handle failures from any payment-related task
       #     process_payment_failure(e)
@@ -195,7 +195,7 @@ module CMDx
       #
       # @example Complex matching logic
       #   begin
-      #     BatchProcessor.call!(items: items)
+      #     WorkflowProcessor.call!(items: items)
       #   rescue CMDx::Fault.matches? { |f|
       #     f.result.failed? &&
       #     f.result.metadata[:reason]&.include?("timeout") &&

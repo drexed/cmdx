@@ -800,14 +800,14 @@ RSpec.describe "Task Logging Integration", type: :integration do
     let(:performance_logger) { Logger.new(log_output, formatter: CMDx::LogFormatters::Json.new) }
 
     context "with high-volume logging" do
-      let(:batch_processing_task) do
+      let(:workflow_processing_task) do
         test_logger = performance_logger
         Class.new(CMDx::Task) do
           task_settings!(logger: test_logger)
 
           def call
             # Simulate processing many items
-            context.items_processed = context.batch_size || 1000
+            context.items_processed = context.workflow_size || 1000
             context.processing_time = Time.now.to_f
           end
         end
@@ -816,7 +816,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       it "handles high-volume task execution efficiently" do
         start_time = Time.now
 
-        result = batch_processing_task.call(batch_size: 10_000)
+        result = workflow_processing_task.call(workflow_size: 10_000)
 
         end_time = Time.now
         execution_time = end_time - start_time

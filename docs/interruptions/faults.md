@@ -84,7 +84,7 @@ Match faults only from specific task classes using the `for?` method:
 
 ```ruby
 begin
-  BatchProcessUserOrdersTask.call!(orders: orders)
+  WorkflowProcessUserOrdersTask.call!(orders: orders)
 rescue CMDx::Skipped.for?(ProcessUserOrderTask, ValidateUserOrderTask) => e
   # Handle skips only from specific task types
   logger.info "Order processing skipped: #{e.task.class.name}"
@@ -137,7 +137,7 @@ end
 
 ```ruby
 begin
-  BatchProcessUserOrdersTask.call!(items: items)
+  WorkflowProcessUserOrdersTask.call!(items: items)
 rescue CMDx::Fault.matches? { |f|
   f.result.failed? &&
   f.result.metadata[:reason]&.include?("timeout") &&

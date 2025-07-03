@@ -2,14 +2,14 @@
 
 module CMDx
   module Testing
-    # Batch builder utilities for creating test batch classes
+    # Workflow builder utilities for creating test workflow classes
     #
-    # This module provides convenient methods for creating CMDx::Batch classes
-    # for testing purposes. While tests can use manual `Class.new(CMDx::Batch)`
-    # patterns, these builders offer semantic shortcuts for common batch scenarios
+    # This module provides convenient methods for creating CMDx::Workflow classes
+    # for testing purposes. While tests can use manual `Class.new(CMDx::Workflow)`
+    # patterns, these builders offer semantic shortcuts for common workflow scenarios
     # and improved semantic clarity.
     #
-    # @note These builders are optional - tests can use direct `Class.new(CMDx::Batch)`
+    # @note These builders are optional - tests can use direct `Class.new(CMDx::Workflow)`
     #   for maximum control and transparency, or these builders for convenience
     #   and improved test readability.
     #
@@ -19,65 +19,65 @@ module CMDx
     #   task3 = create_skipping_task
     #
     #   # Manual approach (explicit, full control)
-    #   batch_class = Class.new(CMDx::Batch) do
+    #   workflow_class = Class.new(CMDx::Workflow) do
     #     def self.name
-    #       "OrderProcessingBatch"
+    #       "OrderProcessingWorkflow"
     #     end
     #
-    #     task_settings!(batch_halt: [:failed], tags: [:orders])
+    #     task_settings!(workflow_halt: [:failed], tags: [:orders])
     #     process task1
     #     process task2, task3
     #   end
     #
     #   # Builder approach (semantic, convenient)
-    #   batch_class = create_simple_batch(
+    #   workflow_class = create_simple_workflow(
     #     tasks: [task1, task2, task3],
-    #     name: "OrderProcessingBatch"
+    #     name: "OrderProcessingWorkflow"
     #   )
     #
     # @example When to Use Manual vs Builder
     #   # Use manual approach when:
-    #   # - You need complex batch orchestration
+    #   # - You need complex workflow orchestration
     #   # - You have custom halt conditions or error handling
     #   # - You want maximum transparency in the test
     #   # - You need fine-grained control over task groupings
     #
     #   # Use builder approach when:
-    #   # - Testing common batch patterns (sequential, parallel, grouped)
+    #   # - Testing common workflow patterns (sequential, parallel, grouped)
     #   # - You want semantic clarity in test intent
-    #   # - You need consistent batch patterns across tests
+    #   # - You need consistent workflow patterns across tests
     #   # - Testing straightforward task execution flows
     #
     # @since 1.0.0
-    module BatchBuilders
+    module WorkflowBuilders
 
-      # @group Basic Batch Creation
+      # @group Basic Workflow Creation
 
-      # Creates a new batch class with optional configuration
+      # Creates a new workflow class with optional configuration
       #
-      # This is the foundation method for creating CMDx batch classes. It provides
-      # a clean interface for creating batch classes with optional naming and
+      # This is the foundation method for creating CMDx workflow classes. It provides
+      # a clean interface for creating workflow classes with optional naming and
       # custom behavior through block evaluation.
       #
-      # @param name [String] name for the batch class (defaults to "AnonymousBatch")
-      # @param block [Proc] optional block to evaluate in batch class context
-      # @return [Class] new batch class inheriting from CMDx::Batch
+      # @param name [String] name for the workflow class (defaults to "AnonymousWorkflow")
+      # @param block [Proc] optional block to evaluate in workflow class context
+      # @return [Class] new workflow class inheriting from CMDx::Workflow
       #
-      # @example Basic batch class creation
-      #   batch_class = create_batch_class do
+      # @example Basic workflow class creation
+      #   workflow_class = create_workflow_class do
       #     process create_simple_task
       #     process create_failing_task, create_skipping_task
       #   end
       #
-      # @example Named batch class with settings
-      #   batch_class = create_batch_class(name: "OrderProcessingBatch") do
-      #     task_settings!(batch_halt: [:failed], tags: [:orders])
+      # @example Named workflow class with settings
+      #   workflow_class = create_workflow_class(name: "OrderProcessingWorkflow") do
+      #     task_settings!(workflow_halt: [:failed], tags: [:orders])
       #     process create_simple_task(name: "ValidateOrder")
       #     process create_simple_task(name: "ProcessPayment")
       #   end
       #
-      # @example Batch class with complex configuration
-      #   batch_class = create_batch_class(name: "DataPipelineBatch") do
+      # @example Workflow class with complex configuration
+      #   workflow_class = create_workflow_class(name: "DataPipelineWorkflow") do
       #     task_settings!(timeout: 300, retries: 2, tags: [:data, :pipeline])
       #
       #     # Sequential validation tasks
@@ -91,41 +91,41 @@ module CMDx
       #       create_simple_task(name: "SendNotification")
       #     )
       #   end
-      def create_batch_class(name: "AnonymousBatch", &block)
-        batch_class = Class.new(CMDx::Batch)
-        batch_class.define_singleton_method(:name) { name }
-        batch_class.class_eval(&block) if block_given?
-        batch_class
+      def create_workflow_class(name: "AnonymousWorkflow", &block)
+        workflow_class = Class.new(CMDx::Workflow)
+        workflow_class.define_singleton_method(:name) { name }
+        workflow_class.class_eval(&block) if block_given?
+        workflow_class
       end
 
-      # Creates a simple sequential batch from an array of tasks
+      # Creates a simple sequential workflow from an array of tasks
       #
-      # This is the most basic batch type, processing tasks one after another
+      # This is the most basic workflow type, processing tasks one after another
       # in the order specified. Each task runs individually in its own group,
       # ensuring sequential execution with proper dependency handling.
       #
       # @param tasks [Array<Class>] array of task classes to process sequentially
-      # @param name [String] name for the batch class (defaults to "SimpleBatch")
+      # @param name [String] name for the workflow class (defaults to "SimpleWorkflow")
       # @param block [Proc] optional block for additional configuration
-      # @return [Class] batch class that processes tasks sequentially
+      # @return [Class] workflow class that processes tasks sequentially
       #
-      # @example Basic sequential batch
+      # @example Basic sequential workflow
       #   tasks = [
       #     create_simple_task(name: "Step1"),
       #     create_simple_task(name: "Step2"),
       #     create_simple_task(name: "Step3")
       #   ]
-      #   batch_class = create_simple_batch(tasks: tasks)
-      #   result = batch_class.call
+      #   workflow_class = create_simple_workflow(tasks: tasks)
+      #   result = workflow_class.call
       #   expect(result).to be_success
       #
-      # @example Named sequential batch with configuration
+      # @example Named sequential workflow with configuration
       #   tasks = [
       #     create_simple_task(name: "LoadData"),
       #     create_simple_task(name: "ValidateData"),
       #     create_simple_task(name: "SaveData")
       #   ]
-      #   batch_class = create_simple_batch(
+      #   workflow_class = create_simple_workflow(
       #     tasks: tasks,
       #     name: "DataProcessingWorkflow"
       #   ) do
@@ -140,11 +140,11 @@ module CMDx
       #     create_task_class(name: "Third") { define_method(:call) { execution_order << :third } }
       #   ]
       #
-      #   batch_class = create_simple_batch(tasks: tasks)
-      #   batch_class.call
+      #   workflow_class = create_simple_workflow(tasks: tasks)
+      #   workflow_class.call
       #   expect(execution_order).to eq([:first, :second, :third])
-      def create_simple_batch(tasks:, name: "SimpleBatch", &block)
-        create_batch_class(name: name) do
+      def create_simple_workflow(tasks:, name: "SimpleWorkflow", &block)
+        create_workflow_class(name: name) do
           Array(tasks).each { |task| process task }
 
           class_eval(&block) if block_given?

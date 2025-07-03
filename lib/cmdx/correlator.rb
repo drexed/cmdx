@@ -6,7 +6,7 @@ module CMDx
   #
   # The Correlator provides a simple, thread-local storage mechanism for managing correlation
   # identifiers throughout the execution lifecycle. It enables tracing related operations
-  # across different tasks, batches, and service boundaries within the same execution context.
+  # across different tasks, workflows, and service boundaries within the same execution context.
   #
   # Correlation IDs are automatically used by CMDx runs when available, providing seamless
   # request tracking without requiring explicit parameter passing between tasks.
@@ -31,7 +31,7 @@ module CMDx
   #   result.chain.id  # => "req-12345"
   #
   # @example Block-based correlation context
-  #   CMDx::Correlator.use("batch-operation-456") do
+  #   CMDx::Correlator.use("workflow-operation-456") do
   #     # All tasks within this block share the same correlation
   #     ProcessOrderTask.call(order_id: 123)
   #     SendEmailTask.call(user_id: 456)

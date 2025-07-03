@@ -9,7 +9,7 @@ module CMDx
   # The serialized format includes:
   # - Execution index within the chain
   # - Chain identifier for grouping related tasks
-  # - Task type (Task vs Batch)
+  # - Task type (Task vs Workflow)
   # - Class name for identification
   # - Unique task instance ID
   # - Associated tags for categorization
@@ -30,24 +30,24 @@ module CMDx
   #   #     tags: [:order, :payment]
   #   #   }
   #
-  # @example Batch serialization
-  #   class OrderProcessingBatch < CMDx::Batch
-  #     task_settings!(tags: [:batch, :orders])
+  # @example Workflow serialization
+  #   class OrderProcessingWorkflow < CMDx::Workflow
+  #     task_settings!(tags: [:workflow, :orders])
   #   end
   #
-  #   batch = OrderProcessingBatch.call(orders: [...])
-  #   TaskSerializer.call(batch)
+  #   workflow = OrderProcessingWorkflow.call(orders: [...])
+  #   TaskSerializer.call(workflow)
   #   #=> {
   #   #     index: 1,
   #   #     chain_id: "abc123...",
-  #   #     type: "Batch",
-  #   #     class: "OrderProcessingBatch",
+  #   #     type: "Workflow",
+  #   #     class: "OrderProcessingWorkflow",
   #   #     id: "ghi789...",
-  #   #     tags: [:batch, :orders]
+  #   #     tags: [:workflow, :orders]
   #   #   }
   #
   # @see Task Task class for execution context
-  # @see Batch Batch class for multi-task execution
+  # @see Workflow Workflow class for multi-task execution
   # @see Chain Chain class for execution grouping
   # @since 1.0.0
   module TaskSerializer
@@ -58,11 +58,11 @@ module CMDx
     # Serializes a task instance into a hash representation containing
     # essential metadata for identification and tracking.
     #
-    # @param task [Task, Batch] the task instance to serialize
+    # @param task [Task, Workflow] the task instance to serialize
     # @return [Hash] serialized task data with the following keys:
     #   - :index [Integer] position within the execution chain
     #   - :chain_id [String] identifier of the containing chain
-    #   - :type [String] "Task" or "Batch" based on instance type
+    #   - :type [String] "Task" or "Workflow" based on instance type
     #   - :class [String] class name of the task
     #   - :id [String] unique identifier for this task instance
     #   - :tags [Array] array of tags associated with the task
@@ -81,7 +81,7 @@ module CMDx
       {
         index: task.result.index,
         chain_id: task.chain.id,
-        type: task.is_a?(Batch) ? "Batch" : "Task",
+        type: task.is_a?(Workflow) ? "Workflow" : "Task",
         class: task.class.name,
         id: task.id,
         tags: task.task_setting(:tags)

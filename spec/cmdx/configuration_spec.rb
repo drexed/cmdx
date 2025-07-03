@@ -21,7 +21,7 @@ RSpec.describe CMDx::Configuration do
 
     it "sets default halt values" do
       expect(configuration.task_halt).to eq("failed")
-      expect(configuration.batch_halt).to eq("failed")
+      expect(configuration.workflow_halt).to eq("failed")
     end
   end
 
@@ -30,7 +30,7 @@ RSpec.describe CMDx::Configuration do
       hash = configuration.to_h
 
       expect(hash).to be_a(Hash)
-      expect(hash.keys).to contain_exactly(:logger, :middlewares, :callbacks, :task_halt, :batch_halt)
+      expect(hash.keys).to contain_exactly(:logger, :middlewares, :callbacks, :task_halt, :workflow_halt)
     end
 
     it "returns the actual attribute values" do
@@ -40,7 +40,7 @@ RSpec.describe CMDx::Configuration do
       expect(hash[:middlewares]).to be(configuration.middlewares)
       expect(hash[:callbacks]).to be(configuration.callbacks)
       expect(hash[:task_halt]).to eq(configuration.task_halt)
-      expect(hash[:batch_halt]).to eq(configuration.batch_halt)
+      expect(hash[:workflow_halt]).to eq(configuration.workflow_halt)
     end
 
     it "reflects changes to configuration attributes" do
@@ -84,10 +84,10 @@ RSpec.describe CMDx::Configuration do
       expect(configuration.task_halt).to eq(%w[failed skipped])
     end
 
-    it "allows reading and writing batch_halt" do
-      configuration.batch_halt = %w[failed error]
+    it "allows reading and writing workflow_halt" do
+      configuration.workflow_halt = %w[failed error]
 
-      expect(configuration.batch_halt).to eq(%w[failed error])
+      expect(configuration.workflow_halt).to eq(%w[failed error])
     end
   end
 end

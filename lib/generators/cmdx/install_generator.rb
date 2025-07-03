@@ -5,7 +5,7 @@ module Cmdx
   # Rails generator for creating CMDx initializer configuration.
   #
   # This generator creates a configuration initializer file that sets up
-  # global CMDx settings for task execution, batch processing, logging,
+  # global CMDx settings for task execution, workflow processing, logging,
   # and error handling behaviors.
   #
   # The generated initializer provides sensible defaults that can be
@@ -31,7 +31,7 @@ module Cmdx
     # default configuration settings for:
     # - Task halt behaviors
     # - Timeout settings
-    # - Batch execution controls
+    # - Workflow execution controls
     # - Logger configuration
     #
     # @return [void]

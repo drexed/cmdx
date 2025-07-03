@@ -426,10 +426,10 @@ RSpec.describe CMDx::Context do
       expect(context.to_h).to eq({})
 
       context.dynamic_attr = "added later"
-      context[:batch_data] = { count: 5 }
+      context[:workflow_data] = { count: 5 }
 
       expect(context.dynamic_attr).to eq("added later")
-      expect(context.batch_data[:count]).to eq(5)
+      expect(context.workflow_data[:count]).to eq(5)
     end
   end
 end

@@ -111,7 +111,7 @@ module CMDx
   #   end
   #
   # @see Task Task base class and call method requirement
-  # @see Batch Batch base class and call method requirement
+  # @see Workflow Workflow base class and call method requirement
   # @since 1.0.0
   UndefinedCallError = Class.new(Error)
 

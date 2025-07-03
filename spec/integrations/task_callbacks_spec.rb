@@ -982,7 +982,7 @@ RSpec.describe "Task Callbacks Integration" do
         log = execution_log
         Class.new(CMDx::Task) do
           required :data_source, type: :string
-          required :batch_size, type: :integer, default: 100
+          required :workflow_size, type: :integer, default: 100
           optional :retry_on_failure, type: :boolean, default: true
 
           before_execution :initialize_processing
@@ -1004,7 +1004,7 @@ RSpec.describe "Task Callbacks Integration" do
           def call
             context.processing_stats = {
               source: data_source,
-              batch_size: batch_size,
+              workflow_size: workflow_size,
               records_processed: 0,
               start_time: Time.now
             }
@@ -1013,7 +1013,7 @@ RSpec.describe "Task Callbacks Integration" do
             if data_source == "invalid_source"
               fail!("Invalid data source")
             else
-              context.processing_stats[:records_processed] = batch_size * 10
+              context.processing_stats[:records_processed] = workflow_size * 10
               context.processing_stats[:status] = "completed"
             end
           end
@@ -1073,7 +1073,7 @@ RSpec.describe "Task Callbacks Integration" do
       it "processes data successfully with complete pipeline" do
         result = data_processing_task.call(
           data_source: "valid_source.csv",
-          batch_size: 500
+          workflow_size: 500
         )
 
         expect(result).to be_successful_task
@@ -1092,7 +1092,7 @@ RSpec.describe "Task Callbacks Integration" do
       it "handles failures with retry logic" do
         result = data_processing_task.call(
           data_source: "invalid_source",
-          batch_size: 100,
+          workflow_size: 100,
           retry_on_failure: true
         )
 

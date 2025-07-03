@@ -176,10 +176,10 @@ if validation_result.success?
 end
 ```
 
-### Batch Processing
+### Workflow Processing
 
 ```ruby
-# Context maintains continuity across batch operations
+# Context maintains continuity across workflow operations
 initial_context = CMDx::Context.build(
   user_id: 123,
   action: "bulk_order_processing"
@@ -301,7 +301,7 @@ end
 ```
 
 > [!TIP]
-> Result object chaining is particularly powerful when combined with [Batch](../batch.md)
+> Result object chaining is particularly powerful when combined with [Workflow](../workflow.md)
 > processing, where multiple tasks can operate on shared context while maintaining
 > individual result tracking.
 

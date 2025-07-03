@@ -40,7 +40,7 @@ result.metadata #=> {
 
 > [!NOTE]
 > The `call` method ensures no exceptions escape task execution, making it ideal
-> for batch processing and scenarios where you need guaranteed result objects.
+> for workflow processing and scenarios where you need guaranteed result objects.
 
 ### Exception Metadata Structure
 

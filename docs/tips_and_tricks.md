@@ -12,7 +12,7 @@ This guide covers advanced patterns and optimization techniques for getting the 
 - [Parameter Optimization](#parameter-optimization)
   - [Efficient Parameter Definitions](#efficient-parameter-definitions)
 - [Performance Optimization](#performance-optimization)
-  - [Memory-Efficient Batch Processing](#memory-efficient-batch-processing)
+  - [Memory-Efficient Workflow Processing](#memory-efficient-workflow-processing)
 - [Advanced Error Handling](#advanced-error-handling)
   - [Graceful Degradation](#graceful-degradation)
 - [Monitoring and Observability](#monitoring-and-observability)
@@ -31,18 +31,18 @@ Create a well-organized command structure for maintainable applications:
       - process_order_task.rb
       - validate_order_task.rb
       - fulfill_order_task.rb
-      - batch_process_orders.rb
+      - order_processing_workflow.rb
     /notifications
       - send_email_task.rb
       - send_sms_task.rb
       - post_slack_message_task.rb
-      - batch_deliver_notifications.rb
+      - notification_delivery_workflow.rb
     /payments
       - charge_payment_task.rb
       - refund_payment_task.rb
       - validate_payment_method_task.rb
     - application_task.rb
-    - application_batch.rb
+    - application_workflow.rb
 ```
 
 ### Naming Conventions
@@ -55,9 +55,9 @@ class ProcessOrderTask < CMDx::Task; end
 class SendEmailTask < CMDx::Task; end
 class ValidatePaymentTask < CMDx::Task; end
 
-# Batches: Batch + Verb + Noun
-class BatchProcessOrders < CMDx::Batch; end
-class BatchDeliverNotifications < CMDx::Batch; end
+# Workflows: Noun + Verb + Workflow
+class OrderProcessingWorkflow < CMDx::Workflow; end
+class NotificationDeliveryWorkflow < CMDx::Workflow; end
 
 # Use present tense verbs for actions
 class CreateUserTask < CMDx::Task; end      # ✓ Good
@@ -124,10 +124,10 @@ end
 
 ## Performance Optimization
 
-### Memory-Efficient Batch Processing
+### Memory-Efficient Workflow Processing
 
 ```ruby
-class BatchProcessLargeDataset < CMDx::Batch
+class WorkflowProcessLargeDataset < CMDx::Workflow
   # Process in chunks to avoid memory issues
   process ProcessChunkDataTask, if: :has_more_data?
   process ProcessChunkTask

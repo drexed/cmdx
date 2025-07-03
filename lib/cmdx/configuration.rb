@@ -5,17 +5,17 @@ module CMDx
   ##
   # Provides global configuration management for CMDx framework settings.
   # The configuration system allows customization of default behaviors for tasks,
-  # batches, logging, and error handling across the entire application.
+  # workflows, logging, and error handling across the entire application.
   #
   # Configuration settings are stored as instance variables with explicit accessors
   # and can be modified through the configure block pattern. These settings serve
-  # as defaults that can be overridden at the task or batch level when needed.
+  # as defaults that can be overridden at the task or workflow level when needed.
   #
   # ## Available Configuration Options
   #
   # - **logger**: Logger instance for task execution logging
   # - **task_halt**: Result statuses that cause `call!` to raise faults
-  # - **batch_halt**: Result statuses that halt batch execution
+  # - **workflow_halt**: Result statuses that halt workflow execution
   # - **middlewares**: Global middleware registry applied to all tasks
   # - **callbacks**: Global callback registry applied to all tasks
   #
@@ -38,7 +38,7 @@ module CMDx
   #   CMDx.configure do |config|
   #     config.logger = Logger.new($stdout)
   #     config.task_halt = CMDx::Result::FAILED
-  #     config.batch_halt = [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
+  #     config.workflow_halt = [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
   #
   #     # Add global middlewares
   #     config.middlewares.use CMDx::Middlewares::Timeout, 30
@@ -71,7 +71,7 @@ module CMDx
   #   end
   #
   # @see Task Task-level configuration overrides
-  # @see Batch Batch-level configuration overrides
+  # @see Workflow Workflow-level configuration overrides
   # @see LogFormatters Available logging formatters
   # @see Result Result statuses for halt configuration
   # @since 1.0.0
@@ -87,7 +87,7 @@ module CMDx
     DEFAULT_HALT = "failed"
 
     # Configuration attributes
-    attr_accessor :logger, :middlewares, :callbacks, :task_halt, :batch_halt
+    attr_accessor :logger, :middlewares, :callbacks, :task_halt, :workflow_halt
 
     ##
     # Initializes a new configuration with default values.
@@ -99,7 +99,7 @@ module CMDx
       @middlewares = MiddlewareRegistry.new
       @callbacks   = CallbackRegistry.new
       @task_halt   = DEFAULT_HALT
-      @batch_halt  = DEFAULT_HALT
+      @workflow_halt = DEFAULT_HALT
     end
 
     ##
@@ -116,7 +116,7 @@ module CMDx
         middlewares: @middlewares,
         callbacks: @callbacks,
         task_halt: @task_halt,
-        batch_halt: @batch_halt
+        workflow_halt: @workflow_halt
       }
     end
 

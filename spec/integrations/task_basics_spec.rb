@@ -332,7 +332,7 @@ RSpec.describe "Task Basics", type: :integration do
           # Conditional assignment
           context.notification_sent ||= false
 
-          # Batch updates
+          # Workflow updates
           context.merge!(
             status: "completed",
             completion_time: Time.now

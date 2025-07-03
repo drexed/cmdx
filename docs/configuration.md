@@ -11,7 +11,7 @@ CMDx provides a flexible configuration system that allows customization at both 
   - [Global Callbacks](#global-callbacks)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
-  - [Batch Configuration](#batch-configuration)
+  - [Workflow Configuration](#workflow-configuration)
 - [Configuration Management](#configuration-management)
   - [Accessing Configuration](#accessing-configuration)
   - [Resetting Configuration](#resetting-configuration)
@@ -42,9 +42,9 @@ CMDx.configure do |config|
   # Halt execution and raise fault on these result statuses when using `call!`
   config.task_halt = CMDx::Result::FAILED
 
-  # Stop batch execution when tasks return these statuses
+  # Stop workflow execution when tasks return these statuses
   # Note: Skipped tasks continue processing by default
-  config.batch_halt = CMDx::Result::FAILED
+  config.workflow_halt = CMDx::Result::FAILED
 
   # Logger with formatter - see available formatters at:
   # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters
@@ -57,7 +57,7 @@ end
 | Option        | Type                  | Default        | Description |
 |---------------|-----------------------|----------------|-------------|
 | `task_halt`   | String, Array<String> | `"failed"`     | Result statuses that cause `call!` to raise faults |
-| `batch_halt`  | String, Array<String> | `"failed"`     | Result statuses that halt batch execution |
+| `workflow_halt`  | String, Array<String> | `"failed"`     | Result statuses that halt workflow execution |
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 | `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
@@ -106,7 +106,7 @@ end
 
 ## Task Settings
 
-Override global configuration for specific tasks or batches using `task_settings!`:
+Override global configuration for specific tasks or workflows using `task_settings!`:
 
 ```ruby
 class ProcessPaymentTask < CMDx::Task
@@ -129,20 +129,20 @@ end
 | Setting         | Type                  | Description |
 |-----------------|-----------------------|-------------|
 | `task_halt`     | String, Array<String> | Result statuses that cause `call!` to raise faults |
-| `batch_halt`    | String, Array<String> | Result statuses that halt batch execution |
+| `workflow_halt`    | String, Array<String> | Result statuses that halt workflow execution |
 | `tags`          | Array<String>         | Tags automatically appended to logs |
 | `logger`        | Logger                | Custom logger instance |
 | `log_level`     | Symbol                | Log level (`:debug`, `:info`, `:warn`, `:error`, `:fatal`) |
 | `log_formatter` | LogFormatter          | Custom log formatter |
 
-### Batch Configuration
+### Workflow Configuration
 
-Configure halt behavior for batches:
+Configure halt behavior for workflows:
 
 ```ruby
-class ProcessOrderBatch < CMDx::Batch
-  # Strict batch - halt on any failure
-  task_settings!(batch_halt: ["failed", "skipped"])
+class ProcessOrderWorkflow < CMDx::Workflow
+  # Strict workflow - halt on any failure
+  task_settings!(workflow_halt: ["failed", "skipped"])
 
   process ValidateOrderTask
   process ChargePaymentTask

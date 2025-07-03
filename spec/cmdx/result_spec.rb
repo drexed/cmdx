@@ -34,7 +34,7 @@ RSpec.describe CMDx::Result do
     end
 
     it "raises TypeError for non-task objects" do
-      expect { described_class.new("not a task") }.to raise_error(TypeError, "must be a Task or Batch")
+      expect { described_class.new("not a task") }.to raise_error(TypeError, "must be a Task or Workflow")
     end
 
     it "initializes with initialized state" do

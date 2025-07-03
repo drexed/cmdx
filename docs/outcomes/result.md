@@ -234,7 +234,7 @@ end
 Combine patterns for complex matching logic:
 
 ```ruby
-results = BatchProcessTask.call.chain.results
+results = WorkflowProcessTask.call.chain.results
 
 results.each do |result|
   case result
@@ -339,12 +339,12 @@ failed_result.to_h
 Results can propagate failures to other results:
 
 ```ruby
-class ProcessOrderBatchTask < CMDx::Task
+class ProcessOrderWorkflowTask < CMDx::Task
   def call
     child_result = ValidateOrderDataTask.call(context)
 
     # Propagate child failure with additional context
-    throw!(child_result, parent_context: "During batch processing") if child_result.failed?
+    throw!(child_result, parent_context: "During workflow processing") if child_result.failed?
   end
 end
 ```

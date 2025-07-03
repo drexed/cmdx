@@ -54,9 +54,9 @@ module CMDx
   #     end
   #   end
   #
-  # @example Handling skipped tasks in batches
+  # @example Handling skipped tasks in workflows
   #   begin
-  #     OrderProcessingBatch.call!(orders: orders)
+  #     OrderProcessingWorkflow.call!(orders: orders)
   #   rescue CMDx::Skipped => e
   #     # Log skipped operations but continue processing
   #     logger.info "Skipped processing: #{e.message}"

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe "Batch Workflows", type: :integration do
+RSpec.describe "Workflow Workflows", type: :integration do
   describe "E-commerce Order Processing" do
     let(:validate_order_task) do
       Class.new(CMDx::Task) do
@@ -48,13 +48,13 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:order_processing_batch) do
+    let(:order_processing_workflow) do
       validate_task = validate_order_task
       tax_task = calculate_tax_task
       payment_task = charge_payment_task
       fulfill_task = fulfill_order_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process validate_task
         process tax_task
         process payment_task
@@ -64,7 +64,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "when all tasks succeed" do
       it "processes the order through the complete pipeline" do
-        result = order_processing_batch.call(order_id: 123)
+        result = order_processing_workflow.call(order_id: 123)
 
         expect(result).to be_successful_task
         expect(result.context.order[:id]).to eq(123)
@@ -77,7 +77,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
 
       it "maintains context throughout the pipeline" do
-        result = order_processing_batch.call(order_id: 456)
+        result = order_processing_workflow.call(order_id: 456)
 
         context_data = result.context.to_h
         expect(context_data).to include(
@@ -103,13 +103,13 @@ RSpec.describe "Batch Workflows", type: :integration do
         end
       end
 
-      let(:failing_batch) do
+      let(:failing_workflow) do
         validate_task = validate_order_task
         tax_task = calculate_tax_task
         failing_task = failing_payment_task
         fulfill_task = fulfill_order_task
 
-        Class.new(CMDx::Batch) do
+        Class.new(CMDx::Workflow) do
           process validate_task
           process tax_task
           process failing_task
@@ -118,7 +118,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
 
       it "halts execution after payment failure" do
-        result = failing_batch.call(order_id: 123)
+        result = failing_workflow.call(order_id: 123)
 
         expect(result).to be_failed_task
         expect(result.context.validation_passed).to be(true)
@@ -181,13 +181,13 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:user_registration_batch) do
+    let(:user_registration_workflow) do
       validate_task = validate_user_data_task
       create_task = create_user_account_task
       email_task = send_welcome_email_task
       preferences_task = setup_user_preferences_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process validate_task
         process create_task
         process email_task, preferences_task
@@ -196,7 +196,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with valid user data" do
       it "completes the full registration workflow" do
-        result = user_registration_batch.call(
+        result = user_registration_workflow.call(
           email: "user@example.com",
           name: "John Doe"
         )
@@ -215,7 +215,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with invalid user data" do
       it "fails validation and halts the workflow" do
-        result = user_registration_batch.call(
+        result = user_registration_workflow.call(
           email: "invalid_email",
           name: "A"
         )
@@ -253,12 +253,12 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:conditional_batch) do
+    let(:conditional_workflow) do
       always_task = always_execute_task
       premium_task = premium_feature_task
       notify_task = notification_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process always_task
 
         process premium_task, if: proc { context.user_type == "premium" }
@@ -269,7 +269,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with premium user and notifications enabled" do
       it "executes all applicable tasks" do
-        result = conditional_batch.call(
+        result = conditional_workflow.call(
           user_type: "premium",
           disable_notifications: false
         )
@@ -283,7 +283,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with regular user and notifications disabled" do
       it "skips conditional tasks appropriately" do
-        result = conditional_batch.call(
+        result = conditional_workflow.call(
           user_type: "regular",
           disable_notifications: true
         )
@@ -297,7 +297,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with premium user and notifications disabled" do
       it "executes premium features but skips notifications" do
-        result = conditional_batch.call(
+        result = conditional_workflow.call(
           user_type: "premium",
           disable_notifications: true
         )
@@ -340,20 +340,20 @@ RSpec.describe "Batch Workflows", type: :integration do
     end
 
     context "with strict halt behavior" do
-      let(:strict_batch) do
+      let(:strict_workflow) do
         critical = critical_task
         optional = optional_task
         cleanup = cleanup_task
 
-        Class.new(CMDx::Batch) do
-          process critical, batch_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
+        Class.new(CMDx::Workflow) do
+          process critical, workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
           process optional
           process cleanup
         end
       end
 
       it "halts on skipped critical task" do
-        result = strict_batch.call(test_mode: true)
+        result = strict_workflow.call(test_mode: true)
 
         expect(result).to be_skipped_task
         expect(result.context.critical_operation_completed).to be_nil
@@ -363,20 +363,20 @@ RSpec.describe "Batch Workflows", type: :integration do
     end
 
     context "with flexible halt behavior" do
-      let(:flexible_batch) do
+      let(:flexible_workflow) do
         critical = critical_task
         optional = optional_task
         cleanup = cleanup_task
 
-        Class.new(CMDx::Batch) do
-          process critical, batch_halt: [CMDx::Result::FAILED]
-          process optional, batch_halt: []
+        Class.new(CMDx::Workflow) do
+          process critical, workflow_halt: [CMDx::Result::FAILED]
+          process optional, workflow_halt: []
           process cleanup
         end
       end
 
       it "continues after skipped critical task" do
-        result = flexible_batch.call(test_mode: true, service_down: false)
+        result = flexible_workflow.call(test_mode: true, service_down: false)
 
         expect(result).to be_successful_task
         expect(result.context.critical_operation_completed).to be_nil
@@ -385,7 +385,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
 
       it "continues after failed optional task" do
-        result = flexible_batch.call(
+        result = flexible_workflow.call(
           test_mode: false,
           service_down: true
         )
@@ -398,7 +398,7 @@ RSpec.describe "Batch Workflows", type: :integration do
     end
   end
 
-  describe "Nested Batch Workflows" do
+  describe "Nested Workflow Workflows" do
     let(:validate_input_task) do
       Class.new(CMDx::Task) do
         def call
@@ -453,53 +453,53 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:pre_processing_batch) do
+    let(:pre_processing_workflow) do
       validate_task = validate_input_task
       sanitize_task = sanitize_data_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process validate_task
         process sanitize_task
       end
     end
 
-    let(:core_processing_batch) do
+    let(:core_processing_workflow) do
       transform_task = transform_data_task
       business_task = apply_business_logic_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process transform_task
         process business_task
       end
     end
 
-    let(:post_processing_batch) do
+    let(:post_processing_workflow) do
       report_task = generate_report_task
       notify_task = send_notifications_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         process report_task
         process notify_task
       end
     end
 
-    let(:master_batch) do
-      pre_batch = pre_processing_batch
-      core_batch = core_processing_batch
-      post_batch = post_processing_batch
+    let(:master_workflow) do
+      pre_workflow = pre_processing_workflow
+      core_workflow = core_processing_workflow
+      post_workflow = post_processing_workflow
 
-      Class.new(CMDx::Batch) do
-        process pre_batch
+      Class.new(CMDx::Workflow) do
+        process pre_workflow
 
-        process core_batch, if: proc { context.pre_processing_complete }
+        process core_workflow, if: proc { context.pre_processing_complete }
 
-        process post_batch, unless: proc { context.skip_post_processing }
+        process post_workflow, unless: proc { context.skip_post_processing }
       end
     end
 
     context "with complete workflow execution" do
-      it "executes all nested batches successfully" do
-        result = master_batch.call(
+      it "executes all nested workflows successfully" do
+        result = master_workflow.call(
           skip_post_processing: false,
           skip_reporting: false
         )
@@ -516,9 +516,9 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    context "with conditional batch execution" do
+    context "with conditional workflow execution" do
       it "skips post-processing when configured" do
-        result = master_batch.call(
+        result = master_workflow.call(
           skip_post_processing: true
         )
 
@@ -582,15 +582,15 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:data_pipeline_batch) do
+    let(:data_pipeline_workflow) do
       load_task = load_data_task
       validate_task = validate_data_task
       transform_task = transform_data_task
       save_task = save_data_task
 
-      Class.new(CMDx::Batch) do
+      Class.new(CMDx::Workflow) do
         task_settings!(
-          batch_halt: [CMDx::Result::FAILED],
+          workflow_halt: [CMDx::Result::FAILED],
           tags: %i[data_processing pipeline]
         )
 
@@ -603,7 +603,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with successful data processing" do
       it "processes data through the complete pipeline" do
-        result = data_pipeline_batch.call(source: "file")
+        result = data_pipeline_workflow.call(source: "file")
 
         expect(result).to be_successful_task
         expect(result.context.data_loaded).to be(true)
@@ -614,7 +614,7 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
 
       it "maintains data transformation integrity" do
-        result = data_pipeline_batch.call(source: "api")
+        result = data_pipeline_workflow.call(source: "api")
 
         original_count = result.context.raw_data.size
         valid_count = result.context.validation_stats[:valid]
@@ -629,7 +629,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "with invalid data source" do
       it "fails at the data loading stage" do
-        result = data_pipeline_batch.call(source: "invalid_source")
+        result = data_pipeline_workflow.call(source: "invalid_source")
 
         expect(result).to be_failed_task
         expect(result.context.data_loaded).to be_nil
@@ -668,13 +668,13 @@ RSpec.describe "Batch Workflows", type: :integration do
       end
     end
 
-    let(:resilient_batch) do
+    let(:resilient_workflow) do
       risky = risky_task
       fallback = fallback_task
       cleanup = cleanup_task
 
-      Class.new(CMDx::Batch) do
-        task_settings!(batch_halt: [])
+      Class.new(CMDx::Workflow) do
+        task_settings!(workflow_halt: [])
 
         process risky
         process fallback, if: proc { context.operation_completed.nil? }
@@ -684,7 +684,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "when primary operation succeeds" do
       it "completes without using fallback" do
-        result = resilient_batch.call(service_down: false)
+        result = resilient_workflow.call(service_down: false)
 
         expect(result).to be_successful_task
         expect(result.context.operation_completed).to be(true)
@@ -695,7 +695,7 @@ RSpec.describe "Batch Workflows", type: :integration do
 
     context "when primary operation fails" do
       it "uses fallback and completes successfully" do
-        result = resilient_batch.call(service_down: true)
+        result = resilient_workflow.call(service_down: true)
 
         expect(result).to be_successful_task
         expect(result.context.operation_completed).to be_nil

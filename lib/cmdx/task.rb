@@ -94,7 +94,7 @@ module CMDx
   # @see Result Result object for execution outcomes
   # @see Context Context object for parameter access
   # @see ParameterRegistry Parameter definition and validation
-  # @see Batch Batch for executing multiple tasks
+  # @see Workflow Workflow for executing multiple tasks
   # @since 1.0.0
   class Task
 

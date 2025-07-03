@@ -481,35 +481,35 @@ RSpec.describe CMDx::Correlator do
       end
     end
 
-    context "when managing batch operations" do
-      it "supports batch correlation with individual item contexts" do
-        batch_results = []
+    context "when managing workflow operations" do
+      it "supports workflow correlation with individual item contexts" do
+        workflow_results = []
 
-        described_class.use("batch-operation-456") do
-          batch_results << [:batch_start, described_class.id]
+        described_class.use("workflow-operation-456") do
+          workflow_results << [:workflow_start, described_class.id]
 
           %w[item-1 item-2 item-3].each do |item|
             described_class.use("#{item}-processing") do
-              batch_results << [:item, described_class.id]
+              workflow_results << [:item, described_class.id]
             end
-            batch_results << [:item_complete, described_class.id]
+            workflow_results << [:item_complete, described_class.id]
           end
 
-          batch_results << [:batch_end, described_class.id]
+          workflow_results << [:workflow_end, described_class.id]
         end
 
         expected_results = [
-          [:batch_start, "batch-operation-456"],
+          [:workflow_start, "workflow-operation-456"],
           [:item, "item-1-processing"],
-          [:item_complete, "batch-operation-456"],
+          [:item_complete, "workflow-operation-456"],
           [:item, "item-2-processing"],
-          [:item_complete, "batch-operation-456"],
+          [:item_complete, "workflow-operation-456"],
           [:item, "item-3-processing"],
-          [:item_complete, "batch-operation-456"],
-          [:batch_end, "batch-operation-456"]
+          [:item_complete, "workflow-operation-456"],
+          [:workflow_end, "workflow-operation-456"]
         ]
 
-        expect(batch_results).to eq(expected_results)
+        expect(workflow_results).to eq(expected_results)
       end
     end
 

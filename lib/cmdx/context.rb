@@ -52,7 +52,7 @@ module CMDx
   #       context[:metadata] = { processed_at: Time.now }
   #       context["summary"] = generate_summary
   #
-  #       # Batch assignment
+  #       # Workflow assignment
   #       context.merge!(
   #         status: "complete",
   #         record_count: context.processed_data.size
@@ -61,7 +61,7 @@ module CMDx
   #   end
   #
   # @example Inter-task communication
-  #   class OrderProcessingBatch < CMDx::Batch
+  #   class OrderProcessingWorkflow < CMDx::Workflow
   #     def call
   #       # First task sets up context
   #       ValidateOrderTask.call(context)
@@ -74,7 +74,7 @@ module CMDx
   #   end
   #
   #   # Initial context with order data
-  #   result = OrderProcessingBatch.call(
+  #   result = OrderProcessingWorkflow.call(
   #     order_id: 123,
   #     payment_method: "credit_card",
   #     customer_email: "customer@example.com"

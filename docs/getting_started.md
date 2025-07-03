@@ -113,10 +113,10 @@ end
 
 ## Building Workflows
 
-Combine tasks using batches:
+Combine tasks using workflows:
 
 ```ruby
-class BatchProcessOrder < CMDx::Batch
+class WorkflowProcessOrder < CMDx::Workflow
   required :order_id, type: :integer
 
   process ValidateOrderTask
@@ -143,20 +143,20 @@ result = ProcessOrderWorkflow.call(order_id: 123)
 
 ## Code Generation
 
-Generate tasks and batches with proper structure:
+Generate tasks and workflows with proper structure:
 
 ```bash
 # Generate individual task
 rails generate cmdx:task ProcessOrder
 # Creates: app/cmds/process_order_task.rb
 
-# Generate workflow batch
-rails generate cmdx:batch BatchOrderDeliveries
-# Creates: app/cmds/batch_order_deliveries.rb
+# Generate task workflow
+rails generate cmdx:workflow OrderDeliveryWorkflow
+# Creates: app/cmds/order_delivery_workflow.rb
 ```
 
 > [!NOTE]
-> Generators automatically handle naming conventions and inherit from `ApplicationTask`/`ApplicationBatch` when available.
+> Generators automatically handle naming conventions and inherit from `ApplicationTask`/`ApplicationWorkflow` when available.
 
 ---
 

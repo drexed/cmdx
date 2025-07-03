@@ -4,7 +4,7 @@ module CMDx
   ##
   # Railtie provides seamless integration between CMDx and Ruby on Rails applications.
   # It automatically configures Rails-specific features including internationalization,
-  # autoloading paths, and directory structure conventions for CMDx tasks and batches.
+  # autoloading paths, and directory structure conventions for CMDx tasks and workflows.
   #
   # The Railtie handles two main integration aspects:
   # 1. **I18n Configuration**: Automatically loads CMDx locale files for available locales
@@ -16,8 +16,8 @@ module CMDx
   # ```
   # app/
   #   cmds/
-  #     batches/          # Batch command objects
-  #       order_processing_batch.rb
+  #     workflows/          # Workflow command objects
+  #       order_processing_workflow.rb
   #     tasks/            # Task command objects
   #       process_order_task.rb
   #       send_email_task.rb
@@ -27,7 +27,7 @@ module CMDx
   #
   # When CMDx is included in a Rails application, the Railtie automatically:
   # - Adds `app/cmds` to Rails autoload paths
-  # - Configures autoloader to collapse `app/cmds/batches` and `app/cmds/tasks` directories
+  # - Configures autoloader to collapse `app/cmds/workflows` and `app/cmds/tasks` directories
   # - Loads appropriate locale files from CMDx gem for error messages and validations
   # - Reloads I18n configuration to include CMDx translations
   #
@@ -63,7 +63,7 @@ module CMDx
   #
   # @see Configuration Configuration options for Rails integration
   # @see Task Task base class for command objects
-  # @see Batch Batch base class for multi-task operations
+  # @see Workflow Workflow base class for multi-task operations
   # @since 1.0.0
   class Railtie < Rails::Railtie
 
@@ -111,7 +111,7 @@ module CMDx
     ##
     # Configures Rails autoloading for CMDx command objects.
     # Sets up proper autoloading paths and directory collapsing to ensure
-    # CMDx tasks and batches are loaded correctly in Rails applications.
+    # CMDx tasks and workflows are loaded correctly in Rails applications.
     #
     # This initializer:
     # 1. Adds `app/cmds` to Rails autoload paths
@@ -129,17 +129,17 @@ module CMDx
     #   # File: app/cmds/tasks/process_order_task.rb
     #   # Class: ProcessOrderTask (not Tasks::ProcessOrderTask)
     #
-    #   # File: app/cmds/batches/order_processing_batch.rb
-    #   # Class: OrderProcessingBatch (not Batches::OrderProcessingBatch)
+    #   # File: app/cmds/workflows/order_processing_workflow.rb
+    #   # Class: OrderProcessingWorkflow (not Workflows::OrderProcessingWorkflow)
     #
     # @example Autoloading in action
     #   # Rails will automatically load these classes when referenced:
     #   ProcessOrderTask.call(order_id: 123)      # Loads from app/cmds/tasks/
-    #   OrderProcessingBatch.call(orders: [...])  # Loads from app/cmds/batches/
+    #   OrderProcessingWorkflow.call(orders: [...])  # Loads from app/cmds/workflows/
     initializer("cmdx.configure_rails_auto_load_paths") do |app|
       app.config.autoload_paths += %w[app/cmds]
 
-      types = %w[batches tasks]
+      types = %w[workflows tasks]
       app.autoloaders.each do |autoloader|
         types.each do |concept|
           dir = app.root.join("app/cmds/#{concept}")

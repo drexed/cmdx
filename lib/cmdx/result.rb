@@ -50,7 +50,7 @@ module CMDx
     # Results start in initialized state with success status.
     #
     # @param task [CMDx::Task] The task instance this result belongs to
-    # @raise [TypeError] If task is not a Task or Batch instance
+    # @raise [TypeError] If task is not a Task or Workflow instance
     #
     # @example Creating a result
     #   task = ProcessOrderTask.new
@@ -58,7 +58,7 @@ module CMDx
     #   result.initialized?  # => true
     #   result.success?      # => true
     def initialize(task)
-      raise TypeError, "must be a Task or Batch" unless task.is_a?(Task)
+      raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)
 
       @task     = task
       @state    = INITIALIZED

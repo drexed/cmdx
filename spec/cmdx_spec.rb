@@ -22,7 +22,7 @@ RSpec.describe CMDx do
       expect(config.middlewares).to be_a(CMDx::MiddlewareRegistry)
       expect(config.callbacks).to be_a(CMDx::CallbackRegistry)
       expect(config.task_halt).to eq("failed")
-      expect(config.batch_halt).to eq("failed")
+      expect(config.workflow_halt).to eq("failed")
     end
   end
 
@@ -44,12 +44,12 @@ RSpec.describe CMDx do
       described_class.configure do |config|
         config.logger = custom_logger
         config.task_halt = %w[failed skipped]
-        config.batch_halt = ["failed"]
+        config.workflow_halt = ["failed"]
       end
 
       expect(described_class.configuration.logger).to be(custom_logger)
       expect(described_class.configuration.task_halt).to eq(%w[failed skipped])
-      expect(described_class.configuration.batch_halt).to eq(["failed"])
+      expect(described_class.configuration.workflow_halt).to eq(["failed"])
     end
 
     it "raises ArgumentError when no block is given" do
@@ -80,7 +80,7 @@ RSpec.describe CMDx do
 
       expect(described_class.configuration.logger).not_to be(custom_logger)
       expect(described_class.configuration.task_halt).to eq("failed")
-      expect(described_class.configuration.batch_halt).to eq("failed")
+      expect(described_class.configuration.workflow_halt).to eq("failed")
     end
 
     it "creates fresh middleware and callback registries" do

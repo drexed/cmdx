@@ -110,7 +110,7 @@ module CMDx
   #
   # @see CMDx::Middleware Base middleware class
   # @see CMDx::Task Task settings configuration
-  # @see CMDx::Batch Batch execution context
+  # @see CMDx::Workflow Workflow execution context
 
   ##
   # Custom timeout error class that inherits from Interrupt.

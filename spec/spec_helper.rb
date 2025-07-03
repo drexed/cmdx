@@ -39,8 +39,8 @@ RSpec.configure do |config|
 
   config.include CMDx::Testing::TaskBuilders
   config.include CMDx::Testing::TaskHelpers
-  config.include CMDx::Testing::BatchBuilders
-  config.include CMDx::Testing::BatchHelpers
+  config.include CMDx::Testing::WorkflowBuilders
+  config.include CMDx::Testing::WorkflowHelpers
   config.include CMDx::Testing::CallbackBuilders
   config.include CMDx::Testing::MiddlewareBuilders
 
