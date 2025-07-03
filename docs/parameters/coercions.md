@@ -421,5 +421,5 @@ end
 
 ---
 
-- **Prev:** [Namespacing](namespacing.md)
-- **Next:** [Validations](validations.md)
+- **Prev:** [Parameters - Namespacing](namespacing.md)
+- **Next:** [Parameters - Validations](validations.md)
