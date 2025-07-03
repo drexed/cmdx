@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-## [1.0.0] - unreleased
+## [1.0.0] - 2025-07-03
 
 ### Added
 - Zeitwerk gem loader
