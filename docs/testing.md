@@ -349,36 +349,6 @@ expect(BrokenTask).not_to be_well_formed_task
 - Implements required call method
 - Has properly initialized parameter, callback, and middleware registries
 
-#### Single-Use Pattern Validation
-
-```ruby
-# Test task follows single-use instance pattern
-expect(MyTask).to follow_single_use_pattern
-expect(ProcessingTask).to follow_single_use_pattern
-
-# Negated usage (for reusable task implementations)
-expect(ReusableTask).not_to follow_single_use_pattern
-```
-
-**What it validates:**
-- Each instance has unique identifier
-- Instances become frozen after execution
-- Multiple executions of same instance are prevented
-
-#### Execution Lifecycle Validation
-
-```ruby
-# Test task becomes frozen after execution
-expect(MyTask).to be_frozen_after_execution
-
-# Test task prevents multiple executions
-expect(MyTask).to prevent_multiple_executions
-
-# Negated usage
-expect(MutableTask).not_to be_frozen_after_execution
-expect(ReusableTask).not_to prevent_multiple_executions
-```
-
 ### Exception Handling Matchers
 
 #### Graceful Exception Handling
@@ -503,27 +473,6 @@ expect(result).to be_successful_task
     timestamps: all(be_a(Time)),
     notifications: contain_exactly("email", "sms")
   )
-```
-
-### Conditional Testing
-
-```ruby
-# Conditional expectations based on environment
-if Rails.env.production?
-  expect(result).to have_metadata(tracking_id: be_present)
-else
-  expect(result).to have_metadata(debug_info: be_present)
-end
-
-# Dynamic testing based on result status
-case result.status
-when 'success'
-  expect(result).to have_context(processed_at: be_a(Time))
-when 'failed'
-  expect(result).to have_metadata(error_code: be_present)
-when 'skipped'
-  expect(result).to have_metadata(reason: be_present)
-end
 ```
 
 ## Best Practices

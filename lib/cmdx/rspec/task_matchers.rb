@@ -22,7 +22,6 @@
 #
 # @example Task lifecycle and behavior testing
 #   expect(TaskClass).to be_well_formed_task
-#   expect(TaskClass).to follow_single_use_pattern
 #   expect(TaskClass).to handle_exceptions_gracefully
 #
 # @see https://rspec.rubystyle.guide/ RSpec Style Guide
@@ -371,82 +370,6 @@ RSpec::Matchers.define :execute_callbacks do |*callback_names|
   end
 end
 
-# Tests that a task instance becomes frozen after execution
-#
-# This matcher verifies that task instances follow the immutability pattern
-# by becoming frozen after execution, preventing further modification of
-# the task state.
-#
-# @example Basic frozen state testing
-#   expect(MyTask).to be_frozen_after_execution
-#
-# @example Negated usage (for mutable tasks)
-#   expect(MutableTask).not_to be_frozen_after_execution
-#
-# @return [Boolean] true if task instance is frozen after execution
-#
-# @since 1.0.0
-RSpec::Matchers.define :be_frozen_after_execution do
-  match do |task_class|
-    task = task_class.new
-    task.perform
-    task.frozen?
-  end
-
-  failure_message do |_task_class|
-    "expected task to be frozen after execution, but it wasn't"
-  end
-
-  failure_message_when_negated do |_task_class|
-    "expected task not to be frozen after execution, but it was"
-  end
-
-  description do
-    "be frozen after execution"
-  end
-end
-
-# Tests that a task prevents multiple executions of the same instance
-#
-# This matcher verifies that task instances follow the single-execution
-# pattern by raising an error when attempting to execute the same instance
-# more than once, ensuring state integrity.
-#
-# @example Basic multiple execution prevention
-#   expect(MyTask).to prevent_multiple_executions
-#
-# @example Negated usage (for reusable tasks)
-#   expect(ReusableTask).not_to prevent_multiple_executions
-#
-# @return [Boolean] true if task raises error on second execution attempt
-#
-# @since 1.0.0
-RSpec::Matchers.define :prevent_multiple_executions do
-  match do |task_class|
-    task = task_class.new
-    task.perform
-
-    begin
-      task.perform
-      false # Should not reach here
-    rescue RuntimeError => e
-      e.message.include?("cannot transition")
-    end
-  end
-
-  failure_message do |_task_class|
-    "expected task to prevent multiple executions, but it didn't"
-  end
-
-  failure_message_when_negated do |_task_class|
-    "expected task not to prevent multiple executions, but it did"
-  end
-
-  description do
-    "prevent multiple executions"
-  end
-end
-
 # Tests that a task handles exceptions gracefully by converting them to failed results
 #
 # This matcher verifies that when a task raises an exception during execution,
@@ -643,58 +566,5 @@ RSpec::Matchers.define :be_well_formed_task do
 
   description do
     "be a well-formed task"
-  end
-end
-
-# Tests that a task class follows the single-use instance pattern
-#
-# This composite matcher verifies that a task properly implements the
-# single-use pattern fundamental to CMDx task architecture. This includes:
-# - Each instance has a unique identifier
-# - Instances become frozen after execution
-# - Multiple executions of the same instance are prevented
-#
-# The single-use pattern ensures task instances maintain state integrity
-# and follow immutability principles after execution.
-#
-# @example Basic single-use pattern validation
-#   expect(MyTask).to follow_single_use_pattern
-#   expect(ProcessingTask).to follow_single_use_pattern
-#
-# @example Negated usage (for reusable task implementations)
-#   expect(ReusableTask).not_to follow_single_use_pattern
-#
-# @return [Boolean] true if task follows all single-use pattern requirements
-#
-# @since 1.0.0
-RSpec::Matchers.define :follow_single_use_pattern do
-  match do |task_class|
-    task1 = task_class.new
-    task2 = task_class.new
-
-    # Each instance should have unique ID
-    task1.id != task2.id &&
-      # Tasks should be frozen after execution
-      (task1.perform
-       task1.frozen?) &&
-      # Tasks should prevent multiple executions
-      (begin
-        task1.perform
-        false
-      rescue RuntimeError
-        true
-      end)
-  end
-
-  failure_message do |_task_class|
-    "expected task to follow single-use pattern (unique IDs, frozen after execution, prevent multiple executions), but it didn't"
-  end
-
-  failure_message_when_negated do |_task_class|
-    "expected task not to follow single-use pattern, but it did"
-  end
-
-  description do
-    "follow single-use pattern"
   end
 end
