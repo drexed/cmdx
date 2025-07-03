@@ -180,6 +180,7 @@ RSpec.describe CMDx::Utils::MonotonicRuntime do
         end
 
         # Should have some variation in microsecond-level timing
+        pp times
         expect(times.uniq.size).to be > 1
       end
 
