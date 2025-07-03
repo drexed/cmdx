@@ -37,7 +37,7 @@ module CMDx
       # @option overrides [Object] :result task result
       # @option overrides [Object] :errors task errors collection
       # @option overrides [Object] :cmd_middlewares middleware registry
-      # @option overrides [Object] :cmd_hooks hook registry
+      # @option overrides [Object] :cmd_callbacks callback registry
       # @option overrides [Object] :cmd_parameters parameter registry
       #
       # @return [RSpec::Mocks::Double] configured task double
@@ -58,7 +58,7 @@ module CMDx
           result: mock_result,
           errors: double("Errors", empty?: true, full_messages: [], messages: {}),
           cmd_middlewares: double("MiddlewareRegistry"),
-          cmd_hooks: double("HookRegistry"),
+          cmd_callbacks: double("CallbackRegistry"),
           cmd_parameters: double("ParameterRegistry")
         }
 
@@ -520,26 +520,26 @@ module CMDx
         allow(parameter_value).to receive(:call).and_return(value)
       end
 
-      # @group Hook and Middleware Helpers
+      # @group Callback and Middleware Helpers
 
-      # Stubs hook execution behavior
+      # Stubs callback execution behavior
       #
-      # This method stubs hook-related methods to control hook execution
+      # This method stubs callback-related methods to control callback execution
       # during testing, allowing you to test scenarios with or without
-      # hook execution.
+      # callback execution.
       #
-      # @param hook_instance [Object] hook instance to stub
-      # @param should_execute [Boolean] whether hook should execute
+      # @param callback_instance [Object] callback instance to stub
+      # @param should_execute [Boolean] whether callback should execute
       # @return [void]
       #
-      # @example Allow hook execution
-      #   stub_hook_execution(my_hook, should_execute: true)
+      # @example Allow callback execution
+      #   stub_callback_execution(my_callback, should_execute: true)
       #
-      # @example Prevent hook execution
-      #   stub_hook_execution(my_hook, should_execute: false)
-      def stub_hook_execution(hook_instance, should_execute: true)
-        allow(hook_instance).to receive(:is_a?).with(CMDx::Hook).and_return(true)
-        allow(hook_instance).to receive(:call) if should_execute
+      # @example Prevent callback execution
+      #   stub_callback_execution(my_callback, should_execute: false)
+      def stub_callback_execution(callback_instance, should_execute: true)
+        allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
+        allow(callback_instance).to receive(:call) if should_execute
       end
 
       # Stubs middleware execution behavior

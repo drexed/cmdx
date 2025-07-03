@@ -2,7 +2,7 @@
 
 A task represents a unit of work to execute. Tasks are the core building blocks
 of CMDx, encapsulating business logic within a structured, reusable object. While
-CMDx offers extensive features like parameter validation, hooks, and state tracking,
+CMDx offers extensive features like parameter validation, callbacks, and state tracking,
 only a `call` method is required to create a functional task.
 
 ## Table of Contents

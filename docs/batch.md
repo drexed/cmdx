@@ -2,7 +2,7 @@
 
 A CMDx::Batch orchestrates sequential execution of multiple tasks in a linear pipeline. Batches provide a declarative DSL for composing complex business workflows from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
 
-Batches inherit from Task, gaining all task capabilities including hooks, parameter validation, result tracking, and configuration. The key difference is that batches coordinate other tasks rather than implementing business logic directly.
+Batches inherit from Task, gaining all task capabilities including callbacks, parameter validation, result tracking, and configuration. The key difference is that batches coordinate other tasks rather than implementing business logic directly.
 
 ## Table of Contents
 
@@ -301,7 +301,7 @@ class BatchProcessPayment < CMDx::Batch
   required :order_id, type: :integer
   optional :notify_user, type: :boolean, default: true
 
-  # Hooks
+  # Callbacks
   before_execution :setup_context
   after_execution :cleanup_resources
 

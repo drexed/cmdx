@@ -1,30 +1,30 @@
-# Hooks
+# Callbacks
 
-Hooks (callbacks) provide precise control over task execution lifecycle, running custom logic at
-specific transition points. Hook callables have access to the same context and result information
+Callbacks (callbacks) provide precise control over task execution lifecycle, running custom logic at
+specific transition points. Callback callables have access to the same context and result information
 as the `call` method, enabling rich integration patterns.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Hook Declaration](#hook-declaration)
-- [Hook Classes](#hook-classes)
-- [Available Hooks](#available-hooks)
-  - [Validation Hooks](#validation-hooks)
-  - [Execution Hooks](#execution-hooks)
-  - [State Hooks](#state-hooks)
-  - [Status Hooks](#status-hooks)
-  - [Outcome Hooks](#outcome-hooks)
+- [Callback Declaration](#callback-declaration)
+- [Callback Classes](#callback-classes)
+- [Available Callbacks](#available-callbacks)
+  - [Validation Callbacks](#validation-callbacks)
+  - [Execution Callbacks](#execution-callbacks)
+  - [State Callbacks](#state-callbacks)
+  - [Status Callbacks](#status-callbacks)
+  - [Outcome Callbacks](#outcome-callbacks)
 - [Execution Order](#execution-order)
 - [Conditional Execution](#conditional-execution)
-- [Hook Inheritance](#hook-inheritance)
+- [Callback Inheritance](#callback-inheritance)
 
 > [!TIP]
-> Hooks are inheritable, making them perfect for setting up global logic execution patterns like tracking markers, account plan checks, or logging standards.
+> Callbacks are inheritable, making them perfect for setting up global logic execution patterns like tracking markers, account plan checks, or logging standards.
 
-## Hook Declaration
+## Callback Declaration
 
-Hooks can be declared in multiple ways: method names, procs/lambdas, Hook class instances, or blocks.
+Callbacks can be declared in multiple ways: method names, procs/lambdas, Callback class instances, or blocks.
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
@@ -34,11 +34,11 @@ class ProcessOrderTask < CMDx::Task
   # Proc/lambda declaration
   on_complete -> { send_telemetry_data }
 
-  # Hook class declaration
-  before_execution LoggingHook.new(:debug)
-  on_success NotificationHook.new([:email, :slack])
+  # Callback class declaration
+  before_execution LoggingCallback.new(:debug)
+  on_success NotificationCallback.new([:email, :slack])
 
-  # Multiple hooks for same event
+  # Multiple callbacks for same event
   on_success :increment_counter, :send_notification
 
   # Conditional execution
@@ -67,20 +67,20 @@ class ProcessOrderTask < CMDx::Task
 end
 ```
 
-## Hook Classes
+## Callback Classes
 
-For complex hook logic or reusable patterns, you can create Hook classes similar to Middleware classes. Hook classes inherit from `CMDx::Hook` and implement the `call(task, hook_type)` method.
+For complex callback logic or reusable patterns, you can create Callback classes similar to Middleware classes. Callback classes inherit from `CMDx::Callback` and implement the `call(task, callback_type)` method.
 
-### Creating Hook Classes
+### Creating Callback Classes
 
 ```ruby
-class NotificationHook < CMDx::Hook
+class NotificationCallback < CMDx::Callback
   def initialize(channels)
     @channels = Array(channels)
   end
 
-  def call(task, hook_type)
-    return unless hook_type == :on_success
+  def call(task, callback_type)
+    return unless callback_type == :on_success
 
     @channels.each do |channel|
       NotificationService.send(channel, "Task #{task.class.name} completed")
@@ -89,21 +89,21 @@ class NotificationHook < CMDx::Hook
 end
 ```
 
-### Registering Hook Classes
+### Registering Callback Classes
 
-Hook classes can be registered using the `register` class method (recommended) or by directly calling the HookRegistry:
+Callback classes can be registered using the `register` class method (recommended) or by directly calling the CallbackRegistry:
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
   # Recommended: Use the register class method
-  register :before_execution, LoggingHook.new(:debug)
-  register :on_success, NotificationHook.new([:email, :slack])
+  register :before_execution, LoggingCallback.new(:debug)
+  register :on_success, NotificationCallback.new([:email, :slack])
   register :on_failure, :alert_admin, if: :critical?
 
-  # Alternative: Direct HookRegistry access (less common)
-  # cmd_hooks.register(:after_execution, CleanupHook.new)
+  # Alternative: Direct CallbackRegistry access (less common)
+  # cmd_callbacks.register(:after_execution, CleanupCallback.new)
 
-  # Traditional hook definitions still work alongside Hook classes
+  # Traditional callback definitions still work alongside Callback classes
   before_validation :validate_order_data
   on_success :update_metrics
 
@@ -120,23 +120,23 @@ class ProcessOrderTask < CMDx::Task
 end
 ```
 
-## Available Hooks
+## Available Callbacks
 
-### Validation Hooks
+### Validation Callbacks
 
 Execute around parameter validation:
 
 - `before_validation` - Before parameter validation
 - `after_validation` - After successful parameter validation
 
-### Execution Hooks
+### Execution Callbacks
 
 Execute around task logic:
 
 - `before_execution` - Before task logic begins
 - `after_execution` - After task logic completes (success or failure)
 
-### State Hooks
+### State Callbacks
 
 Execute based on execution state:
 
@@ -145,7 +145,7 @@ Execute based on execution state:
 - `on_interrupted` - Task is halted (skip/failure)
 - `on_executed` - Task finishes (complete or interrupted)
 
-### Status Hooks
+### Status Callbacks
 
 Execute based on execution status:
 
@@ -153,7 +153,7 @@ Execute based on execution status:
 - `on_skipped` - Task is skipped
 - `on_failed` - Task fails
 
-### Outcome Hooks
+### Outcome Callbacks
 
 Execute based on outcome classification:
 
@@ -162,10 +162,10 @@ Execute based on outcome classification:
 
 ## Execution Order
 
-Hooks execute in precise order during task lifecycle:
+Callbacks execute in precise order during task lifecycle:
 
 > [!IMPORTANT]
-> Multiple hooks of the same type execute in declaration order (FIFO: first in, first out).
+> Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
 ```ruby
 1. before_execution            # Setup and preparation
@@ -181,16 +181,16 @@ Hooks execute in precise order during task lifecycle:
 ```
 
 > [!IMPORTANT]
-> Multiple hooks of the same type execute in declaration order (FIFO: first in, first out).
+> Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
 ## Conditional Execution
 
-Hooks support conditional execution through `:if` and `:unless` options:
+Callbacks support conditional execution through `:if` and `:unless` options:
 
 | Option    | Description |
 | --------- | ----------- |
-| `:if`     | Execute hook only if condition is truthy |
-| `:unless` | Execute hook only if condition is falsy |
+| `:if`     | Execute callback only if condition is truthy |
+| `:unless` | Execute callback only if condition is falsy |
 
 ```ruby
 class ProcessPaymentTask < CMDx::Task
@@ -222,9 +222,9 @@ class ProcessPaymentTask < CMDx::Task
 end
 ```
 
-## Hook Inheritance
+## Callback Inheritance
 
-Hooks are inherited from parent classes, enabling application-wide patterns:
+Callbacks are inherited from parent classes, enabling application-wide patterns:
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -258,14 +258,14 @@ class ProcessOrderTask < ApplicationTask
   on_failed :refund_payment, if: :payment_captured? # Order-specific failure handling
 
   def call
-    # Inherits all ApplicationTask hooks plus order-specific ones
+    # Inherits all ApplicationTask callbacks plus order-specific ones
     context.order.process!
   end
 end
 ```
 
 > [!TIP]
-> Hooks are inherited by subclasses, making them ideal for setting up global lifecycle patterns across all tasks in your application.
+> Callbacks are inherited by subclasses, making them ideal for setting up global lifecycle patterns across all tasks in your application.
 
 ---
 

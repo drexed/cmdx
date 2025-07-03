@@ -15,8 +15,8 @@ RSpec.describe CMDx::Configuration do
       expect(configuration.middlewares).to be_a(CMDx::MiddlewareRegistry)
     end
 
-    it "initializes empty hook registry" do
-      expect(configuration.hooks).to be_a(CMDx::HookRegistry)
+    it "initializes empty callback registry" do
+      expect(configuration.callbacks).to be_a(CMDx::CallbackRegistry)
     end
 
     it "sets default halt values" do
@@ -30,7 +30,7 @@ RSpec.describe CMDx::Configuration do
       hash = configuration.to_h
 
       expect(hash).to be_a(Hash)
-      expect(hash.keys).to contain_exactly(:logger, :middlewares, :hooks, :task_halt, :batch_halt)
+      expect(hash.keys).to contain_exactly(:logger, :middlewares, :callbacks, :task_halt, :batch_halt)
     end
 
     it "returns the actual attribute values" do
@@ -38,7 +38,7 @@ RSpec.describe CMDx::Configuration do
 
       expect(hash[:logger]).to be(configuration.logger)
       expect(hash[:middlewares]).to be(configuration.middlewares)
-      expect(hash[:hooks]).to be(configuration.hooks)
+      expect(hash[:callbacks]).to be(configuration.callbacks)
       expect(hash[:task_halt]).to eq(configuration.task_halt)
       expect(hash[:batch_halt]).to eq(configuration.batch_halt)
     end
@@ -58,7 +58,7 @@ RSpec.describe CMDx::Configuration do
   describe "attribute accessors" do
     let(:custom_logger) { Logger.new(StringIO.new) }
     let(:custom_middlewares) { CMDx::MiddlewareRegistry.new }
-    let(:custom_hooks) { CMDx::HookRegistry.new }
+    let(:custom_callbacks) { CMDx::CallbackRegistry.new }
 
     it "allows reading and writing logger" do
       configuration.logger = custom_logger
@@ -72,10 +72,10 @@ RSpec.describe CMDx::Configuration do
       expect(configuration.middlewares).to be(custom_middlewares)
     end
 
-    it "allows reading and writing hooks" do
-      configuration.hooks = custom_hooks
+    it "allows reading and writing callbacks" do
+      configuration.callbacks = custom_callbacks
 
-      expect(configuration.hooks).to be(custom_hooks)
+      expect(configuration.callbacks).to be(custom_callbacks)
     end
 
     it "allows reading and writing task_halt" do

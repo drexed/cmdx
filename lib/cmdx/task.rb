@@ -3,7 +3,7 @@
 module CMDx
   ##
   # Task is the base class for all command objects in CMDx, providing a framework
-  # for encapsulating business logic with parameter validation, hooks, and result tracking.
+  # for encapsulating business logic with parameter validation, callbacks, and result tracking.
   #
   # Tasks follow a single-use pattern where each instance can only be executed once,
   # after which it becomes frozen and immutable. This ensures predictable execution
@@ -59,7 +59,7 @@ module CMDx
   #   processing_result.context.extracted_data #=> data from first task
   #   processing_result.context.processed_data #=> data from second task
   #
-  # @example Using hooks
+  # @example Using callbacks
   #   class ProcessOrderTask < CMDx::Task
   #     before_validation :log_start
   #     after_execution :cleanup_resources
@@ -99,11 +99,11 @@ module CMDx
   class Task
 
     ##
-    # Available hook types for task lifecycle events.
-    # Hooks are executed in a specific order during task execution.
+    # Available callback types for task lifecycle events.
+    # Callbacks are executed in a specific order during task execution.
     #
-    # @return [Array<Symbol>] frozen array of available hook names
-    HOOKS = [
+    # @return [Array<Symbol>] frozen array of available callback names
+    CALLBACKS = [
       :before_validation,
       :after_validation,
       :before_execution,
@@ -119,12 +119,12 @@ module CMDx
                         default: -> { CMDx.configuration.to_h.merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares,
                         default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
-    __cmdx_attr_setting :cmd_hooks,
-                        default: -> { HookRegistry.new(CMDx.configuration.hooks) }
+    __cmdx_attr_setting :cmd_callbacks,
+                        default: -> { CallbackRegistry.new(CMDx.configuration.callbacks) }
     __cmdx_attr_setting :cmd_parameters,
                         default: -> { ParameterRegistry.new }
 
-    __cmdx_attr_delegator :cmd_middlewares, :cmd_hooks, :cmd_parameters, :task_setting, :task_setting?,
+    __cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters, :task_setting, :task_setting?,
                           to: :class
     __cmdx_attr_delegator :skip!, :fail!, :throw!,
                           to: :result
@@ -188,28 +188,28 @@ module CMDx
     class << self
 
       ##
-      # Dynamically defines hook methods for each available hook type.
-      # Each hook method accepts callables and options for conditional execution.
+      # Dynamically defines callback methods for each available callback type.
+      # Each callback method accepts callables and options for conditional execution.
       #
-      # @example Hook with method name
+      # @example Callback with method name
       #   before_validation :validate_permissions
       #
-      # @example Hook with proc
+      # @example Callback with proc
       #   on_success -> { logger.info "Task completed successfully" }
       #
-      # @example Hook with conditions
+      # @example Callback with conditions
       #   on_failure :alert_support, if: :critical_error?
       #   after_execution :cleanup, unless: :skip_cleanup?
       #
       # @param callables [Array<Symbol, Proc, #call>] methods or callables to execute
-      # @param options [Hash] conditions for hook execution
+      # @param options [Hash] conditions for callback execution
       # @option options [Symbol, Proc, #call] :if condition that must be truthy
       # @option options [Symbol, Proc, #call] :unless condition that must be falsy
-      # @param block [Proc] block to execute as part of the hook
-      # @return [Array] updated hooks array
-      HOOKS.each do |hook|
-        define_method(hook) do |*callables, **options, &block|
-          cmd_hooks.register(hook, *callables, **options, &block)
+      # @param block [Proc] block to execute as part of the callback
+      # @return [Array] updated callbacks array
+      CALLBACKS.each do |callback|
+        define_method(callback) do |*callables, **options, &block|
+          cmd_callbacks.register(callback, *callables, **options, &block)
         end
       end
 
@@ -263,24 +263,24 @@ module CMDx
       end
 
       ##
-      # Registers hooks for the task execution lifecycle.
+      # Registers callbacks for the task execution lifecycle.
       #
-      # Hooks can observe or modify task execution at specific lifecycle
+      # Callbacks can observe or modify task execution at specific lifecycle
       # points like before validation, on success, after execution, etc.
       #
-      # @param hook [Symbol] The hook type to register for
-      # @param callables [Array<Symbol, Proc, Hook, #call>] Methods, callables, or Hook instances to execute
-      # @param options [Hash] Conditions for hook execution
+      # @param callback [Symbol] The callback type to register for
+      # @param callables [Array<Symbol, Proc, Callback, #call>] Methods, callables, or Callback instances to execute
+      # @param options [Hash] Conditions for callback execution
       # @option options [Symbol, Proc, #call] :if condition that must be truthy
       # @option options [Symbol, Proc, #call] :unless condition that must be falsy
-      # @param block [Proc] Block to execute as part of the hook
-      # @return [HookRegistry] updated hook registry
+      # @param block [Proc] Block to execute as part of the callback
+      # @return [CallbackRegistry] updated callback registry
       # @example
-      #   register :before_execution, LoggingHook.new(:debug)
-      #   register :on_success, NotificationHook.new([:email, :slack])
+      #   register :before_execution, LoggingCallback.new(:debug)
+      #   register :on_success, NotificationCallback.new([:email, :slack])
       #   register :on_failure, :alert_admin, if: :critical?
-      def register(hook, ...)
-        cmd_hooks.register(hook, ...)
+      def register(callback, ...)
+        cmd_callbacks.register(callback, ...)
       end
 
       ##
@@ -431,37 +431,37 @@ module CMDx
     end
 
     ##
-    # Executes before-call hooks and validations.
+    # Executes before-call callbacks and validations.
     # Sets up the execution context and validates parameters.
     #
     # @return [void]
     # @api private
     def before_call
-      cmd_hooks.call(self, :before_execution)
+      cmd_callbacks.call(self, :before_execution)
 
       result.executing!
-      cmd_hooks.call(self, :on_executing)
+      cmd_callbacks.call(self, :on_executing)
 
-      cmd_hooks.call(self, :before_validation)
+      cmd_callbacks.call(self, :before_validation)
       ParameterValidator.call(self)
-      cmd_hooks.call(self, :after_validation)
+      cmd_callbacks.call(self, :after_validation)
     end
 
     ##
-    # Executes after-call hooks based on execution results.
-    # Handles state and status transitions with appropriate hooks.
+    # Executes after-call callbacks based on execution results.
+    # Handles state and status transitions with appropriate callbacks.
     #
     # @return [void]
     # @api private
     def after_call
-      cmd_hooks.call(self, :"on_#{result.state}")
-      cmd_hooks.call(self, :on_executed) if result.executed?
+      cmd_callbacks.call(self, :"on_#{result.state}")
+      cmd_callbacks.call(self, :on_executed) if result.executed?
 
-      cmd_hooks.call(self, :"on_#{result.status}")
-      cmd_hooks.call(self, :on_good) if result.good?
-      cmd_hooks.call(self, :on_bad) if result.bad?
+      cmd_callbacks.call(self, :"on_#{result.status}")
+      cmd_callbacks.call(self, :on_good) if result.good?
+      cmd_callbacks.call(self, :on_bad) if result.bad?
 
-      cmd_hooks.call(self, :after_execution)
+      cmd_callbacks.call(self, :after_execution)
     end
 
     ##

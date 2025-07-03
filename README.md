@@ -96,7 +96,7 @@ end
   - [Result](#results)
   - [States](docs/outcomes/states.md)
   - [Statuses](docs/outcomes/statuses.md)
-- [Hooks](docs/hooks.md)
+- [Callbacks](docs/callbacks.md)
 - [Middlewares](docs/middlewares.md)
 - [Batch](docs/batch.md)
 - [Logging](docs/logging.md)

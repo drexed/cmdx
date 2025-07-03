@@ -20,7 +20,7 @@ RSpec.describe CMDx do
 
       expect(config.logger).to be_a(Logger)
       expect(config.middlewares).to be_a(CMDx::MiddlewareRegistry)
-      expect(config.hooks).to be_a(CMDx::HookRegistry)
+      expect(config.callbacks).to be_a(CMDx::CallbackRegistry)
       expect(config.task_halt).to eq("failed")
       expect(config.batch_halt).to eq("failed")
     end
@@ -83,16 +83,16 @@ RSpec.describe CMDx do
       expect(described_class.configuration.batch_halt).to eq("failed")
     end
 
-    it "creates fresh middleware and hook registries" do
+    it "creates fresh middleware and callback registries" do
       original_middlewares = described_class.configuration.middlewares
-      original_hooks = described_class.configuration.hooks
+      original_callbacks = described_class.configuration.callbacks
 
       described_class.reset_configuration!
 
       expect(described_class.configuration.middlewares).not_to be(original_middlewares)
-      expect(described_class.configuration.hooks).not_to be(original_hooks)
+      expect(described_class.configuration.callbacks).not_to be(original_callbacks)
       expect(described_class.configuration.middlewares).to be_a(CMDx::MiddlewareRegistry)
-      expect(described_class.configuration.hooks).to be_a(CMDx::HookRegistry)
+      expect(described_class.configuration.callbacks).to be_a(CMDx::CallbackRegistry)
     end
   end
 

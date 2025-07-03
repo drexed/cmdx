@@ -1,4 +1,4 @@
-- Rename hooks to callbacks
+
 - Rename batch to workflow
 - Add AI prompt:
   Create an AI prompt template that a user could use to build Task and Batch objects

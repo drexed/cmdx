@@ -2,13 +2,13 @@
 
 require "spec_helper"
 
-RSpec.describe "Task Hooks Integration" do
-  # Create a mock logging service to track hook execution
+RSpec.describe "Task Callbacks Integration" do
+  # Create a mock logging service to track callback execution
   let(:execution_log) { [] }
   let(:notification_service) { double("NotificationService", send: true) }
   let(:metric_service) { double("MetricService", increment: true, track: true) }
 
-  # Base application task with inherited hooks
+  # Base application task with inherited callbacks
   let(:application_task) do
     log = execution_log
     Class.new(CMDx::Task) do
@@ -37,7 +37,7 @@ RSpec.describe "Task Hooks Integration" do
     end
   end
 
-  describe "Hook Declaration Patterns" do
+  describe "Callback Declaration Patterns" do
     context "with method name declarations" do
       let(:order_processing_task) do
         log = execution_log
@@ -78,7 +78,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes method-based hooks in correct order" do
+      it "executes method-based callbacks in correct order" do
         result = order_processing_task.call(order_id: 123)
 
         expect(result).to be_successful_task
@@ -123,7 +123,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes proc and lambda hooks correctly" do
+      it "executes proc and lambda callbacks correctly" do
         result = user_registration_task.call(email: "user@example.com", username: "newuser")
 
         expect(result).to be_successful_task
@@ -163,7 +163,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes block-based hooks with access to context" do
+      it "executes block-based callbacks with access to context" do
         result = file_processing_task.call(file_path: "/tmp/test.csv")
 
         expect(result).to be_successful_task
@@ -174,7 +174,7 @@ RSpec.describe "Task Hooks Integration" do
       end
     end
 
-    context "with multiple hooks for same event" do
+    context "with multiple callbacks for same event" do
       let(:payment_processing_task) do
         log = execution_log
         metric_svc = metric_service
@@ -183,7 +183,7 @@ RSpec.describe "Task Hooks Integration" do
           required :amount, type: :float
           required :payment_method, type: :string
 
-          # Multiple success hooks
+          # Multiple success callbacks
           on_success :update_account_balance
           on_success :send_receipt
           on_success :log_transaction
@@ -213,7 +213,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes multiple hooks in declaration order" do
+      it "executes multiple callbacks in declaration order" do
         result = payment_processing_task.call(amount: 99.99, payment_method: "credit_card")
 
         expect(result).to be_successful_task
@@ -227,43 +227,43 @@ RSpec.describe "Task Hooks Integration" do
     end
   end
 
-  describe "Hook Types and Execution Order" do
+  describe "Callback Types and Execution Order" do
     let(:comprehensive_task) do
       log = execution_log
       Class.new(CMDx::Task) do
         required :user_id, type: :integer
 
-        # Validation hooks
-        define_method(:before_validation_hook) { log << "1:before_validation" }
-        before_validation :before_validation_hook
+        # Validation callbacks
+        define_method(:before_validation_callback) { log << "1:before_validation" }
+        before_validation :before_validation_callback
 
-        define_method(:after_validation_hook) { log << "4:after_validation" }
-        after_validation :after_validation_hook
+        define_method(:after_validation_callback) { log << "4:after_validation" }
+        after_validation :after_validation_callback
 
-        # Execution hooks
-        define_method(:before_execution_hook) { log << "2:before_execution" }
-        before_execution :before_execution_hook
+        # Execution callbacks
+        define_method(:before_execution_callback) { log << "2:before_execution" }
+        before_execution :before_execution_callback
 
-        define_method(:after_execution_hook) { log << "10:after_execution" }
-        after_execution :after_execution_hook
+        define_method(:after_execution_callback) { log << "10:after_execution" }
+        after_execution :after_execution_callback
 
-        # State hooks
-        define_method(:on_executing_hook) { log << "3:on_executing" }
-        on_executing :on_executing_hook
+        # State callbacks
+        define_method(:on_executing_callback) { log << "3:on_executing" }
+        on_executing :on_executing_callback
 
-        define_method(:on_complete_hook) { log << "6:on_complete" }
-        on_complete :on_complete_hook
+        define_method(:on_complete_callback) { log << "6:on_complete" }
+        on_complete :on_complete_callback
 
-        define_method(:on_executed_hook) { log << "8:on_executed" }
-        on_executed :on_executed_hook
+        define_method(:on_executed_callback) { log << "8:on_executed" }
+        on_executed :on_executed_callback
 
-        # Status hooks
-        define_method(:on_success_hook) { log << "7:on_success" }
-        on_success :on_success_hook
+        # Status callbacks
+        define_method(:on_success_callback) { log << "7:on_success" }
+        on_success :on_success_callback
 
-        # Outcome hooks
-        define_method(:on_good_hook) { log << "9:on_good" }
-        on_good :on_good_hook
+        # Outcome callbacks
+        define_method(:on_good_callback) { log << "9:on_good" }
+        on_good :on_good_callback
 
         define_method(:call) do
           log << "5:call_method"
@@ -272,7 +272,7 @@ RSpec.describe "Task Hooks Integration" do
       end
     end
 
-    it "executes all hook types in correct order" do
+    it "executes all callback types in correct order" do
       result = comprehensive_task.call(user_id: 456)
 
       expect(result).to be_successful_task
@@ -296,32 +296,32 @@ RSpec.describe "Task Hooks Integration" do
         Class.new(CMDx::Task) do
           required :will_fail, type: :boolean
 
-          define_method(:before_validation_hook) { log << "1:before_validation" }
-          before_validation :before_validation_hook
+          define_method(:before_validation_callback) { log << "1:before_validation" }
+          before_validation :before_validation_callback
 
-          define_method(:before_execution_hook) { log << "2:before_execution" }
-          before_execution :before_execution_hook
+          define_method(:before_execution_callback) { log << "2:before_execution" }
+          before_execution :before_execution_callback
 
-          define_method(:on_executing_hook) { log << "3:on_executing" }
-          on_executing :on_executing_hook
+          define_method(:on_executing_callback) { log << "3:on_executing" }
+          on_executing :on_executing_callback
 
-          define_method(:after_validation_hook) { log << "4:after_validation" }
-          after_validation :after_validation_hook
+          define_method(:after_validation_callback) { log << "4:after_validation" }
+          after_validation :after_validation_callback
 
-          define_method(:on_interrupted_hook) { log << "6:on_interrupted" }
-          on_interrupted :on_interrupted_hook
+          define_method(:on_interrupted_callback) { log << "6:on_interrupted" }
+          on_interrupted :on_interrupted_callback
 
-          define_method(:on_failed_hook) { log << "7:on_failed" }
-          on_failed :on_failed_hook
+          define_method(:on_failed_callback) { log << "7:on_failed" }
+          on_failed :on_failed_callback
 
-          define_method(:on_executed_hook) { log << "8:on_executed" }
-          on_executed :on_executed_hook
+          define_method(:on_executed_callback) { log << "8:on_executed" }
+          on_executed :on_executed_callback
 
-          define_method(:on_bad_hook) { log << "9:on_bad" }
-          on_bad :on_bad_hook
+          define_method(:on_bad_callback) { log << "9:on_bad" }
+          on_bad :on_bad_callback
 
-          define_method(:after_execution_hook) { log << "10:after_execution" }
-          after_execution :after_execution_hook
+          define_method(:after_execution_callback) { log << "10:after_execution" }
+          after_execution :after_execution_callback
 
           define_method(:call) do
             log << "5:call_method"
@@ -330,7 +330,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes failure hooks in correct order" do
+      it "executes failure callbacks in correct order" do
         result = failing_task.call(will_fail: true)
 
         expect(result).to be_failed_task
@@ -355,32 +355,32 @@ RSpec.describe "Task Hooks Integration" do
         Class.new(CMDx::Task) do
           required :should_skip, type: :boolean
 
-          define_method(:before_validation_hook) { log << "1:before_validation" }
-          before_validation :before_validation_hook
+          define_method(:before_validation_callback) { log << "1:before_validation" }
+          before_validation :before_validation_callback
 
-          define_method(:before_execution_hook) { log << "2:before_execution" }
-          before_execution :before_execution_hook
+          define_method(:before_execution_callback) { log << "2:before_execution" }
+          before_execution :before_execution_callback
 
-          define_method(:on_executing_hook) { log << "3:on_executing" }
-          on_executing :on_executing_hook
+          define_method(:on_executing_callback) { log << "3:on_executing" }
+          on_executing :on_executing_callback
 
-          define_method(:after_validation_hook) { log << "4:after_validation" }
-          after_validation :after_validation_hook
+          define_method(:after_validation_callback) { log << "4:after_validation" }
+          after_validation :after_validation_callback
 
-          define_method(:on_interrupted_hook) { log << "6:on_interrupted" }
-          on_interrupted :on_interrupted_hook
+          define_method(:on_interrupted_callback) { log << "6:on_interrupted" }
+          on_interrupted :on_interrupted_callback
 
-          define_method(:on_skipped_hook) { log << "7:on_skipped" }
-          on_skipped :on_skipped_hook
+          define_method(:on_skipped_callback) { log << "7:on_skipped" }
+          on_skipped :on_skipped_callback
 
-          define_method(:on_executed_hook) { log << "8:on_executed" }
-          on_executed :on_executed_hook
+          define_method(:on_executed_callback) { log << "8:on_executed" }
+          on_executed :on_executed_callback
 
-          define_method(:on_good_hook) { log << "9:on_good" }
-          on_good :on_good_hook
+          define_method(:on_good_callback) { log << "9:on_good" }
+          on_good :on_good_callback
 
-          define_method(:after_execution_hook) { log << "10:after_execution" }
-          after_execution :after_execution_hook
+          define_method(:after_execution_callback) { log << "10:after_execution" }
+          after_execution :after_execution_callback
 
           define_method(:call) do
             log << "5:call_method"
@@ -389,7 +389,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes skip hooks in correct order" do
+      it "executes skip callbacks in correct order" do
         result = skipping_task.call(should_skip: true)
 
         expect(result).to be_skipped_task
@@ -475,7 +475,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes hooks only when conditions are met" do
+      it "executes callbacks only when conditions are met" do
         result = conditional_task.call(
           environment: "development",
           user_type: "premium"
@@ -488,7 +488,7 @@ RSpec.describe "Task Hooks Integration" do
         expect(execution_log).not_to include("conditional:retry_scheduled")
       end
 
-      it "executes retry hook when failure conditions are met" do
+      it "executes retry callback when failure conditions are met" do
         result = conditional_task.call(
           environment: "production",
           user_type: "basic",
@@ -529,7 +529,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "skips hooks when unless conditions are true" do
+      it "skips callbacks when unless conditions are true" do
         result = unless_conditional_task.call(
           skip_validation: true,
           maintenance_mode: true
@@ -540,7 +540,7 @@ RSpec.describe "Task Hooks Integration" do
         expect(execution_log).not_to include("unless:metrics_sent")
       end
 
-      it "executes hooks when unless conditions are false" do
+      it "executes callbacks when unless conditions are false" do
         result = unless_conditional_task.call(
           skip_validation: false,
           maintenance_mode: false
@@ -553,7 +553,7 @@ RSpec.describe "Task Hooks Integration" do
     end
   end
 
-  describe "Hook Inheritance" do
+  describe "Callback Inheritance" do
     let(:order_processing_task) do
       log = execution_log
       app_task = application_task
@@ -589,19 +589,19 @@ RSpec.describe "Task Hooks Integration" do
       end
     end
 
-    it "inherits hooks from parent class and executes them correctly" do
+    it "inherits callbacks from parent class and executes them correctly" do
       result = order_processing_task.call(order_id: 789)
 
       expect(result).to be_successful_task
 
-      # Should include both inherited and class-specific hooks
+      # Should include both inherited and class-specific callbacks
       expect(execution_log).to include("#{order_processing_task.name}:task_start")
       expect(execution_log).to include("#{order_processing_task.name}:order_loaded")
       expect(execution_log).to include("#{order_processing_task.name}:confirmation_sent")
       expect(execution_log).to include("#{order_processing_task.name}:success_tracked")
       expect(execution_log).to include("#{order_processing_task.name}:task_end")
 
-      # Should not include failure-specific hooks
+      # Should not include failure-specific callbacks
       expect(execution_log).not_to include("#{order_processing_task.name}:payment_refunded")
       expect(execution_log).not_to include("#{order_processing_task.name}:failure_reported")
     end
@@ -638,7 +638,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes both inherited and class-specific failure hooks" do
+      it "executes both inherited and class-specific failure callbacks" do
         result = failing_order_task.call(order_id: 999)
 
         expect(result).to be_failed_task
@@ -651,85 +651,85 @@ RSpec.describe "Task Hooks Integration" do
     end
   end
 
-  describe "Hook Classes" do
-    # Create reusable hook classes
-    let(:logging_hook_class) do
+  describe "Callback Classes" do
+    # Create reusable callback classes
+    let(:logging_callback_class) do
       log = execution_log
-      Class.new(CMDx::Hook) do
+      Class.new(CMDx::Callback) do
         def initialize(level)
           @level = level
         end
 
-        define_method(:call) do |task, hook_type|
-          log << "hook_class:logging:#{@level}:#{hook_type}:#{task.class.name}"
+        define_method(:call) do |task, callback_type|
+          log << "callback_class:logging:#{@level}:#{callback_type}:#{task.class.name}"
         end
       end
     end
 
-    let(:notification_hook_class) do
+    let(:notification_callback_class) do
       log = execution_log
       notification_svc = notification_service
 
-      Class.new(CMDx::Hook) do
+      Class.new(CMDx::Callback) do
         def initialize(channels)
           @channels = Array(channels)
         end
 
-        define_method(:call) do |task, hook_type|
-          return unless hook_type == :on_success
+        define_method(:call) do |task, callback_type|
+          return unless callback_type == :on_success
 
           @channels.each do |channel|
-            log << "hook_class:notification:#{channel}"
+            log << "callback_class:notification:#{channel}"
             notification_svc.send(channel, "Task #{task.class.name} completed")
           end
         end
       end
     end
 
-    let(:metric_hook_class) do
+    let(:metric_callback_class) do
       log = execution_log
       metric_svc = metric_service
 
-      Class.new(CMDx::Hook) do
+      Class.new(CMDx::Callback) do
         def initialize(metric_name)
           @metric_name = metric_name
         end
 
-        define_method(:call) do |_task, hook_type|
-          case hook_type
+        define_method(:call) do |_task, callback_type|
+          case callback_type
           when :before_execution
-            log << "hook_class:metric:start:#{@metric_name}"
+            log << "callback_class:metric:start:#{@metric_name}"
             metric_svc.track("#{@metric_name}.started", 1)
           when :on_success
-            log << "hook_class:metric:success:#{@metric_name}"
+            log << "callback_class:metric:success:#{@metric_name}"
             metric_svc.track("#{@metric_name}.completed", 1)
           when :on_failed
-            log << "hook_class:metric:failed:#{@metric_name}"
+            log << "callback_class:metric:failed:#{@metric_name}"
             metric_svc.track("#{@metric_name}.failed", 1)
           end
         end
       end
     end
 
-    context "with hook class registration" do
+    context "with callback class registration" do
       let(:api_integration_task) do
         log = execution_log
-        logging_hook = logging_hook_class
-        notification_hook = notification_hook_class
-        metric_hook = metric_hook_class
+        logging_callback = logging_callback_class
+        notification_callback = notification_callback_class
+        metric_callback = metric_callback_class
 
         Class.new(CMDx::Task) do
           required :api_endpoint, type: :string
           required :payload, type: :hash
 
-          # Register hook classes
-          register :before_execution, logging_hook.new(:debug)
-          register :on_success, notification_hook.new(%i[email slack])
-          register :before_execution, metric_hook.new("api_integration")
-          register :on_success, metric_hook.new("api_integration")
-          register :on_failed, metric_hook.new("api_integration")
+          # Register callback classes
+          register :before_execution, logging_callback.new(:debug)
+          register :on_success, notification_callback.new(%i[email slack])
+          register :before_execution, metric_callback.new("api_integration")
+          register :on_success, metric_callback.new("api_integration")
+          register :on_failed, metric_callback.new("api_integration")
 
-          # Mix with traditional hooks
+          # Mix with traditional callbacks
           after_execution :cleanup_resources
 
           def call
@@ -748,7 +748,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes hook classes alongside traditional hooks" do
+      it "executes callback classes alongside traditional callbacks" do
         result = api_integration_task.call(
           api_endpoint: "https://api.example.com/users",
           payload: { name: "John Doe", email: "john@example.com" }
@@ -756,14 +756,14 @@ RSpec.describe "Task Hooks Integration" do
 
         expect(result).to be_successful_task
 
-        # Hook class executions
-        expect(execution_log).to include("hook_class:logging:debug:before_execution:#{api_integration_task.name}")
-        expect(execution_log).to include("hook_class:metric:start:api_integration")
-        expect(execution_log).to include("hook_class:notification:email")
-        expect(execution_log).to include("hook_class:notification:slack")
-        expect(execution_log).to include("hook_class:metric:success:api_integration")
+        # Callback class executions
+        expect(execution_log).to include("callback_class:logging:debug:before_execution:#{api_integration_task.name}")
+        expect(execution_log).to include("callback_class:metric:start:api_integration")
+        expect(execution_log).to include("callback_class:notification:email")
+        expect(execution_log).to include("callback_class:notification:slack")
+        expect(execution_log).to include("callback_class:metric:success:api_integration")
 
-        # Traditional hook execution
+        # Traditional callback execution
         expect(execution_log).to include("traditional:cleanup_performed")
 
         # Service calls
@@ -774,18 +774,18 @@ RSpec.describe "Task Hooks Integration" do
       end
     end
 
-    context "with conditional hook class execution" do
-      let(:conditional_hook_task) do
+    context "with conditional callback class execution" do
+      let(:conditional_callback_task) do
         execution_log
-        metric_hook = metric_hook_class
+        metric_callback = metric_callback_class
 
         Class.new(CMDx::Task) do
           required :environment, type: :string
           required :enable_metrics, type: :boolean, default: true
 
-          register :before_execution, metric_hook.new("conditional_task"), if: :metrics_enabled?
-          register :on_success, metric_hook.new("conditional_task"), if: :metrics_enabled?
-          register :on_failed, metric_hook.new("conditional_task"), unless: :environment_test?
+          register :before_execution, metric_callback.new("conditional_task"), if: :metrics_enabled?
+          register :on_success, metric_callback.new("conditional_task"), if: :metrics_enabled?
+          register :on_failed, metric_callback.new("conditional_task"), unless: :environment_test?
 
           def call
             context.task_completed = true
@@ -804,26 +804,26 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "executes hook classes based on conditions" do
-        result = conditional_hook_task.call(
+      it "executes callback classes based on conditions" do
+        result = conditional_callback_task.call(
           environment: "production",
           enable_metrics: true
         )
 
         expect(result).to be_successful_task
-        expect(execution_log).to include("hook_class:metric:start:conditional_task")
-        expect(execution_log).to include("hook_class:metric:success:conditional_task")
+        expect(execution_log).to include("callback_class:metric:start:conditional_task")
+        expect(execution_log).to include("callback_class:metric:success:conditional_task")
       end
 
-      it "skips hook classes when conditions are not met" do
-        result = conditional_hook_task.call(
+      it "skips callback classes when conditions are not met" do
+        result = conditional_callback_task.call(
           environment: "test",
           enable_metrics: false
         )
 
         expect(result).to be_successful_task
-        expect(execution_log).not_to include("hook_class:metric:start:conditional_task")
-        expect(execution_log).not_to include("hook_class:metric:success:conditional_task")
+        expect(execution_log).not_to include("callback_class:metric:start:conditional_task")
+        expect(execution_log).not_to include("callback_class:metric:success:conditional_task")
       end
     end
   end
@@ -940,7 +940,7 @@ RSpec.describe "Task Hooks Integration" do
         end
       end
 
-      it "processes successful order with complete hook pipeline" do
+      it "processes successful order with complete callback pipeline" do
         result = ecommerce_order_task.call(
           order_id: 12_345,
           customer_email: "customer@example.com",
@@ -949,21 +949,21 @@ RSpec.describe "Task Hooks Integration" do
 
         expect(result).to be_successful_task
 
-        # Validation hooks
+        # Validation callbacks
         expect(execution_log).to include("ecommerce:validation:order_exists")
         expect(execution_log).to include("ecommerce:validation:details_loaded")
 
-        # Execution hooks
+        # Execution callbacks
         expect(execution_log).to include("ecommerce:execution:inventory_reserved")
         expect(execution_log).to include("ecommerce:execution:inventory_released")
 
-        # Success hooks
+        # Success callbacks
         expect(execution_log).to include("ecommerce:success:payment_charged")
         expect(execution_log).to include("ecommerce:success:inventory_updated")
         expect(execution_log).to include("ecommerce:success:confirmation_sent")
         expect(execution_log).to include("ecommerce:success:shipping_scheduled")
 
-        # Cleanup hooks
+        # Cleanup callbacks
         expect(execution_log).to include("ecommerce:cleanup:session_cleared")
         expect(execution_log).to include(match(/ecommerce:executed:processing_time:\d+\.\d+/))
 
@@ -971,7 +971,7 @@ RSpec.describe "Task Hooks Integration" do
         expect(notification_service).to have_received(:send).with(:email, "Order confirmation for customer@example.com")
         expect(metric_service).to have_received(:increment).with("orders.processed")
 
-        # Should not execute failure hooks
+        # Should not execute failure callbacks
         expect(execution_log).not_to include("ecommerce:failure:payment_rolled_back")
         expect(execution_log).not_to include("ecommerce:failure:inventory_restored")
       end
@@ -1085,7 +1085,7 @@ RSpec.describe "Task Hooks Integration" do
         expect(execution_log).to include("data:success:data_archived")
         expect(execution_log).to include("data:cleanup:temp_files_removed")
 
-        # Should not execute failure hooks
+        # Should not execute failure callbacks
         expect(execution_log).not_to include("data:failure:details_logged")
       end
 
@@ -1104,7 +1104,7 @@ RSpec.describe "Task Hooks Integration" do
         expect(execution_log).to include("data:failure:admins_notified")
         expect(execution_log).to include("data:cleanup:temp_files_removed")
 
-        # Should not execute success hooks
+        # Should not execute success callbacks
         expect(execution_log).not_to include("data:success:results_finalized")
       end
     end

@@ -180,22 +180,22 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".register" do
-    it "adds hook to registry" do
+    it "adds callback to registry" do
       task_class.register(:before_execution, :setup_method)
 
-      expect(task_class.cmd_hooks[:before_execution]).not_to be_empty
+      expect(task_class.cmd_callbacks[:before_execution]).not_to be_empty
     end
 
-    it "accepts hook with conditions" do
+    it "accepts callback with conditions" do
       task_class.register(:on_success, :notify_users, if: :should_notify?)
 
-      expect(task_class.cmd_hooks[:on_success]).not_to be_empty
+      expect(task_class.cmd_callbacks[:on_success]).not_to be_empty
     end
 
-    it "returns hook registry" do
+    it "returns callback registry" do
       result = task_class.register(:after_execution, :cleanup_method)
 
-      expect(result).to be_a(CMDx::HookRegistry)
+      expect(result).to be_a(CMDx::CallbackRegistry)
     end
   end
 
@@ -239,32 +239,32 @@ RSpec.describe CMDx::Task do
     end
   end
 
-  describe "hook methods" do
-    it "defines before_validation hook method" do
+  describe "callback methods" do
+    it "defines before_validation callback method" do
       expect(task_class).to respond_to(:before_validation)
     end
 
-    it "defines after_validation hook method" do
+    it "defines after_validation callback method" do
       expect(task_class).to respond_to(:after_validation)
     end
 
-    it "defines before_execution hook method" do
+    it "defines before_execution callback method" do
       expect(task_class).to respond_to(:before_execution)
     end
 
-    it "defines after_execution hook method" do
+    it "defines after_execution callback method" do
       expect(task_class).to respond_to(:after_execution)
     end
 
-    it "defines on_success hook method" do
+    it "defines on_success callback method" do
       expect(task_class).to respond_to(:on_success)
     end
 
-    it "defines on_failed hook method" do
+    it "defines on_failed callback method" do
       expect(task_class).to respond_to(:on_failed)
     end
 
-    it "defines on_executed hook method" do
+    it "defines on_executed callback method" do
       expect(task_class).to respond_to(:on_executed)
     end
 
@@ -466,8 +466,8 @@ RSpec.describe CMDx::Task do
       expect(task.cmd_middlewares).to be(task_class.cmd_middlewares)
     end
 
-    it "delegates cmd_hooks to class" do
-      expect(task.cmd_hooks).to be(task_class.cmd_hooks)
+    it "delegates cmd_callbacks to class" do
+      expect(task.cmd_callbacks).to be(task_class.cmd_callbacks)
     end
 
     it "delegates cmd_parameters to class" do
@@ -526,11 +526,11 @@ RSpec.describe CMDx::Task do
     end
   end
 
-  describe "hook execution" do
-    let(:hook_tracking) { [] }
-    let(:hooked_task) do
-      tracking = hook_tracking
-      create_task_class(name: "HookedTask") do
+  describe "callback execution" do
+    let(:callback_tracking) { [] }
+    let(:callbacked_task) do
+      tracking = callback_tracking
+      create_task_class(name: "CallbackedTask") do
         before_execution -> { tracking << :before_execution }
         after_execution -> { tracking << :after_execution }
         on_success -> { tracking << :on_success }
@@ -541,22 +541,22 @@ RSpec.describe CMDx::Task do
       end
     end
 
-    it "executes hooks in correct order" do
-      hooked_task.call
+    it "executes callbacks in correct order" do
+      callbacked_task.call
 
-      expect(hook_tracking).to include(:before_execution, :after_execution, :on_success)
+      expect(callback_tracking).to include(:before_execution, :after_execution, :on_success)
     end
 
-    it "executes before_execution hooks before call" do
-      hooked_task.call
+    it "executes before_execution callbacks before call" do
+      callbacked_task.call
 
-      expect(hook_tracking.first).to eq(:before_execution)
+      expect(callback_tracking.first).to eq(:before_execution)
     end
 
-    it "executes after_execution hooks after call" do
-      hooked_task.call
+    it "executes after_execution callbacks after call" do
+      callbacked_task.call
 
-      expect(hook_tracking.last).to eq(:after_execution)
+      expect(callback_tracking.last).to eq(:after_execution)
     end
   end
 
@@ -597,7 +597,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "transitions to executing during call" do
-      task_with_hook = create_task_class(name: "TaskWithHook") do
+      task_with_callback = create_task_class(name: "TaskWithCallback") do
         on_executing do
           context.executing_captured = result.executing?
         end
@@ -607,7 +607,7 @@ RSpec.describe CMDx::Task do
         end
       end
 
-      result = task_with_hook.call
+      result = task_with_callback.call
 
       expect(result.context.executing_captured).to be(true)
     end

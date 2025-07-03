@@ -40,7 +40,7 @@ module CMDx
       # @option overrides [Array] :tasks flattened tasks from all groups
       # @option overrides [Object] :errors batch errors collection
       # @option overrides [Object] :cmd_middlewares middleware registry
-      # @option overrides [Object] :cmd_hooks hook registry
+      # @option overrides [Object] :cmd_callbacks callback registry
       # @option overrides [Array] :tags batch tags
       #
       # @return [RSpec::Mocks::Double] configured batch double
@@ -63,7 +63,7 @@ module CMDx
           tasks: [],
           errors: double("Errors", empty?: true, full_messages: [], messages: {}),
           cmd_middlewares: double("MiddlewareRegistry"),
-          cmd_hooks: double("HookRegistry"),
+          cmd_callbacks: double("CallbackRegistry"),
           tags: []
         }
 
@@ -313,7 +313,7 @@ module CMDx
       # Stubs batch configuration and settings
       #
       # This method stubs batch-level configuration including halt behavior,
-      # middleware, hooks, and other batch settings to control test execution.
+      # middleware, callbacks, and other batch settings to control test execution.
       #
       # @param batch_class [Class] batch class to stub methods on
       # @param config [Hash] configuration options to stub
@@ -321,7 +321,7 @@ module CMDx
       # @option config [Array] :tags batch tags
       # @option config [Hash] :task_settings task-level settings
       # @option config [Object] :cmd_middlewares middleware registry
-      # @option config [Object] :cmd_hooks hook registry
+      # @option config [Object] :cmd_callbacks callback registry
       # @return [void]
       #
       # @example Basic batch configuration stubbing
@@ -344,12 +344,12 @@ module CMDx
         # Stub task_settings
         allow(batch_class).to receive(:task_settings!).with(config[:task_settings]) if config[:task_settings]
 
-        # Stub middleware and hook registries
+        # Stub middleware and callback registries
         allow(batch_class).to receive(:cmd_middlewares).and_return(config[:cmd_middlewares]) if config[:cmd_middlewares]
 
-        return unless config[:cmd_hooks]
+        return unless config[:cmd_callbacks]
 
-        allow(batch_class).to receive(:cmd_hooks).and_return(config[:cmd_hooks])
+        allow(batch_class).to receive(:cmd_callbacks).and_return(config[:cmd_callbacks])
       end
 
       # Stubs batch group execution behavior

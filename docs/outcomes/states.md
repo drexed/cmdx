@@ -322,4 +322,4 @@ result.chain.to_h
 ---
 
 - **Prev:** [Outcomes - Statuses](statuses.md)
-- **Next:** [Hooks](../hooks.md)
+- **Next:** [Callbacks](../callbacks.md)

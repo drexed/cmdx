@@ -63,7 +63,7 @@ module CMDx
       # Evaluate conditional options for execution control.
       #
       # This method evaluates :if and :unless conditions to determine
-      # whether something should proceed. Used extensively in hooks
+      # whether something should proceed. Used extensively in callbacks
       # and conditional parameter processing.
       #
       # @param options [Hash] conditional options

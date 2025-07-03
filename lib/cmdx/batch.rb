@@ -7,7 +7,7 @@ module CMDx
   # from individual task components, with support for conditional execution,
   # context passing, and configurable halt behavior.
   #
-  # Batches inherit from Task, gaining all task capabilities including hooks,
+  # Batches inherit from Task, gaining all task capabilities including callbacks,
   # parameter validation, result tracking, and configuration. The key difference
   # is that batches coordinate other tasks rather than implementing business logic directly.
   #
@@ -133,7 +133,7 @@ module CMDx
   #     process PostProcessingBatch
   #   end
   #
-  # @see Task Base class providing hooks, parameters, and result tracking
+  # @see Task Base class providing callbacks, parameters, and result tracking
   # @see Context Shared data object passed between tasks
   # @see Result Task execution results and status tracking
   # @since 1.0.0

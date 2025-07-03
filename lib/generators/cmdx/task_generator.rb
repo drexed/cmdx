@@ -6,7 +6,7 @@ module Cmdx
   #
   # This generator creates individual task files that encapsulate specific
   # business logic operations. Tasks inherit from CMDx::Task and provide
-  # parameter validation, hooks, result tracking, and error handling
+  # parameter validation, callbacks, result tracking, and error handling
   # capabilities for focused business operations.
   #
   # The generator handles name normalization, ensuring "Task" suffix

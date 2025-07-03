@@ -15,7 +15,7 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
   - [Parameter Validation Matchers](#parameter-validation-matchers)
   - [Lifecycle and Structure Matchers](#lifecycle-and-structure-matchers)
   - [Exception Handling Matchers](#exception-handling-matchers)
-  - [Hook and Middleware Matchers](#hook-and-middleware-matchers)
+  - [Callback and Middleware Matchers](#callback-and-middleware-matchers)
   - [Configuration Matchers](#configuration-matchers)
 - [Composable Testing](#composable-testing)
 - [Best Practices](#best-practices)
@@ -347,7 +347,7 @@ expect(BrokenTask).not_to be_well_formed_task
 **What it validates:**
 - Inherits from CMDx::Task
 - Implements required call method
-- Has properly initialized parameter, hook, and middleware registries
+- Has properly initialized parameter, callback, and middleware registries
 
 #### Single-Use Pattern Validation
 
@@ -405,39 +405,39 @@ expect(AlwaysGracefulTask).not_to propagate_exceptions_with_bang
 
 **How it works:** Tests that `call!` method propagates exceptions instead of handling them gracefully.
 
-### Hook and Middleware Matchers
+### Callback and Middleware Matchers
 
-#### Hook Registration Testing
+#### Callback Registration Testing
 
 ```ruby
-# Test basic hook registration
-expect(ValidatedTask).to have_hook(:before_validation)
-expect(NotifiedTask).to have_hook(:on_success)
-expect(CleanupTask).to have_hook(:after_execution)
+# Test basic callback registration
+expect(ValidatedTask).to have_callback(:before_validation)
+expect(NotifiedTask).to have_callback(:on_success)
+expect(CleanupTask).to have_callback(:after_execution)
 
-# Test hook with specific callable
-expect(CustomTask).to have_hook(:on_failure).with_callable(my_proc)
+# Test callback with specific callable
+expect(CustomTask).to have_callback(:on_failure).with_callable(my_proc)
 
 # Negated usage
-expect(SimpleTask).not_to have_hook(:complex_hook)
+expect(SimpleTask).not_to have_callback(:complex_callback)
 ```
 
-#### Hook Execution Testing
+#### Callback Execution Testing
 
 ```ruby
-# Test hooks execute during task lifecycle
-expect(task).to execute_hooks(:before_validation, :after_validation)
-expect(failed_task).to execute_hooks(:before_execution, :on_failure)
+# Test callbacks execute during task lifecycle
+expect(task).to execute_callbacks(:before_validation, :after_validation)
+expect(failed_task).to execute_callbacks(:before_execution, :on_failure)
 
-# Single hook execution
-expect(simple_task).to execute_hooks(:on_success)
+# Single callback execution
+expect(simple_task).to execute_callbacks(:on_success)
 
 # Negated usage
-expect(task).not_to execute_hooks(:unused_hook)
+expect(task).not_to execute_callbacks(:unused_callback)
 ```
 
 > [!NOTE]
-> Hook execution testing may require mocking internal hook mechanisms for comprehensive validation.
+> Callback execution testing may require mocking internal callback mechanisms for comprehensive validation.
 
 #### Middleware Registration Testing
 
@@ -484,7 +484,7 @@ expect(result).to be_successful_task(user_id: 123)
 # Chain task validation expectations
 expect(TaskClass).to be_well_formed_task
   .and validate_required_parameter(:user_id)
-  .and have_hook(:before_execution)
+  .and have_callback(:before_execution)
   .and handle_exceptions_gracefully
 ```
 

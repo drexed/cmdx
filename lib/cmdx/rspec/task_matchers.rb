@@ -4,7 +4,7 @@
 #
 # This module provides specialized matchers for testing task classes and their
 # behavior rather than execution results. These matchers focus on task structure,
-# parameter validation, middleware composition, hook registration, and lifecycle
+# parameter validation, middleware composition, callback registration, and lifecycle
 # management following RSpec Style Guide conventions.
 #
 # The matchers are designed to test task classes before execution, validating
@@ -15,10 +15,10 @@
 #   expect(TaskClass).to validate_parameter_type(:count, :integer)
 #   expect(TaskClass).to use_default_value(:timeout, 30)
 #
-# @example Middleware and hook testing
+# @example Middleware and callback testing
 #   expect(TaskClass).to have_middleware(LoggingMiddleware)
-#   expect(TaskClass).to have_hook(:before_validation)
-#   expect(TaskClass).to execute_hooks(:before_validation, :on_success)
+#   expect(TaskClass).to have_callback(:before_validation)
+#   expect(TaskClass).to execute_callbacks(:before_validation, :on_success)
 #
 # @example Task lifecycle and behavior testing
 #   expect(TaskClass).to be_well_formed_task
@@ -224,30 +224,30 @@ RSpec::Matchers.define :have_middleware do |middleware_class|
   end
 end
 
-# Tests that a task class has a specific hook registered
+# Tests that a task class has a specific callback registered
 #
-# This matcher verifies that a task has registered a hook for a specific
-# lifecycle event. Optionally validates the hook uses a specific callable.
+# This matcher verifies that a task has registered a callback for a specific
+# lifecycle event. Optionally validates the callback uses a specific callable.
 #
-# @param [Symbol] hook_name The name of the hook to check for
+# @param [Symbol] callback_name The name of the callback to check for
 #
-# @example Basic hook testing
-#   expect(ValidatedTask).to have_hook(:before_validation)
-#   expect(NotifiedTask).to have_hook(:on_success)
-#   expect(CleanupTask).to have_hook(:after_execution)
+# @example Basic callback testing
+#   expect(ValidatedTask).to have_callback(:before_validation)
+#   expect(NotifiedTask).to have_callback(:on_success)
+#   expect(CleanupTask).to have_callback(:after_execution)
 #
-# @example Hook with specific callable
-#   expect(CustomTask).to have_hook(:on_failure).with_callable(my_proc)
+# @example Callback with specific callable
+#   expect(CustomTask).to have_callback(:on_failure).with_callable(my_proc)
 #
 # @example Negated usage
-#   expect(SimpleTask).not_to have_hook(:complex_hook)
+#   expect(SimpleTask).not_to have_callback(:complex_callback)
 #
-# @return [Boolean] true if task has the specified hook registered
+# @return [Boolean] true if task has the specified callback registered
 #
 # @since 1.0.0
-RSpec::Matchers.define :have_hook do |hook_name|
+RSpec::Matchers.define :have_callback do |callback_name|
   match do |task_class|
-    task_class.cmd_hooks.registered?(hook_name)
+    task_class.cmd_callbacks.registered?(callback_name)
   end
 
   chain :with_callable do |callable|
@@ -255,12 +255,12 @@ RSpec::Matchers.define :have_hook do |hook_name|
   end
 
   match do |task_class|
-    hooks_registered = task_class.cmd_hooks.registered?(hook_name)
-    return false unless hooks_registered
+    callbacks_registered = task_class.cmd_callbacks.registered?(callback_name)
+    return false unless callbacks_registered
 
     if @expected_callable
-      task_class.cmd_hooks.find(hook_name).any? do |hook|
-        hook.callable == @expected_callable
+      task_class.cmd_callbacks.find(callback_name).any? do |callback|
+        callback.callable == @expected_callable
       end
     else
       true
@@ -269,105 +269,105 @@ RSpec::Matchers.define :have_hook do |hook_name|
 
   failure_message do |task_class|
     if @expected_callable
-      "expected task to have hook #{hook_name} with callable #{@expected_callable}, but it didn't"
+      "expected task to have callback #{callback_name} with callable #{@expected_callable}, but it didn't"
     else
-      registered_hooks = task_class.cmd_hooks.registered_hooks
-      "expected task to have hook #{hook_name}, but had #{registered_hooks}"
+      registered_callbacks = task_class.cmd_callbacks.registered_callbacks
+      "expected task to have callback #{callback_name}, but had #{registered_callbacks}"
     end
   end
 
   failure_message_when_negated do |_task_class|
     if @expected_callable
-      "expected task not to have hook #{hook_name} with callable #{@expected_callable}, but it did"
+      "expected task not to have callback #{callback_name} with callable #{@expected_callable}, but it did"
     else
-      "expected task not to have hook #{hook_name}, but it did"
+      "expected task not to have callback #{callback_name}, but it did"
     end
   end
 
   description do
-    desc = "have hook #{hook_name}"
+    desc = "have callback #{callback_name}"
     desc += " with callable #{@expected_callable}" if @expected_callable
     desc
   end
 end
 
-# Tests that a task executes specific hooks during its lifecycle
+# Tests that a task executes specific callbacks during its lifecycle
 #
 # This matcher verifies that when a task is executed, it triggers the
-# expected hooks in the proper sequence. Works by mocking hook execution
-# and tracking which hooks are called.
+# expected callbacks in the proper sequence. Works by mocking callback execution
+# and tracking which callbacks are called.
 #
-# @param [Array<Symbol>] hook_names The names of hooks that should be executed
+# @param [Array<Symbol>] callback_names The names of callbacks that should be executed
 #
-# @example Basic hook execution testing
-#   expect(task).to execute_hooks(:before_validation, :after_validation)
-#   expect(failed_task).to execute_hooks(:before_execution, :on_failure)
+# @example Basic callback execution testing
+#   expect(task).to execute_callbacks(:before_validation, :after_validation)
+#   expect(failed_task).to execute_callbacks(:before_execution, :on_failure)
 #
-# @example Single hook execution
-#   expect(simple_task).to execute_hooks(:on_success)
+# @example Single callback execution
+#   expect(simple_task).to execute_callbacks(:on_success)
 #
 # @example Negated usage
-#   expect(task).not_to execute_hooks(:unused_hook)
+#   expect(task).not_to execute_callbacks(:unused_callback)
 #
 # @note This matcher requires the task to be executed and may mock internal
-#   hook execution mechanisms for testing purposes.
+#   callback execution mechanisms for testing purposes.
 #
-# @return [Boolean] true if task executes all specified hooks
+# @return [Boolean] true if task executes all specified callbacks
 #
 # @since 1.0.0
-RSpec::Matchers.define :execute_hooks do |*hook_names|
+RSpec::Matchers.define :execute_callbacks do |*callback_names|
   match do |task_or_result|
-    @executed_hooks = []
+    @executed_callbacks = []
 
-    # Mock the hook execution to track what gets called
+    # Mock the callback execution to track what gets called
     if task_or_result.is_a?(CMDx::Task)
       task = task_or_result
-      original_hook_call = task.cmd_hooks.method(:call)
+      original_callback_call = task.cmd_callbacks.method(:call)
 
-      allow(task.cmd_hooks).to receive(:call) do |task_instance, hook_name|
-        @executed_hooks << hook_name
-        original_hook_call.call(task_instance, hook_name)
+      allow(task.cmd_callbacks).to receive(:call) do |task_instance, callback_name|
+        @executed_callbacks << callback_name
+        original_callback_call.call(task_instance, callback_name)
       end
 
       task.perform
     else
-      # If it's a result, check if hooks were executed during task execution
+      # If it's a result, check if callbacks were executed during task execution
       result = task_or_result
-      # This would require the hooks to be tracked during execution
-      # For now, assume hooks were executed based on result state
-      @executed_hooks = infer_executed_hooks(result)
+      # This would require the callbacks to be tracked during execution
+      # For now, assume callbacks were executed based on result state
+      @executed_callbacks = infer_executed_callbacks(result)
     end
 
-    hook_names.all? { |hook_name| @executed_hooks.include?(hook_name) }
+    callback_names.all? { |callback_name| @executed_callbacks.include?(callback_name) }
   end
 
   failure_message do |_task_or_result|
-    missing_hooks = hook_names - @executed_hooks
-    "expected to execute hooks #{hook_names}, but missing #{missing_hooks}. Executed: #{@executed_hooks}"
+    missing_callbacks = callback_names - @executed_callbacks
+    "expected to execute callbacks #{callback_names}, but missing #{missing_callbacks}. Executed: #{@executed_callbacks}"
   end
 
   failure_message_when_negated do |_task_or_result|
-    "expected not to execute hooks #{hook_names}, but executed #{@executed_hooks & hook_names}"
+    "expected not to execute callbacks #{callback_names}, but executed #{@executed_callbacks & callback_names}"
   end
 
   description do
-    "execute hooks #{hook_names}"
+    "execute callbacks #{callback_names}"
   end
 
   private
 
-  def infer_executed_hooks(result)
-    hooks = []
-    hooks << :before_validation if result.executed?
-    hooks << :after_validation if result.executed?
-    hooks << :before_execution if result.executed?
-    hooks << :after_execution if result.executed?
-    hooks << :on_executed if result.executed?
-    hooks << :"on_#{result.status}" if result.executed?
-    hooks << :on_good if result.good?
-    hooks << :on_bad if result.bad?
-    hooks << :"on_#{result.state}" if result.executed?
-    hooks
+  def infer_executed_callbacks(result)
+    callbacks = []
+    callbacks << :before_validation if result.executed?
+    callbacks << :after_validation if result.executed?
+    callbacks << :before_execution if result.executed?
+    callbacks << :after_execution if result.executed?
+    callbacks << :on_executed if result.executed?
+    callbacks << :"on_#{result.status}" if result.executed?
+    callbacks << :on_good if result.good?
+    callbacks << :on_bad if result.bad?
+    callbacks << :"on_#{result.state}" if result.executed?
+    callbacks
   end
 end
 
@@ -605,7 +605,7 @@ end
 # Validates that the task:
 # - Inherits from CMDx::Task
 # - Implements the required call method
-# - Has properly initialized parameter, hook, and middleware registries
+# - Has properly initialized parameter, callback, and middleware registries
 #
 # @example Basic well-formed task validation
 #   expect(MyTask).to be_well_formed_task
@@ -622,7 +622,7 @@ RSpec::Matchers.define :be_well_formed_task do
     task_class < CMDx::Task &&
       task_class.instance_methods.include?(:call) &&
       task_class.cmd_parameters.is_a?(CMDx::ParameterRegistry) &&
-      task_class.cmd_hooks.is_a?(CMDx::HookRegistry) &&
+      task_class.cmd_callbacks.is_a?(CMDx::CallbackRegistry) &&
       task_class.cmd_middlewares.is_a?(CMDx::MiddlewareRegistry)
   end
 
@@ -631,7 +631,7 @@ RSpec::Matchers.define :be_well_formed_task do
     issues << "does not inherit from CMDx::Task" unless task_class < CMDx::Task
     issues << "does not implement call method" unless task_class.instance_methods.include?(:call)
     issues << "does not have parameter registry" unless task_class.cmd_parameters.is_a?(CMDx::ParameterRegistry)
-    issues << "does not have hook registry" unless task_class.cmd_hooks.is_a?(CMDx::HookRegistry)
+    issues << "does not have callback registry" unless task_class.cmd_callbacks.is_a?(CMDx::CallbackRegistry)
     issues << "does not have middleware registry" unless task_class.cmd_middlewares.is_a?(CMDx::MiddlewareRegistry)
 
     "expected task to be well-formed, but #{issues.join(', ')}"

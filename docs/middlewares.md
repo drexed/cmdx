@@ -731,5 +731,5 @@ end
 
 ---
 
-- **Prev:** [Hooks](hooks.md)
+- **Prev:** [Callbacks](callbacks.md)
 - **Next:** [Batch](batch.md)
