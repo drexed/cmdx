@@ -165,5 +165,5 @@ rails generate cmdx:batch BatchOrderDeliveries
 
 ---
 
-- **Prev:** [Example](example.md)
+- **Prev:** [Tips and Tricks](tips_and_tricks.md)
 - **Next:** [Configuration](configuration.md)
