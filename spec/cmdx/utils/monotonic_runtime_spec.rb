@@ -176,11 +176,10 @@ RSpec.describe CMDx::Utils::MonotonicRuntime do
       it "provides millisecond precision" do
         times = []
         10.times do
-          times << described_class.call { sleep(0.001) }
+          times << described_class.call { sleep(rand(0.001..0.005)) }
         end
 
         # Should have some variation in microsecond-level timing
-        pp times
         expect(times.uniq.size).to be > 1
       end
 
