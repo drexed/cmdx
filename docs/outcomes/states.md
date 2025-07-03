@@ -13,8 +13,6 @@ decision making and monitoring.
 - [State-Based Callbacks](#state-based-callbacks)
 - [State vs Status Distinction](#state-vs-status-distinction)
 - [State Inspection and Monitoring](#state-inspection-and-monitoring)
-- [State-Based Conditional Logic](#state-based-conditional-logic)
-- [State Transitions in Complex Workflows](#state-transitions-in-complex-workflows)
 - [State Persistence and Logging](#state-persistence-and-logging)
 
 ## State Definitions
@@ -88,31 +86,6 @@ result.interrupted? #=> false (no interruption)
 
 # Combined state checking
 result.executed?    #=> true (complete OR interrupted)
-```
-
-### State Predicate Usage Examples
-
-```ruby
-# Check if task is still running
-if result.executing?
-  puts "Task is still processing..."
-end
-
-# Check if execution finished
-if result.executed?
-  puts "Task execution completed"
-
-  if result.complete?
-    handle_successful_completion(result)
-  elsif result.interrupted?
-    handle_interruption(result)
-  end
-end
-
-# Initial state checking
-unless result.executed?
-  puts "Task hasn't finished executing yet"
-end
 ```
 
 ## State-Based Callbacks
@@ -214,80 +187,6 @@ result.to_s
 #=> "ProcessUserOrderTask: type=Task index=0 state=complete status=success outcome=success..."
 ```
 
-## State-Based Conditional Logic
-
-Use states for execution lifecycle decisions:
-
-```ruby
-def handle_task_result(result)
-  case result.state
-  when "initialized"
-    puts "Task not yet started"
-  when "executing"
-    puts "Task is running..."
-    show_progress(result)
-  when "complete"
-    puts "Task finished normally"
-    process_completion(result)
-  when "interrupted"
-    puts "Task was interrupted"
-    handle_interruption(result)
-  end
-end
-```
-
-### Advanced State Logic
-
-```ruby
-class TaskMonitor
-  def check_results(results)
-    results.each do |result|
-      # State-based processing
-      if result.executing?
-        monitor_progress(result)
-      elsif result.interrupted?
-        analyze_interruption(result)
-
-        # Further analysis based on status
-        if result.failed?
-          escalate_failure(result)
-        elsif result.skipped?
-          log_skip_reason(result.metadata[:reason])
-        end
-      end
-    end
-  end
-end
-```
-
-## State Transitions in Complex Workflows
-
-For workflows with multiple tasks, state tracking becomes more complex:
-
-```ruby
-class ProcessOrderWorkflowTask < CMDx::Task
-  def call
-    # Each subtask goes through its own state lifecycle
-    first_result = ValidateOrderDataTask.call(context)    # states: init -> exec -> complete
-    second_result = ProcessOrderPaymentTask.call(context) # states: init -> exec -> complete
-
-    # Main task state reflects its own execution
-    context.workflow_completed = true
-  end
-end
-
-result = ProcessOrderWorkflowTask.call
-chain = result.chain
-
-# Main task state
-result.state            #=> "complete"
-
-# Individual task states
-chain.results[0].state  #=> "complete" (ProcessOrderWorkflowTask)
-chain.results[1].state  #=> "complete" (ValidateOrderDataTask)
-chain.results[2].state  #=> "complete" (ProcessOrderPaymentTask)
-```
-
 ## State Persistence and Logging
 
 States are automatically captured in result serialization:
@@ -322,4 +221,4 @@ result.chain.to_h
 ---
 
 - **Prev:** [Outcomes - Statuses](statuses.md)
-- **Next:** [Callbacks](../callbacks.md)
+- **Next:** [Parameters - Definitions](../parameters/definitions.md)
