@@ -180,10 +180,10 @@ end
 
 ```ruby
 # Context maintains continuity across workflow operations
-initial_context = CMDx::Context.build(
+initial_context = {
   user_id: 123,
   action: "bulk_order_processing"
-)
+}
 
 results = [
   ValidateOrderDataTask.call(initial_context),
@@ -202,10 +202,6 @@ CMDx supports automatic context extraction when Result objects are passed to tas
 `new` or `call` methods. This enables seamless task chaining where the output of
 one task becomes the input for the next, creating powerful workflow compositions.
 
-### Task Chaining Examples
-
-#### Simple Chain
-
 ```ruby
 # Chain tasks by passing Result objects
 extraction_result = ExtractDataTask.call(source_id: 123)
@@ -217,65 +213,6 @@ processing_result.context.extracted_data    #=> [data...] (from first task)
 processing_result.context.extraction_time   #=> 2024-01-01 10:00:00 (from first task)
 processing_result.context.processed_data    #=> [processed...] (from second task)
 processing_result.context.processing_time   #=> 2024-01-01 10:00:05 (from second task)
-```
-
-#### Multi-Step Workflow
-
-```ruby
-# Build complex workflows with automatic context flow
-class OrderProcessingWorkflow
-  def self.execute(order_data)
-    # Step 1: Validate order
-    validation_result = ValidateOrderTask.call(order_data)
-    return validation_result unless validation_result.success?
-
-    # Step 2: Process payment (uses validation context)
-    payment_result = ProcessPaymentTask.call(validation_result)
-    return payment_result unless payment_result.success?
-
-    # Step 3: Update inventory (uses payment context)
-    inventory_result = UpdateInventoryTask.call(payment_result)
-    return inventory_result unless inventory_result.success?
-
-    # Step 4: Send confirmation (uses all previous context)
-    SendConfirmationTask.call(inventory_result)
-  end
-end
-
-# Execute workflow
-result = OrderProcessingWorkflow.execute(
-  order_id: 789,
-  customer_id: 123,
-  items: [{ id: 1, quantity: 2 }]
-)
-
-# Final result contains data from entire workflow
-result.context.order_validated     #=> true (from step 1)
-result.context.payment_processed   #=> true (from step 2)
-result.context.inventory_updated   #=> true (from step 3)
-result.context.confirmation_sent   #=> true (from step 4)
-```
-
-### Advanced Context Preservation
-
-Context preserves all data including custom attributes added during execution:
-
-```ruby
-# First task adds custom metadata
-extraction_result = ExtractDataTask.call(source_id: 999)
-extraction_result.context.custom_metadata = {
-  version: "2.0",
-  author: "data_team",
-  tags: ["urgent", "priority"]
-}
-
-# Second task automatically receives all context data
-processing_result = ProcessDataTask.call(extraction_result)
-
-# Custom metadata is preserved
-processing_result.context.custom_metadata[:version] #=> "2.0"
-processing_result.context.custom_metadata[:author]  #=> "data_team"
-processing_result.context.custom_metadata[:tags]    #=> ["urgent", "priority"]
 ```
 
 ### Error Handling in Chains
