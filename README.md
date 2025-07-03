@@ -98,7 +98,7 @@ end
   - [Statuses](docs/outcomes/statuses.md)
 - [Callbacks](docs/callbacks.md)
 - [Middlewares](docs/middlewares.md)
-- [Workflow](docs/workflow.md)
+- [Workflows](docs/workflows.md)
 - [Logging](docs/logging.md)
 - [Testing](docs/testing.md)
 - [Tips & Tricks](docs/tips_and_tricks.md)

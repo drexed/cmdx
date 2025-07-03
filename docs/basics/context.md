@@ -301,7 +301,7 @@ end
 ```
 
 > [!TIP]
-> Result object chaining is particularly powerful when combined with [Workflow](../workflow.md)
+> Result object chaining is particularly powerful when combined with [Workflows](../workflows.md)
 > processing, where multiple tasks can operate on shared context while maintaining
 > individual result tracking.
 
