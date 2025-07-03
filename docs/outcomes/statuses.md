@@ -62,51 +62,14 @@ result.good?    #=> true if success OR skipped
 result.bad?     #=> true if skipped OR failed (not success)
 ```
 
-### Status Predicate Examples
-
-```ruby
-# Basic outcome checking
-if result.success?
-  process_successful_order(result.context)
-  send_confirmation_email(result.context.customer)
-end
-
-# Handle different failure types
-if result.failed?
-  error_code = result.metadata[:error_code]
-  case error_code
-  when 'VALIDATION_ERROR'
-    return_validation_errors(result.metadata[:errors])
-  when 'PAYMENT_FAILED'
-    redirect_to_payment_page(result.metadata[:payment_url])
-  else
-    log_generic_error(result.metadata[:reason])
-  end
-end
-
-# Skip handling
-if result.skipped?
-  reason = result.metadata[:reason]
-  logger.info "Task skipped: #{reason}"
-
-  # Skip reasons might indicate different actions
-  case reason
-  when 'Already processed'
-    redirect_to_status_page
-  when 'Insufficient permissions'
-    show_permission_error
-  end
-end
-```
-
 ## Status Transitions
 
 Unlike states, statuses can only transition from success to skipped/failed:
 
 ```ruby
 # Valid status transitions
-success -> skipped    (via skip!)
-success -> failed     (via fail! or exception)
+success -> skipped    # (via skip!)
+success -> failed     # (via fail! or exception)
 
 # Invalid transitions (will raise errors)
 skipped -> success    # ❌ Cannot transition
@@ -162,43 +125,6 @@ result
 result
   .on_good { |r| log_positive_outcome(r) }
   .on_bad { |r| log_negative_outcome(r) }
-```
-
-### Advanced Callback Patterns
-
-```ruby
-ProcessUserOrderTask
-  .call(order_id: 123)
-  .on_success { |result|
-    # Business success logic
-    OrderMailer.confirmation_email(result.context.order).deliver
-    AnalyticsService.track_order_completed(result.context.order)
-    InventoryService.update_stock(result.context.order)
-  }
-  .on_skipped { |result|
-    # Skip handling logic
-    case result.metadata[:reason]
-    when 'duplicate_order'
-      redirect_to_existing_order(result.metadata[:existing_order_id])
-    when 'out_of_stock'
-      NotificationService.stock_alert(result.metadata[:product_id])
-    end
-  }
-  .on_failed { |result|
-    # Failure handling logic
-    ErrorReporter.notify(result.metadata[:exception])
-
-    if result.metadata[:retryable]
-      RetryService.schedule(result.task.class, result.context.to_h)
-    else
-      FailureNotificationService.alert_support_team(result)
-    end
-  }
-  .on_bad { |result|
-    # Common logic for any non-success outcome
-    MetricsService.increment_counter('order_processing_issues')
-    AuditService.log_outcome(result)
-  }
 ```
 
 > [!TIP]
@@ -310,39 +236,6 @@ if result.bad?
   # Handle any non-success outcome (skipped or failed)
   show_error_message(result.metadata[:reason])
   track_negative_outcome(result)
-end
-```
-
-### Status-Based Branching
-
-```ruby
-def handle_order_processing(result)
-  case result.status
-  when 'success'
-    # Happy path
-    redirect_to_confirmation_page(result.context.order)
-
-  when 'skipped'
-    # Conditional logic determined skip was appropriate
-    reason = result.metadata[:reason]
-    case reason
-    when 'duplicate_order'
-      redirect_to_existing_order_page
-    when 'inventory_unavailable'
-      redirect_to_back_order_page
-    else
-      redirect_to_status_page(reason)
-    end
-
-  when 'failed'
-    # Something went wrong
-    error_code = result.metadata[:error_code]
-    if result.metadata[:retryable]
-      show_retry_option(error_code)
-    else
-      show_permanent_error(error_code)
-    end
-  end
 end
 ```
 
