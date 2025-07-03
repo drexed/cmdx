@@ -202,42 +202,6 @@ CMDx supports automatic context extraction when Result objects are passed to tas
 `new` or `call` methods. This enables seamless task chaining where the output of
 one task becomes the input for the next, creating powerful workflow compositions.
 
-### Automatic Context Extraction
-
-When a Result object is passed to a task, its context is automatically extracted:
-
-```ruby
-# First task extracts and processes data
-class ExtractDataTask < CMDx::Task
-  required :source_id, type: :integer
-
-  def call
-    context.extracted_data = DataSource.extract(source_id)
-    context.extraction_time = Time.now
-    context.record_count = context.extracted_data.size
-  end
-end
-
-# Second task processes the extracted data
-class ProcessDataTask < CMDx::Task
-  def call
-    # Automatically has access to previous task's context
-    fail!(reason: "No data to process") unless context.extracted_data
-
-    context.processed_data = DataProcessor.process(context.extracted_data)
-    context.processing_time = Time.now
-    context.success_rate = calculate_success_rate
-  end
-
-  private
-
-  def calculate_success_rate
-    return 0 if context.record_count.zero?
-    (context.processed_data.size.to_f / context.record_count * 100).round(2)
-  end
-end
-```
-
 ### Task Chaining Examples
 
 #### Simple Chain
@@ -253,22 +217,6 @@ processing_result.context.extracted_data    #=> [data...] (from first task)
 processing_result.context.extraction_time   #=> 2024-01-01 10:00:00 (from first task)
 processing_result.context.processed_data    #=> [processed...] (from second task)
 processing_result.context.processing_time   #=> 2024-01-01 10:00:05 (from second task)
-```
-
-#### Conditional Chain
-
-```ruby
-# Use result status to determine next steps
-validation_result = ValidateDataTask.call(source_id: 456)
-
-if validation_result.success?
-  # Continue with processing if validation passes
-  processing_result = ProcessDataTask.call(validation_result)
-  notification_result = SendNotificationTask.call(processing_result)
-else
-  # Handle validation failure
-  error_result = LogErrorTask.call(validation_result)
-end
 ```
 
 #### Multi-Step Workflow
