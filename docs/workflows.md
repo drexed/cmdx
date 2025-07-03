@@ -18,7 +18,6 @@ Workflows inherit from Task, gaining all task capabilities including callbacks, 
 - [Process Method Options](#process-method-options)
   - [Condition Callables](#condition-callables)
 - [Nested Workflows](#nested-workflows)
-- [Error Handling](#error-handling)
 - [Task Settings Integration](#task-settings-integration)
 - [Generator](#generator)
 
@@ -255,32 +254,6 @@ class CompleteDataProcessingWorkflow < CMDx::Workflow
   process DataPreProcessingWorkflow
   process DataProcessingWorkflow, if: proc { context.pre_processing_successful? }
   process DataPostProcessingWorkflow, unless: proc { context.skip_post_processing? }
-end
-```
-
-## Error Handling
-
-Workflow execution follows the same error handling patterns as individual tasks:
-
-```ruby
-class UserDataProcessingWorkflow < CMDx::Workflow
-  process LoadUserDataTask # May raise exceptions
-  process ValidateUserTask # May fail validation
-  process SaveUserDataTask # May return fault results
-end
-
-result = UserDataProcessingWorkflow.call(data: user_data)
-
-case result.status
-when "success"
-  # All tasks completed successfully
-  handle_success(result)
-when "failed"
-  # At least one task failed
-  handle_failure(result)  # result.metadata contains error details
-when "skipped"
-  # Workflow was skipped entirely
-  handle_skip(result)
 end
 ```
 
