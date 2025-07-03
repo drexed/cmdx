@@ -86,9 +86,9 @@ module CMDx
                           to: :result
 
     ##
-    # @!attribute [r] id
-    #   @return [String] unique identifier for this task instance
-    attr_reader :id
+    # @!attribute [r] context
+    #   @return [Context] parameter context for this task execution
+    attr_reader :context
 
     ##
     # @!attribute [r] errors
@@ -96,9 +96,9 @@ module CMDx
     attr_reader :errors
 
     ##
-    # @!attribute [r] context
-    #   @return [Context] parameter context for this task execution
-    attr_reader :context
+    # @!attribute [r] id
+    #   @return [String] unique identifier for this task instance
+    attr_reader :id
 
     ##
     # @!attribute [r] result
@@ -121,9 +121,9 @@ module CMDx
     #
     # @param context [Hash, Context] parameters and configuration for task execution
     def initialize(context = {})
-      @id      = CMDx::Correlator.generate
-      @errors  = Errors.new
       @context = Context.build(context)
+      @errors  = Errors.new
+      @id      = CMDx::Correlator.generate
       @result  = Result.new(self)
       @chain   = Chain.build(@result)
     end
