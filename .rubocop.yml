@@ -24,6 +24,7 @@ Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
   Exclude:
+    - 'lib/cmdx/rspec/**/*'
     - 'spec/**/**/*'
     - '*.gemspec'
 Metrics/ClassLength:
