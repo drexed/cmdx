@@ -8,8 +8,6 @@ Parameters provide a contract to verify that task execution arguments match expe
 - [Parameter Sources](#parameter-sources)
 - [Nested Parameters](#nested-parameters)
 - [Parameter Method Generation](#parameter-method-generation)
-- [Parameter Options and Configuration](#parameter-options-and-configuration)
-- [Parameter Introspection](#parameter-introspection)
 - [Error Handling](#error-handling)
 
 ## Parameter Fundamentals
@@ -212,29 +210,6 @@ class CreateUserProfileTask < CMDx::Task
 end
 ```
 
-### Nested Parameter Validation
-
-```ruby
-class ValidateOrderTask < CMDx::Task
-  required :order do
-    required :items, type: :array
-    required :total, type: :float
-
-    optional :customer do
-      required :email, format: { with: /@/ }
-      optional :phone, format: { with: /\A\d{10}\z/ }
-    end
-  end
-
-  def call
-    items #=> validated as array
-    total #=> validated as float
-    email #=> validated with regex (if customer provided)
-    phone #=> validated phone format (if provided)
-  end
-end
-```
-
 ## Parameter Method Generation
 
 Parameters automatically generate accessor methods that delegate to their configured sources.
@@ -267,83 +242,6 @@ class ProcessPaymentTask < CMDx::Task
 
   def account
     @account ||= Account.find(context.account_id)
-  end
-end
-```
-
-## Parameter Options and Configuration
-
-Parameters support extensive configuration options for validation, coercion, defaults, and custom behavior:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  # Basic configuration
-  required :user_id, type: :integer
-  optional :priority, type: :string, default: "normal"
-
-  # Validation configuration
-  required :email,
-    type: :string,
-    format: { with: /@/ },
-    presence: true
-
-  # Complex configuration
-  optional :metadata,
-    type: :hash,
-    default: {}
-
-  # Nested with configuration
-  required :shipping_info do
-    required :method,
-      type: :string,
-      inclusion: { in: %w[standard express overnight] }
-
-    required :address, type: :hash do
-      required :street, :city, type: :string, presence: true
-      required :zip, type: :string, format: { with: /\A\d{5}\z/ }
-    end
-  end
-
-  def call
-    user_id  #=> integer (coerced)
-    priority #=> "normal" (default) or provided value
-    email    #=> validated string with @ symbol
-    metadata #=> hash (coerced)
-    method   #=> validated against inclusion list
-    street   #=> validated non-empty string
-    zip      #=> validated 5-digit string
-  end
-end
-```
-
-## Parameter Introspection
-
-Tasks provide access to their parameter definitions for introspection and debugging:
-
-```ruby
-class ProcessIntrospectionTask < CMDx::Task
-  required :user_id, type: :integer
-  optional :email, type: :string, format: { with: /@/ }
-
-  required :address do
-    required :street, :city
-    optional :apartment
-  end
-
-  def call
-    # Access parameter definitions
-    params = self.class.cmd_parameters
-
-    params.size            #=> 3 (user_id, email, address)
-    params.first.name      #=> :user_id
-    params.first.required? #=> true
-    params.first.type      #=> :integer
-
-    # Nested parameter access
-    address_param = params.find { |p| p.name == :address }
-    address_param.children.size            #=> 3
-    address_param.children.first.name      #=> :street
-    address_param.children.first.required? #=> true
   end
 end
 ```
