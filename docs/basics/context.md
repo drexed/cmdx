@@ -11,6 +11,7 @@ validation, and seamless data flow between related tasks.
 - [Modifying Context](#modifying-context)
 - [Context Features](#context-features)
 - [Data Sharing Between Tasks](#data-sharing-between-tasks)
+- [Result Object Context Passing](#result-object-context-passing)
 - [Context Inspection](#context-inspection)
 
 ## Loading Parameters
@@ -194,6 +195,167 @@ results = [
 results.first.context.validation_completed #=> true
 results.last.context.inventory_updated     #=> true
 ```
+
+## Result Object Context Passing
+
+CMDx supports automatic context extraction when Result objects are passed to task
+`new` or `call` methods. This enables seamless task chaining where the output of
+one task becomes the input for the next, creating powerful workflow compositions.
+
+### Automatic Context Extraction
+
+When a Result object is passed to a task, its context is automatically extracted:
+
+```ruby
+# First task extracts and processes data
+class ExtractDataTask < CMDx::Task
+  required :source_id, type: :integer
+
+  def call
+    context.extracted_data = DataSource.extract(source_id)
+    context.extraction_time = Time.now
+    context.record_count = context.extracted_data.size
+  end
+end
+
+# Second task processes the extracted data
+class ProcessDataTask < CMDx::Task
+  def call
+    # Automatically has access to previous task's context
+    fail!(reason: "No data to process") unless context.extracted_data
+
+    context.processed_data = DataProcessor.process(context.extracted_data)
+    context.processing_time = Time.now
+    context.success_rate = calculate_success_rate
+  end
+
+  private
+
+  def calculate_success_rate
+    return 0 if context.record_count.zero?
+    (context.processed_data.size.to_f / context.record_count * 100).round(2)
+  end
+end
+```
+
+### Task Chaining Examples
+
+#### Simple Chain
+
+```ruby
+# Chain tasks by passing Result objects
+extraction_result = ExtractDataTask.call(source_id: 123)
+processing_result = ProcessDataTask.call(extraction_result)
+
+# Context flows automatically between tasks
+processing_result.context.source_id         #=> 123 (from first task)
+processing_result.context.extracted_data    #=> [data...] (from first task)
+processing_result.context.extraction_time   #=> 2024-01-01 10:00:00 (from first task)
+processing_result.context.processed_data    #=> [processed...] (from second task)
+processing_result.context.processing_time   #=> 2024-01-01 10:00:05 (from second task)
+```
+
+#### Conditional Chain
+
+```ruby
+# Use result status to determine next steps
+validation_result = ValidateDataTask.call(source_id: 456)
+
+if validation_result.success?
+  # Continue with processing if validation passes
+  processing_result = ProcessDataTask.call(validation_result)
+  notification_result = SendNotificationTask.call(processing_result)
+else
+  # Handle validation failure
+  error_result = LogErrorTask.call(validation_result)
+end
+```
+
+#### Multi-Step Workflow
+
+```ruby
+# Build complex workflows with automatic context flow
+class OrderProcessingWorkflow
+  def self.execute(order_data)
+    # Step 1: Validate order
+    validation_result = ValidateOrderTask.call(order_data)
+    return validation_result unless validation_result.success?
+
+    # Step 2: Process payment (uses validation context)
+    payment_result = ProcessPaymentTask.call(validation_result)
+    return payment_result unless payment_result.success?
+
+    # Step 3: Update inventory (uses payment context)
+    inventory_result = UpdateInventoryTask.call(payment_result)
+    return inventory_result unless inventory_result.success?
+
+    # Step 4: Send confirmation (uses all previous context)
+    SendConfirmationTask.call(inventory_result)
+  end
+end
+
+# Execute workflow
+result = OrderProcessingWorkflow.execute(
+  order_id: 789,
+  customer_id: 123,
+  items: [{ id: 1, quantity: 2 }]
+)
+
+# Final result contains data from entire workflow
+result.context.order_validated     #=> true (from step 1)
+result.context.payment_processed   #=> true (from step 2)
+result.context.inventory_updated   #=> true (from step 3)
+result.context.confirmation_sent   #=> true (from step 4)
+```
+
+### Advanced Context Preservation
+
+Context preserves all data including custom attributes added during execution:
+
+```ruby
+# First task adds custom metadata
+extraction_result = ExtractDataTask.call(source_id: 999)
+extraction_result.context.custom_metadata = {
+  version: "2.0",
+  author: "data_team",
+  tags: ["urgent", "priority"]
+}
+
+# Second task automatically receives all context data
+processing_result = ProcessDataTask.call(extraction_result)
+
+# Custom metadata is preserved
+processing_result.context.custom_metadata[:version] #=> "2.0"
+processing_result.context.custom_metadata[:author]  #=> "data_team"
+processing_result.context.custom_metadata[:tags]    #=> ["urgent", "priority"]
+```
+
+### Error Handling in Chains
+
+Result object chaining works seamlessly with both `call` and `call!` methods:
+
+```ruby
+# Non-raising version (returns failed results)
+extraction_result = ExtractDataTask.call(source_id: 123)
+if extraction_result.failed?
+  # Handle failure, but can still pass context to error handler
+  error_result = HandleErrorTask.call(extraction_result)
+end
+
+# Raising version (propagates exceptions)
+begin
+  extraction_result = ExtractDataTask.call!(source_id: 123)
+  processing_result = ProcessDataTask.call!(extraction_result)
+rescue CMDx::Failed => e
+  # Handle any failure in the chain
+  error_result = HandleErrorTask.call(e.result)
+end
+```
+
+> [!TIP]
+> Result object chaining is particularly powerful when combined with [Batch](../batch.md)
+> processing, where multiple tasks can operate on shared context while maintaining
+> individual result tracking.
 
 ## Context Inspection
 

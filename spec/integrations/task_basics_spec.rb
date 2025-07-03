@@ -112,6 +112,63 @@ RSpec.describe "Task Basics", type: :integration do
         )
       end
     end
+
+    context "with result object context passing" do
+      let(:data_extraction_task) do
+        Class.new(CMDx::Task) do
+          def call
+            context.extracted_data = {
+              source_id: context.source_id || 123,
+              format: context.format || "json",
+              extracted_at: Time.now
+            }
+          end
+        end
+      end
+
+      let(:data_processing_task) do
+        Class.new(CMDx::Task) do
+          def call
+            fail!(reason: "No extracted data found") unless context.extracted_data
+
+            context.processed_data = {
+              original: context.extracted_data,
+              processed_at: Time.now,
+              status: "completed"
+            }
+          end
+        end
+      end
+
+      it "passes result context between tasks" do
+        # First task extracts data
+        extraction_result = data_extraction_task.call(source_id: 123, format: "xml")
+        expect(extraction_result).to be_successful_task
+
+        # Second task processes the data using the first task's result
+        processing_result = data_processing_task.call(extraction_result)
+        expect(processing_result).to be_successful_task
+
+        # Verify the context was properly passed
+        expect(processing_result.context.extracted_data[:source_id]).to eq(123)
+        expect(processing_result.context.extracted_data[:format]).to eq("xml")
+        expect(processing_result.context.processed_data[:status]).to eq("completed")
+      end
+
+      it "preserves all context data when using result object" do
+        # Add custom context data
+        extraction_result = data_extraction_task.call(source_id: 456, format: "csv")
+        extraction_result.context.custom_metadata = { version: "1.0", author: "test" }
+
+        # Pass result to new task
+        processing_result = data_processing_task.call(extraction_result)
+
+        # Verify custom metadata is preserved
+        expect(processing_result.context.custom_metadata).to eq({ version: "1.0", author: "test" })
+        expect(processing_result.context.source_id).to eq(456)
+        expect(processing_result.context.format).to eq("csv")
+      end
+    end
   end
 
   describe "Call Methods and Error Handling" do

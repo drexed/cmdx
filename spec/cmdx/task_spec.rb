@@ -28,6 +28,27 @@ RSpec.describe CMDx::Task do
       expect(result).to be_a(CMDx::Result)
       expect(result.task).to be_a(task_class)
     end
+
+    context "when calling with a Result object" do
+      let(:source_task) { task_class.new(user_id: 789, email: "test@example.com") }
+      let(:source_result) { source_task.tap(&:perform).result }
+
+      it "extracts context from Result object and executes" do
+        result = task_class.call(source_result)
+
+        expect(result).to be_a(CMDx::Result)
+        expect(result.context.user_id).to eq(789)
+        expect(result.context.email).to eq("test@example.com")
+      end
+
+      it "creates new task instance with extracted context" do
+        result = task_class.call(source_result)
+
+        expect(result.task).to be_a(task_class)
+        expect(result.task).not_to be(source_task)
+        expect(result).not_to be(source_result)
+      end
+    end
   end
 
   describe ".call!" do
@@ -49,6 +70,27 @@ RSpec.describe CMDx::Task do
       failing_task = create_failing_task(reason: "Something went wrong")
 
       expect { failing_task.call! }.to raise_error(CMDx::Failed)
+    end
+
+    context "when calling with a Result object" do
+      let(:source_task) { task_class.new(user_id: 999, status: "active") }
+      let(:source_result) { source_task.tap(&:perform).result }
+
+      it "extracts context from Result object and executes" do
+        result = task_class.call!(source_result)
+
+        expect(result).to be_a(CMDx::Result)
+        expect(result.context.user_id).to eq(999)
+        expect(result.context.status).to eq("active")
+      end
+
+      it "creates new task instance with extracted context" do
+        result = task_class.call!(source_result)
+
+        expect(result.task).to be_a(task_class)
+        expect(result.task).not_to be(source_task)
+        expect(result).not_to be(source_result)
+      end
     end
   end
 
@@ -271,6 +313,39 @@ RSpec.describe CMDx::Task do
 
     it "provides result alias as res" do
       expect(task.res).to be(task.result)
+    end
+
+    context "when initializing with a Result object" do
+      let(:source_task) { task_class.new(user_id: 456, name: "Source Task") }
+      let(:source_result) { source_task.tap(&:perform).result }
+
+      it "extracts context from Result object" do
+        new_task = task_class.new(source_result)
+
+        expect(new_task.context.user_id).to eq(456)
+        expect(new_task.context.name).to eq("Source Task")
+      end
+
+      it "creates new Result object for new task" do
+        new_task = task_class.new(source_result)
+
+        expect(new_task.result).to be_a(CMDx::Result)
+        expect(new_task.result).not_to be(source_result)
+        expect(new_task.result.task).to be(new_task)
+      end
+
+      it "preserves context data when passed as Result" do
+        # Create and execute a task with additional context data
+        source_task = task_class.new(user_id: 789, name: "Source Task")
+        source_task.context.additional_data = "test value"
+        source_task.perform
+
+        new_task = task_class.new(source_task.result)
+
+        expect(new_task.context.additional_data).to eq("test value")
+        expect(new_task.context.user_id).to eq(789)
+        expect(new_task.context.name).to eq("Source Task")
+      end
     end
   end
 

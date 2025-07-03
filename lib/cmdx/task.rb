@@ -29,6 +29,36 @@ module CMDx
   #   result.success? #=> true
   #   result.context.order #=> <Order id: 123>
   #
+  # @example Task chaining with Result objects
+  #   # First task extracts data
+  #   class ExtractDataTask < CMDx::Task
+  #     required :source_id, type: :integer
+  #
+  #     def call
+  #       context.extracted_data = DataSource.extract(source_id)
+  #       context.extraction_time = Time.now
+  #     end
+  #   end
+  #
+  #   # Second task processes the extracted data
+  #   class ProcessDataTask < CMDx::Task
+  #     def call
+  #       # Access data from previous task's context
+  #       fail!(reason: "No data to process") unless context.extracted_data
+  #
+  #       context.processed_data = DataProcessor.process(context.extracted_data)
+  #       context.processing_time = Time.now
+  #     end
+  #   end
+  #
+  #   # Chain tasks by passing Result objects
+  #   extraction_result = ExtractDataTask.call(source_id: 123)
+  #   processing_result = ProcessDataTask.call(extraction_result)
+  #
+  #   # Result object context is automatically extracted
+  #   processing_result.context.extracted_data #=> data from first task
+  #   processing_result.context.processed_data #=> data from second task
+  #
   # @example Using hooks
   #   class ProcessOrderTask < CMDx::Task
   #     before_validation :log_start
@@ -46,6 +76,20 @@ module CMDx
   #       context.order.value > 10_000
   #     end
   #   end
+  #
+  # == Task Chaining and Data Flow
+  #
+  # Tasks can be seamlessly chained by passing Result objects between them.
+  # This enables powerful workflows where the output of one task becomes the
+  # input for the next, maintaining data consistency and enabling complex
+  # business logic composition.
+  #
+  # Benefits of Result object chaining:
+  # - Automatic context extraction and data flow
+  # - Preserves all context data including custom attributes
+  # - Maintains execution chain relationships
+  # - Enables conditional task execution based on previous results
+  # - Simplifies error handling and rollback scenarios
   #
   # @see Result Result object for execution outcomes
   # @see Context Context object for parameter access
@@ -119,8 +163,21 @@ module CMDx
     ##
     # Initializes a new task instance with the given context parameters.
     #
-    # @param context [Hash, Context] parameters and configuration for task execution
+    # The context can be provided as a Hash, Context object, or Result object.
+    # When a Result object is passed, its context is automatically extracted,
+    # enabling seamless task chaining and data flow between tasks.
+    #
+    # @param context [Hash, Context, Result] parameters and configuration for task execution
+    # @example With hash parameters
+    #   task = ProcessOrderTask.new(order_id: 123, notify_user: true)
+    #
+    # @example With Result object (task chaining)
+    #   extraction_result = ExtractDataTask.call(source_id: 456)
+    #   processing_task = ProcessDataTask.new(extraction_result)
+    #   # Context from extraction_result is automatically extracted
     def initialize(context = {})
+      context  = context.context if context.respond_to?(:context)
+
       @context = Context.build(context)
       @errors  = Errors.new
       @id      = CMDx::Correlator.generate
@@ -265,12 +322,22 @@ module CMDx
       # Executes the task with the given parameters, returning a result object.
       # This method handles all exceptions and ensures the task completes properly.
       #
+      # Parameters can be provided as a Hash, Context object, or Result object.
+      # When a Result object is passed, its context is automatically extracted,
+      # enabling seamless task chaining.
+      #
       # @param args [Array] arguments passed to task initialization
       # @return [Result] execution result with state and status information
-      # @example
+      # @example With hash parameters
       #   result = ProcessOrderTask.call(order_id: 123)
       #   result.success? #=> true or false
       #   result.context.order #=> processed order
+      #
+      # @example With Result object (task chaining)
+      #   extraction_result = ExtractDataTask.call(source_id: 456)
+      #   processing_result = ProcessDataTask.call(extraction_result)
+      #   # Context from extraction_result is automatically used
+      #   processing_result.context.source_id #=> 456
       def call(...)
         instance = new(...)
         instance.perform
@@ -281,14 +348,26 @@ module CMDx
       # Executes the task with the given parameters, raising exceptions for failures.
       # This method is useful in background jobs where retries are handled via exceptions.
       #
+      # Parameters can be provided as a Hash, Context object, or Result object.
+      # When a Result object is passed, its context is automatically extracted,
+      # enabling seamless task chaining with exception propagation.
+      #
       # @param args [Array] arguments passed to task initialization
       # @return [Result] execution result if successful
       # @raise [Fault] if task fails and task_halt includes the failure status
-      # @example
+      # @example With hash parameters
       #   begin
       #     result = ProcessOrderTask.call!(order_id: 123)
       #   rescue CMDx::Failed => e
       #     # Handle failure
+      #   end
+      #
+      # @example With Result object (task chaining)
+      #   begin
+      #     extraction_result = ExtractDataTask.call!(source_id: 456)
+      #     processing_result = ProcessDataTask.call!(extraction_result)
+      #   rescue CMDx::Failed => e
+      #     # Handle failure from either task
       #   end
       def call!(...)
         instance = new(...)
