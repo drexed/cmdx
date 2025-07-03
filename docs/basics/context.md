@@ -169,7 +169,7 @@ validation_result = ValidateUserOrderTask.call(user_id: 123, order_id: 456)
 
 if validation_result.success?
   # Pass accumulated context to next task
-  process_result = ProcessUserOrderTask.call(validation_result.context)
+  process_result = ProcessUserOrderTask.call(validation_result)
 
   # Continue chain with enriched context
   notification_result = SendOrderNotificationTask.call(process_result.context)
