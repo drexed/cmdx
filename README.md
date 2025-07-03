@@ -26,6 +26,53 @@ Or install it yourself as:
 
     $ gem install cmdx
 
+## Quick Example
+
+```ruby
+# Setup task
+class SendWelcomeEmailTask < CMDx::Task
+  use CMDx::Middlewares::Timeout, seconds: 5
+
+  on_success :track_email_delivery!
+
+  required :user_id, type: :integer, numeric: { min: 1 }
+  optional :template, type: :string, default: "welcome"
+
+  def call
+    if user.nil?
+      fail!(reason: "User not found", code: 404)
+    elsif user.unconfirmed?
+      skip!(reason: "Email not verified")
+    else
+      response = UserMailer.welcome(user, template).deliver_now
+      context.message_id = response.message_id
+    end
+  end
+
+  private
+
+  def user
+    @user ||= User.find_by(id: user_id)
+  end
+
+  def track_email_delivery!
+    user.touch(:welcomed_at)
+  end
+end
+
+# Execute task
+result = SendWelcomeEmailTask.call(user_id: 123, template: "premium_welcome")
+
+# Handle result
+if result.success?
+  puts "Welcome email sent <message_id: #{result.context.message_id}>"
+elsif result.skipped?
+  puts "Skipped: #{result.metadata[:reason]}"
+elsif result.failed?
+  puts "Failed: #{result.metadata[:reason]} with code: #{result.metadata[:code]}"
+end
+```
+
 ## Table of contents
 
 - [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md)
@@ -72,4 +119,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the CMDx project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
+Everyone interacting in the CMDx project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
