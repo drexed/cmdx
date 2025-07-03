@@ -1,1 +1,6 @@
+- Rename hooks to callbacks
+- Rename batch to workflow
 - Add AI prompt
+- Clean up docs
+- MCP server ready https://playbooks.com/mcp/rubygems
+- Yard docs https://github.com/lsegal/yard
