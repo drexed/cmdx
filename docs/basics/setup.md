@@ -33,8 +33,6 @@ end
 
 ## Task Execution
 
-Tasks are executed using class-level call methods, not by instantiating objects directly:
-
 ```ruby
 # Execute a task
 result = ProcessUserOrderTask.call(order_id: 123)
