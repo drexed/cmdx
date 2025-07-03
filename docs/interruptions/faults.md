@@ -26,7 +26,7 @@ Both fault types provide full access to the task execution context, including
 the result object, task instance, context data, and chain information.
 
 > [!NOTE]
-> All fault exceptions (`CMDx::Skipped`, `CMDx::Failed`, and `CMDx::Fault`) inherit from the base `CMDx::Fault` class and provide access to the complete task execution context.
+> All fault exceptions (`CMDx::Skipped` and `CMDx::Failed`) inherit from the base `CMDx::Fault` class and provide access to the complete task execution context.
 
 ## Basic Exception Handling
 
@@ -96,24 +96,6 @@ rescue CMDx::Failed.for?(ProcessOrderPaymentTask, ProcessCardChargeTask) => e
 end
 ```
 
-### Pattern Matching with Multiple Tasks
-
-```ruby
-# Define task groups for cleaner matching
-payment_tasks = [ProcessOrderPaymentTask, ValidatePaymentCardTask, ProcessCardChargeTask]
-notification_tasks = [SendOrderNotificationTask, SendOrderSMSTask, SendPushNotificationTask]
-
-begin
-  ProcessOrderWorkflowTask.call!(workflow_data: data)
-rescue CMDx::Failed.for?(*payment_tasks) => e
-  # Handle any payment-related failure
-  escalate_payment_issue(e)
-rescue CMDx::Skipped.for?(*notification_tasks) => e
-  # Handle notification skips (user preferences, etc.)
-  log_communication_preference_skip(e)
-end
-```
-
 ### Custom Matching Logic (`matches?`)
 
 Use the `matches?` method with blocks for sophisticated fault matching:
@@ -130,28 +112,6 @@ rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
 rescue CMDx::Failed.matches? { |f| f.result.metadata[:reason]&.include?("timeout") } => e
   # Handle timeout-specific failures
   retry_with_longer_timeout(e)
-end
-```
-
-### Complex Matching Patterns
-
-```ruby
-begin
-  WorkflowProcessUserOrdersTask.call!(items: items)
-rescue CMDx::Fault.matches? { |f|
-  f.result.failed? &&
-  f.result.metadata[:reason]&.include?("timeout") &&
-  f.chain.results.count(&:failed?) < 3
-} => e
-  # Retry if it's a timeout with fewer than 3 failures in the chain
-  retry_with_longer_timeout(e)
-rescue CMDx::Fault.matches? { |f|
-  f.result.skipped? &&
-  f.context.priority == "low" &&
-  Time.now.hour.between?(22, 6)
-} => e
-  # Skip low-priority tasks during off-hours
-  schedule_for_business_hours(e.context)
 end
 ```
 
@@ -174,33 +134,10 @@ class ProcessUserOrderTask < CMDx::Task
     throw!(validation_result) if validation_result.failed?
 
     payment_result = ProcessOrderPaymentTask.call(context)
-    throw!(payment_result) if payment_result.failed?
+    throw!(payment_result) # failed or skipped
 
     # Continue with main logic
     finalize_order
-  end
-
-end
-```
-
-### Conditional Propagation
-
-```ruby
-class ProcessOrderFulfillmentTask < CMDx::Task
-
-  def call
-    inventory_result = ValidateOrderInventoryTask.call(context)
-
-    # Only propagate inventory failures for high-priority orders
-    if inventory_result.failed? && context.priority == "high"
-      throw!(inventory_result)
-    elsif inventory_result.failed?
-      # Handle low-priority inventory failures differently
-      schedule_backorder(context.order_id)
-    end
-
-    shipping_result = ProcessOrderShippingTask.call(context)
-    throw!(shipping_result) unless shipping_result.success?
   end
 
 end
