@@ -10,10 +10,7 @@ A chain represents a collection of related task executions that share a common e
 - [Chain Structure and Metadata](#chain-structure-and-metadata)
 - [Correlation ID Integration](#correlation-id-integration)
 - [State Delegation](#state-delegation)
-- [Result Filtering and Statistics](#result-filtering-and-statistics)
 - [Serialization and Logging](#serialization-and-logging)
-- [Task Indexing](#task-indexing)
-- [Chain Lifecycle](#chain-lifecycle)
 
 ## Thread-Local Chain Management
 
@@ -23,12 +20,12 @@ Chains use thread-local storage to automatically group related task executions w
 # Each thread gets its own chain context
 Thread.new do
   result = ProcessOrderTask.call(order_id: 123)
-  result.chain.id  # => unique ID for this thread
+  result.chain.id    # => unique ID for this thread
 end
 
 Thread.new do
   result = ProcessOrderTask.call(order_id: 456)
-  result.chain.id  # => different unique ID
+  result.chain.id    # => different unique ID
 end
 
 # Access the current thread's chain
@@ -91,7 +88,7 @@ chain = result.chain
 chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
 chain.results #=> [<CMDx::Result ...>, <CMDx::Result ...>]
 
-# Execution state (delegates to first result)
+# Execution state (delegates to outer most result)
 chain.state   #=> "complete"
 chain.status  #=> "success"
 chain.outcome #=> "success"
@@ -206,13 +203,13 @@ end
 
 ## State Delegation
 
-Chain state information delegates to the first (primary) result, representing the overall execution outcome:
+Chain state information delegates to the first (outer most) result, representing the overall execution outcome:
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
   def call
-    ValidateOrderDataTask.call(order_id: order_id)   # Success
-    ProcessOrderPaymentTask.call(order_id: order_id) # Failed
+    ValidateOrderDataTask.call!(order_id: order_id)   # Success
+    ProcessOrderPaymentTask.call!(order_id: order_id) # Failed
   end
 end
 
@@ -220,38 +217,17 @@ result = ProcessOrderTask.call
 chain = result.chain
 
 # Chain status reflects the main task, not subtasks
-chain.status            #=> "success" (ProcessOrderTask succeeded)
-chain.state             #=> "complete"
+chain.status            #=> "failed" (ProcessOrderPaymentTask failed)
+chain.state             #=> "interrupted"
 
 # Individual task results maintain their own state
-chain.results[0].status #=> "success" (ProcessOrderTask)
+chain.results[0].status #=> "failed"  (ProcessOrderTask)
 chain.results[1].status #=> "success" (ValidateOrderDataTask)
 chain.results[2].status #=> "failed"  (ProcessOrderPaymentTask)
 ```
 
 > [!IMPORTANT]
-> Chain state always reflects the primary (first) task outcome, not the subtasks. Individual subtask results maintain their own success/failure states.
-
-## Result Filtering and Statistics
-
-Chains provide methods for analyzing execution results:
-
-```ruby
-result = ProcessLargeOrderTask.call
-chain = result.chain
-
-# Filter results by status
-successful_tasks = chain.results.select(&:success?)
-failed_tasks = chain.results.select(&:failed?)
-skipped_tasks = chain.results.select(&:skipped?)
-
-# Get execution statistics
-total_tasks = chain.results.size
-success_rate = (successful_tasks.size.to_f / total_tasks * 100).round(1)
-
-puts "Executed #{total_tasks} tasks with #{success_rate}% success rate"
-puts "Failed tasks: #{failed_tasks.map { |r| r.task.class.name }.join(', ')}"
-```
+> Chain state always reflects the first (outer most) task outcome, not the subtasks. Individual subtask results maintain their own success/failure states.
 
 ## Serialization and Logging
 
@@ -288,41 +264,6 @@ puts chain.to_s
 #   ================================================
 #   state: complete | status: success | outcome: success | runtime: 0.5
 ```
-
-## Task Indexing
-
-Chains automatically track the execution order of related tasks:
-
-```ruby
-result = ProcessOrderTask.call
-chain = result.chain
-
-# Get index of specific results
-chain.index(chain.results[0]) #=> 0 (first task)
-chain.index(chain.results[1]) #=> 1 (second task)
-chain.index(chain.results[2]) #=> 2 (third task)
-
-# Index corresponds to execution order
-chain.results.each_with_index do |result, index|
-  puts "#{index}: #{result.task.class.name}"
-end
-# 0: ProcessOrderTask
-# 1: ValidateOrderDataTask
-# 2: ProcessOrderPaymentTask
-```
-
-## Chain Lifecycle
-
-Chains follow a predictable lifecycle:
-
-1. **Creation** - New chain created for initial task execution in thread
-2. **Inheritance** - Subsequent tasks in the same thread automatically join existing chain
-3. **Population** - Results added as tasks execute
-4. **Completion** - Chain state reflects overall execution
-5. **Cleanup** - Thread-local chain cleared when no longer needed
-
-> [!TIP]
-> Use chains for monitoring complex workflows. The automatic thread-local inheritance makes it easy to track all related operations without manual coordination.
 
 ---
 
