@@ -6,13 +6,7 @@ This guide provides AI prompt templates for building CMDx Task and Workflow obje
 
 - [Framework Context Template](#framework-context-template)
 - [Task Generation Templates](#task-generation-templates)
-  - [Basic Task Template](#basic-task-template)
-  - [Complex Task Template](#complex-task-template)
-  - [Data Processing Task Template](#data-processing-task-template)
 - [Workflow Generation Templates](#workflow-generation-templates)
-  - [Basic Workflow Template](#basic-workflow-template)
-  - [Conditional Workflow Template](#conditional-workflow-template)
-  - [Error Handling Workflow Template](#error-handling-workflow-template)
 - [Testing Templates](#testing-templates)
 - [Best Practices for AI Prompts](#best-practices-for-ai-prompts)
 
@@ -45,8 +39,6 @@ Generate code that is production-ready with proper error handling, validation, a
 ```
 
 ## Task Generation Templates
-
-### Basic Task Template
 
 ```
 Create a CMDx task that [SPECIFIC_ACTION] with the following requirements:
@@ -102,78 +94,7 @@ TESTING:
 - Test parameter validation and context updates
 ```
 
-### Complex Task Template
-
-```
-Create a CMDx task that [COMPLEX_ACTION] with the following requirements:
-
-PARAMETERS:
-[Nested parameter structure with validations]
-
-BUSINESS LOGIC:
-[Multi-step process with conditional logic]
-
-EXTERNAL INTEGRATIONS:
-- [API calls or service interactions]
-- [Database operations]
-- [File system operations]
-
-ERROR HANDLING:
-- [Specific exceptions to catch]
-- [Retry logic if needed]
-- [Fallback behaviors]
-
-CALLBACKS:
-- [Before/after hooks needed]
-- [Success/failure callbacks]
-
-MIDDLEWARE:
-- [Authentication requirements]
-- [Logging specifications]
-- [Timeout settings]
-
-TESTING:
-- Include integration tests for external services
-- Mock external dependencies appropriately
-- Test all error scenarios and edge cases
-```
-
-### Data Processing Task Template
-
-```
-Create a CMDx task that processes [DATA_TYPE] with the following requirements:
-
-INPUT DATA:
-- [Data source and format]
-- [Validation requirements]
-- [Size/volume expectations]
-
-PROCESSING STEPS:
-- [Data transformation logic]
-- [Validation rules]
-- [Business rule applications]
-
-OUTPUT:
-- [Expected output format]
-- [Success criteria]
-- [Error conditions]
-
-PERFORMANCE:
-- [Batch processing requirements]
-- [Memory usage considerations]
-- [Timeout expectations]
-
-MONITORING:
-- [Progress tracking]
-- [Metrics to collect]
-- [Error reporting]
-
-Include proper error handling, progress tracking, and comprehensive testing.
-```
-
 ## Workflow Generation Templates
-
-### Basic Workflow Template
 
 ```
 Create a CMDx workflow that orchestrates [BUSINESS_PROCESS] with the following requirements:
@@ -236,59 +157,6 @@ TESTING:
 - Include individual task unit tests
 ```
 
-### Conditional Workflow Template
-
-```
-Create a CMDx workflow that handles [CONDITIONAL_PROCESS] with the following requirements:
-
-DECISION POINTS:
-- [Condition 1]: [What happens if true/false]
-- [Condition 2]: [What happens if true/false]
-- [Condition 3]: [What happens if true/false]
-
-BRANCHING LOGIC:
-- [Path A]: [Tasks to execute]
-- [Path B]: [Tasks to execute]
-- [Path C]: [Tasks to execute]
-
-CONTEXT SHARING:
-- [How different paths share data]
-- [What context is preserved across branches]
-
-VALIDATION:
-- [Ensure all paths reach valid end states]
-- [Handle edge cases and invalid conditions]
-
-Include comprehensive testing for all possible execution paths.
-```
-
-### Error Handling Workflow Template
-
-```
-Create a CMDx workflow that handles [PROCESS_WITH_RECOVERY] with the following requirements:
-
-MAIN WORKFLOW:
-- [Primary execution path]
-- [Expected success scenario]
-
-ERROR RECOVERY:
-- [Retry strategies for transient failures]
-- [Compensation actions for failed operations]
-- [Fallback procedures]
-
-MONITORING:
-- [Error tracking and alerting]
-- [Performance metrics]
-- [Success/failure reporting]
-
-CIRCUIT BREAKER:
-- [When to stop retrying]
-- [How to handle cascading failures]
-- [Recovery mechanisms]
-
-Include comprehensive error simulation and recovery testing.
-```
-
 ## Testing Templates
 
 ### Task Testing Template
@@ -320,7 +188,6 @@ CALLBACK TESTS:
 Use CMDx custom matchers like:
 - expect(result).to be_successful_task
 - expect(result).to be_failed_task
-- expect(TaskClass).to validate_required_parameter(:param)
 - expect(TaskClass).to handle_exceptions_gracefully
 ```
 
