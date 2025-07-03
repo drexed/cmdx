@@ -201,38 +201,6 @@ end
 > Always preserve original exception information in metadata when handling
 > exceptions manually. This maintains debugging capabilities and error traceability.
 
-## Practical Exception Handling Patterns
-
-### Layered Exception Handling
-
-```ruby
-class ProcessUserOrderTask < CMDx::Task
-
-  def call
-    process_order_data
-  rescue ActiveRecord::RecordNotFound => e
-    # Handle specific database errors gracefully
-    skip!(reason: "Order not found: #{e.message}")
-  rescue Net::TimeoutError => e
-    # Handle timeout errors as retryable failures
-    fail!(reason: "Order processing timed out", error_code: "TIMEOUT", retryable: true)
-  rescue StandardError => e
-    # Let other exceptions bubble up for automatic handling
-    raise e
-  end
-
-  private
-
-  def process_order_data
-    # Implementation that might raise various exceptions
-  end
-
-end
-```
-
-> [!WARNING]
-> The `call!` method allows exceptions to propagate, which can interrupt execution flow. Use it only when you want exception-based control flow or need to handle specific errors at a higher level.
-
 ---
 
 - **Prev:** [Interruptions - Faults](faults.md)
