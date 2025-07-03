@@ -118,9 +118,6 @@ class ProcessPaymentTask < CMDx::Task
     log_formatter: CMDx::LogFormatters::Json.new # JSON formatter
   )
 
-  required :amount, type: :float
-  required :payment_method, type: :string
-
   def call
     # Process payment logic
   end

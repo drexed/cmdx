@@ -41,8 +41,6 @@ rails generate cmdx:install
 
 ## Quick Setup
 
-Create your first task following the **Verb + Noun + Task** naming convention:
-
 ```ruby
 class ProcessOrderTask < CMDx::Task
   required :order_id, type: :integer
@@ -113,15 +111,12 @@ rescue CMDx::Failed => e
 end
 ```
 
-> [!WARNING]
-> Use `call!` only when you need exception-based flow control. Use `call` for most scenarios.
-
 ## Building Workflows
 
 Combine tasks using batches:
 
 ```ruby
-class ProcessOrderWorkflow < CMDx::Batch
+class BatchProcessOrder < CMDx::Batch
   required :order_id, type: :integer
 
   process ValidateOrderTask

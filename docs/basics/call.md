@@ -91,10 +91,6 @@ result = ProcessOrderTask.call(
   priority: "high"
 )
 
-# Existing context
-existing_context = CMDx::Context.build(order_id: 12345)
-result = ProcessOrderTask.call(existing_context)
-
 # From another task result
 validation_result = ValidateOrderTask.call(order_id: 12345)
 result = ProcessOrderTask.call(validation_result.context)
@@ -141,7 +137,10 @@ class ProcessOrderTask < CMDx::Task
     throw!(validation_result) if validation_result.failed?
 
     payment_result = ProcessPaymentTask.call(context)
-    throw!(payment_result) if payment_result.failed?
+    throw!(payment_result) if payment_result.skipped?
+
+    delivery_result = ScheduleDeliveryTask.call(context)
+    throw!(delivery_result) # failed or skipped
 
     # Continue with main logic
     context.order = Order.find(context.order_id)

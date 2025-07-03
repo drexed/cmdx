@@ -20,10 +20,9 @@ parameters become accessible as dynamic attributes within the task.
 
 ```ruby
 ProcessUserOrderTask.call(
-  user_id: 123,
+  user: User.first,
   order_id: 456,
-  send_notification: true,
-  metadata: { source: "mobile", priority: "high" }
+  send_notification: true
 )
 ```
 
@@ -102,7 +101,7 @@ end
 All keys are automatically converted to symbols for consistent access:
 
 ```ruby
-task.call("user_id" => 123, :order_id => 456)
+SomeTask.call("user_id" => 123, :order_id => 456)
 
 # Both accessible as symbols
 context.user_id  #=> 123
