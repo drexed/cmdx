@@ -16,8 +16,6 @@ inspecting task execution outcomes and chaining task operations.
 - [Result Callbacks and Chaining](#result-callbacks-and-chaining)
 - [Pattern Matching](#pattern-matching)
 - [Serialization and Inspection](#serialization-and-inspection)
-- [Advanced Result Operations](#advanced-result-operations)
-- [Integration with Other Components](#integration-with-other-components)
 
 ## Core Result Attributes
 
@@ -74,13 +72,7 @@ Results provide additional methods for understanding execution outcomes:
 result = ProcessOrderWorkflowTask.call
 
 # Outcome determination
-result.outcome      #=> "success" (combines state and status)
-
-# For successful results
-result.outcome == result.status    #=> true
-
-# For failed/interrupted results
-result.outcome == result.state     #=> may differ based on failure type
+result.outcome #=> "success" (combines state and status)
 ```
 
 ## Runtime and Performance
@@ -91,13 +83,7 @@ Results capture detailed timing information:
 result = ProcessUserOrderTask.call
 
 # Execution timing
-result.runtime      #=> 0.5 (total execution time in seconds)
-
-# Runtime can also be used to measure blocks (internal use)
-result.runtime do
-  # Code execution is measured
-  expensive_operation
-end #=> returns execution time and stores it
+result.runtime #=> 0.5 (total execution time in seconds)
 ```
 
 ## Failure Chain Analysis
@@ -139,7 +125,7 @@ Results track their position within execution chains:
 result = ProcessUserOrderTask.call
 
 # Position in execution sequence
-result.index        #=> 0 (first task in chain)
+result.index #=> 0 (first task in chain)
 
 # Access via chain
 result.chain.results[result.index] == result #=> true
@@ -229,27 +215,6 @@ in { bad: true, metadata: { reason: String => reason } }
 end
 ```
 
-### Advanced Pattern Matching
-
-Combine patterns for complex matching logic:
-
-```ruby
-results = WorkflowProcessTask.call.chain.results
-
-results.each do |result|
-  case result
-  in { state: "complete", status: "success", metadata: { processed_count: n } } if n > 100
-    puts "High-volume processing completed: #{n} items"
-  in { executed: true, runtime: time } if time > 5.0
-    puts "Long-running task completed in #{time}s"
-  in { bad: true, metadata: { error_code: code } }
-    handle_error_by_code(code)
-  else
-    puts "Standard result: #{result}"
-  end
-end
-```
-
 ### Pattern Matching with Guards
 
 Use guard clauses for conditional matching:
@@ -331,81 +296,6 @@ failed_result.to_h
 
 > [!NOTE]
 > Serialized results include complete failure chain information for debugging and audit trails. Use `to_h` for structured data and `to_s` for human-readable output.
-
-## Advanced Result Operations
-
-### Result Propagation
-
-Results can propagate failures to other results:
-
-```ruby
-class ProcessOrderWorkflowTask < CMDx::Task
-  def call
-    child_result = ValidateOrderDataTask.call(context)
-
-    # Propagate child failure with additional context
-    throw!(child_result, parent_context: "During workflow processing") if child_result.failed?
-  end
-end
-```
-
-### Conditional Processing
-
-```ruby
-result = ProcessUserOrderTask.call
-
-case result.status
-when "success"
-  complete_order_processing(result.context)
-when "skipped"
-  log_skip_reason(result.metadata[:reason])
-when "failed"
-  if result.metadata[:retryable]
-    schedule_retry(result)
-  else
-    handle_permanent_failure(result)
-  end
-end
-```
-
-## Integration with Other Components
-
-### With Context
-
-```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
-
-# Context is accessible through result
-result.context.order_id     #=> 123
-result.context.processed_at #=> (set during task execution)
-
-# Context alias
-result.ctx == result.context #=> true
-```
-
-### With Chain
-
-```ruby
-result = ProcessUserOrderTask.call
-
-# Chain provides execution context
-result.chain.id             #=> "chain-uuid"
-result.chain.results.size   #=> 1 (or more if subtasks executed)
-result.chain.state          #=> delegates to result.state
-result.chain.status         #=> delegates to result.status
-```
-
-### With Task
-
-```ruby
-result = ProcessUserOrderTask.call
-
-# Task instance is accessible
-result.task.class.name      #=> "ProcessUserOrderTask"
-result.task.id              #=> "task-uuid"
-result.task.context         #=> same as result.context
-result.task.result          #=> same as result
-```
 
 ---
 
