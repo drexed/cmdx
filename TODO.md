@@ -1,1 +1,0 @@
-- Yard docs https://github.com/lsegal/yard
