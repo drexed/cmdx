@@ -115,15 +115,11 @@ module CMDx
     alias valid? empty?
 
     ##
-    # @!method has_key?(key)
-    #   @param key [Symbol, String] attribute name to check
-    #   @return [Boolean] true if attribute has errors
+    # Alias for {#key?}. Checks if an attribute has error messages.
     alias has_key? key?
 
     ##
-    # @!method include?(key)
-    #   @param key [Symbol, String] attribute name to check
-    #   @return [Boolean] true if attribute has errors
+    # Alias for {#key?}. Checks if an attribute has error messages.
     alias include? key?
 
     ##

@@ -34,7 +34,7 @@ module CMDx
       # It handles method calls, proc execution, and hash key access gracefully.
       #
       # @param key [Symbol, String, Proc] method name or callable to attempt
-      # @param args [Array] arguments to pass to the method/proc
+      # @param args [Array] arguments to pass to the method/proc (passed via splat)
       # @return [Object, nil] result of method call, proc execution, or nil if not possible
       #
       # @example Method calling
@@ -100,7 +100,7 @@ module CMDx
       # Otherwise, try to execute it as a proc or return the value as-is.
       #
       # @param key [Object] value to yield, method name, or callable
-      # @param args [Array] arguments to pass if calling method/proc
+      # @param args [Array] arguments to pass if calling method/proc (passed via splat)
       # @return [Object] yielded value
       #
       # @example Method yielding
@@ -132,7 +132,7 @@ module CMDx
       # can be called (like a proc or lambda), call it with the given
       # arguments. Otherwise, return the object unchanged.
       #
-      # @param args [Array] arguments to pass to call method
+      # @param args [Array] arguments to pass to call method (passed via splat)
       # @return [Object] result of calling or the object itself
       #
       # @example Callable objects
