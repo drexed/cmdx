@@ -125,10 +125,10 @@ result = ProcessOrderTask.call(
 validation_result = ValidateOrderTask.call(order_id: 12345)
 
 # -- Passing Result object
-result = ProcessOrderTask.call(validation_result)
+result = ProcessOrderTask.call!(validation_result)
 
 # -- Passing context directly
-result = ProcessOrderTask.call(validation_result.context)
+result = ProcessOrderTask.new(validation_result.context)
 ```
 
 ## Result Propagation (`throw!`)
