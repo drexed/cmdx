@@ -101,6 +101,7 @@ end
 - [Workflows](docs/workflows.md)
 - [Logging](docs/logging.md)
 - [Testing](docs/testing.md)
+- [AI Prompts](docs/ai_prompts.md)
 - [Tips & Tricks](docs/tips_and_tricks.md)
 
 ## Development

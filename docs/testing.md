@@ -598,4 +598,4 @@ end
 ---
 
 - **Prev:** [Logging](logging.md)
-- **Next:** [Tips and Tricks](tips_and_tricks.md)
+- **Next:** [AI Prompts](ai_prompts.md)
