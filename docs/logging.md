@@ -61,7 +61,7 @@ E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask: index=0 chain
 
 ### Failure Chain (Workflow Workflows)
 ```txt
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CreateOrderWorkflow: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Workflow class=CreateOrderWorkflow id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- OrderCreationWorkflow: index=0 chain_id=018c2b95-b764-7615-a924-cc5b910ed1e5 type=Workflow class=OrderCreationWorkflow id=018c2b95-b764-7615-a924-cc5b910ed1e5 tags=[] state=interrupted status=failed outcome=interrupted metadata={} runtime=0.75 caused_failure={index: 2, class: "ValidatePaymentTask", status: "failed"} threw_failure={index: 1, class: "ProcessPaymentTask", status: "failed"} origin=CMDx
 ```
 
 ## Configuration

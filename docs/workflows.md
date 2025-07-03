@@ -28,7 +28,7 @@ Workflows inherit from Task, gaining all task capabilities including callbacks, 
 > Do **NOT** define a `call` method in workflow classes. The workflow class automatically provides the call logic.
 
 ```ruby
-class WorkflowProcessOrders < CMDx::Workflow
+class OrderProcessingWorkflow < CMDx::Workflow
   # Sequential task execution
   process ValidateOrderTask
   process CalculateTaxTask
@@ -52,7 +52,7 @@ end
 Tasks are declared using the `process` method and organized into groups with shared execution options:
 
 ```ruby
-class WorkflowSendNotifications < CMDx::Workflow
+class NotificationDeliveryWorkflow < CMDx::Workflow
   # Single task declaration
   process PrepareNotificationTask
 
@@ -79,7 +79,7 @@ end
 The context object is shared across all tasks in the workflow, creating a data pipeline:
 
 ```ruby
-class WorkflowProcessEcommerce < CMDx::Workflow
+class EcommerceProcessingWorkflow < CMDx::Workflow
   process ValidateOrderTask # Sets context.validation_result
   process CalculateTaxTask  # Uses context.order, sets context.tax_amount
   process ChargePaymentTask # Uses context.tax_amount, sets context.payment_id
@@ -99,7 +99,7 @@ result.context.tracking_number   # From FulfillOrderTask
 Tasks can be executed conditionally using `:if` and `:unless` options. Conditions can be procs, lambdas, or method names:
 
 ```ruby
-class WorkflowProcessUser < CMDx::Workflow
+class UserProcessingWorkflow < CMDx::Workflow
   process ValidateUserTask
 
   # Proc condition
@@ -135,7 +135,7 @@ Workflows control execution flow through halt behavior, which determines when to
 By default, workflows halt on `FAILED` status but continue on `SKIPPED`. This reflects the philosophy that skipped tasks are bypass mechanisms, not execution blockers.
 
 ```ruby
-class WorkflowProcessData < CMDx::Workflow
+class DataProcessingWorkflow < CMDx::Workflow
   process LoadDataTask     # If this fails, workflow stops
   process ValidateDataTask # If this is skipped, workflow continues
   process SaveDataTask     # This only runs if LoadDataTask and ValidateDataTask don't fail
@@ -147,7 +147,7 @@ end
 Configure halt behavior for the entire workflow using `task_settings!`:
 
 ```ruby
-class WorkflowProcessCriticalData < CMDx::Workflow
+class CriticalDataProcessingWorkflow < CMDx::Workflow
   # Halt on both failed and skipped results
   task_settings!(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
@@ -155,7 +155,7 @@ class WorkflowProcessCriticalData < CMDx::Workflow
   process ValidateCriticalDataTask
 end
 
-class WorkflowProcessOptionalData < CMDx::Workflow
+class OptionalDataProcessingWorkflow < CMDx::Workflow
   # Never halt, always continue
   task_settings!(workflow_halt: [])
 
@@ -170,7 +170,7 @@ end
 Different groups can have different halt behavior:
 
 ```ruby
-class WorkflowProcessUserAccount < CMDx::Workflow
+class UserAccountProcessingWorkflow < CMDx::Workflow
   # Critical tasks - halt on any failure or skip
   process CreateUserTask, ValidateUserTask,
     workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
@@ -206,7 +206,7 @@ The `process` method supports the following options:
 Conditions can be provided in several formats:
 
 ```ruby
-class WorkflowProcessAccount < CMDx::Workflow
+class AccountProcessingWorkflow < CMDx::Workflow
   # Proc - executed in workflow instance context
   process UpgradeAccountTask, if: proc { context.user.admin? }
 
@@ -236,25 +236,25 @@ end
 Workflows can process other workflows, creating hierarchical workflows:
 
 ```ruby
-class WorkflowPreProcessData < CMDx::Workflow
+class DataPreProcessingWorkflow < CMDx::Workflow
   process ValidateInputTask
   process SanitizeDataTask
 end
 
-class WorkflowProcessData < CMDx::Workflow
+class DataProcessingWorkflow < CMDx::Workflow
   process TransformDataTask
   process ApplyBusinessLogicTask
 end
 
-class WorkflowPostProcessData < CMDx::Workflow
+class DataPostProcessingWorkflow < CMDx::Workflow
   process GenerateReportTask
   process SendNotificationTask
 end
 
-class WorkflowProcessCompleteData < CMDx::Workflow
-  process WorkflowPreProcessData
-  process WorkflowProcessData, if: proc { context.pre_processing_successful? }
-  process WorkflowPostProcessData, unless: proc { context.skip_post_processing? }
+class CompleteDataProcessingWorkflow < CMDx::Workflow
+  process DataPreProcessingWorkflow
+  process DataProcessingWorkflow, if: proc { context.pre_processing_successful? }
+  process DataPostProcessingWorkflow, unless: proc { context.skip_post_processing? }
 end
 ```
 
@@ -263,13 +263,13 @@ end
 Workflow execution follows the same error handling patterns as individual tasks:
 
 ```ruby
-class WorkflowProcessUserData < CMDx::Workflow
+class UserDataProcessingWorkflow < CMDx::Workflow
   process LoadUserDataTask # May raise exceptions
   process ValidateUserTask # May fail validation
   process SaveUserDataTask # May return fault results
 end
 
-result = WorkflowProcessUserData.call(data: user_data)
+result = UserDataProcessingWorkflow.call(data: user_data)
 
 case result.status
 when "success"
@@ -289,7 +289,7 @@ end
 Workflows support all task settings and can be configured like regular tasks:
 
 ```ruby
-class WorkflowProcessPayment < CMDx::Workflow
+class PaymentProcessingWorkflow < CMDx::Workflow
   # Configure workflow-specific settings
   task_settings!(
     workflow_halt: [CMDx::Result::FAILED],
@@ -332,7 +332,7 @@ rails g cmdx:workflow ProcessOrder
 This creates a workflow template file under `app/cmds`:
 
 ```ruby
-class WorkflowProcessOrder < ApplicationWorkflow
+class OrderProcessingWorkflow < ApplicationWorkflow
   process # TODO
 end
 ```

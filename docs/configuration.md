@@ -140,7 +140,7 @@ end
 Configure halt behavior for workflows:
 
 ```ruby
-class ProcessOrderWorkflow < CMDx::Workflow
+class OrderProcessingWorkflow < CMDx::Workflow
   # Strict workflow - halt on any failure
   task_settings!(workflow_halt: ["failed", "skipped"])
 

@@ -116,7 +116,7 @@ end
 Combine tasks using workflows:
 
 ```ruby
-class WorkflowProcessOrder < CMDx::Workflow
+class OrderProcessingWorkflow < CMDx::Workflow
   required :order_id, type: :integer
 
   process ValidateOrderTask

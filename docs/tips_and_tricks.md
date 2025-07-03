@@ -127,7 +127,7 @@ end
 ### Memory-Efficient Workflow Processing
 
 ```ruby
-class WorkflowProcessLargeDataset < CMDx::Workflow
+class LargeDatasetProcessingWorkflow < CMDx::Workflow
   # Process in chunks to avoid memory issues
   process ProcessChunkDataTask, if: :has_more_data?
   process ProcessChunkTask
