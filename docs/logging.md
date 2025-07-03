@@ -242,4 +242,4 @@ CMDx logs contain comprehensive execution metadata:
 ---
 
 - **Prev:** [Workflows](workflows.md)
-- **Next:** [Tips & Tricks](tips_and_tricks.md)
+- **Next:** [Testing](testing.md)
