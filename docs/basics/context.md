@@ -211,10 +211,10 @@ context.inspect #=> "#<CMDx::Context :user_id=123 :order_id=456>"
 context.each_pair { |key, value| puts "#{key}: #{value}" }
 ```
 
-[Learn more](https://github.com/drexed/cmdx/blob/main/lib/cmdx/lazy_struct.rb)
+[Learn more](../../lib/cmdx/lazy_struct.rb)
 about the `LazyStruct` public API that powers context functionality.
 
 ---
 
-- **Prev:** [Basics - Call](https://github.com/drexed/cmdx/blob/main/docs/basics/call.md)
-- **Next:** [Basics - Chain](https://github.com/drexed/cmdx/blob/main/docs/basics/chain.md)
+- **Prev:** [Basics - Call](call.md)
+- **Next:** [Basics - Chain](chain.md)

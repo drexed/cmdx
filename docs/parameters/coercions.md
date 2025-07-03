@@ -421,5 +421,5 @@ end
 
 ---
 
-- **Prev:** [Namespacing](https://github.com/drexed/cmdx/blob/main/docs/parameters/namespacing.md)
-- **Next:** [Validations](https://github.com/drexed/cmdx/blob/main/docs/parameters/validations.md)
+- **Prev:** [Namespacing](namespacing.md)
+- **Next:** [Validations](validations.md)

@@ -387,5 +387,5 @@ result.metadata
 
 ---
 
-- **Prev:** [Configuration](https://github.com/drexed/cmdx/blob/main/docs/configuration.md)
-- **Next:** [Parameters - Namespacing](https://github.com/drexed/cmdx/blob/main/docs/parameters/namespacing.md)
+- **Prev:** [Configuration](../configuration.md)
+- **Next:** [Parameters - Namespacing](namespacing.md)

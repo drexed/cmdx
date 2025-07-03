@@ -409,5 +409,5 @@ result.task.result          #=> same as result
 
 ---
 
-- **Prev:** [Interruptions - Exceptions](https://github.com/drexed/cmdx/blob/main/docs/interruptions/exceptions.md)
-- **Next:** [Outcomes - Statuses](https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md)
+- **Prev:** [Interruptions - Exceptions](../interruptions/exceptions.md)
+- **Next:** [Outcomes - Statuses](statuses.md)

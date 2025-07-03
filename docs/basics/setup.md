@@ -94,5 +94,5 @@ Every task follows a predictable lifecycle:
 
 ---
 
-- **Prev:** [Configuration](https://github.com/drexed/cmdx/blob/main/docs/configuration.md)
-- **Next:** [Basics - Call](https://github.com/drexed/cmdx/blob/main/docs/basics/call.md)
+- **Prev:** [Configuration](../configuration.md)
+- **Next:** [Basics - Call](call.md)

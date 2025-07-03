@@ -321,5 +321,5 @@ result.chain.to_h
 
 ---
 
-- **Prev:** [Outcomes - Statuses](https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md)
-- **Next:** [Hooks](https://github.com/drexed/cmdx/blob/main/docs/hooks.md)
+- **Prev:** [Outcomes - Statuses](statuses.md)
+- **Next:** [Hooks](../hooks.md)

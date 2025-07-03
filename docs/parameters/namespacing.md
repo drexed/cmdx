@@ -370,5 +370,5 @@ result.metadata
 
 ---
 
-- **Prev:** [Parameters - Definitions](https://github.com/drexed/cmdx/blob/main/docs/parameters/definitions.md)
-- **Next:** [Parameters - Coercions](https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md)
+- **Prev:** [Parameters - Definitions](definitions.md)
+- **Next:** [Parameters - Coercions](coercions.md)

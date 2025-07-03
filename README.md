@@ -75,33 +75,33 @@ end
 
 ## Table of contents
 
-- [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md)
-- [Configuration](https://github.com/drexed/cmdx/blob/main/docs/configuration.md)
+- [Getting Started](docs/getting_started.md)
+- [Configuration](docs/configuration.md)
 - Basics
-  - [Setup](https://github.com/drexed/cmdx/blob/main/docs/basics/setup.md)
-  - [Call](https://github.com/drexed/cmdx/blob/main/docs/basics/call.md)
-  - [Context](https://github.com/drexed/cmdx/blob/main/docs/basics/context.md)
-  - [Chain](https://github.com/drexed/cmdx/blob/main/docs/basics/chain.md)
+  - [Setup](docs/basics/setup.md)
+  - [Call](docs/basics/call.md)
+  - [Context](docs/basics/context.md)
+  - [Chain](docs/basics/chain.md)
 - Interruptions
-  - [Halt](https://github.com/drexed/cmdx/blob/main/docs/interruptions/halt.md)
-  - [Faults](https://github.com/drexed/cmdx/blob/main/docs/interruptions/faults.md)
-  - [Exceptions](https://github.com/drexed/cmdx/blob/main/docs/interruptions/exceptions.md)
+  - [Halt](docs/interruptions/halt.md)
+  - [Faults](docs/interruptions/faults.md)
+  - [Exceptions](docs/interruptions/exceptions.md)
 - Parameters
-  - [Definitions](https://github.com/drexed/cmdx/blob/main/docs/parameters/definitions.md)
-  - [Namespacing](https://github.com/drexed/cmdx/blob/main/docs/parameters/namespacing.md)
-  - [Coercions](https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md)
-  - [Validations](https://github.com/drexed/cmdx/blob/main/docs/parameters/validations.md)
-  - [Defaults](https://github.com/drexed/cmdx/blob/main/docs/parameters/defaults.md)
+  - [Definitions](docs/parameters/definitions.md)
+  - [Namespacing](docs/parameters/namespacing.md)
+  - [Coercions](docs/parameters/coercions.md)
+  - [Validations](docs/parameters/validations.md)
+  - [Defaults](docs/parameters/defaults.md)
 - Outcomes
   - [Result](#results)
-  - [States](https://github.com/drexed/cmdx/blob/main/docs/outcomes/states.md)
-  - [Statuses](https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md)
-- [Hooks](https://github.com/drexed/cmdx/blob/main/docs/hooks.md)
-- [Middlewares](https://github.com/drexed/cmdx/blob/main/docs/middlewares.md)
-- [Batch](https://github.com/drexed/cmdx/blob/main/docs/batch.md)
-- [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
-- [Testing](https://github.com/drexed/cmdx/blob/main/docs/testing.md)
-- [Tips & Tricks](https://github.com/drexed/cmdx/blob/main/docs/tips_and_tricks.md)
+  - [States](docs/outcomes/states.md)
+  - [Statuses](docs/outcomes/statuses.md)
+- [Hooks](docs/hooks.md)
+- [Middlewares](docs/middlewares.md)
+- [Batch](docs/batch.md)
+- [Logging](docs/logging.md)
+- [Testing](docs/testing.md)
+- [Tips & Tricks](docs/tips_and_tricks.md)
 
 ## Development
 
@@ -119,4 +119,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the CMDx project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
+Everyone interacting in the CMDx project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).

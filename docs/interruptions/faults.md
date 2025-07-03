@@ -291,5 +291,5 @@ end
 
 ---
 
-- **Prev:** [Interruptions - Halt](https://github.com/drexed/cmdx/blob/main/docs/interruptions/halt.md)
-- **Next:** [Interruptions - Exceptions](https://github.com/drexed/cmdx/blob/main/docs/interruptions/exceptions.md)
+- **Prev:** [Interruptions - Halt](halt.md)
+- **Next:** [Interruptions - Exceptions](exceptions.md)

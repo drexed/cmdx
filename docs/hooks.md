@@ -269,5 +269,5 @@ end
 
 ---
 
-- **Prev:** [Outcomes - States](https://github.com/drexed/cmdx/blob/main/docs/outcomes/states.md)
-- **Prev:** [Middlewares](https://github.com/drexed/cmdx/blob/main/docs/middlewares.md)
+- **Prev:** [Outcomes - States](outcomes/states.md)
+- **Prev:** [Middlewares](middlewares.md)

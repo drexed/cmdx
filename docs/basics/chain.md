@@ -326,5 +326,5 @@ Chains follow a predictable lifecycle:
 
 ---
 
-- **Prev:** [Basics - Context](https://github.com/drexed/cmdx/blob/main/docs/basics/context.md)
-- **Next:** [Interruptions - Halt](https://github.com/drexed/cmdx/blob/main/docs/interruptions/halt.md)
+- **Prev:** [Basics - Context](context.md)
+- **Next:** [Interruptions - Halt](../interruptions/halt.md)

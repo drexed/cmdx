@@ -277,5 +277,5 @@ skip! # Exception message: "no reason given"
 
 ---
 
-- **Prev:** [Basics - Chain](https://github.com/drexed/cmdx/blob/main/docs/basics/chain.md)
-- **Next:** [Interruptions - Faults](https://github.com/drexed/cmdx/blob/main/docs/interruptions/faults.md)
+- **Prev:** [Basics - Chain](../basics/chain.md)
+- **Next:** [Interruptions - Faults](faults.md)

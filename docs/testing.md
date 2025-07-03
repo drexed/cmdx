@@ -597,5 +597,5 @@ end
 
 ---
 
-- **Prev:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
-- **Next:** [Tips and Tricks](https://github.com/drexed/cmdx/blob/main/docs/tips_and_tricks.md)
+- **Prev:** [Logging](logging.md)
+- **Next:** [Tips and Tricks](tips_and_tricks.md)

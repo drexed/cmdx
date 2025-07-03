@@ -402,5 +402,5 @@ failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)
 
 ---
 
-- **Prev:** [Outcomes - Result](https://github.com/drexed/cmdx/blob/main/docs/outcomes/result.md)
-- **Next:** [Outcomes - States](https://github.com/drexed/cmdx/blob/main/docs/outcomes/states.md)
+- **Prev:** [Outcomes - Result](result.md)
+- **Next:** [Outcomes - States](states.md)

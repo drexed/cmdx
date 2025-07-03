@@ -217,5 +217,5 @@ end
 
 ---
 
-- **Prev:** [Testing](https://github.com/drexed/cmdx/blob/main/docs/testing.md)
-- **Next:** [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md)
+- **Prev:** [Testing](testing.md)
+- **Next:** [Getting Started](getting_started.md)

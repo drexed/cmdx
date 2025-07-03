@@ -342,5 +342,5 @@ end
 
 ---
 
-- **Prev:** [Middlewares](https://github.com/drexed/cmdx/blob/main/docs/middlewares.md)
-- **Next:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
+- **Prev:** [Middlewares](middlewares.md)
+- **Next:** [Logging](logging.md)

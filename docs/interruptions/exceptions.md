@@ -235,5 +235,5 @@ end
 
 ---
 
-- **Prev:** [Interruptions - Faults](https://github.com/drexed/cmdx/blob/main/docs/interruptions/faults.md)
-- **Next:** [Outcomes - Result](https://github.com/drexed/cmdx/blob/main/docs/outcomes/result.md)
+- **Prev:** [Interruptions - Faults](faults.md)
+- **Next:** [Outcomes - Result](../outcomes/result.md)

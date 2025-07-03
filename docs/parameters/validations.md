@@ -333,5 +333,5 @@ en:
 
 ---
 
-- **Prev:** [Parameters - Coercions](https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md)
-- **Next:** [Parameters - Defaults](https://github.com/drexed/cmdx/blob/main/docs/parameters/defaults.md)
+- **Prev:** [Parameters - Coercions](coercions.md)
+- **Next:** [Parameters - Defaults](defaults.md)

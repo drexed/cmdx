@@ -731,5 +731,5 @@ end
 
 ---
 
-- **Prev:** [Hooks](https://github.com/drexed/cmdx/blob/main/docs/hooks.md)
-- **Next:** [Batch](https://github.com/drexed/cmdx/blob/main/docs/batch.md)
+- **Prev:** [Hooks](hooks.md)
+- **Next:** [Batch](batch.md)

@@ -268,5 +268,5 @@ CMDx logs contain comprehensive execution metadata:
 
 ---
 
-- **Prev:** [Batch](https://github.com/drexed/cmdx/blob/main/docs/batch.md)
-- **Next:** [Tips & Tricks](https://github.com/drexed/cmdx/blob/main/docs/tips_and_tricks.md)
+- **Prev:** [Batch](batch.md)
+- **Next:** [Tips & Tricks](tips_and_tricks.md)

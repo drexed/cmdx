@@ -495,5 +495,5 @@ end
 
 ---
 
-- **Prev:** [Validations](https://github.com/drexed/cmdx/blob/main/docs/parameters/validations.md)
-- **Next:** [Results](https://github.com/drexed/cmdx/blob/main/docs/outcomes.md)
+- **Prev:** [Validations](validations.md)
+- **Next:** [Results](../outcomes.md)

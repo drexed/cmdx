@@ -234,5 +234,5 @@ result.interrupted? #=> true for failed/skipped
 
 ---
 
-- **Prev:** [Basics - Setup](https://github.com/drexed/cmdx/blob/main/docs/basics/setup.md)
-- **Next:** [Basics - Context](https://github.com/drexed/cmdx/blob/main/docs/basics/context.md)
+- **Prev:** [Basics - Setup](setup.md)
+- **Next:** [Basics - Context](context.md)

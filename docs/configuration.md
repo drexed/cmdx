@@ -186,5 +186,5 @@ CMDx.configuration.task_halt #=> "failed" (default)
 
 ---
 
-- **Prev:** [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md)
-- **Next:** [Basics - Setup](https://github.com/drexed/cmdx/blob/main/docs/basics/setup.md)
+- **Prev:** [Getting Started](getting_started.md)
+- **Next:** [Basics - Setup](basics/setup.md)
