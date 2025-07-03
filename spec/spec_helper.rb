@@ -1,29 +1,32 @@
 # frozen_string_literal: true
 
-ENV["RACK_ENV"] = "test"
+ENV["SKIP_CMDX_FREEZING"] = "1"
 ENV["TZ"] = "UTC"
 
 require "bundler/setup"
+require "ostruct"
+require "rspec"
 
 require "cmdx"
 
-CMDx.configure do |config|
-  config.logger = Logger.new(nil)
-end
+require "cmdx/rspec/result_matchers"
+require "cmdx/rspec/task_matchers"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[config helpers matchers tasks].each do |dir|
+%w[helpers config matchers].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
 end
 
 RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failed
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
-  # Disable RSpec exposing methods globally on `Module` and `main`
+  # Disable RSpec exposing methods globally on Module and main
   config.disable_monkey_patching!
 
   config.define_derived_metadata do |meta|
@@ -34,11 +37,24 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.include CMDx::Testing::TaskBuilders
+  config.include CMDx::Testing::TaskHelpers
+  config.include CMDx::Testing::BatchBuilders
+  config.include CMDx::Testing::BatchHelpers
+  config.include CMDx::Testing::HookBuilders
+  config.include CMDx::Testing::MiddlewareBuilders
+
   config.before do
-    allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :millisecond).and_return(0)
-    allow(Process).to receive(:pid).and_return(3784)
-    allow(SecureRandom).to receive(:uuid).and_return("018c2b95-b764-7615-a924-cc5b910ed1e5")
-    allow(Time).to receive(:now).and_return(Time.local(2022, 7, 17, 18, 43, 15))
+    CMDx.reset_configuration!
+    CMDx.configuration.logger = Logger.new(nil)
+    CMDx::Correlator.clear
+    CMDx::Chain.clear
+  end
+
+  config.after do
+    CMDx.reset_configuration!
+    CMDx::Correlator.clear
+    CMDx::Chain.clear
   end
 
   config.after(:all) do

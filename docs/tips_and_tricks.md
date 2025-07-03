@@ -1,114 +1,221 @@
 # Tips & Tricks
 
-## Configuration
+This guide covers advanced patterns and optimization techniques for getting the most out of CMDx in production applications.
 
-Configure `CMDx` to get the most out of your Rails application.
+## Table of Contents
 
-```ruby
-CMDx.configure do |config|
-  # Redirect your logs through the app defined logger:
-  config.logger = Rails.logger
+- [Project Organization](#project-organization)
+  - [Directory Structure](#directory-structure)
+  - [Naming Conventions](#naming-conventions)
+- [Advanced Configuration](#advanced-configuration)
+  - [Environment-Specific Setup](#environment-specific-setup)
+- [Parameter Optimization](#parameter-optimization)
+  - [Efficient Parameter Definitions](#efficient-parameter-definitions)
+- [Performance Optimization](#performance-optimization)
+  - [Memory-Efficient Batch Processing](#memory-efficient-batch-processing)
+- [Advanced Error Handling](#advanced-error-handling)
+  - [Graceful Degradation](#graceful-degradation)
+- [Monitoring and Observability](#monitoring-and-observability)
+  - [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
-  # Adjust the log level to write depending on the environment:
-  config.logger.level = Rails.env.development? ? Logger::DEBUG : Logger::INFO
+## Project Organization
 
-  # Structure log lines using a pre-built or custom formatter:
-  config.logger.formatter = CMDx::LogFormatters::Logstash.new
-end
-```
+### Directory Structure
 
-## Setup
-
-While not required, a common setup involves creating an `app/cmds` directory
-to place all of your tasks and batches under, eg:
+Create a well-organized command structure for maintainable applications:
 
 ```txt
 /app
-  /cmds
+  /commands
+    /orders
+      - process_order_task.rb
+      - validate_order_task.rb
+      - fulfill_order_task.rb
+      - batch_process_orders.rb
     /notifications
-      - deliver_email_task.rb
+      - send_email_task.rb
+      - send_sms_task.rb
       - post_slack_message_task.rb
-      - send_carrier_pigeon_task.rb
-      - batch_deliver_all.rb
-    - process_order_task.rb
-    - application_batch.rb
+      - batch_deliver_notifications.rb
+    /payments
+      - charge_payment_task.rb
+      - refund_payment_task.rb
+      - validate_payment_method_task.rb
     - application_task.rb
+    - application_batch.rb
 ```
 
-> [!TIP]
-> Prefix batches with `batch_` and suffix tasks with `_task` to they convey their function.
-> Use a verb+noun naming structure to convey the work that will be performed, eg:
-> `BatchDeliverNotifications` or `DeliverEmailTask`
+### Naming Conventions
 
-## Parameters
-
-Use the Rails `with_options` as an elegant way to factor duplication
-out of options passed to a series of parameter definitions. The following
-are a few common example:
+Follow consistent naming patterns for clarity and maintainability:
 
 ```ruby
-class UpdateUserDetailsTask < CMDx::Task
+# Tasks: Verb + Noun + Task
+class ProcessOrderTask < CMDx::Task; end
+class SendEmailTask < CMDx::Task; end
+class ValidatePaymentTask < CMDx::Task; end
 
-  # Apply `type: :string, presence: true` to this set of parameters:
-  with_options(type: :string, presence: true) do
-    required :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
-    optional :first_name, :last_name
+# Batches: Batch + Verb + Noun
+class BatchProcessOrders < CMDx::Batch; end
+class BatchDeliverNotifications < CMDx::Batch; end
+
+# Use present tense verbs for actions
+class CreateUserTask < CMDx::Task; end      # ✓ Good
+class CreatingUserTask < CMDx::Task; end    # ❌ Avoid
+class UserCreationTask < CMDx::Task; end    # ❌ Avoid
+```
+
+## Advanced Configuration
+
+### Environment-Specific Setup
+
+```ruby
+# config/initializers/cmdx.rb
+CMDx.configure do |config|
+  case Rails.env
+  when 'development'
+    config.logger = Logger.new(STDOUT, formatter: CMDx::LogFormatters::PrettyLine.new)
+    config.logger.level = Logger::DEBUG
+  when 'test'
+    config.logger = Logger.new("log/test.log", formatter: CMDx::LogFormatters::Line.new)
+    config.logger.level = Logger::WARN
+  when 'production'
+    config.logger = Logger.new("log/cmdx.log", formatter: CMDx::LogFormatters::Logstash.new)
+    config.logger.level = Logger::INFO
   end
-
-  required :address do
-    # Apply the `address_*` prefix to this set of nested parameters:
-    with_options(prefix: :address_) do
-      required :city, :country
-      optional :state
-    end
-  end
-
-  def call
-    # Do work
-  end
-
 end
 ```
 
-[Learn More](https://api.rubyonrails.org/classes/Object.html#method-i-with_options)
-about its usages on the official Rails docs.
+## Parameter Optimization
 
-## ActiveRecord Query Log Tags
+### Efficient Parameter Definitions
 
-Automatically append comments to SQL queries with runtime information tags.
-This can be used to trace troublesome SQL statements back to the application
-code that generated these statements.
+Use Rails `with_options` to reduce duplication and improve readability:
 
 ```ruby
-# in config/application.rb
+class UpdateUserProfileTask < CMDx::Task
+  # Apply common options to multiple parameters
+  with_options(type: :string, presence: true) do
+    required :email, format: { with: URI::MailTo::EMAIL_REGEXP }
+    optional :first_name, :last_name
+    optional :phone, format: { with: /\A\+?[\d\s\-\(\)]+\z/ }
+  end
+
+  # Nested parameters with shared prefix
+  required :address do
+    with_options(prefix: :address_) do
+      required :street, :city, :postal_code, type: :string
+      required :country, type: :string, inclusion: { in: VALID_COUNTRIES }
+      optional :state, type: :string
+    end
+  end
+
+  # Shared validation rules
+  with_options(type: :integer, numericality: { greater_than: 0 }) do
+    optional :age, numericality: { less_than: 150 }
+    optional :years_experience, numericality: { less_than: 80 }
+  end
+
+  def call
+    # Implementation
+  end
+end
+```
+
+## Performance Optimization
+
+### Memory-Efficient Batch Processing
+
+```ruby
+class BatchProcessLargeDataset < CMDx::Batch
+  # Process in chunks to avoid memory issues
+  process ProcessChunkDataTask, if: :has_more_data?
+  process ProcessChunkTask
+  process CleanupChunkTask
+  process ProcessChunkDataTask, if: :has_more_data? # Repeat until done
+
+  private
+
+  def has_more_data?
+    context.current_offset < context.total_records
+  end
+end
+
+class ProcessChunkDataTask < CMDx::Task
+  def call
+    # Process data in small chunks
+    chunk_size = 1000
+    offset = context.current_offset || 0
+
+    context.current_chunk = LargeDataset
+      .limit(chunk_size)
+      .offset(offset)
+      .pluck(:id, :data)
+
+    context.current_offset = offset + chunk_size
+
+    # Skip if no more data
+    skip!(reason: "No more data to process") if context.current_chunk.empty?
+  end
+end
+```
+
+## Advanced Error Handling
+
+### Graceful Degradation
+
+```ruby
+class IntegrateServiceTask < CMDx::Task
+  def call
+    begin
+      result = primary_service.call(context.data)
+      context.service_result = result
+    rescue Net::TimeoutError
+      # Try backup service
+      logger.warn "Primary service timeout, trying backup"
+      context.service_result = backup_service.call(context.data)
+      context.used_backup = true
+    rescue StandardError => e
+      # Log error but continue with degraded functionality
+      logger.error "Service integration failed: #{e.message}"
+      context.service_available = false
+      # Task succeeds even without external service
+    end
+  end
+end
+```
+
+## Monitoring and Observability
+
+### ActiveRecord Query Tagging
+
+Automatically tag SQL queries for better debugging:
+
+```ruby
+# config/application.rb
 config.active_record.query_log_tags_enabled = true
 config.active_record.query_log_tags << :cmdx_task_class
+config.active_record.query_log_tags << :cmdx_chain_id
 
-
-class ApplicationTask
-
+# app/commands/application_task.rb
+class ApplicationTask < CMDx::Task
   before_execution :set_execution_context
-
-  # -- omitted --
 
   private
 
   def set_execution_context
-    ActiveSupport::ExecutionContext.set(cmdx_task_class: self.class.name, &)
+    ActiveSupport::ExecutionContext.set(
+      cmdx_task_class: self.class.name,
+      cmdx_chain_id: chain.id
+    )
   end
-
 end
+
+# SQL queries will now include comments like:
+# /*cmdx_task_class:ProcessOrderTask,cmdx_chain_id:018c2b95-b764-7615*/ SELECT * FROM orders WHERE id = 1
 ```
-
-[Learn More](https://api.rubyonrails.org/classes/ActiveRecord/QueryLogs.html)
-about its usages on the official Rails docs.
-
-Other examples:
-- [https://build.betterup.com/adding-sidekiq-job-context-to-activerecord-query-log-tags/](https://build.betterup.com/adding-sidekiq-job-context-to-activerecord-query-log-tags/)
-- [https://thoughtbot.com/blog/activerecord-query-log-tags-for-graphql](https://thoughtbot.com/blog/activerecord-query-log-tags-for-graphql)
-
 
 ---
 
-- **Prev:** [Logging](https://github.com/drexed/cmdx/blob/main/docs/logging.md)
-- **Next:** [Example](https://github.com/drexed/cmdx/blob/main/docs/example.md)
+- **Prev:** [Testing](testing.md)
+- **Next:** [Getting Started](getting_started.md)

@@ -6,7 +6,6 @@ AllCops:
   NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
-  TargetRubyVersion: 3.1.0
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
 Layout/EmptyLinesAroundAttributeAccessor:
@@ -17,10 +16,15 @@ Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/LineLength:
   Enabled: false
+Lint/MissingSuper:
+  Exclude:
+    - 'lib/cmdx/middlewares/**/*'
+    - 'spec/**/**/*'
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
   Exclude:
+    - 'lib/cmdx/rspec/**/*'
     - 'spec/**/**/*'
     - '*.gemspec'
 Metrics/ClassLength:
@@ -37,7 +41,14 @@ Naming/MethodParameterName:
   Enabled: false
 RSpec/AnyInstance:
   Enabled: false
+RSpec/DescribeClass:
+  Exclude:
+    - 'spec/integrations/**/*'
 RSpec/ExampleLength:
+  Enabled: false
+RSpec/MessageSpies:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
   Enabled: false
 RSpec/MultipleExpectations:
   Enabled: false
@@ -46,6 +57,10 @@ RSpec/NestedGroups:
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
+RSpec/StubbedMock:
+  Enabled: false
+RSpec/VerifiedDoubles:
+  Enabled: false
 RSpec/VerifiedDoubleReference:
   Enabled: false
 Style/Documentation:

@@ -1,312 +1,337 @@
 # Parameters - Validations
 
-Parameter values can be validated using one of the built-in validators. Build custom validators
-to check parameter values against your own business logic. `i18n` internalization is supported
-out of the box.
+Parameter values can be validated using built-in validators or custom validation logic. All validators support internationalization (i18n) and integrate seamlessly with CMDx's error handling system.
 
-Built-in validators are: [Presence](#presence), [Format](#format), [Exclusion](#exclusion),
-[Inclusion](#inclusion), [Length](#length), [Numeric](#numeric), [Custom](#custom)
+## Table of Contents
 
-All validators support the following common options:
+- [Common Options](#common-options)
+- [Presence](#presence)
+- [Format](#format)
+- [Exclusion](#exclusion)
+- [Inclusion](#inclusion)
+- [Length](#length)
+- [Numeric](#numeric)
+- [Custom](#custom)
+- [Validation Results](#validation-results)
+- [Internationalization (i18n)](#internationalization-i18n)
+
+## Common Options
+
+All validators support these common options:
 
 | Option       | Description |
 | ------------ | ----------- |
-| `:allow_nil` | Skip validation if the parameter value is `nil`. |
-| `:if`        | Specifies a callable method, proc or string to determine if the validation should occur. |
-| `:unless`    | Specifies a callable method, proc, or string to determine if the validation should not occur. |
-| `:message`   | The error message to use for a violation. Fallback for any error key below that's not provided. |
+| `:allow_nil` | Skip validation if the parameter value is `nil` |
+| `:if`        | Callable method, proc or string to determine if validation should occur |
+| `:unless`    | Callable method, proc, or string to determine if validation should not occur |
+| `:message`   | Error message for violations. Fallback for specific error keys not provided |
 
 > [!NOTE]
-> Validators on `optional` parameters will only be executed if they are supplied as
-> call arguments.
+> Validators on `optional` parameters only execute when arguments are supplied.
 
 ## Presence
 
-Validates that the specified parameter value is not empty. If you want to validate the
-presence of a boolean field (where the real values are true and false), you will
-want to use `inclusion: { in: [true, false] }`.
+Validates that parameter values are not empty using intelligent type checking:
+- **Strings**: Must contain non-whitespace characters
+- **Collections**: Must not be empty (arrays, hashes, etc.)
+- **Other objects**: Must not be `nil`
+
+> [!TIP]
+> For boolean fields where valid values are `true` and `false`, use `inclusion: { in: [true, false] }` instead of presence validation.
 
 ```ruby
-class UpdateUserDetailsTask < CMDx::Task
-
-  # Boolean
-  required :username, presence: true
-
-  # With custom error message
-  optional :email, presence: { message: "must not be empty" }
+class CreateUserTask < CMDx::Task
+  required :email, presence: true
+  optional :phone, presence: { message: "cannot be blank" }
+  required :active, inclusion: { in: [true, false] }
 
   def call
-    # Do work...
+    User.create!(email: email, phone: phone, active: active)
   end
-
 end
 ```
 
 ## Format
 
-Validates whether the specified parameter value is of the correct form,
-going by the regular expression provided.
+Validates parameter values against regular expression patterns. Supports positive matching (`with`), negative matching (`without`), or both.
 
 ```ruby
-class UpdateUserDetailsTask < CMDx::Task
-
-  # With
-  required :username, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
-
-  # Without (with proc if conditional)
-  optional :email, format: { without: /NOSPAM/, if: proc { Current.account.spam_check? } }
-
-  def call
-    # Do work...
-  end
-
-end
-```
-
-Constraint options:
-
-| Option     | Description |
-| ---------- | ----------- |
-| `:with`    | Regular expression that if the parameter value matches will result in a successful validation. |
-| `:without` | Regular expression that if the parameter value does not match will result in a successful validation. |
-
-## Exclusion
-
-Validates that the specified parameter is not in a particular enumerable object.
-
-```ruby
-class DetermineBoxSizeTask < CMDx::Task
-
-  # Array
-  required :width, exclusion: { in: [12, 24, 36] }
-
-  # Range (with allow nil)
-  optional :length, exclusion: { in: 12..36, allow_nil: true }
+class RegisterUserTask < CMDx::Task
+  required :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
+  required :username, format: { without: /\A(admin|root|system)\z/i }
+  optional :password, format: {
+    with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}\z/,
+    without: /password|123456/i,
+    if: :strong_password_required?
+  }
 
   def call
-    # Do work...
-  end
-
-end
-```
-
-Constraint options:
-
-| Option       | Description |
-| ------------ | ----------- |
-| `:in`        | An enumerable object of unavailable items such as an array or range. |
-| `:within`    | A synonym (or alias) for `:in` |
-
-Other options:
-
-| Option            | Description |
-| ----------------- | ----------- |
-| `:of_message`     | The error message if the parameter value is in array. (default: "must not be one of: %{values}") |
-| `:in_message`     | The error message if the parameter value is in range. (default: "must not be within %{min} and %{max}") |
-| `:within_message` | A synonym (or alias) for `:in_message` |
-
-## Inclusion
-
-Validates that the specified parameter value is in a particular enumerable object.
-
-```ruby
-class DetermineBoxSizeTask < CMDx::Task
-
-  # Array
-  required :width, inclusion: { in: [12, 24, 36] }
-
-  # Range (with custom error message)
-  optional :length, inclusion: { in: 12..36, unless: :length_check? }
-
-  def call
-    # Do work...
+    create_user_account
   end
 
   private
 
-  def skip_length_check?
-    false
+  def strong_password_required?
+    context.account.security_policy.strong_passwords?
   end
-
 end
 ```
 
-Constraint options:
+**Options:**
+
+| Option     | Description |
+| ---------- | ----------- |
+| `:with`    | Regular expression that value must match |
+| `:without` | Regular expression that value must not match |
+
+## Exclusion
+
+Validates that parameter values are not in a specific enumerable (array, range, etc.).
+
+```ruby
+class ProcessPaymentTask < CMDx::Task
+  required :payment_method, exclusion: { in: %w[cash check] }
+  required :amount, exclusion: { in: 0.0..0.99, in_message: "must be at least $1.00" }
+  optional :discount_percent, exclusion: { in: 90..100 }
+
+  def call
+    charge_payment
+  end
+end
+```
+
+**Options:**
 
 | Option       | Description |
 | ------------ | ----------- |
-| `:in`        | An enumerable object of available items such as an array or range. |
-| `:within`    | A synonym (or alias) for `:in` |
+| `:in`        | Enumerable of forbidden values |
+| `:within`    | Alias for `:in` |
 
-Other options:
+**Error Messages:**
 
 | Option            | Description |
 | ----------------- | ----------- |
-| `:of_message`     | The error message if the parameter value is not in array. (default: "must be one of: %{values}") |
-| `:in_message`     | The error message if the parameter value is not in range. (default: "must be within %{min} and %{max}") |
-| `:within_message` | A synonym (or alias) for `:in_message` |
+| `:of_message`     | Error when value is in array (default: "must not be one of: %{values}") |
+| `:in_message`     | Error when value is in range (default: "must not be within %{min} and %{max}") |
+| `:within_message` | Alias for `:in_message` |
 
-## Length
+## Inclusion
 
-Validates that the specified parameter value matches the length restrictions supplied.
-Only one constraint option can be used at a time apart from `:min` and `:max`
-that can be combined together:
+Validates that parameter values are in a specific enumerable (array, range, etc.).
 
 ```ruby
-class UpdateUserDetailsTask < CMDx::Task
-
-  # Range (with custom error message)
-  required :email, length: { within: 12..36, message: "must be within range" }
-  required :username, length: { not_within: 48..96 }
-
-  # Boundary
-  optional :first_name, length: { min: 24 }
-  optional :middle_name, length: { max: 48 }
-  optional :last_name, length: { min: 24, max: 48 }
-
-  # Exact
-  required :title, length: { is: 24 }
-  required :count, length: { is_not: 48 }
+class UpdateOrderTask < CMDx::Task
+  required :status, inclusion: { in: %w[pending processing shipped delivered] }
+  required :priority, inclusion: { in: 1..5 }
+  optional :shipping_method, inclusion: {
+    in: %w[standard express overnight],
+    unless: :digital_order?
+  }
 
   def call
-    # Do work...
+    update_order_status
   end
 
+  private
+
+  def digital_order?
+    context.order.digital_items_only?
+  end
 end
 ```
 
-Constraint options:
-
-| Option        | Description |
-| ------------- | ----------- |
-| `:within`     | A range specifying the minimum and maximum size of the parameter value. |
-| `:not_within` | A range specifying the minimum and maximum size of the parameter value it's not to be. |
-| `:in`         | A synonym (or alias) for `:within` |
-| `:not_in`     | A synonym (or alias) for `:not_within` |
-| `:min`        | The minimum size of the parameter value. |
-| `:max`        | The maximum size of the parameter value. |
-| `:is`         | The exact size of the parameter value. |
-| `:is_not`     | The exact size of the parameter value it's not to be. |
-
-Other options:
-
-| Option                | Description |
-| --------------------- | ----------- |
-| `:within_message`     | The error message if the parameter value is within the value range. (default: "length must not be within %{min} and %{max}") |
-| `:not_within_message` | The error message if the parameter value is not within the value range. (default: "length must be within %{min} and %{max}") |
-| `:in_message`         | A synonym (or alias) for `:within_message` |
-| `:not_in_message`     | A synonym (or alias) for `:not_within_message` |
-| `:min_message`        | The error message if the parameter value is below the min value. (default: "length must be at least %{min}") |
-| `:max_message`        | The error message if the parameter value is above the min value. (default: "length must be at most %{max}") |
-| `:is_message`         | The error message if the parameter value is the exact value. (default: "length must be %{is}") |
-| `:is_not_message`     | The error message if the parameter value is not the exact value. (default: "length must not be %{is_not}") |
-
-## Numeric
-
-Validates that the specified parameter value matches the numeric restrictions supplied.
-Only one constraint option can be used at a time apart from `:min` and `:max`
-that can be combined together:
-
-```ruby
-class UpdateUserDetailsTask < CMDx::Task
-
-  # Range (with custom error message)
-  required :height, numeric: { within: 36..196 }
-  required :weight, numeric: { not_within: 0..5 }
-
-  # Boundary
-  optional :dob_year, numeric: { min: 1900 }
-  optional :dob_day, numeric: { max: 31 }
-  optional :dob_month, numeric: { min: 1, max: 12 }
-
-  # Exact
-  required :age, numeric: { is: 18 }
-  required :parents, numeric: { is_not: 0 }
-
-  def call
-    # Do work...
-  end
-
-end
-```
-
-Constraint options:
-
-| Option        | Description |
-| ------------- | ----------- |
-| `:within`     | A range specifying the minimum and maximum size of the parameter value. |
-| `:not_within` | A range specifying the minimum and maximum size of the parameter value it's not to be. |
-| `:in`         | A synonym (or alias) for `:within` |
-| `:not_in`     | A synonym (or alias) for `:not_within` |
-| `:min`        | The minimum size of the parameter value. |
-| `:max`        | The maximum size of the parameter value. |
-| `:is`         | The exact size of the parameter value. |
-| `:is_not`     | The exact size of the parameter value it's not to be. |
-
-Other options:
-
-| Option                | Description |
-| --------------------- | ----------- |
-| `:within_message`     | The error message if the parameter value is within the value range. (default: "must not be within %{min} and %{max}") |
-| `:not_within_message` | The error message if the parameter value is not within the value range. (default: "must be within %{min} and %{max}") |
-| `:in_message`         | A synonym (or alias) for `:within_message` |
-| `:not_in_message`     | A synonym (or alias) for `:not_within_message` |
-| `:min_message`        | The error message if the parameter value is below the min value. (default: "must be at least %{min}") |
-| `:max_message`        | The error message if the parameter value is above the min value. (default: "must be at most %{max}") |
-| `:is_message`         | The error message if the parameter value is the exact value. (default: "must be %{is}") |
-| `:is_not_message`     | The error message if the parameter value is not the exact value. (default: "must not be %{is_not}") |
-
-## Custom
-
-Validate the specified parameter value using custom validators.
-
-```ruby
-class TLDValidator
-  def self.call(value, options)
-    tld = options.dig(:custom, :tld) || %w[com]
-    value.ends_with?(tld)
-  end
-end
-
-class UpdateUserDetailsTask < CMDx::Task
-
-  # Basic
-  required :unconfirmed_email, custom: { validator: TLDValidator }
-
-  # Passable options (with custom error message)
-  optional :confirmed_email, custom: { validator: TLDValidator, tld: %w[com net org], message: "is not valid" }
-
-  def call
-    # Do work...
-  end
-
-end
-```
-
-Constraint options:
+**Options:**
 
 | Option       | Description |
 | ------------ | ----------- |
-| `:validator` | Callable class that returns true or false. |
+| `:in`        | Enumerable of allowed values |
+| `:within`    | Alias for `:in` |
 
-## Results
+**Error Messages:**
 
-The following represents a result output example of a failed validation.
+| Option            | Description |
+| ----------------- | ----------- |
+| `:of_message`     | Error when value not in array (default: "must be one of: %{values}") |
+| `:in_message`     | Error when value not in range (default: "must be within %{min} and %{max}") |
+| `:within_message` | Alias for `:in_message` |
+
+## Length
+
+Validates parameter length/size. Works with any object responding to `#size` or `#length`. Only one constraint option can be used at a time, except `:min` and `:max` which can be combined.
 
 ```ruby
-result = DetermineBoxSizeTask.call
+class CreatePostTask < CMDx::Task
+  required :title, length: { within: 5..100 }
+  required :body, length: { min: 20 }
+  optional :summary, length: { max: 200 }
+  required :slug, length: { min: 3, max: 50 }
+  required :category_code, length: { is: 3 }
+
+  def call
+    create_blog_post
+  end
+end
+```
+
+**Options:**
+
+| Option        | Description |
+| ------------- | ----------- |
+| `:within`     | Range specifying min and max size |
+| `:not_within` | Range specifying forbidden size range |
+| `:in`         | Alias for `:within` |
+| `:not_in`     | Alias for `:not_within` |
+| `:min`        | Minimum size required |
+| `:max`        | Maximum size allowed |
+| `:is`         | Exact size required |
+| `:is_not`     | Size that is forbidden |
+
+**Error Messages:**
+
+| Option                | Description |
+| --------------------- | ----------- |
+| `:within_message`     | "length must be within %{min} and %{max}" |
+| `:not_within_message` | "length must not be within %{min} and %{max}" |
+| `:min_message`        | "length must be at least %{min}" |
+| `:max_message`        | "length must be at most %{max}" |
+| `:is_message`         | "length must be %{is}" |
+| `:is_not_message`     | "length must not be %{is_not}" |
+
+## Numeric
+
+Validates numeric values against constraints. Works with any numeric type. Only one constraint option can be used at a time, except `:min` and `:max` which can be combined.
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  required :quantity, numeric: { within: 1..100 }
+  required :price, numeric: { min: 0.01 }
+  optional :discount_percent, numeric: { max: 50 }
+  required :tax_rate, numeric: { min: 0, max: 0.15 }
+  required :api_version, numeric: { is: 2 }
+
+  def call
+    calculate_order_total
+  end
+end
+```
+
+**Options:**
+
+| Option        | Description |
+| ------------- | ----------- |
+| `:within`     | Range specifying min and max value |
+| `:not_within` | Range specifying forbidden value range |
+| `:in`         | Alias for `:within` |
+| `:not_in`     | Alias for `:not_within` |
+| `:min`        | Minimum value required |
+| `:max`        | Maximum value allowed |
+| `:is`         | Exact value required |
+| `:is_not`     | Value that is forbidden |
+
+**Error Messages:**
+
+| Option                | Description |
+| --------------------- | ----------- |
+| `:within_message`     | "must be within %{min} and %{max}" |
+| `:not_within_message` | "must not be within %{min} and %{max}" |
+| `:min_message`        | "must be at least %{min}" |
+| `:max_message`        | "must be at most %{max}" |
+| `:is_message`         | "must be %{is}" |
+| `:is_not_message`     | "must not be %{is_not}" |
+
+## Custom
+
+Validates using custom logic. Accepts any callable object (class, proc, lambda) implementing a `call` method that returns truthy for valid values.
+
+```ruby
+class EmailDomainValidator
+  def self.call(value, options)
+    allowed_domains = options.dig(:custom, :allowed_domains) || ['example.com']
+    domain = value.split('@').last
+    allowed_domains.include?(domain)
+  end
+end
+
+class CreateAccountTask < CMDx::Task
+  required :work_email, custom: {
+    validator: EmailDomainValidator,
+    allowed_domains: ['company.com', 'partner.org'],
+    message: "must be from an approved domain"
+  }
+
+  required :age, custom: {
+    validator: ->(value, options) { value.between?(18, 120) },
+    message: "must be a valid age"
+  }
+
+  def call
+    create_user_account
+  end
+end
+```
+
+**Options:**
+
+| Option       | Description |
+| ------------ | ----------- |
+| `:validator` | Callable object returning true/false. Receives value and options as parameters |
+
+## Validation Results
+
+When validation fails, tasks enter a failed state with detailed error information:
+
+```ruby
+class CreateUserTask < CMDx::Task
+  required :email, format: { with: /@/, message: "format is invalid" }
+  required :username, presence: { message: "cannot be empty" }
+end
+
+result = CreateUserTask.call(email: "invalid", username: "")
+
 result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.metadata #=> {
-                #=>   reason: "email format is not valid. username cannot be empty.",
+                #=>   reason: "email format is invalid. username cannot be empty.",
                 #=>   messages: {
-                #=>     email: ["format is not valid"],
+                #=>     email: ["format is invalid"],
                 #=>     username: ["cannot be empty"]
                 #=>   }
                 #=> }
+
+# Accessing individual error messages
+result.metadata[:messages][:email]    #=> ["format is invalid"]
+result.metadata[:messages][:username] #=> ["cannot be empty"]
+```
+
+## Internationalization (i18n)
+
+All validators support internationalization through Rails i18n. Customize error messages in your locale files:
+
+```yaml
+# config/locales/en.yml
+en:
+  cmdx:
+    validators:
+      presence: "is required"
+      format: "has invalid format"
+      inclusion:
+        of: "must be one of: %{values}"
+        in: "must be within %{min} and %{max}"
+      exclusion:
+        of: "must not be one of: %{values}"
+        in: "must not be within %{min} and %{max}"
+      length:
+        within: "must be between %{min} and %{max} characters"
+        min: "must be at least %{min} characters"
+        max: "must be at most %{max} characters"
+      numeric:
+        within: "must be between %{min} and %{max}"
+        min: "must be at least %{min}"
+        max: "must be at most %{max}"
+      custom: "is invalid"
 ```
 
 ---
 
-- **Prev:** [Coercions](https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md)
-- **Next:** [Defaults](https://github.com/drexed/cmdx/blob/main/docs/parameters/defaults.md)
+- **Prev:** [Parameters - Coercions](coercions.md)
+- **Next:** [Parameters - Defaults](defaults.md)

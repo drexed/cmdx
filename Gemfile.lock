@@ -1,10 +1,11 @@
 PATH
   remote: .
   specs:
-    cmdx (0.5.0)
+    cmdx (1.0.0)
       bigdecimal
       i18n
       logger
+      zeitwerk
 
 GEM
   remote: https://rubygems.org/
@@ -19,6 +20,7 @@ GEM
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
+    ostruct (0.6.2)
     parallel (1.27.0)
     parser (3.3.8.0)
       ast (~> 2.4.1)
@@ -32,7 +34,7 @@ GEM
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-core (3.13.4)
+    rspec-core (3.13.5)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
       diff-lcs (>= 1.2.0, < 2.0)
@@ -41,7 +43,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
-    rubocop (1.76.2)
+    rubocop (1.77.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -69,6 +71,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby
@@ -76,6 +79,7 @@ PLATFORMS
 DEPENDENCIES
   bundler
   cmdx!
+  ostruct
   rake
   rspec
   rubocop
