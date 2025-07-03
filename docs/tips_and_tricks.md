@@ -7,14 +7,8 @@ This guide covers advanced patterns and optimization techniques for getting the 
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
-- [Advanced Configuration](#advanced-configuration)
-  - [Environment-Specific Setup](#environment-specific-setup)
 - [Parameter Optimization](#parameter-optimization)
   - [Efficient Parameter Definitions](#efficient-parameter-definitions)
-- [Performance Optimization](#performance-optimization)
-  - [Memory-Efficient Workflow Processing](#memory-efficient-workflow-processing)
-- [Advanced Error Handling](#advanced-error-handling)
-  - [Graceful Degradation](#graceful-degradation)
 - [Monitoring and Observability](#monitoring-and-observability)
   - [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
@@ -65,27 +59,6 @@ class CreatingUserTask < CMDx::Task; end    # ❌ Avoid
 class UserCreationTask < CMDx::Task; end    # ❌ Avoid
 ```
 
-## Advanced Configuration
-
-### Environment-Specific Setup
-
-```ruby
-# config/initializers/cmdx.rb
-CMDx.configure do |config|
-  case Rails.env
-  when 'development'
-    config.logger = Logger.new(STDOUT, formatter: CMDx::LogFormatters::PrettyLine.new)
-    config.logger.level = Logger::DEBUG
-  when 'test'
-    config.logger = Logger.new("log/test.log", formatter: CMDx::LogFormatters::Line.new)
-    config.logger.level = Logger::WARN
-  when 'production'
-    config.logger = Logger.new("log/cmdx.log", formatter: CMDx::LogFormatters::Logstash.new)
-    config.logger.level = Logger::INFO
-  end
-end
-```
-
 ## Parameter Optimization
 
 ### Efficient Parameter Definitions
@@ -118,69 +91,6 @@ class UpdateUserProfileTask < CMDx::Task
 
   def call
     # Implementation
-  end
-end
-```
-
-## Performance Optimization
-
-### Memory-Efficient Workflow Processing
-
-```ruby
-class LargeDatasetProcessingWorkflow < CMDx::Workflow
-  # Process in chunks to avoid memory issues
-  process ProcessChunkDataTask, if: :has_more_data?
-  process ProcessChunkTask
-  process CleanupChunkTask
-  process ProcessChunkDataTask, if: :has_more_data? # Repeat until done
-
-  private
-
-  def has_more_data?
-    context.current_offset < context.total_records
-  end
-end
-
-class ProcessChunkDataTask < CMDx::Task
-  def call
-    # Process data in small chunks
-    chunk_size = 1000
-    offset = context.current_offset || 0
-
-    context.current_chunk = LargeDataset
-      .limit(chunk_size)
-      .offset(offset)
-      .pluck(:id, :data)
-
-    context.current_offset = offset + chunk_size
-
-    # Skip if no more data
-    skip!(reason: "No more data to process") if context.current_chunk.empty?
-  end
-end
-```
-
-## Advanced Error Handling
-
-### Graceful Degradation
-
-```ruby
-class IntegrateServiceTask < CMDx::Task
-  def call
-    begin
-      result = primary_service.call(context.data)
-      context.service_result = result
-    rescue Net::TimeoutError
-      # Try backup service
-      logger.warn "Primary service timeout, trying backup"
-      context.service_result = backup_service.call(context.data)
-      context.used_backup = true
-    rescue StandardError => e
-      # Log error but continue with degraded functionality
-      logger.error "Service integration failed: #{e.message}"
-      context.service_available = false
-      # Task succeeds even without external service
-    end
   end
 end
 ```
