@@ -72,15 +72,8 @@ Configure logging globally in your CMDx initializer:
 
 ```ruby
 CMDx.configure do |config|
-  # Development environment
-  config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::PrettyLine.new)
-
-  # Production environment
   config.logger = Logger.new("log/cmdx.log", formatter: CMDx::LogFormatters::Json.new)
   config.logger.level = Logger::INFO
-
-  # ELK stack integration
-  config.logger = Logger.new("log/logstash.log", formatter: CMDx::LogFormatters::Logstash.new)
 end
 ```
 
@@ -108,26 +101,6 @@ class ApplicationTask < CMDx::Task
     log_formatter: CMDx::LogFormatters::Logstash.new,
     log_level: Logger::INFO
   )
-end
-```
-
-### Environment-Specific Configuration
-
-```ruby
-CMDx.configure do |config|
-  case Rails.env
-  when 'development'
-    config.logger = Logger.new(STDOUT, formatter: CMDx::LogFormatters::PrettyLine.new)
-    config.logger.level = Logger::DEBUG
-
-  when 'test'
-    config.logger = Logger.new("log/test.log", formatter: CMDx::LogFormatters::Line.new)
-    config.logger.level = Logger::WARN
-
-  when 'production'
-    config.logger = Logger.new("log/production.log", formatter: CMDx::LogFormatters::Logstash.new)
-    config.logger.level = Logger::INFO
-  end
 end
 ```
 
