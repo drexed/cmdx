@@ -7,7 +7,6 @@ tasks to complex multi-step processes.
 
 ## Table of Contents
 
-- [Goals](#goals)
 - [Installation](#installation)
 - [Quick Setup](#quick-setup)
 - [Execution](#execution)
@@ -15,12 +14,6 @@ tasks to complex multi-step processes.
 - [Exception Handling](#exception-handling)
 - [Building Workflows](#building-workflows)
 - [Code Generation](#code-generation)
-
-## Goals
-
-- Easy branching, nesting, and composition of complex tasks
-- Supply intent, severity, and reasoning for halting execution
-- Demystify root causes with exhaustive tracing
 
 ## Installation
 
@@ -72,7 +65,7 @@ Execute tasks using class methods:
 # Returns Result object
 result = ProcessOrderTask.call(order_id: 123)
 
-# Raises exceptions on failure/skip
+# Raises exceptions on failure/skip, else returns Result object
 result = ProcessOrderTask.call!(order_id: 123, send_email: false)
 ```
 
@@ -119,13 +112,15 @@ Combine tasks using workflows:
 class OrderProcessingWorkflow < CMDx::Workflow
   required :order_id, type: :integer
 
+  before_execution :log_workflow_start
+  on_failed :notify_support
+
   process ValidateOrderTask
   process ChargePaymentTask
   process UpdateInventoryTask
   process SendConfirmationTask, if: proc { context.payment_successful? }
 
-  before_execution :log_workflow_start
-  on_failed :notify_support
+  # NO call method
 
   private
 
