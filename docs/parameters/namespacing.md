@@ -236,9 +236,6 @@ end
 
 ## Error Handling with Namespacing
 
-> [!WARNING]
-> Parameter validation errors reference original parameter names, not the namespaced method names.
-
 ```ruby
 class ValidateUserDataTask < CMDx::Task
 
@@ -271,8 +268,8 @@ result.metadata
 #=> {
 #     reason: "email format is not valid. age could not coerce into an integer.",
 #     messages: {
-#       email: ["format is not valid"],    # Original parameter name
-#       age: ["could not coerce into an integer"]  # Original parameter name
+#       user_email: ["format is not valid"],
+#       age_years: ["could not coerce into an integer"]
 #     }
 #   }
 ```
