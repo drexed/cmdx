@@ -631,7 +631,7 @@ class ApiController < ApplicationController
   private
 
   def set_correlation_id
-    @correlation_id = request.headers['X-Correlation-ID'] || SecureRandom.uuid
+    @correlation_id = request.headers['X-Correlation-ID'] || request.uuid
     CMDx::Correlator.id = @correlation_id
     response.headers['X-Correlation-ID'] = @correlation_id
   end
