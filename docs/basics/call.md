@@ -7,8 +7,8 @@ Calling a task executes the business logic within it. Tasks provide two executio
 - [Execution Methods Overview](#execution-methods-overview)
 - [Non-bang Call (`call`)](#non-bang-call-call)
 - [Bang Call (`call!`)](#bang-call-call)
-- [Parameter Passing](#parameter-passing)
 - [Direct Instantiation](#direct-instantiation)
+- [Parameter Passing](#parameter-passing)
 - [Result Propagation (`throw!`)](#result-propagation-throw)
 - [Result Callbacks](#result-callbacks)
 - [Task State Lifecycle](#task-state-lifecycle)
@@ -79,23 +79,6 @@ end
 | `CMDx::Failed` | Task execution fails | Handle failure scenarios |
 | `CMDx::Skipped` | Task execution is skipped | Handle skip scenarios |
 
-## Parameter Passing
-
-Both methods accept parameters that become available in the task context:
-
-```ruby
-# Direct parameters
-result = ProcessOrderTask.call(
-  order_id: 12345,
-  notify_customer: true,
-  priority: "high"
-)
-
-# From another task result
-validation_result = ValidateOrderTask.call(order_id: 12345)
-result = ProcessOrderTask.call(validation_result.context)
-```
-
 ## Direct Instantiation
 
 Tasks can be instantiated directly for advanced use cases, testing, and custom execution patterns:
@@ -125,6 +108,28 @@ task.result.success?         #=> true/false
 
 > [!NOTE]
 > Direct instantiation gives you access to the task instance before and after execution, but you must call the execution method manually.
+
+## Parameter Passing
+
+All methods accept parameters that become available in the task context:
+
+```ruby
+# Direct parameters
+result = ProcessOrderTask.call(
+  order_id: 12345,
+  notify_customer: true,
+  priority: "high"
+)
+
+# From another task result
+validation_result = ValidateOrderTask.call(order_id: 12345)
+
+# -- Passing Result object
+result = ProcessOrderTask.call(validation_result)
+
+# -- Passing context directly
+result = ProcessOrderTask.call(validation_result.context)
+```
 
 ## Result Propagation (`throw!`)
 
