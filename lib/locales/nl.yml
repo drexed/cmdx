@@ -1,0 +1,36 @@
+nl:
+  cmdx:
+    coercions:
+      into_a: "kon niet converteren naar een %{type}"
+      into_an: "kon niet converteren naar een %{type}"
+      into_any: "kon niet converteren naar een van: %{values}"
+      unknown: "onbekend %{type} conversie type"
+    faults:
+      unspecified: geen reden gegeven
+    parameters:
+      required: is een vereiste parameter
+      undefined: delegeert naar ongedefinieerde methode %{source}
+    validators:
+      custom: is niet geldig
+      exclusion:
+        of: "mag niet een van zijn: %{values}"
+        within: mag niet tussen %{min} en %{max} liggen
+      format: heeft een ongeldig formaat
+      inclusion:
+        of: "moet een van zijn: %{values}"
+        within: moet tussen %{min} en %{max} liggen
+      length:
+        is: lengte moet %{is} zijn
+        is_not: lengte mag niet %{is_not} zijn
+        min: lengte moet minstens %{min} zijn
+        max: lengte mag maximaal %{max} zijn
+        not_within: lengte mag niet tussen %{min} en %{max} liggen
+        within: lengte moet tussen %{min} en %{max} liggen
+      numeric:
+        is: moet %{is} zijn
+        is_not: mag niet %{is_not} zijn
+        min: moet minstens %{min} zijn
+        max: mag maximaal %{max} zijn
+        not_within: mag niet tussen %{min} en %{max} liggen
+        within: moet tussen %{min} en %{max} liggen
+      presence: kan niet leeg zijn

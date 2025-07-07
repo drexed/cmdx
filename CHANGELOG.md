@@ -4,6 +4,7 @@
 
 ### Added
 - Add TLDR section to docs
+- Add 22 new locales (see locales directory)
 ### Changed
 - Improved configuration template
 ### Removed

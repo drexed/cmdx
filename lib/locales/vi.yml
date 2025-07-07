@@ -1,0 +1,36 @@
+vi:
+  cmdx:
+    coercions:
+      into_a: "không thể chuyển đổi thành %{type}"
+      into_an: "không thể chuyển đổi thành %{type}"
+      into_any: "không thể chuyển đổi thành một trong: %{values}"
+      unknown: "loại chuyển đổi %{type} không rõ"
+    faults:
+      unspecified: không có lý do được đưa ra
+    parameters:
+      required: là một tham số bắt buộc
+      undefined: ủy quyền cho phương thức không xác định %{source}
+    validators:
+      custom: không hợp lệ
+      exclusion:
+        of: "không được là một trong: %{values}"
+        within: không được nằm giữa %{min} và %{max}
+      format: có định dạng không hợp lệ
+      inclusion:
+        of: "phải là một trong: %{values}"
+        within: phải nằm giữa %{min} và %{max}
+      length:
+        is: độ dài phải là %{is}
+        is_not: độ dài không được là %{is_not}
+        min: độ dài phải ít nhất %{min}
+        max: độ dài tối đa %{max}
+        not_within: độ dài không được nằm giữa %{min} và %{max}
+        within: độ dài phải nằm giữa %{min} và %{max}
+      numeric:
+        is: phải là %{is}
+        is_not: không được là %{is_not}
+        min: phải ít nhất %{min}
+        max: tối đa %{max}
+        not_within: không được nằm giữa %{min} và %{max}
+        within: phải nằm giữa %{min} và %{max}
+      presence: không thể để trống

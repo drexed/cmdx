@@ -252,4 +252,4 @@ CMDx logs contain comprehensive execution metadata:
 ---
 
 - **Prev:** [Workflows](workflows.md)
-- **Next:** [Testing](testing.md)
+- **Next:** [Internationalization (i18n)](internationalization.md)

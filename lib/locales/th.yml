@@ -1,0 +1,36 @@
+th:
+  cmdx:
+    coercions:
+      into_a: "ไม่สามารถแปลงเป็น %{type} ได้"
+      into_an: "ไม่สามารถแปลงเป็น %{type} ได้"
+      into_any: "ไม่สามารถแปลงเป็นหนึ่งใน: %{values}"
+      unknown: "ประเภทการแปลง %{type} ที่ไม่รู้จัก"
+    faults:
+      unspecified: ไม่ได้ระบุเหตุผล
+    parameters:
+      required: เป็นพารามิเตอร์ที่จำเป็น
+      undefined: ส่งต่อไปยังเมธอดที่ไม่ได้กำหนด %{source}
+    validators:
+      custom: ไม่ถูกต้อง
+      exclusion:
+        of: "ต้องไม่เป็นหนึ่งใน: %{values}"
+        within: ต้องไม่อยู่ระหว่าง %{min} และ %{max}
+      format: มีรูปแบบที่ไม่ถูกต้อง
+      inclusion:
+        of: "ต้องเป็นหนึ่งใน: %{values}"
+        within: ต้องอยู่ระหว่าง %{min} และ %{max}
+      length:
+        is: ความยาวต้องเป็น %{is}
+        is_not: ความยาวต้องไม่เป็น %{is_not}
+        min: ความยาวต้องมีอย่างน้อย %{min}
+        max: ความยาวต้องมีมากที่สุด %{max}
+        not_within: ความยาวต้องไม่อยู่ระหว่าง %{min} และ %{max}
+        within: ความยาวต้องอยู่ระหว่าง %{min} และ %{max}
+      numeric:
+        is: ต้องเป็น %{is}
+        is_not: ต้องไม่เป็น %{is_not}
+        min: ต้องมีอย่างน้อย %{min}
+        max: ต้องมีมากที่สุด %{max}
+        not_within: ต้องไม่อยู่ระหว่าง %{min} และ %{max}
+        within: ต้องอยู่ระหว่าง %{min} และ %{max}
+      presence: ไม่สามารถเป็นค่าว่างได้

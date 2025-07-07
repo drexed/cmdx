@@ -1,0 +1,36 @@
+ar:
+  cmdx:
+    coercions:
+      into_a: "لا يمكن تحويل إلى %{type}"
+      into_an: "لا يمكن تحويل إلى %{type}"
+      into_any: "لا يمكن تحويل إلى أي من: %{values}"
+      unknown: "نوع التحويل %{type} غير معروف"
+    faults:
+      unspecified: لم يتم تحديد سبب
+    parameters:
+      required: معامل مطلوب
+      undefined: يفوض لطريقة غير معرفة %{source}
+    validators:
+      custom: غير صالح
+      exclusion:
+        of: "يجب ألا يكون أحد: %{values}"
+        within: يجب ألا يكون بين %{min} و %{max}
+      format: له تنسيق غير صالح
+      inclusion:
+        of: "يجب أن يكون أحد: %{values}"
+        within: يجب أن يكون بين %{min} و %{max}
+      length:
+        is: يجب أن يكون الطول %{is}
+        is_not: يجب ألا يكون الطول %{is_not}
+        min: يجب أن يكون الطول على الأقل %{min}
+        max: يجب أن يكون الطول على الأكثر %{max}
+        not_within: يجب ألا يكون الطول بين %{min} و %{max}
+        within: يجب أن يكون الطول بين %{min} و %{max}
+      numeric:
+        is: يجب أن يكون %{is}
+        is_not: يجب ألا يكون %{is_not}
+        min: يجب أن يكون على الأقل %{min}
+        max: يجب أن يكون على الأكثر %{max}
+        not_within: يجب ألا يكون بين %{min} و %{max}
+        within: يجب أن يكون بين %{min} و %{max}
+      presence: لا يمكن أن يكون فارغاً

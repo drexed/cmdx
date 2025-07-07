@@ -556,5 +556,5 @@ end
 
 ---
 
-- **Prev:** [Logging](logging.md)
+- **Prev:** [Internationalization (i18n)](internationalization.md)
 - **Next:** [AI Prompts](ai_prompts.md)

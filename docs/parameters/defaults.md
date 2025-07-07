@@ -14,6 +14,7 @@ Defaults work seamlessly with coercion, validation, and nested parameters.
 - [Defaults with Type Coercion](#defaults-with-type-coercion)
 - [Defaults with Validation](#defaults-with-validation)
 - [Nested Parameter Defaults](#nested-parameter-defaults)
+- [Internationalization (i18n)](#internationalization-i18n)
 
 ## TLDR
 
@@ -272,6 +273,37 @@ class ProcessOrderShippingTask < CMDx::Task
   end
 
 end
+```
+
+## Internationalization (i18n)
+
+Parameter error messages are automatically localized based on `I18n.locale`. This includes messages for required parameters and undefined source methods:
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  required :order_id, type: :integer
+  optional :user_name, source: :nonexistent_method
+
+  def call
+    # Task implementation
+  end
+end
+
+# English locale
+I18n.locale = :en
+result = ProcessOrderTask.call({}) # Missing required parameter
+result.metadata[:messages][:order_id] #=> ["is a required parameter"]
+
+result = ProcessOrderTask.call(order_id: 123) # Undefined source method
+result.metadata[:messages][:user_name] #=> ["delegates to undefined method nonexistent_method"]
+
+# Spanish locale
+I18n.locale = :es
+result = ProcessOrderTask.call({}) # Missing required parameter
+result.metadata[:messages][:order_id] #=> ["es un parámetro requerido"]
+
+result = ProcessOrderTask.call(order_id: 123) # Undefined source method
+result.metadata[:messages][:user_name] #=> ["delegado al método indefinido nonexistent_method"]
 ```
 
 ---
