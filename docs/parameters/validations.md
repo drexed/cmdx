@@ -14,7 +14,6 @@ Parameter values can be validated using built-in validators or custom validation
 - [Numeric](#numeric)
 - [Custom](#custom)
 - [Validation Results](#validation-results)
-- [Internationalization (i18n)](#internationalization-i18n)
 
 ## TLDR
 
@@ -310,36 +309,6 @@ result.metadata #=> {
 # Accessing individual error messages
 result.metadata[:messages][:email]    #=> ["format is invalid"]
 result.metadata[:messages][:username] #=> ["cannot be empty"]
-```
-
-## Internationalization (i18n)
-
-All validators support internationalization through Rails i18n. Error messages are automatically localized based on `I18n.locale`:
-
-```ruby
-class RegisterUserTask < CMDx::Task
-  required :email, format: { with: /@/ }
-  required :age, numeric: { min: 18 }
-  required :status, inclusion: { in: %w[active inactive] }
-
-  def call
-    # Task implementation
-  end
-end
-
-# English locale
-I18n.locale = :en
-result = RegisterUserTask.call(email: "invalid", age: 16, status: "unknown")
-result.metadata[:messages][:email]  #=> ["is an invalid format"]
-result.metadata[:messages][:age]    #=> ["must be at least 18"]
-result.metadata[:messages][:status] #=> ["must be one of: \"active\", \"inactive\""]
-
-# Spanish locale
-I18n.locale = :es
-result = RegisterUserTask.call(email: "invalid", age: 16, status: "unknown")
-result.metadata[:messages][:email]  #=> ["es un formato inválido"]
-result.metadata[:messages][:age]    #=> ["debe ser 18 como minimo"]
-result.metadata[:messages][:status] #=> ["debe ser uno de: \"active\", \"inactive\""]
 ```
 
 ---

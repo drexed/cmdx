@@ -25,7 +25,6 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
 - [Custom Coercion Options](#custom-coercion-options)
   - [Date/Time Format Options](#datetime-format-options)
   - [BigDecimal Precision Options](#bigdecimal-precision-options)
-- [Internationalization (i18n)](#internationalization-i18n)
 
 ## TLDR
 
@@ -427,33 +426,6 @@ class CalculatePricingTask < CMDx::Task
   end
 
 end
-```
-
-## Internationalization (i18n)
-
-CMDx automatically localizes coercion error messages based on the current `I18n.locale`. Built-in translations are provided for English and Spanish:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  required :order_id, type: :integer
-  required :amount, type: :float
-
-  def call
-    # Task implementation
-  end
-end
-
-# English locale
-I18n.locale = :en
-result = ProcessOrderTask.call(order_id: "invalid", amount: "bad")
-result.metadata[:messages][:order_id] #=> ["could not coerce into an integer"]
-result.metadata[:messages][:amount]   #=> ["could not coerce into a float"]
-
-# Spanish locale
-I18n.locale = :es
-result = ProcessOrderTask.call(order_id: "invalid", amount: "bad")
-result.metadata[:messages][:order_id] #=> ["no podía coacciona el valor a un integer"]
-result.metadata[:messages][:amount]   #=> ["no podía coacciona el valor a un float"]
 ```
 
 ---
