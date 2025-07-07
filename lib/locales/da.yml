@@ -6,31 +6,31 @@ da:
       into_any: "kunne ikke konvertere til en af: %{values}"
       unknown: "ukendt %{type} konverteringstype"
     faults:
-      unspecified: ingen grund angivet
+      unspecified: "ingen grund angivet"
     parameters:
-      required: er en påkrævet parameter
-      undefined: delegerer til udefineret metode %{source}
+      required: "er en påkrævet parameter"
+      undefined: "delegerer til udefineret metode %{source}"
     validators:
-      custom: er ikke gyldig
+      custom: "er ikke gyldig"
       exclusion:
         of: "må ikke være en af: %{values}"
-        within: må ikke være mellem %{min} og %{max}
-      format: har et ugyldigt format
+        within: "må ikke være mellem %{min} og %{max}"
+      format: "har et ugyldigt format"
       inclusion:
         of: "skal være en af: %{values}"
-        within: skal være mellem %{min} og %{max}
+        within: "skal være mellem %{min} og %{max}"
       length:
-        is: længde skal være %{is}
-        is_not: længde må ikke være %{is_not}
-        min: længde skal være mindst %{min}
-        max: længde må være højst %{max}
-        not_within: længde må ikke være mellem %{min} og %{max}
-        within: længde skal være mellem %{min} og %{max}
+        is: "længde skal være %{is}"
+        is_not: "længde må ikke være %{is_not}"
+        min: "længde skal være mindst %{min}"
+        max: "længde må være højst %{max}"
+        not_within: "længde må ikke være mellem %{min} og %{max}"
+        within: "længde skal være mellem %{min} og %{max}"
       numeric:
-        is: skal være %{is}
-        is_not: må ikke være %{is_not}
-        min: skal være mindst %{min}
-        max: må være højst %{max}
-        not_within: må ikke være mellem %{min} og %{max}
-        within: skal være mellem %{min} og %{max}
-      presence: kan ikke være tom
+        is: "skal være %{is}"
+        is_not: "må ikke være %{is_not}"
+        min: "skal være mindst %{min}"
+        max: "må være højst %{max}"
+        not_within: "må ikke være mellem %{min} og %{max}"
+        within: "skal være mellem %{min} og %{max}"
+      presence: "kan ikke være tom"

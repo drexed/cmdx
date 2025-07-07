@@ -6,31 +6,31 @@ sv:
       into_any: "kunde inte konvertera till en av: %{values}"
       unknown: "okänd %{type} konverteringstyp"
     faults:
-      unspecified: ingen anledning angiven
+      unspecified: "ingen anledning angiven"
     parameters:
-      required: är en obligatorisk parameter
-      undefined: delegerar till odefinierad metod %{source}
+      required: "är en obligatorisk parameter"
+      undefined: "delegerar till odefinierad metod %{source}"
     validators:
-      custom: är inte giltig
+      custom: "är inte giltig"
       exclusion:
         of: "får inte vara en av: %{values}"
-        within: får inte vara mellan %{min} och %{max}
-      format: har ett ogiltigt format
+        within: "får inte vara mellan %{min} och %{max}"
+      format: "har ett ogiltigt format"
       inclusion:
         of: "måste vara en av: %{values}"
-        within: måste vara mellan %{min} och %{max}
+        within: "måste vara mellan %{min} och %{max}"
       length:
-        is: längd måste vara %{is}
-        is_not: längd får inte vara %{is_not}
-        min: längd måste vara minst %{min}
-        max: längd får vara högst %{max}
-        not_within: längd får inte vara mellan %{min} och %{max}
-        within: längd måste vara mellan %{min} och %{max}
+        is: "längd måste vara %{is}"
+        is_not: "längd får inte vara %{is_not}"
+        min: "längd måste vara minst %{min}"
+        max: "längd får vara högst %{max}"
+        not_within: "längd får inte vara mellan %{min} och %{max}"
+        within: "längd måste vara mellan %{min} och %{max}"
       numeric:
-        is: måste vara %{is}
-        is_not: får inte vara %{is_not}
-        min: måste vara minst %{min}
-        max: får vara högst %{max}
-        not_within: får inte vara mellan %{min} och %{max}
-        within: måste vara mellan %{min} och %{max}
-      presence: kan inte vara tom
+        is: "måste vara %{is}"
+        is_not: "får inte vara %{is_not}"
+        min: "måste vara minst %{min}"
+        max: "får vara högst %{max}"
+        not_within: "får inte vara mellan %{min} och %{max}"
+        within: "måste vara mellan %{min} och %{max}"
+      presence: "kan inte vara tom"

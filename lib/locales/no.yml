@@ -1,4 +1,4 @@
-no:
+"no":
   cmdx:
     coercions:
       into_a: "kunne ikke konvertere til en %{type}"
@@ -6,31 +6,31 @@ no:
       into_any: "kunne ikke konvertere til en av: %{values}"
       unknown: "ukjent %{type} konverteringstype"
     faults:
-      unspecified: ingen grunn oppgitt
+      unspecified: "ingen grunn oppgitt"
     parameters:
-      required: er en påkrevd parameter
-      undefined: delegerer til udefinert metode %{source}
+      required: "er en påkrevd parameter"
+      undefined: "delegerer til udefinert metode %{source}"
     validators:
-      custom: er ikke gyldig
+      custom: "er ikke gyldig"
       exclusion:
         of: "må ikke være en av: %{values}"
-        within: må ikke være mellom %{min} og %{max}
-      format: har et ugyldig format
+        within: "må ikke være mellom %{min} og %{max}"
+      format: "har et ugyldig format"
       inclusion:
         of: "må være en av: %{values}"
-        within: må være mellom %{min} og %{max}
+        within: "må være mellom %{min} og %{max}"
       length:
-        is: lengde må være %{is}
-        is_not: lengde må ikke være %{is_not}
-        min: lengde må være minst %{min}
-        max: lengde må være maksimalt %{max}
-        not_within: lengde må ikke være mellom %{min} og %{max}
-        within: lengde må være mellom %{min} og %{max}
+        is: "lengde må være %{is}"
+        is_not: "lengde må ikke være %{is_not}"
+        min: "lengde må være minst %{min}"
+        max: "lengde må være maksimalt %{max}"
+        not_within: "lengde må ikke være mellom %{min} og %{max}"
+        within: "lengde må være mellom %{min} og %{max}"
       numeric:
-        is: må være %{is}
-        is_not: må ikke være %{is_not}
-        min: må være minst %{min}
-        max: må være maksimalt %{max}
-        not_within: må ikke være mellom %{min} og %{max}
-        within: må være mellom %{min} og %{max}
-      presence: kan ikke være tom
+        is: "må være %{is}"
+        is_not: "må ikke være %{is_not}"
+        min: "må være minst %{min}"
+        max: "må være maksimalt %{max}"
+        not_within: "må ikke være mellom %{min} og %{max}"
+        within: "må være mellom %{min} og %{max}"
+      presence: "kan ikke være tom"

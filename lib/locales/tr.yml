@@ -6,31 +6,31 @@ tr:
       into_any: "şunlardan birine dönüştürülemedi: %{values}"
       unknown: "bilinmeyen %{type} dönüşüm türü"
     faults:
-      unspecified: sebep belirtilmedi
+      unspecified: "sebep belirtilmedi"
     parameters:
-      required: gerekli bir parametredir
-      undefined: tanımsız metoda %{source} yetki verir
+      required: "gerekli bir parametredir"
+      undefined: "tanımsız metoda %{source} yetki verir"
     validators:
-      custom: geçerli değil
+      custom: "geçerli değil"
       exclusion:
         of: "şunlardan biri olmamalı: %{values}"
         within: "%{min} ve %{max} arasında olmamalı"
-      format: geçersiz biçime sahip
+      format: "geçersiz biçime sahip"
       inclusion:
         of: "şunlardan biri olmalı: %{values}"
         within: "%{min} ve %{max} arasında olmalı"
       length:
-        is: uzunluk %{is} olmalı
-        is_not: uzunluk %{is_not} olmamalı
-        min: uzunluk en az %{min} olmalı
-        max: uzunluk en fazla %{max} olmalı
-        not_within: uzunluk %{min} ve %{max} arasında olmamalı
-        within: uzunluk %{min} ve %{max} arasında olmalı
+        is: "uzunluk %{is} olmalı"
+        is_not: "uzunluk %{is_not} olmamalı"
+        min: "uzunluk en az %{min} olmalı"
+        max: "uzunluk en fazla %{max} olmalı"
+        not_within: "uzunluk %{min} ve %{max} arasında olmamalı"
+        within: "uzunluk %{min} ve %{max} arasında olmalı"
       numeric:
         is: "%{is} olmalı"
         is_not: "%{is_not} olmamalı"
-        min: en az %{min} olmalı
-        max: en fazla %{max} olmalı
+        min: "en az %{min} olmalı"
+        max: "en fazla %{max} olmalı"
         not_within: "%{min} ve %{max} arasında olmamalı"
         within: "%{min} ve %{max} arasında olmalı"
-      presence: boş olamaz
+      presence: "boş olamaz"

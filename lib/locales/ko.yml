@@ -6,31 +6,31 @@ ko:
       into_any: "다음 중 하나로 변환할 수 없습니다: %{values}"
       unknown: "알 수 없는 %{type} 변환 유형"
     faults:
-      unspecified: 이유가 지정되지 않음
+      unspecified: "이유가 지정되지 않음"
     parameters:
-      required: 필수 매개변수입니다
-      undefined: 정의되지 않은 메서드 %{source}에 위임합니다
+      required: "필수 매개변수입니다"
+      undefined: "정의되지 않은 메서드 %{source}에 위임합니다"
     validators:
-      custom: 유효하지 않습니다
+      custom: "유효하지 않습니다"
       exclusion:
         of: "다음 중 하나가 아니어야 합니다: %{values}"
         within: "%{min}과 %{max} 사이에 있지 않아야 합니다"
-      format: 유효하지 않은 형식입니다
+      format: "유효하지 않은 형식입니다"
       inclusion:
         of: "다음 중 하나여야 합니다: %{values}"
         within: "%{min}과 %{max} 사이에 있어야 합니다"
       length:
-        is: 길이는 %{is}이어야 합니다
-        is_not: 길이는 %{is_not}이 아니어야 합니다
-        min: 길이는 최소 %{min}이어야 합니다
-        max: 길이는 최대 %{max}이어야 합니다
-        not_within: 길이는 %{min}과 %{max} 사이에 있지 않아야 합니다
-        within: 길이는 %{min}과 %{max} 사이에 있어야 합니다
+        is: "길이는 %{is}이어야 합니다"
+        is_not: "길이는 %{is_not}이 아니어야 합니다"
+        min: "길이는 최소 %{min}이어야 합니다"
+        max: "길이는 최대 %{max}이어야 합니다"
+        not_within: "길이는 %{min}과 %{max} 사이에 있지 않아야 합니다"
+        within: "길이는 %{min}과 %{max} 사이에 있어야 합니다"
       numeric:
         is: "%{is}이어야 합니다"
         is_not: "%{is_not}이 아니어야 합니다"
-        min: 최소 %{min}이어야 합니다
-        max: 최대 %{max}이어야 합니다
+        min: "최소 %{min}이어야 합니다"
+        max: "최대 %{max}이어야 합니다"
         not_within: "%{min}과 %{max} 사이에 있지 않아야 합니다"
         within: "%{min}과 %{max} 사이에 있어야 합니다"
-      presence: 비어있을 수 없습니다
+      presence: "비어있을 수 없습니다"

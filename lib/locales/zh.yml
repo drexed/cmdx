@@ -6,31 +6,31 @@ zh:
       into_any: "无法转换为以下任一类型: %{values}"
       unknown: "未知的%{type}转换类型"
     faults:
-      unspecified: 未提供原因
+      unspecified: "未提供原因"
     parameters:
-      required: 是必需参数
-      undefined: 委托给未定义的方法%{source}
+      required: "是必需参数"
+      undefined: "委托给未定义的方法%{source}"
     validators:
-      custom: 无效
+      custom: "无效"
       exclusion:
         of: "不能是以下任一值: %{values}"
-        within: 不能在%{min}和%{max}之间
-      format: 格式无效
+        within: "不能在%{min}和%{max}之间"
+      format: "格式无效"
       inclusion:
         of: "必须是以下任一值: %{values}"
-        within: 必须在%{min}和%{max}之间
+        within: "必须在%{min}和%{max}之间"
       length:
-        is: 长度必须是%{is}
-        is_not: 长度不能是%{is_not}
-        min: 长度至少为%{min}
-        max: 长度最多为%{max}
-        not_within: 长度不能在%{min}和%{max}之间
-        within: 长度必须在%{min}和%{max}之间
+        is: "长度必须是%{is}"
+        is_not: "长度不能是%{is_not}"
+        min: "长度至少为%{min}"
+        max: "长度最多为%{max}"
+        not_within: "长度不能在%{min}和%{max}之间"
+        within: "长度必须在%{min}和%{max}之间"
       numeric:
-        is: 必须是%{is}
-        is_not: 不能是%{is_not}
-        min: 至少为%{min}
-        max: 最多为%{max}
-        not_within: 不能在%{min}和%{max}之间
-        within: 必须在%{min}和%{max}之间
-      presence: 不能为空
+        is: "必须是%{is}"
+        is_not: "不能是%{is_not}"
+        min: "至少为%{min}"
+        max: "最多为%{max}"
+        not_within: "不能在%{min}和%{max}之间"
+        within: "必须在%{min}和%{max}之间"
+      presence: "不能为空"
