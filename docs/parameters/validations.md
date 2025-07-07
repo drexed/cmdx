@@ -4,6 +4,7 @@ Parameter values can be validated using built-in validators or custom validation
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Common Options](#common-options)
 - [Presence](#presence)
 - [Format](#format)
@@ -14,6 +15,14 @@ Parameter values can be validated using built-in validators or custom validation
 - [Custom](#custom)
 - [Validation Results](#validation-results)
 - [Internationalization (i18n)](#internationalization-i18n)
+
+## TLDR
+
+- **Built-in validators** - `presence`, `format`, `inclusion`, `exclusion`, `length`, `numeric`
+- **Common options** - All support `:allow_nil`, `:if`, `:unless`, `:message`
+- **Usage** - Add to parameter definitions: `required :email, presence: true, format: { with: /@/ }`
+- **Conditional** - Use `:if` and `:unless` for conditional validation
+- **Custom validators** - Use `custom: { validator: CustomValidator }` for complex logic
 
 ## Common Options
 

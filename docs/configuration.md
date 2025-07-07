@@ -4,6 +4,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Configuration Hierarchy](#configuration-hierarchy)
 - [Global Configuration](#global-configuration)
   - [Configuration Options](#configuration-options)
@@ -15,6 +16,15 @@ CMDx provides a flexible configuration system that allows customization at both 
 - [Configuration Management](#configuration-management)
   - [Accessing Configuration](#accessing-configuration)
   - [Resetting Configuration](#resetting-configuration)
+
+## TLDR
+
+- **Hierarchy** - Global → Task Settings → Runtime (each level overrides previous)
+- **Global config** - Framework-wide defaults via `CMDx.configure`
+- **Task settings** - Class-level overrides using `task_settings!`
+- **Key options** - `task_halt`, `workflow_halt`, `logger`, `middlewares`, `callbacks`
+- **Generator** - Use `rails g cmdx:install` to create configuration file
+- **Inheritance** - Settings are inherited from parent classes
 
 ## Configuration Hierarchy
 

@@ -4,6 +4,7 @@ A chain represents a collection of related task executions that share a common e
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Thread-Local Chain Management](#thread-local-chain-management)
 - [Automatic Chain Creation](#automatic-chain-creation)
 - [Chain Inheritance](#chain-inheritance)
@@ -11,6 +12,14 @@ A chain represents a collection of related task executions that share a common e
 - [Correlation ID Integration](#correlation-id-integration)
 - [State Delegation](#state-delegation)
 - [Serialization and Logging](#serialization-and-logging)
+
+## TLDR
+
+- **Chains** - Automatically group related task executions within the same thread
+- **Thread-local** - Each thread gets its own chain, no manual coordination needed
+- **Inheritance** - Subtasks automatically join the current thread's chain
+- **Correlation** - Chain IDs serve as correlation identifiers for tracing
+- **Access** - Use `result.chain.id` and `result.chain.results` to inspect execution trails
 
 ## Thread-Local Chain Management
 

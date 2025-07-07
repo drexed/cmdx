@@ -4,6 +4,7 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [External Project Setup](#external-project-setup)
 - [Matcher Organization](#matcher-organization)
 - [Result Matchers](#result-matchers)
@@ -20,7 +21,16 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
 - [Composable Testing](#composable-testing)
 - [Best Practices](#best-practices)
 
-## Using RSpec matchers
+## TLDR
+
+- **Custom matchers** - 40+ specialized RSpec matchers for testing CMDx tasks and results
+- **Setup** - Require `cmdx/rspec/result_matchers` and `cmdx/rspec/task_matchers`
+- **Result matchers** - `be_successful_task`, `be_failed_task`, `be_skipped_task` with chainable metadata
+- **Task matchers** - Parameter validation, lifecycle, exception handling, and configuration testing
+- **Composable** - Chain matchers for complex validation scenarios
+- **YARD documented** - Complete documentation with examples for all matchers
+
+## External Project Setup
 
 To use CMDx's custom matchers in an external RSpec-based project update your `spec/spec_helper.rb` or `spec/rails_helper.rb`:
 

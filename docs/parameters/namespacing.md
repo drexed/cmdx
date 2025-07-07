@@ -7,12 +7,21 @@ same name, namespacing ensures clean method resolution within tasks.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Namespacing Fundamentals](#namespacing-fundamentals)
 - [Fixed Value Namespacing](#fixed-value-namespacing)
 - [Dynamic Source-Based Namespacing](#dynamic-source-based-namespacing)
 - [Conflict Resolution](#conflict-resolution)
 - [Advanced Namespacing Patterns](#advanced-namespacing-patterns)
 - [Error Handling with Namespacing](#error-handling-with-namespacing)
+
+## TLDR
+
+- **Method naming** - Use `prefix:` and `suffix:` to customize parameter method names
+- **Fixed prefixes** - `prefix: "user_"` creates `user_name` method for `name` parameter
+- **Dynamic prefixes** - `prefix: true` uses source name (e.g., `context_name`)
+- **Conflict resolution** - Avoid conflicts with Ruby methods or multiple same-named parameters
+- **Call arguments** - Always use original parameter names, namespacing only affects method names
 
 ## Namespacing Fundamentals
 

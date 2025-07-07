@@ -2,6 +2,8 @@
 
 ## [1.0.1] - unreleased
 
+### Added
+- Add TLDR section to docs
 ### Changed
 - Improved configuration template
 ### Removed

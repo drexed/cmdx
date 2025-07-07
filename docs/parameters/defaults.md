@@ -7,12 +7,21 @@ Defaults work seamlessly with coercion, validation, and nested parameters.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Default Value Fundamentals](#default-value-fundamentals)
   - [Fixed Value Defaults](#fixed-value-defaults)
   - [Callable Defaults](#callable-defaults)
 - [Defaults with Type Coercion](#defaults-with-type-coercion)
 - [Defaults with Validation](#defaults-with-validation)
 - [Nested Parameter Defaults](#nested-parameter-defaults)
+
+## TLDR
+
+- **Defaults** - Provide fallback values when parameters not provided or are `nil`
+- **Fixed values** - `default: "normal"`, `default: true`, `default: []`
+- **Dynamic values** - `default: -> { Time.now }`, `default: :method_name` for callable defaults
+- **With coercion** - Defaults are subject to same type coercion as provided values
+- **With validation** - Defaults must pass same validation rules as provided values
 
 ## Default Value Fundamentals
 

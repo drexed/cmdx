@@ -7,6 +7,7 @@ inspecting task execution outcomes and chaining task operations.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Core Result Attributes](#core-result-attributes)
 - [State and Status Information](#state-and-status-information)
 - [Execution Outcome Analysis](#execution-outcome-analysis)
@@ -16,6 +17,14 @@ inspecting task execution outcomes and chaining task operations.
 - [Result Callbacks and Chaining](#result-callbacks-and-chaining)
 - [Pattern Matching](#pattern-matching)
 - [Serialization and Inspection](#serialization-and-inspection)
+
+## TLDR
+
+- **Result object** - Comprehensive return value from task execution with `task`, `context`, `chain`, `metadata`
+- **Status checking** - Use `result.success?`, `result.failed?`, `result.skipped?` for outcomes
+- **State checking** - Use `result.complete?`, `result.interrupted?`, `result.executed?` for lifecycle
+- **Callbacks** - Chain with `.on_success`, `.on_failed`, `.on_good`, `.on_bad` for conditional logic
+- **Failure analysis** - Use `result.caused_failure`, `result.threw_failure` to trace failure chains
 
 ## Core Result Attributes
 

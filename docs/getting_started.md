@@ -7,6 +7,7 @@ tasks to complex multi-step processes.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Installation](#installation)
 - [Quick Setup](#quick-setup)
 - [Execution](#execution)
@@ -14,6 +15,16 @@ tasks to complex multi-step processes.
 - [Exception Handling](#exception-handling)
 - [Building Workflows](#building-workflows)
 - [Code Generation](#code-generation)
+
+## TLDR
+
+- **Installation** - Add `gem 'cmdx'` to Gemfile, run `rails g cmdx:install`
+- **Tasks** - Ruby classes inheriting from `CMDx::Task` with `call` method
+- **Execution** - Use `call` (returns result) or `call!` (raises on failure/skip)
+- **Parameters** - Define with `required`/`optional` with type coercion and validation
+- **Results** - Check `result.status` for success/skipped/failed outcomes
+- **Workflows** - Orchestrate multiple tasks with `CMDx::Workflow`
+- **Generators** - Use `rails g cmdx:task` and `rails g cmdx:workflow` for scaffolding
 
 ## Installation
 

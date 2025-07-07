@@ -3,6 +3,7 @@
 CMDx provides comprehensive automatic logging for task execution with structured data, customizable formatters, and intelligent severity mapping. All task results are logged after completion with rich metadata for debugging and monitoring.
 
 ## Table of Contents
+- [TLDR](#tldr)
 - [Log Formatters](#log-formatters)
   - [Standard Formatters](#standard-formatters)
   - [Stylized Formatters (ANSI Colors)](#stylized-formatters-ansi-colors)
@@ -21,6 +22,15 @@ CMDx provides comprehensive automatic logging for task execution with structured
   - [Custom Formatter](#custom-formatter)
   - [Multi-Destination Logging](#multi-destination-logging)
 - [Log Data Structure](#log-data-structure)
+
+## TLDR
+
+- **Automatic logging** - All task results logged after completion with structured data
+- **8 formatters** - Standard (Line, Json, KeyValue, Logstash, Raw) and Stylized (Pretty variants)
+- **Configuration** - Global via `CMDx.configure` or task-specific via `task_settings!`
+- **Severity mapping** - Success=INFO, Skipped=WARN, Failed=ERROR
+- **Rich metadata** - Includes runtime, chain_id, status, context, and failure chains
+- **Manual logging** - Access `logger` within tasks for custom messages
 
 ## Log Formatters
 

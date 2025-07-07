@@ -7,11 +7,20 @@ only a `call` method is required to create a functional task.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Basic Task Structure](#basic-task-structure)
 - [Task Execution](#task-execution)
 - [Inheritance and Application Tasks](#inheritance-and-application-tasks)
 - [Generator](#generator)
 - [Task Lifecycle](#task-lifecycle)
+
+## TLDR
+
+- **Tasks** - Ruby classes that inherit from `CMDx::Task` with a `call` method
+- **Structure** - Only `call` method required, everything else is optional
+- **Execution** - Run with `MyTask.call(params)` to get a `CMDx::Result`
+- **Generator** - Use `rails g cmdx:task MyTask` to create task templates
+- **Single-use** - Tasks are frozen after execution, create new instances for each run
 
 ## Basic Task Structure
 
