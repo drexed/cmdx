@@ -35,22 +35,7 @@ Generate a configuration file using the Rails generator:
 rails g cmdx:install
 ```
 
-This creates `config/initializers/cmdx.rb` with default settings:
-
-```ruby
-CMDx.configure do |config|
-  # Halt execution and raise fault on these result statuses when using `call!`
-  config.task_halt = CMDx::Result::FAILED
-
-  # Stop workflow execution when tasks return these statuses
-  # Note: Skipped tasks continue processing by default
-  config.workflow_halt = CMDx::Result::FAILED
-
-  # Logger with formatter - see available formatters at:
-  # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters
-  config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-end
-```
+This creates `config/initializers/cmdx.rb` with default settings.
 
 ### Configuration Options
 

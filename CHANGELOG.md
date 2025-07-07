@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+## [1.0.1] - unreleased
+
+### Changed
+- Improved configuration template
+### Removed
+- Remove old timeout comments from generator template
+
 ## [1.0.0] - 2025-07-03
 
 ### Added

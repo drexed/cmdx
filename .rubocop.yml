@@ -14,6 +14,9 @@ Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
+Layout/ExtraSpacing:
+  Exclude:
+    - 'lib/generators/cmdx/templates/install.rb'
 Layout/LineLength:
   Enabled: false
 Lint/MissingSuper:
