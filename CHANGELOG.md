@@ -1,79 +1,116 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [TODO]
+
+- Add table and pretty_table log formatters
+- Add method and proc style validations
+- Refactor parameter modules and classes for more robust usages
+
 ## [Unreleased]
+
+## [1.0.1] - 2025-07-07
+
+### Added
+- Added comprehensive internationalization support with 24 language locales
+  - Arabic, Chinese, Czech, Danish, Dutch, English, Finnish, French, German, Greek
+  - Hebrew, Hindi, Italian, Japanese, Korean, Norwegian, Polish, Portuguese
+  - Russian, Spanish, Swedish, Thai, Turkish, Vietnamese
+- Added TLDR sections to documentation for improved accessibility
+
+### Changed
+- Improved configuration template with better defaults and examples
 
 ## [1.0.0] - 2025-07-03
 
 ### Added
-- Zeitwerk gem loader
-- Add middleware support for tasks
-- Add Cursor and Copilot rules
-- Add YARDoc documentation
-- Add `perform!` and `perform` alias to class `call!` and `call`
-- Allow direct instantiation of Task and Batch objects
-- Add pattern matching of results
-- Add a `Hook` class
-- Add hooks via configuration
+- Added `Hook` class for flexible callback management
+- Added `perform!` and `perform` method aliases for class-level `call!` and `call` methods
+- Added comprehensive YARDoc documentation throughout codebase
+- Added configuration-based hook registration system
+- Added Cursor and GitHub Copilot configuration files for enhanced IDE support
+- Added middleware support for tasks enabling extensible request/response processing
+- Added pattern matching support for result objects
+- Added support for direct instantiation of Task and Workflow objects
+- Added Zeitwerk-based gem loading for improved performance and reliability
+
 ### Changed
-- Changed configuration to be a PORO class
-- Changed ArgumentError to TypeError where checking `is_a?`
-- Improve documentation readability, consistency, completeness
-- Improve test readability, consistency, completeness
-- Renames `Parameters` to `ParameterRegistry`
-- Convert hooks hash to a registry
-- Rename `Run` and its associated items to `Chain`
-- Convert `Chain` to use threads instead of passing context
-- Immutator now uses a `SKIP_CMDX_FREEZING` env var instead of `RACK_ENV` or `RAILS_ENV`
-- Rename `Hook` to `Callback`
-- Rename `Batch` to `Workflow`
+- Changed `ArgumentError` to `TypeError` for type validation consistency
+- Changed configuration from hash-based to PORO (Plain Old Ruby Object) class structure
+- Improved documentation readability, consistency, and completeness
+- Improved test suite readability, consistency, and coverage
+- Renamed `Batch` to `Workflow` to better reflect functionality
+- Renamed `Hook` to `Callback` for naming consistency
+- Renamed `Parameters` to `ParameterRegistry` for clarity
+- Renamed `Run` and associated components to `Chain` for better semantic meaning
+- Updated `Chain` to use thread-based execution instead of context passing
+- Updated `Immutator` to use `SKIP_CMDX_FREEZING` environment variable instead of `RACK_ENV`/`RAILS_ENV`
+- Updated hooks from a hash structure to registry pattern
+
 ### Removed
-- Removed configuration `task_timeout` and `batch_timeout`
+- Removed deprecated `task_timeout` and `batch_timeout` configuration settings
 
 ## [0.5.0] - 2025-03-21
 
 ### Added
-- Add `to_a` alias on array of hashes serializers
-- Add `state`, `status`, `outcome`, and `runtime` to run serializer
-- Add `on_[state]` and `on_[status]` based result callback handlers
-- Add `on_executed` state task hook
-- Add `on_good` and `on_bad` status task hook
+- Added `on_[state]` and `on_[status]` based result callback handlers
+- Added `on_executed` state hook for task completion tracking
+- Added `on_good` and `on_bad` status hooks for success/failure handling
+- Added `state`, `status`, `outcome`, and `runtime` fields to run serializer
+- Added `to_a` alias for array of hashes serializers
+
 ### Changed
-- Changed status and state hook order
+- Reordered status and state hook execution for more predictable behavior
 
 ## [0.4.0] - 2025-03-17
 
 ### Added
-- Add ANSI util
-- Add string to json parsing in hash coercion
-- Add string to json parsing in array coercion
+- Added ANSI color utility for enhanced terminal output
+- Added JSON string parsing support in array coercion
+- Added JSON string parsing support in hash coercion
+
 ### Changed
-- Skip assigning log settings if logger is nil
-- Improve ANSI escape sequence
-- Improve run inspector output
+- Improved ANSI escape sequence handling
+- Improved run inspector output formatting
+
+### Fixed
+- Fixed log settings assignment when logger is nil to prevent errors
 
 ## [0.3.0] - 2025-03-14
 
 ### Added
-- Add `progname` to logger instances
-- Add `LoggerSerializer` to standardize log output
+- Added `LoggerSerializer` for standardized log output formatting
+- Added `progname` support for logger instances
+
 ### Changed
-- Revert default log formatter to `Line`
-- Removed `pid` from result serializer
-- Fix serialization of frozen run
-- Fix `call!` not marking state of failure as interrupted
+- Removed `pid` (process ID) from result serializer output
+- Reverted default log formatter from `PrettyLine` back to `Line`
+
+### Fixed
+- Fixed `call!` method not properly marking failure state as interrupted
+- Fixed serialization issues with frozen run objects
 
 ## [0.2.0] - 2025-03-12
 
 ### Added
-- Add `PrettyJson` log formatter
-- Add `PrettyKeyValue` log formatter
-- Add `PrettyLine` log formatter
+- Added `PrettyJson` log formatter for structured JSON output
+- Added `PrettyKeyValue` log formatter for key-value pair output
+- Added `PrettyLine` log formatter for enhanced line-based output
+
 ### Changed
-- Make `PrettyLine` the default log formatter
-- Rename `MethodName` util to `NameAffix`
-- Rename `DatetimeFormatter` util to `LogTimestamp`
-- Rename `Runtime` util to `MonotonicRuntime`
-- Fix logging non hash values from raising an error
-- Fix bubbling of faults with nested halted calls
-- Wrap result logger in a `Logger#with_logger` block
+- Renamed `DatetimeFormatter` utility to `LogTimestamp` for better clarity
+- Renamed `MethodName` utility to `NameAffix` for better clarity
+- Renamed `Runtime` utility to `MonotonicRuntime` for better clarity
+- Updated `PrettyLine` to be the default log formatter
+- Updated result logger to be wrapped in `Logger#with_logger` block for better context
+
+### Fixed
+- Fixed error when logging non-hash values
+- Fixed fault bubbling behavior with nested halted calls
 
 ## [0.1.0] - 2025-03-07
 

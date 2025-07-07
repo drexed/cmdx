@@ -47,3 +47,4 @@ business logic within service/command objects.
   - Avoid redundant comments that merely restate the code
   - Keep comments up-to-date with code changes
   - Keep documentation consistent
+- Update CHANGELOG.md with any changes

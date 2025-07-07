@@ -6,6 +6,7 @@ Workflows inherit from Task, gaining all task capabilities including callbacks, 
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Basic Usage](#basic-usage)
 - [Task Declaration](#task-declaration)
 - [Context Propagation](#context-propagation)
@@ -20,6 +21,15 @@ Workflows inherit from Task, gaining all task capabilities including callbacks, 
 - [Nested Workflows](#nested-workflows)
 - [Task Settings Integration](#task-settings-integration)
 - [Generator](#generator)
+
+## TLDR
+
+- **Purpose** - Orchestrate sequential execution of multiple tasks in linear pipeline
+- **Declaration** - Use `process` method to declare tasks in execution order
+- **Context sharing** - Context object shared across all tasks for data pipeline
+- **Conditional execution** - Support `:if` and `:unless` options for conditional tasks
+- **Halt behavior** - Configurable stopping on failed/skipped results (default: halt on failed only)
+- **No call method** - Workflows automatically provide execution logic, don't define `call`
 
 ## Basic Usage
 

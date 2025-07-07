@@ -4,11 +4,20 @@ Parameters provide a contract to verify that task execution arguments match expe
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Parameter Fundamentals](#parameter-fundamentals)
 - [Parameter Sources](#parameter-sources)
 - [Nested Parameters](#nested-parameters)
 - [Parameter Method Generation](#parameter-method-generation)
 - [Error Handling](#error-handling)
+
+## TLDR
+
+- **Required/Optional** - Define with `required :param` and `optional :param` class methods
+- **Method generation** - Parameters become instance methods for easy access
+- **Sources** - Default `:context` source, or custom with `source: :user`
+- **Nested params** - Complex structures with `required :address do ... end`
+- **Call interface** - Parameters passed as keyword arguments to `TaskClass.call(param: value)`
 
 ## Parameter Fundamentals
 

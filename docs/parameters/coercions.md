@@ -7,6 +7,7 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Coercion Fundamentals](#coercion-fundamentals)
   - [Available Coercion Types](#available-coercion-types)
   - [Basic Type Coercion](#basic-type-coercion)
@@ -24,6 +25,14 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
 - [Custom Coercion Options](#custom-coercion-options)
   - [Date/Time Format Options](#datetime-format-options)
   - [BigDecimal Precision Options](#bigdecimal-precision-options)
+
+## TLDR
+
+- **Type coercion** - Automatic conversion using `type:` option (`:integer`, `:boolean`, `:array`, `:hash`, etc.)
+- **Multiple types** - Fallback with `type: [:float, :integer]` - tries each until one succeeds
+- **No conversion** - Default `:virtual` type returns values unchanged
+- **Before validation** - Coercion happens automatically before parameter validation
+- **Rich types** - Supports all Ruby built-ins plus JSON parsing for arrays/hashes
 
 ## Coercion Fundamentals
 

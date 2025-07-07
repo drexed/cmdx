@@ -6,31 +6,31 @@ es:
       into_any: "no podía coacciona el valor a un: %{values}"
       unknown: "%{type} tipo de coacciona desconocido"
     faults:
-      unspecified: ninguna razón dada
+      unspecified: "ninguna razón dada"
     parameters:
-      required: es un parámetro requerido
-      undefined: delegado al método indefinido %{source}
+      required: "es un parámetro requerido"
+      undefined: "delegado al método indefinido %{source}"
     validators:
-      custom: no es válida
+      custom: "no es válida"
       exclusion:
         of: "no debe ser uno de: %{values}"
-        within: no debe estar dentro %{min} y %{max}
-      format: es un formato inválido
+        within: "no debe estar dentro %{min} y %{max}"
+      format: "es un formato inválido"
       inclusion:
         of: "debe ser uno de: %{values}"
-        within: debe estar dentro %{min} y %{max}
+        within: "debe estar dentro %{min} y %{max}"
       length:
-        is: tiene una longitud que debe ser %{is}
-        is_not: tiene una longitud no debe ser %{is}
-        min: tiene una longitud que debe ser menos de %{min}
-        max: tiene una longitud que debe ser mas de %{max}
-        not_within: tiene una longitud que no debe estar dentro %{min} y %{max}
-        within: tiene una longitud que debe estar dentro %{min} y %{max}
+        is: "tiene una longitud que debe ser %{is}"
+        is_not: "tiene una longitud no debe ser %{is}"
+        min: "tiene una longitud que debe ser menos de %{min}"
+        max: "tiene una longitud que debe ser mas de %{max}"
+        not_within: "tiene una longitud que no debe estar dentro %{min} y %{max}"
+        within: "tiene una longitud que debe estar dentro %{min} y %{max}"
       numeric:
-        is: debe ser %{is}
-        is_not: no debe ser %{is}
-        min: debe ser %{min} como minimo
-        max: debe ser %{max} como máximo
-        not_within: no debe estar dentro %{min} y %{max}
-        within: debe estar dentro %{min} y %{max}
-      presence: no puede estar vacío
+        is: "debe ser %{is}"
+        is_not: "no debe ser %{is}"
+        min: "debe ser %{min} como minimo"
+        max: "debe ser %{max} como máximo"
+        not_within: "no debe estar dentro %{min} y %{max}"
+        within: "debe estar dentro %{min} y %{max}"
+      presence: "no puede estar vacío"

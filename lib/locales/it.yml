@@ -1,0 +1,36 @@
+it:
+  cmdx:
+    coercions:
+      into_a: "impossibile convertire in un %{type}"
+      into_an: "impossibile convertire in un %{type}"
+      into_any: "impossibile convertire in uno di: %{values}"
+      unknown: "tipo di conversione %{type} sconosciuto"
+    faults:
+      unspecified: "nessuna ragione fornita"
+    parameters:
+      required: "è un parametro obbligatorio"
+      undefined: "delega al metodo indefinito %{source}"
+    validators:
+      custom: "non è valido"
+      exclusion:
+        of: "non deve essere uno di: %{values}"
+        within: "non deve essere tra %{min} e %{max}"
+      format: "ha un formato non valido"
+      inclusion:
+        of: "deve essere uno di: %{values}"
+        within: "deve essere tra %{min} e %{max}"
+      length:
+        is: "la lunghezza deve essere %{is}"
+        is_not: "la lunghezza non deve essere %{is_not}"
+        min: "la lunghezza deve essere almeno %{min}"
+        max: "la lunghezza deve essere al massimo %{max}"
+        not_within: "la lunghezza non deve essere tra %{min} e %{max}"
+        within: "la lunghezza deve essere tra %{min} e %{max}"
+      numeric:
+        is: "deve essere %{is}"
+        is_not: "non deve essere %{is_not}"
+        min: "deve essere almeno %{min}"
+        max: "deve essere al massimo %{max}"
+        not_within: "non deve essere tra %{min} e %{max}"
+        within: "deve essere tra %{min} e %{max}"
+      presence: "non può essere vuoto"

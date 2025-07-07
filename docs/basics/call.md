@@ -4,6 +4,7 @@ Calling a task executes the business logic within it. Tasks provide two executio
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Execution Methods Overview](#execution-methods-overview)
 - [Non-bang Call (`call`)](#non-bang-call-call)
 - [Bang Call (`call!`)](#bang-call-call)
@@ -13,6 +14,14 @@ Calling a task executes the business logic within it. Tasks provide two executio
 - [Result Callbacks](#result-callbacks)
 - [Task State Lifecycle](#task-state-lifecycle)
 - [Return Value Details](#return-value-details)
+
+## TLDR
+
+- **`call`** - Always returns `CMDx::Result`, never raises exceptions (preferred)
+- **`call!`** - Returns `CMDx::Result` on success, raises `CMDx::Fault` on failure/skip
+- **Results** - Check status with `result.success?`, `result.failed?`, `result.skipped?`
+- **Callbacks** - Chain results with `.on_success`, `.on_failed`, `.on_skipped`
+- **Propagation** - Use `throw!(other_result)` to bubble up failures from subtasks
 
 ## Execution Methods Overview
 

@@ -6,6 +6,7 @@ as the `call` method, enabling rich integration patterns.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Overview](#overview)
 - [Callback Declaration](#callback-declaration)
 - [Callback Classes](#callback-classes)
@@ -19,10 +20,19 @@ as the `call` method, enabling rich integration patterns.
 - [Conditional Execution](#conditional-execution)
 - [Callback Inheritance](#callback-inheritance)
 
+## TLDR
+
+- **Purpose** - Execute custom logic at specific points in task lifecycle
+- **Declaration** - Use method names, procs, class instances, or blocks
+- **Callback types** - Validation, execution, state, status, and outcome callbacks
+- **Execution order** - Runs in precise lifecycle order (before_execution → validation → call → status → after_execution)
+- **Conditional** - Support `:if` and `:unless` options for conditional execution
+- **Inheritance** - Callbacks are inherited, perfect for global patterns
+
 > [!TIP]
 > Callbacks are inheritable, making them perfect for setting up global logic execution patterns like tracking markers, account plan checks, or logging standards.
 
-## Callback Declaration
+## Overview
 
 Callbacks can be declared in multiple ways: method names, procs/lambdas, Callback class instances, or blocks.
 

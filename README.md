@@ -100,6 +100,7 @@ end
 - [Middlewares](docs/middlewares.md)
 - [Workflows](docs/workflows.md)
 - [Logging](docs/logging.md)
+- [Internationalization (i18n)](docs/internationalization.md)
 - [Testing](docs/testing.md)
 - [AI Prompts](docs/ai_prompts.md)
 - [Tips & Tricks](docs/tips_and_tricks.md)

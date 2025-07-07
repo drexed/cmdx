@@ -4,11 +4,21 @@ This guide provides AI prompt templates for building CMDx Task and Workflow obje
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Framework Context Template](#framework-context-template)
 - [Task Generation Templates](#task-generation-templates)
 - [Workflow Generation Templates](#workflow-generation-templates)
 - [Testing Templates](#testing-templates)
 - [Best Practices for AI Prompts](#best-practices-for-ai-prompts)
+
+## TLDR
+
+- **Purpose** - Pre-written prompts to help AI assistants generate production-ready CMDx code
+- **Templates** - Framework context, task generation, workflow generation, and testing templates
+- **Framework context** - Essential CMDx concepts and coding standards for AI understanding
+- **Task templates** - Structured prompts for generating tasks with parameters, validations, and tests
+- **Workflow templates** - Prompts for orchestrating multi-step business processes
+- **Testing templates** - Comprehensive RSpec test generation with CMDx matchers
 
 ## Framework Context Template
 

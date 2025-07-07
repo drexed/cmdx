@@ -1,0 +1,36 @@
+ja:
+  cmdx:
+    coercions:
+      into_a: "%{type}に変換できませんでした"
+      into_an: "%{type}に変換できませんでした"
+      into_any: "次のいずれかに変換できませんでした: %{values}"
+      unknown: "不明な%{type}変換タイプ"
+    faults:
+      unspecified: "理由が指定されていません"
+    parameters:
+      required: "必須パラメータです"
+      undefined: "未定義メソッド%{source}に委譲します"
+    validators:
+      custom: "無効です"
+      exclusion:
+        of: "次のいずれかであってはいけません: %{values}"
+        within: "%{min}と%{max}の間であってはいけません"
+      format: "無効な形式です"
+      inclusion:
+        of: "次のいずれかでなければなりません: %{values}"
+        within: "%{min}と%{max}の間でなければなりません"
+      length:
+        is: "長さは%{is}でなければなりません"
+        is_not: "長さは%{is_not}であってはいけません"
+        min: "長さは最低%{min}でなければなりません"
+        max: "長さは最大%{max}でなければなりません"
+        not_within: "長さは%{min}と%{max}の間であってはいけません"
+        within: "長さは%{min}と%{max}の間でなければなりません"
+      numeric:
+        is: "%{is}でなければなりません"
+        is_not: "%{is_not}であってはいけません"
+        min: "最低%{min}でなければなりません"
+        max: "最大%{max}でなければなりません"
+        not_within: "%{min}と%{max}の間であってはいけません"
+        within: "%{min}と%{max}の間でなければなりません"
+      presence: "空であってはいけません"

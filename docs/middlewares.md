@@ -4,6 +4,7 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Using Middleware](#using-middleware)
   - [Class Middleware](#class-middleware)
   - [Instance Middleware](#instance-middleware)
@@ -15,6 +16,15 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
   - [Timeout Middleware](#timeout-middleware)
   - [Correlate Middleware](#correlate-middleware)
 - [Writing Custom Middleware](#writing-custom-middleware)
+
+## TLDR
+
+- **Purpose** - Rack-style wrappers for cross-cutting concerns (auth, logging, caching)
+- **Declaration** - Use `use` method with classes, instances, or procs
+- **Execution order** - Nested fashion (first declared wraps all others)
+- **Short-circuiting** - Middleware can halt execution by not calling next callable
+- **Inheritance** - Middleware is inherited from parent classes
+- **Built-in** - Includes Timeout and Correlate middleware
 
 ## Using Middleware
 

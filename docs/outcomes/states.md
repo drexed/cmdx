@@ -7,6 +7,7 @@ decision making and monitoring.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [State Definitions](#state-definitions)
 - [State Transitions](#state-transitions)
 - [State Predicates](#state-predicates)
@@ -14,6 +15,14 @@ decision making and monitoring.
 - [State vs Status Distinction](#state-vs-status-distinction)
 - [State Inspection and Monitoring](#state-inspection-and-monitoring)
 - [State Persistence and Logging](#state-persistence-and-logging)
+
+## TLDR
+
+- **States** - Track execution lifecycle: `initialized` → `executing` → `complete`/`interrupted`
+- **Automatic** - States are managed automatically by the framework, never modify manually
+- **Predicates** - Check with `result.complete?`, `result.interrupted?`, `result.executed?`
+- **Callbacks** - Use `.on_complete`, `.on_interrupted`, `.on_executed` for lifecycle events
+- **vs Status** - State = where in lifecycle, Status = how execution ended
 
 ## State Definitions
 

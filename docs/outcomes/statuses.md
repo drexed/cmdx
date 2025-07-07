@@ -4,6 +4,7 @@ Statuses represent the outcome of task execution logic, indicating how the task'
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Status Definitions](#status-definitions)
 - [Status Characteristics](#status-characteristics)
 - [Status Predicates](#status-predicates)
@@ -13,6 +14,14 @@ Statuses represent the outcome of task execution logic, indicating how the task'
 - [Outcome-Based Logic](#outcome-based-logic)
 - [Status Serialization and Inspection](#status-serialization-and-inspection)
 - [Status vs State vs Outcome](#status-vs-state-vs-outcome)
+
+## TLDR
+
+- **Statuses** - Business outcome of execution: `success` (default), `skipped` (via `skip!`), `failed` (via `fail!`)
+- **One-way transitions** - Only `success` → `skipped`/`failed`, never reverse
+- **Predicates** - Check with `result.success?`, `result.skipped?`, `result.failed?`
+- **Outcomes** - `result.good?` = success OR skipped, `result.bad?` = skipped OR failed
+- **Rich metadata** - Both `skip!()` and `fail!()` accept metadata for context
 
 ## Status Definitions
 

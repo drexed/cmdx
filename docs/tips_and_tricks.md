@@ -4,6 +4,7 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
@@ -11,6 +12,14 @@ This guide covers advanced patterns and optimization techniques for getting the 
   - [Efficient Parameter Definitions](#efficient-parameter-definitions)
 - [Monitoring and Observability](#monitoring-and-observability)
   - [ActiveRecord Query Tagging](#activerecord-query-tagging)
+
+## TLDR
+
+- **Organization** - Group commands by domain in `/app/commands` with descriptive subdirectories
+- **Naming** - Tasks use "Verb + Noun + Task", workflows use "Noun + Verb + Workflow"
+- **Parameter optimization** - Use `with_options` to reduce duplication in parameter definitions
+- **Monitoring** - Enable ActiveRecord query tagging for better debugging and observability
+- **Base classes** - Create `ApplicationTask` and `ApplicationWorkflow` for shared configuration
 
 ## Project Organization
 

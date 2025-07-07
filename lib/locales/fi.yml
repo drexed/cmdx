@@ -1,0 +1,36 @@
+fi:
+  cmdx:
+    coercions:
+      into_a: "ei voitu muuntaa tyypiksi %{type}"
+      into_an: "ei voitu muuntaa tyypiksi %{type}"
+      into_any: "ei voitu muuntaa yhteenkään seuraavista: %{values}"
+      unknown: "tuntematon %{type} muunnostyyppi"
+    faults:
+      unspecified: "syytä ei annettu"
+    parameters:
+      required: "on pakollinen parametri"
+      undefined: "delegoi määrittelemättömään metodiin %{source}"
+    validators:
+      custom: "ei ole kelvollinen"
+      exclusion:
+        of: "ei saa olla mikään seuraavista: %{values}"
+        within: "ei saa olla välillä %{min} ja %{max}"
+      format: "on virheellisessä muodossa"
+      inclusion:
+        of: "on oltava jokin seuraavista: %{values}"
+        within: "on oltava välillä %{min} ja %{max}"
+      length:
+        is: "pituuden on oltava %{is}"
+        is_not: "pituus ei saa olla %{is_not}"
+        min: "pituuden on oltava vähintään %{min}"
+        max: "pituus saa olla enintään %{max}"
+        not_within: "pituus ei saa olla välillä %{min} ja %{max}"
+        within: "pituuden on oltava välillä %{min} ja %{max}"
+      numeric:
+        is: "on oltava %{is}"
+        is_not: "ei saa olla %{is_not}"
+        min: "on oltava vähintään %{min}"
+        max: "saa olla enintään %{max}"
+        not_within: "ei saa olla välillä %{min} ja %{max}"
+        within: "on oltava välillä %{min} ja %{max}"
+      presence: "ei voi olla tyhjä"

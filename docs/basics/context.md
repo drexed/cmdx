@@ -6,6 +6,7 @@ validation, and seamless data flow between related tasks.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Loading Parameters](#loading-parameters)
 - [Accessing Data](#accessing-data)
 - [Modifying Context](#modifying-context)
@@ -13,6 +14,14 @@ validation, and seamless data flow between related tasks.
 - [Data Sharing Between Tasks](#data-sharing-between-tasks)
 - [Result Object Context Passing](#result-object-context-passing)
 - [Context Inspection](#context-inspection)
+
+## TLDR
+
+- **Dynamic attributes** - Access data with `context.user_id` or `context[:user_id]`
+- **Automatic loading** - Parameters become context attributes automatically
+- **Modification** - Assign data with `context.user = User.find(id)`
+- **Sharing** - Pass context between tasks with `SomeTask.call(context)`
+- **Nil safety** - Missing attributes return `nil` instead of raising errors
 
 ## Loading Parameters
 

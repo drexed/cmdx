@@ -4,6 +4,7 @@ Parameter values can be validated using built-in validators or custom validation
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Common Options](#common-options)
 - [Presence](#presence)
 - [Format](#format)
@@ -13,7 +14,14 @@ Parameter values can be validated using built-in validators or custom validation
 - [Numeric](#numeric)
 - [Custom](#custom)
 - [Validation Results](#validation-results)
-- [Internationalization (i18n)](#internationalization-i18n)
+
+## TLDR
+
+- **Built-in validators** - `presence`, `format`, `inclusion`, `exclusion`, `length`, `numeric`
+- **Common options** - All support `:allow_nil`, `:if`, `:unless`, `:message`
+- **Usage** - Add to parameter definitions: `required :email, presence: true, format: { with: /@/ }`
+- **Conditional** - Use `:if` and `:unless` for conditional validation
+- **Custom validators** - Use `custom: { validator: CustomValidator }` for complex logic
 
 ## Common Options
 
@@ -301,34 +309,6 @@ result.metadata #=> {
 # Accessing individual error messages
 result.metadata[:messages][:email]    #=> ["format is invalid"]
 result.metadata[:messages][:username] #=> ["cannot be empty"]
-```
-
-## Internationalization (i18n)
-
-All validators support internationalization through Rails i18n. Customize error messages in your locale files:
-
-```yaml
-# config/locales/en.yml
-en:
-  cmdx:
-    validators:
-      presence: "is required"
-      format: "has invalid format"
-      inclusion:
-        of: "must be one of: %{values}"
-        in: "must be within %{min} and %{max}"
-      exclusion:
-        of: "must not be one of: %{values}"
-        in: "must not be within %{min} and %{max}"
-      length:
-        within: "must be between %{min} and %{max} characters"
-        min: "must be at least %{min} characters"
-        max: "must be at most %{max} characters"
-      numeric:
-        within: "must be between %{min} and %{max}"
-        min: "must be at least %{min}"
-        max: "must be at most %{max}"
-      custom: "is invalid"
 ```
 
 ---

@@ -6,12 +6,21 @@ outcomes, each serving specific use cases in business logic.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Skip (`skip!`)](#skip-skip)
 - [Fail (`fail!`)](#fail-fail)
 - [Metadata Enrichment](#metadata-enrichment)
 - [State Transitions](#state-transitions)
 - [Exception Behavior](#exception-behavior)
 - [The Reason Key](#the-reason-key)
+
+## TLDR
+
+- **`skip!`** - Controlled interruption when task shouldn't execute (not an error)
+- **`fail!`** - Controlled interruption when task encounters an error condition
+- **Metadata** - Both methods accept metadata hash: `skip!(reason: "...", error_code: "...")`
+- **State changes** - Both transition to `interrupted` state, `skipped` or `failed` status
+- **Exception behavior** - `call` returns results, `call!` raises `CMDx::Skipped/Failed` based on task_halt config
 
 ## Skip (`skip!`)
 

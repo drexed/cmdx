@@ -7,6 +7,7 @@ sophisticated exception handling and control flow patterns.
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Fault Types](#fault-types)
 - [Basic Exception Handling](#basic-exception-handling)
 - [Fault Context Access](#fault-context-access)
@@ -14,6 +15,14 @@ sophisticated exception handling and control flow patterns.
 - [Fault Propagation (`throw!`)](#fault-propagation-throw)
 - [Fault Chain Analysis](#fault-chain-analysis)
 - [Task Halt Configuration](#task-halt-configuration)
+
+## TLDR
+
+- **Fault types** - `CMDx::Skipped` (from `skip!`) and `CMDx::Failed` (from `fail!`)
+- **Exception handling** - Use `rescue CMDx::Fault` to catch both types
+- **Full context** - Faults provide access to `result`, `task`, `context`, and `chain`
+- **Advanced matching** - Use `for?(TaskClass)` and `matches? { |f| condition }` for specific fault handling
+- **Propagation** - Use `throw!(result)` to bubble up failures while preserving fault context
 
 ## Fault Types
 

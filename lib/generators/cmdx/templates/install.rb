@@ -1,19 +1,51 @@
 # frozen_string_literal: true
 
 CMDx.configure do |config|
-  # Halt execution and raise fault on these result statuses when using `call!`
-  config.task_halt = CMDx::Result::FAILED
+  # Task halt configuration - controls when call! raises faults
+  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
+  #
+  # Available statuses: "success", "skipped", "failed"
+  # If set to an empty array, task will never halt
+  config.task_halt = %w[failed]
 
-  # Global timeout for individual tasks (nil = no timeout)
+  # Workflow halt configuration - controls when workflows stop execution
+  # When a task returns these statuses, subsequent workflow tasks won't execute
+  # See https://github.com/drexed/cmdx/blob/main/docs/workflow.md for more details
+  #
+  # Available statuses: "success", "skipped", "failed"
+  # If set to an empty array, workflow will never halt
+  config.workflow_halt = %w[failed]
 
-  # Stop workflow execution when tasks return these statuses
-  # Note: Skipped tasks continue processing by default
-  config.workflow_halt = CMDx::Result::FAILED
-
-  # Global timeout for entire workflow execution (nil = no timeout)
-  # Tip: Account for all tasks when setting this value
-
-  # Logger with formatter - see available formatters at:
-  # https://github.com/drexed/cmdx/tree/main/lib/cmdx/log_formatters
+  # Logger configuration - choose from multiple formatters
+  # See https://github.com/drexed/cmdx/blob/main/docs/logging.md for more details
+  #
+  # Available formatters:
+  # - CMDx::LogFormatters::Line
+  # - CMDx::LogFormatters::PrettyLine
+  # - CMDx::LogFormatters::Json
+  # - CMDx::LogFormatters::PrettyJson
+  # - CMDx::LogFormatters::KeyValue
+  # - CMDx::LogFormatters::PrettyKeyValue
+  # - CMDx::LogFormatters::Logstash
+  # - CMDx::LogFormatters::Raw
   config.logger = Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+
+  # Global middlewares - automatically applied to all tasks
+  # See https://github.com/drexed/cmdx/blob/main/docs/middlewares.md for more details
+  #
+  # config.middlewares.use CMDx::Middlewares::Timeout, seconds: 30
+  # config.middlewares.use CMDx::Middlewares::Correlate
+  # config.middlewares.use CustomAuthMiddleware, role: "admin"
+  # config.middlewares.use PerformanceMiddleware.new(threshold: 5.0)
+
+  # Global callbacks - automatically applied to all tasks
+  # See https://github.com/drexed/cmdx/blob/main/docs/callbacks.md for more details
+  #
+  # config.callbacks.register :before_execution, :log_task_start
+  # config.callbacks.register :after_execution, :log_task_end
+  # config.callbacks.register :on_success, NotificationCallback.new([:email])
+  # config.callbacks.register :on_failure, :alert_support, if: :critical?
+  # config.callbacks.register :on_complete, proc { |task, callback_type|
+  #   Metrics.increment("task.#{task.class.name.underscore}.completed")
+  # }
 end

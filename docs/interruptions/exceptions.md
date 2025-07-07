@@ -6,9 +6,18 @@ building reliable task execution flows and implementing proper error handling st
 
 ## Table of Contents
 
+- [TLDR](#tldr)
 - [Exception Handling Behavior](#exception-handling-behavior)
 - [Bang Call (`call!`)](#bang-call-call)
 - [Exception Classification](#exception-classification)
+
+## TLDR
+
+- **`call`** - Captures ALL exceptions, converts to failed results with metadata
+- **`call!`** - Lets exceptions propagate (except CMDx faults based on task_halt config)
+- **Exception info** - Available in `result.metadata[:original_exception]` and `result.metadata[:reason]`
+- **Guaranteed results** - `call` always returns a result object, never raises
+- **Fault vs Exception** - CMDx faults have special handling, other exceptions propagate in `call!`
 
 ## Exception Handling Behavior
 
