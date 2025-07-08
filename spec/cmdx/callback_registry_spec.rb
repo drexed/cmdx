@@ -8,32 +8,32 @@ RSpec.describe CMDx::CallbackRegistry do
       it "creates an empty registry" do
         registry = described_class.new
 
-        expect(registry).to be_empty
-        expect(registry.keys).to eq([])
+        expect(registry.to_h).to be_empty
+        expect(registry.to_h.keys).to eq([])
       end
     end
 
     context "when initialized with existing registry" do
       let(:source_registry) do
         registry = described_class.new
-        registry[:before_validation] = [[:check_permissions, {}]]
-        registry[:on_success] = [[:log_success, { if: :important? }]]
+        registry.register(:before_validation, :check_permissions)
+        registry.register(:on_success, :log_success, if: :important?)
         registry
       end
 
       it "copies callbacks from source registry" do
         new_registry = described_class.new(source_registry)
 
-        expect(new_registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(new_registry[:on_success]).to eq([[:log_success, { if: :important? }]])
+        expect(new_registry.to_h[:before_validation]).to eq([[[:check_permissions], {}]])
+        expect(new_registry.to_h[:on_success]).to eq([[[:log_success], { if: :important? }]])
       end
 
       it "creates independent copy of callback definitions" do
         new_registry = described_class.new(source_registry)
-        new_registry[:before_validation] << [:additional_callback, {}]
+        new_registry.register(:before_validation, :additional_callback)
 
-        expect(source_registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(new_registry[:before_validation]).to eq([[:check_permissions, {}], [:additional_callback, {}]])
+        expect(source_registry.to_h[:before_validation]).to eq([[[:check_permissions], {}]])
+        expect(new_registry.to_h[:before_validation]).to eq([[[:check_permissions], {}], [[:additional_callback], {}]])
       end
     end
 
@@ -48,8 +48,8 @@ RSpec.describe CMDx::CallbackRegistry do
       it "copies callbacks from hash" do
         registry = described_class.new(source_hash)
 
-        expect(registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(registry[:on_success]).to eq([[:log_success, {}]])
+        expect(registry.to_h[:before_validation]).to eq([[:check_permissions, {}]])
+        expect(registry.to_h[:on_success]).to eq([[:log_success, {}]])
       end
     end
 
@@ -57,7 +57,7 @@ RSpec.describe CMDx::CallbackRegistry do
       it "creates empty registry" do
         registry = described_class.new(nil)
 
-        expect(registry).to be_empty
+        expect(registry.to_h).to be_empty
       end
     end
   end
@@ -65,48 +65,47 @@ RSpec.describe CMDx::CallbackRegistry do
   describe "Hash behavior" do
     let(:registry) { described_class.new }
 
-    it "behaves like a Hash" do
-      expect(registry).to be_a(Hash)
-      expect(registry).to respond_to(:keys)
-      expect(registry).to respond_to(:values)
-      expect(registry).to respond_to(:each)
+    it "provides hash-like access through to_h" do
+      expect(registry.to_h).to respond_to(:keys)
+      expect(registry.to_h).to respond_to(:values)
+      expect(registry.to_h).to respond_to(:each)
     end
 
-    it "supports hash assignment" do
-      registry[:test_callback] = [[:method_name, {}]]
+    it "supports registration and access" do
+      registry.register(:test_callback, :method_name)
 
-      expect(registry[:test_callback]).to eq([[:method_name, {}]])
+      expect(registry.to_h[:test_callback]).to eq([[[:method_name], {}]])
     end
 
-    it "supports hash key checking" do
-      registry[:existing] = [[:method, {}]]
+    it "supports key checking" do
+      registry.register(:existing, :method)
 
-      expect(registry.key?(:existing)).to be(true)
-      expect(registry.key?(:missing)).to be(false)
+      expect(registry.to_h.key?(:existing)).to be(true)
+      expect(registry.to_h.key?(:missing)).to be(false)
     end
 
-    it "supports hash iteration" do
-      registry[:callback1] = [[:method1, {}]]
-      registry[:callback2] = [[:method2, {}]]
+    it "supports iteration through to_h" do
+      registry.register(:callback1, :method1)
+      registry.register(:callback2, :method2)
 
       keys = []
       values = []
-      registry.each do |k, v|
+      registry.to_h.each do |k, v|
         keys << k
         values << v
       end
 
       expect(keys).to contain_exactly(:callback1, :callback2)
-      expect(values).to contain_exactly([[:method1, {}]], [[:method2, {}]])
+      expect(values).to contain_exactly([[[:method1], {}]], [[[:method2], {}]])
     end
 
-    it "supports hash size operations" do
-      expect(registry.size).to eq(0)
-      expect(registry).to be_empty
+    it "supports size operations through to_h" do
+      expect(registry.to_h.size).to eq(0)
+      expect(registry.to_h).to be_empty
 
-      registry[:callback] = [[:method, {}]]
-      expect(registry.size).to eq(1)
-      expect(registry).not_to be_empty
+      registry.register(:callback, :method)
+      expect(registry.to_h.size).to eq(1)
+      expect(registry.to_h).not_to be_empty
     end
   end
 
@@ -117,21 +116,21 @@ RSpec.describe CMDx::CallbackRegistry do
       it "registers method symbol" do
         registry.register(:before_validation, :check_permissions)
 
-        expect(registry[:before_validation]).to eq([[[:check_permissions], {}]])
+        expect(registry.to_h[:before_validation]).to eq([[[:check_permissions], {}]])
       end
 
       it "registers proc" do
         proc_callable = proc { "test" }
         registry.register(:on_success, proc_callable)
 
-        expect(registry[:on_success]).to eq([[[proc_callable], {}]])
+        expect(registry.to_h[:on_success]).to eq([[[proc_callable], {}]])
       end
 
       it "registers callback instance" do
         callback = CMDx::Callback.new
         registry.register(:on_failure, callback)
 
-        expect(registry[:on_failure]).to eq([[[callback], {}]])
+        expect(registry.to_h[:on_failure]).to eq([[[callback], {}]])
       end
     end
 
@@ -139,14 +138,14 @@ RSpec.describe CMDx::CallbackRegistry do
       it "registers multiple method symbols" do
         registry.register(:before_validation, :check_permissions, :validate_input)
 
-        expect(registry[:before_validation]).to eq([[%i[check_permissions validate_input], {}]])
+        expect(registry.to_h[:before_validation]).to eq([[%i[check_permissions validate_input], {}]])
       end
 
       it "registers mixed callable types" do
         proc_callable = proc { "test" }
         registry.register(:on_success, :log_success, proc_callable)
 
-        expect(registry[:on_success]).to eq([[[:log_success, proc_callable], {}]])
+        expect(registry.to_h[:on_success]).to eq([[[:log_success, proc_callable], {}]])
       end
     end
 
@@ -154,7 +153,7 @@ RSpec.describe CMDx::CallbackRegistry do
       it "includes block as callable" do
         registry.register(:before_validation) { "block execution" }
 
-        callables = registry[:before_validation].first.first
+        callables = registry.to_h[:before_validation].first.first
         expect(callables.size).to eq(1)
         expect(callables.first).to be_a(Proc)
         expect(callables.first.call).to eq("block execution")
@@ -163,7 +162,7 @@ RSpec.describe CMDx::CallbackRegistry do
       it "combines callables with block" do
         registry.register(:on_success, :log_method) { "block execution" }
 
-        callables = registry[:on_success].first.first
+        callables = registry.to_h[:on_success].first.first
         expect(callables.size).to eq(2)
         expect(callables.first).to eq(:log_method)
         expect(callables.last).to be_a(Proc)
@@ -174,26 +173,26 @@ RSpec.describe CMDx::CallbackRegistry do
       it "registers with if condition" do
         registry.register(:on_success, :log_success, if: :important?)
 
-        expect(registry[:on_success]).to eq([[[:log_success], { if: :important? }]])
+        expect(registry.to_h[:on_success]).to eq([[[:log_success], { if: :important? }]])
       end
 
       it "registers with unless condition" do
         registry.register(:on_failure, :alert_admin, unless: :test_env?)
 
-        expect(registry[:on_failure]).to eq([[[:alert_admin], { unless: :test_env? }]])
+        expect(registry.to_h[:on_failure]).to eq([[[:alert_admin], { unless: :test_env? }]])
       end
 
       it "registers with multiple conditions" do
         registry.register(:on_success, :log_success, if: :important?, unless: :silent?)
 
-        expect(registry[:on_success]).to eq([[[:log_success], { if: :important?, unless: :silent? }]])
+        expect(registry.to_h[:on_success]).to eq([[[:log_success], { if: :important?, unless: :silent? }]])
       end
 
       it "registers with proc conditions" do
         condition_proc = proc { true }
         registry.register(:on_success, :log_success, if: condition_proc)
 
-        expect(registry[:on_success]).to eq([[[:log_success], { if: condition_proc }]])
+        expect(registry.to_h[:on_success]).to eq([[[:log_success], { if: condition_proc }]])
       end
     end
 
@@ -202,27 +201,27 @@ RSpec.describe CMDx::CallbackRegistry do
         registry.register(:before_validation, :first_callback)
         registry.register(:before_validation, :second_callback)
 
-        expect(registry[:before_validation]).to eq([
-                                                     [[:first_callback], {}],
-                                                     [[:second_callback], {}]
-                                                   ])
+        expect(registry.to_h[:before_validation]).to eq([
+                                                          [[:first_callback], {}],
+                                                          [[:second_callback], {}]
+                                                        ])
       end
 
       it "prevents duplicate callback registrations" do
         registry.register(:before_validation, :check_permissions)
         registry.register(:before_validation, :check_permissions)
 
-        expect(registry[:before_validation]).to eq([[[:check_permissions], {}]])
+        expect(registry.to_h[:before_validation]).to eq([[[:check_permissions], {}]])
       end
 
       it "allows same callable with different conditions" do
         registry.register(:on_success, :log_success, if: :important?)
         registry.register(:on_success, :log_success, unless: :silent?)
 
-        expect(registry[:on_success]).to eq([
-                                              [[:log_success], { if: :important? }],
-                                              [[:log_success], { unless: :silent? }]
-                                            ])
+        expect(registry.to_h[:on_success]).to eq([
+                                                   [[:log_success], { if: :important? }],
+                                                   [[:log_success], { unless: :silent? }]
+                                                 ])
       end
     end
 
@@ -237,7 +236,7 @@ RSpec.describe CMDx::CallbackRegistry do
               .register(:on_success, :log_success)
               .register(:on_failure, :alert_admin)
 
-      expect(registry.keys).to contain_exactly(:before_validation, :on_success, :on_failure)
+      expect(registry.to_h.keys).to contain_exactly(:before_validation, :on_success, :on_failure)
     end
   end
 
@@ -384,25 +383,16 @@ RSpec.describe CMDx::CallbackRegistry do
       end
     end
 
-    context "when callback type value is nil" do
-      before do
-        registry[:test_callback] = nil
+    context "when testing edge cases" do
+      it "handles missing callback type gracefully" do
+        expect { registry.call(task, :missing_callback) }.not_to raise_error
       end
 
-      it "handles nil gracefully" do
+      it "handles registry with registered callbacks" do
+        registry.register(:test_callback, :method)
+
         expect { registry.call(task, :test_callback) }.not_to raise_error
-      end
-    end
-
-    context "when callback type value is not an array" do
-      before do
-        registry[:test_callback] = "not an array"
-      end
-
-      it "wraps non-array values in array" do
-        registry.call(task, :test_callback)
-
-        expect(task).to have_received(:__cmdx_eval).once
+        expect(task).to have_received(:__cmdx_try).with(:method)
       end
     end
   end
