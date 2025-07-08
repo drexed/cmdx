@@ -98,23 +98,6 @@ module CMDx
   # @since 1.0.0
   class Task
 
-    ##
-    # Available callback types for task lifecycle events.
-    # Callbacks are executed in a specific order during task execution.
-    #
-    # @return [Array<Symbol>] frozen array of available callback names
-    CALLBACKS = [
-      :before_validation,
-      :after_validation,
-      :before_execution,
-      :after_execution,
-      :on_executed,
-      :on_good,
-      :on_bad,
-      *Result::STATUSES.map { |s| :"on_#{s}" },
-      *Result::STATES.map { |s| :"on_#{s}" }
-    ].freeze
-
     __cmdx_attr_setting :task_settings,
                         default: -> { CMDx.configuration.to_h.merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares,
@@ -207,7 +190,7 @@ module CMDx
       # @option options [Symbol, Proc, #call] :unless condition that must be falsy
       # @param block [Proc] block to execute as part of the callback
       # @return [Array] updated callbacks array
-      CALLBACKS.each do |callback|
+      CallbackRegistry::TYPES.each do |callback|
         define_method(callback) do |*callables, **options, &block|
           cmd_callbacks.register(callback, *callables, **options, &block)
         end

@@ -31,6 +31,23 @@ module CMDx
   class CallbackRegistry < Hash
 
     ##
+    # Available callback types for task lifecycle events.
+    # Callbacks are executed in a specific order during task execution.
+    #
+    # @return [Array<Symbol>] frozen array of available callback names
+    TYPES = [
+      :before_validation,
+      :after_validation,
+      :before_execution,
+      :after_execution,
+      :on_executed,
+      :on_good,
+      :on_bad,
+      *Result::STATUSES.map { |s| :"on_#{s}" },
+      *Result::STATES.map { |s| :"on_#{s}" }
+    ].freeze
+
+    ##
     # Initializes a new CallbackRegistry.
     #
     # @param registry [CallbackRegistry, Hash, nil] Optional registry to copy from
@@ -67,9 +84,9 @@ module CMDx
     #
     # @example Register proc callback
     #   registry.register(:on_success, proc { log_completion })
-    def register(callback, *callables, **options, &block)
+    def register(callback_type, *callables, **options, &block)
       callables << block if block_given?
-      (self[callback] ||= []).push([callables, options]).uniq!
+      (self[callback_type] ||= []).push([callables, options]).uniq!
       self
     end
 
