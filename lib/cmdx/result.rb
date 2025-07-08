@@ -39,10 +39,16 @@ module CMDx
                           to: :task
 
     # @return [CMDx::Task] The task instance that generated this result
+    attr_reader :task
+
     # @return [String] The current execution state (initialized, executing, complete, interrupted)
+    attr_reader :state
+
     # @return [String] The current execution status (success, skipped, failed)
+    attr_reader :status
+
     # @return [Hash] Additional metadata associated with the result
-    attr_reader :task, :state, :status, :metadata
+    attr_reader :metadata
 
     # Initializes a new Result instance.
     #

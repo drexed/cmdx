@@ -57,9 +57,11 @@ module CMDx
 
     # @!attribute [r] id
     #   @return [String] the unique identifier for this chain
+    attr_reader :id
+
     # @!attribute [r] results
     #   @return [Array<CMDx::Result>] the collection of task results in this chain
-    attr_reader :id, :results
+    attr_reader :results
 
     # Creates a new chain instance.
     #

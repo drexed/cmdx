@@ -35,8 +35,10 @@ module CMDx
                           private: true
 
     # @return [CMDx::Task] The task instance being processed
+    attr_reader :task
+
     # @return [CMDx::Parameter] The parameter definition being processed
-    attr_reader :task, :parameter
+    attr_reader :parameter
 
     # Initializes a new ParameterValue processor.
     #

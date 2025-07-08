@@ -133,8 +133,10 @@ module CMDx
     class Timeout < CMDx::Middleware
 
       # @return [Integer, Float, Symbol, Proc] The timeout value in seconds
+      attr_reader :seconds
+
       # @return [Hash] The conditional options for timeout application
-      attr_reader :seconds, :conditional
+      attr_reader :conditional
 
       ##
       # Initializes the timeout middleware.

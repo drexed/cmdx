@@ -51,13 +51,25 @@ module CMDx
     attr_accessor :task
 
     # @return [Class] The task class this parameter is defined in
+    attr_reader :klass
+
     # @return [Parameter, nil] The parent parameter for nested parameters
+    attr_reader :parent
+
     # @return [Symbol] The parameter name
+    attr_reader :name
+
     # @return [Symbol, Array<Symbol>] The parameter type(s) for coercion
+    attr_reader :type
+
     # @return [Hash] The parameter configuration options
+    attr_reader :options
+
     # @return [Array<Parameter>] Child parameters for nested parameter definitions
+    attr_reader :children
+
     # @return [CMDx::Errors] Validation errors for this parameter
-    attr_reader :klass, :parent, :name, :type, :options, :children, :errors
+    attr_reader :errors
 
     # Initializes a new Parameter instance.
     #
