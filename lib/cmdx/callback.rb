@@ -11,9 +11,9 @@ module CMDx
   #
   # @example Basic callback implementation
   #   class LoggingCallback < CMDx::Callback
-  #     def call(task, callback_type)
-  #       puts "Executing #{callback_type} callback for #{task.class.name}"
-  #       task.logger.info("Callback executed: #{callback_type}")
+  #     def call(task, type)
+  #       puts "Executing #{type} callback for #{task.class.name}"
+  #       task.logger.info("Callback executed: #{type}")
   #     end
   #   end
   #
@@ -23,8 +23,8 @@ module CMDx
   #       @channels = channels
   #     end
   #
-  #     def call(task, callback_type)
-  #       return unless callback_type == :on_success
+  #     def call(task, type)
+  #       return unless type == :on_success
   #
   #       @channels.each do |channel|
   #         NotificationService.send(channel, "Task #{task.class.name} completed")
@@ -34,8 +34,8 @@ module CMDx
   #
   # @example Conditional callback execution
   #   class ErrorReportingCallback < CMDx::Callback
-  #     def call(task, callback_type)
-  #       return unless callback_type == :on_failure
+  #     def call(task, type)
+  #       return unless type == :on_failure
   #       return unless task.result.failed?
   #
   #       ErrorReporter.notify(
@@ -51,6 +51,25 @@ module CMDx
   class Callback
 
     ##
+    # Class-level convenience method for creating and calling a callback.
+    #
+    # This method creates a new instance of the callback class and immediately
+    # calls it with the provided task and type. This is useful for stateless
+    # callbacks that don't need to maintain state between calls.
+    #
+    # @param task [Task] The task instance being executed
+    # @param type [Symbol] The type of callback being executed
+    # @return [void] The result of the callback execution
+    #
+    # @example Using class-level call
+    #   LoggingCallback.call(task, :on_success)
+    #
+    # @since 1.1.0
+    def self.call(task, type)
+      new.call(task, type)
+    end
+
+    ##
     # Executes the callback logic.
     #
     # This method must be implemented by subclasses to define the callback
@@ -58,10 +77,10 @@ module CMDx
     # being executed.
     #
     # @param task [Task] the task instance being executed
-    # @param callback_type [Symbol] the type of callback being executed
+    # @param type [Symbol] the type of callback being executed
     # @return [void]
     # @abstract Subclasses must implement this method
-    def call(_task, _callback_type)
+    def call(_task, _type)
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 

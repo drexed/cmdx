@@ -94,7 +94,7 @@ CMDx.configure do |config|
   config.callbacks.register :on_failure, :page_admin, if: :production?
 
   # Add proc callbacks
-  config.callbacks.register :on_complete, proc { |task, callback_type|
+  config.callbacks.register :on_complete, proc { |task, type|
     Metrics.increment("task.#{task.class.name.underscore}.completed")
   }
 end

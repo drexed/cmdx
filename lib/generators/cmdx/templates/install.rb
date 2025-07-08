@@ -42,9 +42,10 @@ CMDx.configure do |config|
   # See https://github.com/drexed/cmdx/blob/main/docs/callbacks.md for more details
   #
   # config.callbacks.register :before_execution, :log_task_start
-  # config.callbacks.register :on_success, NotificationCallback.new([:email])
+  # config.callbacks.register :after_execution, TrackTaskCompletion
+  # config.callbacks.register :on_success, NotificationCallback.new(via: [:email, :slack])
   # config.callbacks.register :on_failure, :alert_support, if: :critical?
-  # config.callbacks.register :on_complete, proc { |task, callback_type|
+  # config.callbacks.register :on_complete, proc { |task, type|
   #   Metrics.increment("task.#{task.class.name.underscore}.completed")
   # }
 

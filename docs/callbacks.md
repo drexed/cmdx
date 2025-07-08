@@ -79,7 +79,7 @@ end
 
 ## Callback Classes
 
-For complex callback logic or reusable patterns, you can create Callback classes similar to Middleware classes. Callback classes inherit from `CMDx::Callback` and implement the `call(task, callback_type)` method.
+For complex callback logic or reusable patterns, you can create Callback classes similar to Middleware classes. Callback classes inherit from `CMDx::Callback` and implement the `call(task, type)` method.
 
 ```ruby
 class NotificationCallback < CMDx::Callback
@@ -87,8 +87,8 @@ class NotificationCallback < CMDx::Callback
     @channels = Array(channels)
   end
 
-  def call(task, callback_type)
-    return unless callback_type == :on_success
+  def call(task, type)
+    return unless type == :on_success
 
     @channels.each do |channel|
       NotificationService.send(channel, "Task #{task.class.name} completed")

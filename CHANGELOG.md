@@ -14,12 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove rescue of `UnknownValidatorError`
 - Allow if/unless for validations
 - Allow `ServX` = `CMDx`
+- Add `CoercionRegistry` and `ValidationRegistry` to take instances
 
 ## [Unreleased]
 
 ### Added
 - Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
 - Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration
+- Added `CallbackRegistry` class to take uninstantiated callback classes
 
 ### Changed
 - Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`

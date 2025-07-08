@@ -19,7 +19,7 @@ module CMDx
     #       "ValidationCallback"
     #     end
     #
-    #     def call(task, callback_type)
+    #     def call(task, type)
     #       # Custom callback logic
     #       task.context.validated = true
     #     end
@@ -56,15 +56,15 @@ module CMDx
       #
       # @example Basic callback class creation
       #   callback_class = create_callback_class do
-      #     def call(task, callback_type)
+      #     def call(task, type)
       #       task.context.callback_executed = true
       #     end
       #   end
       #
       # @example Named callback class with custom behavior
       #   callback_class = create_callback_class(name: "ValidationCallback") do
-      #     def call(task, callback_type)
-      #       case callback_type
+      #     def call(task, type)
+      #       case type
       #       when :before
       #         task.context.validation_started = true
       #       when :after
@@ -75,9 +75,9 @@ module CMDx
       #
       # @example Callback class with configuration
       #   callback_class = create_callback_class(name: "LoggingCallback") do
-      #     def call(task, callback_type)
+      #     def call(task, type)
       #       logger = task.logger
-      #       logger&.info("Callback #{callback_type} executed for #{task.class.name}")
+      #       logger&.info("Callback #{type} executed for #{task.class.name}")
       #     end
       #   end
       def create_callback_class(name: "AnonymousCallback", &block)
@@ -109,10 +109,10 @@ module CMDx
       # @example Simple callback with additional behavior
       #   callback_class = create_simple_callback(name: "AuditCallback") do
       #     # Override the call method for custom behavior
-      #     define_method :call do |task, callback_type|
-      #       super(task, callback_type) # Call the default implementation
+      #     define_method :call do |task, type|
+      #       super(task, type) # Call the default implementation
       #       task.context.audit_log ||= []
-      #       task.context.audit_log << "#{callback_type}_callback_executed"
+      #       task.context.audit_log << "#{type}_callback_executed"
       #     end
       #   end
       #
@@ -125,7 +125,7 @@ module CMDx
       #   end
       def create_simple_callback(name: "SimpleCallback", &block)
         create_callback_class(name: name) do
-          define_method :call do |task, callback_type|
+          define_method :call do |task, type|
             # Implementation
           end
 

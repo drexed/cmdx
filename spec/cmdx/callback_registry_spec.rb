@@ -225,6 +225,51 @@ RSpec.describe CMDx::CallbackRegistry do
       end
     end
 
+    context "when registering uninstantiated callback classes" do
+      let(:callback_class) do
+        Class.new(CMDx::Callback) do
+          def call(task, type)
+            task.context.callback_executed = "#{type}_executed"
+          end
+        end
+      end
+
+      it "registers callback class" do
+        registry.register(:test_callback, callback_class)
+
+        expect(registry.to_h[:test_callback]).to eq([[[callback_class], {}]])
+      end
+
+      it "registers callback class with conditions" do
+        registry.register(:test_callback, callback_class, if: :should_execute?)
+
+        expect(registry.to_h[:test_callback]).to eq([[[callback_class], { if: :should_execute? }]])
+      end
+
+      it "registers multiple callback classes" do
+        other_callback_class = Class.new(CMDx::Callback) do
+          def call(task, _type)
+            task.context.other_executed = true
+          end
+        end
+
+        registry.register(:test_callback, callback_class, other_callback_class)
+
+        expect(registry.to_h[:test_callback]).to eq([[[callback_class, other_callback_class], {}]])
+      end
+
+      it "registers mixed callback types including classes" do
+        proc_callback = proc { "test" }
+        registry.register(:mixed_callback, :method_name, callback_class, proc_callback)
+
+        expect(registry.to_h[:mixed_callback]).to eq([[[
+                                                       :method_name,
+                                                       callback_class,
+                                                       proc_callback
+                                                     ], {}]])
+      end
+    end
+
     it "returns self for method chaining" do
       result = registry.register(:test, :method)
 
@@ -335,6 +380,88 @@ RSpec.describe CMDx::CallbackRegistry do
 
         expect(callback_instance).to have_received(:call).with(task, :test_callback)
         expect(task).not_to have_received(:__cmdx_try)
+      end
+    end
+
+    context "when executing uninstantiated callback classes" do
+      let(:callback_class) do
+        Class.new(CMDx::Callback) do
+          def call(task, type)
+            task.context.callback_executed = "#{type}_executed"
+          end
+        end
+      end
+
+      before do
+        allow(task).to receive(:context).and_return(double("Context").as_null_object)
+        registry.register(:test_callback, callback_class)
+      end
+
+      it "passes callback class to __cmdx_try for handling" do
+        registry.call(task, :test_callback)
+
+        expect(task).to have_received(:__cmdx_try).with(callback_class)
+      end
+
+      it "does not call callback class directly" do
+        expect(callback_class).not_to receive(:call)
+
+        registry.call(task, :test_callback)
+      end
+
+      it "handles callback class with conditions" do
+        registry = described_class.new
+        registry.register(:conditional_callback, callback_class, if: :should_execute?)
+
+        allow(task).to receive(:__cmdx_eval).with({ if: :should_execute? }).and_return(true)
+
+        registry.call(task, :conditional_callback)
+
+        expect(task).to have_received(:__cmdx_eval).with({ if: :should_execute? })
+        expect(task).to have_received(:__cmdx_try).with(callback_class)
+      end
+
+      it "skips callback class when conditions fail" do
+        registry = described_class.new
+        registry.register(:conditional_callback, callback_class, unless: :skip_callback?)
+
+        allow(task).to receive(:__cmdx_eval).with({ unless: :skip_callback? }).and_return(false)
+
+        registry.call(task, :conditional_callback)
+
+        expect(task).to have_received(:__cmdx_eval).with({ unless: :skip_callback? })
+        expect(task).not_to have_received(:__cmdx_try)
+      end
+
+      it "executes multiple callback classes in order" do
+        other_callback_class = Class.new(CMDx::Callback) do
+          def call(task, _type)
+            task.context.other_executed = true
+          end
+        end
+
+        registry.register(:multi_callback, callback_class, other_callback_class)
+
+        registry.call(task, :multi_callback)
+
+        expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
+        expect(task).to have_received(:__cmdx_try).with(other_callback_class).ordered
+      end
+
+      it "handles mixed callback types including classes" do
+        proc_callback = proc { "test" }
+        callback_instance = double("CallbackInstance")
+        allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
+        allow(callback_instance).to receive(:call)
+
+        registry.register(:mixed_callback, :method_name, callback_class, callback_instance, proc_callback)
+
+        registry.call(task, :mixed_callback)
+
+        expect(task).to have_received(:__cmdx_try).with(:method_name).ordered
+        expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
+        expect(callback_instance).to have_received(:call).with(task, :mixed_callback).ordered
+        expect(task).to have_received(:__cmdx_try).with(proc_callback).at_least(:once)
       end
     end
 
@@ -461,6 +588,39 @@ RSpec.describe CMDx::CallbackRegistry do
       copy.call(task, :shared_callback)
       expect(task).to have_received(:__cmdx_try).with(:original_method).at_least(:once)
       expect(task).to have_received(:__cmdx_try).with(:additional_method).at_least(:once)
+    end
+
+    it "supports mixed callback types in complex scenarios" do
+      callback_class = Class.new(CMDx::Callback) do
+        def call(task, _type)
+          task.context.class_callback_executed = true
+        end
+      end
+
+      callback_instance = double("CallbackInstance")
+      allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
+      allow(callback_instance).to receive(:call)
+
+      proc_callback = proc { "proc executed" }
+
+      # Register mixed callback types
+      registry.register(:mixed_lifecycle, :method_callback)
+      registry.register(:mixed_lifecycle, callback_class, if: :use_class_callback?)
+      registry.register(:mixed_lifecycle, callback_instance, unless: :skip_instance?)
+      registry.register(:mixed_lifecycle, proc_callback)
+
+      # Setup conditions
+      allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
+      allow(task).to receive(:__cmdx_eval).with({ if: :use_class_callback? }).and_return(true)
+      allow(task).to receive(:__cmdx_eval).with({ unless: :skip_instance? }).and_return(false)
+
+      registry.call(task, :mixed_lifecycle)
+
+      # Verify execution order and types
+      expect(task).to have_received(:__cmdx_try).with(:method_callback).ordered
+      expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
+      expect(callback_instance).not_to have_received(:call) # Skipped due to condition
+      expect(task).to have_received(:__cmdx_try).with(proc_callback).at_least(:once)
     end
   end
 end

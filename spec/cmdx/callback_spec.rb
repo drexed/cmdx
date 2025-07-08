@@ -6,10 +6,10 @@ RSpec.describe CMDx::Callback do
   describe "#call" do
     let(:callback) { described_class.new }
     let(:task) { mock_task }
-    let(:callback_type) { :before_validation }
+    let(:type) { :before_validation }
 
     it "raises UndefinedCallError when not implemented" do
-      expect { callback.call(task, callback_type) }.to raise_error(
+      expect { callback.call(task, type) }.to raise_error(
         CMDx::UndefinedCallError,
         "call method not defined in CMDx::Callback"
       )
@@ -19,14 +19,14 @@ RSpec.describe CMDx::Callback do
       custom_callback_class = Class.new(described_class)
       custom_callback = custom_callback_class.new
 
-      expect { custom_callback.call(task, callback_type) }.to raise_error(
+      expect { custom_callback.call(task, type) }.to raise_error(
         CMDx::UndefinedCallError,
         /call method not defined in/
       )
     end
 
-    it "accepts task and callback_type parameters" do
-      expect { callback.call(task, callback_type) }.to raise_error(CMDx::UndefinedCallError)
+    it "accepts task and type parameters" do
+      expect { callback.call(task, type) }.to raise_error(CMDx::UndefinedCallError)
     end
 
     it "accepts any number of parameters without error when overridden" do
@@ -37,50 +37,50 @@ RSpec.describe CMDx::Callback do
       end
       callback_instance = callback_class.new
 
-      expect(callback_instance.call(task, callback_type)).to eq([task, callback_type])
+      expect(callback_instance.call(task, type)).to eq([task, type])
     end
   end
 
   describe "subclass implementation" do
     let(:task) { mock_task(class: double(name: "TestTask")) }
-    let(:callback_type) { :on_success }
+    let(:type) { :on_success }
 
     context "when subclass implements call method" do
       let(:callback_class) do
         Class.new(described_class) do
-          def call(task, callback_type)
-            "Callback executed for #{task.class.name} with #{callback_type}"
+          def call(task, type)
+            "Callback executed for #{task.class.name} with #{type}"
           end
         end
       end
       let(:callback) { callback_class.new }
 
       it "executes the overridden call method" do
-        result = callback.call(task, callback_type)
+        result = callback.call(task, type)
 
         expect(result).to eq("Callback executed for TestTask with on_success")
       end
 
       it "can access task parameter" do
         callback_class = Class.new(described_class) do
-          def call(task, _callback_type)
+          def call(task, _type)
             task.class.name
           end
         end
         callback = callback_class.new
 
-        expect(callback.call(task, callback_type)).to eq("TestTask")
+        expect(callback.call(task, type)).to eq("TestTask")
       end
 
-      it "can access callback_type parameter" do
+      it "can access type parameter" do
         callback_class = Class.new(described_class) do
-          def call(_task, callback_type)
-            callback_type
+          def call(_task, type)
+            type
           end
         end
         callback = callback_class.new
 
-        expect(callback.call(task, callback_type)).to eq(:on_success)
+        expect(callback.call(task, type)).to eq(:on_success)
       end
     end
 
@@ -91,8 +91,8 @@ RSpec.describe CMDx::Callback do
             @prefix = prefix
           end
 
-          def call(_task, callback_type)
-            "#{@prefix}: #{callback_type}"
+          def call(_task, type)
+            "#{@prefix}: #{type}"
           end
         end
       end
@@ -100,15 +100,15 @@ RSpec.describe CMDx::Callback do
       it "can use initialization parameters in call method" do
         callback = callback_class.new("LOG")
 
-        expect(callback.call(task, callback_type)).to eq("LOG: on_success")
+        expect(callback.call(task, type)).to eq("LOG: on_success")
       end
     end
 
     context "when subclass performs conditional logic" do
       let(:callback_class) do
         Class.new(described_class) do
-          def call(_task, callback_type)
-            return "skipped" unless callback_type == :on_success
+          def call(_task, type)
+            return "skipped" unless type == :on_success
 
             "executed"
           end
@@ -128,7 +128,7 @@ RSpec.describe CMDx::Callback do
     context "when subclass interacts with task state" do
       let(:callback_class) do
         Class.new(described_class) do
-          def call(task, _callback_type)
+          def call(task, _type)
             task.result.status if task.respond_to?(:result)
           end
         end
@@ -138,20 +138,20 @@ RSpec.describe CMDx::Callback do
       let(:task_with_result) { mock_task(result: result) }
 
       it "can interact with task properties" do
-        expect(callback.call(task_with_result, callback_type)).to eq("completed")
+        expect(callback.call(task_with_result, type)).to eq("completed")
       end
 
       it "handles tasks without expected properties" do
         task_without_result = double("Task")
         allow(task_without_result).to receive(:respond_to?).with(:result).and_return(false)
-        expect(callback.call(task_without_result, callback_type)).to be_nil
+        expect(callback.call(task_without_result, type)).to be_nil
       end
     end
 
     context "when subclass raises errors" do
       let(:callback_class) do
         Class.new(described_class) do
-          def call(_task, _callback_type)
+          def call(_task, _type)
             raise StandardError, "Callback execution failed"
           end
         end
@@ -159,7 +159,7 @@ RSpec.describe CMDx::Callback do
       let(:callback) { callback_class.new }
 
       it "propagates errors from callback execution" do
-        expect { callback.call(task, callback_type) }.to raise_error(
+        expect { callback.call(task, type) }.to raise_error(
           StandardError,
           "Callback execution failed"
         )
@@ -169,19 +169,19 @@ RSpec.describe CMDx::Callback do
     context "when subclass returns different types" do
       it "can return nil" do
         callback_class = Class.new(described_class) do
-          def call(_task, _callback_type)
+          def call(_task, _type)
             nil
           end
         end
         callback = callback_class.new
 
-        expect(callback.call(task, callback_type)).to be_nil
+        expect(callback.call(task, type)).to be_nil
       end
 
       it "can return boolean values" do
         callback_class = Class.new(described_class) do
-          def call(_task, callback_type)
-            callback_type == :on_success
+          def call(_task, type)
+            type == :on_success
           end
         end
         callback = callback_class.new
@@ -192,13 +192,13 @@ RSpec.describe CMDx::Callback do
 
       it "can return complex objects" do
         callback_class = Class.new(described_class) do
-          def call(task, callback_type)
-            { task: task.class.name, callback: callback_type, timestamp: Time.now }
+          def call(task, type)
+            { task: task.class.name, callback: type, timestamp: Time.now }
           end
         end
         callback = callback_class.new
 
-        result = callback.call(task, callback_type)
+        result = callback.call(task, type)
         expect(result).to include(task: "TestTask", callback: :on_success)
         expect(result[:timestamp]).to be_a(Time)
       end
@@ -215,13 +215,13 @@ RSpec.describe CMDx::Callback do
 
     it "supports multiple levels of inheritance" do
       base_callback = Class.new(described_class) do
-        def call(_task, _callback_type)
+        def call(_task, _type)
           "base"
         end
       end
 
       specialized_callback = Class.new(base_callback) do
-        def call(task, callback_type)
+        def call(task, type)
           "#{super} specialized"
         end
       end
@@ -232,14 +232,14 @@ RSpec.describe CMDx::Callback do
 
     it "allows callbacks to share common functionality" do
       logging_callback = Class.new(described_class) do
-        def call(task, callback_type)
-          log_message(task, callback_type)
+        def call(task, type)
+          log_message(task, type)
         end
 
         private
 
-        def log_message(task, callback_type)
-          "Logged: #{task.class.name} - #{callback_type}"
+        def log_message(task, type)
+          "Logged: #{task.class.name} - #{type}"
         end
       end
 
@@ -253,8 +253,8 @@ RSpec.describe CMDx::Callback do
   describe "method signature flexibility" do
     it "allows callbacks with additional parameters" do
       callback_class = Class.new(described_class) do
-        def call(task, callback_type, *additional_args, **kwargs)
-          [task, callback_type, additional_args, kwargs]
+        def call(task, type, *additional_args, **kwargs)
+          [task, type, additional_args, kwargs]
         end
       end
       callback = callback_class.new
@@ -266,7 +266,7 @@ RSpec.describe CMDx::Callback do
 
     it "allows callbacks with block parameters" do
       callback_class = Class.new(described_class) do
-        def call(_task, _callback_type, &block)
+        def call(_task, _type, &block)
           block&.call || "no block"
         end
       end
