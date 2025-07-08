@@ -8,6 +8,8 @@ module CMDx
   #
   # The registry combines default validators with custom registrations, allowing
   # tasks to leverage both standard validation patterns and domain-specific validation logic.
+  # Custom validators can be classes, callable objects, or method symbols that reference
+  # validation methods on the task instance.
   #
   # @example Basic usage with built-in validators
   #   registry = ValidatorRegistry.new
@@ -19,12 +21,21 @@ module CMDx
   #   registry = ValidatorRegistry.new
   #   registry.register(:email, EmailValidator.new)
   #   registry.register(:phone, proc { |value, options| PhoneValidator.validate(value) })
+  #   registry.register(:custom, :validate_custom_field)  # method symbol
   #   registry.call(:email, "user@example.com", email: { domain: "example.com" })
   #
   # @example Using custom validators with tasks
   #   class ProcessUserTask < CMDx::Task
   #     required :email, email: { domain: "company.com" }
   #     required :phone, phone: { country: "US" }
+  #     required :custom_field, custom: true
+  #
+  #     private
+  #
+  #     def validate_custom_field(value, options)
+  #       # Custom validation logic here
+  #       raise CMDx::ValidationError, "invalid custom field" unless value.valid?
+  #     end
   #   end
   #
   # @see Parameter Parameter validation integration
@@ -68,12 +79,13 @@ module CMDx
     ##
     # Registers a custom validator for a specific validation type.
     #
-    # Custom validators can be classes that respond to `call(value, options)`
-    # or callable objects like procs and lambdas. Registered validators
-    # override any existing validator for the same type.
+    # Custom validators can be classes that respond to `call(value, options)`,
+    # callable objects like procs and lambdas, or method symbols that will be
+    # called on the task instance. Registered validators override any existing
+    # validator for the same type.
     #
     # @param type [Symbol] the validation type to register validator for
-    # @param validator [#call] validator class or callable object
+    # @param validator [#call, Symbol] validator class, callable object, or method symbol
     # @return [ValidatorRegistry] self for method chaining
     #
     # @example Register a validator class
@@ -84,15 +96,14 @@ module CMDx
     #     PhoneValidator.validate(value, options)
     #   })
     #
+    # @example Register a method symbol validator
+    #   registry.register(:custom, :validate_custom_field)
+    #
     # @example Method chaining
     #   registry.register(:email, EmailValidator)
     #           .register(:phone, PhoneValidator.new)
+    #           .register(:custom, :validate_custom)
     def register(type, validator)
-      unless validator.is_a?(Validator) || validator.respond_to?(:call)
-        raise TypeError,
-              "must be a subclass of Validator or respond to #call"
-      end
-
       registry[type] = validator
       self
     end
@@ -101,13 +112,16 @@ module CMDx
     # Applies validation to a value using the specified validator type.
     #
     # Looks up the validator for the given type and applies it to the value
-    # with any provided options. Raises an error if the type is not registered.
+    # with any provided options. For symbol validators, a task instance must
+    # be provided to resolve the method. Raises an error if the type is not registered.
     #
     # @param type [Symbol] the validator type to apply
     # @param value [Object] the value to validate
     # @param options [Hash] optional parameters for the validator
+    # @param task [Task, nil] task instance for symbol validator resolution
     # @return [void]
     # @raise [UnknownValidatorError] if the type is not registered
+    # @raise [ArgumentError] if a symbol validator is used without a task
     #
     # @example Apply built-in validator
     #   registry.call(:presence, "hello", presence: true)
@@ -117,13 +131,22 @@ module CMDx
     #   registry.register(:email, EmailValidator.new)
     #   registry.call(:email, "user@example.com", email: { domain: "example.com" })
     #
+    # @example Apply symbol validator
+    #   registry.register(:custom, :validate_custom_field)
+    #   registry.call(:custom, "value", { custom: true }, task)
+    #
     # @example Apply validator with options
     #   registry.call(:format, "user@example.com", format: { with: /@/ })
-    def call(type, value, options = {})
+    def call(task, type, value, options = {})
       raise UnknownValidatorError, "unknown validator #{type}" unless registry.key?(type)
 
       validator = registry[type]
-      validator.call(value, options)
+
+      if validator.is_a?(Symbol) || validator.is_a?(String)
+        task.__cmdx_try(validator, value, options)
+      else
+        validator.call(value, options)
+      end
     end
 
   end

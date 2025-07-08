@@ -216,7 +216,7 @@ module CMDx
         next if skip_validator_due_to_conditional?(key)
 
         begin
-          CMDx.configuration.validators.call(key, value, options)
+          CMDx.configuration.validators.call(task, key, value, options)
         rescue UnknownValidatorError
           # Skip unknown validators (allows for custom option keys)
         end

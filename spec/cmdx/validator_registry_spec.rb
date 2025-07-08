@@ -37,9 +37,11 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       registry.register(:email, email_validator)
               .register(:phone, phone_validator)
+              .register(:custom, :validate_custom)
 
       expect(registry.registry[:email]).to eq(email_validator)
       expect(registry.registry[:phone]).to eq(phone_validator)
+      expect(registry.registry[:custom]).to eq(:validate_custom)
     end
 
     context "with different validator types" do
@@ -61,37 +63,42 @@ RSpec.describe CMDx::ValidatorRegistry do
         registry.register(:email, class_validator)
         expect(registry.registry[:email]).to eq(class_validator)
       end
+
+      it "registers symbol validators" do
+        registry.register(:custom, :validate_custom)
+        expect(registry.registry[:custom]).to eq(:validate_custom)
+      end
     end
   end
 
   describe "#call" do
     context "with built-in validators" do
       it "applies presence validation" do
-        expect { registry.call(:presence, "hello", presence: true) }.not_to raise_error
+        expect { registry.call(nil, :presence, "hello", presence: true) }.not_to raise_error
       end
 
       it "applies format validation" do
-        expect { registry.call(:format, "user@example.com", format: { with: /@/ }) }.not_to raise_error
+        expect { registry.call(nil, :format, "user@example.com", format: { with: /@/ }) }.not_to raise_error
       end
 
       it "applies numeric validation" do
-        expect { registry.call(:numeric, 42, numeric: { min: 0 }) }.not_to raise_error
+        expect { registry.call(nil, :numeric, 42, numeric: { min: 0 }) }.not_to raise_error
       end
 
       it "applies length validation" do
-        expect { registry.call(:length, "hello", length: { min: 3 }) }.not_to raise_error
+        expect { registry.call(nil, :length, "hello", length: { min: 3 }) }.not_to raise_error
       end
 
       it "applies inclusion validation" do
-        expect { registry.call(:inclusion, "active", inclusion: { in: %w[active inactive] }) }.not_to raise_error
+        expect { registry.call(nil, :inclusion, "active", inclusion: { in: %w[active inactive] }) }.not_to raise_error
       end
 
       it "applies exclusion validation" do
-        expect { registry.call(:exclusion, "active", exclusion: { in: %w[deleted] }) }.not_to raise_error
+        expect { registry.call(nil, :exclusion, "active", exclusion: { in: %w[deleted] }) }.not_to raise_error
       end
 
       it "passes options to built-in validators" do
-        expect { registry.call(:length, "hello", length: { min: 3, max: 10 }) }.not_to raise_error
+        expect { registry.call(nil, :length, "hello", length: { min: 3, max: 10 }) }.not_to raise_error
       end
     end
 
@@ -113,11 +120,11 @@ RSpec.describe CMDx::ValidatorRegistry do
       end
 
       it "applies custom proc validators" do
-        expect { registry.call(:email, "user@example.com", email: true) }.not_to raise_error
+        expect { registry.call(nil, :email, "user@example.com", email: true) }.not_to raise_error
       end
 
       it "fails custom validators when validation fails" do
-        expect { registry.call(:email, "invalid-email", email: true) }.to raise_error(CMDx::ValidationError, "must contain @")
+        expect { registry.call(nil, :email, "invalid-email", email: true) }.to raise_error(CMDx::ValidationError, "must contain @")
       end
 
       it "applies custom validators with options" do
@@ -128,7 +135,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
         registry.register(:email, options_validator)
 
-        expect { registry.call(:email, "user@example.com", email: { min_length: 5 }) }.not_to raise_error
+        expect { registry.call(nil, :email, "user@example.com", email: { min_length: 5 }) }.not_to raise_error
       end
 
       it "applies validator classes with call method" do
@@ -136,20 +143,30 @@ RSpec.describe CMDx::ValidatorRegistry do
         allow(validator_class).to receive(:call).and_return(nil)
 
         registry.register(:class_validator, validator_class)
-        registry.call(:class_validator, "test", class_validator: true)
+        registry.call(nil, :class_validator, "test", class_validator: true)
 
         expect(validator_class).to have_received(:call).with("test", class_validator: true)
+      end
+
+      it "applies symbol validators with task instance" do
+        task = double("Task")
+        allow(task).to receive(:__cmdx_try)
+
+        registry.register(:symbol_validator, :validate_custom)
+        registry.call(task, :symbol_validator, "test", { symbol_validator: true })
+
+        expect(task).to have_received(:__cmdx_try).with(:validate_custom, "test", symbol_validator: true)
       end
     end
 
     context "with unknown validator types" do
       it "raises UnknownValidatorError for unregistered types" do
-        expect { registry.call(:unknown, "value", unknown: true) }
+        expect { registry.call(nil, :unknown, "value", unknown: true) }
           .to raise_error(CMDx::UnknownValidatorError, "unknown validator unknown")
       end
 
       it "raises UnknownValidatorError with descriptive message" do
-        expect { registry.call(:missing_type, "value", missing_type: true) }
+        expect { registry.call(nil, :missing_type, "value", missing_type: true) }
           .to raise_error(CMDx::UnknownValidatorError, "unknown validator missing_type")
       end
     end
@@ -159,7 +176,7 @@ RSpec.describe CMDx::ValidatorRegistry do
         failing_validator = proc { |_value, _options| raise CMDx::ValidationError, "validation failed" }
         registry.register(:failing, failing_validator)
 
-        expect { registry.call(:failing, "value", failing: true) }
+        expect { registry.call(nil, :failing, "value", failing: true) }
           .to raise_error(CMDx::ValidationError, "validation failed")
       end
 
@@ -167,7 +184,7 @@ RSpec.describe CMDx::ValidatorRegistry do
         # Directly set nil validator to bypass type validation
         registry.instance_variable_get(:@registry)[:nil_validator] = nil
 
-        expect { registry.call(:nil_validator, "value", nil_validator: true) }
+        expect { registry.call(nil, :nil_validator, "value", nil_validator: true) }
           .to raise_error(NoMethodError)
       end
     end
@@ -186,7 +203,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       described_class.new.registry.each_key do |type|
         test_value, options = test_cases[type]
-        expect { registry.call(type, test_value, options) }.not_to raise_error
+        expect { registry.call(nil, type, test_value, options) }.not_to raise_error
       end
     end
 
@@ -199,8 +216,8 @@ RSpec.describe CMDx::ValidatorRegistry do
       }
       registry1.register(:custom_validator, custom_validator)
 
-      expect { registry1.call(:custom_validator, "custom", custom_validator: true) }.not_to raise_error
-      expect { registry2.call(:custom_validator, "custom", custom_validator: true) }
+      expect { registry1.call(nil, :custom_validator, "custom", custom_validator: true) }.not_to raise_error
+      expect { registry2.call(nil, :custom_validator, "custom", custom_validator: true) }
         .to raise_error(CMDx::UnknownValidatorError)
     end
   end
@@ -239,10 +256,10 @@ RSpec.describe CMDx::ValidatorRegistry do
         raise CMDx::ValidationError, "invalid URL format" unless uri && (uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)) && (!secure_only || uri.scheme == "https")
       })
 
-      expect { registry.call(:email, "user@example.com", email: true) }.not_to raise_error
-      expect { registry.call(:email, "user@company.com", email: { domain: "company.com" }) }.not_to raise_error
-      expect { registry.call(:phone, "555-123-4567", phone: { country: "US" }) }.not_to raise_error
-      expect { registry.call(:url, "https://example.com", url: { secure_only: true }) }.not_to raise_error
+      expect { registry.call(nil, :email, "user@example.com", email: true) }.not_to raise_error
+      expect { registry.call(nil, :email, "user@company.com", email: { domain: "company.com" }) }.not_to raise_error
+      expect { registry.call(nil, :phone, "555-123-4567", phone: { country: "US" }) }.not_to raise_error
+      expect { registry.call(nil, :url, "https://example.com", url: { secure_only: true }) }.not_to raise_error
     end
 
     it "supports age validation with complex logic" do
@@ -256,8 +273,8 @@ RSpec.describe CMDx::ValidatorRegistry do
         raise CMDx::ValidationError, "must be at least 18 years old" if adult_only && value < 18
       })
 
-      expect { registry.call(:age, 25, age: { min_age: 18, adult_only: true }) }.not_to raise_error
-      expect { registry.call(:age, 16, age: { adult_only: true }) }.to raise_error(CMDx::ValidationError, "must be at least 18 years old")
+      expect { registry.call(nil, :age, 25, age: { min_age: 18, adult_only: true }) }.not_to raise_error
+      expect { registry.call(nil, :age, 16, age: { adult_only: true }) }.to raise_error(CMDx::ValidationError, "must be at least 18 years old")
     end
 
     it "supports credit card validation with options" do
@@ -278,8 +295,8 @@ RSpec.describe CMDx::ValidatorRegistry do
         raise CMDx::ValidationError, "invalid credit card number" unless valid
       })
 
-      expect { registry.call(:credit_card, "4111-1111-1111-1111", credit_card: { types: %w[visa] }) }.not_to raise_error
-      expect { registry.call(:credit_card, "3782-8224-6310-005", credit_card: { types: %w[amex] }) }.not_to raise_error
+      expect { registry.call(nil, :credit_card, "4111-1111-1111-1111", credit_card: { types: %w[visa] }) }.not_to raise_error
+      expect { registry.call(nil, :credit_card, "3782-8224-6310-005", credit_card: { types: %w[amex] }) }.not_to raise_error
     end
   end
 end
