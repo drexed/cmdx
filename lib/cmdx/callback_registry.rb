@@ -155,11 +155,11 @@ module CMDx
       Array(registry[callback]).each do |callables, options|
         next unless task.__cmdx_eval(options)
 
-        Array(callables).each do |c|
-          if c.is_a?(Callback)
-            c.call(task, callback)
+        Array(callables).each do |callable|
+          if callable.is_a?(Callback)
+            callable.call(task, callback)
           else
-            task.__cmdx_try(c)
+            task.__cmdx_try(callable)
           end
         end
       end
