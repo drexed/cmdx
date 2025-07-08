@@ -11,7 +11,7 @@ RSpec.describe CMDx::ParameterValidator do
 
     before do
       allow(task_class).to receive(:cmd_parameters).and_return(cmd_parameters)
-      allow(task).to receive_messages(class: task_class, errors: errors)
+      allow(task).to receive_messages(class: task_class, errors: errors, cmd_parameters: cmd_parameters)
     end
 
     context "when parameter validation succeeds" do

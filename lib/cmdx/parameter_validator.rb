@@ -68,7 +68,7 @@ module CMDx
     #   before the main task logic runs, ensuring parameter validation occurs
     #   early in the task lifecycle.
     def call(task)
-      task.class.cmd_parameters.validate!(task)
+      task.cmd_parameters.validate!(task)
       return if task.errors.empty?
 
       task.fail!(
