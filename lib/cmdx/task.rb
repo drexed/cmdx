@@ -99,7 +99,7 @@ module CMDx
   class Task
 
     __cmdx_attr_setting :task_settings,
-                        default: -> { CMDx.configuration.to_h.merge(tags: []) }
+                        default: -> { CMDx.configuration.to_h.slice(:logger, :task_halt, :workflow_halt).merge(tags: []) }
     __cmdx_attr_setting :cmd_middlewares,
                         default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
     __cmdx_attr_setting :cmd_callbacks,
