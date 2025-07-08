@@ -150,7 +150,7 @@ module CMDx
     # @see Task#__cmdx_eval
     # @see Task#__cmdx_try
     def call(task, type)
-      raise UnknownCallbackError, "unknown callback #{type}" unless registry.key?(type)
+      raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
         next unless task.__cmdx_eval(options)
