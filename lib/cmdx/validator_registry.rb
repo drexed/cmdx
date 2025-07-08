@@ -78,7 +78,7 @@ module CMDx
     # @return [ValidatorRegistry] self for method chaining
     #
     # @example Register a validator class
-    #   registry.register(:email, EmailValidator.new)
+    #   registry.register(:email, EmailValidator)
     #
     # @example Register a proc validator
     #   registry.register(:phone, proc { |value, options|
@@ -86,9 +86,11 @@ module CMDx
     #   })
     #
     # @example Method chaining
-    #   registry.register(:email, EmailValidator.new)
+    #   registry.register(:email, EmailValidator)
     #           .register(:phone, PhoneValidator.new)
     def register(type, validator)
+      raise TypeError, "must be a subclass of Validator" unless validator.is_a?(Validator)
+
       registry[type] = validator
       self
     end

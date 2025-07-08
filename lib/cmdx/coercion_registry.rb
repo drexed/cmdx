@@ -84,15 +84,17 @@ module CMDx
     # @return [CoercionRegistry] self for method chaining
     #
     # @example Register a coercion class
-    #   registry.register(:email, EmailCoercion.new)
+    #   registry.register(:email, EmailCoercion)
     #
     # @example Register a proc coercion
     #   registry.register(:phone, proc { |value| value.gsub(/\D/, '') })
     #
     # @example Method chaining
-    #   registry.register(:email, EmailCoercion.new)
+    #   registry.register(:email, EmailCoercion)
     #           .register(:phone, PhoneCoercion.new)
     def register(type, coercion)
+      raise TypeError, "must be a subclass of Coercion" unless coercion.is_a?(Coercion)
+
       registry[type] = coercion
       self
     end
