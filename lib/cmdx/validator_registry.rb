@@ -33,22 +33,6 @@ module CMDx
   class ValidatorRegistry
 
     ##
-    # Default validators for standard validation patterns.
-    # These are available in all ValidatorRegistry instances and provide
-    # comprehensive validation for common parameter validation needs.
-    #
-    # @return [Hash] mapping of validator symbols to validator classes
-    DEFAULT_VALIDATORS = {
-      custom: Validators::Custom,
-      exclusion: Validators::Exclusion,
-      format: Validators::Format,
-      inclusion: Validators::Inclusion,
-      length: Validators::Length,
-      numeric: Validators::Numeric,
-      presence: Validators::Presence
-    }.freeze
-
-    ##
     # @!attribute [r] registry
     #   @return [Hash] the complete registry of validators (default + custom)
     attr_reader :registry
@@ -70,8 +54,16 @@ module CMDx
     #     email: EmailValidator.new,
     #     phone: PhoneValidator.new
     #   )
-    def initialize(registry = {})
-      @registry = DEFAULT_VALIDATORS.merge(registry)
+    def initialize
+      @registry = {
+        custom: Validators::Custom,
+        exclusion: Validators::Exclusion,
+        format: Validators::Format,
+        inclusion: Validators::Inclusion,
+        length: Validators::Length,
+        numeric: Validators::Numeric,
+        presence: Validators::Presence
+      }
     end
 
     ##

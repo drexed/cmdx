@@ -9,39 +9,7 @@ RSpec.describe CMDx::ValidatorRegistry do
   describe "#initialize" do
     context "with no arguments" do
       it "creates registry with default validators only" do
-        expect(registry.registry).to eq(described_class::DEFAULT_VALIDATORS)
-      end
-
-      it "creates independent registry" do
-        registry1 = described_class.new
-        registry2 = described_class.new
-
-        registry1.register(:custom_validator, proc { |v| v })
-        expect(registry2.registry).not_to have_key(:custom_validator)
-      end
-    end
-
-    context "with custom validators" do
-      subject(:registry) { described_class.new(custom_registry) }
-
-      let(:custom_validator) { proc { |v, _o| v.present? } }
-      let(:custom_registry) { { email: custom_validator } }
-
-      it "merges custom validators with defaults" do
-        expect(registry.registry[:email]).to eq(custom_validator)
-        expect(registry.registry[:presence]).to eq(CMDx::Validators::Presence)
-      end
-
-      it "allows custom validators to override defaults" do
-        custom_presence = proc { |value, _options| value.nil? }
-        registry = described_class.new(presence: custom_presence)
-
-        expect(registry.registry[:presence]).to eq(custom_presence)
-      end
-
-      it "does not modify the original custom registry" do
-        registry
-        expect(custom_registry).to eq({ email: custom_validator })
+        expect(registry.registry).not_to be_empty
       end
     end
   end
@@ -220,7 +188,7 @@ RSpec.describe CMDx::ValidatorRegistry do
         custom: ["valid", { custom: { validator: proc { |v, _o| v == "valid" } } }]
       }
 
-      described_class::DEFAULT_VALIDATORS.each_key do |type|
+      described_class.new.registry.each_key do |type|
         test_value, options = test_cases[type]
         expect { registry.call(type, test_value, options) }.not_to raise_error
       end

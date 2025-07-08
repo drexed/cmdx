@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `callback` and `middleware` to be module based
 - Revert coercion docs changes
 - Remove rescue of `UnknownValidatorError`
+- Allow if/unless for validations
 
 ## [Unreleased]
 

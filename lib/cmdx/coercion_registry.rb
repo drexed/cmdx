@@ -33,28 +33,6 @@ module CMDx
   class CoercionRegistry
 
     ##
-    # Default coercions for standard Ruby types.
-    # These are available in all CoercionRegistry instances and provide
-    # comprehensive type conversion for common parameter types.
-    #
-    # @return [Hash] mapping of type symbols to coercion classes
-    DEFAULT_COERCIONS = {
-      array: Coercions::Array,
-      big_decimal: Coercions::BigDecimal,
-      boolean: Coercions::Boolean,
-      complex: Coercions::Complex,
-      date: Coercions::Date,
-      datetime: Coercions::DateTime,
-      float: Coercions::Float,
-      hash: Coercions::Hash,
-      integer: Coercions::Integer,
-      rational: Coercions::Rational,
-      string: Coercions::String,
-      time: Coercions::Time,
-      virtual: Coercions::Virtual
-    }.freeze
-
-    ##
     # @!attribute [r] registry
     #   @return [Hash] the complete registry of coercions (default + custom)
     attr_reader :registry
@@ -76,8 +54,22 @@ module CMDx
     #     email: EmailCoercion.new,
     #     phone: PhoneCoercion.new
     #   )
-    def initialize(registry = {})
-      @registry = DEFAULT_COERCIONS.merge(registry)
+    def initialize
+      @registry = {
+        array: Coercions::Array,
+        big_decimal: Coercions::BigDecimal,
+        boolean: Coercions::Boolean,
+        complex: Coercions::Complex,
+        date: Coercions::Date,
+        datetime: Coercions::DateTime,
+        float: Coercions::Float,
+        hash: Coercions::Hash,
+        integer: Coercions::Integer,
+        rational: Coercions::Rational,
+        string: Coercions::String,
+        time: Coercions::Time,
+        virtual: Coercions::Virtual
+      }
     end
 
     ##

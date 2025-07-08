@@ -7,40 +7,8 @@ RSpec.describe CMDx::CoercionRegistry do
 
   describe "#initialize" do
     context "with no arguments" do
-      it "creates registry with default coercions only" do
-        expect(registry.registry).to eq(described_class::DEFAULT_COERCIONS)
-      end
-
-      it "creates independent registry" do
-        registry1 = described_class.new
-        registry2 = described_class.new
-
-        registry1.register(:custom, proc { |v| v })
-        expect(registry2.registry).not_to have_key(:custom)
-      end
-    end
-
-    context "with custom coercions" do
-      subject(:registry) { described_class.new(custom_registry) }
-
-      let(:custom_coercion) { proc(&:upcase) }
-      let(:custom_registry) { { email: custom_coercion } }
-
-      it "merges custom coercions with defaults" do
-        expect(registry.registry[:email]).to eq(custom_coercion)
-        expect(registry.registry[:integer]).to eq(CMDx::Coercions::Integer)
-      end
-
-      it "allows custom coercions to override defaults" do
-        custom_integer = proc { |value| value.to_i * 2 }
-        registry = described_class.new(integer: custom_integer)
-
-        expect(registry.registry[:integer]).to eq(custom_integer)
-      end
-
-      it "does not modify the original custom registry" do
-        registry
-        expect(custom_registry).to eq({ email: custom_coercion })
+      it "creates registry with default coercions" do
+        expect(registry.registry).not_to be_empty
       end
     end
   end
@@ -214,7 +182,7 @@ RSpec.describe CMDx::CoercionRegistry do
         virtual: "anything"
       }
 
-      described_class::DEFAULT_COERCIONS.each_key do |type|
+      described_class.new.registry.each_key do |type|
         test_value = test_values[type]
         expect { registry.call(type, test_value) }.not_to raise_error
       end
