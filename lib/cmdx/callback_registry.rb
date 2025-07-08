@@ -85,7 +85,7 @@ module CMDx
     #   hash_callbacks = { before_validation: [[:check_permissions, {}]] }
     #   registry = CallbackRegistry.new(hash_callbacks)
     def initialize(registry = {})
-      @registry = registry.to_h.transform_values(&:dup)
+      @registry = registry.to_h
     end
 
     ##
@@ -190,7 +190,7 @@ module CMDx
     #     other_settings: {}
     #   }
     def to_h
-      registry.dup
+      registry.dup.transform_values(&:dup)
     end
 
   end
