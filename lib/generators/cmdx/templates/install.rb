@@ -33,19 +33,26 @@ CMDx.configure do |config|
   # Global middlewares - automatically applied to all tasks
   # See https://github.com/drexed/cmdx/blob/main/docs/middlewares.md for more details
   #
-  # config.middlewares.use CMDx::Middlewares::Timeout, seconds: 30
   # config.middlewares.use CMDx::Middlewares::Correlate
-  # config.middlewares.use CustomAuthMiddleware, role: "admin"
-  # config.middlewares.use PerformanceMiddleware.new(threshold: 5.0)
+  # config.middlewares.use CMDx::Middlewares::Timeout, seconds: 30
+  # config.middlewares.use CustomAuthMiddleware, if: :admin?
+  # config.middlewares.use CustomPerfMiddleware.new(threshold: 5.0)
 
   # Global callbacks - automatically applied to all tasks
   # See https://github.com/drexed/cmdx/blob/main/docs/callbacks.md for more details
   #
   # config.callbacks.register :before_execution, :log_task_start
-  # config.callbacks.register :after_execution, :log_task_end
   # config.callbacks.register :on_success, NotificationCallback.new([:email])
   # config.callbacks.register :on_failure, :alert_support, if: :critical?
   # config.callbacks.register :on_complete, proc { |task, callback_type|
   #   Metrics.increment("task.#{task.class.name.underscore}.completed")
+  # }
+
+  # Global coercions - custom parameter type conversions
+  # See https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md for more details
+  #
+  # config.coercions.register :money, MoneyCoercion
+  # config.coercions.register :slug, proc { |value|
+  #   value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
   # }
 end

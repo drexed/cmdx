@@ -158,22 +158,7 @@ module CMDx
       tsize = types.size - 1
 
       types.each_with_index do |t, i|
-        break case t.to_sym
-              when :array then Coercions::Array
-              when :big_decimal then Coercions::BigDecimal
-              when :boolean then Coercions::Boolean
-              when :complex then Coercions::Complex
-              when :date then Coercions::Date
-              when :datetime then Coercions::DateTime
-              when :float then Coercions::Float
-              when :hash then Coercions::Hash
-              when :integer then Coercions::Integer
-              when :rational then Coercions::Rational
-              when :string then Coercions::String
-              when :time then Coercion::Time
-              when :virtual then Coercions::Virtual
-              else raise UnknownCoercionError, "unknown coercion #{t}"
-              end.call(value, options)
+        break CMDx.configuration.coercions.call(t, value, options)
       rescue CoercionError => e
         next if tsize != i
 

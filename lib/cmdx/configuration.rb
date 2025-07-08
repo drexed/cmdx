@@ -87,7 +87,7 @@ module CMDx
     DEFAULT_HALT = "failed"
 
     # Configuration attributes
-    attr_accessor :logger, :middlewares, :callbacks, :task_halt, :workflow_halt
+    attr_accessor :logger, :middlewares, :callbacks, :coercions, :task_halt, :workflow_halt
 
     ##
     # Initializes a new configuration with default values.
@@ -98,6 +98,7 @@ module CMDx
       @logger      = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
       @middlewares = MiddlewareRegistry.new
       @callbacks   = CallbackRegistry.new
+      @coercions   = CoercionRegistry.new
       @task_halt   = DEFAULT_HALT
       @workflow_halt = DEFAULT_HALT
     end
@@ -115,6 +116,7 @@ module CMDx
         logger: @logger,
         middlewares: @middlewares,
         callbacks: @callbacks,
+        coercions: @coercions,
         task_halt: @task_halt,
         workflow_halt: @workflow_halt
       }

@@ -10,6 +10,7 @@ CMDx provides a flexible configuration system that allows customization at both 
   - [Configuration Options](#configuration-options)
   - [Global Middlewares](#global-middlewares)
   - [Global Callbacks](#global-callbacks)
+  - [Global Coercions](#global-coercions)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
   - [Workflow Configuration](#workflow-configuration)
@@ -56,6 +57,7 @@ This creates `config/initializers/cmdx.rb` with default settings.
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 | `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
+| `coercions`   | CoercionRegistry      | Built-in types | Global coercion registry for custom parameter types |
 
 ### Global Middlewares
 
@@ -82,19 +84,37 @@ Configure callbacks that automatically apply to all tasks in your application:
 CMDx.configure do |config|
   # Add method callbacks
   config.callbacks.register :before_execution, :log_task_start
-  config.callbacks.register :after_execution, :log_task_end
 
   # Add callback instances
   config.callbacks.register :on_success, NotificationCallback.new([:slack])
-  config.callbacks.register :on_failure, AlertCallback.new(severity: :critical)
 
   # Add conditional callbacks
   config.callbacks.register :on_failure, :page_admin, if: :production?
-  config.callbacks.register :before_validation, :skip_validation, unless: :validate_params?
 
   # Add proc callbacks
   config.callbacks.register :on_complete, proc { |task, callback_type|
     Metrics.increment("task.#{task.class.name.underscore}.completed")
+  }
+end
+```
+
+### Global Coercions
+
+Configure custom coercions that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add custom coercion classes
+  config.coercions.register :money, MoneyCoercion
+
+  # Add complex coercions with options support
+  config.coercions.register :tags, proc { |value, options|
+    separator = options[:separator] || ','
+    max_tags = options[:max_tags] || 10
+
+    tags = value.to_s.split(separator).map(&:strip).reject(&:empty?)
+    tags = tags.first(max_tags) if max_tags
+    tags.uniq
   }
 end
 ```
@@ -155,6 +175,7 @@ CMDx.configuration.logger      #=> <Logger instance>
 CMDx.configuration.task_halt   #=> "failed"
 CMDx.configuration.middlewares #=> <MiddlewareRegistry instance>
 CMDx.configuration.callbacks   #=> <CallbackRegistry instance>
+CMDx.configuration.coercions   #=> <CoercionRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task

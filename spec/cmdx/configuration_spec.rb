@@ -30,7 +30,14 @@ RSpec.describe CMDx::Configuration do
       hash = configuration.to_h
 
       expect(hash).to be_a(Hash)
-      expect(hash.keys).to contain_exactly(:logger, :middlewares, :callbacks, :task_halt, :workflow_halt)
+      expect(hash.keys).to contain_exactly(
+        :logger,
+        :middlewares,
+        :callbacks,
+        :coercions,
+        :task_halt,
+        :workflow_halt
+      )
     end
 
     it "returns the actual attribute values" do
