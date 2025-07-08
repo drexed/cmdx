@@ -93,11 +93,6 @@ module CMDx
     #   registry.register(:email, EmailCoercion)
     #           .register(:phone, PhoneCoercion.new)
     def register(type, coercion)
-      unless coercion.is_a?(Coercion) || coercion.respond_to?(:call)
-        raise TypeError,
-              "must be a subclass of Coercion or respond to #call"
-      end
-
       registry[type] = coercion
       self
     end
@@ -124,11 +119,15 @@ module CMDx
     #
     # @example Apply coercion with options
     #   registry.call(:date, "12/25/2023", format: "%m/%d/%Y")
-    def call(type, value, options = {})
+    def call(task, type, value, options = {})
       raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
 
-      coercion = registry[type]
-      coercion.call(value, options)
+      case coercion = registry[type]
+      when Symbol, String, Proc
+        task.__cmdx_try(coercion, value, options)
+      else
+        coercion.call(value, options)
+      end
     end
 
   end

@@ -115,6 +115,8 @@ module CMDx
   # @since 1.0.0
   UndefinedCallError = Class.new(Error)
 
+  UnknownCallbackError = Class.new(Error)
+
   ##
   # Raised when an unknown or unsupported coercion type is specified.
   # This exception occurs when parameter definitions reference type coercions

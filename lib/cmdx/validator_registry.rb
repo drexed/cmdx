@@ -140,9 +140,8 @@ module CMDx
     def call(task, type, value, options = {})
       raise UnknownValidatorError, "unknown validator #{type}" unless registry.key?(type)
 
-      validator = registry[type]
-
-      if validator.is_a?(Symbol) || validator.is_a?(String)
+      case validator = registry[type]
+      when Symbol, String, Proc
         task.__cmdx_try(validator, value, options)
       else
         validator.call(value, options)

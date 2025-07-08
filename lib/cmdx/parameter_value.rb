@@ -159,8 +159,8 @@ module CMDx
       types = Array(type)
       tsize = types.size - 1
 
-      types.each_with_index do |t, i|
-        break CMDx.configuration.coercions.call(t, value, options)
+      types.each_with_index do |key, i|
+        break CMDx.configuration.coercions.call(task, key, value, options)
       rescue CoercionError => e
         next if tsize != i
 
@@ -211,15 +211,13 @@ module CMDx
     def validate!
       return if skip_validations_due_to_optional_missing_argument?
 
-      options.each_key do |key|
+      types = CMDx.configuration.validators.registry.keys
+
+      options.slice(*types).each_key do |key|
         next if skip_validator_due_to_allow_nil?(key)
         next if skip_validator_due_to_conditional?(key)
 
-        begin
-          CMDx.configuration.validators.call(task, key, value, options)
-        rescue UnknownValidatorError
-          # Skip unknown validators (allows for custom option keys)
-        end
+        CMDx.configuration.validators.call(task, key, value, options)
       end
     end
 
