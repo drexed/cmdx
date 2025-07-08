@@ -137,7 +137,7 @@ module CMDx
     # while other callables are executed through the task's __cmdx_try method.
     #
     # @param task [Task] The task instance to execute callbacks on
-    # @param callback [Symbol] The callback type to execute (e.g., :before_validation, :on_success)
+    # @param type [Symbol] The callback type to execute (e.g., :before_validation, :on_success)
     # @return [void]
     #
     # @example Execute callbacks
