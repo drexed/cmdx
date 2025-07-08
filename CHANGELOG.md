@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add method and proc style validations
 - Refactor parameter modules and classes for more robust usages
 - Update `callback` and `middleware` to be module based
-- Remove `task.register` class methods
 - Revert coercion docs changes
 
 ## [Unreleased]
@@ -21,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`
+
+### Removed
+- Removed task `register` class method
 
 ## [1.0.1] - 2025-07-07
 

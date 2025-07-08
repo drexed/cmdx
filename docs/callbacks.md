@@ -81,8 +81,6 @@ end
 
 For complex callback logic or reusable patterns, you can create Callback classes similar to Middleware classes. Callback classes inherit from `CMDx::Callback` and implement the `call(task, callback_type)` method.
 
-### Creating Callback Classes
-
 ```ruby
 class NotificationCallback < CMDx::Callback
   def initialize(channels)
@@ -95,37 +93,6 @@ class NotificationCallback < CMDx::Callback
     @channels.each do |channel|
       NotificationService.send(channel, "Task #{task.class.name} completed")
     end
-  end
-end
-```
-
-### Registering Callback Classes
-
-Callback classes can be registered using the `register` class method (recommended) or by directly calling the CallbackRegistry:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  # Recommended: Use the register class method
-  register :before_execution, LoggingCallback.new(:debug)
-  register :on_success, NotificationCallback.new([:email, :slack])
-  register :on_failure, :alert_admin, if: :critical?
-
-  # Alternative: Direct CallbackRegistry access (less common)
-  # cmd_callbacks.register(:after_execution, CleanupCallback.new)
-
-  # Traditional callback definitions still work alongside Callback classes
-  before_validation :validate_order_data
-  on_success :update_metrics
-
-  def call
-    context.order = Order.find(order_id)
-    context.order.process!
-  end
-
-  private
-
-  def critical?
-    context.order.value > 10_000
   end
 end
 ```

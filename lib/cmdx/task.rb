@@ -246,27 +246,6 @@ module CMDx
       end
 
       ##
-      # Registers callbacks for the task execution lifecycle.
-      #
-      # Callbacks can observe or modify task execution at specific lifecycle
-      # points like before validation, on success, after execution, etc.
-      #
-      # @param callback [Symbol] The callback type to register for
-      # @param callables [Array<Symbol, Proc, Callback, #call>] Methods, callables, or Callback instances to execute
-      # @param options [Hash] Conditions for callback execution
-      # @option options [Symbol, Proc, #call] :if condition that must be truthy
-      # @option options [Symbol, Proc, #call] :unless condition that must be falsy
-      # @param block [Proc] Block to execute as part of the callback
-      # @return [CallbackRegistry] updated callback registry
-      # @example
-      #   register :before_execution, LoggingCallback.new(:debug)
-      #   register :on_success, NotificationCallback.new([:email, :slack])
-      #   register :on_failure, :alert_admin, if: :critical?
-      def register(callback, ...)
-        cmd_callbacks.register(callback, ...)
-      end
-
-      ##
       # Defines optional parameters for the task.
       #
       # @param attributes [Array<Symbol>] parameter names

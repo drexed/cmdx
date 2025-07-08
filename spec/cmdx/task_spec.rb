@@ -179,26 +179,6 @@ RSpec.describe CMDx::Task do
     end
   end
 
-  describe ".register" do
-    it "adds callback to registry" do
-      task_class.register(:before_execution, :setup_method)
-
-      expect(task_class.cmd_callbacks[:before_execution]).not_to be_empty
-    end
-
-    it "accepts callback with conditions" do
-      task_class.register(:on_success, :notify_users, if: :should_notify?)
-
-      expect(task_class.cmd_callbacks[:on_success]).not_to be_empty
-    end
-
-    it "returns callback registry" do
-      result = task_class.register(:after_execution, :cleanup_method)
-
-      expect(result).to be_a(CMDx::CallbackRegistry)
-    end
-  end
-
   describe ".optional" do
     it "adds optional parameters to registry" do
       task_class.optional(:timeout, type: :integer, default: 30)
