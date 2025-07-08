@@ -21,13 +21,11 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module BigDecimal
+    class BigDecimal < Coercion
 
       # Default precision for BigDecimal calculations
       # @return [Integer] default precision value
       DEFAULT_PRECISION = 14
-
-      module_function
 
       # Coerce a value to BigDecimal.
       #

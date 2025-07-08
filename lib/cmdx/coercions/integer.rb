@@ -23,9 +23,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Integer
-
-      module_function
+    class Integer < Coercion
 
       # Coerce a value to Integer.
       #

@@ -22,9 +22,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Complex
-
-      module_function
+    class Complex < Coercion
 
       # Coerce a value to Complex.
       #

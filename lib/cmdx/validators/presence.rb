@@ -51,9 +51,7 @@ module CMDx
     # @see CMDx::Validators::Inclusion For validating boolean fields
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Presence
-
-      module_function
+    class Presence < Validator
 
       # Validates that a parameter value is present (not empty or nil).
       #

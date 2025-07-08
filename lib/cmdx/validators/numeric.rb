@@ -52,9 +52,7 @@ module CMDx
     # @see CMDx::Validators::Length For length/size validation
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Numeric
-
-      extend self
+    class Numeric < Validator
 
       # Validates that a parameter value meets the specified numeric constraints.
       #

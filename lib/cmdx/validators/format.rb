@@ -47,9 +47,7 @@ module CMDx
     #
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Format
-
-      module_function
+    class Format < Validator
 
       # Validates that a parameter value matches the specified format patterns.
       #

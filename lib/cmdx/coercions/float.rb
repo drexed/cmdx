@@ -22,9 +22,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Float
-
-      module_function
+    class Float < Coercion
 
       # Coerce a value to Float.
       #

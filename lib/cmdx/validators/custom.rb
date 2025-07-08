@@ -49,9 +49,7 @@ module CMDx
     #
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Custom
-
-      module_function
+    class Custom < Validator
 
       # Validates a parameter value using a custom validator.
       #

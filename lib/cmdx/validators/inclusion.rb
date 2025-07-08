@@ -50,9 +50,7 @@ module CMDx
     # @see CMDx::Validators::Exclusion For validating values must not be in a set
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Inclusion
-
-      extend self
+    class Inclusion < Validator
 
       # Validates that a parameter value is in the allowed set.
       #

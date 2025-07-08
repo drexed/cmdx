@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
 - Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration
 - Added `CallbackRegistry` class to take uninstantiated callback classes
+- Added `Validator` and `Coercion` classes to build their respective handlers
 
 ### Changed
 - Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`

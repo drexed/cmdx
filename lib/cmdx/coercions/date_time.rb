@@ -22,13 +22,11 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module DateTime
+    class DateTime < Coercion
 
       # DateTime-compatible class names that are passed through unchanged
       # @return [Array<String>] class names that represent datetime-like objects
       ANALOG_TYPES = %w[Date DateTime Time].freeze
-
-      module_function
 
       # Coerce a value to DateTime.
       #

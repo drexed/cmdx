@@ -23,9 +23,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module String
-
-      module_function
+    class String < Coercion
 
       # Coerce a value to String.
       #

@@ -22,9 +22,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Hash
-
-      extend self
+    class Hash < Coercion
 
       # Coerce a value to Hash.
       #

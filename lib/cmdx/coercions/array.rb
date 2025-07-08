@@ -24,9 +24,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Array
-
-      module_function
+    class Array < Coercion
 
       # Coerce a value to Array.
       #

@@ -44,9 +44,7 @@ module CMDx
     # @see CMDx::Validators::Inclusion For validating values must be in a set
     # @see CMDx::Parameter Parameter validation integration
     # @see CMDx::ValidationError Raised when validation fails
-    module Exclusion
-
-      extend self
+    class Exclusion < Validator
 
       # Validates that a parameter value is not in the excluded set.
       #

@@ -25,9 +25,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions (defaults to virtual)
-    module Virtual
-
-      module_function
+    class Virtual < Coercion
 
       # Return the value unchanged (no coercion).
       #

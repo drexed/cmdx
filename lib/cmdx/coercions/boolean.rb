@@ -25,7 +25,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Boolean
+    class Boolean < Coercion
 
       # Pattern matching false-like values (case insensitive)
       # @return [Regexp] regex for falsey string values
@@ -34,8 +34,6 @@ module CMDx
       # Pattern matching true-like values (case insensitive)
       # @return [Regexp] regex for truthy string values
       TRUTHY = /^(true|t|yes|y|1)$/i
-
-      module_function
 
       # Coerce a value to Boolean.
       #

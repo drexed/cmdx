@@ -22,9 +22,7 @@ module CMDx
     #
     # @see ParameterValue Parameter value coercion
     # @see Parameter Parameter type definitions
-    module Rational
-
-      module_function
+    class Rational < Coercion
 
       # Coerce a value to Rational.
       #
