@@ -149,15 +149,15 @@ module CMDx
     #
     # @see Task#__cmdx_eval
     # @see Task#__cmdx_try
-    def call(task, callback)
-      return unless registry.key?(callback)
+    def call(task, type)
+      return unless registry.key?(type)
 
-      Array(registry[callback]).each do |callables, options|
+      Array(registry[type]).each do |callables, options|
         next unless task.__cmdx_eval(options)
 
         Array(callables).each do |callable|
           if callable.is_a?(Callback)
-            callable.call(task, callback)
+            callable.call(task, type)
           else
             task.__cmdx_try(callable)
           end
