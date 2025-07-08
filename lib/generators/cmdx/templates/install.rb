@@ -55,4 +55,12 @@ CMDx.configure do |config|
   # config.coercions.register :slug, proc { |value|
   #   value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
   # }
+
+  # Global validators - custom parameter validation logic
+  # See https://github.com/drexed/cmdx/blob/main/docs/parameters/validations.md for more details
+  #
+  # config.validators.register :email, EmailValidator
+  # config.validators.register :phone, proc { |value, options|
+  #   PhoneValidator.validate(value, options)
+  # }
 end

@@ -651,67 +651,6 @@ RSpec.describe "Task Callbacks Integration" do
     end
   end
 
-  describe "Callback Classes" do
-    # Create reusable callback classes
-    let(:logging_callback_class) do
-      log = execution_log
-      Class.new(CMDx::Callback) do
-        def initialize(level)
-          @level = level
-        end
-
-        define_method(:call) do |task, callback_type|
-          log << "callback_class:logging:#{@level}:#{callback_type}:#{task.class.name}"
-        end
-      end
-    end
-
-    let(:notification_callback_class) do
-      log = execution_log
-      notification_svc = notification_service
-
-      Class.new(CMDx::Callback) do
-        def initialize(channels)
-          @channels = Array(channels)
-        end
-
-        define_method(:call) do |task, callback_type|
-          return unless callback_type == :on_success
-
-          @channels.each do |channel|
-            log << "callback_class:notification:#{channel}"
-            notification_svc.send(channel, "Task #{task.class.name} completed")
-          end
-        end
-      end
-    end
-
-    let(:metric_callback_class) do
-      log = execution_log
-      metric_svc = metric_service
-
-      Class.new(CMDx::Callback) do
-        def initialize(metric_name)
-          @metric_name = metric_name
-        end
-
-        define_method(:call) do |_task, callback_type|
-          case callback_type
-          when :before_execution
-            log << "callback_class:metric:start:#{@metric_name}"
-            metric_svc.track("#{@metric_name}.started", 1)
-          when :on_success
-            log << "callback_class:metric:success:#{@metric_name}"
-            metric_svc.track("#{@metric_name}.completed", 1)
-          when :on_failed
-            log << "callback_class:metric:failed:#{@metric_name}"
-            metric_svc.track("#{@metric_name}.failed", 1)
-          end
-        end
-      end
-    end
-  end
-
   describe "Real-world Integration Scenarios" do
     context "when using e-commerce order processing pipeline" do
       let(:ecommerce_order_task) do

@@ -29,7 +29,7 @@ module CMDx
   #
   # @see Parameter Parameter type coercion integration
   # @see Task Task coercion system
-  # @since 1.0.0
+  # @since 1.1.0
   class CoercionRegistry
 
     ##

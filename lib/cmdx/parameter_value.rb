@@ -213,15 +213,11 @@ module CMDx
         next if skip_validator_due_to_allow_nil?(key)
         next if skip_validator_due_to_conditional?(key)
 
-        case key.to_sym
-        when :custom then Validators::Custom
-        when :exclusion then Validators::Exclusion
-        when :format then Validators::Format
-        when :inclusion then Validators::Inclusion
-        when :length then Validators::Length
-        when :numeric then Validators::Numeric
-        when :presence then Validators::Presence
-        end&.call(value, options)
+        begin
+          CMDx.configuration.validators.call(key, value, options)
+        rescue UnknownValidatorError
+          # Skip unknown validators (allows for custom option keys)
+        end
       end
     end
 

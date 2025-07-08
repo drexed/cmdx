@@ -11,6 +11,7 @@ CMDx provides a flexible configuration system that allows customization at both 
   - [Global Middlewares](#global-middlewares)
   - [Global Callbacks](#global-callbacks)
   - [Global Coercions](#global-coercions)
+  - [Global Validators](#global-validators)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
   - [Workflow Configuration](#workflow-configuration)
@@ -57,7 +58,8 @@ This creates `config/initializers/cmdx.rb` with default settings.
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 | `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
-| `coercions`   | CoercionRegistry      | Built-in types | Global coercion registry for custom parameter types |
+| `coercions`   | CoercionRegistry      | Built-in coercions | Global coercion registry for custom parameter types |
+| `validators`  | ValidatorRegistry     | Built-in validators | Global validator registry for custom parameter validation |
 
 ### Global Middlewares
 
@@ -119,6 +121,28 @@ CMDx.configure do |config|
 end
 ```
 
+### Global Validators
+
+Configure custom validators that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add custom validator classes
+  config.validators.register :email, EmailValidator
+
+  # Add complex validators with options support
+  config.validators.register :phone, proc { |value, options|
+    country = options.dig(:phone, :country) || "US"
+    case country
+    when "US"
+      value.match?(/\A\d{3}-\d{3}-\d{4}\z/)
+    else
+      value.match?(/\A\+?\d{10,15}\z/)
+    end
+  }
+end
+```
+
 ## Task Settings
 
 Override global configuration for specific tasks or workflows using `task_settings!`:
@@ -176,6 +200,7 @@ CMDx.configuration.task_halt   #=> "failed"
 CMDx.configuration.middlewares #=> <MiddlewareRegistry instance>
 CMDx.configuration.callbacks   #=> <CallbackRegistry instance>
 CMDx.configuration.coercions   #=> <CoercionRegistry instance>
+CMDx.configuration.validators  #=> <ValidatorRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task

@@ -164,6 +164,51 @@ module CMDx
   UnknownCoercionError = Class.new(Error)
 
   ##
+  # Raised when an unknown or unsupported validator type is specified.
+  # This exception occurs when parameter definitions reference validators
+  # that don't exist or aren't registered in the CMDx validator system.
+  #
+  # This error helps catch typos in validator specifications and ensures that
+  # only supported validators are used in parameter definitions.
+  #
+  # @example Unknown validator specification
+  #   class MyTask < CMDx::Task
+  #     required :value, unknown_validator: true  # Typo or unsupported validator
+  #   end
+  #
+  #   MyTask.call(value: "test")
+  #   # => CMDx::UnknownValidatorError: unknown validator unknown_validator
+  #
+  # @example Common typos
+  #   class TaskWithTypo < CMDx::Task
+  #     required :email, presense: true     # Should be :presence
+  #     required :count, numerc: { min: 0 } # Should be :numeric
+  #     required :name, lenght: { max: 50 } # Should be :length
+  #   end
+  #
+  # @example Supported validators
+  #   class ProperTask < CMDx::Task
+  #     required :email, presence: true, format: { with: /@/ }
+  #     required :count, numeric: { min: 0, max: 100 }
+  #     required :name, length: { max: 50 }
+  #     required :status, inclusion: { in: %w[active inactive] }
+  #   end
+  #
+  # @example Handling unknown validator errors
+  #   begin
+  #     MyTask.call(params)
+  #   rescue CMDx::UnknownValidatorError => e
+  #     # This indicates a programming error in parameter definition
+  #     logger.error "Invalid validator specification: #{e.message}"
+  #     raise # Re-raise as this should be fixed in code
+  #   end
+  #
+  # @see Parameter Parameter validation definitions
+  # @see ParameterValue Validation processing
+  # @since 1.1.0
+  UnknownValidatorError = Class.new(Error)
+
+  ##
   # Raised when a parameter value fails validation rules.
   # This exception occurs during parameter processing when values don't meet
   # the specified validation criteria, such as format requirements, length

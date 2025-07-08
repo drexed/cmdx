@@ -86,8 +86,40 @@ module CMDx
     # Default configuration values
     DEFAULT_HALT = "failed"
 
-    # Configuration attributes
-    attr_accessor :logger, :middlewares, :callbacks, :coercions, :task_halt, :workflow_halt
+    ##
+    # @!attribute [rw] logger
+    #   @return [Logger] Logger instance for task execution logging
+    attr_accessor :logger
+
+    ##
+    # @!attribute [rw] middlewares
+    #   @return [MiddlewareRegistry] Global middleware registry applied to all tasks
+    attr_accessor :middlewares
+
+    ##
+    # @!attribute [rw] callbacks
+    #   @return [CallbackRegistry] Global callback registry applied to all tasks
+    attr_accessor :callbacks
+
+    ##
+    # @!attribute [rw] coercions
+    #   @return [CoercionRegistry] Global coercion registry for custom parameter types
+    attr_accessor :coercions
+
+    ##
+    # @!attribute [rw] validators
+    #   @return [ValidatorRegistry] Global validator registry for custom parameter validation
+    attr_accessor :validators
+
+    ##
+    # @!attribute [rw] task_halt
+    #   @return [String, Array<String>] Result statuses that cause `call!` to raise faults
+    attr_accessor :task_halt
+
+    ##
+    # @!attribute [rw] workflow_halt
+    #   @return [String, Array<String>] Result statuses that halt workflow execution
+    attr_accessor :workflow_halt
 
     ##
     # Initializes a new configuration with default values.
@@ -95,11 +127,12 @@ module CMDx
     # @example
     #   config = CMDx::Configuration.new
     def initialize
-      @logger      = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-      @middlewares = MiddlewareRegistry.new
-      @callbacks   = CallbackRegistry.new
-      @coercions   = CoercionRegistry.new
-      @task_halt   = DEFAULT_HALT
+      @logger        = ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+      @middlewares   = MiddlewareRegistry.new
+      @callbacks     = CallbackRegistry.new
+      @coercions     = CoercionRegistry.new
+      @validators    = ValidatorRegistry.new
+      @task_halt     = DEFAULT_HALT
       @workflow_halt = DEFAULT_HALT
     end
 
@@ -117,6 +150,7 @@ module CMDx
         middlewares: @middlewares,
         callbacks: @callbacks,
         coercions: @coercions,
+        validators: @validators,
         task_halt: @task_halt,
         workflow_halt: @workflow_halt
       }

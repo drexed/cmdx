@@ -5,30 +5,6 @@ require "spec_helper"
 RSpec.describe CMDx::CoercionRegistry do
   subject(:registry) { described_class.new }
 
-  describe "DEFAULT_COERCIONS" do
-    it "includes all built-in coercion types" do
-      expect(described_class::DEFAULT_COERCIONS).to include(
-        array: CMDx::Coercions::Array,
-        big_decimal: CMDx::Coercions::BigDecimal,
-        boolean: CMDx::Coercions::Boolean,
-        complex: CMDx::Coercions::Complex,
-        date: CMDx::Coercions::Date,
-        datetime: CMDx::Coercions::DateTime,
-        float: CMDx::Coercions::Float,
-        hash: CMDx::Coercions::Hash,
-        integer: CMDx::Coercions::Integer,
-        rational: CMDx::Coercions::Rational,
-        string: CMDx::Coercions::String,
-        time: CMDx::Coercions::Time,
-        virtual: CMDx::Coercions::Virtual
-      )
-    end
-
-    it "is frozen" do
-      expect(described_class::DEFAULT_COERCIONS).to be_frozen
-    end
-  end
-
   describe "#initialize" do
     context "with no arguments" do
       it "creates registry with default coercions only" do

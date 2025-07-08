@@ -23,7 +23,7 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
 - [Custom Coercion Options](#custom-coercion-options)
   - [Date/Time Format Options](#datetime-format-options)
   - [BigDecimal Precision Options](#bigdecimal-precision-options)
-- [Custom Coercion](#custom-coercion)
+- [Custom Coercions](#custom-coercions)
 
 ## TLDR
 
@@ -401,8 +401,10 @@ end
 > CMDx allows you to register custom coercions for domain-specific types that aren't covered by the built-in coercions. Custom coercions can be registered globally or per-task basis.
 
 ```ruby
-class MoneyCoercion
-  def self.call(value, options = {})
+module MoneyCoercion
+  module_function
+
+  def call(value, options = {})
     return value if value.is_a?(BigDecimal)
 
     # Handle string amounts like "$123.45"
@@ -415,10 +417,12 @@ class MoneyCoercion
   end
 end
 
-CMDx.configuration.coercions.register(:money, MoneyCoercion)
-CMDx.configuration.coercions.register(:slug, proc do |value|
-  value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
-end)
+CMDx.configure do |config|
+  config.coercions.register(:money, MoneyCoercion)
+  config.coercions.register(:slug, proc do |value|
+    value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
+  end)
+end
 
 # Now use in any task
 class ProcessProductTask < CMDx::Task

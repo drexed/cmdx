@@ -19,6 +19,14 @@ RSpec.describe CMDx::Configuration do
       expect(configuration.callbacks).to be_a(CMDx::CallbackRegistry)
     end
 
+    it "initializes coercion registry" do
+      expect(configuration.coercions).to be_a(CMDx::CoercionRegistry)
+    end
+
+    it "initializes validator registry" do
+      expect(configuration.validators).to be_a(CMDx::ValidatorRegistry)
+    end
+
     it "sets default halt values" do
       expect(configuration.task_halt).to eq("failed")
       expect(configuration.workflow_halt).to eq("failed")
@@ -35,6 +43,7 @@ RSpec.describe CMDx::Configuration do
         :middlewares,
         :callbacks,
         :coercions,
+        :validators,
         :task_halt,
         :workflow_halt
       )
@@ -46,6 +55,8 @@ RSpec.describe CMDx::Configuration do
       expect(hash[:logger]).to be(configuration.logger)
       expect(hash[:middlewares]).to be(configuration.middlewares)
       expect(hash[:callbacks]).to be(configuration.callbacks)
+      expect(hash[:coercions]).to be(configuration.coercions)
+      expect(hash[:validators]).to be(configuration.validators)
       expect(hash[:task_halt]).to eq(configuration.task_halt)
       expect(hash[:workflow_halt]).to eq(configuration.workflow_halt)
     end
@@ -66,6 +77,8 @@ RSpec.describe CMDx::Configuration do
     let(:custom_logger) { Logger.new(StringIO.new) }
     let(:custom_middlewares) { CMDx::MiddlewareRegistry.new }
     let(:custom_callbacks) { CMDx::CallbackRegistry.new }
+    let(:custom_coercions) { CMDx::CoercionRegistry.new }
+    let(:custom_validators) { CMDx::ValidatorRegistry.new }
 
     it "allows reading and writing logger" do
       configuration.logger = custom_logger
@@ -83,6 +96,18 @@ RSpec.describe CMDx::Configuration do
       configuration.callbacks = custom_callbacks
 
       expect(configuration.callbacks).to be(custom_callbacks)
+    end
+
+    it "allows reading and writing coercions" do
+      configuration.coercions = custom_coercions
+
+      expect(configuration.coercions).to be(custom_coercions)
+    end
+
+    it "allows reading and writing validators" do
+      configuration.validators = custom_validators
+
+      expect(configuration.validators).to be(custom_validators)
     end
 
     it "allows reading and writing task_halt" do
