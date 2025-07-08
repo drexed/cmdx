@@ -256,7 +256,7 @@ RSpec.describe CMDx::Task do
 
     it "accepts blocks" do
       expect do
-        task_class.on_success { |_task| puts "Success!" }
+        task_class.on_success { |task| task.context.callback_executed = true }
       end.not_to raise_error
     end
   end
