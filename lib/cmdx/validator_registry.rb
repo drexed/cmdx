@@ -51,7 +51,7 @@ module CMDx
     #
     # @example Initialize with custom validators
     #   registry = ValidatorRegistry.new(
-    #     email: EmailValidator.new,
+    #     email: EmailValidator,
     #     phone: PhoneValidator.new
     #   )
     def initialize

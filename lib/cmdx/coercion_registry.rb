@@ -51,7 +51,7 @@ module CMDx
     #
     # @example Initialize with custom coercions
     #   registry = CoercionRegistry.new(
-    #     email: EmailCoercion.new,
+    #     email: EmailCoercion,
     #     phone: PhoneCoercion.new
     #   )
     def initialize

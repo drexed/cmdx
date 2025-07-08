@@ -53,6 +53,7 @@ CMDx.configure do |config|
   # See https://github.com/drexed/cmdx/blob/main/docs/parameters/coercions.md for more details
   #
   # config.coercions.register :money, MoneyCoercion
+  # config.coercions.register :tags, TagsCoercion.new
   # config.coercions.register :slug, proc { |value|
   #   value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
   # }
@@ -61,6 +62,7 @@ CMDx.configure do |config|
   # See https://github.com/drexed/cmdx/blob/main/docs/parameters/validations.md for more details
   #
   # config.validators.register :email, EmailValidator
+  # config.validators.register :phone, PhoneValidator.new
   # config.validators.register :phone, proc { |value, options|
   #   PhoneValidator.validate(value, options)
   # }
