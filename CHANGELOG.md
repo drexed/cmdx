@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add table and pretty_table log formatters
 - Add method and proc style validations
 - Refactor parameter modules and classes for more robust usages
-- Update `callback` and `middleware` to be module based
 - Revert coercion docs changes
 - Remove rescue of `UnknownValidatorError`
 - Allow if/unless for validations
@@ -23,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`
+- Updated `ParameterRegistry` class to not inherit from `Hash`
+- Updated `MiddlewareRegistry` class to not inherit from `Hash`
+- Updated `CallbackRegistry` class to not inherit from `Hash`
 
 ### Removed
 - Removed task `register` class method
