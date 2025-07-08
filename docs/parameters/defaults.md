@@ -180,7 +180,7 @@ class ValidateOrderPriorityTask < CMDx::Task
 
   # Custom validation with default
   optional :approval_code, type: :string, default: :generate_approval_code,
-    custom: { validator: ApprovalCodeValidator }
+    presence: true
 
   def call
     priority           #=> "standard" (validated against inclusion list)

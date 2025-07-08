@@ -11,7 +11,6 @@ fi:
       required: "on pakollinen parametri"
       undefined: "delegoi määrittelemättömään metodiin %{source}"
     validators:
-      custom: "ei ole kelvollinen"
       exclusion:
         of: "ei saa olla mikään seuraavista: %{values}"
         within: "ei saa olla välillä %{min} ja %{max}"

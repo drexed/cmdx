@@ -11,7 +11,6 @@ sv:
       required: "är en obligatorisk parameter"
       undefined: "delegerar till odefinierad metod %{source}"
     validators:
-      custom: "är inte giltig"
       exclusion:
         of: "får inte vara en av: %{values}"
         within: "får inte vara mellan %{min} och %{max}"

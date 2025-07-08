@@ -583,37 +583,6 @@ RSpec.describe CMDx::ParameterValue do
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
     end
-
-    context "when using custom validation" do
-      let(:custom_validator) { ->(value, _options) { value != "invalid" } }
-      let(:parameter) do
-        mock_parameter(
-          method_source: :context,
-          name: :value,
-          options: { custom: { validator: custom_validator } },
-          required?: true,
-          optional?: false,
-          type: :string,
-          parent: nil
-        )
-      end
-
-      before do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("test")
-      end
-
-      it "passes custom validation" do
-        result = processor.call
-
-        expect(result).to eq("test")
-      end
-
-      it "fails custom validation" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("invalid")
-
-        expect { processor.call }.to raise_error(CMDx::ValidationError)
-      end
-    end
   end
 
   describe "optional parameter handling" do

@@ -57,8 +57,9 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "registers class validators" do
         class_validator = double("Validator")
-        registry.register(:custom, class_validator)
-        expect(registry.registry[:custom]).to eq(class_validator)
+        allow(class_validator).to receive(:call)
+        registry.register(:email, class_validator)
+        expect(registry.registry[:email]).to eq(class_validator)
       end
     end
   end
@@ -87,11 +88,6 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "applies exclusion validation" do
         expect { registry.call(:exclusion, "active", exclusion: { in: %w[deleted] }) }.not_to raise_error
-      end
-
-      it "applies custom validation" do
-        validator = proc { |v, _o| v == "valid" }
-        expect { registry.call(:custom, "valid", custom: { validator: validator }) }.not_to raise_error
       end
 
       it "passes options to built-in validators" do
@@ -168,7 +164,8 @@ RSpec.describe CMDx::ValidatorRegistry do
       end
 
       it "handles nil validator gracefully" do
-        registry.register(:nil_validator, nil)
+        # Directly set nil validator to bypass type validation
+        registry.instance_variable_get(:@registry)[:nil_validator] = nil
 
         expect { registry.call(:nil_validator, "value", nil_validator: true) }
           .to raise_error(NoMethodError)
@@ -184,8 +181,7 @@ RSpec.describe CMDx::ValidatorRegistry do
         length: ["hello", { length: { min: 3 } }],
         numeric: [42, { numeric: { min: 0 } }],
         inclusion: ["active", { inclusion: { in: %w[active inactive] } }],
-        exclusion: ["active", { exclusion: { in: %w[deleted] } }],
-        custom: ["valid", { custom: { validator: proc { |v, _o| v == "valid" } } }]
+        exclusion: ["active", { exclusion: { in: %w[deleted] } }]
       }
 
       described_class.new.registry.each_key do |type|

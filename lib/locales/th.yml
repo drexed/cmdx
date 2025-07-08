@@ -11,7 +11,6 @@ th:
       required: "เป็นพารามิเตอร์ที่จำเป็น"
       undefined: "ส่งต่อไปยังเมธอดที่ไม่ได้กำหนด %{source}"
     validators:
-      custom: "ไม่ถูกต้อง"
       exclusion:
         of: "ต้องไม่เป็นหนึ่งใน: %{values}"
         within: "ต้องไม่อยู่ระหว่าง %{min} และ %{max}"

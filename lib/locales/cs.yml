@@ -11,7 +11,6 @@ cs:
       required: "je povinný parametr"
       undefined: "deleguje na nedefinovanou metodu %{source}"
     validators:
-      custom: "není platný"
       exclusion:
         of: "nesmí být jeden z: %{values}"
         within: "nesmí být mezi %{min} a %{max}"

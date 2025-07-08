@@ -78,7 +78,7 @@ RSpec.describe CMDx::Configuration do
     let(:custom_middlewares) { CMDx::MiddlewareRegistry.new }
     let(:custom_callbacks) { CMDx::CallbackRegistry.new }
     let(:custom_coercions) { CMDx::CoercionRegistry.new }
-    let(:custom_validators) { CMDx::ValidatorRegistry.new }
+    let(:validators) { CMDx::ValidatorRegistry.new }
 
     it "allows reading and writing logger" do
       configuration.logger = custom_logger
@@ -105,9 +105,9 @@ RSpec.describe CMDx::Configuration do
     end
 
     it "allows reading and writing validators" do
-      configuration.validators = custom_validators
+      configuration.validators = validators
 
-      expect(configuration.validators).to be(custom_validators)
+      expect(configuration.validators).to be(validators)
     end
 
     it "allows reading and writing task_halt" do

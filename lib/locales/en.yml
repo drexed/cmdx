@@ -11,7 +11,6 @@ en:
       required: "is a required parameter"
       undefined: "delegates to undefined method %{source}"
     validators:
-      custom: "is not valid"
       exclusion:
         of: "must not be one of: %{values}"
         within: "must not be within %{min} and %{max}"

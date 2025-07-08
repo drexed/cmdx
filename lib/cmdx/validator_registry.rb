@@ -56,7 +56,6 @@ module CMDx
     #   )
     def initialize
       @registry = {
-        custom: Validators::Custom,
         exclusion: Validators::Exclusion,
         format: Validators::Format,
         inclusion: Validators::Inclusion,
@@ -89,7 +88,10 @@ module CMDx
     #   registry.register(:email, EmailValidator)
     #           .register(:phone, PhoneValidator.new)
     def register(type, validator)
-      raise TypeError, "must be a subclass of Validator" unless validator.is_a?(Validator)
+      unless validator.is_a?(Validator) || validator.respond_to?(:call)
+        raise TypeError,
+              "must be a subclass of Validator or respond to #call"
+      end
 
       registry[type] = validator
       self

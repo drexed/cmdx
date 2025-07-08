@@ -11,7 +11,6 @@ he:
       required: "הוא פרמטר חובה"
       undefined: "מאציל למתודה לא מוגדרת %{source}"
     validators:
-      custom: "לא תקין"
       exclusion:
         of: "לא יכול להיות אחד מהבאים: %{values}"
         within: "לא יכול להיות בין %{min} ל%{max}"

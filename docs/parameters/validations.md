@@ -12,8 +12,6 @@ Parameter values can be validated using built-in validators or custom validation
 - [Inclusion](#inclusion)
 - [Length](#length)
 - [Numeric](#numeric)
-- [Custom](#custom)
-- [Custom Validators](#custom-validators)
 - [Validation Results](#validation-results)
 
 ## TLDR
@@ -22,7 +20,6 @@ Parameter values can be validated using built-in validators or custom validation
 - **Common options** - All support `:allow_nil`, `:if`, `:unless`, `:message`
 - **Usage** - Add to parameter definitions: `required :email, presence: true, format: { with: /@/ }`
 - **Conditional** - Use `:if` and `:unless` for conditional validation
-- **Custom validators** - Use `custom: { validator: CustomValidator }` for complex logic
 
 ## Common Options
 
@@ -247,88 +244,6 @@ end
 | `:max_message`        | "must be at most %{max}" |
 | `:is_message`         | "must be %{is}" |
 | `:is_not_message`     | "must not be %{is_not}" |
-
-## Custom
-
-Validates using custom logic. Accepts any callable object (class, proc, lambda) implementing a `call` method that returns truthy for valid values.
-
-```ruby
-class EmailDomainValidator
-  def self.call(value, options)
-    allowed_domains = options.dig(:custom, :allowed_domains) || ['example.com']
-    domain = value.split('@').last
-    allowed_domains.include?(domain)
-  end
-end
-
-class CreateAccountTask < CMDx::Task
-  required :work_email, custom: {
-    validator: EmailDomainValidator,
-    allowed_domains: ['company.com', 'partner.org'],
-    message: "must be from an approved domain"
-  }
-
-  required :age, custom: {
-    validator: ->(value, options) { value.between?(18, 120) },
-    message: "must be a valid age"
-  }
-
-  def call
-    create_user_account
-  end
-end
-```
-
-**Options:**
-
-| Option       | Description |
-| ------------ | ----------- |
-| `:validator` | Callable object returning true/false. Receives value and options as parameters |
-
-## Custom Validators
-
-> [!NOTE]
-> CMDx allows you to register custom validators globally that can be used across all tasks in your application. Global custom validators are registered through the ValidatorRegistry and provide a clean way to share validation logic.
-
-```ruby
-module EmailValidator
-  module_function
-
-  def call(value, options)
-    domain = options.dig(:email, :domain)
-    return false unless value.include?("@")
-    return true if domain.nil?
-
-    value.end_with?("@#{domain}")
-  end
-end
-
-CMDx.configure do |config|
-  config.validators.register(:email, EmailValidator)
-  config.validators.register(:slug, proc { |value, options|
-    max_length = options.dig(:slug, :max_length) || 50
-    slug = value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').squeeze('-').strip('-')
-    slug.length <= max_length && slug.length > 0
-  })
-end
-
-# Now use in any task
-class ProcessUserTask < CMDx::Task
-  required :email, email: { domain: "company.com" }
-  required :slug, slug: { max_length: 30 }
-
-  def call
-    # Validation happens automatically
-    context.processed_user = {
-      email: email,
-      slug: slug
-    }
-  end
-end
-```
-
-> [!TIP]
-> Global custom validators should raise `ValidationError` when validation fails, similar to built-in validators. They can also access nested options through the options hash for flexible configuration.
 
 ## Validation Results
 

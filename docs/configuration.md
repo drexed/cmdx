@@ -59,7 +59,7 @@ This creates `config/initializers/cmdx.rb` with default settings.
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 | `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
 | `coercions`   | CoercionRegistry      | Built-in coercions | Global coercion registry for custom parameter types |
-| `validators`  | ValidatorRegistry     | Built-in validators | Global validator registry for custom parameter validation |
+| `validators`  | ValidatorRegistry     | Built-in validators | Global validator registry for parameter validation |
 
 ### Global Middlewares
 
@@ -123,11 +123,11 @@ end
 
 ### Global Validators
 
-Configure custom validators that automatically apply to all tasks in your application:
+Configure validators that automatically apply to all tasks in your application:
 
 ```ruby
 CMDx.configure do |config|
-  # Add custom validator classes
+  # Add validator classes
   config.validators.register :email, EmailValidator
 
   # Add complex validators with options support

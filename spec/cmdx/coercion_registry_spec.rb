@@ -56,6 +56,7 @@ RSpec.describe CMDx::CoercionRegistry do
 
       it "registers class coercions" do
         class_coercion = double("Coercion")
+        allow(class_coercion).to receive(:call)
         registry.register(:custom, class_coercion)
         expect(registry.registry[:custom]).to eq(class_coercion)
       end
@@ -156,7 +157,8 @@ RSpec.describe CMDx::CoercionRegistry do
       end
 
       it "handles nil coercion gracefully" do
-        registry.register(:nil_coercion, nil)
+        # Directly set nil coercion to bypass type validation
+        registry.instance_variable_get(:@registry)[:nil_coercion] = nil
 
         expect { registry.call(:nil_coercion, "value") }
           .to raise_error(NoMethodError)

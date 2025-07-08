@@ -11,7 +11,6 @@ es:
       required: "es un parámetro requerido"
       undefined: "delegado al método indefinido %{source}"
     validators:
-      custom: "no es válida"
       exclusion:
         of: "no debe ser uno de: %{values}"
         within: "no debe estar dentro %{min} y %{max}"

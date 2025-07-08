@@ -87,9 +87,7 @@ RSpec.describe CMDx::ParameterSerializer do
       end
 
       it "handles complex nested validation options" do
-        parameter = CMDx::Parameter.new(:config, klass: task_class, type: :hash,
-                                                 presence: true,
-                                                 custom: { validator: proc { true } })
+        parameter = CMDx::Parameter.new(:config, klass: task_class, type: :hash, presence: true)
 
         result = described_class.call(parameter)
 
@@ -98,7 +96,6 @@ RSpec.describe CMDx::ParameterSerializer do
         expect(result[:type]).to eq(:hash)
         expect(result[:required]).to be(false)
         expect(result[:options][:presence]).to be(true)
-        expect(result[:options][:custom]).to include(:validator)
         expect(result[:children]).to eq([])
       end
     end

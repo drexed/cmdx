@@ -93,7 +93,10 @@ module CMDx
     #   registry.register(:email, EmailCoercion)
     #           .register(:phone, PhoneCoercion.new)
     def register(type, coercion)
-      raise TypeError, "must be a subclass of Coercion" unless coercion.is_a?(Coercion)
+      unless coercion.is_a?(Coercion) || coercion.respond_to?(:call)
+        raise TypeError,
+              "must be a subclass of Coercion or respond to #call"
+      end
 
       registry[type] = coercion
       self

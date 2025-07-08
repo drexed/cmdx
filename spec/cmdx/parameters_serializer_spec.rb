@@ -232,7 +232,7 @@ RSpec.describe CMDx::ParametersSerializer do
           options: {
             format: { with: /^[a-z]+$/ },
             length: { within: 1..50 },
-            custom_validator: -> { "custom logic" }
+            presence: true
           },
           metadata: {
             created_at: Time.now,
@@ -255,7 +255,7 @@ RSpec.describe CMDx::ParametersSerializer do
         expect(hash[:required]).to be_a(TrueClass)
         expect(hash[:options][:format][:with]).to be_a(Regexp)
         expect(hash[:options][:length][:within]).to be_a(Range)
-        expect(hash[:options][:custom_validator]).to be_a(Proc)
+        expect(hash[:options][:presence]).to be(true)
         expect(hash[:metadata][:tags]).to be_an(Array)
       end
     end

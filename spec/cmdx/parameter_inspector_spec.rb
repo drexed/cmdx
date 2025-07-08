@@ -294,7 +294,6 @@ RSpec.describe CMDx::ParameterInspector do
           required: false,
           options: {
             presence: true,
-            custom: { validator: "test" },
             as: :configuration
           },
           children: []
@@ -302,7 +301,7 @@ RSpec.describe CMDx::ParameterInspector do
 
         result = described_class.call(parameter)
 
-        expect(result).to include("options={presence: true, custom: {validator: \"test\"}, as: :configuration}")
+        expect(result).to include("options={presence: true, as: :configuration}")
       end
     end
 
