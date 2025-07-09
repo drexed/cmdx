@@ -7,14 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
+- Allow registering coercion and validators via class methods
 - Add table and pretty_table log formatters
-- Add method and proc style validations
 - Refactor parameter modules and classes for more robust usages
-- Revert coercion docs changes
-- Remove rescue of `UnknownValidatorError`
+- Revert `docs/parameters/coercion.md` changes
 - Allow if/unless for validations
 - Allow `ServX` = `CMDx`
 - Add `CoercionRegistry` and `ValidationRegistry` to take instances
+- Refactor all `docs`
+- Refactor all yard docs
 
 ## [Unreleased]
 
