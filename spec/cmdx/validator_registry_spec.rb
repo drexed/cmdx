@@ -104,14 +104,18 @@ RSpec.describe CMDx::ValidatorRegistry do
 
     context "with custom validators" do
       let(:email_validator) do
-        proc { |value, _options|
-          raise CMDx::ValidationError, "must contain @" unless value.include?("@")
-        }
+        Class.new do
+          def self.call(value, _options)
+            raise CMDx::ValidationError, "must contain @" unless value.include?("@")
+          end
+        end
       end
       let(:phone_validator) do
-        proc { |value, _options|
-          raise CMDx::ValidationError, "must be in format XXX-XXX-XXXX" unless value.match?(/\d{3}-\d{3}-\d{4}/)
-        }
+        Class.new do
+          def self.call(value, _options)
+            raise CMDx::ValidationError, "must be in format XXX-XXX-XXXX" unless value.match?(/\d{3}-\d{3}-\d{4}/)
+          end
+        end
       end
 
       before do
@@ -128,10 +132,12 @@ RSpec.describe CMDx::ValidatorRegistry do
       end
 
       it "applies custom validators with options" do
-        options_validator = proc { |value, options|
-          min_length = options.dig(:email, :min_length) || 0
-          raise CMDx::ValidationError, "email must be at least #{min_length} characters and contain @" unless value.length >= min_length && value.include?("@")
-        }
+        options_validator = Class.new do
+          def self.call(value, options)
+            min_length = options.dig(:email, :min_length) || 0
+            raise CMDx::ValidationError, "email must be at least #{min_length} characters and contain @" unless value.length >= min_length && value.include?("@")
+          end
+        end
 
         registry.register(:email, options_validator)
 
@@ -173,7 +179,11 @@ RSpec.describe CMDx::ValidatorRegistry do
 
     context "when error handling within validators" do
       it "propagates validation errors" do
-        failing_validator = proc { |_value, _options| raise CMDx::ValidationError, "validation failed" }
+        failing_validator = Class.new do
+          def self.call(_value, _options)
+            raise CMDx::ValidationError, "validation failed"
+          end
+        end
         registry.register(:failing, failing_validator)
 
         expect { registry.call(nil, :failing, "value", failing: true) }
@@ -211,9 +221,11 @@ RSpec.describe CMDx::ValidatorRegistry do
       registry1 = described_class.new
       registry2 = described_class.new
 
-      custom_validator = proc { |v, _o|
-        raise CMDx::ValidationError, "value must be custom" unless v == "custom"
-      }
+      custom_validator = Class.new do
+        def self.call(v, _o)
+          raise CMDx::ValidationError, "value must be custom" unless v == "custom"
+        end
+      end
       registry1.register(:custom_validator, custom_validator)
 
       expect { registry1.call(nil, :custom_validator, "custom", custom_validator: true) }.not_to raise_error
@@ -225,36 +237,42 @@ RSpec.describe CMDx::ValidatorRegistry do
   describe "real-world usage patterns" do
     it "supports common domain validators" do
       # Email validation
-      registry.register(:email, proc { |value, options|
-        domain = options.dig(:email, :domain) if options[:email].is_a?(Hash)
-        raise CMDx::ValidationError, "invalid email format" unless value.include?("@") && (domain.nil? || value.end_with?("@#{domain}"))
-      })
+      registry.register(:email, Class.new do
+        def self.call(value, options)
+          domain = options.dig(:email, :domain) if options[:email].is_a?(Hash)
+          raise CMDx::ValidationError, "invalid email format" unless value.include?("@") && (domain.nil? || value.end_with?("@#{domain}"))
+        end
+      end)
 
       # Phone number validation
-      registry.register(:phone, proc { |value, options|
-        country = options.dig(:phone, :country) if options[:phone].is_a?(Hash)
-        country ||= "US"
-        valid = case country
-                when "US"
-                  value.match?(/\A\d{3}-\d{3}-\d{4}\z/)
-                else
-                  value.match?(/\A\+?\d{10,15}\z/)
-                end
+      registry.register(:phone, Class.new do
+        def self.call(value, options)
+          country = options.dig(:phone, :country) if options[:phone].is_a?(Hash)
+          country ||= "US"
+          valid = case country
+                  when "US"
+                    value.match?(/\A\d{3}-\d{3}-\d{4}\z/)
+                  else
+                    value.match?(/\A\+?\d{10,15}\z/)
+                  end
 
-        raise CMDx::ValidationError, "invalid phone format" unless valid
-      })
+          raise CMDx::ValidationError, "invalid phone format" unless valid
+        end
+      end)
 
       # URL validation
-      registry.register(:url, proc { |value, options|
-        secure_only = options.dig(:url, :secure_only) if options[:url].is_a?(Hash)
-        secure_only ||= false
-        uri = begin
-          URI.parse(value)
-        rescue StandardError
-          nil
+      registry.register(:url, Class.new do
+        def self.call(value, options)
+          secure_only = options.dig(:url, :secure_only) if options[:url].is_a?(Hash)
+          secure_only ||= false
+          uri = begin
+            URI.parse(value)
+          rescue StandardError
+            nil
+          end
+          raise CMDx::ValidationError, "invalid URL format" unless uri && (uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)) && (!secure_only || uri.scheme == "https")
         end
-        raise CMDx::ValidationError, "invalid URL format" unless uri && (uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)) && (!secure_only || uri.scheme == "https")
-      })
+      end)
 
       expect { registry.call(nil, :email, "user@example.com", email: true) }.not_to raise_error
       expect { registry.call(nil, :email, "user@company.com", email: { domain: "company.com" }) }.not_to raise_error
@@ -263,37 +281,41 @@ RSpec.describe CMDx::ValidatorRegistry do
     end
 
     it "supports age validation with complex logic" do
-      registry.register(:age, proc { |value, options|
-        min_age = options.dig(:age, :min_age) || 0
-        max_age = options.dig(:age, :max_age) || 150
-        adult_only = options.dig(:age, :adult_only) || false
+      registry.register(:age, Class.new do
+        def self.call(value, options)
+          min_age = options.dig(:age, :min_age) || 0
+          max_age = options.dig(:age, :max_age) || 150
+          adult_only = options.dig(:age, :adult_only) || false
 
-        raise CMDx::ValidationError, "age must be between #{min_age} and #{max_age}" unless value.is_a?(Integer) && value >= min_age && value <= max_age
+          raise CMDx::ValidationError, "age must be between #{min_age} and #{max_age}" unless value.is_a?(Integer) && value >= min_age && value <= max_age
 
-        raise CMDx::ValidationError, "must be at least 18 years old" if adult_only && value < 18
-      })
+          raise CMDx::ValidationError, "must be at least 18 years old" if adult_only && value < 18
+        end
+      end)
 
       expect { registry.call(nil, :age, 25, age: { min_age: 18, adult_only: true }) }.not_to raise_error
       expect { registry.call(nil, :age, 16, age: { adult_only: true }) }.to raise_error(CMDx::ValidationError, "must be at least 18 years old")
     end
 
     it "supports credit card validation with options" do
-      registry.register(:credit_card, proc { |value, options|
-        types = options.dig(:credit_card, :types) || %w[visa mastercard amex]
-        cleaned = value.gsub(/\D/, "")
+      registry.register(:credit_card, Class.new do
+        def self.call(value, options)
+          types = options.dig(:credit_card, :types) || %w[visa mastercard amex]
+          cleaned = value.gsub(/\D/, "")
 
-        valid = case cleaned.length
-                when 15
-                  types.include?("amex") && cleaned.match?(/\A3[47]/)
-                when 16
-                  (types.include?("visa") && cleaned.start_with?("4")) ||
-                  (types.include?("mastercard") && cleaned.match?(/\A5[1-5]/))
-                else
-                  false
-                end
+          valid = case cleaned.length
+                  when 15
+                    types.include?("amex") && cleaned.match?(/\A3[47]/)
+                  when 16
+                    (types.include?("visa") && cleaned.start_with?("4")) ||
+                    (types.include?("mastercard") && cleaned.match?(/\A5[1-5]/))
+                  else
+                    false
+                  end
 
-        raise CMDx::ValidationError, "invalid credit card number" unless valid
-      })
+          raise CMDx::ValidationError, "invalid credit card number" unless valid
+        end
+      end)
 
       expect { registry.call(nil, :credit_card, "4111-1111-1111-1111", credit_card: { types: %w[visa] }) }.not_to raise_error
       expect { registry.call(nil, :credit_card, "3782-8224-6310-005", credit_card: { types: %w[amex] }) }.not_to raise_error

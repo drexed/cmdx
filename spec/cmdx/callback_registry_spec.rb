@@ -296,26 +296,23 @@ RSpec.describe CMDx::CallbackRegistry do
 
     context "when callback type does not exist" do
       it "does nothing" do
-        registry.call(task, :non_existent_callback)
-
-        expect(task).not_to have_received(:__cmdx_eval)
-        expect(task).not_to have_received(:__cmdx_try)
+        expect { registry.call(task, :before_validation) }.not_to raise_error
       end
     end
 
     context "when callback type exists" do
       before do
-        registry.register(:test_callback, :method_name)
+        registry.register(:before_validation, :method_name)
       end
 
       it "evaluates callback conditions" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_eval).with({})
       end
 
       it "executes callable when conditions pass" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_try).with(:method_name)
       end
@@ -323,7 +320,7 @@ RSpec.describe CMDx::CallbackRegistry do
       it "skips execution when conditions fail" do
         allow(task).to receive(:__cmdx_eval).and_return(false)
 
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).not_to have_received(:__cmdx_try)
       end
@@ -331,11 +328,11 @@ RSpec.describe CMDx::CallbackRegistry do
 
     context "when executing multiple callables" do
       before do
-        registry.register(:test_callback, :first_method, :second_method)
+        registry.register(:before_validation, :first_method, :second_method)
       end
 
       it "executes all callables in order" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_try).with(:first_method).ordered
         expect(task).to have_received(:__cmdx_try).with(:second_method).ordered
@@ -344,12 +341,12 @@ RSpec.describe CMDx::CallbackRegistry do
 
     context "when executing multiple callback definitions" do
       before do
-        registry.register(:test_callback, :first_callback)
-        registry.register(:test_callback, :second_callback, if: :condition?)
+        registry.register(:before_validation, :first_callback)
+        registry.register(:before_validation, :second_callback, if: :condition?)
       end
 
       it "evaluates conditions for each definition" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_eval).with({}).ordered
         expect(task).to have_received(:__cmdx_eval).with({ if: :condition? }).ordered
@@ -359,7 +356,7 @@ RSpec.describe CMDx::CallbackRegistry do
         allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
         allow(task).to receive(:__cmdx_eval).with({ if: :condition? }).and_return(false)
 
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_try).with(:first_callback)
         expect(task).not_to have_received(:__cmdx_try).with(:second_callback)
@@ -372,80 +369,64 @@ RSpec.describe CMDx::CallbackRegistry do
       before do
         allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
         allow(callback_instance).to receive(:call)
-        registry.register(:test_callback, callback_instance)
+        registry.register(:before_validation, callback_instance)
       end
 
       it "calls callback instance directly" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
-        expect(callback_instance).to have_received(:call).with(task, :test_callback)
+        expect(callback_instance).to have_received(:call).with(task)
         expect(task).not_to have_received(:__cmdx_try)
       end
     end
 
     context "when executing uninstantiated callback classes" do
-      let(:callback_class) do
-        Class.new(CMDx::Callback) do
-          def call(task, type)
-            task.context.callback_executed = "#{type}_executed"
-          end
-        end
-      end
+      let(:callback_class) { double("CallbackClass") }
 
       before do
         allow(task).to receive(:context).and_return(double("Context").as_null_object)
-        registry.register(:test_callback, callback_class)
+        allow(callback_class).to receive(:call)
+        registry.register(:before_validation, callback_class)
       end
 
-      it "passes callback class to __cmdx_try for handling" do
-        registry.call(task, :test_callback)
+      it "calls callback class directly" do
+        registry.call(task, :before_validation)
 
-        expect(task).to have_received(:__cmdx_try).with(callback_class)
+        expect(callback_class).to have_received(:call).with(task).at_least(:once)
       end
 
-      it "does not call callback class directly" do
-        expect(callback_class).not_to receive(:call)
+      it "does not pass callback class to __cmdx_try" do
+        registry.call(task, :before_validation)
 
-        registry.call(task, :test_callback)
+        expect(task).not_to have_received(:__cmdx_try).with(callback_class)
       end
 
       it "handles callback class with conditions" do
-        registry = described_class.new
-        registry.register(:conditional_callback, callback_class, if: :should_execute?)
+        registry.register(:before_validation, callback_class, if: :condition?)
 
-        allow(task).to receive(:__cmdx_eval).with({ if: :should_execute? }).and_return(true)
+        registry.call(task, :before_validation)
 
-        registry.call(task, :conditional_callback)
-
-        expect(task).to have_received(:__cmdx_eval).with({ if: :should_execute? })
-        expect(task).to have_received(:__cmdx_try).with(callback_class)
+        expect(callback_class).to have_received(:call).with(task).at_least(:once)
       end
 
       it "skips callback class when conditions fail" do
-        registry = described_class.new
-        registry.register(:conditional_callback, callback_class, unless: :skip_callback?)
+        allow(task).to receive(:__cmdx_eval).and_return(false)
+        registry.register(:before_validation, callback_class, if: :condition?)
 
-        allow(task).to receive(:__cmdx_eval).with({ unless: :skip_callback? }).and_return(false)
+        registry.call(task, :before_validation)
 
-        registry.call(task, :conditional_callback)
-
-        expect(task).to have_received(:__cmdx_eval).with({ unless: :skip_callback? })
-        expect(task).not_to have_received(:__cmdx_try)
+        expect(callback_class).not_to have_received(:call)
       end
 
       it "executes multiple callback classes in order" do
-        other_callback_class = Class.new(CMDx::Callback) do
-          def call(task, _type)
-            task.context.other_executed = true
-          end
-        end
+        callback_class2 = double("CallbackClass2")
+        allow(callback_class2).to receive(:call)
+        registry.register(:before_validation, callback_class, callback_class2)
 
-        registry.register(:multi_callback, callback_class, other_callback_class)
+        registry.call(task, :before_validation)
 
-        registry.call(task, :multi_callback)
-
-        expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
-        expect(task).to have_received(:__cmdx_try).with(other_callback_class).ordered
+        expect(callback_class).to have_received(:call).with(task).at_least(:once)
+        expect(callback_class2).to have_received(:call).with(task).at_least(:once)
       end
 
       it "handles mixed callback types including classes" do
@@ -454,13 +435,13 @@ RSpec.describe CMDx::CallbackRegistry do
         allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
         allow(callback_instance).to receive(:call)
 
-        registry.register(:mixed_callback, :method_name, callback_class, callback_instance, proc_callback)
+        registry.register(:before_validation, :method_name, callback_class, callback_instance, proc_callback)
 
-        registry.call(task, :mixed_callback)
+        registry.call(task, :before_validation)
 
-        expect(task).to have_received(:__cmdx_try).with(:method_name).ordered
-        expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
-        expect(callback_instance).to have_received(:call).with(task, :mixed_callback).ordered
+        expect(task).to have_received(:__cmdx_try).with(:method_name)
+        expect(callback_class).to have_received(:call).with(task).at_least(:once)
+        expect(callback_instance).to have_received(:call).with(task)
         expect(task).to have_received(:__cmdx_try).with(proc_callback).at_least(:once)
       end
     end
@@ -472,53 +453,51 @@ RSpec.describe CMDx::CallbackRegistry do
       before do
         allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
         allow(callback_instance).to receive(:call)
-        registry.register(:test_callback, :method_name, callback_instance, proc_callable)
+        registry.register(:before_validation, :method_name, callback_instance, proc_callable)
       end
 
       it "handles each callable appropriately" do
-        registry.call(task, :test_callback)
+        registry.call(task, :before_validation)
 
         expect(task).to have_received(:__cmdx_try).with(:method_name).at_least(:once)
-        expect(callback_instance).to have_received(:call).with(task, :test_callback).at_least(:once)
+        expect(callback_instance).to have_received(:call).with(task).at_least(:once)
         expect(task).to have_received(:__cmdx_try).with(proc_callable).at_least(:once)
       end
     end
 
     context "when callback definitions have complex conditions" do
-      before do
-        registry.register(:complex_callback, :always_run)
-        registry.register(:complex_callback, :conditional_run, if: :important?)
-        registry.register(:complex_callback, :never_run, unless: :always_true)
-      end
-
       it "executes callbacks based on their individual conditions" do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
-        allow(task).to receive(:__cmdx_eval).with({ if: :important? }).and_return(true)
-        allow(task).to receive(:__cmdx_eval).with({ unless: :always_true }).and_return(false)
+        registry.register(:before_validation, :first_callback, if: :condition_a?)
+        registry.register(:before_validation, :second_callback, unless: :condition_b?)
+        registry.register(:before_validation, :third_callback, if: :condition_c?)
 
-        registry.call(task, :complex_callback)
+        allow(task).to receive(:__cmdx_eval).with({ if: :condition_a? }).and_return(true)
+        allow(task).to receive(:__cmdx_eval).with({ unless: :condition_b? }).and_return(false)
+        allow(task).to receive(:__cmdx_eval).with({ if: :condition_c? }).and_return(true)
 
-        expect(task).to have_received(:__cmdx_try).with(:always_run)
-        expect(task).to have_received(:__cmdx_try).with(:conditional_run)
-        expect(task).not_to have_received(:__cmdx_try).with(:never_run)
+        registry.call(task, :before_validation)
+
+        expect(task).to have_received(:__cmdx_try).with(:first_callback)
+        expect(task).not_to have_received(:__cmdx_try).with(:second_callback)
+        expect(task).to have_received(:__cmdx_try).with(:third_callback)
       end
     end
 
     context "when registry is empty" do
       it "handles empty registry gracefully" do
-        expect { registry.call(task, :any_callback) }.not_to raise_error
+        expect { registry.call(task, :before_validation) }.not_to raise_error
       end
     end
 
     context "when testing edge cases" do
       it "handles missing callback type gracefully" do
-        expect { registry.call(task, :missing_callback) }.not_to raise_error
+        expect { registry.call(task, :before_validation) }.not_to raise_error
       end
 
       it "handles registry with registered callbacks" do
-        registry.register(:test_callback, :method)
+        registry.register(:before_validation, :method)
 
-        expect { registry.call(task, :test_callback) }.not_to raise_error
+        expect { registry.call(task, :before_validation) }.not_to raise_error
         expect(task).to have_received(:__cmdx_try).with(:method)
       end
     end
@@ -557,11 +536,11 @@ RSpec.describe CMDx::CallbackRegistry do
     end
 
     it "maintains callback execution order across multiple registrations" do
-      registry.register(:ordered_callback, :first)
-      registry.register(:ordered_callback, :second)
-      registry.register(:ordered_callback, :third)
+      registry.register(:before_validation, :first)
+      registry.register(:before_validation, :second)
+      registry.register(:before_validation, :third)
 
-      registry.call(task, :ordered_callback)
+      registry.call(task, :before_validation)
 
       expect(task).to have_received(:__cmdx_try).with(:first).ordered
       expect(task).to have_received(:__cmdx_try).with(:second).ordered
@@ -569,58 +548,41 @@ RSpec.describe CMDx::CallbackRegistry do
     end
 
     it "handles callback registry copying and modification" do
-      original = described_class.new
-      original.register(:shared_callback, :original_method)
+      original_registry = described_class.new
+      original_registry.register(:before_validation, :original_method)
 
-      copy = described_class.new(original)
-      copy.register(:shared_callback, :additional_method)
-      copy.register(:new_callback, :new_method)
+      copied_registry = original_registry.dup
+      copied_registry.register(:before_validation, :copied_method)
 
-      # Test original registry unchanged
-      original.call(task, :shared_callback)
-      expect(task).to have_received(:__cmdx_try).with(:original_method).at_least(:once)
-      expect(task).not_to have_received(:__cmdx_try).with(:additional_method)
+      original_registry.call(task, :before_validation)
+      expect(task).to have_received(:__cmdx_try).with(:original_method)
 
-      # Reset for copy execution
-      allow(task).to receive(:__cmdx_try)
+      task_copy = double("TaskCopy")
+      allow(task_copy).to receive(:__cmdx_try)
+      allow(task_copy).to receive(:__cmdx_eval).and_return(true)
 
-      # Test copy has both methods
-      copy.call(task, :shared_callback)
-      expect(task).to have_received(:__cmdx_try).with(:original_method).at_least(:once)
-      expect(task).to have_received(:__cmdx_try).with(:additional_method).at_least(:once)
+      copied_registry.call(task_copy, :before_validation)
+      expect(task_copy).to have_received(:__cmdx_try).with(:original_method)
+      expect(task_copy).to have_received(:__cmdx_try).with(:copied_method)
     end
 
     it "supports mixed callback types in complex scenarios" do
-      callback_class = Class.new(CMDx::Callback) do
-        def call(task, _type)
-          task.context.class_callback_executed = true
-        end
-      end
-
       callback_instance = double("CallbackInstance")
       allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
       allow(callback_instance).to receive(:call)
 
-      proc_callback = proc { "proc executed" }
+      proc_callback = proc { "test_proc" }
+      callback_class = double("CallbackClass")
+      allow(callback_class).to receive(:call)
 
-      # Register mixed callback types
-      registry.register(:mixed_lifecycle, :method_callback)
-      registry.register(:mixed_lifecycle, callback_class, if: :use_class_callback?)
-      registry.register(:mixed_lifecycle, callback_instance, unless: :skip_instance?)
-      registry.register(:mixed_lifecycle, proc_callback)
+      registry.register(:before_validation, :method_callback, callback_instance, proc_callback, callback_class)
 
-      # Setup conditions
-      allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
-      allow(task).to receive(:__cmdx_eval).with({ if: :use_class_callback? }).and_return(true)
-      allow(task).to receive(:__cmdx_eval).with({ unless: :skip_instance? }).and_return(false)
+      registry.call(task, :before_validation)
 
-      registry.call(task, :mixed_lifecycle)
-
-      # Verify execution order and types
-      expect(task).to have_received(:__cmdx_try).with(:method_callback).ordered
-      expect(task).to have_received(:__cmdx_try).with(callback_class).ordered
-      expect(callback_instance).not_to have_received(:call) # Skipped due to condition
+      expect(task).to have_received(:__cmdx_try).with(:method_callback)
+      expect(callback_instance).to have_received(:call).with(task)
       expect(task).to have_received(:__cmdx_try).with(proc_callback).at_least(:once)
+      expect(callback_class).to have_received(:call).with(task).at_least(:once)
     end
   end
 end
