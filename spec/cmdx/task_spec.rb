@@ -154,8 +154,8 @@ RSpec.describe CMDx::Task do
           @options = options
         end
 
-        def call(task, &)
-          yield(task)
+        def call(task, callable)
+          callable.call(task)
         end
       end
     end
@@ -163,13 +163,13 @@ RSpec.describe CMDx::Task do
     it "adds middleware to registry" do
       task_class.use(middleware_class)
 
-      expect(task_class.cmd_middlewares).not_to be_empty
+      expect(task_class.cmd_middlewares.registry).not_to be_empty
     end
 
     it "accepts middleware with arguments" do
       task_class.use(middleware_class, timeout: 30)
 
-      expect(task_class.cmd_middlewares).not_to be_empty
+      expect(task_class.cmd_middlewares.registry).not_to be_empty
     end
 
     it "returns middleware registry" do

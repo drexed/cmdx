@@ -364,7 +364,7 @@ module CMDx
     #
     # @return [void]
     def perform
-      return execute_call if cmd_middlewares.empty?
+      return execute_call if cmd_middlewares.registry.empty?
 
       cmd_middlewares.call(self) { |task| task.send(:execute_call) }
     end
@@ -376,7 +376,7 @@ module CMDx
     # @return [void]
     # @raise [Fault] if task fails and task_halt includes the failure status
     def perform!
-      return execute_call! if cmd_middlewares.empty?
+      return execute_call! if cmd_middlewares.registry.empty?
 
       cmd_middlewares.call(self) { |task| task.send(:execute_call!) }
     end

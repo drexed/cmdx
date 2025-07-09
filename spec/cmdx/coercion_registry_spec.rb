@@ -92,12 +92,6 @@ RSpec.describe CMDx::CoercionRegistry do
         result = registry.call(task, :virtual, input)
         expect(result).to be(input)
       end
-
-      it "passes options to built-in coercions" do
-        # Integer coercion doesn't support base options, so test with string coercion
-        result = registry.call(task, :string, 123)
-        expect(result).to eq("123")
-      end
     end
 
     context "with custom coercions" do

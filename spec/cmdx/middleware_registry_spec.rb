@@ -3,36 +3,8 @@
 require "spec_helper"
 
 RSpec.describe CMDx::MiddlewareRegistry do
-  subject(:registry) { described_class.new }
-
-  let(:task) { mock_task }
-  let(:execution_block) { proc { |_t| "final_result" } }
-
-  describe "Array behavior" do
-    it "extends Array class" do
-      expect(registry).to be_a(Array)
-    end
-
-    it "can store middleware definitions" do
-      middleware_class = create_middleware_class
-      registry << [middleware_class, [], nil]
-
-      expect(registry.size).to eq(1)
-      expect(registry.first).to eq([middleware_class, [], nil])
-    end
-
-    it "supports array operations" do
-      middleware1 = create_middleware_class
-      middleware2 = create_middleware_class
-      registry << [middleware1, [], nil]
-      registry << [middleware2, [], nil]
-
-      expect(registry.size).to eq(2)
-      expect(registry.empty?).to be(false)
-      expect(registry.first[0]).to eq(middleware1)
-      expect(registry.last[0]).to eq(middleware2)
-    end
-  end
+  let(:registry) { described_class.new }
+  let(:task) { double("Task", should_stop?: false) }
 
   describe "#use" do
     context "when adding middleware class without arguments" do
@@ -41,8 +13,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "adds middleware to registry" do
         result = registry.use(middleware_class)
 
-        expect(registry.size).to eq(1)
-        expect(registry.first).to eq([middleware_class, [], nil])
+        expect(registry.to_a.size).to eq(1)
+        expect(registry.to_a.first).to eq([middleware_class, [], nil])
         expect(result).to eq(registry)
       end
     end
@@ -53,8 +25,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores arguments with middleware" do
         registry.use(middleware_class, :arg1, :arg2, key: "value")
 
-        expect(registry.size).to eq(1)
-        expect(registry.first).to eq([middleware_class, [:arg1, :arg2, { key: "value" }], nil])
+        expect(registry.to_a.size).to eq(1)
+        expect(registry.to_a.first).to eq([middleware_class, [:arg1, :arg2, { key: "value" }], nil])
       end
     end
 
@@ -65,8 +37,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores block with middleware" do
         registry.use(middleware_class, &block)
 
-        expect(registry.size).to eq(1)
-        expect(registry.first).to eq([middleware_class, [], block])
+        expect(registry.to_a.size).to eq(1)
+        expect(registry.to_a.first).to eq([middleware_class, [], block])
       end
     end
 
@@ -76,8 +48,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores instance directly" do
         registry.use(middleware_instance)
 
-        expect(registry.size).to eq(1)
-        expect(registry.first).to eq([middleware_instance, [], nil])
+        expect(registry.to_a.size).to eq(1)
+        expect(registry.to_a.first).to eq([middleware_instance, [], nil])
       end
     end
 
@@ -87,8 +59,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores proc as middleware" do
         registry.use(middleware_proc)
 
-        expect(registry.size).to eq(1)
-        expect(registry.first).to eq([middleware_proc, [], nil])
+        expect(registry.to_a.size).to eq(1)
+        expect(registry.to_a.first).to eq([middleware_proc, [], nil])
       end
     end
 
@@ -100,7 +72,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "allows method chaining" do
         result = registry.use(first_middleware).use(second_middleware).use(third_middleware)
 
-        expect(registry.size).to eq(3)
+        expect(registry.to_a.size).to eq(3)
         expect(result).to eq(registry)
       end
     end

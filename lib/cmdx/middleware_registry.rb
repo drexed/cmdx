@@ -38,7 +38,13 @@ module CMDx
   #
   # @see Middleware Base middleware class
   # @since 1.0.0
-  class MiddlewareRegistry < Array
+  class MiddlewareRegistry
+
+    attr_reader :registry
+
+    def initialize(registry = [])
+      @registry = registry.to_a
+    end
 
     # Adds middleware to the registry.
     #
@@ -56,7 +62,7 @@ module CMDx
     # @example Add proc middleware
     #   registry.use(proc { |task, callable| callable.call(task) })
     def use(middleware, *args, &block)
-      self << [middleware, args, block]
+      registry << [middleware, args, block]
       self
     end
 
@@ -73,9 +79,13 @@ module CMDx
     #     t.result
     #   end
     def call(task, &)
-      return yield(task) if empty?
+      return yield(task) if registry.empty?
 
       build_chain(&).call(task)
+    end
+
+    def to_a
+      registry.dup
     end
 
     private
@@ -88,7 +98,7 @@ module CMDx
     # @param block [Proc] The final block to execute
     # @return [Proc] The middleware chain as a callable
     def build_chain(&block)
-      reverse.reduce(block) do |next_callable, (middleware, args, middleware_block)|
+      registry.reverse.reduce(block) do |next_callable, (middleware, args, middleware_block)|
         proc do |task|
           instance = middleware.respond_to?(:new) ? middleware.new(*args, &middleware_block) : middleware
           instance.call(task, next_callable)
