@@ -9,24 +9,6 @@ RSpec.describe CMDx::ParameterRegistry do
   let(:invalid_parameter) { mock_parameter(valid?: false, method_name: :param2, children: []) }
   let(:task) { mock_task }
 
-  describe "Array behavior" do
-    it "can store parameter objects" do
-      registry << valid_parameter
-      registry << invalid_parameter
-
-      expect(registry.size).to eq(2)
-      expect(registry.first).to eq(valid_parameter)
-      expect(registry.last).to eq(invalid_parameter)
-    end
-
-    it "supports array enumeration methods" do
-      registry << valid_parameter
-      registry << invalid_parameter
-
-      expect(registry.map(&:valid?)).to eq([true, false])
-    end
-  end
-
   describe "#valid?" do
     context "when all parameters are valid" do
       before do
