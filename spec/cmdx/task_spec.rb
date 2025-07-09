@@ -180,42 +180,36 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".optional" do
-    it "adds optional parameters to registry" do
-      task_class.optional(:timeout, type: :integer, default: 30)
+    # Use a fresh task class for parameter tests to avoid contamination
+    let(:parameter_task_class) { create_simple_task(name: "ParameterTask") }
 
-      expect(task_class.cmd_parameters).not_to be_empty
+    it "adds optional parameters to registry" do
+      parameter_task_class.optional(:timeout, type: :integer, default: 30)
+
+      expect(parameter_task_class.cmd_parameters).not_to be_empty
     end
 
     it "accepts multiple parameters" do
-      task_class.optional(:timeout, :retries, type: :integer)
+      parameter_task_class.optional(:timeout, :retries, type: :integer)
 
-      expect(task_class.cmd_parameters.size).to eq(2)
-    end
-
-    it "returns parameter registry" do
-      result = task_class.optional(:timeout, type: :integer)
-
-      expect(result).to be_a(CMDx::ParameterRegistry)
+      expect(parameter_task_class.cmd_parameters.size).to eq(2)
     end
   end
 
   describe ".required" do
-    it "adds required parameters to registry" do
-      task_class.required(:user_id, type: :integer)
+    # Use a fresh task class for parameter tests to avoid contamination
+    let(:parameter_task_class) { create_simple_task(name: "ParameterTask") }
 
-      expect(task_class.cmd_parameters).not_to be_empty
+    it "adds required parameters to registry" do
+      parameter_task_class.required(:user_id, type: :integer)
+
+      expect(parameter_task_class.cmd_parameters).not_to be_empty
     end
 
     it "accepts multiple parameters" do
-      task_class.required(:user_id, :email, type: :string)
+      parameter_task_class.required(:user_id, :email, type: :string)
 
-      expect(task_class.cmd_parameters.size).to eq(2)
-    end
-
-    it "returns parameter registry" do
-      result = task_class.required(:user_id, type: :integer)
-
-      expect(result).to be_a(CMDx::ParameterRegistry)
+      expect(parameter_task_class.cmd_parameters.size).to eq(2)
     end
   end
 

@@ -3,7 +3,7 @@
 module CMDx
   # Parameter collection class for managing multiple parameter definitions.
   #
-  # The ParameterRegistry class extends Array to provide specialized functionality for
+  # The ParameterRegistry class provides specialized functionality for
   # managing collections of Parameter instances within CMDx tasks. It handles
   # validation coordination, serialization, and inspection of parameter groups.
   #
@@ -23,7 +23,32 @@ module CMDx
   #
   # @see CMDx::Parameter Individual parameter definitions
   # @see CMDx::Task Task parameter integration
-  class ParameterRegistry < Array
+  class ParameterRegistry
+
+    __cmdx_attr_delegator :index, :first, :last, :size, :<<, :concat, :each, :map, :empty?, :all?,
+                          to: :registry
+
+    attr_reader :registry
+
+    # Initializes a new parameter registry.
+    #
+    # @example
+    #   parameter_registry = ParameterRegistry.new
+    def initialize
+      @registry = []
+    end
+
+    # Creates a duplicate of the parameter registry.
+    #
+    # @return [ParameterRegistry] A new registry with a copy of the parameters
+    #
+    # @example
+    #   new_registry = parameter_registry.dup
+    def dup
+      new_registry = self.class.new
+      new_registry.instance_variable_set(:@registry, registry.dup)
+      new_registry
+    end
 
     # Checks if any parameters in the collection are invalid.
     #
@@ -42,7 +67,7 @@ module CMDx
     # @example
     #   parameter_registry.valid?  # => true if no validation errors exist
     def valid?
-      all?(&:valid?)
+      registry.all?(&:valid?)
     end
 
     # Validates all parameters in the collection against a task instance.
@@ -62,7 +87,7 @@ module CMDx
     #   # Validates parent parameters and all nested child parameters
     #   parameter_registry.validate!(task_with_nested_params)
     def validate!(task)
-      each { |p| recursive_validate!(task, p) }
+      registry.each { |p| recursive_validate!(task, p) }
     end
 
     # Converts the parameter collection to a hash representation.
@@ -86,28 +111,26 @@ module CMDx
     #   #   { ... }
     #   # ]
     def to_h
-      ParametersSerializer.call(self)
+      ParametersSerializer.call(registry)
     end
-    alias to_a to_h
 
     # Converts the parameter collection to a string representation.
     #
     # Creates a human-readable string representation of all parameters
-    # in the collection using the ParametersInspector.
+    # in the collection, including their names, types, and validation status.
     #
-    # @return [String] Multi-line parameter descriptions
+    # @return [String] Human-readable description of all parameters
     #
     # @example
     #   parameter_registry.to_s
-    #   # => "Parameter: name=user_id type=integer source=context required=true
-    #   #     Parameter: name=email type=string source=context required=false"
+    #   # => "user_id (integer, required), email (string, optional)"
     def to_s
-      ParametersInspector.call(self)
+      ParametersInspector.call(registry)
     end
 
     private
 
-    # Recursively validates a parameter and all its children.
+    # Recursively validates a parameter and its children.
     #
     # Calls the parameter accessor method on the task to trigger validation,
     # then recursively validates all child parameters for nested parameter
@@ -118,7 +141,7 @@ module CMDx
     # @return [void]
     def recursive_validate!(task, parameter)
       task.send(parameter.method_name)
-      parameter.children.each { |cp| recursive_validate!(task, cp) }
+      parameter.children.each { |child| recursive_validate!(task, child) }
     end
 
   end

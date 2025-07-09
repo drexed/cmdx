@@ -10,10 +10,6 @@ RSpec.describe CMDx::ParameterRegistry do
   let(:task) { mock_task }
 
   describe "Array behavior" do
-    it "extends Array class" do
-      expect(registry).to be_a(Array)
-    end
-
     it "can store parameter objects" do
       registry << valid_parameter
       registry << invalid_parameter
@@ -212,12 +208,6 @@ RSpec.describe CMDx::ParameterRegistry do
   describe "#to_h" do
     it "responds to to_h method" do
       expect(registry).to respond_to(:to_h)
-    end
-  end
-
-  describe "#to_a" do
-    it "responds to to_a method" do
-      expect(registry).to respond_to(:to_a)
     end
   end
 
