@@ -90,14 +90,8 @@ module CMDx
     def build_chain(&block)
       reverse.reduce(block) do |next_callable, (middleware, args, middleware_block)|
         proc do |task|
-          if middleware.respond_to?(:call) && !middleware.respond_to?(:new)
-            # Proc middleware
-            middleware.call(task, next_callable)
-          else
-            # Class or instance middleware
-            instance = middleware.respond_to?(:new) ? middleware.new(*args, &middleware_block) : middleware
-            instance.call(task, next_callable)
-          end
+          instance = middleware.respond_to?(:new) ? middleware.new(*args, &middleware_block) : middleware
+          instance.call(task, next_callable)
         end
       end
     end

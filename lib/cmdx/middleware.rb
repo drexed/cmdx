@@ -55,6 +55,10 @@ module CMDx
   # @see Task middleware integration
   class Middleware
 
+    def self.call(task, callable)
+      new.call(task, callable)
+    end
+
     ##
     # Executes the middleware logic.
     #
