@@ -115,6 +115,55 @@ module CMDx
   # @since 1.0.0
   UndefinedCallError = Class.new(Error)
 
+  ##
+  # Raised when an unknown or unsupported callback type is specified.
+  # This exception occurs when callback definitions reference callback types
+  # that don't exist or aren't registered in the CMDx callback system.
+  #
+  # CMDx supports a predefined set of callback types that correspond to different
+  # lifecycle events in task and workflow execution. This error helps catch typos
+  # in callback type specifications and ensures that only supported callback
+  # types are used in callback definitions.
+  #
+  # @example Unknown callback type specification
+  #   class MyTask < CMDx::Task
+  #     callback :on_unknown_event, :my_method  # Unknown callback type
+  #   end
+  #
+  #   MyTask.call
+  #   # => CMDx::UnknownCallbackError: unknown callback type on_unknown_event
+  #
+  # @example Common typos in callback types
+  #   class TaskWithTypos < CMDx::Task
+  #     callback :before_validaton, :check_data     # Should be :before_validation
+  #     callback :after_sucess, :log_completion     # Should be :after_success
+  #     callback :on_faliure, :handle_error         # Should be :on_failure
+  #   end
+  #
+  # @example Supported callback types
+  #   class ProperTask < CMDx::Task
+  #     callback :before_validation, :prepare_data
+  #     callback :after_validation, :log_validation
+  #     callback :before_execution, :setup_context
+  #     callback :after_execution, :cleanup
+  #     callback :on_success, :log_success
+  #     callback :on_failure, :handle_failure
+  #     callback :on_interrupted, :cleanup_interrupted
+  #   end
+  #
+  # @example Handling unknown callback errors
+  #   begin
+  #     MyTask.call(params)
+  #   rescue CMDx::UnknownCallbackError => e
+  #     # This indicates a programming error in callback definition
+  #     logger.error "Invalid callback type specification: #{e.message}"
+  #     raise # Re-raise as this should be fixed in code
+  #   end
+  #
+  # @see Task Task callback definitions
+  # @see Workflow Workflow callback definitions
+  # @see CallbackRegistry Callback type registration and management
+  # @since 1.0.0
   UnknownCallbackError = Class.new(Error)
 
   ##
