@@ -25,9 +25,6 @@ module CMDx
   # @see CMDx::Task Task parameter integration
   class ParameterRegistry
 
-    __cmdx_attr_delegator :size, :<<, :concat, :map, :empty?,
-                          to: :registry
-
     attr_reader :registry
 
     # Initializes a new parameter registry.

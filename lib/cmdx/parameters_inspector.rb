@@ -65,7 +65,7 @@ module CMDx
     #   ParametersInspector.call(single_param_collection)
     #   # => "Parameter: name=name type=virtual source=context required=false options={}"
     def call(parameters)
-      parameters.map(&:to_s).join("\n")
+      parameters.registry.map(&:to_s).join("\n")
     end
 
   end

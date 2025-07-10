@@ -12,8 +12,8 @@ RSpec.describe CMDx::ParameterRegistry do
   describe "#valid?" do
     context "when all parameters are valid" do
       before do
-        registry << valid_parameter
-        registry << mock_parameter(valid?: true)
+        registry.registry << valid_parameter
+        registry.registry << mock_parameter(valid?: true)
       end
 
       it "returns true" do
@@ -23,8 +23,8 @@ RSpec.describe CMDx::ParameterRegistry do
 
     context "when some parameters are invalid" do
       before do
-        registry << valid_parameter
-        registry << invalid_parameter
+        registry.registry << valid_parameter
+        registry.registry << invalid_parameter
       end
 
       it "returns false" do
@@ -34,8 +34,8 @@ RSpec.describe CMDx::ParameterRegistry do
 
     context "when all parameters are invalid" do
       before do
-        registry << invalid_parameter
-        registry << mock_parameter(valid?: false)
+        registry.registry << invalid_parameter
+        registry.registry << mock_parameter(valid?: false)
       end
 
       it "returns false" do
@@ -53,7 +53,7 @@ RSpec.describe CMDx::ParameterRegistry do
   describe "#invalid?" do
     context "when registry is valid" do
       before do
-        registry << valid_parameter
+        registry.registry << valid_parameter
       end
 
       it "returns false" do
@@ -63,7 +63,7 @@ RSpec.describe CMDx::ParameterRegistry do
 
     context "when registry is invalid" do
       before do
-        registry << invalid_parameter
+        registry.registry << invalid_parameter
       end
 
       it "returns true" do
@@ -81,8 +81,8 @@ RSpec.describe CMDx::ParameterRegistry do
   describe "#validate!" do
     context "when validating simple parameters" do
       before do
-        registry << valid_parameter
-        registry << invalid_parameter
+        registry.registry << valid_parameter
+        registry.registry << invalid_parameter
       end
 
       it "calls method for each parameter on task" do
@@ -104,7 +104,7 @@ RSpec.describe CMDx::ParameterRegistry do
       end
 
       before do
-        registry << parent_parameter
+        registry.registry << parent_parameter
       end
 
       it "validates parent and child parameters" do
@@ -132,7 +132,7 @@ RSpec.describe CMDx::ParameterRegistry do
       end
 
       before do
-        registry << parent_parameter
+        registry.registry << parent_parameter
       end
 
       it "recursively validates all levels of nested parameters" do
@@ -172,8 +172,8 @@ RSpec.describe CMDx::ParameterRegistry do
       end
 
       before do
-        registry << first_parent_param
-        registry << second_parent_param
+        registry.registry << first_parent_param
+        registry.registry << second_parent_param
       end
 
       it "validates all parameters and their children" do
@@ -218,8 +218,8 @@ RSpec.describe CMDx::ParameterRegistry do
       end
 
       before do
-        registry << root_param
-        registry << valid_parameter
+        registry.registry << root_param
+        registry.registry << valid_parameter
       end
 
       it "correctly reports validity based on direct parameters only" do
@@ -241,12 +241,12 @@ RSpec.describe CMDx::ParameterRegistry do
       before do
         10.times do |i|
           param = mock_parameter(method_name: :"param#{i}", children: [], valid?: true)
-          registry << param
+          registry.registry << param
         end
       end
 
       it "handles large collections efficiently" do
-        expect(registry.size).to eq(10)
+        expect(registry.registry.size).to eq(10)
         expect(registry.valid?).to be(true)
       end
 
@@ -263,7 +263,7 @@ RSpec.describe CMDx::ParameterRegistry do
       end
 
       before do
-        registry << failing_parameter
+        registry.registry << failing_parameter
         allow(task).to receive(:send).with(:failing_param).and_raise(StandardError, "Validation failed")
       end
 

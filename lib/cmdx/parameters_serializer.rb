@@ -108,7 +108,7 @@ module CMDx
     #   #   { source: :context, name: :name, type: :string, required: false, options: {}, children: [] }
     #   # ]
     def call(parameters)
-      parameters.map(&:to_h)
+      parameters.registry.map(&:to_h)
     end
 
   end

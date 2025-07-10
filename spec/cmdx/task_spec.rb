@@ -186,13 +186,13 @@ RSpec.describe CMDx::Task do
     it "adds optional parameters to registry" do
       parameter_task_class.optional(:timeout, type: :integer, default: 30)
 
-      expect(parameter_task_class.cmd_parameters).not_to be_empty
+      expect(parameter_task_class.cmd_parameters.registry).not_to be_empty
     end
 
     it "accepts multiple parameters" do
       parameter_task_class.optional(:timeout, :retries, type: :integer)
 
-      expect(parameter_task_class.cmd_parameters.size).to eq(2)
+      expect(parameter_task_class.cmd_parameters.registry.size).to eq(2)
     end
   end
 
@@ -203,13 +203,13 @@ RSpec.describe CMDx::Task do
     it "adds required parameters to registry" do
       parameter_task_class.required(:user_id, type: :integer)
 
-      expect(parameter_task_class.cmd_parameters).not_to be_empty
+      expect(parameter_task_class.cmd_parameters.registry).not_to be_empty
     end
 
     it "accepts multiple parameters" do
       parameter_task_class.required(:user_id, :email, type: :string)
 
-      expect(parameter_task_class.cmd_parameters.size).to eq(2)
+      expect(parameter_task_class.cmd_parameters.registry.size).to eq(2)
     end
   end
 

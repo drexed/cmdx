@@ -19,7 +19,7 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:parameter) { mock_parameter(to_h: parameter_hash) }
 
       before do
-        parameter_registry << parameter
+        parameter_registry.registry << parameter
       end
 
       it "returns array with single parameter hash" do
@@ -42,8 +42,8 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:second_parameter) { mock_parameter(to_h: second_parameter_hash) }
 
       before do
-        parameter_registry << first_parameter
-        parameter_registry << second_parameter
+        parameter_registry.registry << first_parameter
+        parameter_registry.registry << second_parameter
       end
 
       it "returns array with all parameter hashes" do
@@ -72,7 +72,7 @@ RSpec.describe CMDx::ParametersSerializer do
         5.times do |i|
           param_hash = { source: :context, name: :"param#{i}", type: :string, required: false, options: {}, children: [] }
           param = mock_parameter(to_h: param_hash)
-          parameter_registry << param
+          parameter_registry.registry << param
         end
       end
 
@@ -109,9 +109,9 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:minimal_parameter) { mock_parameter(to_h: minimal_parameter_hash) }
 
       before do
-        parameter_registry << simple_parameter
-        parameter_registry << complex_parameter
-        parameter_registry << minimal_parameter
+        parameter_registry.registry << simple_parameter
+        parameter_registry.registry << complex_parameter
+        parameter_registry.registry << minimal_parameter
       end
 
       it "preserves individual parameter hash structures" do
@@ -153,7 +153,7 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:parent_parameter) { mock_parameter(to_h: parent_parameter_hash) }
 
       before do
-        parameter_registry << parent_parameter
+        parameter_registry.registry << parent_parameter
       end
 
       it "preserves nested structures in hash" do
@@ -172,8 +172,8 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:normal_parameter) { mock_parameter(to_h: normal_parameter_hash) }
 
       before do
-        parameter_registry << empty_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << empty_parameter
+        parameter_registry.registry << normal_parameter
       end
 
       it "includes empty hashes in output" do
@@ -191,9 +191,9 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:third_parameter) { mock_parameter(to_h: { name: :third, order: 3 }) }
 
       before do
-        parameter_registry << first_parameter
-        parameter_registry << second_parameter
-        parameter_registry << third_parameter
+        parameter_registry.registry << first_parameter
+        parameter_registry.registry << second_parameter
+        parameter_registry.registry << third_parameter
       end
 
       it "preserves insertion order" do
@@ -209,11 +209,11 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:added_parameter) { mock_parameter(to_h: { name: :added }) }
 
       before do
-        parameter_registry << initial_parameter
+        parameter_registry.registry << initial_parameter
       end
 
       it "reflects current state of registry" do
-        parameter_registry << added_parameter
+        parameter_registry.registry << added_parameter
 
         result = described_class.call(parameter_registry)
 
@@ -244,7 +244,7 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:complex_parameter) { mock_parameter(to_h: complex_parameter_hash) }
 
       before do
-        parameter_registry << complex_parameter
+        parameter_registry.registry << complex_parameter
       end
 
       it "preserves all data types in hash" do
@@ -265,8 +265,8 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:normal_parameter) { mock_parameter(to_h: { name: :normal }) }
 
       before do
-        parameter_registry << failing_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << failing_parameter
+        parameter_registry.registry << normal_parameter
         allow(failing_parameter).to receive(:to_h).and_raise(StandardError, "to_h failed")
       end
 
@@ -280,8 +280,8 @@ RSpec.describe CMDx::ParametersSerializer do
       let(:normal_parameter) { mock_parameter(to_h: { name: :normal }) }
 
       before do
-        parameter_registry << nil_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << nil_parameter
+        parameter_registry.registry << normal_parameter
       end
 
       it "includes nil values in output array" do

@@ -18,7 +18,7 @@ RSpec.describe CMDx::ParametersInspector do
       let(:parameter) { mock_parameter(to_s: "Parameter: name=user_id type=integer source=context required=true options={}") }
 
       before do
-        parameter_registry << parameter
+        parameter_registry.registry << parameter
       end
 
       it "returns single parameter string representation" do
@@ -39,8 +39,8 @@ RSpec.describe CMDx::ParametersInspector do
       let(:second_parameter) { mock_parameter(to_s: "Parameter: name=email type=string source=context required=false options={}") }
 
       before do
-        parameter_registry << first_parameter
-        parameter_registry << second_parameter
+        parameter_registry.registry << first_parameter
+        parameter_registry.registry << second_parameter
       end
 
       it "returns all parameter string representations joined by newlines" do
@@ -71,7 +71,7 @@ RSpec.describe CMDx::ParametersInspector do
       before do
         5.times do |i|
           param = mock_parameter(to_s: "Parameter: name=param#{i} type=string source=context required=false options={}")
-          parameter_registry << param
+          parameter_registry.registry << param
         end
       end
 
@@ -97,9 +97,9 @@ RSpec.describe CMDx::ParametersInspector do
       let(:minimal_parameter) { mock_parameter(to_s: "Parameter: name=flag") }
 
       before do
-        parameter_registry << simple_parameter
-        parameter_registry << complex_parameter
-        parameter_registry << minimal_parameter
+        parameter_registry.registry << simple_parameter
+        parameter_registry.registry << complex_parameter
+        parameter_registry.registry << minimal_parameter
       end
 
       it "preserves individual parameter formatting" do
@@ -126,8 +126,8 @@ RSpec.describe CMDx::ParametersInspector do
       let(:normal_parameter) { mock_parameter(to_s: "Parameter: name=user_id type=integer") }
 
       before do
-        parameter_registry << empty_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << empty_parameter
+        parameter_registry.registry << normal_parameter
       end
 
       it "includes empty lines in output" do
@@ -145,8 +145,8 @@ RSpec.describe CMDx::ParametersInspector do
       let(:normal_parameter) { mock_parameter(to_s: "Parameter: name=simple") }
 
       before do
-        parameter_registry << multiline_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << multiline_parameter
+        parameter_registry.registry << normal_parameter
       end
 
       it "preserves newlines within parameter representations" do
@@ -170,9 +170,9 @@ RSpec.describe CMDx::ParametersInspector do
       let(:third_parameter) { mock_parameter(to_s: "Third") }
 
       before do
-        parameter_registry << first_parameter
-        parameter_registry << second_parameter
-        parameter_registry << third_parameter
+        parameter_registry.registry << first_parameter
+        parameter_registry.registry << second_parameter
+        parameter_registry.registry << third_parameter
       end
 
       it "preserves insertion order" do
@@ -188,11 +188,11 @@ RSpec.describe CMDx::ParametersInspector do
       let(:added_parameter) { mock_parameter(to_s: "Added parameter") }
 
       before do
-        parameter_registry << initial_parameter
+        parameter_registry.registry << initial_parameter
       end
 
       it "reflects current state of registry" do
-        parameter_registry << added_parameter
+        parameter_registry.registry << added_parameter
 
         result = described_class.call(parameter_registry)
 
@@ -206,8 +206,8 @@ RSpec.describe CMDx::ParametersInspector do
       let(:normal_parameter) { mock_parameter(to_s: "Normal parameter") }
 
       before do
-        parameter_registry << failing_parameter
-        parameter_registry << normal_parameter
+        parameter_registry.registry << failing_parameter
+        parameter_registry.registry << normal_parameter
         allow(failing_parameter).to receive(:to_s).and_raise(StandardError, "to_s failed")
       end
 

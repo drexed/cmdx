@@ -259,7 +259,7 @@ module CMDx
       #   end
       def optional(*attributes, **options, &)
         parameters = Parameter.optional(*attributes, **options.merge(klass: self), &)
-        cmd_parameters.concat(parameters)
+        cmd_parameters.registry.concat(parameters)
       end
 
       ##
@@ -277,7 +277,7 @@ module CMDx
       #   end
       def required(*attributes, **options, &)
         parameters = Parameter.required(*attributes, **options.merge(klass: self), &)
-        cmd_parameters.concat(parameters)
+        cmd_parameters.registry.concat(parameters)
       end
 
       ##
