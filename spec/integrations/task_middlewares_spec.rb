@@ -19,7 +19,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       end
 
       task_class = Class.new(CMDx::Task) do
-        use middleware, execution_log
+        use :middleware, middleware, execution_log
 
         define_method :call do
           execution_log << "task_executed"
@@ -41,7 +41,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       end
 
       task_class = Class.new(CMDx::Task) do
-        use middleware_class
+        use :middleware, middleware_class
 
         def call
           # Basic task execution
@@ -56,7 +56,7 @@ RSpec.describe "Task Middlewares Integration", type: :integration do
       correlation_id = "test-correlation-#{SecureRandom.hex(4)}"
 
       task_class = Class.new(CMDx::Task) do
-        use CMDx::Middlewares::Correlate, id: correlation_id
+        use :middleware, CMDx::Middlewares::Correlate, id: correlation_id
 
         def call
           context.correlation_used = CMDx::Correlator.id

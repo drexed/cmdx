@@ -161,19 +161,19 @@ RSpec.describe CMDx::Task do
     end
 
     it "adds middleware to registry" do
-      task_class.use(middleware_class)
+      task_class.use(:middleware, middleware_class)
 
       expect(task_class.cmd_middlewares.registry).not_to be_empty
     end
 
     it "accepts middleware with arguments" do
-      task_class.use(middleware_class, timeout: 30)
+      task_class.use(:middleware, middleware_class, timeout: 30)
 
       expect(task_class.cmd_middlewares.registry).not_to be_empty
     end
 
     it "returns middleware registry" do
-      result = task_class.use(middleware_class)
+      result = task_class.use(:middleware, middleware_class)
 
       expect(result).to be_a(CMDx::MiddlewareRegistry)
     end
@@ -378,7 +378,7 @@ RSpec.describe CMDx::Task do
         end
       end
 
-      task_class.use(middleware_class.new)
+      task_class.use(:middleware, middleware_class.new)
       task.perform
 
       expect(middleware_called).to be(true)
@@ -411,7 +411,7 @@ RSpec.describe CMDx::Task do
         end
       end
 
-      task_class.use(middleware_class.new)
+      task_class.use(:middleware, middleware_class.new)
       task.perform!
 
       expect(middleware_called).to be(true)

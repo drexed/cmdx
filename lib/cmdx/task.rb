@@ -241,8 +241,17 @@ module CMDx
       #   use LoggingMiddleware
       #   use AuthenticationMiddleware, "admin"
       #   use CachingMiddleware.new(ttl: 300)
-      def use(middleware, ...)
-        cmd_middlewares.use(middleware, ...)
+      def use(type, object, ...)
+        case type
+        when :middleware
+          cmd_middlewares.use(object, ...)
+        when :callback
+          cmd_callbacks.register(type, object, ...)
+        when :validator
+          cmd_validators.register(type, object, ...)
+        when :coercion
+          cmd_coercions.register(type, object, ...)
+        end
       end
 
       ##
