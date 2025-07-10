@@ -25,16 +25,16 @@ module CMDx
       # @return [Correlate] new instance of the middleware
       #
       # @example Register with a middleware instance
-      #   use :middleware, Correlate.new(id: "request-123")
+      #   use :middleware, CMDx::Middlewares::Correlate.new(id: "request-123")
       #
       # @example Register with explicit ID
-      #   use :middleware, Correlate, id: "request-123"
+      #   use :middleware, CMDx::Middlewares::Correlate, id: "request-123"
       #
       # @example Register with dynamic ID generation
-      #   use :middleware, Correlate, id: -> { SecureRandom.uuid }
+      #   use :middleware, CMDx::Middlewares::Correlate, id: -> { SecureRandom.uuid }
       #
       # @example Register with conditions
-      #   use :middleware, Correlate, if: :production?, unless: :testing?
+      #   use :middleware, CMDx::Middlewares::Correlate, if: :production?, unless: :testing?
       def initialize(options = {})
         @id          = options[:id]
         @conditional = options.slice(:if, :unless)
@@ -51,20 +51,16 @@ module CMDx
       #
       # @example Task using correlation middleware
       #   class ProcessOrderTask < CMDx::Task
-      #     use :middleware, Correlate, id: "trace-123"
+      #     use :middleware, CMDx::Middlewares::Correlate, id: "trace-123"
       #
       #     def call
       #       # Task execution is automatically wrapped with correlation
       #     end
       #   end
       #
-      # @example Task with conditional correlation
-      #   class ImportDataTask < CMDx::Task
-      #     use :middleware, Correlate, if: :should_trace?
-      #
-      #     def call
-      #       # Correlation applied only when should_trace? returns true
-      #     end
+      # @example Global configuration with conditional tracing
+      #   CMDx.configure do |config|
+      #     config.middlewares.register CMDx::Middlewares::Correlate, if: :should_trace?
       #   end
       def call(task, callable)
         # Check if correlation should be applied based on conditions

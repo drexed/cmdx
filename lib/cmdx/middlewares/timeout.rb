@@ -31,16 +31,16 @@ module CMDx
       # @return [Timeout] new instance of the middleware
       #
       # @example Register with a middleware instance
-      #   use :middleware, Timeout.new(seconds: 30)
+      #   use :middleware, CMDx::Middlewares::Timeout.new(seconds: 30)
       #
       # @example Register with fixed timeout
-      #   use :middleware, Timeout, seconds: 30
+      #   use :middleware, CMDx::Middlewares::Timeout, seconds: 30
       #
       # @example Register with dynamic timeout
-      #   use :middleware, Timeout, seconds: -> { Rails.env.test? ? 1 : 10 }
+      #   use :middleware, CMDx::Middlewares::Timeout, seconds: -> { Rails.env.test? ? 1 : 10 }
       #
       # @example Register with conditions
-      #   use :middleware, Timeout, seconds: 5, if: :long_running?, unless: :skip_timeout?
+      #   use :middleware, CMDx::Middlewares::Timeout, seconds: 5, if: :long_running?, unless: :skip_timeout?
       def initialize(options = {})
         @seconds     = options[:seconds] || 3
         @conditional = options.slice(:if, :unless)
@@ -59,20 +59,16 @@ module CMDx
       #
       # @example Task using timeout middleware
       #   class ProcessFileTask < CMDx::Task
-      #     use :middleware, Timeout, seconds: 10
+      #     use :middleware, CMDx::Middlewares::Timeout, seconds: 10
       #
       #     def call
       #       # Task execution is automatically wrapped with timeout protection
       #     end
       #   end
       #
-      # @example Task with conditional timeout
-      #   class ImportDataTask < CMDx::Task
-      #     use :middleware, Timeout, seconds: 30, if: :large_dataset?
-      #
-      #     def call
-      #       # Timeout applied only when large_dataset? returns true
-      #     end
+      # @example Global configuration with conditional timeout
+      #   CMDx.configure do |config|
+      #     config.middlewares.register CMDx::Middlewares::Timeout, seconds: 30, if: :large_dataset?
       #   end
       def call(task, callable)
         # Check if timeout should be applied based on conditions
