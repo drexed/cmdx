@@ -2,91 +2,54 @@
 
 module CMDx
   module Validators
-    # Presence validator for parameter validation ensuring values are not empty.
+    # Validator class for ensuring values are present (not empty or nil).
     #
-    # The Presence validator checks that parameter values are not nil, not empty
-    # strings (including whitespace-only strings), and not empty collections.
-    # It provides intelligent presence checking for different value types with
-    # appropriate logic for strings, arrays, hashes, and other objects.
+    # This validator checks that a value is not empty, blank, or nil. For strings,
+    # it validates that there are non-whitespace characters. For objects that respond
+    # to empty?, it ensures they are not empty. For all other objects, it validates
+    # they are not nil.
     #
-    # @example Basic presence validation
-    #   class ProcessUserTask < CMDx::Task
-    #     required :name, presence: true
-    #     required :email, presence: true
-    #     optional :bio, presence: true  # Only validated if provided
-    #   end
-    #
-    # @example Custom presence message
-    #   class ProcessUserTask < CMDx::Task
-    #     required :name, presence: { message: "is required for processing" }
-    #     required :email, presence: { message: "must be provided" }
-    #   end
-    #
-    # @example Boolean field presence validation
-    #   class ProcessUserTask < CMDx::Task
-    #     # For boolean fields, use inclusion instead of presence
-    #     required :active, inclusion: { in: [true, false] }
-    #     # presence: true would fail for false values
-    #   end
-    #
-    # @example Presence validation behavior
-    #   # String presence checking
-    #   Presence.call("hello", presence: true)     # passes
-    #   Presence.call("", presence: true)          # raises ValidationError
-    #   Presence.call("   ", presence: true)       # raises ValidationError (whitespace only)
-    #   Presence.call("\n\t", presence: true)      # raises ValidationError (whitespace only)
-    #
-    #   # Collection presence checking
-    #   Presence.call([1, 2], presence: true)      # passes
-    #   Presence.call([], presence: true)          # raises ValidationError
-    #   Presence.call({a: 1}, presence: true)      # passes
-    #   Presence.call({}, presence: true)          # raises ValidationError
-    #
-    #   # General object presence checking
-    #   Presence.call(42, presence: true)          # passes
-    #   Presence.call(0, presence: true)           # passes (zero is present)
-    #   Presence.call(false, presence: true)       # passes (false is present)
-    #   Presence.call(nil, presence: true)         # raises ValidationError
-    #
-    # @see CMDx::Validators::Inclusion For validating boolean fields
-    # @see CMDx::Parameter Parameter validation integration
-    # @see CMDx::ValidationError Raised when validation fails
+    # @since 1.0.0
     class Presence < Validator
 
-      # Validates that a parameter value is present (not empty or nil).
+      # Validates that the given value is present (not empty or nil).
       #
-      # Performs intelligent presence checking based on the value type:
-      # - Strings: Must contain non-whitespace characters
-      # - Collections: Must not be empty (arrays, hashes, etc.)
-      # - Other objects: Must not be nil
+      # @param value [Object] the value to validate
+      # @param options [Hash] validation options containing presence configuration
+      # @option options [Hash] :presence presence validation configuration
+      # @option options [String] :presence.message custom error message
       #
-      # @param value [Object] The parameter value to validate
-      # @param options [Hash] Validation configuration options
-      # @option options [Boolean, Hash] :presence Presence validation configuration
-      # @option options [String] :presence.message Custom error message
+      # @return [void] returns nothing when validation passes
       #
-      # @return [void]
-      # @raise [ValidationError] If value is not present according to type-specific rules
+      # @raise [ValidationError] if the value is empty, blank, or nil
       #
-      # @example String presence validation
-      #   Presence.call("hello", presence: true)     # passes
-      #   Presence.call("", presence: true)          # raises ValidationError
-      #   Presence.call("   ", presence: true)       # raises ValidationError
+      # @example Validating a non-empty string
+      #   Validators::Presence.call("hello", presence: {})
+      #   # => nil (no error raised)
       #
-      # @example Collection presence validation
-      #   Presence.call([1, 2, 3], presence: true)   # passes
-      #   Presence.call([], presence: true)          # raises ValidationError
-      #   Presence.call({key: "value"}, presence: true) # passes
-      #   Presence.call({}, presence: true)          # raises ValidationError
+      # @example Validating an empty string
+      #   Validators::Presence.call("", presence: {})
+      #   # raises ValidationError: "cannot be empty"
       #
-      # @example Object presence validation
-      #   Presence.call(42, presence: true)          # passes
-      #   Presence.call(false, presence: true)       # passes (false is present)
-      #   Presence.call(nil, presence: true)         # raises ValidationError
+      # @example Validating a whitespace-only string
+      #   Validators::Presence.call("   ", presence: {})
+      #   # raises ValidationError: "cannot be empty"
       #
-      # @example Custom error message
-      #   Presence.call("", presence: { message: "is required" })
-      #   # => raises ValidationError: "is required"
+      # @example Validating a non-empty array
+      #   Validators::Presence.call([1, 2, 3], presence: {})
+      #   # => nil (no error raised)
+      #
+      # @example Validating an empty array
+      #   Validators::Presence.call([], presence: {})
+      #   # raises ValidationError: "cannot be empty"
+      #
+      # @example Validating a nil value
+      #   Validators::Presence.call(nil, presence: {})
+      #   # raises ValidationError: "cannot be empty"
+      #
+      # @example Using a custom message
+      #   Validators::Presence.call("", presence: { message: "This field is required" })
+      #   # raises ValidationError: "This field is required"
       def call(value, options = {})
         present =
           if value.is_a?(String)

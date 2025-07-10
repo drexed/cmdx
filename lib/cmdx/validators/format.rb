@@ -2,98 +2,48 @@
 
 module CMDx
   module Validators
-    # Format validator for parameter validation using regular expressions.
+    # Validator class for format validation using regular expressions.
     #
-    # The Format validator validates parameter values against regular expression
-    # patterns. It supports both positive matching (with) and negative matching
-    # (without) patterns, and can combine both for complex format validation.
+    # This validator ensures that a value matches or doesn't match specified
+    # regular expression patterns. It supports both positive matching (with)
+    # and negative matching (without) patterns, which can be used independently
+    # or in combination.
     #
-    # @example Basic format validation with positive pattern
-    #   class ProcessUserTask < CMDx::Task
-    #     required :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
-    #     required :phone, format: { with: /\A\d{3}-\d{3}-\d{4}\z/ }
-    #   end
-    #
-    # @example Format validation with negative pattern
-    #   class ProcessContentTask < CMDx::Task
-    #     required :username, format: { without: /\A(admin|root|system)\z/i }
-    #     required :content, format: { without: /spam|viagra/i }
-    #   end
-    #
-    # @example Combined positive and negative patterns
-    #   class ProcessUserTask < CMDx::Task
-    #     required :password, format: {
-    #       with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}\z/,  # Strong password
-    #       without: /password|123456/i  # Common weak patterns
-    #     }
-    #   end
-    #
-    # @example Custom error message
-    #   class ProcessUserTask < CMDx::Task
-    #     required :email, format: {
-    #       with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
-    #       message: "must be a valid email address"
-    #     }
-    #   end
-    #
-    # @example Format validation behavior
-    #   # Positive pattern matching
-    #   Format.call("user@example.com", format: { with: /@/ })     # passes
-    #   Format.call("invalid-email", format: { with: /@/ })        # raises ValidationError
-    #
-    #   # Negative pattern matching
-    #   Format.call("username", format: { without: /admin/ })      # passes
-    #   Format.call("admin", format: { without: /admin/ })         # raises ValidationError
-    #
-    # @see CMDx::Parameter Parameter validation integration
-    # @see CMDx::ValidationError Raised when validation fails
+    # @since 1.0.0
     class Format < Validator
 
-      # Validates that a parameter value matches the specified format patterns.
+      # Validates that the given value matches the specified format pattern(s).
       #
-      # Validates the value against the provided regular expression patterns.
-      # Supports positive matching (with), negative matching (without), or both.
-      # The value must match all specified conditions to pass validation.
-      #
-      # @param value [String] The parameter value to validate
-      # @param options [Hash] Validation configuration options
-      # @option options [Hash] :format Format validation configuration
-      # @option options [Regexp] :format.with Pattern the value must match
-      # @option options [Regexp] :format.without Pattern the value must not match
-      # @option options [String] :format.message Custom error message
+      # @param value [Object] the value to validate
+      # @param options [Hash] validation options containing format configuration
+      # @option options [Hash] :format format validation configuration
+      # @option options [Regexp] :format.with pattern the value must match
+      # @option options [Regexp] :format.without pattern the value must not match
+      # @option options [String] :format.message custom error message
       #
       # @return [void]
-      # @raise [ValidationError] If value doesn't match the format requirements
       #
-      # @example Successful positive pattern validation
-      #   Format.call("user@example.com", format: { with: /@/ })
-      #   # => passes without error
+      # @raise [ValidationError] if the value doesn't match the format requirements
       #
-      # @example Failed positive pattern validation
-      #   Format.call("invalid-email", format: { with: /@/ })
-      #   # => raises ValidationError: "is an invalid format"
+      # @example Validating with a positive pattern
+      #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/ })
+      #   # => nil (no error raised)
       #
-      # @example Successful negative pattern validation
-      #   Format.call("username", format: { without: /admin/ })
-      #   # => passes without error
+      # @example Validating with a negative pattern
+      #   Validators::Format.call("admin", format: { without: /admin|root/ })
+      #   # raises ValidationError: "is an invalid format"
       #
-      # @example Failed negative pattern validation
-      #   Format.call("admin", format: { without: /admin/ })
-      #   # => raises ValidationError: "is an invalid format"
+      # @example Validating with both patterns
+      #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ })
+      #   # => nil (no error raised)
       #
-      # @example Combined pattern validation
-      #   Format.call("StrongPass123", format: {
-      #     with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}\z/,
-      #     without: /password/i
-      #   })
-      #   # => passes without error
+      # @example Invalid format with positive pattern
+      #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/ })
+      #   # raises ValidationError: "is an invalid format"
       #
-      # @example Custom error message
-      #   Format.call("weak", format: {
-      #     with: /\A.{8,}\z/,
-      #     message: "must be at least 8 characters"
-      #   })
-      #   # => raises ValidationError: "must be at least 8 characters"
+      # @example Using a custom message
+      #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/, message: "Username must start with letters" })
+      #   # raises ValidationError: "Username must start with letters"
       def call(value, options = {})
         valid = case options[:format]
                 in { with: with, without: without }
