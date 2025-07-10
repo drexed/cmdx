@@ -137,16 +137,16 @@ module CMDx
       #
       # @example Callable objects
       #   proc = -> { "Hello" }
-      #   proc.cmdx_call                   # => "Hello"
+      #   proc.cmdx_invoke                   # => "Hello"
       #
       # @example Non-callable objects
       #   string = "Hello"
-      #   string.cmdx_call                 # => "Hello"
+      #   string.cmdx_invoke                 # => "Hello"
       #
       # @example With arguments
       #   adder = ->(a, b) { a + b }
-      #   adder.cmdx_call(2, 3)           # => 5
-      def cmdx_call(...)
+      #   adder.cmdx_invoke(2, 3)           # => 5
+      def cmdx_invoke(...)
         return self unless respond_to?(:call)
 
         call(...)

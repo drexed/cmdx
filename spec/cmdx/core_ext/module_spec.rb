@@ -223,10 +223,10 @@ RSpec.describe CMDx::CoreExt::ModuleExtensions do # rubocop:disable RSpec/SpecFi
       end
     end
 
-    context "with cmdx_call integration" do
-      it "calls cmdx_call on default value" do
+    context "with cmdx_invoke integration" do
+      it "calls cmdx_invoke on default value" do
         callable_default = double("callable")
-        allow(callable_default).to receive(:cmdx_call).and_return("called_result")
+        allow(callable_default).to receive(:cmdx_invoke).and_return("called_result")
         allow(callable_default).to receive(:is_a?).with(Proc).and_return(false)
         test_class.cmdx_attr_setting :callable_value, default: callable_default
 

@@ -129,7 +129,7 @@ module CMDx
           return @cmd_facets[method] = value.dup unless value.nil?
 
           default = options[:default]
-          value   = default.cmdx_call
+          value   = default.cmdx_invoke
           @cmd_facets[method] = default.is_a?(Proc) ? value : value.dup
         end
       end

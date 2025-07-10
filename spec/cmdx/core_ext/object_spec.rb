@@ -319,12 +319,12 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
     end
   end
 
-  describe "#cmdx_call" do
+  describe "#cmdx_invoke" do
     context "with callable objects" do
       it "calls object when it responds to call" do
         callable = proc { "called" }
 
-        result = callable.cmdx_call
+        result = callable.cmdx_invoke
 
         expect(result).to eq("called")
       end
@@ -332,7 +332,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       it "forwards arguments to call method" do
         callable = proc { |arg| "called_#{arg}" }
 
-        result = callable.cmdx_call("test")
+        result = callable.cmdx_invoke("test")
 
         expect(result).to eq("called_test")
       end
@@ -340,7 +340,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       it "forwards keyword arguments to call method" do
         callable = proc { |key:| "called_#{key}" }
 
-        result = callable.cmdx_call(key: "value")
+        result = callable.cmdx_invoke(key: "value")
 
         expect(result).to eq("called_value")
       end
@@ -349,7 +349,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
         callable = proc { |&block| block.call }
         block = proc { "block_result" }
 
-        result = callable.cmdx_call(&block)
+        result = callable.cmdx_invoke(&block)
 
         expect(result).to eq("block_result")
       end
@@ -357,7 +357,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
 
     context "with non-callable objects" do
       it "returns self when object does not respond to call" do
-        result = test_object.cmdx_call
+        result = test_object.cmdx_invoke
 
         expect(result).to eq(test_object)
       end
@@ -365,7 +365,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       it "returns string unchanged" do
         string = "test_string"
 
-        result = string.cmdx_call
+        result = string.cmdx_invoke
 
         expect(result).to eq("test_string")
       end
@@ -373,7 +373,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       it "returns number unchanged" do
         number = 42
 
-        result = number.cmdx_call
+        result = number.cmdx_invoke
 
         expect(result).to eq(42)
       end
@@ -383,7 +383,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       it "checks if object responds to call method" do
         allow(test_object).to receive(:respond_to?).with(:call).and_return(false)
 
-        test_object.cmdx_call
+        test_object.cmdx_invoke
 
         expect(test_object).to have_received(:respond_to?).with(:call)
       end
@@ -407,8 +407,8 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
       expect(test_object).to respond_to(:cmdx_yield)
     end
 
-    it "makes cmdx_call available on all objects" do
-      expect(test_object).to respond_to(:cmdx_call)
+    it "makes cmdx_invoke available on all objects" do
+      expect(test_object).to respond_to(:cmdx_invoke)
     end
 
     it "preserves original respond_to? as cmdx_respond_to?" do
