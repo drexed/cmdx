@@ -2,64 +2,40 @@
 
 module CMDx
   module CoreExt
-    # Extensions to Module that provide CMDx-specific metaprogramming capabilities.
+    # Extensions for Ruby's Module class that provide attribute delegation and settings functionality.
+    # These extensions are automatically included in all modules when CMDx is loaded.
     #
-    # ModuleExtensions adds method delegation and attribute setting functionality
-    # used throughout the CMDx framework. These methods enable declarative
-    # programming patterns and automatic method generation.
-    #
-    # @example Method delegation
-    #   class Task
-    #     cmdx_attr_delegator :name, :email, to: :user
-    #     cmdx_attr_delegator :save, to: :record, private: true
-    #   end
-    #
-    # @example Attribute settings
-    #   class Task
-    #     cmdx_attr_setting :default_options, default: -> { {} }
-    #     cmdx_attr_setting :configuration, default: {}
-    #   end
-    #
-    # @see Task Tasks that use module extensions for delegation
-    # @see Parameter Parameters that use attribute settings
+    # @since 1.0.0
     module ModuleExtensions
 
-      # Create delegator methods that forward calls to another object.
+      # Creates delegated methods that forward calls to another object or class.
+      # Supports method name prefixing, privacy levels, and optional method existence checking.
       #
-      # This method generates instance methods that delegate to methods on
-      # another object. It supports method visibility controls and optional
-      # missing method handling.
-      #
-      # @param methods [Array<Symbol>] method names to delegate
+      # @param methods [Array<Symbol>] the method names to delegate
       # @param options [Hash] delegation options
-      # @option options [Symbol] :to target object method name (required)
-      # @option options [Boolean] :allow_missing whether to allow missing methods
-      # @option options [Boolean] :private make delegated methods private
-      # @option options [Boolean] :protected make delegated methods protected
+      # @option options [Symbol] :to the target object or :class to delegate to
+      # @option options [Boolean] :allow_missing (false) whether to allow delegation to non-existent methods
+      # @option options [Boolean] :protected (false) whether to make the delegated method protected
+      # @option options [Boolean] :private (false) whether to make the delegated method private
+      # @option options [String, Symbol] :prefix optional prefix for the delegated method name
+      # @option options [String, Symbol] :suffix optional suffix for the delegated method name
+      #
       # @return [void]
+      # @raise [NoMethodError] when delegating to a non-existent method and :allow_missing is false
       #
-      # @example Basic delegation
-      #   class User
-      #     cmdx_attr_delegator :first_name, :last_name, to: :profile
-      #     # Creates: def first_name; profile.first_name; end
-      #   end
-      #
-      # @example Private delegation
+      # @example Delegate methods to an instance variable
       #   class Task
-      #     cmdx_attr_delegator :validate, to: :validator, private: true
+      #     def initialize
+      #       @logger = Logger.new
+      #     end
+      #
+      #     cmdx_attr_delegator :info, :warn, :error, to: :@logger
       #   end
       #
-      # @example Class delegation
-      #   class Task
-      #     cmdx_attr_delegator :configuration, to: :class
+      # @example Delegate with prefix and privacy
+      #   class Workflow
+      #     cmdx_attr_delegator :perform, to: :task, prefix: 'execute_', private: true
       #   end
-      #
-      # @example With missing method handling
-      #   class Task
-      #     cmdx_attr_delegator :optional_method, to: :service, allow_missing: true
-      #   end
-      #
-      # @raise [NoMethodError] if target object doesn't respond to method and allow_missing is false
       def cmdx_attr_delegator(*methods, **options)
         methods.each do |method|
           method_name = Utils::NameAffix.call(method, options.fetch(:to), options)
@@ -83,43 +59,26 @@ module CMDx
         end
       end
 
-      # Create class-level attribute accessor with lazy evaluation and inheritance.
+      # Creates a singleton method for accessing inheritable settings with caching and default values.
+      # Settings are inherited from superclass and can have default values via blocks or static values.
       #
-      # This method generates a class method that provides lazy-loaded attribute
-      # access with inheritance support. Values are cached and can be initialized
-      # with default values or procs.
+      # @param method [Symbol] the name of the setting method to create
+      # @param options [Hash] setting options
+      # @option options [Object, Proc] :default the default value or a proc that returns the default value
       #
-      # @param method [Symbol] name of the attribute method
-      # @param options [Hash] attribute options
-      # @option options [Object, Proc] :default default value or proc to generate value
       # @return [void]
       #
-      # @example Simple attribute setting
-      #   class Task
+      # @example Define a setting with a default value
+      #   class BaseTask
       #     cmdx_attr_setting :timeout, default: 30
       #   end
-      #   # Task.timeout => 30
       #
-      # @example Dynamic default with proc
+      #   BaseTask.timeout # => 30
+      #
+      # @example Define a setting with a dynamic default
       #   class Task
-      #     cmdx_attr_setting :timestamp, default: -> { Time.now }
+      #     cmdx_attr_setting :retry_count, default: -> { ENV['RETRY_COUNT']&.to_i || 3 }
       #   end
-      #   # Task.timestamp => current time (evaluated lazily)
-      #
-      # @example Inherited settings
-      #   class BaseTask
-      #     cmdx_attr_setting :options, default: {retry: 3}
-      #   end
-      #
-      #   class ProcessTask < BaseTask
-      #   end
-      #   # ProcessTask.options => {retry: 3} (inherited from BaseTask)
-      #
-      # @example Hash settings (automatically duplicated)
-      #   class Task
-      #     cmdx_attr_setting :config, default: {}
-      #   end
-      #   # Each class gets its own copy of the hash
       def cmdx_attr_setting(method, **options)
         define_singleton_method(method) do
           @cmd_facets ||= {}
@@ -138,5 +97,4 @@ module CMDx
   end
 end
 
-# Extend all modules with CMDx utility methods
 Module.include(CMDx::CoreExt::ModuleExtensions)
