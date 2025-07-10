@@ -43,7 +43,7 @@ module CMDx
     #   new_registry = parameter_registry.dup
     def dup
       new_registry = self.class.new
-      new_registry.instance_variable_set(:@registry, registry.dup)
+      new_registry.instance_variable_set(:@registry, registry.map(&:dup))
       new_registry
     end
 

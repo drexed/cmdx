@@ -191,7 +191,7 @@ module CMDx
     #     other_settings: {}
     #   }
     def to_h
-      registry.dup.transform_values(&:dup)
+      registry.transform_values(&:dup)
     end
 
   end

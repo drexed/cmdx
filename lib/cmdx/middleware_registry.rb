@@ -85,7 +85,7 @@ module CMDx
     end
 
     def to_a
-      registry.dup
+      registry.map(&:dup)
     end
 
     private
