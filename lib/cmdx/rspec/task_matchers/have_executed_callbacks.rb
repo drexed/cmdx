@@ -1,5 +1,42 @@
 # frozen_string_literal: true
 
+# RSpec matcher for asserting that a task has executed specific callbacks.
+#
+# This matcher verifies that callbacks were actually invoked during task execution,
+# not just registered. It works by mocking the callback execution to track which
+# callbacks are called, then executing the task and checking that the expected
+# callbacks were invoked. This is useful for testing that callback logic is properly
+# triggered during task execution rather than just checking callback registration.
+#
+# @param callback_names [Array<Symbol, String>] the names of callbacks expected to execute
+#
+# @return [Boolean] true if all specified callbacks were executed during task execution
+#
+# @example Testing basic callback execution
+#   class MyTask < CMDx::Task
+#     before_execution :setup
+#     def call; end
+#   end
+#   expect(MyTask.new).to have_executed_callbacks(:before_execution)
+#
+# @example Testing callback execution with specific callable
+#   class ProcessTask < CMDx::Task
+#     after_execution :log_completion
+#     def call; end
+#   end
+#   expect(ProcessTask).to have_callback(:after_execution).with_callable(:log_completion)
+#
+# @example Testing callback execution with result
+#   result = MyTask.call(data: "test")
+#   expect(result).to have_executed_callbacks(:before_execution, :after_execution)
+#
+# @example Negative assertion
+#   class SimpleTask < CMDx::Task
+#     def call; end
+#   end
+#   expect(SimpleTask.new).not_to have_executed_callbacks(:before_execution)
+#
+# @since 1.0.0
 RSpec::Matchers.define :have_executed_callbacks do |*callback_names|
   match do |task_or_result|
     @executed_callbacks = []

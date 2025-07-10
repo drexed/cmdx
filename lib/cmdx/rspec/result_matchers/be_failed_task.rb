@@ -1,5 +1,41 @@
 # frozen_string_literal: true
 
+# RSpec matcher for asserting that a task result has failed with specific conditions.
+#
+# This matcher checks if a CMDx::Result object is in a failed state, which means
+# the task was executed but encountered an error or failure condition. A result
+# is considered failed when it's in both "failed" status and "interrupted" state,
+# and has been executed. Optionally checks for specific failure reasons and metadata.
+#
+# @param expected_reason [String, Symbol, nil] optional expected failure reason
+#
+# @return [Boolean] true if the result is failed, interrupted, executed, and matches expected criteria
+#
+# @example Basic usage with failed task
+#   result = ValidateUserTask.call(user_id: nil)
+#   expect(result).to be_failed_task
+#
+# @example Checking for specific failure reason
+#   result = ProcessPaymentTask.call(amount: -100)
+#   expect(result).to be_failed_task("invalid_amount")
+#
+# @example Using with_reason chain
+#   result = AuthenticateUserTask.call(token: "invalid")
+#   expect(result).to be_failed_task.with_reason(:authentication_failed)
+#
+# @example Checking failure with metadata
+#   result = UploadFileTask.call(file: corrupted_file)
+#   expect(result).to be_failed_task.with_metadata(file_size: 0, error_code: "CORRUPTED")
+#
+# @example Combining reason and metadata checks
+#   result = ValidateDataTask.call(data: invalid_data)
+#   expect(result).to be_failed_task("validation_error").with_metadata(field: "email", rule: "format")
+#
+# @example Negative assertion
+#   result = SuccessfulTask.call(data: "valid")
+#   expect(result).not_to be_failed_task
+#
+# @since 1.0.0
 RSpec::Matchers.define :be_failed_task do |expected_reason = nil|
   match do |result|
     result.failed? &&

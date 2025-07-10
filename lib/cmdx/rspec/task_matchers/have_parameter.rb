@@ -1,5 +1,60 @@
 # frozen_string_literal: true
 
+# RSpec matcher for asserting that a task class has a specific parameter.
+#
+# This matcher checks if a CMDx::Task class has registered a parameter with the
+# specified name. Parameters are inputs to task execution that can be required
+# or optional, typed with coercions, validated, and have default values. The
+# matcher supports various chain methods for precise parameter validation.
+#
+# @param parameter_name [Symbol, String] the name of the parameter to check for
+#
+# @return [Boolean] true if the task has the specified parameter and optionally matches all criteria
+#
+# @example Testing basic parameter presence
+#   class MyTask < CMDx::Task
+#     optional :input_file, type: :string
+#     def call; end
+#   end
+#   expect(MyTask).to have_parameter(:input_file)
+#
+# @example Testing required parameter
+#   class ProcessTask < CMDx::Task
+#     required data, type: :string
+#     def call; end
+#   end
+#   expect(ProcessTask).to have_parameter(:data).that_is_required
+#
+# @example Testing optional parameter with default
+#   class ConfigTask < CMDx::Task
+#     optional timeout, type: :integer, default: 30
+#     def call; end
+#   end
+#   expect(ConfigTask).to have_parameter(:timeout).that_is_optional.with_default(30)
+#
+# @example Testing parameter with type coercion
+#   class ImportTask < CMDx::Task
+#     optional csv_file, type: :string
+#     optional batch_size, type: :integer
+#     def call; end
+#   end
+#   expect(ImportTask).to have_parameter(:csv_file).with_type(:string)
+#   expect(ImportTask).to have_parameter(:batch_size).with_coercion(:integer)
+#
+# @example Testing parameter with validations
+#   class UserTask < CMDx::Task
+#     optional email, type: :string, format: /@/, presence: true
+#     def call; end
+#   end
+#   expect(UserTask).to have_parameter(:email).with_validations(:format, :presence)
+#
+# @example Negative assertion
+#   class SimpleTask < CMDx::Task
+#     def call; end
+#   end
+#   expect(SimpleTask).not_to have_parameter(:nonexistent)
+#
+# @since 1.0.0
 RSpec::Matchers.define :have_parameter do |parameter_name|
   match do |task_class|
     @parameter = task_class.cmd_parameters.registry.find { |p| p.method_name == parameter_name }

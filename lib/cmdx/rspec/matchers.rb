@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Result matchers
 require_relative "result_matchers/be_successful_task"
 require_relative "result_matchers/be_failed_task"
 require_relative "result_matchers/be_skipped_task"
@@ -17,3 +18,11 @@ require_relative "result_matchers/have_caused_failure"
 require_relative "result_matchers/have_thrown_failure"
 require_relative "result_matchers/have_received_thrown_failure"
 require_relative "result_matchers/have_chain_index"
+
+# Task matchers
+require_relative "task_matchers/be_well_formed_task"
+require_relative "task_matchers/have_task_setting"
+require_relative "task_matchers/have_middleware"
+require_relative "task_matchers/have_callback"
+require_relative "task_matchers/have_parameter"
+require_relative "task_matchers/have_executed_callbacks"

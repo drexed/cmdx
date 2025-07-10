@@ -9,8 +9,7 @@ require "rspec"
 
 require "cmdx"
 
-require "cmdx/rspec/result_matchers"
-require "cmdx/rspec/task_matchers"
+require "cmdx/rspec/matchers"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 

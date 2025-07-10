@@ -1,5 +1,45 @@
 # frozen_string_literal: true
 
+# RSpec matcher for asserting that a task class has a specific callback.
+#
+# This matcher checks if a CMDx::Task class has registered a callback with the
+# specified name. Callbacks are methods that execute before, after, or around
+# the main task logic. The matcher can optionally verify that the callback has
+# a specific callable (method name, proc, or lambda) using the `with_callable`
+# chain method for more precise callback validation.
+#
+# @param callback_name [Symbol, String] the name of the callback to check for
+#
+# @return [Boolean] true if the task has the specified callback and optionally the expected callable
+#
+# @example Testing basic callback presence
+#   class MyTask < CMDx::Task
+#     before_execution :validate_input
+#     def call; end
+#   end
+#   expect(MyTask).to have_callback(:before_execution)
+#
+# @example Testing callback with specific callable
+#   class ProcessTask < CMDx::Task
+#     after_execution :log_completion
+#     def call; end
+#   end
+#   expect(ProcessTask).to have_callback(:after_execution).with_callable(:log_completion)
+#
+# @example Testing callbacks with procs
+#   class CustomTask < CMDx::Task
+#     before_execution -> { puts "Starting" }
+#     def call; end
+#   end
+#   expect(CustomTask).to have_callback(:before_execution)
+#
+# @example Negative assertion
+#   class SimpleTask < CMDx::Task
+#     def call; end
+#   end
+#   expect(SimpleTask).not_to have_callback(:before_execution)
+#
+# @since 1.0.0
 RSpec::Matchers.define :have_callback do |callback_name|
   match do |task_class|
     task_class.cmd_callbacks.registered?(callback_name)

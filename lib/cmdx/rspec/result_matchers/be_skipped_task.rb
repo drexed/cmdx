@@ -1,5 +1,41 @@
 # frozen_string_literal: true
 
+# RSpec matcher for asserting that a task result has been skipped with specific conditions.
+#
+# This matcher checks if a CMDx::Result object is in a skipped state, which means
+# the task was executed but was intentionally skipped due to some condition. A result
+# is considered skipped when it's in both "skipped" status and "interrupted" state,
+# and has been executed. Optionally checks for specific skip reasons and metadata.
+#
+# @param expected_reason [String, Symbol, nil] optional expected skip reason
+#
+# @return [Boolean] true if the result is skipped, interrupted, executed, and matches expected criteria
+#
+# @example Basic usage with skipped task
+#   result = ProcessUserTask.call(user_id: 123)
+#   expect(result).to be_skipped_task
+#
+# @example Checking for specific skip reason
+#   result = SendEmailTask.call(user: inactive_user)
+#   expect(result).to be_skipped_task("user_inactive")
+#
+# @example Using with_reason chain
+#   result = BackupDataTask.call(force: false)
+#   expect(result).to be_skipped_task.with_reason(:backup_not_needed)
+#
+# @example Checking skip with metadata
+#   result = ProcessQueueTask.call(queue: empty_queue)
+#   expect(result).to be_skipped_task.with_metadata(queue_size: 0, processed_count: 0)
+#
+# @example Combining reason and metadata checks
+#   result = SyncDataTask.call(data: outdated_data)
+#   expect(result).to be_skipped_task("data_unchanged").with_metadata(last_sync: timestamp, changes: 0)
+#
+# @example Negative assertion
+#   result = ExecutedTask.call(data: "valid")
+#   expect(result).not_to be_skipped_task
+#
+# @since 1.0.0
 RSpec::Matchers.define :be_skipped_task do |expected_reason = nil|
   match do |result|
     result.skipped? &&
