@@ -81,7 +81,7 @@ RSpec::Matchers.define :have_parameter do |parameter_name|
     else
       issues = []
 
-      if !@expected_required.nil? && !(@parameter.required? == @expected_required)
+      if !@expected_required.nil? && @parameter.required? != @expected_required
         expected_req_text = @expected_required ? "required" : "optional"
         actual_req_text = @parameter.required? ? "required" : "optional"
         issues << "expected parameter to be #{expected_req_text}, but was #{actual_req_text}"
@@ -103,7 +103,7 @@ RSpec::Matchers.define :have_parameter do |parameter_name|
         end
       end
 
-      issues << "expected parameter default to be #{@expected_default_value}, but was #{@parameter.options[:default]}" if (@expected_default_value != :__not_specified__) && !(@parameter.options[:default] == @expected_default_value)
+      issues << "expected parameter default to be #{@expected_default_value}, but was #{@parameter.options[:default]}" if (@expected_default_value != :__not_specified__) && @parameter.options[:default] != @expected_default_value
 
       if issues.any?
         "expected parameter #{@parameter_name} to match criteria, but #{issues.join(', ')}"
