@@ -14,7 +14,9 @@ module CMDx
       #
       # @param value [Object] the value to convert to an array
       # @param _options [Hash] optional configuration (currently unused)
+      #
       # @return [Array] the converted array value
+      #
       # @raise [JSON::ParserError] if value is a JSON string that cannot be parsed
       # @raise [TypeError] if the value cannot be converted to an array
       #
