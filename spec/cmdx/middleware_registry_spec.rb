@@ -6,12 +6,12 @@ RSpec.describe CMDx::MiddlewareRegistry do
   let(:registry) { described_class.new }
   let(:task) { double("Task", should_stop?: false) }
 
-  describe "#use" do
+  describe "#register" do
     context "when adding middleware class without arguments" do
       let(:middleware_class) { create_middleware_class }
 
       it "adds middleware to registry" do
-        result = registry.use(middleware_class)
+        result = registry.register(middleware_class)
 
         expect(registry.to_a.size).to eq(1)
         expect(registry.to_a.first).to eq([middleware_class, [], nil])
@@ -23,7 +23,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:middleware_class) { create_middleware_class }
 
       it "stores arguments with middleware" do
-        registry.use(middleware_class, :arg1, :arg2, key: "value")
+        registry.register(middleware_class, :arg1, :arg2, key: "value")
 
         expect(registry.to_a.size).to eq(1)
         expect(registry.to_a.first).to eq([middleware_class, [:arg1, :arg2, { key: "value" }], nil])
@@ -35,7 +35,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:block) { proc { "config" } }
 
       it "stores block with middleware" do
-        registry.use(middleware_class, &block)
+        registry.register(middleware_class, &block)
 
         expect(registry.to_a.size).to eq(1)
         expect(registry.to_a.first).to eq([middleware_class, [], block])
@@ -46,7 +46,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:middleware_instance) { double("MiddlewareInstance") }
 
       it "stores instance directly" do
-        registry.use(middleware_instance)
+        registry.register(middleware_instance)
 
         expect(registry.to_a.size).to eq(1)
         expect(registry.to_a.first).to eq([middleware_instance, [], nil])
@@ -57,7 +57,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:middleware_proc) { proc { |task, callable| callable.call(task) } }
 
       it "stores proc as middleware" do
-        registry.use(middleware_proc)
+        registry.register(middleware_proc)
 
         expect(registry.to_a.size).to eq(1)
         expect(registry.to_a.first).to eq([middleware_proc, [], nil])
@@ -70,7 +70,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:third_middleware) { create_middleware_class }
 
       it "allows method chaining" do
-        result = registry.use(first_middleware).use(second_middleware).use(third_middleware)
+        result = registry.register(first_middleware).register(second_middleware).register(third_middleware)
 
         expect(registry.to_a.size).to eq(3)
         expect(result).to eq(registry)
@@ -104,7 +104,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(middleware_class)
+        registry.register(middleware_class)
       end
 
       it "instantiates and calls middleware" do
@@ -118,7 +118,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:middleware_instance) { double("MiddlewareInstance") }
 
       before do
-        registry.use(middleware_instance)
+        registry.register(middleware_instance)
         allow(middleware_instance).to receive(:call) { |task, callable| callable.call(task) }
       end
 
@@ -136,7 +136,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(middleware_proc)
+        registry.register(middleware_proc)
       end
 
       it "calls proc middleware directly" do
@@ -183,8 +183,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(outer_middleware, execution_order)
-        registry.use(inner_middleware, execution_order)
+        registry.register(outer_middleware, execution_order)
+        registry.register(inner_middleware, execution_order)
       end
 
       it "executes middleware in correct order" do
@@ -223,8 +223,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(short_circuit_middleware)
-        registry.use(second_middleware)
+        registry.register(short_circuit_middleware)
+        registry.register(second_middleware)
       end
 
       it "stops execution and returns early result" do
@@ -255,7 +255,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(result_modifying_middleware)
+        registry.register(result_modifying_middleware)
       end
 
       it "returns modified result" do
@@ -282,7 +282,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(parameterized_middleware, "PREFIX")
+        registry.register(parameterized_middleware, "PREFIX")
       end
 
       it "passes initialization parameters to middleware" do
@@ -309,7 +309,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(block_configured_middleware) { "BLOCK_CONFIG" }
+        registry.register(block_configured_middleware) { "BLOCK_CONFIG" }
       end
 
       it "passes initialization block to middleware" do
@@ -333,9 +333,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
       let(:proc_middleware) { proc { |task, callable| "proc: #{callable.call(task)}" } }
 
       before do
-        registry.use(class_middleware)
-        registry.use(instance_middleware)
-        registry.use(proc_middleware)
+        registry.register(class_middleware)
+        registry.register(instance_middleware)
+        registry.register(proc_middleware)
 
         allow(instance_middleware).to receive(:call) do |task, callable|
           "instance: #{callable.call(task)}"
@@ -359,7 +359,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(failing_middleware)
+        registry.register(failing_middleware)
       end
 
       it "allows exceptions to propagate" do
@@ -379,7 +379,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       before do
-        registry.use(logging_middleware)
+        registry.register(logging_middleware)
       end
 
       it "allows middleware to handle execution block exceptions" do

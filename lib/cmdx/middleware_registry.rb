@@ -13,9 +13,9 @@ module CMDx
   #
   # @example Basic middleware usage
   #   middleware_registry = MiddlewareRegistry.new
-  #   middleware_registry.use(LoggingMiddleware)
-  #   middleware_registry.use(AuthenticationMiddleware, required_role: :admin)
-  #   middleware_registry.use(CachingMiddleware, ttl: 300)
+  #   middleware_registry.register(LoggingMiddleware)
+  #   middleware_registry.register(AuthenticationMiddleware, required_role: :admin)
+  #   middleware_registry.register(CachingMiddleware, ttl: 300)
   #
   #   result = middleware_registry.call(task) do |t|
   #     t.call
@@ -29,7 +29,7 @@ module CMDx
   #   middleware_registry.each { |middleware| puts middleware.inspect }
   #
   # @example Using proc middleware
-  #   middleware_registry.use(proc do |task, callable|
+  #   middleware_registry.register(proc do |task, callable|
   #     puts "Before task execution"
   #     result = callable.call(task)
   #     puts "After task execution"
@@ -54,14 +54,14 @@ module CMDx
     # @return [MiddlewareRegistry] self for method chaining
     #
     # @example Add middleware class
-    #   registry.use(LoggingMiddleware, log_level: :info)
+    #   registry.register(LoggingMiddleware, log_level: :info)
     #
     # @example Add middleware instance
-    #   registry.use(LoggingMiddleware.new(log_level: :info))
+    #   registry.register(LoggingMiddleware.new(log_level: :info))
     #
     # @example Add proc middleware
-    #   registry.use(proc { |task, callable| callable.call(task) })
-    def use(middleware, *args, &block)
+    #   registry.register(proc { |task, callable| callable.call(task) })
+    def register(middleware, *args, &block)
       registry << [middleware, args, block]
       self
     end

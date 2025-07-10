@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
-- Allow registering coercion and validators via class methods
 - Add table and pretty_table log formatters
 - Refactor parameter modules and classes for more robust usages
 - Revert `docs/parameters/coercion.md` changes

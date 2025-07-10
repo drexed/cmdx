@@ -244,7 +244,7 @@ module CMDx
       def use(type, object, ...)
         case type
         when :middleware
-          cmd_middlewares.use(object, ...)
+          cmd_middlewares.register(object, ...)
         when :callback
           cmd_callbacks.register(type, object, ...)
         when :validator
