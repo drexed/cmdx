@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revert `docs/parameters/coercion.md` changes
 - Allow if/unless for validations
 - Allow `ServX` = `CMDx`
-- Add `CoercionRegistry` and `ValidationRegistry` to take instances
 - Refactor all `docs`
 - Refactor all yard docs
 
