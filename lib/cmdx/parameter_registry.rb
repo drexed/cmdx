@@ -47,16 +47,6 @@ module CMDx
       new_registry
     end
 
-    # Checks if any parameters in the collection are invalid.
-    #
-    # @return [Boolean] true if any parameter has validation errors, false otherwise
-    #
-    # @example
-    #   parameter_registry.invalid?  # => true if validation errors exist
-    def invalid?
-      !valid?
-    end
-
     # Checks if all parameters in the collection are valid.
     #
     # @return [Boolean] true if all parameters are valid, false otherwise

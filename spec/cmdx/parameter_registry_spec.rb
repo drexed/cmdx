@@ -50,34 +50,6 @@ RSpec.describe CMDx::ParameterRegistry do
     end
   end
 
-  describe "#invalid?" do
-    context "when registry is valid" do
-      before do
-        registry.registry << valid_parameter
-      end
-
-      it "returns false" do
-        expect(registry.invalid?).to be(false)
-      end
-    end
-
-    context "when registry is invalid" do
-      before do
-        registry.registry << invalid_parameter
-      end
-
-      it "returns true" do
-        expect(registry.invalid?).to be(true)
-      end
-    end
-
-    context "when registry is empty" do
-      it "returns false" do
-        expect(registry.invalid?).to be(false)
-      end
-    end
-  end
-
   describe "#validate!" do
     context "when validating simple parameters" do
       before do
@@ -224,7 +196,6 @@ RSpec.describe CMDx::ParameterRegistry do
 
       it "correctly reports validity based on direct parameters only" do
         expect(registry.valid?).to be(true)
-        expect(registry.invalid?).to be(false)
       end
 
       it "validates all parameters including nested ones" do
