@@ -156,12 +156,12 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "applies symbol validators with task instance" do
         task = double("Task")
-        allow(task).to receive(:__cmdx_try)
+        allow(task).to receive(:cmdx_try)
 
         registry.register(:symbol_validator, :validate_custom)
         registry.call(task, :symbol_validator, "test", { symbol_validator: true })
 
-        expect(task).to have_received(:__cmdx_try).with(:validate_custom, "test", symbol_validator: true)
+        expect(task).to have_received(:cmdx_try).with(:validate_custom, "test", symbol_validator: true)
       end
     end
 

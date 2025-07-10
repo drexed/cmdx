@@ -377,7 +377,7 @@ module CMDx
     # @see Result Task execution results
     def call
       self.class.workflow_groups.each do |group|
-        next unless __cmdx_eval(group.options)
+        next unless cmdx_eval(group.options)
 
         workflow_halt = group.options[:workflow_halt] || task_setting(:workflow_halt)
 

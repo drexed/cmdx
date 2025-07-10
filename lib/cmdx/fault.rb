@@ -79,8 +79,8 @@ module CMDx
   # @since 1.0.0
   class Fault < Error
 
-    __cmdx_attr_delegator :task, :chain, :context,
-                          to: :result
+    cmdx_attr_delegator :task, :chain, :context,
+                        to: :result
 
     ##
     # @!attribute [r] result

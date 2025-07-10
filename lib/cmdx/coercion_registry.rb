@@ -124,7 +124,7 @@ module CMDx
 
       case coercion = registry[type]
       when Symbol, String, Proc
-        task.__cmdx_try(coercion, value, options)
+        task.cmdx_try(coercion, value, options)
       else
         coercion.call(value, options)
       end

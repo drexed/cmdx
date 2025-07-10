@@ -98,19 +98,19 @@ module CMDx
   # @since 1.0.0
   class Task
 
-    __cmdx_attr_setting :task_settings,
-                        default: -> { CMDx.configuration.to_h.slice(:logger, :task_halt, :workflow_halt).merge(tags: []) }
-    __cmdx_attr_setting :cmd_middlewares,
-                        default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
-    __cmdx_attr_setting :cmd_callbacks,
-                        default: -> { CallbackRegistry.new(CMDx.configuration.callbacks) }
-    __cmdx_attr_setting :cmd_parameters,
-                        default: -> { ParameterRegistry.new }
+    cmdx_attr_setting :task_settings,
+                      default: -> { CMDx.configuration.to_h.slice(:logger, :task_halt, :workflow_halt).merge(tags: []) }
+    cmdx_attr_setting :cmd_middlewares,
+                      default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
+    cmdx_attr_setting :cmd_callbacks,
+                      default: -> { CallbackRegistry.new(CMDx.configuration.callbacks) }
+    cmdx_attr_setting :cmd_parameters,
+                      default: -> { ParameterRegistry.new }
 
-    __cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters, :task_setting, :task_setting?,
-                          to: :class
-    __cmdx_attr_delegator :skip!, :fail!, :throw!,
-                          to: :result
+    cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters, :task_setting, :task_setting?,
+                        to: :class
+    cmdx_attr_delegator :skip!, :fail!, :throw!,
+                        to: :result
 
     ##
     # @!attribute [r] context
@@ -204,7 +204,7 @@ module CMDx
       # @example
       #   task_setting(:timeout) #=> 30
       def task_setting(key)
-        __cmdx_yield(task_settings[key])
+        cmdx_yield(task_settings[key])
       end
 
       ##

@@ -68,7 +68,7 @@ RSpec.describe CMDx::CoercionRegistry do
     let(:task) { double("Task") }
 
     before do
-      allow(task).to receive(:__cmdx_try)
+      allow(task).to receive(:cmdx_try)
     end
 
     context "with built-in coercions" do
@@ -176,7 +176,7 @@ RSpec.describe CMDx::CoercionRegistry do
     let(:task) { double("Task") }
 
     before do
-      allow(task).to receive(:__cmdx_try)
+      allow(task).to receive(:cmdx_try)
     end
 
     it "supports all default coercion types" do
@@ -227,7 +227,7 @@ RSpec.describe CMDx::CoercionRegistry do
     let(:task) { double("Task") }
 
     before do
-      allow(task).to receive(:__cmdx_try)
+      allow(task).to receive(:cmdx_try)
     end
 
     it "supports common domain coercions" do

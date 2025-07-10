@@ -30,9 +30,9 @@ module CMDx
   # @see CMDx::Validators Parameter validation modules
   class ParameterValue
 
-    __cmdx_attr_delegator :parent, :method_source, :name, :options, :required?, :optional?, :type,
-                          to: :parameter,
-                          private: true
+    cmdx_attr_delegator :parent, :method_source, :name, :options, :required?, :optional?, :type,
+                        to: :parameter,
+                        private: true
 
     # @return [CMDx::Task] The task instance being processed
     attr_reader :task
@@ -82,7 +82,7 @@ module CMDx
     #
     # @return [Boolean] true if source method exists, false otherwise
     def source_defined?
-      task.respond_to?(method_source, true) || task.__cmdx_try(method_source)
+      task.respond_to?(method_source, true) || task.cmdx_try(method_source)
     end
 
     # Resolves the source object that contains the parameter value.
@@ -103,7 +103,7 @@ module CMDx
         )
       end
 
-      @source = task.__cmdx_try(method_source)
+      @source = task.cmdx_try(method_source)
     end
 
     # Checks if the source object has the parameter value.
@@ -112,7 +112,7 @@ module CMDx
     def source_value?
       return false if source.nil?
 
-      source.__cmdx_respond_to?(name, true)
+      source.cmdx_respond_to?(name, true)
     end
 
     # Checks if a required parameter value is missing from the source.
@@ -141,10 +141,10 @@ module CMDx
         )
       end
 
-      @value = source.__cmdx_try(name)
+      @value = source.cmdx_try(name)
       return @value unless @value.nil? && options.key?(:default)
 
-      @value = task.__cmdx_yield(options[:default])
+      @value = task.cmdx_yield(options[:default])
     end
 
     # Applies type coercion to the parameter value.
@@ -179,7 +179,7 @@ module CMDx
     #
     # @return [Boolean] true if validations should be skipped, false otherwise
     def skip_validations_due_to_optional_missing_argument?
-      optional? && value.nil? && !source.nil? && !source.__cmdx_respond_to?(name, true)
+      optional? && value.nil? && !source.nil? && !source.cmdx_respond_to?(name, true)
     end
 
     # Checks if a specific validator should be skipped due to conditional logic.
@@ -188,7 +188,7 @@ module CMDx
     # @return [Boolean] true if validator should be skipped, false otherwise
     def skip_validator_due_to_conditional?(key)
       opts = options[key]
-      opts.is_a?(Hash) && !task.__cmdx_eval(opts)
+      opts.is_a?(Hash) && !task.cmdx_eval(opts)
     end
 
     # Checks if a specific validator should be skipped due to allow_nil option.

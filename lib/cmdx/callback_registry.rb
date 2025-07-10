@@ -134,7 +134,7 @@ module CMDx
     #
     # Each callback definition is evaluated for its conditions (if/unless) before execution.
     # Callables are executed in registration order. Callback instances are called directly,
-    # while other callables are executed through the task's __cmdx_try method.
+    # while other callables are executed through the task's cmdx_try method.
     #
     # @param task [Task] The task instance to execute callbacks on
     # @param type [Symbol] The callback type to execute (e.g., :before_validation, :on_success)
@@ -147,18 +147,18 @@ module CMDx
     #   # Only executes if task.critical? returns true
     #   registry.call(task, :on_failure) # where registry has on_failure :alert, if: :critical?
     #
-    # @see Task#__cmdx_eval
-    # @see Task#__cmdx_try
+    # @see Task#cmdx_eval
+    # @see Task#cmdx_try
     def call(task, type)
       raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
-        next unless task.__cmdx_eval(options)
+        next unless task.cmdx_eval(options)
 
         Array(callables).each do |callable|
           case callable
           when Symbol, String, Proc
-            task.__cmdx_try(callable)
+            task.cmdx_try(callable)
           else
             callable.call(task)
           end

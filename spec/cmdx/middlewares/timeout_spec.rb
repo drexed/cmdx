@@ -6,7 +6,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
   subject(:middleware) { described_class.new(options) }
 
   let(:options) { {} }
-  let(:task) { mock_task(__cmdx_eval: true, __cmdx_yield: nil, fail!: nil, result: failed_result) }
+  let(:task) { mock_task(cmdx_eval: true, cmdx_yield: nil, fail!: nil, result: failed_result) }
   let(:callable) { double("callable") }
   let(:result) { mock_result }
   let(:failed_result) { mock_result }
@@ -84,7 +84,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
   describe "#call" do
     context "when conditions are not met" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(false)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(false)
       end
 
       it "calls the callable without timeout protection" do
@@ -98,12 +98,12 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     context "when conditions are met" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(true)
       end
 
       context "with default timeout" do
         before do
-          allow(task).to receive(:__cmdx_yield).with(3).and_return(3)
+          allow(task).to receive(:cmdx_yield).with(3).and_return(3)
         end
 
         it "applies default 3 second timeout" do
@@ -129,7 +129,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: 30 } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(30).and_return(30)
+          allow(task).to receive(:cmdx_yield).with(30).and_return(30)
         end
 
         it "applies specified timeout" do
@@ -143,7 +143,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: 2.5 } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(2.5).and_return(2.5)
+          allow(task).to receive(:cmdx_yield).with(2.5).and_return(2.5)
         end
 
         it "applies float timeout" do
@@ -157,7 +157,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: proc { 45 } } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(options[:seconds]).and_return(45)
+          allow(task).to receive(:cmdx_yield).with(options[:seconds]).and_return(45)
         end
 
         it "uses result from proc execution" do
@@ -171,7 +171,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: :timeout_method } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(:timeout_method).and_return(60)
+          allow(task).to receive(:cmdx_yield).with(:timeout_method).and_return(60)
         end
 
         it "uses result from method call" do
@@ -185,7 +185,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: :missing_method } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(:missing_method).and_return(nil)
+          allow(task).to receive(:cmdx_yield).with(:missing_method).and_return(nil)
         end
 
         it "falls back to default timeout of 3 seconds" do
@@ -199,14 +199,14 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: 25, if: :enabled?, unless: :disabled? } }
 
         before do
-          allow(task).to receive(:__cmdx_eval).with({ if: :enabled?, unless: :disabled? }).and_return(true)
-          allow(task).to receive(:__cmdx_yield).with(25).and_return(25)
+          allow(task).to receive(:cmdx_eval).with({ if: :enabled?, unless: :disabled? }).and_return(true)
+          allow(task).to receive(:cmdx_yield).with(25).and_return(25)
         end
 
         it "evaluates conditions before applying timeout" do
           middleware.call(task, callable)
 
-          expect(task).to have_received(:__cmdx_eval).with({ if: :enabled?, unless: :disabled? })
+          expect(task).to have_received(:cmdx_eval).with({ if: :enabled?, unless: :disabled? })
           expect(Timeout).to have_received(:timeout)
         end
       end
@@ -216,7 +216,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:timeout_error) { CMDx::TimeoutError.new("execution exceeded 5 seconds") }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(5).and_return(5)
+          allow(task).to receive(:cmdx_yield).with(5).and_return(5)
           allow(Timeout).to receive(:timeout).and_raise(timeout_error)
         end
 
@@ -242,7 +242,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:error) { StandardError.new("other error") }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(3).and_return(3)
+          allow(task).to receive(:cmdx_yield).with(3).and_return(3)
           allow(callable).to receive(:call).and_raise(error)
         end
 
@@ -255,7 +255,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: 0 } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(0).and_return(0)
+          allow(task).to receive(:cmdx_yield).with(0).and_return(0)
         end
 
         it "applies zero timeout" do
@@ -269,7 +269,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: -1 } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(-1).and_return(-1)
+          allow(task).to receive(:cmdx_yield).with(-1).and_return(-1)
         end
 
         it "applies negative timeout" do
@@ -282,11 +282,11 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     context "with complex timeout resolution" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(true)
       end
 
       it "uses explicit timeout when available" do
-        allow(task).to receive(:__cmdx_yield).with(15).and_return(15)
+        allow(task).to receive(:cmdx_yield).with(15).and_return(15)
 
         middleware_with_timeout = described_class.new(seconds: 15)
         middleware_with_timeout.call(task, callable)
@@ -295,7 +295,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
       end
 
       it "falls back to default when yield returns nil" do
-        allow(task).to receive(:__cmdx_yield).with(:missing).and_return(nil)
+        allow(task).to receive(:cmdx_yield).with(:missing).and_return(nil)
 
         middleware_with_missing = described_class.new(seconds: :missing)
         middleware_with_missing.call(task, callable)

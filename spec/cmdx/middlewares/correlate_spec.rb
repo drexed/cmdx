@@ -6,7 +6,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
   subject(:middleware) { described_class.new(options) }
 
   let(:options) { {} }
-  let(:task) { mock_task(chain: chain, __cmdx_eval: true, __cmdx_yield: nil) }
+  let(:task) { mock_task(chain: chain, cmdx_eval: true, cmdx_yield: nil) }
   let(:chain) { mock_chain(id: "chain-123") }
   let(:callable) { double("callable") }
   let(:result) { mock_result }
@@ -60,7 +60,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
   describe "#call" do
     context "when conditions are not met" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(false)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(false)
       end
 
       it "calls the callable without correlation setup" do
@@ -74,14 +74,14 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
     context "when conditions are met" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(true)
       end
 
       context "with explicit correlation id" do
         let(:options) { { id: "explicit-id" } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with("explicit-id").and_return("explicit-id")
+          allow(task).to receive(:cmdx_yield).with("explicit-id").and_return("explicit-id")
         end
 
         it "uses explicit correlation id" do
@@ -107,7 +107,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         let(:options) { { id: proc { "proc-id" } } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(options[:id]).and_return("proc-result")
+          allow(task).to receive(:cmdx_yield).with(options[:id]).and_return("proc-result")
         end
 
         it "uses result from proc execution" do
@@ -121,7 +121,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         let(:options) { { id: :correlation_method } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with(:correlation_method).and_return("method-result")
+          allow(task).to receive(:cmdx_yield).with(:correlation_method).and_return("method-result")
         end
 
         it "uses result from method call" do
@@ -135,7 +135,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         let(:options) { { id: "test-id" } }
 
         before do
-          allow(task).to receive(:__cmdx_yield).with("test-id").and_return(nil)
+          allow(task).to receive(:cmdx_yield).with("test-id").and_return(nil)
         end
 
         context "with existing thread correlation" do
@@ -226,13 +226,13 @@ RSpec.describe CMDx::Middlewares::Correlate do
         let(:options) { { if: :enabled?, unless: :disabled? } }
 
         before do
-          allow(task).to receive(:__cmdx_eval).with({ if: :enabled?, unless: :disabled? }).and_return(true)
+          allow(task).to receive(:cmdx_eval).with({ if: :enabled?, unless: :disabled? }).and_return(true)
         end
 
         it "evaluates conditions before applying correlation" do
           middleware.call(task, callable)
 
-          expect(task).to have_received(:__cmdx_eval).with({ if: :enabled?, unless: :disabled? })
+          expect(task).to have_received(:cmdx_eval).with({ if: :enabled?, unless: :disabled? })
           expect(CMDx::Correlator).to have_received(:use)
         end
       end
@@ -253,12 +253,12 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
     context "with complex correlation precedence" do
       before do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
+        allow(task).to receive(:cmdx_eval).with({}).and_return(true)
       end
 
       it "follows correct precedence order" do
         # Test that explicit id takes precedence over thread correlation
-        allow(task).to receive(:__cmdx_yield).with("explicit").and_return("explicit-result")
+        allow(task).to receive(:cmdx_yield).with("explicit").and_return("explicit-result")
         allow(CMDx::Correlator).to receive(:id).and_return("thread-id")
 
         middleware_with_id = described_class.new(id: "explicit")
@@ -268,7 +268,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
 
       it "uses thread correlation when explicit yields nil" do
-        allow(task).to receive(:__cmdx_yield).with("explicit").and_return(nil)
+        allow(task).to receive(:cmdx_yield).with("explicit").and_return(nil)
         allow(CMDx::Correlator).to receive(:id).and_return("thread-id")
 
         middleware_with_id = described_class.new(id: "explicit")
@@ -278,7 +278,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
 
       it "uses chain id when both explicit and thread are nil" do
-        allow(task).to receive(:__cmdx_yield).with("explicit").and_return(nil)
+        allow(task).to receive(:cmdx_yield).with("explicit").and_return(nil)
         allow(CMDx::Correlator).to receive(:id).and_return(nil)
         allow(chain).to receive(:id).and_return("chain-id")
 
@@ -289,7 +289,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
 
       it "generates new id when all sources are nil" do
-        allow(task).to receive(:__cmdx_yield).with("explicit").and_return(nil)
+        allow(task).to receive(:cmdx_yield).with("explicit").and_return(nil)
         allow(CMDx::Correlator).to receive(:id).and_return(nil)
         allow(chain).to receive(:id).and_return(nil)
 

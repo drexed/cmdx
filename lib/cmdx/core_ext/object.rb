@@ -6,27 +6,27 @@ module CMDx
     #
     # ObjectExtensions adds safe method calling, conditional evaluation,
     # and value yielding capabilities to all Ruby objects. These methods
-    # are prefixed with `__cmdx_` to avoid conflicts with existing methods.
+    # are prefixed with `cmdx_` to avoid conflicts with existing methods.
     #
     # @example Safe method calling
-    #   object.__cmdx_try(:some_method)  # Returns nil if method doesn't exist
-    #   object.__cmdx_try(proc { expensive_calculation })  # Calls proc safely
+    #   object.cmdx_try(:some_method)  # Returns nil if method doesn't exist
+    #   object.cmdx_try(proc { expensive_calculation })  # Calls proc safely
     #
     # @example Conditional evaluation
-    #   object.__cmdx_eval(if: :valid?)       # True if object.valid? is true
-    #   object.__cmdx_eval(unless: :empty?)   # True unless object.empty? is true
-    #   object.__cmdx_eval(if: :valid?, unless: :processed?)  # Combined conditions
+    #   object.cmdx_eval(if: :valid?)       # True if object.valid? is true
+    #   object.cmdx_eval(unless: :empty?)   # True unless object.empty? is true
+    #   object.cmdx_eval(if: :valid?, unless: :processed?)  # Combined conditions
     #
     # @example Value yielding
-    #   object.__cmdx_yield(:name)           # Returns object.name if method exists, otherwise :name
-    #   object.__cmdx_yield(-> { compute })  # Executes lambda and returns result
+    #   object.cmdx_yield(:name)           # Returns object.name if method exists, otherwise :name
+    #   object.cmdx_yield(-> { compute })  # Executes lambda and returns result
     #
     # @see Task Tasks that use these object extensions
     # @see Parameter Parameters that leverage object extensions
     module ObjectExtensions
 
       # Store original respond_to? method before aliasing
-      alias __cmdx_respond_to? respond_to?
+      alias cmdx_respond_to? respond_to?
 
       # Safely attempt to call a method or execute a proc on an object.
       #
@@ -38,17 +38,17 @@ module CMDx
       # @return [Object, nil] result of method call, proc execution, or nil if not possible
       #
       # @example Method calling
-      #   user.__cmdx_try(:name)              # => "John" or nil
-      #   user.__cmdx_try(:age, 25)           # => calls user.age(25) or nil
+      #   user.cmdx_try(:name)              # => "John" or nil
+      #   user.cmdx_try(:age, 25)           # => calls user.age(25) or nil
       #
       # @example Proc execution
-      #   user.__cmdx_try(-> { expensive_calc }) # => executes lambda
-      #   user.__cmdx_try(proc { |x| x * 2 }, 5) # => 10
+      #   user.cmdx_try(-> { expensive_calc }) # => executes lambda
+      #   user.cmdx_try(proc { |x| x * 2 }, 5) # => 10
       #
       # @example Hash access
       #   hash = {name: "John"}
-      #   hash.__cmdx_try(:name)              # => "John"
-      def __cmdx_try(key, ...)
+      #   hash.cmdx_try(:name)              # => "John"
+      def cmdx_try(key, ...)
         if key.is_a?(Proc)
           return instance_eval(&key) unless is_a?(Module) || key.inspect.include?("(lambda)")
 
@@ -56,7 +56,7 @@ module CMDx
         elsif respond_to?(key, true)
           send(key, ...)
         elsif is_a?(Hash)
-          __cmdx_fetch(key)
+          cmdx_fetch(key)
         end
       end
 
@@ -73,21 +73,21 @@ module CMDx
       # @return [Boolean] true if conditions are met
       #
       # @example Simple conditions
-      #   user.__cmdx_eval(if: :admin?)       # => true if user.admin? is true
-      #   user.__cmdx_eval(unless: :guest?)   # => true unless user.guest? is true
+      #   user.cmdx_eval(if: :admin?)       # => true if user.admin? is true
+      #   user.cmdx_eval(unless: :guest?)   # => true unless user.guest? is true
       #
       # @example Combined conditions
-      #   user.__cmdx_eval(if: :active?, unless: :banned?)  # => active AND not banned
+      #   user.cmdx_eval(if: :active?, unless: :banned?)  # => active AND not banned
       #
       # @example With procs
-      #   user.__cmdx_eval(if: -> { Time.now.monday? }) # => true if today is Monday
-      def __cmdx_eval(options = {})
+      #   user.cmdx_eval(if: -> { Time.now.monday? }) # => true if today is Monday
+      def cmdx_eval(options = {})
         if options[:if] && options[:unless]
-          __cmdx_try(options[:if]) && !__cmdx_try(options[:unless])
+          cmdx_try(options[:if]) && !cmdx_try(options[:unless])
         elsif options[:if]
-          __cmdx_try(options[:if])
+          cmdx_try(options[:if])
         elsif options[:unless]
-          !__cmdx_try(options[:unless])
+          !cmdx_try(options[:unless])
         else
           options.fetch(:default, true)
         end
@@ -104,23 +104,23 @@ module CMDx
       # @return [Object] yielded value
       #
       # @example Method yielding
-      #   user.__cmdx_yield(:name)           # => calls user.name if method exists, otherwise returns :name
-      #   user.__cmdx_yield("email")         # => calls user.email if method exists, otherwise returns "email"
+      #   user.cmdx_yield(:name)           # => calls user.name if method exists, otherwise returns :name
+      #   user.cmdx_yield("email")         # => calls user.email if method exists, otherwise returns "email"
       #
       # @example Proc yielding
-      #   user.__cmdx_yield(-> { timestamp }) # => executes lambda
-      #   hash.__cmdx_yield({key: "value"})   # => tries hash access
+      #   user.cmdx_yield(-> { timestamp }) # => executes lambda
+      #   hash.cmdx_yield({key: "value"})   # => tries hash access
       #
       # @example Direct values
-      #   user.__cmdx_yield(42)              # => 42
-      #   user.__cmdx_yield("literal")       # => "literal"
-      def __cmdx_yield(key, ...)
+      #   user.cmdx_yield(42)              # => 42
+      #   user.cmdx_yield("literal")       # => "literal"
+      def cmdx_yield(key, ...)
         if key.is_a?(Symbol) || key.is_a?(String)
           return key unless respond_to?(key, true)
 
           send(key, ...)
         elsif is_a?(Hash) || key.is_a?(Proc)
-          __cmdx_try(key, ...)
+          cmdx_try(key, ...)
         else
           key
         end
@@ -137,16 +137,16 @@ module CMDx
       #
       # @example Callable objects
       #   proc = -> { "Hello" }
-      #   proc.__cmdx_call                   # => "Hello"
+      #   proc.cmdx_call                   # => "Hello"
       #
       # @example Non-callable objects
       #   string = "Hello"
-      #   string.__cmdx_call                 # => "Hello"
+      #   string.cmdx_call                 # => "Hello"
       #
       # @example With arguments
       #   adder = ->(a, b) { a + b }
-      #   adder.__cmdx_call(2, 3)           # => 5
-      def __cmdx_call(...)
+      #   adder.cmdx_call(2, 3)           # => 5
+      def cmdx_call(...)
         return self unless respond_to?(:call)
 
         call(...)

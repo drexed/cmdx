@@ -35,8 +35,8 @@ module CMDx
   # @see CMDx::Fault Fault handling for result failures
   class Result
 
-    __cmdx_attr_delegator :context, :chain,
-                          to: :task
+    cmdx_attr_delegator :context, :chain,
+                        to: :task
 
     # @return [CMDx::Task] The task instance that generated this result
     attr_reader :task

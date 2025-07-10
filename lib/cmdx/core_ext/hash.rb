@@ -6,20 +6,20 @@ module CMDx
     #
     # HashExtensions adds flexible key access that works with both
     # string and symbol keys interchangeably. These methods are prefixed
-    # with `__cmdx_` to avoid conflicts with existing Hash methods.
+    # with `cmdx_` to avoid conflicts with existing Hash methods.
     #
     # @example Flexible key access
     #   hash = {name: "John", "age" => 30}
-    #   hash.__cmdx_fetch(:name)      # => "John" (symbol key)
-    #   hash.__cmdx_fetch("name")     # => "John" (tries symbol fallback)
-    #   hash.__cmdx_fetch(:age)       # => 30 (string fallback)
+    #   hash.cmdx_fetch(:name)      # => "John" (symbol key)
+    #   hash.cmdx_fetch("name")     # => "John" (tries symbol fallback)
+    #   hash.cmdx_fetch(:age)       # => 30 (string fallback)
     #
     # @example Key checking
-    #   hash.__cmdx_key?(:name)       # => true (checks both symbol and string)
-    #   hash.__cmdx_key?("age")       # => true (checks both string and symbol)
+    #   hash.cmdx_key?(:name)       # => true (checks both symbol and string)
+    #   hash.cmdx_key?("age")       # => true (checks both string and symbol)
     #
     # @example Method response checking
-    #   hash.__cmdx_respond_to?(:name)   # => true (considers key as method)
+    #   hash.cmdx_respond_to?(:name)   # => true (considers key as method)
     #
     # @see Context Context objects that use hash extensions
     # @see LazyStruct Structs that leverage hash-like behavior
@@ -37,16 +37,16 @@ module CMDx
       #
       # @example Symbol to string conversion
       #   hash = {"name" => "John"}
-      #   hash.__cmdx_fetch(:name)        # => "John" (tries :name, then "name")
+      #   hash.cmdx_fetch(:name)        # => "John" (tries :name, then "name")
       #
       # @example String to symbol conversion
       #   hash = {name: "John"}
-      #   hash.__cmdx_fetch("name")       # => "John" (tries "name", then :name)
+      #   hash.cmdx_fetch("name")       # => "John" (tries "name", then :name)
       #
       # @example Direct key access
       #   hash = {id: 123}
-      #   hash.__cmdx_fetch(:id)          # => 123 (direct match)
-      def __cmdx_fetch(key)
+      #   hash.cmdx_fetch(:id)          # => 123 (direct match)
+      def cmdx_fetch(key)
         case key
         when Symbol then fetch(key) { self[key.to_s] }
         when String then fetch(key) { self[key.to_sym] }
@@ -64,11 +64,11 @@ module CMDx
       #
       # @example Symbol/string checking
       #   hash = {name: "John", "age" => 30}
-      #   hash.__cmdx_key?(:name)         # => true
-      #   hash.__cmdx_key?("name")        # => true (checks :name fallback)
-      #   hash.__cmdx_key?(:age)          # => true (checks "age" fallback)
-      #   hash.__cmdx_key?(:missing)      # => false
-      def __cmdx_key?(key)
+      #   hash.cmdx_key?(:name)         # => true
+      #   hash.cmdx_key?("name")        # => true (checks :name fallback)
+      #   hash.cmdx_key?(:age)          # => true (checks "age" fallback)
+      #   hash.cmdx_key?(:missing)      # => false
+      def cmdx_key?(key)
         key?(key) || key?(
           case key
           when Symbol then key.to_s
@@ -91,13 +91,13 @@ module CMDx
       #
       # @example Method response checking
       #   hash = {name: "John"}
-      #   hash.__cmdx_respond_to?(:name)     # => true (has key :name)
-      #   hash.__cmdx_respond_to?(:keys)     # => true (real Hash method)
-      #   hash.__cmdx_respond_to?(:missing)  # => false
-      def __cmdx_respond_to?(key, include_private = false)
-        respond_to?(key.to_sym, include_private) || __cmdx_key?(key)
+      #   hash.cmdx_respond_to?(:name)     # => true (has key :name)
+      #   hash.cmdx_respond_to?(:keys)     # => true (real Hash method)
+      #   hash.cmdx_respond_to?(:missing)  # => false
+      def cmdx_respond_to?(key, include_private = false)
+        respond_to?(key.to_sym, include_private) || cmdx_key?(key)
       rescue NoMethodError
-        __cmdx_key?(key)
+        cmdx_key?(key)
       end
 
     end

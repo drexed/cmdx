@@ -91,8 +91,8 @@ module CMDx
   # @since 1.0.0
   class Errors
 
-    __cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values,
-                          to: :errors
+    cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values,
+                        to: :errors
 
     ##
     # @!attribute [r] errors

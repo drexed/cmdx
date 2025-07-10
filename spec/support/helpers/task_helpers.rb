@@ -394,8 +394,8 @@ module CMDx
       # @example Prevent task execution
       #   stub_task_conditions(task, false)
       def stub_task_conditions(task, conditions_result = true)
-        allow(task).to receive(:__cmdx_eval).and_return(conditions_result)
-        allow(task).to receive(:__cmdx_try)
+        allow(task).to receive(:cmdx_eval).and_return(conditions_result)
+        allow(task).to receive(:cmdx_try)
       end
 
       # @group Result State Builders

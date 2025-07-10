@@ -50,10 +50,10 @@ module CMDx
     # Thread-local storage key for the current chain
     THREAD_KEY = :cmdx_correlation_chain
 
-    __cmdx_attr_delegator :index, :first, :last, :size,
-                          to: :results
-    __cmdx_attr_delegator :state, :status, :outcome, :runtime,
-                          to: :first
+    cmdx_attr_delegator :index, :first, :last, :size,
+                        to: :results
+    cmdx_attr_delegator :state, :status, :outcome, :runtime,
+                        to: :first
 
     # @!attribute [r] id
     #   @return [String] the unique identifier for this chain

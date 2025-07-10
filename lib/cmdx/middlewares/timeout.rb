@@ -214,10 +214,10 @@ module CMDx
       #   result = task.call  # => success (no timeout applied)
       def call(task, callable)
         # Check if timeout should be applied based on conditions
-        return callable.call(task) unless task.__cmdx_eval(conditional)
+        return callable.call(task) unless task.cmdx_eval(conditional)
 
         # Get seconds using yield for dynamic generation
-        limit = task.__cmdx_yield(seconds) || 3
+        limit = task.cmdx_yield(seconds) || 3
 
         # Apply timeout protection
         ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds") do

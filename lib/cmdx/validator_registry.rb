@@ -139,11 +139,11 @@ module CMDx
     #   registry.call(:format, "user@example.com", format: { with: /@/ })
     def call(task, type, value, options = {})
       raise UnknownValidatorError, "unknown validator #{type}" unless registry.key?(type)
-      return unless task.__cmdx_eval(options)
+      return unless task.cmdx_eval(options)
 
       case validator = registry[type]
       when Symbol, String, Proc
-        task.__cmdx_try(validator, value, options)
+        task.cmdx_try(validator, value, options)
       else
         validator.call(value, options)
       end

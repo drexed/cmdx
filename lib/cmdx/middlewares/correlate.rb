@@ -249,10 +249,10 @@ module CMDx
       #   # Correlation applied only in production environment
       def call(task, callable)
         # Check if correlation should be applied based on conditions
-        return callable.call(task) unless task.__cmdx_eval(conditional)
+        return callable.call(task) unless task.cmdx_eval(conditional)
 
         # Get correlation ID using yield for dynamic generation
-        correlation_id = task.__cmdx_yield(id) ||
+        correlation_id = task.cmdx_yield(id) ||
                          CMDx::Correlator.id ||
                          task.chain.id ||
                          CMDx::Correlator.generate

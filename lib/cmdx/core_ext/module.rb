@@ -10,14 +10,14 @@ module CMDx
     #
     # @example Method delegation
     #   class Task
-    #     __cmdx_attr_delegator :name, :email, to: :user
-    #     __cmdx_attr_delegator :save, to: :record, private: true
+    #     cmdx_attr_delegator :name, :email, to: :user
+    #     cmdx_attr_delegator :save, to: :record, private: true
     #   end
     #
     # @example Attribute settings
     #   class Task
-    #     __cmdx_attr_setting :default_options, default: -> { {} }
-    #     __cmdx_attr_setting :configuration, default: {}
+    #     cmdx_attr_setting :default_options, default: -> { {} }
+    #     cmdx_attr_setting :configuration, default: {}
     #   end
     #
     # @see Task Tasks that use module extensions for delegation
@@ -40,27 +40,27 @@ module CMDx
       #
       # @example Basic delegation
       #   class User
-      #     __cmdx_attr_delegator :first_name, :last_name, to: :profile
+      #     cmdx_attr_delegator :first_name, :last_name, to: :profile
       #     # Creates: def first_name; profile.first_name; end
       #   end
       #
       # @example Private delegation
       #   class Task
-      #     __cmdx_attr_delegator :validate, to: :validator, private: true
+      #     cmdx_attr_delegator :validate, to: :validator, private: true
       #   end
       #
       # @example Class delegation
       #   class Task
-      #     __cmdx_attr_delegator :configuration, to: :class
+      #     cmdx_attr_delegator :configuration, to: :class
       #   end
       #
       # @example With missing method handling
       #   class Task
-      #     __cmdx_attr_delegator :optional_method, to: :service, allow_missing: true
+      #     cmdx_attr_delegator :optional_method, to: :service, allow_missing: true
       #   end
       #
       # @raise [NoMethodError] if target object doesn't respond to method and allow_missing is false
-      def __cmdx_attr_delegator(*methods, **options)
+      def cmdx_attr_delegator(*methods, **options)
         methods.each do |method|
           method_name = Utils::NameAffix.call(method, options.fetch(:to), options)
 
@@ -96,19 +96,19 @@ module CMDx
       #
       # @example Simple attribute setting
       #   class Task
-      #     __cmdx_attr_setting :timeout, default: 30
+      #     cmdx_attr_setting :timeout, default: 30
       #   end
       #   # Task.timeout => 30
       #
       # @example Dynamic default with proc
       #   class Task
-      #     __cmdx_attr_setting :timestamp, default: -> { Time.now }
+      #     cmdx_attr_setting :timestamp, default: -> { Time.now }
       #   end
       #   # Task.timestamp => current time (evaluated lazily)
       #
       # @example Inherited settings
       #   class BaseTask
-      #     __cmdx_attr_setting :options, default: {retry: 3}
+      #     cmdx_attr_setting :options, default: {retry: 3}
       #   end
       #
       #   class ProcessTask < BaseTask
@@ -117,19 +117,19 @@ module CMDx
       #
       # @example Hash settings (automatically duplicated)
       #   class Task
-      #     __cmdx_attr_setting :config, default: {}
+      #     cmdx_attr_setting :config, default: {}
       #   end
       #   # Each class gets its own copy of the hash
-      def __cmdx_attr_setting(method, **options)
+      def cmdx_attr_setting(method, **options)
         define_singleton_method(method) do
           @cmd_facets ||= {}
           return @cmd_facets[method] if @cmd_facets.key?(method)
 
-          value = superclass.__cmdx_try(method)
+          value = superclass.cmdx_try(method)
           return @cmd_facets[method] = value.dup unless value.nil?
 
           default = options[:default]
-          value   = default.__cmdx_call
+          value   = default.cmdx_call
           @cmd_facets[method] = default.is_a?(Proc) ? value : value.dup
         end
       end

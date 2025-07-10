@@ -44,8 +44,8 @@ module CMDx
   # @see CMDx::Parameters Parameter collection management
   class Parameter
 
-    __cmdx_attr_delegator :invalid?, :valid?,
-                          to: :errors
+    cmdx_attr_delegator :invalid?, :valid?,
+                        to: :errors
 
     # @return [CMDx::Task] The task class this parameter belongs to
     attr_accessor :task

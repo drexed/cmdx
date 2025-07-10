@@ -40,9 +40,9 @@ RSpec.describe CMDx::ParameterValue do
 
     before do
       allow(task).to receive(:respond_to?).with(:context, true).and_return(true)
-      allow(task).to receive(:__cmdx_try).with(:context).and_return(context)
-      allow(context).to receive(:__cmdx_respond_to?).with(:user_id, true).and_return(true)
-      allow(context).to receive(:__cmdx_try).with(:user_id).and_return("42")
+      allow(task).to receive(:cmdx_try).with(:context).and_return(context)
+      allow(context).to receive(:cmdx_respond_to?).with(:user_id, true).and_return(true)
+      allow(context).to receive(:cmdx_try).with(:user_id).and_return("42")
     end
 
     context "when processing a simple parameter" do
@@ -56,7 +56,7 @@ RSpec.describe CMDx::ParameterValue do
     context "when parameter source is undefined" do
       before do
         allow(task).to receive(:respond_to?).with(:context, true).and_return(false)
-        allow(task).to receive(:__cmdx_try).with(:context).and_return(nil)
+        allow(task).to receive(:cmdx_try).with(:context).and_return(nil)
       end
 
       it "raises ValidationError" do
@@ -66,7 +66,7 @@ RSpec.describe CMDx::ParameterValue do
 
     context "when required parameter is missing" do
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:user_id, true).and_return(false)
+        allow(context).to receive(:cmdx_respond_to?).with(:user_id, true).and_return(false)
       end
 
       it "raises ValidationError" do
@@ -88,9 +88,9 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:priority, true).and_return(false)
-        allow(context).to receive(:__cmdx_try).with(:priority).and_return(nil)
-        allow(task).to receive(:__cmdx_yield).with("normal").and_return("normal")
+        allow(context).to receive(:cmdx_respond_to?).with(:priority, true).and_return(false)
+        allow(context).to receive(:cmdx_try).with(:priority).and_return(nil)
+        allow(task).to receive(:cmdx_yield).with("normal").and_return("normal")
       end
 
       it "returns the default value" do
@@ -115,9 +115,9 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:computed, true).and_return(false)
-        allow(context).to receive(:__cmdx_try).with(:computed).and_return(nil)
-        allow(task).to receive(:__cmdx_yield).with(default_proc).and_return("calculated_default")
+        allow(context).to receive(:cmdx_respond_to?).with(:computed, true).and_return(false)
+        allow(context).to receive(:cmdx_try).with(:computed).and_return(nil)
+        allow(task).to receive(:cmdx_yield).with(default_proc).and_return("calculated_default")
       end
 
       it "evaluates the callable and returns the result" do
@@ -135,8 +135,8 @@ RSpec.describe CMDx::ParameterValue do
 
     before do
       allow(task).to receive(:respond_to?).with(:context, true).and_return(true)
-      allow(task).to receive(:__cmdx_try).with(:context).and_return(context)
-      allow(context).to receive(:__cmdx_respond_to?).with(:value, true).and_return(true)
+      allow(task).to receive(:cmdx_try).with(:context).and_return(context)
+      allow(context).to receive(:cmdx_respond_to?).with(:value, true).and_return(true)
     end
 
     context "when coercing to integer" do
@@ -153,7 +153,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces string to integer" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("123")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("123")
 
         result = processor.call
 
@@ -161,7 +161,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "handles negative integers" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("-456")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("-456")
 
         result = processor.call
 
@@ -169,7 +169,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "raises CoercionError for invalid integer" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("invalid")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("invalid")
 
         expect { processor.call }.to raise_error(CMDx::CoercionError)
       end
@@ -189,7 +189,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces integer to string" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(42)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(42)
 
         result = processor.call
 
@@ -197,7 +197,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "keeps string as string" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("hello")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("hello")
 
         result = processor.call
 
@@ -219,7 +219,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces truthy values to true" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("true")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("true")
 
         result = processor.call
 
@@ -227,7 +227,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces falsy values to false" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("false")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("false")
 
         result = processor.call
 
@@ -249,7 +249,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces string to float" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("3.14")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("3.14")
 
         result = processor.call
 
@@ -257,7 +257,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "coerces integer to float" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(42)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(42)
 
         result = processor.call
 
@@ -279,7 +279,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "keeps array as array" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return([1, 2, 3])
+        allow(context).to receive(:cmdx_try).with(:value).and_return([1, 2, 3])
 
         result = processor.call
 
@@ -287,7 +287,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "wraps single value in array" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("single")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("single")
 
         result = processor.call
 
@@ -310,7 +310,7 @@ RSpec.describe CMDx::ParameterValue do
 
       it "keeps hash as hash" do
         hash_value = { key: "value" }
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(hash_value)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(hash_value)
 
         result = processor.call
 
@@ -332,7 +332,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "returns the source object directly" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("anything")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("anything")
 
         result = processor.call
 
@@ -354,7 +354,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "tries first type successfully" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("123")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("123")
 
         result = processor.call
 
@@ -362,7 +362,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "falls back to second type when first fails" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("123.45")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("123.45")
 
         result = processor.call
 
@@ -371,7 +371,7 @@ RSpec.describe CMDx::ParameterValue do
 
       it "raises error when all types fail" do
         # Use a value that will fail both integer and float coercion
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("not-a-number")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("not-a-number")
 
         expect { processor.call }.to raise_error(CMDx::CoercionError, /could not coerce into one of/)
       end
@@ -391,7 +391,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "raises UnknownCoercionError" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("value")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("value")
 
         expect { processor.call }.to raise_error(CMDx::UnknownCoercionError, /unknown coercion unknown_type/)
       end
@@ -405,9 +405,9 @@ RSpec.describe CMDx::ParameterValue do
 
     before do
       allow(task).to receive(:respond_to?).with(:context, true).and_return(true)
-      allow(task).to receive(:__cmdx_try).with(:context).and_return(context)
-      allow(context).to receive(:__cmdx_respond_to?).with(:value, true).and_return(true)
-      allow(context).to receive(:__cmdx_try).with(:value).and_return("test")
+      allow(task).to receive(:cmdx_try).with(:context).and_return(context)
+      allow(context).to receive(:cmdx_respond_to?).with(:value, true).and_return(true)
+      allow(context).to receive(:cmdx_try).with(:value).and_return("test")
     end
 
     context "when validating presence" do
@@ -430,7 +430,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for empty value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -456,7 +456,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for non-matching format" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("invalid")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("invalid")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -482,13 +482,13 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for too short value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("x")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("x")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
 
       it "fails validation for too long value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("x" * 15)
+        allow(context).to receive(:cmdx_try).with(:value).and_return("x" * 15)
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -508,7 +508,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "passes validation for included value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("red")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("red")
 
         result = processor.call
 
@@ -516,7 +516,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for excluded value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("yellow")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("yellow")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -542,7 +542,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for forbidden value" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return("forbidden")
+        allow(context).to receive(:cmdx_try).with(:value).and_return("forbidden")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -562,7 +562,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(50)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(50)
       end
 
       it "passes validation for value within range" do
@@ -572,13 +572,13 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails validation for value below minimum" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(-5)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(-5)
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
 
       it "fails validation for value above maximum" do
-        allow(context).to receive(:__cmdx_try).with(:value).and_return(150)
+        allow(context).to receive(:cmdx_try).with(:value).and_return(150)
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
@@ -592,7 +592,7 @@ RSpec.describe CMDx::ParameterValue do
 
     before do
       allow(task).to receive(:respond_to?).with(:context, true).and_return(true)
-      allow(task).to receive(:__cmdx_try).with(:context).and_return(context)
+      allow(task).to receive(:cmdx_try).with(:context).and_return(context)
     end
 
     context "when optional parameter is missing from source" do
@@ -609,8 +609,8 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:optional_value, true).and_return(false)
-        allow(context).to receive(:__cmdx_try).with(:optional_value).and_return(nil)
+        allow(context).to receive(:cmdx_respond_to?).with(:optional_value, true).and_return(false)
+        allow(context).to receive(:cmdx_try).with(:optional_value).and_return(nil)
       end
 
       it "skips validation for missing optional parameter" do
@@ -634,8 +634,8 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:nullable_value, true).and_return(true)
-        allow(context).to receive(:__cmdx_try).with(:nullable_value).and_return(nil)
+        allow(context).to receive(:cmdx_respond_to?).with(:nullable_value, true).and_return(true)
+        allow(context).to receive(:cmdx_try).with(:nullable_value).and_return(nil)
       end
 
       it "skips validation when value is nil and allow_nil is true" do
@@ -659,9 +659,9 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:conditional_value, true).and_return(true)
-        allow(context).to receive(:__cmdx_try).with(:conditional_value).and_return("")
-        allow(task).to receive(:__cmdx_eval).with({ if: :should_validate? }).and_return(false)
+        allow(context).to receive(:cmdx_respond_to?).with(:conditional_value, true).and_return(true)
+        allow(context).to receive(:cmdx_try).with(:conditional_value).and_return("")
+        allow(task).to receive(:cmdx_eval).with({ if: :should_validate? }).and_return(false)
       end
 
       it "skips validation when condition is false" do
@@ -679,7 +679,7 @@ RSpec.describe CMDx::ParameterValue do
 
     before do
       allow(task).to receive(:respond_to?).with(:context, true).and_return(true)
-      allow(task).to receive(:__cmdx_try).with(:context).and_return(context)
+      allow(task).to receive(:cmdx_try).with(:context).and_return(context)
     end
 
     context "when parameter has nested parent" do
@@ -697,8 +697,8 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:nested_value, true).and_return(true)
-        allow(context).to receive(:__cmdx_try).with(:nested_value).and_return("nested")
+        allow(context).to receive(:cmdx_respond_to?).with(:nested_value, true).and_return(true)
+        allow(context).to receive(:cmdx_try).with(:nested_value).and_return("nested")
       end
 
       it "processes nested parameter normally" do
@@ -723,7 +723,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(task).to receive(:__cmdx_try).with(:context).and_return(nil)
+        allow(task).to receive(:cmdx_try).with(:context).and_return(nil)
       end
 
       it "processes parameter when parent is optional and source is nil" do
@@ -751,11 +751,11 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       before do
-        allow(context).to receive(:__cmdx_respond_to?).with(:complex_value, true).and_return(true)
+        allow(context).to receive(:cmdx_respond_to?).with(:complex_value, true).and_return(true)
       end
 
       it "passes all validations for valid value" do
-        allow(context).to receive(:__cmdx_try).with(:complex_value).and_return("hello")
+        allow(context).to receive(:cmdx_try).with(:complex_value).and_return("hello")
 
         result = processor.call
 
@@ -763,7 +763,7 @@ RSpec.describe CMDx::ParameterValue do
       end
 
       it "fails when any validation fails" do
-        allow(context).to receive(:__cmdx_try).with(:complex_value).and_return("Hi")
+        allow(context).to receive(:cmdx_try).with(:complex_value).and_return("Hi")
 
         expect { processor.call }.to raise_error(CMDx::ValidationError)
       end
