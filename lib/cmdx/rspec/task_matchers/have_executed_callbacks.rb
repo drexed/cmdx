@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec::Matchers.define :execute_callbacks do |*callback_names|
+RSpec::Matchers.define :have_executed_callbacks do |*callback_names|
   match do |task_or_result|
     @executed_callbacks = []
 

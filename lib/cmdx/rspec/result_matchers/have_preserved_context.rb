@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec::Matchers.define :preserve_context do |preserved_attributes|
+RSpec::Matchers.define :have_preserved_context do |preserved_attributes|
   match do |result|
     preserved_attributes.all? do |key, expected_value|
       result.context.public_send(key) == expected_value
