@@ -12,6 +12,9 @@ module CMDx
     cmdx_attr_delegator :task, :chain, :context,
                         to: :result
 
+    # @return [CMDx::Result] the result object that caused this fault
+    attr_reader :result
+
     # Creates a new fault instance with the given result context.
     #
     # The fault message is derived from the result's metadata reason or falls
