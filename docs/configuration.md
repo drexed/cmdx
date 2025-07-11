@@ -23,7 +23,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 
 - **Hierarchy** - Global → Task Settings → Runtime (each level overrides previous)
 - **Global config** - Framework-wide defaults via `CMDx.configure`
-- **Task settings** - Class-level overrides using `task_settings!`
+- **Task settings** - Class-level overrides using `cmd_settings!`
 - **Key options** - `task_halt`, `workflow_halt`, `logger`, `middlewares`, `callbacks`
 - **Generator** - Use `rails g cmdx:install` to create configuration file
 - **Inheritance** - Settings are inherited from parent classes
@@ -33,7 +33,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 CMDx follows a three-tier configuration hierarchy:
 
 1. **Global Configuration**: Framework-wide defaults
-2. **Task Settings**: Class-level overrides via `task_settings!`
+2. **Task Settings**: Class-level overrides via `cmd_settings!`
 3. **Runtime Parameters**: Instance-specific overrides during execution
 
 > [!IMPORTANT]
@@ -145,11 +145,11 @@ end
 
 ## Task Settings
 
-Override global configuration for specific tasks or workflows using `task_settings!`:
+Override global configuration for specific tasks or workflows using `cmd_settings!`:
 
 ```ruby
 class ProcessPaymentTask < CMDx::Task
-  task_settings!(
+  cmd_settings!(
     task_halt: ["failed"],                       # Only halt on failures
     tags: ["payments", "critical"],              # Add logging tags
     logger: Rails.logger,                        # Use Rails logger
@@ -181,7 +181,7 @@ Configure halt behavior for workflows:
 ```ruby
 class OrderProcessingWorkflow < CMDx::Workflow
   # Strict workflow - halt on any failure
-  task_settings!(workflow_halt: ["failed", "skipped"])
+  cmd_settings!(workflow_halt: ["failed", "skipped"])
 
   process ValidateOrderTask
   process ChargePaymentTask
@@ -204,11 +204,11 @@ CMDx.configuration.validators  #=> <ValidatorRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task
-  task_settings!(tags: ["analytics"])
+  cmd_settings!(tags: ["analytics"])
 
   def call
-    tags = task_setting(:tags)               # Gets ["analytics"]
-    halt_statuses = task_setting(:task_halt) # Gets global default
+    tags = cmd_setting(:tags)               # Gets ["analytics"]
+    halt_statuses = cmd_setting(:task_halt) # Gets global default
   end
 end
 ```

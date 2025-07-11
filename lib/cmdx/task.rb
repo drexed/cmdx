@@ -9,7 +9,7 @@ module CMDx
   # comprehensive error handling, logging, and execution state management.
   class Task
 
-    cmdx_attr_setting :task_settings,
+    cmdx_attr_setting :cmd_settings,
                       default: -> { CMDx.configuration.to_h.slice(:logger, :task_halt, :workflow_halt).merge(tags: []) }
     cmdx_attr_setting :cmd_middlewares,
                       default: -> { MiddlewareRegistry.new(CMDx.configuration.middlewares) }
@@ -19,7 +19,7 @@ module CMDx
                       default: -> { ParameterRegistry.new }
 
     cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters,
-                        :task_settings, :task_setting, :task_setting?,
+                        :cmd_settings, :cmd_setting, :cmd_setting?,
                         to: :class
     cmdx_attr_delegator :skip!, :fail!, :throw!,
                         to: :result
@@ -113,12 +113,12 @@ module CMDx
       # @return [Object] the setting value, processed through cmdx_yield
       #
       # @example Get logger setting
-      #   MyTask.task_setting(:logger) #=> #<Logger:...>
+      #   MyTask.cmd_setting(:logger) #=> #<Logger:...>
       #
       # @example Get halt setting
-      #   MyTask.task_setting(:task_halt) #=> "failed"
-      def task_setting(key)
-        cmdx_yield(task_settings[key])
+      #   MyTask.cmd_setting(:task_halt) #=> "failed"
+      def cmd_setting(key)
+        cmdx_yield(cmd_settings[key])
       end
 
       # Checks if a task setting key exists.
@@ -128,10 +128,10 @@ module CMDx
       # @return [Boolean] true if the setting exists, false otherwise
       #
       # @example Check if setting exists
-      #   MyTask.task_setting?(:logger) #=> true
-      #   MyTask.task_setting?(:invalid) #=> false
-      def task_setting?(key)
-        task_settings.key?(key)
+      #   MyTask.cmd_setting?(:logger) #=> true
+      #   MyTask.cmd_setting?(:invalid) #=> false
+      def cmd_setting?(key)
+        cmd_settings.key?(key)
       end
 
       # Updates task settings with new values.
@@ -141,10 +141,10 @@ module CMDx
       # @return [Hash] the updated task settings hash
       #
       # @example Update task settings
-      #   MyTask.task_settings!(task_halt: ["failed", "error"])
-      #   MyTask.task_setting(:task_halt) #=> ["failed", "error"]
-      def task_settings!(**options)
-        task_settings.merge!(options)
+      #   MyTask.cmd_settings!(task_halt: ["failed", "error"])
+      #   MyTask.cmd_setting(:task_halt) #=> ["failed", "error"]
+      def cmd_settings!(**options)
+        cmd_settings.merge!(options)
       end
 
       # Registers middleware, callbacks, validators, or coercions with the task.

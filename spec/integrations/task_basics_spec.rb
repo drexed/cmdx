@@ -237,7 +237,7 @@ RSpec.describe "Task Basics", type: :integration do
       it "raises exception for skipped execution when configured" do
         # Configure task to halt on skip
         skip_task = Class.new(CMDx::Task) do
-          task_settings! task_halt: %w[failed skipped]
+          cmd_settings! task_halt: %w[failed skipped]
 
           def call
             skip!(reason: "Conditions not met", condition: "user_inactive")

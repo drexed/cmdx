@@ -25,15 +25,15 @@ module CMDx
     #   logger.info("Task started")
     #
     # @example Logger with custom formatter
-    #   task.set_task_setting(:log_formatter, custom_formatter)
+    #   task.set_cmd_setting(:log_formatter, custom_formatter)
     #   logger = CMDx::Logger.call(task)
     #   logger.debug("Debug message")
     def call(task)
-      logger = task.task_setting(:logger)
+      logger = task.cmd_setting(:logger)
 
       unless logger.nil?
-        logger.formatter = task.task_setting(:log_formatter) if task.task_setting?(:log_formatter)
-        logger.level     = task.task_setting(:log_level) if task.task_setting?(:log_level)
+        logger.formatter = task.cmd_setting(:log_formatter) if task.cmd_setting?(:log_formatter)
+        logger.level     = task.cmd_setting(:log_level) if task.cmd_setting?(:log_level)
         logger.progname  = task
       end
 

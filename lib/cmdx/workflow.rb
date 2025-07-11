@@ -80,7 +80,7 @@ module CMDx
       self.class.workflow_groups.each do |group|
         next unless cmdx_eval(group.options)
 
-        workflow_halt = group.options[:workflow_halt] || task_setting(:workflow_halt)
+        workflow_halt = group.options[:workflow_halt] || cmd_setting(:workflow_halt)
 
         group.tasks.each do |task|
           task_result = task.call(context)

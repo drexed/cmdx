@@ -13,7 +13,7 @@ RSpec.describe CMDx::TaskSerializer do
 
   let(:task_class) do
     create_task_class(name: "ProcessOrderTask") do
-      task_settings!(tags: %i[order payment])
+      cmd_settings!(tags: %i[order payment])
 
       def call
         # Implementation
@@ -23,7 +23,7 @@ RSpec.describe CMDx::TaskSerializer do
 
   let(:workflow_class) do
     create_workflow_class(name: "OrderProcessingWorkflow") do
-      task_settings!(tags: %i[workflow orders])
+      cmd_settings!(tags: %i[workflow orders])
     end
   end
 
@@ -34,7 +34,7 @@ RSpec.describe CMDx::TaskSerializer do
       chain: task_chain,
       class: task_class
     )
-    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+    allow(instance).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
     allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(false)
     instance
   end
@@ -46,7 +46,7 @@ RSpec.describe CMDx::TaskSerializer do
       chain: task_chain,
       class: workflow_class
     )
-    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[workflow orders])
+    allow(instance).to receive(:cmd_setting).with(:tags).and_return(%i[workflow orders])
     allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(true)
     instance
   end
@@ -144,7 +144,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: tagless_task_class
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([])
+        allow(instance).to receive(:cmd_setting).with(:tags).and_return([])
         instance
       end
 
@@ -163,7 +163,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_class
         )
-        allow(task_with_index_zero).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_index_zero).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_index_zero)
 
         expect(serialized_data[:index]).to eq(0)
@@ -176,7 +176,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_class
         )
-        allow(task_with_high_index).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_high_index).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_high_index)
 
         expect(serialized_data[:index]).to eq(42)
@@ -191,7 +191,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: mock_chain(id: "550e8400-e29b-41d4-a716-446655440000"),
           class: task_class
         )
-        allow(task_with_uuid_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_uuid_chain).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_uuid_chain)
 
         expect(serialized_data[:chain_id]).to eq("550e8400-e29b-41d4-a716-446655440000")
@@ -204,7 +204,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: mock_chain(id: "abc"),
           class: task_class
         )
-        allow(task_with_short_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_short_chain).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_short_chain)
 
         expect(serialized_data[:chain_id]).to eq("abc")
@@ -219,7 +219,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_class
         )
-        allow(task_with_uuid_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_uuid_id).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_uuid_id)
 
         expect(serialized_data[:id]).to eq("550e8400-e29b-41d4-a716-446655440000")
@@ -232,7 +232,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_class
         )
-        allow(task_with_short_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
+        allow(task_with_short_id).to receive(:cmd_setting).with(:tags).and_return(%i[order payment])
         serialized_data = described_class.call(task_with_short_id)
 
         expect(serialized_data[:id]).to eq("xyz")
@@ -242,7 +242,7 @@ RSpec.describe CMDx::TaskSerializer do
     context "when task has various tag configurations" do
       it "serializes string tags" do
         task_with_string_tags = create_task_class(name: "StringTagTask") do
-          task_settings!(tags: %w[urgent payment])
+          cmd_settings!(tags: %w[urgent payment])
 
           def call
             # Implementation
@@ -255,7 +255,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_with_string_tags
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return(%w[urgent payment])
+        allow(instance).to receive(:cmd_setting).with(:tags).and_return(%w[urgent payment])
 
         serialized_data = described_class.call(instance)
 
@@ -264,7 +264,7 @@ RSpec.describe CMDx::TaskSerializer do
 
       it "serializes mixed tag types" do
         task_with_mixed_tags = create_task_class(name: "MixedTagTask") do
-          task_settings!(tags: [:symbol, "string", 123])
+          cmd_settings!(tags: [:symbol, "string", 123])
 
           def call
             # Implementation
@@ -277,7 +277,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_with_mixed_tags
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([:symbol, "string", 123])
+        allow(instance).to receive(:cmd_setting).with(:tags).and_return([:symbol, "string", 123])
 
         serialized_data = described_class.call(instance)
 
@@ -286,7 +286,7 @@ RSpec.describe CMDx::TaskSerializer do
 
       it "serializes single tag" do
         task_with_single_tag = create_task_class(name: "SingleTagTask") do
-          task_settings!(tags: [:important])
+          cmd_settings!(tags: [:important])
 
           def call
             # Implementation
@@ -299,7 +299,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: task_with_single_tag
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([:important])
+        allow(instance).to receive(:cmd_setting).with(:tags).and_return([:important])
 
         serialized_data = described_class.call(instance)
 
@@ -323,7 +323,7 @@ RSpec.describe CMDx::TaskSerializer do
           chain: task_chain,
           class: namespaced_task_class
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([])
+        allow(instance).to receive(:cmd_setting).with(:tags).and_return([])
 
         serialized_data = described_class.call(instance)
 

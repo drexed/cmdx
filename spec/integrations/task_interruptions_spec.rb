@@ -120,7 +120,7 @@ RSpec.describe "Task Interruptions", type: :integration do
     context "when using call! method with skip halt configuration" do
       let(:halt_on_skip_task) do
         Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
           def call
             skip!(reason: "Conditions not met", condition: "user_inactive")
@@ -373,7 +373,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "handles CMDx::Skipped exceptions" do
         # Configure task to halt on skipped status
         skipping_task = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::SKIPPED, CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::SKIPPED, CMDx::Result::FAILED])
 
           def call
             skip!(reason: "Validation not required", validation_type: "optional")
@@ -400,7 +400,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "handles CMDx::Failed exceptions" do
         # Configure task to halt on failed status
         failing_task = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Validation failed", error_code: "VALIDATION_ERROR")
@@ -425,7 +425,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "matches faults only from specific task types" do
         # Configure validation task to halt on failure
         validation_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Validation failed", error_code: "VALIDATION_ERROR")
@@ -434,7 +434,7 @@ RSpec.describe "Task Interruptions", type: :integration do
 
         # Configure payment task to halt on failure
         payment_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Payment declined", code: "PAYMENT_DECLINED")
@@ -460,7 +460,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "matches faults from multiple task types" do
         # Configure payment task to halt on failure
         payment_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Payment declined", code: "PAYMENT_DECLINED")
@@ -469,7 +469,7 @@ RSpec.describe "Task Interruptions", type: :integration do
 
         # Configure validation task to halt on failure
         validation_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Validation failed", error_code: "VALIDATION_ERROR")
@@ -493,7 +493,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "matches faults based on error code metadata" do
         # Configure payment task to halt on failure
         payment_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Payment declined", code: "PAYMENT_DECLINED")
@@ -515,7 +515,7 @@ RSpec.describe "Task Interruptions", type: :integration do
       it "matches faults based on complex conditions" do
         # Configure payment task to halt on failure
         payment_task_configured = Class.new(CMDx::Task) do
-          task_settings!(task_halt: [CMDx::Result::FAILED])
+          cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
           def call
             fail!(reason: "Insufficient funds", code: "INSUFFICIENT_FUNDS")
@@ -668,7 +668,7 @@ RSpec.describe "Task Interruptions", type: :integration do
   describe "Task Halt Configuration Patterns" do
     let(:strict_task) do
       Class.new(CMDx::Task) do
-        task_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+        cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
         required :action, type: :string
 
@@ -687,7 +687,7 @@ RSpec.describe "Task Interruptions", type: :integration do
 
     let(:lenient_task) do
       Class.new(CMDx::Task) do
-        task_settings!(task_halt: [])
+        cmd_settings!(task_halt: [])
 
         required :operation, type: :string
 
@@ -706,7 +706,7 @@ RSpec.describe "Task Interruptions", type: :integration do
 
     let(:failure_only_task) do
       Class.new(CMDx::Task) do
-        task_settings!(task_halt: [CMDx::Result::FAILED])
+        cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
         required :mode, type: :string
 

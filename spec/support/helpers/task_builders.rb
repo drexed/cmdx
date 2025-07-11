@@ -71,7 +71,7 @@ module CMDx
       #
       # @example Task class with additional configuration
       #   task_class = create_task_class(name: "ConfiguredTask") do
-      #     task_settings!(timeout: 30, retries: 3)
+      #     cmd_settings!(timeout: 30, retries: 3)
       #     optional :debug, type: :boolean, default: false
       #
       #     def call
@@ -112,7 +112,7 @@ module CMDx
       #
       #     # The call method is already defined to set context.executed = true
       #     # Additional configuration can be added here
-      #     task_settings!(timeout: 10)
+      #     cmd_settings!(timeout: 10)
       #   end
       #
       # @example Using in RSpec tests
@@ -171,7 +171,7 @@ module CMDx
       # @example Failing task with additional configuration
       #   task_class = create_failing_task(name: "ValidationTask") do
       #     required :data, type: :hash
-      #     task_settings!(tags: [:validation, :critical])
+      #     cmd_settings!(tags: [:validation, :critical])
       #   end
       #
       # @example Comparing with create_erroring_task
@@ -272,7 +272,7 @@ module CMDx
       # @example Erroring task with additional configuration
       #   task_class = create_erroring_task(name: "DatabaseTask") do
       #     required :connection_string, type: :string
-      #     task_settings!(timeout: 5, retries: 3)
+      #     cmd_settings!(timeout: 5, retries: 3)
       #   end
       #
       # @example Comparing different error scenarios

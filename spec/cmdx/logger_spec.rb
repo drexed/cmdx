@@ -8,7 +8,7 @@ RSpec.describe CMDx::Logger do
 
     context "when no logger is configured" do
       before do
-        allow(task).to receive(:task_setting).with(:logger).and_return(nil)
+        allow(task).to receive(:cmd_setting).with(:logger).and_return(nil)
       end
 
       it "returns nil" do
@@ -22,9 +22,9 @@ RSpec.describe CMDx::Logger do
       let(:logger) { mock_logger }
 
       before do
-        allow(task).to receive(:task_setting).with(:logger).and_return(logger)
-        allow(task).to receive(:task_setting?).with(:log_formatter).and_return(false)
-        allow(task).to receive(:task_setting?).with(:log_level).and_return(false)
+        allow(task).to receive(:cmd_setting).with(:logger).and_return(logger)
+        allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(false)
+        allow(task).to receive(:cmd_setting?).with(:log_level).and_return(false)
         allow(logger).to receive(:progname=)
       end
 
@@ -44,8 +44,8 @@ RSpec.describe CMDx::Logger do
         let(:formatter) { double("Formatter") }
 
         before do
-          allow(task).to receive(:task_setting?).with(:log_formatter).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_formatter).and_return(formatter)
+          allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_formatter).and_return(formatter)
           allow(logger).to receive(:formatter=)
         end
 
@@ -66,8 +66,8 @@ RSpec.describe CMDx::Logger do
         let(:log_level) { Logger::DEBUG }
 
         before do
-          allow(task).to receive(:task_setting?).with(:log_level).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_level).and_return(log_level)
+          allow(task).to receive(:cmd_setting?).with(:log_level).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_level).and_return(log_level)
           allow(logger).to receive(:level=)
         end
 
@@ -89,10 +89,10 @@ RSpec.describe CMDx::Logger do
         let(:log_level) { Logger::WARN }
 
         before do
-          allow(task).to receive(:task_setting?).with(:log_formatter).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_formatter).and_return(formatter)
-          allow(task).to receive(:task_setting?).with(:log_level).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_level).and_return(log_level)
+          allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_formatter).and_return(formatter)
+          allow(task).to receive(:cmd_setting?).with(:log_level).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_level).and_return(log_level)
           allow(logger).to receive(:formatter=)
           allow(logger).to receive(:level=)
         end
@@ -121,9 +121,9 @@ RSpec.describe CMDx::Logger do
         let(:log_level) { Logger::INFO }
 
         before do
-          allow(task).to receive(:task_setting?).with(:log_formatter).and_return(false)
-          allow(task).to receive(:task_setting?).with(:log_level).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_level).and_return(log_level)
+          allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(false)
+          allow(task).to receive(:cmd_setting?).with(:log_level).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_level).and_return(log_level)
           allow(logger).to receive(:level=)
         end
 
@@ -144,9 +144,9 @@ RSpec.describe CMDx::Logger do
         let(:formatter) { double("Formatter") }
 
         before do
-          allow(task).to receive(:task_setting?).with(:log_formatter).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_formatter).and_return(formatter)
-          allow(task).to receive(:task_setting?).with(:log_level).and_return(false)
+          allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_formatter).and_return(formatter)
+          allow(task).to receive(:cmd_setting?).with(:log_level).and_return(false)
           allow(logger).to receive(:formatter=)
         end
 
@@ -165,10 +165,10 @@ RSpec.describe CMDx::Logger do
 
       context "when configuration settings are nil" do
         before do
-          allow(task).to receive(:task_setting?).with(:log_formatter).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_formatter).and_return(nil)
-          allow(task).to receive(:task_setting?).with(:log_level).and_return(true)
-          allow(task).to receive(:task_setting).with(:log_level).and_return(nil)
+          allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_formatter).and_return(nil)
+          allow(task).to receive(:cmd_setting?).with(:log_level).and_return(true)
+          allow(task).to receive(:cmd_setting).with(:log_level).and_return(nil)
           allow(logger).to receive(:formatter=)
           allow(logger).to receive(:level=)
         end
@@ -197,8 +197,8 @@ RSpec.describe CMDx::Logger do
       let(:logger) { mock_logger }
 
       before do
-        allow(task).to receive(:task_setting).with(:logger).and_return(logger)
-        allow(task).to receive(:task_setting?).with(:log_formatter).and_raise(StandardError, "setting error")
+        allow(task).to receive(:cmd_setting).with(:logger).and_return(logger)
+        allow(task).to receive(:cmd_setting?).with(:log_formatter).and_raise(StandardError, "setting error")
         allow(logger).to receive(:progname=)
       end
 
@@ -212,10 +212,10 @@ RSpec.describe CMDx::Logger do
       let(:formatter) { double("Formatter") }
 
       before do
-        allow(task).to receive(:task_setting).with(:logger).and_return(logger)
-        allow(task).to receive(:task_setting?).with(:log_formatter).and_return(true)
-        allow(task).to receive(:task_setting).with(:log_formatter).and_return(formatter)
-        allow(task).to receive(:task_setting?).with(:log_level).and_return(false)
+        allow(task).to receive(:cmd_setting).with(:logger).and_return(logger)
+        allow(task).to receive(:cmd_setting?).with(:log_formatter).and_return(true)
+        allow(task).to receive(:cmd_setting).with(:log_formatter).and_return(formatter)
+        allow(task).to receive(:cmd_setting?).with(:log_level).and_return(false)
         allow(logger).to receive(:formatter=).and_raise(StandardError, "formatter error")
         allow(logger).to receive(:progname=)
       end

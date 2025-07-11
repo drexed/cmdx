@@ -319,7 +319,7 @@ module CMDx
       # @param config [Hash] configuration options to stub
       # @option config [Array] :workflow_halt halt conditions
       # @option config [Array] :tags workflow tags
-      # @option config [Hash] :task_settings task-level settings
+      # @option config [Hash] :cmd_settings task-level settings
       # @option config [Object] :cmd_middlewares middleware registry
       # @option config [Object] :cmd_callbacks callback registry
       # @return [void]
@@ -332,7 +332,7 @@ module CMDx
       #     MyWorkflow,
       #     workflow_halt: [:failed, :skipped],
       #     tags: [:processing, :orders],
-      #     task_settings: { timeout: 30 }
+      #     cmd_settings: { timeout: 30 }
       #   )
       def stub_workflow_configuration(workflow_class, config = {})
         # Stub workflow_halt configuration
@@ -341,8 +341,8 @@ module CMDx
         # Stub tags
         allow(workflow_class).to receive(:tags).and_return(config[:tags]) if config[:tags]
 
-        # Stub task_settings
-        allow(workflow_class).to receive(:task_settings!).with(config[:task_settings]) if config[:task_settings]
+        # Stub cmd_settings
+        allow(workflow_class).to receive(:cmd_settings!).with(config[:cmd_settings]) if config[:cmd_settings]
 
         # Stub middleware and callback registries
         allow(workflow_class).to receive(:cmd_middlewares).and_return(config[:cmd_middlewares]) if config[:cmd_middlewares]

@@ -94,53 +94,53 @@ RSpec.describe CMDx::Task do
     end
   end
 
-  describe ".task_setting" do
+  describe ".cmd_setting" do
     it "returns setting value" do
-      task_class.task_settings!(timeout: 30)
+      task_class.cmd_settings!(timeout: 30)
 
-      expect(task_class.task_setting(:timeout)).to eq(30)
+      expect(task_class.cmd_setting(:timeout)).to eq(30)
     end
 
     it "evaluates callable settings" do
-      task_class.task_settings!(current_time: -> { Time.now })
+      task_class.cmd_settings!(current_time: -> { Time.now })
 
-      expect(task_class.task_setting(:current_time)).to be_a(Time)
+      expect(task_class.cmd_setting(:current_time)).to be_a(Time)
     end
 
     it "returns nil for non-existent settings" do
-      expect(task_class.task_setting(:non_existent)).to be_nil
+      expect(task_class.cmd_setting(:non_existent)).to be_nil
     end
   end
 
-  describe ".task_setting?" do
+  describe ".cmd_setting?" do
     it "returns true for existing settings" do
-      task_class.task_settings!(timeout: 30)
+      task_class.cmd_settings!(timeout: 30)
 
-      expect(task_class.task_setting?(:timeout)).to be(true)
+      expect(task_class.cmd_setting?(:timeout)).to be(true)
     end
 
     it "returns false for non-existent settings" do
-      expect(task_class.task_setting?(:non_existent)).to be(false)
+      expect(task_class.cmd_setting?(:non_existent)).to be(false)
     end
   end
 
-  describe ".task_settings!" do
+  describe ".cmd_settings!" do
     it "merges new settings with existing ones" do
-      task_class.task_settings!(timeout: 30, retries: 3)
+      task_class.cmd_settings!(timeout: 30, retries: 3)
 
-      expect(task_class.task_setting(:timeout)).to eq(30)
-      expect(task_class.task_setting(:retries)).to eq(3)
+      expect(task_class.cmd_setting(:timeout)).to eq(30)
+      expect(task_class.cmd_setting(:retries)).to eq(3)
     end
 
     it "overwrites existing settings" do
-      task_class.task_settings!(timeout: 30)
-      task_class.task_settings!(timeout: 60)
+      task_class.cmd_settings!(timeout: 30)
+      task_class.cmd_settings!(timeout: 60)
 
-      expect(task_class.task_setting(:timeout)).to eq(60)
+      expect(task_class.cmd_setting(:timeout)).to eq(60)
     end
 
     it "returns updated settings hash" do
-      result = task_class.task_settings!(timeout: 30)
+      result = task_class.cmd_settings!(timeout: 30)
 
       expect(result).to be_a(Hash)
       expect(result[:timeout]).to eq(30)
@@ -448,16 +448,16 @@ RSpec.describe CMDx::Task do
       expect(task.cmd_parameters).to be(task_class.cmd_parameters)
     end
 
-    it "delegates task_setting to class" do
-      task_class.task_settings!(timeout: 30)
+    it "delegates cmd_setting to class" do
+      task_class.cmd_settings!(timeout: 30)
 
-      expect(task.task_setting(:timeout)).to eq(30)
+      expect(task.cmd_setting(:timeout)).to eq(30)
     end
 
-    it "delegates task_setting? to class" do
-      task_class.task_settings!(timeout: 30)
+    it "delegates cmd_setting? to class" do
+      task_class.cmd_settings!(timeout: 30)
 
-      expect(task.task_setting?(:timeout)).to be(true)
+      expect(task.cmd_setting?(:timeout)).to be(true)
     end
   end
 

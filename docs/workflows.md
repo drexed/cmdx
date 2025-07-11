@@ -153,12 +153,12 @@ end
 
 ### Class-Level Configuration
 
-Configure halt behavior for the entire workflow using `task_settings!`:
+Configure halt behavior for the entire workflow using `cmd_settings!`:
 
 ```ruby
 class CriticalDataProcessingWorkflow < CMDx::Workflow
   # Halt on both failed and skipped results
-  task_settings!(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  cmd_settings!(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   process LoadCriticalDataTask
   process ValidateCriticalDataTask
@@ -166,7 +166,7 @@ end
 
 class OptionalDataProcessingWorkflow < CMDx::Workflow
   # Never halt, always continue
-  task_settings!(workflow_halt: [])
+  cmd_settings!(workflow_halt: [])
 
   process TryLoadDataTask
   process TryValidateDataTask
@@ -274,7 +274,7 @@ Workflows support all task settings and can be configured like regular tasks:
 ```ruby
 class PaymentProcessingWorkflow < CMDx::Workflow
   # Configure workflow-specific settings
-  task_settings!(
+  cmd_settings!(
     workflow_halt: [CMDx::Result::FAILED],
     log_level: :debug,
     tags: [:critical, :payment]

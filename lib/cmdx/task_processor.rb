@@ -114,7 +114,7 @@ module CMDx
       rescue UndefinedCallError => e
         raise(e)
       rescue Fault => e
-        if Array(task.task_setting(:task_halt)).include?(e.result.status)
+        if Array(task.cmd_setting(:task_halt)).include?(e.result.status)
           # No need to clear the Chain since exception is not being re-raised
           task.result.throw!(e.result, original_exception: e)
         end
@@ -160,7 +160,7 @@ module CMDx
       rescue Fault => e
         task.result.executed!
 
-        raise!(e) if Array(task.task_setting(:task_halt)).include?(e.result.status)
+        raise!(e) if Array(task.cmd_setting(:task_halt)).include?(e.result.status)
 
         after_call # HACK: treat as NO-OP
       else

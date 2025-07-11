@@ -589,7 +589,7 @@ RSpec.describe "Workflow Workflows", type: :integration do
       save_task = save_data_task
 
       Class.new(CMDx::Workflow) do
-        task_settings!(
+        cmd_settings!(
           workflow_halt: [CMDx::Result::FAILED],
           tags: %i[data_processing pipeline]
         )
@@ -674,7 +674,7 @@ RSpec.describe "Workflow Workflows", type: :integration do
       cleanup = cleanup_task
 
       Class.new(CMDx::Workflow) do
-        task_settings!(workflow_halt: [])
+        cmd_settings!(workflow_halt: [])
 
         process risky
         process fallback, if: proc { context.operation_completed.nil? }

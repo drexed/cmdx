@@ -213,7 +213,7 @@ Control which statuses raise exceptions using the `task_halt` setting:
 ```ruby
 class ProcessUserOrderTask < CMDx::Task
   # Only failed tasks raise exceptions on call!
-  task_settings!(task_halt: [CMDx::Result::FAILED])
+  cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
     skip!(reason: "Order already processed") if already_processed?
@@ -223,7 +223,7 @@ end
 
 class ValidateUserDataTask < CMDx::Task
   # Both failed and skipped tasks raise exceptions
-  task_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def call
     skip!(reason: "Validation not required") if skip_validation?

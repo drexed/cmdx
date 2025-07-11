@@ -24,7 +24,7 @@ module CMDx
     #       "OrderProcessingWorkflow"
     #     end
     #
-    #     task_settings!(workflow_halt: [:failed], tags: [:orders])
+    #     cmd_settings!(workflow_halt: [:failed], tags: [:orders])
     #     process task1
     #     process task2, task3
     #   end
@@ -71,14 +71,14 @@ module CMDx
       #
       # @example Named workflow class with settings
       #   workflow_class = create_workflow_class(name: "OrderProcessingWorkflow") do
-      #     task_settings!(workflow_halt: [:failed], tags: [:orders])
+      #     cmd_settings!(workflow_halt: [:failed], tags: [:orders])
       #     process create_simple_task(name: "ValidateOrder")
       #     process create_simple_task(name: "ProcessPayment")
       #   end
       #
       # @example Workflow class with complex configuration
       #   workflow_class = create_workflow_class(name: "DataPipelineWorkflow") do
-      #     task_settings!(timeout: 300, retries: 2, tags: [:data, :pipeline])
+      #     cmd_settings!(timeout: 300, retries: 2, tags: [:data, :pipeline])
       #
       #     # Sequential validation tasks
       #     process create_simple_task(name: "ValidateInput")
@@ -129,7 +129,7 @@ module CMDx
       #     tasks: tasks,
       #     name: "DataProcessingWorkflow"
       #   ) do
-      #     task_settings!(timeout: 60, tags: [:data_processing])
+      #     cmd_settings!(timeout: 60, tags: [:data_processing])
       #   end
       #
       # @example Testing sequential execution order

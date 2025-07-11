@@ -436,15 +436,15 @@ expect(SimpleTask).not_to have_middleware(ComplexMiddleware)
 
 ```ruby
 # Test setting presence
-expect(ConfiguredTask).to have_task_setting(:timeout)
-expect(CustomTask).to have_task_setting(:priority)
+expect(ConfiguredTask).to have_cmd_setting(:timeout)
+expect(CustomTask).to have_cmd_setting(:priority)
 
 # Test setting with specific value
-expect(TimedTask).to have_task_setting(:timeout, 30)
-expect(PriorityTask).to have_task_setting(:priority, "high")
+expect(TimedTask).to have_cmd_setting(:timeout, 30)
+expect(PriorityTask).to have_cmd_setting(:priority, "high")
 
 # Negated usage
-expect(SimpleTask).not_to have_task_setting(:complex_setting)
+expect(SimpleTask).not_to have_cmd_setting(:complex_setting)
 ```
 
 ## Composable Testing

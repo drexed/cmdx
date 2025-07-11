@@ -16,7 +16,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Line.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Line.new)
 
             def call
               context.processed = true
@@ -40,7 +40,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Json.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Json.new)
 
             def call
               context.order_id = 123
@@ -68,7 +68,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::KeyValue.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::KeyValue.new)
 
             def call
               context.items_processed = 42
@@ -92,7 +92,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Logstash.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Logstash.new)
 
             def call
               context.transaction_id = "txn_123"
@@ -119,7 +119,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Raw.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::Raw.new)
 
             def call
               context.minimal_output = true
@@ -145,7 +145,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyLine.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyLine.new)
 
             def call
               context.colorized = true
@@ -168,7 +168,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyJson.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyJson.new)
 
             def call
               context.pretty_output = true
@@ -191,7 +191,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         let(:test_task) do
           test_logger = logger
           Class.new(CMDx::Task) do
-            task_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyKeyValue.new)
+            cmd_settings!(logger: test_logger, log_formatter: CMDx::LogFormatters::PrettyKeyValue.new)
 
             def call
               context.pretty_kv = true
@@ -218,7 +218,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:success_task) do
         task_logger = test_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: task_logger)
+          cmd_settings!(logger: task_logger)
 
           def call
             context.order_id = 123
@@ -241,7 +241,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:skipped_task) do
         task_logger = test_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: task_logger)
+          cmd_settings!(logger: task_logger)
 
           def call
             skip!(reason: "Order already processed", order_id: context.order_id)
@@ -264,7 +264,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:failed_task) do
         task_logger = test_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: task_logger)
+          cmd_settings!(logger: task_logger)
 
           def call
             fail!(reason: "Payment declined", error_code: "INSUFFICIENT_FUNDS")
@@ -298,7 +298,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         # In CMDx, tasks need to explicitly opt into using the global logger
         # This demonstrates how global configuration would be used
         task_class = Class.new(CMDx::Task) do
-          task_settings!(logger: CMDx.configuration.logger)
+          cmd_settings!(logger: CMDx.configuration.logger)
 
           def call
             context.global_config = true
@@ -322,7 +322,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:configured_task) do
         task_logger = specific_logger
         Class.new(CMDx::Task) do
-          task_settings!(
+          cmd_settings!(
             logger: task_logger,
             log_formatter: CMDx::LogFormatters::KeyValue.new
           )
@@ -349,7 +349,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:base_task) do
         test_logger = base_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
         end
       end
 
@@ -379,7 +379,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:success_task) do
         test_logger = structured_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger, tags: %w[ecommerce payment])
+          cmd_settings!(logger: test_logger, tags: %w[ecommerce payment])
 
           def call
             context.order_id = 123
@@ -422,7 +422,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:failed_task) do
         test_logger = structured_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             fail!(
@@ -457,7 +457,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:skipped_task) do
         test_logger = structured_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             skip!(
@@ -510,7 +510,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:manual_logging_task) do
         test_logger = manual_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             logger.info "Starting order processing", order_id: context.order_id
@@ -562,7 +562,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:structured_logging_task) do
         test_logger = manual_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             # Performance-optimized debug logging
@@ -607,7 +607,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:exception_logging_task) do
         test_logger = manual_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             logger.info "Attempting inventory validation"
@@ -671,7 +671,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
         output = log_output
         formatter = slack_formatter
         Class.new(CMDx::Task) do
-          task_settings!(
+          cmd_settings!(
             logger: Logger.new(output, formatter: formatter)
           )
 
@@ -736,7 +736,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:multi_destination_task) do
         test_logger = multi_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             context.multi_logged = true
@@ -803,7 +803,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:workflow_processing_task) do
         test_logger = performance_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             # Simulate processing many items
@@ -835,7 +835,7 @@ RSpec.describe "Task Logging Integration", type: :integration do
       let(:debug_logging_task) do
         test_logger = performance_logger
         Class.new(CMDx::Task) do
-          task_settings!(logger: test_logger)
+          cmd_settings!(logger: test_logger)
 
           def call
             # Performance-optimized debug logging with block

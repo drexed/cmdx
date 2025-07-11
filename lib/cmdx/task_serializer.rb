@@ -36,7 +36,7 @@ module CMDx
         type: task.is_a?(Workflow) ? "Workflow" : "Task",
         class: task.class.name,
         id: task.id,
-        tags: task.task_setting(:tags)
+        tags: task.cmd_setting(:tags)
       }
     end
 

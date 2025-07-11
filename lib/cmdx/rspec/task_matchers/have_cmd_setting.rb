@@ -14,29 +14,29 @@
 #
 # @example Testing basic task setting presence
 #   class MyTask < CMDx::Task
-#     task_setting tags: ["admin"]
+#     cmd_setting tags: ["admin"]
 #     def call; end
 #   end
-#   expect(MyTask).to have_task_setting(:tags)
+#   expect(MyTask).to have_cmd_setting(:tags)
 #
 # @example Testing task setting with specific value
 #   class ProcessTask < CMDx::Task
-#     task_setting tags: ["admin"]
+#     cmd_setting tags: ["admin"]
 #     def call; end
 #   end
-#   expect(ProcessTask).to have_task_setting(:tags, ["admin"])
+#   expect(ProcessTask).to have_cmd_setting(:tags, ["admin"])
 #
 # @example Negative assertion
 #   class SimpleTask < CMDx::Task
 #     def call; end
 #   end
-#   expect(SimpleTask).not_to have_task_setting(:tags)
-RSpec::Matchers.define :have_task_setting do |setting_name, expected_value = nil|
+#   expect(SimpleTask).not_to have_cmd_setting(:tags)
+RSpec::Matchers.define :have_cmd_setting do |setting_name, expected_value = nil|
   match do |task_class|
-    return false unless task_class.task_setting?(setting_name)
+    return false unless task_class.cmd_setting?(setting_name)
 
     if expected_value
-      task_class.task_setting(setting_name) == expected_value
+      task_class.cmd_setting(setting_name) == expected_value
     else
       true
     end
@@ -44,10 +44,10 @@ RSpec::Matchers.define :have_task_setting do |setting_name, expected_value = nil
 
   failure_message do |task_class|
     if expected_value
-      actual_value = task_class.task_setting(setting_name)
+      actual_value = task_class.cmd_setting(setting_name)
       "expected task to have setting #{setting_name} with value #{expected_value}, but was #{actual_value}"
     else
-      available_settings = task_class.task_settings.keys
+      available_settings = task_class.cmd_settings.keys
       "expected task to have setting #{setting_name}, but had #{available_settings}"
     end
   end
