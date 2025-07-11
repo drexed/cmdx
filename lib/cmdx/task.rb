@@ -223,7 +223,7 @@ module CMDx
       #   result.context.user_id #=> 123
       def call(...)
         instance = new(...)
-        instance.perform_call
+        instance.process
         instance.result
       end
 
@@ -247,7 +247,7 @@ module CMDx
       #   end
       def call!(...)
         instance = new(...)
-        instance.perform_call!
+        instance.process!
         instance.result
       end
 
@@ -279,12 +279,13 @@ module CMDx
     #
     # @example Task execution with middleware
     #   task = MyTask.new(user_id: 123)
-    #   task.perform_call
+    #   task.process
     #   task.result.success? #=> true
-    def perform_call
-      return execute_call if cmd_middlewares.registry.empty?
+    def process
+      processor = TaskProcessor.new(self)
+      return processor.call if cmd_middlewares.registry.empty?
 
-      cmd_middlewares.call(self) { |task| task.send(:execute_call) }
+      cmd_middlewares.call(self) { processor.call }
     end
 
     # Performs task execution with middleware support and strict fault handling.
@@ -295,12 +296,13 @@ module CMDx
     #
     # @example Task execution with strict fault handling
     #   task = MyTask.new(user_id: 123)
-    #   task.perform_call!
+    #   task.process!
     #   task.result.success? #=> true
-    def perform_call!
-      return execute_call! if cmd_middlewares.registry.empty?
+    def process!
+      processor = TaskProcessor.new(self)
+      return processor.call! if cmd_middlewares.registry.empty?
 
-      cmd_middlewares.call(self) { |task| task.send(:execute_call!) }
+      cmd_middlewares.call(self) { processor.call! }
     end
 
     private
@@ -315,140 +317,6 @@ module CMDx
     #   logger.info("Task started")
     def logger
       Logger.call(self)
-    end
-
-    # Executes pre-execution callbacks and parameter validation.
-    #
-    # Triggers before_execution callbacks, sets the result to executing state,
-    # executes on_executing callbacks, and performs parameter validation with
-    # before_validation and after_validation callbacks.
-    #
-    # @return [void]
-    #
-    # @example Before call execution flow
-    #   task = MyTask.new
-    #   task.send(:before_call)
-    #   task.result.state #=> "executing"
-    def before_call
-      cmd_callbacks.call(self, :before_execution)
-
-      result.executing!
-      cmd_callbacks.call(self, :on_executing)
-
-      cmd_callbacks.call(self, :before_validation)
-      ParameterValidator.call(self)
-      cmd_callbacks.call(self, :after_validation)
-    end
-
-    # Executes post-execution callbacks based on result state and status.
-    #
-    # Triggers callbacks for the current result state, executed status if applicable,
-    # result status, outcome-based callbacks (good/bad), and after_execution callbacks.
-    #
-    # @return [void]
-    #
-    # @example After call execution flow
-    #   task = MyTask.new
-    #   task.result.success!
-    #   task.send(:after_call)
-    #   # Triggers on_success, on_good, and after_execution callbacks
-    def after_call
-      cmd_callbacks.call(self, :"on_#{result.state}")
-      cmd_callbacks.call(self, :on_executed) if result.executed?
-
-      cmd_callbacks.call(self, :"on_#{result.status}")
-      cmd_callbacks.call(self, :on_good) if result.good?
-      cmd_callbacks.call(self, :on_bad) if result.bad?
-
-      cmd_callbacks.call(self, :after_execution)
-    end
-
-    # Finalizes task execution by immutating the result and logging.
-    #
-    # Applies immutability to the task state and logs the execution result.
-    # This method is called at the end of both successful and failed executions.
-    #
-    # @return [void]
-    #
-    # @example Terminating call execution
-    #   task = MyTask.new
-    #   task.send(:terminate_call)
-    #   # Task state is now immutable and result is logged
-    def terminate_call
-      Immutator.call(self)
-      ResultLogger.call(result)
-    end
-
-    # Executes the task with fault tolerance and comprehensive error handling.
-    #
-    # Performs the complete task execution lifecycle including timing, callbacks,
-    # business logic execution, and error handling. Handles UndefinedCallError,
-    # Fault exceptions, and general StandardError exceptions with appropriate
-    # result state updates.
-    #
-    # @return [void]
-    #
-    # @raise [UndefinedCallError] if the call method is not implemented
-    #
-    # @example Task execution with error handling
-    #   task = MyTask.new
-    #   task.send(:execute_call)
-    #   task.result.executed? #=> true
-    def execute_call
-      result.runtime do
-        before_call
-        call
-      rescue UndefinedCallError => e
-        raise(e)
-      rescue Fault => e
-        throw!(e.result, original_exception: e) if Array(task_setting(:task_halt)).include?(e.result.status)
-      rescue StandardError => e
-        fail!(reason: "[#{e.class}] #{e.message}", original_exception: e)
-      ensure
-        result.executed!
-        after_call
-      end
-
-      terminate_call
-    end
-
-    # Executes the task with strict fault handling and immediate error propagation.
-    #
-    # Performs task execution with immediate fault propagation for configured
-    # halt conditions. Clears the execution chain on UndefinedCallError and
-    # configured fault statuses, otherwise treats faults as no-ops.
-    #
-    # @return [void]
-    #
-    # @raise [UndefinedCallError] if the call method is not implemented
-    # @raise [Fault] if task fails and task_halt setting includes the failure status
-    #
-    # @example Task execution with strict fault handling
-    #   task = MyTask.new
-    #   task.send(:execute_call!)
-    #   task.result.executed? #=> true
-    def execute_call!
-      result.runtime do
-        before_call
-        call
-      rescue UndefinedCallError => e
-        Chain.clear
-        raise(e)
-      rescue Fault => e
-        result.executed!
-
-        if Array(task_setting(:task_halt)).include?(e.result.status)
-          Chain.clear
-          raise(e)
-        end
-
-        after_call # HACK: treat as NO-OP
-      else
-        result.executed!
-        after_call # ELSE: treat as success
-      end
-
-      terminate_call
     end
 
   end

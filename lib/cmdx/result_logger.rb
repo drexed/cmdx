@@ -27,12 +27,12 @@ module CMDx
     # @return [void]
     #
     # @example Log a successful task result
-    #   result = task.perform_call
+    #   result = task.process
     #   CMDx::ResultLogger.call(result)
     #   # => logs at info level: "Task completed successfully"
     #
     # @example Log a failed task result
-    #   result = failing_task.perform_call
+    #   result = failing_task.process
     #   CMDx::ResultLogger.call(result)
     #   # => logs at error level: "Task failed with error"
     def call(result)

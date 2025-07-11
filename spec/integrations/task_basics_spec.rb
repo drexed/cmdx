@@ -42,10 +42,10 @@ RSpec.describe "Task Basics", type: :integration do
 
       it "prevents multiple executions" do
         instance = simple_task.new
-        instance.perform_call
+        instance.process
 
         expect(instance.result.state).to eq("complete")
-        expect { instance.perform_call }.to raise_error(RuntimeError, /cannot transition/)
+        expect { instance.process }.to raise_error(RuntimeError, /cannot transition/)
       end
     end
 
@@ -259,7 +259,7 @@ RSpec.describe "Task Basics", type: :integration do
         expect(task.context.test_param).to eq("value")
         expect(task.result.state).to eq("initialized")
 
-        task.perform_call
+        task.process
 
         expect(task.result.state).to eq("complete")
         expect(task.result).to be_success
