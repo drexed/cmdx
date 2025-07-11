@@ -18,7 +18,8 @@ module CMDx
     cmdx_attr_setting :cmd_parameters,
                       default: -> { ParameterRegistry.new }
 
-    cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters, :task_setting, :task_setting?,
+    cmdx_attr_delegator :cmd_middlewares, :cmd_callbacks, :cmd_parameters,
+                        :task_settings, :task_setting, :task_setting?,
                         to: :class
     cmdx_attr_delegator :skip!, :fail!, :throw!,
                         to: :result
