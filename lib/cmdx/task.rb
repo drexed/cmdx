@@ -17,29 +17,19 @@ module CMDx
     cmdx_attr_delegator :skip!, :fail!, :throw!,
                         to: :result
 
-    ##
-    # @!attribute [r] context
-    #   @return [Context] parameter context for this task execution
+    # @return [Context] parameter context for this task execution
     attr_reader :context
 
-    ##
-    # @!attribute [r] errors
-    #   @return [Errors] collection of validation and execution errors
+    # @return [Errors] collection of validation and execution errors
     attr_reader :errors
 
-    ##
-    # @!attribute [r] id
-    #   @return [String] unique identifier for this task instance
+    # @return [String] unique identifier for this task instance
     attr_reader :id
 
-    ##
-    # @!attribute [r] result
-    #   @return [Result] execution result tracking state and status
+    # @return [Result] execution result tracking state and status
     attr_reader :result
 
-    ##
-    # @!attribute [r] chain
-    #   @return [Chain] execution chain containing this task and related executions
+    # @return [Chain] execution chain containing this task and related executions
     attr_reader :chain
 
     # @return [Context] alias for context

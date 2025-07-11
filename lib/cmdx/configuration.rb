@@ -6,39 +6,25 @@ module CMDx
 
     DEFAULT_HALT = "failed"
 
-    ##
-    # @!attribute [rw] logger
-    #   @return [Logger] Logger instance for task execution logging
+    # @return [Logger] Logger instance for task execution logging
     attr_accessor :logger
 
-    ##
-    # @!attribute [rw] middlewares
-    #   @return [MiddlewareRegistry] Global middleware registry applied to all tasks
+    # @return [MiddlewareRegistry] Global middleware registry applied to all tasks
     attr_accessor :middlewares
 
-    ##
-    # @!attribute [rw] callbacks
-    #   @return [CallbackRegistry] Global callback registry applied to all tasks
+    # @return [CallbackRegistry] Global callback registry applied to all tasks
     attr_accessor :callbacks
 
-    ##
-    # @!attribute [rw] coercions
-    #   @return [CoercionRegistry] Global coercion registry for custom parameter types
+    # @return [CoercionRegistry] Global coercion registry for custom parameter types
     attr_accessor :coercions
 
-    ##
-    # @!attribute [rw] validators
-    #   @return [ValidatorRegistry] Global validator registry for custom parameter validation
+    # @return [ValidatorRegistry] Global validator registry for custom parameter validation
     attr_accessor :validators
 
-    ##
-    # @!attribute [rw] task_halt
-    #   @return [String, Array<String>] Result statuses that cause `call!` to raise faults
+    # @return [String, Array<String>] Result statuses that cause `call!` to raise faults
     attr_accessor :task_halt
 
-    ##
-    # @!attribute [rw] workflow_halt
-    #   @return [String, Array<String>] Result statuses that halt workflow execution
+    # @return [String, Array<String>] Result statuses that halt workflow execution
     attr_accessor :workflow_halt
 
     def initialize

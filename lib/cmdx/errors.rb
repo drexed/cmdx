@@ -6,31 +6,21 @@ module CMDx
     cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values,
                         to: :errors
 
-    ##
-    # @!attribute [r] errors
-    #   @return [Hash] internal hash storing error messages by attribute
+    # @return [Hash] internal hash storing error messages by attribute
     attr_reader :errors
 
-    ##
-    # @!method attribute_names
-    #   @return [Array<Symbol>] list of attributes that have errors
+    # @return [Array<Symbol>] list of attributes that have errors
     alias attribute_names keys
 
-    ##
-    # @!method blank?
-    #   @return [Boolean] true if no errors are present
+    # @return [Boolean] true if no errors are present
     alias blank? empty?
 
-    ##
-    # @!method valid?
-    #   @return [Boolean] true if no errors are present
+    # @return [Boolean] true if no errors are present
     alias valid? empty?
 
-    ##
     # Alias for {#key?}. Checks if an attribute has error messages.
     alias has_key? key?
 
-    ##
     # Alias for {#key?}. Checks if an attribute has error messages.
     alias include? key?
 
