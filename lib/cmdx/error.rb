@@ -16,6 +16,12 @@ module CMDx
   # value is incompatible with the parameter's defined type.
   CoercionError = Class.new(Error)
 
+  # Raised when a deprecated task is used.
+  #
+  # This error occurs when a deprecated task is called. It indicates that the
+  # task is no longer supported and should be replaced with a newer alternative.
+  DeprecationError = Class.new(Error)
+
   # Raised when an abstract method is called without being implemented.
   #
   # This error occurs when a subclass fails to implement required abstract methods

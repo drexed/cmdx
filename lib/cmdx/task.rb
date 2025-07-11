@@ -60,6 +60,8 @@ module CMDx
     #   task = MyTask.new(existing_context)
     #   task.context.name #=> "John"
     def initialize(context = {})
+      TaskDeprecator.call(self)
+
       context  = context.context if context.respond_to?(:context)
 
       @context = Context.build(context)
