@@ -1,102 +1,95 @@
 # frozen_string_literal: true
 
 module CMDx
-  ##
-  # The MiddlewareRegistry collection provides a Rack-style middleware chain that wraps
-  # task execution with cross-cutting concerns like logging, authentication,
-  # caching, and more. Middleware can short-circuit execution by returning
-  # early without calling the next middleware in the chain.
+  # Registry for managing middleware definitions and execution within tasks.
   #
-  # The MiddlewareRegistry collection extends Array to provide specialized functionality for
-  # managing collections of middleware definitions within CMDx tasks. It handles
-  # middleware execution coordination, chaining, and inspection.
+  # This registry handles the registration and execution of middleware that can
+  # wrap task execution, providing cross-cutting concerns like logging, timing,
+  # authentication, and error handling.
   #
-  # @example Basic middleware usage
-  #   middleware_registry = MiddlewareRegistry.new
-  #   middleware_registry.register(LoggingMiddleware)
-  #   middleware_registry.register(AuthenticationMiddleware, required_role: :admin)
-  #   middleware_registry.register(CachingMiddleware, ttl: 300)
-  #
-  #   result = middleware_registry.call(task) do |t|
-  #     t.call
-  #     t.result
-  #   end
-  #
-  # @example Array-like operations
-  #   middleware_registry << [LoggingMiddleware, [], nil]
-  #   middleware_registry.size  # => 1
-  #   middleware_registry.empty?  # => false
-  #   middleware_registry.each { |middleware| puts middleware.inspect }
-  #
-  # @example Using proc middleware
-  #   middleware_registry.register(proc do |task, callable|
-  #     puts "Before task execution"
-  #     result = callable.call(task)
-  #     puts "After task execution"
-  #     result
-  #   end)
-  #
-  # @see Middleware Base middleware class
   # @since 1.0.0
   class MiddlewareRegistry
 
+    # The internal array storing middleware definitions.
+    #
+    # @return [Array] array containing middleware definition tuples
     attr_reader :registry
 
+    # Initializes a new middleware registry.
+    #
+    # @param registry [Array] initial registry array with middleware definitions
+    #
+    # @return [MiddlewareRegistry] a new middleware registry instance
+    #
+    # @example Creating an empty registry
+    #   MiddlewareRegistry.new
+    #
+    # @example Creating a registry with initial middleware
+    #   MiddlewareRegistry.new([[LoggingMiddleware, [], nil]])
     def initialize(registry = [])
       @registry = registry.to_a
     end
 
-    # Adds middleware to the registry.
+    # Registers a middleware with optional arguments and block.
     #
-    # @param middleware [Class, Object, Proc] The middleware to add
-    # @param args [Array] Arguments to pass to middleware constructor
-    # @param block [Proc] Block to pass to middleware constructor
-    # @return [MiddlewareRegistry] self for method chaining
+    # @param middleware [Class, Object] the middleware class or instance to register
+    # @param args [Array] arguments to pass to the middleware constructor
+    # @param block [Proc] optional block to pass to the middleware constructor
     #
-    # @example Add middleware class
-    #   registry.register(LoggingMiddleware, log_level: :info)
+    # @return [MiddlewareRegistry] returns self for method chaining
     #
-    # @example Add middleware instance
-    #   registry.register(LoggingMiddleware.new(log_level: :info))
+    # @example Registering a middleware class
+    #   registry.register(LoggingMiddleware)
     #
-    # @example Add proc middleware
-    #   registry.register(proc { |task, callable| callable.call(task) })
+    # @example Registering middleware with arguments
+    #   registry.register(TimeoutMiddleware, 30)
+    #
+    # @example Registering middleware with a block
+    #   registry.register(CustomMiddleware) { |task| puts "Processing #{task.name}" }
     def register(middleware, *args, &block)
       registry << [middleware, args, block]
       self
     end
 
-    # Executes the middleware chain around the given block.
+    # Executes the middleware chain around the given task.
     #
-    # @param task [Task] The task instance to pass through middleware
-    # @yield [Task] The task instance for final execution
-    # @yieldreturn [Object] The result of task execution
-    # @return [Object] The result from the middleware chain
+    # @param task [Task] the task instance to execute with middleware
+    # @param block [Proc] the block to execute after all middleware
     #
-    # @example Execute with middleware
-    #   result = registry.call(task) do |t|
-    #     t.call
-    #     t.result
-    #   end
+    # @return [Object] the result of the middleware chain execution
+    #
+    # @example Executing middleware chain
+    #   registry.call(task) { |t| t.execute }
+    #
+    # @example Executing with empty registry
+    #   registry.call(task) { |t| puts "No middleware" }
     def call(task, &)
       return yield(task) if registry.empty?
 
       build_chain(&).call(task)
     end
 
+    # Returns an array representation of the registry.
+    #
+    # @return [Array] a deep copy of the registry array
+    #
+    # @example Getting registry contents
+    #   registry.to_a
+    #   # => [[LoggingMiddleware, [], nil], [TimeoutMiddleware, [30], nil]]
     def to_a
       registry.map(&:dup)
     end
 
     private
 
-    # Builds the middleware call chain.
+    # Builds the middleware chain by composing middleware in reverse order.
     #
-    # Creates a nested chain of callables where each middleware wraps the next,
-    # with the provided block as the innermost callable.
+    # @param block [Proc] the final block to execute after all middleware
     #
-    # @param block [Proc] The final block to execute
-    # @return [Proc] The middleware chain as a callable
+    # @return [Proc] a composed procedure that executes the middleware chain
+    #
+    # @example Building a chain (internal use)
+    #   build_chain { |task| task.execute }
     def build_chain(&block)
       registry.reverse.reduce(block) do |next_callable, (middleware, args, middleware_block)|
         proc do |task|

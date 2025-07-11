@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
+- Rename the `task.perform` to `task.invoke`
+- Add deprecation method via `warn` method. Add option to pass a date where a `DeprecatedError` will be raised.
 - Add table and pretty_table log formatters
 - Revert `docs/parameters/coercion.md` changes
 - Refactor all `docs`
