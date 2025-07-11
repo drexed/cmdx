@@ -1,85 +1,48 @@
 # frozen_string_literal: true
 
 module CMDx
-  ##
-  # Base class for CMDx callbacks that provides lifecycle execution points.
+  # Base class for implementing callback functionality in task execution.
   #
-  # Callback components can wrap or observe task execution at specific lifecycle
-  # points like before validation, on success, after execution, etc.
-  # Each callback must implement the `call` method which receives the
-  # task instance and callback context.
+  # Callbacks are executed at specific points during task lifecycle to
+  # provide hooks for custom behavior, logging, validation, or cleanup.
+  # All callback implementations must inherit from this class and implement
+  # the abstract call method.
   #
-  # @example Basic callback implementation
-  #   class LoggingCallback < CMDx::Callback
-  #     def call(task, type)
-  #       puts "Executing #{type} callback for #{task.class.name}"
-  #       task.logger.info("Callback executed: #{type}")
-  #     end
-  #   end
-  #
-  # @example Callback with initialization parameters
-  #   class NotificationCallback < CMDx::Callback
-  #     def initialize(channels)
-  #       @channels = channels
-  #     end
-  #
-  #     def call(task, type)
-  #       return unless type == :on_success
-  #
-  #       @channels.each do |channel|
-  #         NotificationService.send(channel, "Task #{task.class.name} completed")
-  #       end
-  #     end
-  #   end
-  #
-  # @example Conditional callback execution
-  #   class ErrorReportingCallback < CMDx::Callback
-  #     def call(task, type)
-  #       return unless type == :on_failure
-  #       return unless task.result.failed?
-  #
-  #       ErrorReporter.notify(
-  #         task.errors.full_messages.join(", "),
-  #         context: task.context.to_h
-  #       )
-  #     end
-  #   end
-  #
-  # @see CallbackRegistry Callback management
-  # @see Task Callback integration
   # @since 1.0.0
   class Callback
 
-    ##
-    # Class-level convenience method for creating and calling a callback.
+    # Executes a callback by creating a new instance and calling it.
     #
-    # This method creates a new instance of the callback class and immediately
-    # calls it with the provided task and type. This is useful for stateless
-    # callbacks that don't need to maintain state between calls.
+    # @param task [Task] the task instance executing the callback
+    # @param type [Symbol] the callback type identifier
     #
-    # @param task [Task] The task instance being executed
-    # @param type [Symbol] The type of callback being executed
-    # @return [void] The result of the callback execution
+    # @return [Object] the result of the callback execution
     #
-    # @example Using class-level call
-    #   LoggingCallback.call(task, :on_success)
+    # @raise [UndefinedCallError] when the callback subclass doesn't implement call
     #
-    # @since 1.1.0
+    # @example Execute a callback on a task
+    #   MyCallback.call(task, :before)
     def self.call(task, type)
       new.call(task, type)
     end
 
-    ##
-    # Executes the callback logic.
+    # Abstract method that must be implemented by callback subclasses.
     #
-    # This method must be implemented by subclasses to define the callback
-    # behavior. The method receives the task instance and the callback type
-    # being executed.
+    # This method contains the actual callback logic to be executed.
+    # Subclasses must override this method to provide their specific
+    # callback implementation.
     #
-    # @param task [Task] the task instance being executed
-    # @param type [Symbol] the type of callback being executed
-    # @return [void]
-    # @abstract Subclasses must implement this method
+    # @param _task [Task] the task instance executing the callback
+    # @param _type [Symbol] the callback type identifier
+    #
+    # @return [Object] the result of the callback execution
+    #
+    # @raise [UndefinedCallError] always raised in the base class
+    #
+    # @example Implement in a subclass
+    #   def call(task, type)
+    #     puts "Executing #{type} callback for #{task.class.name}"
+    #   end
     def call(_task, _type)
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end

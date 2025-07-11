@@ -1,47 +1,14 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Parameter definition class for CMDx task parameter management.
+  # Parameter definition system for CMDx tasks.
   #
-  # The Parameter class represents individual parameter definitions within CMDx tasks.
-  # It handles parameter configuration, validation rules, type coercion, nested parameters,
-  # and method generation for accessing parameter values within task instances.
+  # This class manages parameter definitions including type coercion, validation,
+  # and nested parameter structures. It handles the creation of accessor methods
+  # on task classes and provides a flexible system for defining required and
+  # optional parameters with various data types and validation rules.
   #
-  # @example Basic parameter definition
-  #   class ProcessOrderTask < CMDx::Task
-  #     required :order_id
-  #     optional :priority
-  #   end
-  #
-  # @example Parameter with type coercion and validation
-  #   class ProcessUserTask < CMDx::Task
-  #     required :age, type: :integer, numeric: { min: 18, max: 120 }
-  #     required :email, type: :string, format: { with: /@/ }
-  #   end
-  #
-  # @example Nested parameters
-  #   class ProcessOrderTask < CMDx::Task
-  #     required :shipping_address do
-  #       required :street, :city, :state
-  #       optional :apartment
-  #     end
-  #   end
-  #
-  # @example Parameter with custom source
-  #   class ProcessUserTask < CMDx::Task
-  #     required :name, source: :user
-  #     required :company_name, source: -> { user.company }
-  #   end
-  #
-  # @example Parameter with default values
-  #   class ProcessOrderTask < CMDx::Task
-  #     optional :priority, default: "normal"
-  #     optional :notification, default: -> { user.preferences.notify? }
-  #   end
-  #
-  # @see CMDx::Task Task parameter integration
-  # @see CMDx::ParameterValue Parameter value resolution and validation
-  # @see CMDx::Parameters Parameter collection management
+  # @since 1.0.0
   class Parameter
 
     cmdx_attr_delegator :invalid?, :valid?,
@@ -71,37 +38,25 @@ module CMDx
     # @return [CMDx::Errors] Validation errors for this parameter
     attr_reader :errors
 
-    # Initializes a new Parameter instance.
-    #
-    # Creates a parameter definition with the specified configuration options.
-    # Automatically defines accessor methods on the task class and processes
-    # any nested parameter definitions provided via block.
+    # Creates a new parameter definition with the given name and options.
     #
     # @param name [Symbol] The parameter name
-    # @param options [Hash] Parameter configuration options
-    # @option options [Class] :klass The task class (required)
-    # @option options [Parameter] :parent Parent parameter for nesting
-    # @option options [Symbol, Array<Symbol>] :type (:virtual) Type(s) for coercion
-    # @option options [Boolean] :required (false) Whether parameter is required
-    # @option options [Object, Proc] :default Default value or callable
-    # @option options [Symbol, Proc] :source (:context) Parameter value source
-    # @option options [Hash] :* Validation options (presence, format, etc.)
+    # @param options [Hash] Configuration options for the parameter
+    # @option options [Class] :klass The task class this parameter belongs to (required)
+    # @option options [Parameter] :parent The parent parameter for nested parameters
+    # @option options [Symbol, Array<Symbol>] :type (:virtual) The parameter type(s) for coercion
+    # @option options [Boolean] :required (false) Whether the parameter is required
+    # @param block [Proc] Optional block for defining nested parameters
+    # @return [Parameter] The newly created parameter
+    # @raise [KeyError] If the :klass option is not provided
     #
-    # @yield Optional block for defining nested parameters
+    # @example Create a simple parameter
+    #   Parameter.new(:name, klass: MyTask, type: :string, required: true)
     #
-    # @raise [KeyError] If :klass option is not provided
-    #
-    # @example Basic parameter creation
-    #   Parameter.new(:user_id, klass: MyTask, type: :integer, required: true)
-    #
-    # @example Parameter with validation
-    #   Parameter.new(:email, klass: MyTask, type: :string,
-    #                 format: { with: /@/ }, presence: true)
-    #
-    # @example Nested parameter with block
-    #   Parameter.new(:address, klass: MyTask) do
-    #     required :street, :city
-    #     optional :apartment
+    # @example Create a parameter with nested children
+    #   Parameter.new(:user, klass: MyTask, type: :hash) do
+    #     required :name, type: :string
+    #     optional :age, type: :integer
     #   end
     def initialize(name, **options, &)
       @klass    = options.delete(:klass) || raise(KeyError, "klass option required")
@@ -120,26 +75,21 @@ module CMDx
 
     class << self
 
-      # Defines one or more optional parameters.
+      # Creates one or more optional parameters with the given names and options.
       #
-      # Creates parameter definitions that are not required for task execution.
-      # Optional parameters return nil if not provided in the call arguments.
+      # @param names [Array<Symbol>] Parameter names to create
+      # @param options [Hash] Configuration options for all parameters
+      # @param block [Proc] Optional block for defining nested parameters
+      # @return [Array<Parameter>] The created optional parameters
+      # @raise [ArgumentError] If no parameters are given or :as option is used with multiple names
       #
-      # @param names [Array<Symbol>] Parameter names to define
-      # @param options [Hash] Parameter configuration options
-      # @yield Optional block for nested parameter definitions
+      # @example Create multiple optional parameters
+      #   Parameter.optional(:name, :email, type: :string, klass: MyTask)
       #
-      # @return [Array<Parameter>] Created parameter instances
-      # @raise [ArgumentError] If no parameter names provided or :as option used with multiple names
-      #
-      # @example Single optional parameter
-      #   Parameter.optional(:priority, type: :string, default: "normal")
-      #
-      # @example Multiple optional parameters
-      #   Parameter.optional(:width, :height, type: :integer, numeric: { min: 0 })
-      #
-      # @example Optional parameter with validation
-      #   Parameter.optional(:email, type: :string, format: { with: /@/ })
+      # @example Create optional parameter with nested structure
+      #   Parameter.optional(:user, klass: MyTask, type: :hash) do
+      #     required :name, type: :string
+      #   end
       def optional(*names, **options, &)
         if names.none?
           raise ArgumentError, "no parameters given"
@@ -150,69 +100,56 @@ module CMDx
         names.filter_map { |n| new(n, **options, &) }
       end
 
-      # Defines one or more required parameters.
+      # Creates one or more required parameters with the given names and options.
       #
-      # Creates parameter definitions that must be provided for task execution.
-      # Missing required parameters will cause task validation to fail.
+      # @param names [Array<Symbol>] Parameter names to create
+      # @param options [Hash] Configuration options for all parameters
+      # @param block [Proc] Optional block for defining nested parameters
+      # @return [Array<Parameter>] The created required parameters
+      # @raise [ArgumentError] If no parameters are given or :as option is used with multiple names
       #
-      # @param names [Array<Symbol>] Parameter names to define
-      # @param options [Hash] Parameter configuration options
-      # @yield Optional block for nested parameter definitions
+      # @example Create multiple required parameters
+      #   Parameter.required(:name, :email, type: :string, klass: MyTask)
       #
-      # @return [Array<Parameter>] Created parameter instances
-      # @raise [ArgumentError] If no parameter names provided or :as option used with multiple names
-      #
-      # @example Single required parameter
-      #   Parameter.required(:user_id, type: :integer)
-      #
-      # @example Multiple required parameters
-      #   Parameter.required(:first_name, :last_name, type: :string, presence: true)
-      #
-      # @example Required parameter with complex validation
-      #   Parameter.required(:age, type: :integer, numeric: { within: 18..120 })
+      # @example Create required parameter with validation
+      #   Parameter.required(:age, type: :integer, validate: { numeric: { greater_than: 0 } }, klass: MyTask)
       def required(*names, **options, &)
         optional(*names, **options.merge(required: true), &)
       end
 
     end
 
-    # Defines nested optional parameters within this parameter.
+    # Creates one or more optional child parameters under this parameter.
     #
-    # Creates child parameter definitions that inherit this parameter as their source.
-    # Child parameters are only validated if the parent parameter is provided.
+    # @param names [Array<Symbol>] Parameter names to create
+    # @param options [Hash] Configuration options for all parameters
+    # @param block [Proc] Optional block for defining nested parameters
+    # @return [Array<Parameter>] The created optional child parameters
     #
-    # @param names [Array<Symbol>] Child parameter names to define
-    # @param options [Hash] Parameter configuration options
-    # @yield Optional block for further nested parameter definitions
+    # @example Add optional child parameters
+    #   user_param.optional(:nickname, :bio, type: :string)
     #
-    # @return [Array<Parameter>] Created child parameter instances
-    #
-    # @example Nested optional parameters
-    #   address_param.optional(:apartment, :unit, type: :string)
-    #
-    # @example Nested parameter with validation
-    #   user_param.optional(:age, type: :integer, numeric: { min: 0 })
+    # @example Add optional child with further nesting
+    #   user_param.optional(:preferences, type: :hash) do
+    #     required :theme, type: :string
+    #   end
     def optional(*names, **options, &)
       parameters = Parameter.optional(*names, **options.merge(klass: @klass, parent: self), &)
       children.concat(parameters)
     end
 
-    # Defines nested required parameters within this parameter.
+    # Creates one or more required child parameters under this parameter.
     #
-    # Creates child parameter definitions that are required if the parent parameter
-    # is provided. Child parameters inherit this parameter as their source.
+    # @param names [Array<Symbol>] Parameter names to create
+    # @param options [Hash] Configuration options for all parameters
+    # @param block [Proc] Optional block for defining nested parameters
+    # @return [Array<Parameter>] The created required child parameters
     #
-    # @param names [Array<Symbol>] Child parameter names to define
-    # @param options [Hash] Parameter configuration options
-    # @yield Optional block for further nested parameter definitions
+    # @example Add required child parameters
+    #   user_param.required(:first_name, :last_name, type: :string)
     #
-    # @return [Array<Parameter>] Created child parameter instances
-    #
-    # @example Nested required parameters
-    #   address_param.required(:street, :city, :state, type: :string)
-    #
-    # @example Nested parameter with validation
-    #   payment_param.required(:amount, type: :float, numeric: { min: 0.01 })
+    # @example Add required child with validation
+    #   user_param.required(:email, type: :string, validate: { format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i } })
     def required(*names, **options, &)
       parameters = Parameter.required(*names, **options.merge(klass: @klass, parent: self), &)
       children.concat(parameters)
@@ -220,102 +157,76 @@ module CMDx
 
     # Checks if this parameter is required.
     #
-    # @return [Boolean] true if parameter is required, false otherwise
+    # @return [Boolean] True if the parameter is required, false otherwise
     #
-    # @example
-    #   required_param.required?  # => true
-    #   optional_param.required?  # => false
+    # @example Check if parameter is required
+    #   param.required? # => true
     def required?
       !!@required
     end
 
     # Checks if this parameter is optional.
     #
-    # @return [Boolean] true if parameter is optional, false otherwise
+    # @return [Boolean] True if the parameter is optional, false otherwise
     #
-    # @example
-    #   required_param.optional?  # => false
-    #   optional_param.optional?  # => true
+    # @example Check if parameter is optional
+    #   param.optional? # => false
     def optional?
       !required?
     end
 
-    # Gets the method name that will be defined on the task class.
+    # Gets the method name that will be used to access this parameter's value.
     #
-    # The method name is generated using NameAffix utility and can be customized
-    # with :as, :prefix, and :suffix options.
+    # @return [Symbol] The method name for accessing this parameter
     #
-    # @return [Symbol] The generated method name
-    #
-    # @example Default method name
-    #   Parameter.new(:user_id, klass: Task).method_name  # => :user_id
-    #
-    # @example Custom method name
-    #   Parameter.new(:id, klass: Task, as: :user_id).method_name  # => :user_id
-    #
-    # @example Method name with prefix
-    #   Parameter.new(:name, klass: Task, prefix: "get_").method_name  # => :get_name
+    # @example Get method name
+    #   param.method_name # => :user_name
     def method_name
       @method_name ||= Utils::NameAffix.call(name, method_source, options)
     end
 
-    # Gets the source object/method that provides the parameter value.
+    # Gets the source object from which this parameter's value will be retrieved.
     #
-    # Determines where the parameter value should be retrieved from, defaulting
-    # to :context or inheriting from parent parameter.
+    # @return [Symbol] The method source (:context by default, or parent's method_name)
     #
-    # @return [Symbol] The source method name
-    #
-    # @example Default source
-    #   Parameter.new(:user_id, klass: Task).method_source  # => :context
-    #
-    # @example Custom source
-    #   Parameter.new(:name, klass: Task, source: :user).method_source  # => :user
-    #
-    # @example Inherited source from parent
-    #   child_param.method_source  # => parent parameter's method_name
+    # @example Get method source
+    #   param.method_source # => :context
     def method_source
       @method_source ||= options[:source] || parent&.method_name || :context
     end
 
     # Converts the parameter to a hash representation.
     #
-    # @return [Hash] Serialized parameter data including configuration and children
+    # @return [Hash] A hash representation of the parameter
     #
-    # @example
-    #   param.to_h
-    #   # => {
-    #   #   source: :context,
-    #   #   name: :user_id,
-    #   #   type: :integer,
-    #   #   required: true,
-    #   #   options: { numeric: { min: 1 } },
-    #   #   children: []
-    #   # }
+    # @example Convert to hash
+    #   param.to_h # => { name: :user_name, type: :string, required: true, ... }
     def to_h
       ParameterSerializer.call(self)
     end
 
-    # Converts the parameter to a string representation for inspection.
+    # Converts the parameter to a string representation.
     #
-    # @return [String] Human-readable parameter description
+    # @return [String] A string representation of the parameter
     #
-    # @example
-    #   param.to_s
-    #   # => "Parameter: name=user_id type=integer source=context required=true options={numeric: {min: 1}}"
+    # @example Convert to string
+    #   param.to_s # => "Parameter(name: user_name, type: string, required: true)"
     def to_s
       ParameterInspector.call(to_h)
     end
 
     private
 
-    # Defines the accessor method on the task class for this parameter.
+    # Defines the attribute accessor method for this parameter on the task class.
+    # The method handles parameter value retrieval, coercion, and validation.
     #
-    # Creates a private method that handles parameter value resolution,
-    # type coercion, validation, and error handling with caching.
-    #
-    # @param parameter [Parameter] The parameter to define method for
+    # @param parameter [Parameter] The parameter to define the method for
     # @return [void]
+    # @raise [CoercionError] If parameter value cannot be coerced to the expected type
+    # @raise [ValidationError] If parameter value fails validation
+    #
+    # @example Define parameter method (internal use)
+    #   define_attribute(param) # Defines a private method on the task class
     def define_attribute(parameter)
       klass.send(:define_method, parameter.method_name) do
         @parameters_cache ||= {}
