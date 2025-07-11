@@ -282,10 +282,7 @@ module CMDx
     #   task.process
     #   task.result.success? #=> true
     def process
-      processor = TaskProcessor.new(self)
-      return processor.call if cmd_middlewares.registry.empty?
-
-      cmd_middlewares.call(self) { processor.call }
+      cmd_middlewares.call(self) { |task| TaskProcessor.call(task) }
     end
 
     # Performs task execution with middleware support and strict fault handling.
@@ -299,10 +296,7 @@ module CMDx
     #   task.process!
     #   task.result.success? #=> true
     def process!
-      processor = TaskProcessor.new(self)
-      return processor.call! if cmd_middlewares.registry.empty?
-
-      cmd_middlewares.call(self) { processor.call! }
+      cmd_middlewares.call(self) { |task| TaskProcessor.call!(task) }
     end
 
     private

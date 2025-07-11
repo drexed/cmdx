@@ -13,8 +13,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "adds middleware to registry" do
         result = registry.register(middleware_class)
 
-        expect(registry.to_a.size).to eq(1)
-        expect(registry.to_a.first).to eq([middleware_class, [], nil])
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_class]).to eq([[], {}, nil])
         expect(result).to eq(registry)
       end
     end
@@ -25,8 +25,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores arguments with middleware" do
         registry.register(middleware_class, :arg1, :arg2, key: "value")
 
-        expect(registry.to_a.size).to eq(1)
-        expect(registry.to_a.first).to eq([middleware_class, [:arg1, :arg2, { key: "value" }], nil])
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_class]).to eq([%i[arg1 arg2], { key: "value" }, nil])
       end
     end
 
@@ -37,8 +37,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores block with middleware" do
         registry.register(middleware_class, &block)
 
-        expect(registry.to_a.size).to eq(1)
-        expect(registry.to_a.first).to eq([middleware_class, [], block])
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_class]).to eq([[], {}, block])
       end
     end
 
@@ -48,8 +48,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores instance directly" do
         registry.register(middleware_instance)
 
-        expect(registry.to_a.size).to eq(1)
-        expect(registry.to_a.first).to eq([middleware_instance, [], nil])
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_instance]).to eq([[], {}, nil])
       end
     end
 
@@ -59,8 +59,20 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "stores proc as middleware" do
         registry.register(middleware_proc)
 
-        expect(registry.to_a.size).to eq(1)
-        expect(registry.to_a.first).to eq([middleware_proc, [], nil])
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_proc]).to eq([[], {}, nil])
+      end
+    end
+
+    context "when adding duplicate middleware" do
+      let(:middleware_class) { create_middleware_class }
+
+      it "overwrites existing middleware" do
+        registry.register(middleware_class, :first)
+        registry.register(middleware_class, :second)
+
+        expect(registry.to_h.size).to eq(1)
+        expect(registry.to_h[middleware_class]).to eq([[:second], {}, nil])
       end
     end
 
@@ -72,13 +84,19 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "allows method chaining" do
         result = registry.register(first_middleware).register(second_middleware).register(third_middleware)
 
-        expect(registry.to_a.size).to eq(3)
+        expect(registry.to_h.size).to eq(3)
         expect(result).to eq(registry)
       end
     end
   end
 
   describe "#call" do
+    context "when no block is given" do
+      it "raises ArgumentError" do
+        expect { registry.call(task) }.to raise_error(ArgumentError, "block required")
+      end
+    end
+
     context "when registry is empty" do
       it "executes block directly without middleware" do
         result = registry.call(task) { |_t| "direct_execution" }
@@ -292,6 +310,33 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
     end
 
+    context "when middleware has initialization kwargs" do
+      let(:kwargs_middleware) do
+        create_middleware_class do
+          attr_reader :prefix
+
+          def initialize(prefix:)
+            @prefix = prefix
+          end
+
+          def call(task, callable)
+            result = callable.call(task)
+            "#{prefix}: #{result}"
+          end
+        end
+      end
+
+      before do
+        registry.register(kwargs_middleware, prefix: "KWARGS")
+      end
+
+      it "passes initialization kwargs to middleware" do
+        result = registry.call(task) { |_t| "result" }
+
+        expect(result).to eq("KWARGS: result")
+      end
+    end
+
     context "when middleware has initialization block" do
       let(:block_configured_middleware) do
         create_middleware_class do
@@ -387,6 +432,28 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
         expect(result).to eq("caught: execution failed")
       end
+    end
+  end
+
+  describe "#to_h" do
+    let(:middleware_class) { create_middleware_class }
+
+    it "returns hash representation of registry" do
+      registry.register(middleware_class, :arg1, key: "value")
+
+      result = registry.to_h
+
+      expect(result).to be_a(Hash)
+      expect(result[middleware_class]).to eq([[:arg1], { key: "value" }, nil])
+    end
+
+    it "returns deep copy of registry values" do
+      registry.register(middleware_class, :arg1)
+
+      result = registry.to_h
+      result[middleware_class][0] << :modified
+
+      expect(registry.to_h[middleware_class]).to eq([[:arg1], {}, nil])
     end
   end
 end

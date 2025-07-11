@@ -26,6 +26,64 @@ module CMDx
       @task = task
     end
 
+    class << self
+
+      # Executes a task with full error handling and result management.
+      #
+      # This is a convenience method that creates a new TaskProcessor instance
+      # and immediately calls the safe execution method. It provides the same
+      # comprehensive error handling as the instance method, catching faults
+      # and StandardErrors and converting them to failed results.
+      #
+      # @param task [CMDx::Task] the task instance to execute
+      #
+      # @return [Result] the task's result object after execution
+      #
+      # @raise [UndefinedCallError] if the task doesn't implement a call method
+      #
+      # @example Execute a task safely using class method
+      #   task = MyTask.new(name: "test")
+      #   result = TaskProcessor.call(task)
+      #   result.success? # => true or false
+      #
+      # @example Handle task with validation errors
+      #   task = MyTask.new # missing required parameters
+      #   result = TaskProcessor.call(task)
+      #   result.failed? # => true
+      def call(task)
+        new(task).call
+      end
+
+      # Executes a task with bang semantics, re-raising exceptions.
+      #
+      # This is a convenience method that creates a new TaskProcessor instance
+      # and immediately calls the strict execution method. It provides the same
+      # strict error handling as the instance method, re-raising exceptions
+      # after proper cleanup and chain clearing.
+      #
+      # @param task [CMDx::Task] the task instance to execute
+      #
+      # @return [Result] the task's result object after execution
+      #
+      # @raise [UndefinedCallError] if the task doesn't implement a call method
+      # @raise [Fault] if a fault occurs during execution
+      #
+      # @example Execute task with strict error handling
+      #   task = MyTask.new(name: "test")
+      #   result = TaskProcessor.call!(task) # raises on failure
+      #
+      # @example Handle exceptions in bang mode
+      #   begin
+      #     TaskProcessor.call!(task)
+      #   rescue CMDx::Fault => e
+      #     puts "Task failed: #{e.result.status}"
+      #   end
+      def call!(task)
+        new(task).call!
+      end
+
+    end
+
     # Executes the task with full error handling and result management.
     #
     # This method provides safe task execution with comprehensive error handling,
