@@ -109,6 +109,7 @@ module CMDx
     def call
       task.result.runtime do
         before_call
+        validate_parameters
         task.call
       rescue UndefinedCallError => e
         raise(e)
@@ -152,6 +153,7 @@ module CMDx
     def call!
       task.result.runtime do
         before_call
+        validate_parameters
         task.call
       rescue UndefinedCallError => e
         raise!(e)
@@ -179,9 +181,29 @@ module CMDx
 
       task.result.executing!
       task.cmd_callbacks.call(task, :on_executing)
+    end
 
+    # Validates task parameters and handles validation errors.
+    #
+    # This method orchestrates the parameter validation process by executing
+    # validation callbacks, performing parameter validation, and handling
+    # any validation errors that occur. If validation fails, the task result
+    # is marked as failed with detailed error messages.
+    #
+    # @return [void]
+    #
+    # @raise [Exception] Validations, coercions, or exceptions
+    def validate_parameters
       task.cmd_callbacks.call(task, :before_validation)
-      ParameterValidator.call(task)
+
+      task.cmd_parameters.validate!(task)
+      unless task.errors.empty?
+        task.result.fail!(
+          reason: task.errors.full_messages.join(". "),
+          messages: task.errors.messages
+        )
+      end
+
       task.cmd_callbacks.call(task, :after_validation)
     end
 
