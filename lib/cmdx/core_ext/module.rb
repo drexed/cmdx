@@ -4,8 +4,6 @@ module CMDx
   module CoreExt
     # Extensions for Ruby's Module class that provide attribute delegation and settings functionality.
     # These extensions are automatically included in all modules when CMDx is loaded.
-    #
-    # @since 1.0.0
     module ModuleExtensions
 
       # Creates delegated methods that forward calls to another object or class.

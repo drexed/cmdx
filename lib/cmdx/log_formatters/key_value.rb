@@ -7,8 +7,6 @@ module CMDx
     # This formatter converts log entries into key-value format, including metadata
     # such as severity, process ID, and timestamp. Each log entry is output as
     # space-separated key=value pairs followed by a newline character.
-    #
-    # @since 1.0.0
     class KeyValue
 
       # Formats a log entry as a key=value string.

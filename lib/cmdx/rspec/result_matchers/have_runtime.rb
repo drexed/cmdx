@@ -40,8 +40,6 @@
 # @example Testing runtime precision
 #   result = PreciseTask.call(data: "test")
 #   expect(result).to have_runtime(be_within(0.01).of(0.25))
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_runtime do |expected_runtime = nil|
   match do |result|
     return false if result.runtime.nil?

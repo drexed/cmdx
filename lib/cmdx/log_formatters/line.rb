@@ -7,8 +7,6 @@ module CMDx
     # This formatter converts log entries into a human-readable line format,
     # including metadata such as severity, process ID, and timestamp. Each log
     # entry is output as a single line with structured information.
-    #
-    # @since 1.0.0
     class Line
 
       # Formats a log entry as a line string.

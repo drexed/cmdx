@@ -40,8 +40,6 @@
 #   workflow_result = InterruptedWorkflow.call(data: "invalid")
 #   interrupting_task = workflow_result.chain.find(&:interrupted?)
 #   expect(interrupting_task).to have_chain_index(3)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_chain_index do |expected_index|
   match do |result|
     result.index == expected_index

@@ -6,8 +6,6 @@ module CMDx
   # This registry handles the registration and execution of validators for
   # parameter validation, including built-in validators and custom validators
   # that can be registered at runtime.
-  #
-  # @since 1.0.0
   class ValidatorRegistry
 
     # The internal hash storing validator definitions.

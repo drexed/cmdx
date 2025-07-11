@@ -38,8 +38,6 @@
 # @example Testing context without specific values
 #   result = DataProcessingTask.call(data: dataset)
 #   expect(result).to be_successful_task({})  # Just check success without context
-#
-# @since 1.0.0
 RSpec::Matchers.define :be_successful_task do |expected_context = {}|
   match do |result|
     result.success? &&

@@ -8,8 +8,6 @@ module CMDx
     # inspect on the message content. It ignores severity, time, and task
     # metadata, focusing only on the raw message content. Each log entry
     # is output as an inspected string followed by a newline character.
-    #
-    # @since 1.0.0
     class Raw
 
       # Formats a log entry as an inspected string.

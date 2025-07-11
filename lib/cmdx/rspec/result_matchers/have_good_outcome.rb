@@ -35,8 +35,6 @@
 # @example Testing workflow completion
 #   workflow_result = ProcessingWorkflow.call(data: "test")
 #   expect(workflow_result).to have_good_outcome.and be_complete
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_good_outcome do
   match(&:good?)
 

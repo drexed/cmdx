@@ -24,8 +24,6 @@
 #     def call; end
 #   end
 #   expect(SimpleTask).not_to have_middleware(TimeoutMiddleware)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_middleware do |middleware_class|
   match do |task_class|
     task_class.cmd_middlewares.any? do |middleware|

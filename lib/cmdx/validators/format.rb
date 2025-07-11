@@ -8,8 +8,6 @@ module CMDx
     # regular expression patterns. It supports both positive matching (with)
     # and negative matching (without) patterns, which can be used independently
     # or in combination.
-    #
-    # @since 1.0.0
     class Format < Validator
 
       # Validates that the given value matches the specified format pattern(s).

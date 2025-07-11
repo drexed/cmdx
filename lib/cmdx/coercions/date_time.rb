@@ -7,8 +7,6 @@ module CMDx
     # This coercion handles conversion of various types to DateTime objects,
     # with support for custom date/time formats and automatic detection of
     # analog types (Date, DateTime, Time).
-    #
-    # @since 1.0.0
     class DateTime < Coercion
 
       ANALOG_TYPES = %w[Date DateTime Time].freeze

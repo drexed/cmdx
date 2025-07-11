@@ -7,8 +7,6 @@ module CMDx
     # This validator ensures that a value is not included in a given array or range
     # of forbidden values. It supports both discrete value exclusion and range-based
     # exclusion validation.
-    #
-    # @since 1.0.0
     class Exclusion < Validator
 
       # Validates that the given value is not included in the exclusion set.

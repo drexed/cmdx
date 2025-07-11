@@ -38,8 +38,6 @@
 #     def call; end
 #   end
 #   expect(SimpleTask).not_to have_callback(:before_execution)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_callback do |callback_name|
   match do |task_class|
     task_class.cmd_callbacks.registered?(callback_name)

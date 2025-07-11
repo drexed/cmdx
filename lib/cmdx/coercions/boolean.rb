@@ -7,8 +7,6 @@ module CMDx
     # This coercion handles conversion of various string representations to
     # boolean values, supporting common true/false variations like "yes/no",
     # "1/0", and "t/f".
-    #
-    # @since 1.0.0
     class Boolean < Coercion
 
       FALSEY = /^(false|f|no|n|0)$/i

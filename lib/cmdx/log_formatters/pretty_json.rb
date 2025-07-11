@@ -8,8 +8,6 @@ module CMDx
     # indentation and line breaks, including metadata such as severity, process ID,
     # and timestamp. Each log entry is output as a multi-line JSON structure followed
     # by a newline character, making it human-readable while maintaining structure.
-    #
-    # @since 1.0.0
     class PrettyJson
 
       # Formats a log entry as a pretty-printed JSON string.

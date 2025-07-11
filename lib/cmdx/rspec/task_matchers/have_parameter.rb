@@ -53,8 +53,6 @@
 #     def call; end
 #   end
 #   expect(SimpleTask).not_to have_parameter(:nonexistent)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_parameter do |parameter_name|
   match do |task_class|
     @parameter = task_class.cmd_parameters.registry.find { |p| p.method_name == parameter_name }

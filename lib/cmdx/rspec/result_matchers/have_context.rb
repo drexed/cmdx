@@ -50,8 +50,6 @@
 #     validation_errors: include("Data is invalid"),
 #     attempted_at: be_a(Time)
 #   )
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_context do |expected_effects|
   match do |result|
     expected_effects.all? do |key, expected_value|

@@ -34,8 +34,6 @@
 # @example Negative assertion
 #   result = ExecutedTask.call(data: "valid")
 #   expect(result).not_to be_skipped_task
-#
-# @since 1.0.0
 RSpec::Matchers.define :be_skipped_task do |expected_reason = nil|
   match do |result|
     result.skipped? &&

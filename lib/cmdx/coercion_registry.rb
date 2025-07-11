@@ -6,8 +6,6 @@ module CMDx
   # This registry handles the registration and execution of coercions that convert
   # parameter values from one type to another, supporting both built-in types and
   # custom coercion logic.
-  #
-  # @since 1.0.0
   class CoercionRegistry
 
     # The internal hash storing coercion definitions.

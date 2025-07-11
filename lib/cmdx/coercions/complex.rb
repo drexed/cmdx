@@ -6,8 +6,6 @@ module CMDx
     #
     # This coercion handles conversion of various types to complex numbers,
     # including strings, integers, floats, and other numeric types.
-    #
-    # @since 1.0.0
     class Complex < Coercion
 
       # Converts the given value to a complex number.

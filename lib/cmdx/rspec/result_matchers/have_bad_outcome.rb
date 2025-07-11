@@ -34,8 +34,6 @@
 # @example Opposite of good outcome
 #   result = SkippedTask.call(reason: "not_needed")
 #   expect(result).to have_bad_outcome.and not_to have_good_outcome
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_bad_outcome do
   match(&:bad?)
 

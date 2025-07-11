@@ -7,8 +7,6 @@ module CMDx
   # such as logging, timing, authentication, or other cross-cutting concerns.
   # All middleware implementations must inherit from this class and implement
   # the abstract call method.
-  #
-  # @since 1.0.0
   class Middleware
 
     # Executes middleware by creating a new instance and calling it.

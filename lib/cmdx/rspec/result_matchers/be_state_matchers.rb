@@ -38,8 +38,6 @@
 # @example Using with other matchers
 #   result = ProcessDataTask.call(data: invalid_data)
 #   expect(result).to be_interrupted.and be_failed
-#
-# @since 1.0.0
 CMDx::Result::STATES.each do |state|
   RSpec::Matchers.define :"be_#{state}" do
     match do |result|

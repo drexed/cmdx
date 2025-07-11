@@ -7,8 +7,6 @@ module CMDx
     # This coercion handles conversion of various types to hashes, with special
     # handling for JSON-formatted strings that start with "{" and array-to-hash
     # conversion using array splatting.
-    #
-    # @since 1.0.0
     class Hash < Coercion
 
       # Converts the given value to a hash.

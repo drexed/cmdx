@@ -7,8 +7,6 @@ module CMDx
     # This validator ensures that a value's length meets specified criteria.
     # It supports various length validation options including exact length,
     # minimum/maximum bounds, range validation, and exclusion patterns.
-    #
-    # @since 1.0.0
     class Length < Validator
 
       # Validates that the given value's length meets the specified criteria.

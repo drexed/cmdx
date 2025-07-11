@@ -31,8 +31,6 @@
 #     def call; end
 #   end
 #   expect(SimpleTask).not_to have_task_setting(:tags)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_task_setting do |setting_name, expected_value = nil|
   match do |task_class|
     return false unless task_class.task_setting?(setting_name)

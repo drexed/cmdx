@@ -7,8 +7,6 @@ module CMDx
     # This coercion handles conversion of various types to strings using Ruby's
     # built-in String() method, which provides consistent string conversion
     # behavior across different object types.
-    #
-    # @since 1.0.0
     class String < Coercion
 
       # Converts the given value to a string.

@@ -60,8 +60,6 @@
 #     memory_usage: be_within(10).of(100),
 #     cpu_time: be_positive
 #   )
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_metadata do |expected_metadata = {}|
   match do |result|
     expected_metadata.all? do |key, value|

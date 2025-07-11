@@ -36,8 +36,6 @@
 # @example Testing good vs bad outcomes
 #   result = BackupTask.call(force: false)
 #   expect(result).to be_skipped  # Skipped is still a "good" outcome
-#
-# @since 1.0.0
 CMDx::Result::STATUSES.each do |status|
   RSpec::Matchers.define :"be_#{status}" do
     match do |result|

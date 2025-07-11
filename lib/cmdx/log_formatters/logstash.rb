@@ -8,8 +8,6 @@ module CMDx
     # required Logstash fields such as @version and @timestamp, along with metadata
     # such as severity and process ID. Each log entry is output as a single line of
     # JSON followed by a newline character.
-    #
-    # @since 1.0.0
     class Logstash
 
       # Formats a log entry as a Logstash-compatible JSON string.

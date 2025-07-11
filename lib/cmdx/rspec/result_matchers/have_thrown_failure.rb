@@ -47,8 +47,6 @@
 #   propagating_tasks.each do |task|
 #     expect(task).to have_thrown_failure
 #   end
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_thrown_failure do |expected_original_result = nil|
   match do |result|
     result.failed? &&

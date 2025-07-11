@@ -7,8 +7,6 @@ module CMDx
   # and nested parameter structures. It handles the creation of accessor methods
   # on task classes and provides a flexible system for defining required and
   # optional parameters with various data types and validation rules.
-  #
-  # @since 1.0.0
   class Parameter
 
     cmdx_attr_delegator :invalid?, :valid?,

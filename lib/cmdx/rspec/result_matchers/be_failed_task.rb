@@ -34,8 +34,6 @@
 # @example Negative assertion
 #   result = SuccessfulTask.call(data: "valid")
 #   expect(result).not_to be_failed_task
-#
-# @since 1.0.0
 RSpec::Matchers.define :be_failed_task do |expected_reason = nil|
   match do |result|
     result.failed? &&

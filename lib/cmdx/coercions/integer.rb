@@ -6,8 +6,6 @@ module CMDx
     #
     # This coercion handles conversion of various types to integers using Ruby's
     # built-in Integer() method, which provides strict type conversion.
-    #
-    # @since 1.0.0
     class Integer < Coercion
 
       # Converts the given value to an integer.

@@ -8,8 +8,6 @@ module CMDx
     # being within a range, having minimum/maximum values, or matching exact values.
     # It supports both inclusive and exclusive range validation, as well as discrete
     # value matching and rejection.
-    #
-    # @since 1.0.0
     class Numeric < Validator
 
       # Validates that the given numeric value meets the specified constraints.

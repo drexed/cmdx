@@ -7,8 +7,6 @@ module CMDx
     # This coercion handles conversion of various types to BigDecimal with
     # configurable precision. It provides precise decimal arithmetic capabilities
     # for financial calculations and other use cases requiring exact decimal representation.
-    #
-    # @since 1.0.0
     class BigDecimal < Coercion
 
       DEFAULT_PRECISION = 14

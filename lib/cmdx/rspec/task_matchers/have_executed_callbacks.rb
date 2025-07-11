@@ -35,8 +35,6 @@
 #     def call; end
 #   end
 #   expect(SimpleTask.new).not_to have_executed_callbacks(:before_execution)
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_executed_callbacks do |*callback_names|
   match do |task_or_result|
     @executed_callbacks = []

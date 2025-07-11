@@ -7,8 +7,6 @@ module CMDx
     # This formatter converts log entries into a space-separated key=value format with ANSI coloring
     # for enhanced readability in terminal output. Each log entry includes metadata such as severity,
     # process ID, and timestamp, with each entry terminated by a newline character.
-    #
-    # @since 1.0.0
     class PrettyKeyValue
 
       # Formats a log entry as a colorized key=value string.

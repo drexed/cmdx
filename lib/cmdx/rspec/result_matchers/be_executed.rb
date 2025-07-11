@@ -25,8 +25,6 @@
 #   result = MyWorkflow.call(data: "test")
 #   expect(result).to be_executed
 #   expect(result.context.processed).to be(true)
-#
-# @since 1.0.0
 RSpec::Matchers.define :be_executed do
   match(&:executed?)
 

@@ -5,8 +5,6 @@ module CMDx
     # Middleware that manages correlation IDs for task execution tracing.
     # Automatically generates or uses provided correlation IDs to track task execution
     # across complex workflows, enabling better debugging and monitoring.
-    #
-    # @since 1.0.0
     class Correlate < CMDx::Middleware
 
       # @return [String, Symbol, Proc, nil] The explicit correlation ID to use, or callable that generates one

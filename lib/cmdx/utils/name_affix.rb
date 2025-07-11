@@ -7,8 +7,6 @@ module CMDx
     # This module provides functionality to dynamically construct method names
     # by applying prefixes and suffixes to a base method name, with support
     # for custom naming through options.
-    #
-    # @since 1.0.0
     module NameAffix
 
       # Proc that handles affix logic - returns block result if value is true, otherwise returns value as-is.

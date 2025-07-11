@@ -7,8 +7,6 @@ module CMDx
     # This validator ensures that a value is included in a given array or range
     # of allowed values. It supports both discrete value inclusion and range-based
     # inclusion validation.
-    #
-    # @since 1.0.0
     class Inclusion < Validator
 
       # Validates that the given value is included in the inclusion set.

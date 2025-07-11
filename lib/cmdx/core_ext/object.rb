@@ -5,8 +5,6 @@ module CMDx
     # Extensions for Ruby's Object class that provide flexible method calling and evaluation utilities.
     # These extensions are automatically included in all objects when CMDx is loaded, providing
     # safe method invocation, conditional evaluation, and dynamic yielding capabilities.
-    #
-    # @since 1.0.0
     module ObjectExtensions
 
       alias cmdx_respond_to? respond_to?

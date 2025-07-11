@@ -6,8 +6,6 @@ module CMDx
     #
     # This coercion handles conversion of various types to arrays, with special
     # handling for JSON-formatted strings that start with "[".
-    #
-    # @since 1.0.0
     class Array < Coercion
 
       # Converts the given value to an array.

@@ -6,8 +6,6 @@ module CMDx
   # This registry handles the registration and execution of callbacks at various
   # points in the task lifecycle, including validation, execution, and outcome
   # handling phases.
-  #
-  # @since 1.0.0
   class CallbackRegistry
 
     TYPES = [

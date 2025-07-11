@@ -6,8 +6,6 @@ module CMDx
     #
     # This coercion handles conversion of various types to rational numbers,
     # using Ruby's built-in Rational() method for type conversion.
-    #
-    # @since 1.0.0
     class Rational < Coercion
 
       # Converts the given value to a rational number.

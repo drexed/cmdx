@@ -7,8 +7,6 @@ module CMDx
     # This module provides functionality to measure the time taken to execute
     # a block of code using the monotonic clock, which is not affected by
     # system clock adjustments and provides more accurate timing measurements.
-    #
-    # @since 1.0.0
     module MonotonicRuntime
 
       module_function

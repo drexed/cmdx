@@ -8,8 +8,6 @@ module CMDx
     # it validates that there are non-whitespace characters. For objects that respond
     # to empty?, it ensures they are not empty. For all other objects, it validates
     # they are not nil.
-    #
-    # @since 1.0.0
     class Presence < Validator
 
       # Validates that the given value is present (not empty or nil).

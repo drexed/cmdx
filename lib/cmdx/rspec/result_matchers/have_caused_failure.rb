@@ -35,8 +35,6 @@
 # @example Testing error handling origin
 #   result = DatabaseTask.call(connection: nil)
 #   expect(result).to have_caused_failure.and be_failed
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_caused_failure do
   match do |result|
     result.failed? && result.caused_failure?

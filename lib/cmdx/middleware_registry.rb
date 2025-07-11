@@ -6,8 +6,6 @@ module CMDx
   # This registry handles the registration and execution of middleware that can
   # wrap task execution, providing cross-cutting concerns like logging, timing,
   # authentication, and error handling.
-  #
-  # @since 1.0.0
   class MiddlewareRegistry
 
     # The internal array storing middleware definitions.

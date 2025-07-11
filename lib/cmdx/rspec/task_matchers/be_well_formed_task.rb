@@ -32,8 +32,6 @@
 # @example Negative assertion for malformed tasks
 #   class BrokenTask; end  # Missing inheritance
 #   expect(BrokenTask).not_to be_well_formed_task
-#
-# @since 1.0.0
 RSpec::Matchers.define :be_well_formed_task do
   match do |task_class|
     (task_class < CMDx::Task) &&

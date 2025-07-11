@@ -7,8 +7,6 @@ module CMDx
   # provide hooks for custom behavior, logging, validation, or cleanup.
   # All callback implementations must inherit from this class and implement
   # the abstract call method.
-  #
-  # @since 1.0.0
   class Callback
 
     # Executes a callback by creating a new instance and calling it.

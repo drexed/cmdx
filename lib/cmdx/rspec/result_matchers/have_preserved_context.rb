@@ -41,8 +41,6 @@
 # @example Testing partial preservation
 #   result = SelectiveTask.call(keep_this: "value", change_this: "old")
 #   expect(result).to have_preserved_context(keep_this: "value")
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_preserved_context do |preserved_attributes|
   match do |result|
     preserved_attributes.all? do |key, expected_value|

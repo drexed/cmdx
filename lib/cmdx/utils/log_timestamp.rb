@@ -7,8 +7,6 @@ module CMDx
     # This module provides functionality to convert Time objects into consistent
     # ISO 8601-like formatted strings with microsecond precision, suitable for
     # logging and timestamp display purposes.
-    #
-    # @since 1.0.0
     module LogTimestamp
 
       DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"

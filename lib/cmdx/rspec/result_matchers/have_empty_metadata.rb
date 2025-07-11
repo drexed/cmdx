@@ -35,8 +35,6 @@
 # @example Testing metadata cleanup
 #   result = ResetTask.call(clear_metadata: true)
 #   expect(result).to have_empty_metadata
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_empty_metadata do
   match do |result|
     result.metadata.empty?

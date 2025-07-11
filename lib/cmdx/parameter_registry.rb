@@ -5,8 +5,6 @@ module CMDx
   #
   # This registry handles the storage and validation of parameter definitions,
   # including nested parameter structures and recursive validation logic.
-  #
-  # @since 1.0.0
   class ParameterRegistry
 
     # The internal array storing parameter definitions.

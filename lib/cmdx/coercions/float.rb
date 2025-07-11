@@ -6,8 +6,6 @@ module CMDx
     #
     # This coercion handles conversion of various types to float values using
     # Ruby's built-in Float() method.
-    #
-    # @since 1.0.0
     class Float < Coercion
 
       # Converts the given value to a float.

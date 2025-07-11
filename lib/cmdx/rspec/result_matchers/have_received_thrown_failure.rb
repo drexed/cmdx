@@ -41,8 +41,6 @@
 #   interrupted_tasks.each do |task|
 #     expect(task).to have_received_thrown_failure
 #   end
-#
-# @since 1.0.0
 RSpec::Matchers.define :have_received_thrown_failure do
   match do |result|
     result.failed? && result.thrown_failure?

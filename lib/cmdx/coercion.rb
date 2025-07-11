@@ -6,8 +6,6 @@ module CMDx
   # Coercions are used to convert parameter values from one type to another,
   # supporting both built-in types and custom coercion logic. All coercion
   # implementations must inherit from this class and implement the abstract call method.
-  #
-  # @since 1.0.0
   class Coercion
 
     # Executes a coercion by creating a new instance and calling it.

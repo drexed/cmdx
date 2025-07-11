@@ -5,8 +5,6 @@ module CMDx
     # Extensions for Ruby's Hash class that provide flexible key access and querying.
     # These extensions are automatically included in all hashes when CMDx is loaded, providing
     # seamless symbol/string key interoperability and enhanced key existence checking.
-    #
-    # @since 1.0.0
     module HashExtensions
 
       # Fetches a value from the hash with flexible key matching.

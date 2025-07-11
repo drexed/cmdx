@@ -6,8 +6,6 @@ module CMDx
     #
     # This module provides functionality to colorize and format text output
     # using ANSI escape sequences, supporting various colors and text modes.
-    #
-    # @since 1.0.0
     module AnsiColor
 
       COLOR_CODES = {

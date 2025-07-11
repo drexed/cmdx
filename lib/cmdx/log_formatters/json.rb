@@ -7,8 +7,6 @@ module CMDx
     # This formatter converts log entries into JSON format, including metadata
     # such as severity, process ID, and timestamp. Each log entry is output as
     # a single line of JSON followed by a newline character.
-    #
-    # @since 1.0.0
     class Json
 
       # Formats a log entry as a JSON string.

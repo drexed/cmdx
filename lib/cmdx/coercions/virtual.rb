@@ -7,8 +7,6 @@ module CMDx
     # This coercion acts as a pass-through, returning the input value unchanged.
     # It's useful when you want to maintain the original value type and format
     # without any transformation.
-    #
-    # @since 1.0.0
     class Virtual < Coercion
 
       # Returns the given value unchanged.

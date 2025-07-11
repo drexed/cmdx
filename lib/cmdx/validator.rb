@@ -6,8 +6,6 @@ module CMDx
   # Validators are used to validate parameter values during task execution to
   # ensure data integrity and business rule compliance. All validator implementations
   # must inherit from this class and implement the abstract call method.
-  #
-  # @since 1.0.0
   class Validator
 
     # Executes a validator by creating a new instance and calling it.

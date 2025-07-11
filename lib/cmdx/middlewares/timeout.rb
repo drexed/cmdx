@@ -11,8 +11,6 @@ module CMDx
     # Middleware that provides execution timeout protection for tasks.
     # Automatically interrupts task execution if it exceeds the specified time limit,
     # preventing runaway processes and ensuring system responsiveness.
-    #
-    # @since 1.0.0
     class Timeout < CMDx::Middleware
 
       # @return [Integer, Float, Symbol, Proc] The timeout value in seconds

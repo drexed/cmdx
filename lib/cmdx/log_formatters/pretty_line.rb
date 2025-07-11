@@ -8,8 +8,6 @@ module CMDx
     # color-coded severity levels, timestamps, and process information. The output
     # is designed to be easily readable in terminal environments that support ANSI
     # color codes.
-    #
-    # @since 1.0.0
     class PrettyLine
 
       # Formats a log entry as a colorized human-readable line.
