@@ -93,13 +93,13 @@ module CMDx
 
       def call(...)
         instance = new(...)
-        instance.perform
+        instance.perform_call
         instance.result
       end
 
       def call!(...)
         instance = new(...)
-        instance.perform!
+        instance.perform_call!
         instance.result
       end
 
@@ -109,13 +109,13 @@ module CMDx
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 
-    def perform
+    def perform_call
       return execute_call if cmd_middlewares.registry.empty?
 
       cmd_middlewares.call(self) { |task| task.send(:execute_call) }
     end
 
-    def perform!
+    def perform_call!
       return execute_call! if cmd_middlewares.registry.empty?
 
       cmd_middlewares.call(self) { |task| task.send(:execute_call!) }

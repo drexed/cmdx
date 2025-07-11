@@ -103,7 +103,7 @@ task.context.notify_customer #=> true
 task.result.state            #=> "initialized"
 
 # Manual execution
-task.perform
+task.perform_call
 task.result.success?         #=> true/false
 ```
 
@@ -113,7 +113,7 @@ task.result.success?         #=> true/false
 |----------|----------|----------|
 | `TaskClass.call(...)` | Standard execution | Simple, handles full lifecycle |
 | `TaskClass.call!(...)` | Exception-based flow | Automatic fault raising |
-| `TaskClass.new(...).perform` | Advanced scenarios | Full control, testing flexibility |
+| `TaskClass.new(...).perform_call` | Advanced scenarios | Full control, testing flexibility |
 
 > [!NOTE]
 > Direct instantiation gives you access to the task instance before and after execution, but you must call the execution method manually.

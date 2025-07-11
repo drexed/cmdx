@@ -16,7 +16,7 @@ RSpec.describe CMDx::ResultSerializer do
 
     context "when serializing a successful result" do
       let(:result) do
-        task.perform
+        task.perform_call
         task.result
       end
 
@@ -52,7 +52,7 @@ RSpec.describe CMDx::ResultSerializer do
         end
 
         fresh_instance = fresh_task_class.new
-        fresh_instance.perform
+        fresh_instance.perform_call
         fresh_result = fresh_instance.result
 
         expect(CMDx::TaskSerializer).to receive(:call).with(fresh_instance).and_call_original
@@ -73,7 +73,7 @@ RSpec.describe CMDx::ResultSerializer do
 
       let(:result) do
         instance = failed_task_class.new
-        instance.perform
+        instance.perform_call
         instance.result
       end
 
@@ -110,7 +110,7 @@ RSpec.describe CMDx::ResultSerializer do
 
       let(:result) do
         instance = skipped_task_class.new
-        instance.perform
+        instance.perform_call
         instance.result
       end
 
@@ -136,19 +136,19 @@ RSpec.describe CMDx::ResultSerializer do
 
       let(:caused_failure_result) do
         instance = failing_task_class.new
-        instance.perform
+        instance.perform_call
         instance.result
       end
 
       let(:threw_failure_result) do
         instance = failing_task_class.new
-        instance.perform
+        instance.perform_call
         instance.result
       end
 
       let(:main_result) do
         instance = failing_task_class.new
-        instance.perform
+        instance.perform_call
         result = instance.result
 
         # Mock failure chain methods
@@ -221,7 +221,7 @@ RSpec.describe CMDx::ResultSerializer do
 
       let(:result) do
         instance = simple_failed_task_class.new
-        instance.perform
+        instance.perform_call
         result = instance.result
 
         # Mock no failure chain
@@ -245,7 +245,7 @@ RSpec.describe CMDx::ResultSerializer do
 
     context "when serializing different result outcomes" do
       it "correctly identifies success outcome" do
-        task.perform
+        task.perform_call
         serialized = described_class.call(task.result)
 
         expect(serialized[:outcome]).to eq("success")
@@ -258,7 +258,7 @@ RSpec.describe CMDx::ResultSerializer do
         )
 
         instance = failed_task_class.new
-        instance.perform
+        instance.perform_call
         serialized = described_class.call(instance.result)
 
         expect(serialized[:outcome]).to eq("failed")
@@ -271,7 +271,7 @@ RSpec.describe CMDx::ResultSerializer do
         )
 
         instance = skipped_task_class.new
-        instance.perform
+        instance.perform_call
         serialized = described_class.call(instance.result)
 
         expect(serialized[:outcome]).to eq("skipped")

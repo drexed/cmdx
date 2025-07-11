@@ -49,7 +49,7 @@ RSpec::Matchers.define :have_executed_callbacks do |*callback_names|
         original_callback_call.call(task_instance, callback_name)
       end
 
-      task.perform
+      task.perform_call
     else
       # If it's a result, check if callbacks were executed during task execution
       result = task_or_result

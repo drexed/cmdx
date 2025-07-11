@@ -26,7 +26,7 @@ module CMDx
     #
     # @example Freeze a completed task
     #   task = MyTask.new(user_id: 123)
-    #   task.perform
+    #   task.perform_call
     #   CMDx::Immutator.call(task)
     #   task.frozen? # => true
     #

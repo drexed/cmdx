@@ -19,7 +19,7 @@ module CMDx
     # @raise [UndefinedCallError] when the middleware subclass doesn't implement call
     #
     # @example Execute middleware on a task
-    #   MyMiddleware.call(task, -> { task.perform })
+    #   MyMiddleware.call(task, -> { task.perform_call })
     def self.call(task, callable)
       new.call(task, callable)
     end

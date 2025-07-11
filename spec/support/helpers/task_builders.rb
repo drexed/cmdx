@@ -262,7 +262,7 @@ module CMDx
       #
       #   # perform catches exceptions and marks result as failed
       #   instance = task_class.new
-      #   instance.perform
+      #   instance.perform_call
       #   expect(instance.result).to be_failed
       #   expect(instance.result.metadata[:reason]).to include("Network timeout")
       #

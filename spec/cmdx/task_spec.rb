@@ -31,7 +31,7 @@ RSpec.describe CMDx::Task do
 
     context "when calling with a Result object" do
       let(:source_task) { task_class.new(user_id: 789, email: "test@example.com") }
-      let(:source_result) { source_task.tap(&:perform).result }
+      let(:source_result) { source_task.tap(&:perform_call).result }
 
       it "extracts context from Result object and executes" do
         result = task_class.call(source_result)
@@ -74,7 +74,7 @@ RSpec.describe CMDx::Task do
 
     context "when calling with a Result object" do
       let(:source_task) { task_class.new(user_id: 999, status: "active") }
-      let(:source_result) { source_task.tap(&:perform).result }
+      let(:source_result) { source_task.tap(&:perform_call).result }
 
       it "extracts context from Result object and executes" do
         result = task_class.call!(source_result)
@@ -291,7 +291,7 @@ RSpec.describe CMDx::Task do
 
     context "when initializing with a Result object" do
       let(:source_task) { task_class.new(user_id: 456, name: "Source Task") }
-      let(:source_result) { source_task.tap(&:perform).result }
+      let(:source_result) { source_task.tap(&:perform_call).result }
 
       it "extracts context from Result object" do
         new_task = task_class.new(source_result)
@@ -312,7 +312,7 @@ RSpec.describe CMDx::Task do
         # Create and execute a task with additional context data
         source_task = task_class.new(user_id: 789, name: "Source Task")
         source_task.context.additional_data = "test value"
-        source_task.perform
+        source_task.perform_call
 
         new_task = task_class.new(source_task.result)
 
@@ -342,7 +342,7 @@ RSpec.describe CMDx::Task do
     subject(:task) { task_class.new }
 
     it "executes the task" do
-      task.perform
+      task.perform_call
 
       expect(task.result.executed?).to be(true)
     end
@@ -351,7 +351,7 @@ RSpec.describe CMDx::Task do
       failing_task = create_erroring_task(reason: "Something went wrong")
 
       instance = failing_task.new
-      instance.perform
+      instance.perform_call
 
       expect(instance.result.failed?).to be(true)
     end
@@ -361,7 +361,7 @@ RSpec.describe CMDx::Task do
       original_env = ENV.fetch("SKIP_CMDX_FREEZING", nil)
       ENV.delete("SKIP_CMDX_FREEZING")
 
-      task.perform
+      task.perform_call
 
       expect(task).to be_frozen
 
@@ -379,7 +379,7 @@ RSpec.describe CMDx::Task do
       end
 
       task_class.use(:middleware, middleware_class.new)
-      task.perform
+      task.perform_call
 
       expect(middleware_called).to be(true)
     end
@@ -389,7 +389,7 @@ RSpec.describe CMDx::Task do
     subject(:task) { task_class.new }
 
     it "executes the task" do
-      task.perform!
+      task.perform_call!
 
       expect(task.result.executed?).to be(true)
     end
@@ -399,7 +399,7 @@ RSpec.describe CMDx::Task do
 
       instance = failing_task.new
 
-      expect { instance.perform! }.to raise_error(CMDx::Failed)
+      expect { instance.perform_call! }.to raise_error(CMDx::Failed)
     end
 
     it "calls middleware when present" do
@@ -412,7 +412,7 @@ RSpec.describe CMDx::Task do
       end
 
       task_class.use(:middleware, middleware_class.new)
-      task.perform!
+      task.perform_call!
 
       expect(middleware_called).to be(true)
     end
@@ -541,7 +541,7 @@ RSpec.describe CMDx::Task do
 
     it "captures exceptions in perform" do
       instance = error_task.new
-      instance.perform
+      instance.perform_call
 
       expect(instance.result.failed?).to be(true)
       expect(instance.result.metadata[:reason]).to eq("[StandardError] Test error")
@@ -551,7 +551,7 @@ RSpec.describe CMDx::Task do
     it "propagates exceptions in perform!" do
       instance = error_task.new
 
-      expect { instance.perform! }.to raise_error(StandardError)
+      expect { instance.perform_call! }.to raise_error(StandardError)
     end
   end
 
