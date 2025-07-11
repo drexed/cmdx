@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (1.0.1)
+    cmdx (1.1.0)
       bigdecimal
       i18n
       logger
@@ -43,7 +43,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.4)
-    rubocop (1.77.0)
+    rubocop (1.78.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
