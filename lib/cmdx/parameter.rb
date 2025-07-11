@@ -227,19 +227,20 @@ module CMDx
     #   define_attribute(param) # Defines a private method on the task class
     def define_attribute(parameter)
       klass.send(:define_method, parameter.method_name) do
-        @parameters_cache ||= {}
-        return @parameters_cache[parameter.method_name] if @parameters_cache.key?(parameter.method_name)
+        @cmd_parameter_value_cache ||= {}
 
-        begin
-          parameter_value = ParameterValue.new(self, parameter).call
-        rescue CoercionError, ValidationError => e
-          parameter.errors.add(parameter.method_name, e.message)
-          errors.merge!(parameter.errors.to_hash)
-        ensure
-          @parameters_cache[parameter.method_name] = parameter_value
+        unless @cmd_parameter_value_cache.key?(parameter.method_name)
+          begin
+            parameter_value = ParameterValue.new(self, parameter).call
+          rescue CoercionError, ValidationError => e
+            parameter.errors.add(parameter.method_name, e.message)
+            errors.merge!(parameter.errors.to_hash)
+          ensure
+            @cmd_parameter_value_cache[parameter.method_name] = parameter_value
+          end
         end
 
-        @parameters_cache[parameter.method_name]
+        @cmd_parameter_value_cache[parameter.method_name]
       end
 
       klass.send(:private, parameter.method_name)
