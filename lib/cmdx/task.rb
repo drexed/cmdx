@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
+  # Core task execution system for CMDx framework.
+  #
+  # Task provides the foundational functionality for executing business logic
+  # with parameter validation, middleware support, callback execution, and
+  # result tracking. Tasks encapsulate reusable business operations with
+  # comprehensive error handling, logging, and execution state management.
   class Task
 
     cmdx_attr_setting :task_settings,
@@ -38,6 +44,20 @@ module CMDx
     # @return [Result] alias for result
     alias res result
 
+    # Creates a new task instance with the provided execution context.
+    #
+    # @param context [Hash, Context] execution context data or Context instance
+    #
+    # @return [Task] a new task instance ready for execution
+    #
+    # @example Create a task with hash context
+    #   task = MyTask.new(user_id: 123, action: "process")
+    #   task.context.user_id #=> 123
+    #
+    # @example Create a task with existing context
+    #   existing_context = CMDx::Context.build(name: "John")
+    #   task = MyTask.new(existing_context)
+    #   task.context.name #=> "John"
     def initialize(context = {})
       context  = context.context if context.respond_to?(:context)
 
@@ -50,24 +70,95 @@ module CMDx
 
     class << self
 
+      # Registers callbacks for task execution lifecycle events.
+      #
+      # These methods are dynamically defined for each callback type and provide
+      # a clean DSL for registering callbacks that will be executed at specific
+      # points during task execution.
+      #
+      # @param callables [Array<Object>] callback objects to register (symbols, procs, classes)
+      # @param options [Hash] conditional execution options
+      # @param block [Proc] optional block to register as a callback
+      #
+      # @return [void]
+      #
+      # @example Register before_execution callback with symbol
+      #   MyTask.before_execution :setup_database
+      #
+      # @example Register before_execution callback with proc
+      #   MyTask.before_execution -> { puts "Starting task execution" }
+      #
+      # @example Register before_execution callback with class
+      #   MyTask.before_execution SetupCallback
+      #
+      # @example Register before_execution callback with block
+      #   MyTask.before_execution { |task| task.context.started_at = Time.now }
+      #
+      # @example Register on_success callback with conditional options
+      #   MyTask.on_success :send_notification, if: -> { Rails.env.production? }
+      #
+      # @example Register on_success callback with multiple callables
+      #   MyTask.on_success :log_success, :send_email, :update_metrics
       CallbackRegistry::TYPES.each do |callback|
         define_method(callback) do |*callables, **options, &block|
           cmd_callbacks.register(callback, *callables, **options, &block)
         end
       end
 
+      # Retrieves the value of a task setting.
+      #
+      # @param key [Symbol] the setting key to retrieve
+      #
+      # @return [Object] the setting value, processed through cmdx_yield
+      #
+      # @example Get logger setting
+      #   MyTask.task_setting(:logger) #=> #<Logger:...>
+      #
+      # @example Get halt setting
+      #   MyTask.task_setting(:task_halt) #=> "failed"
       def task_setting(key)
         cmdx_yield(task_settings[key])
       end
 
+      # Checks if a task setting key exists.
+      #
+      # @param key [Symbol] the setting key to check
+      #
+      # @return [Boolean] true if the setting exists, false otherwise
+      #
+      # @example Check if setting exists
+      #   MyTask.task_setting?(:logger) #=> true
+      #   MyTask.task_setting?(:invalid) #=> false
       def task_setting?(key)
         task_settings.key?(key)
       end
 
+      # Updates task settings with new values.
+      #
+      # @param options [Hash] hash of setting keys and values to merge
+      #
+      # @return [Hash] the updated task settings hash
+      #
+      # @example Update task settings
+      #   MyTask.task_settings!(task_halt: ["failed", "error"])
+      #   MyTask.task_setting(:task_halt) #=> ["failed", "error"]
       def task_settings!(**options)
         task_settings.merge!(options)
       end
 
+      # Registers middleware, callbacks, validators, or coercions with the task.
+      #
+      # @param type [Symbol] the type of registration (:middleware, :callback, :validator, :coercion)
+      # @param object [Object] the object to register
+      # @param args [Array] additional arguments passed to the registration method
+      #
+      # @return [void]
+      #
+      # @example Register middleware
+      #   MyTask.use(:middleware, TimeoutMiddleware, timeout: 30)
+      #
+      # @example Register callback
+      #   MyTask.use(:callback, :before_execution, MyCallback)
       def use(type, object, ...)
         case type
         when :middleware
@@ -81,22 +172,79 @@ module CMDx
         end
       end
 
+      # Defines optional parameters for the task.
+      #
+      # @param attributes [Array<Symbol>] parameter names to define as optional
+      # @param options [Hash] parameter configuration options
+      # @param block [Proc] optional block for defining nested parameters
+      #
+      # @return [void]
+      #
+      # @example Define optional parameters
+      #   MyTask.optional :name, :email, type: :string
+      #
+      # @example Define optional parameter with validation
+      #   MyTask.optional :age, type: :integer, validate: { numeric: { greater_than: 0 } }
       def optional(*attributes, **options, &)
         parameters = Parameter.optional(*attributes, **options.merge(klass: self), &)
         cmd_parameters.registry.concat(parameters)
       end
 
+      # Defines required parameters for the task.
+      #
+      # @param attributes [Array<Symbol>] parameter names to define as required
+      # @param options [Hash] parameter configuration options
+      # @param block [Proc] optional block for defining nested parameters
+      #
+      # @return [void]
+      #
+      # @example Define required parameters
+      #   MyTask.required :user_id, :action, type: :string
+      #
+      # @example Define required parameter with nested structure
+      #   MyTask.required :user, type: :hash do
+      #     required :name, type: :string
+      #     optional :email, type: :string
+      #   end
       def required(*attributes, **options, &)
         parameters = Parameter.required(*attributes, **options.merge(klass: self), &)
         cmd_parameters.registry.concat(parameters)
       end
 
+      # Executes the task with fault tolerance and returns the result.
+      #
+      # @param args [Array] arguments passed to the task constructor
+      #
+      # @return [Result] the task execution result
+      #
+      # @example Execute task with fault tolerance
+      #   result = MyTask.call(user_id: 123)
+      #   result.success? #=> true
+      #   result.context.user_id #=> 123
       def call(...)
         instance = new(...)
         instance.perform_call
         instance.result
       end
 
+      # Executes the task with strict fault handling and returns the result.
+      #
+      # @param args [Array] arguments passed to the task constructor
+      #
+      # @return [Result] the task execution result
+      #
+      # @raise [Fault] if the task fails and task_halt setting includes the failure status
+      #
+      # @example Execute task with strict fault handling
+      #   result = MyTask.call!(user_id: 123)
+      #   result.success? #=> true
+      #
+      # @example Handling fault on failure
+      #   begin
+      #     MyTask.call!(invalid_data: true)
+      #   rescue CMDx::Fault => e
+      #     puts "Task failed: #{e.message}"
+      #   end
       def call!(...)
         instance = new(...)
         instance.perform_call!
@@ -105,16 +253,50 @@ module CMDx
 
     end
 
+    # Abstract method that must be implemented by task subclasses.
+    #
+    # This method contains the core business logic to be executed by the task.
+    # Subclasses must override this method to provide their specific implementation.
+    #
+    # @return [void]
+    #
+    # @raise [UndefinedCallError] if not implemented by subclass
+    #
+    # @example Implement in a subclass
+    #   class ProcessUserTask < CMDx::Task
+    #     def call
+    #       # Business logic here
+    #       context.processed = true
+    #     end
+    #   end
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 
+    # Performs task execution with middleware support and fault tolerance.
+    #
+    # @return [void]
+    #
+    # @example Task execution with middleware
+    #   task = MyTask.new(user_id: 123)
+    #   task.perform_call
+    #   task.result.success? #=> true
     def perform_call
       return execute_call if cmd_middlewares.registry.empty?
 
       cmd_middlewares.call(self) { |task| task.send(:execute_call) }
     end
 
+    # Performs task execution with middleware support and strict fault handling.
+    #
+    # @return [void]
+    #
+    # @raise [Fault] if task fails and task_halt setting includes the failure status
+    #
+    # @example Task execution with strict fault handling
+    #   task = MyTask.new(user_id: 123)
+    #   task.perform_call!
+    #   task.result.success? #=> true
     def perform_call!
       return execute_call! if cmd_middlewares.registry.empty?
 
@@ -123,10 +305,30 @@ module CMDx
 
     private
 
+    # Creates a logger instance for this task.
+    #
+    # @return [Logger] logger instance configured for this task
+    #
+    # @example Getting task logger
+    #   task = MyTask.new
+    #   logger = task.send(:logger)
+    #   logger.info("Task started")
     def logger
       Logger.call(self)
     end
 
+    # Executes pre-execution callbacks and parameter validation.
+    #
+    # Triggers before_execution callbacks, sets the result to executing state,
+    # executes on_executing callbacks, and performs parameter validation with
+    # before_validation and after_validation callbacks.
+    #
+    # @return [void]
+    #
+    # @example Before call execution flow
+    #   task = MyTask.new
+    #   task.send(:before_call)
+    #   task.result.state #=> "executing"
     def before_call
       cmd_callbacks.call(self, :before_execution)
 
@@ -138,6 +340,18 @@ module CMDx
       cmd_callbacks.call(self, :after_validation)
     end
 
+    # Executes post-execution callbacks based on result state and status.
+    #
+    # Triggers callbacks for the current result state, executed status if applicable,
+    # result status, outcome-based callbacks (good/bad), and after_execution callbacks.
+    #
+    # @return [void]
+    #
+    # @example After call execution flow
+    #   task = MyTask.new
+    #   task.result.success!
+    #   task.send(:after_call)
+    #   # Triggers on_success, on_good, and after_execution callbacks
     def after_call
       cmd_callbacks.call(self, :"on_#{result.state}")
       cmd_callbacks.call(self, :on_executed) if result.executed?
@@ -149,11 +363,37 @@ module CMDx
       cmd_callbacks.call(self, :after_execution)
     end
 
+    # Finalizes task execution by immutating the result and logging.
+    #
+    # Applies immutability to the task state and logs the execution result.
+    # This method is called at the end of both successful and failed executions.
+    #
+    # @return [void]
+    #
+    # @example Terminating call execution
+    #   task = MyTask.new
+    #   task.send(:terminate_call)
+    #   # Task state is now immutable and result is logged
     def terminate_call
       Immutator.call(self)
       ResultLogger.call(result)
     end
 
+    # Executes the task with fault tolerance and comprehensive error handling.
+    #
+    # Performs the complete task execution lifecycle including timing, callbacks,
+    # business logic execution, and error handling. Handles UndefinedCallError,
+    # Fault exceptions, and general StandardError exceptions with appropriate
+    # result state updates.
+    #
+    # @return [void]
+    #
+    # @raise [UndefinedCallError] if the call method is not implemented
+    #
+    # @example Task execution with error handling
+    #   task = MyTask.new
+    #   task.send(:execute_call)
+    #   task.result.executed? #=> true
     def execute_call
       result.runtime do
         before_call
@@ -172,6 +412,21 @@ module CMDx
       terminate_call
     end
 
+    # Executes the task with strict fault handling and immediate error propagation.
+    #
+    # Performs task execution with immediate fault propagation for configured
+    # halt conditions. Clears the execution chain on UndefinedCallError and
+    # configured fault statuses, otherwise treats faults as no-ops.
+    #
+    # @return [void]
+    #
+    # @raise [UndefinedCallError] if the call method is not implemented
+    # @raise [Fault] if task fails and task_halt setting includes the failure status
+    #
+    # @example Task execution with strict fault handling
+    #   task = MyTask.new
+    #   task.send(:execute_call!)
+    #   task.result.executed? #=> true
     def execute_call!
       result.runtime do
         before_call
