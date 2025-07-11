@@ -66,7 +66,7 @@ module CMDx
     #   registry.to_h
     #   # => { name: { type: :string, required: true }, age: { type: :integer } }
     def to_h
-      ParametersSerializer.call(registry)
+      registry.map(&:to_h)
     end
 
     # Returns a string representation of the registry.
@@ -77,7 +77,7 @@ module CMDx
     #   registry.to_s
     #   # => "name (string, required), age (integer)"
     def to_s
-      ParametersInspector.call(registry)
+      registry.map(&:to_s).join("\n")
     end
 
     private
