@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CMDx
-  class ParameterValue
+  class ParameterEvaluator
 
     cmdx_attr_delegator :parent, :method_source, :name, :options, :required?, :optional?, :type,
                         to: :parameter,
@@ -16,6 +16,10 @@ module CMDx
     def initialize(task, parameter)
       @task      = task
       @parameter = parameter
+    end
+
+    def self.call(task, parameter)
+      new(task, parameter).call
     end
 
     def call

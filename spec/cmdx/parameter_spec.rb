@@ -412,9 +412,9 @@ RSpec.describe CMDx::Parameter do
     context "when parameter methods are called" do
       it "creates parameter value and handles caching" do
         parameter = described_class.new(:user_id, klass: task_class, type: :integer)
-        parameter_value = double("ParameterValue")
+        parameter_value = double("ParameterEvaluator")
 
-        expect(CMDx::ParameterValue).to receive(:new).with(task_instance, parameter).and_return(parameter_value)
+        expect(CMDx::ParameterEvaluator).to receive(:new).with(task_instance, parameter).and_return(parameter_value)
         expect(parameter_value).to receive(:call).and_return(123)
 
         result = task_instance.send(:user_id)
@@ -424,9 +424,9 @@ RSpec.describe CMDx::Parameter do
 
       it "caches parameter values on subsequent calls" do
         described_class.new(:user_id, klass: task_class, type: :integer)
-        parameter_value = double("ParameterValue")
+        parameter_value = double("ParameterEvaluator")
 
-        expect(CMDx::ParameterValue).to receive(:new).once.and_return(parameter_value)
+        expect(CMDx::ParameterEvaluator).to receive(:new).once.and_return(parameter_value)
         expect(parameter_value).to receive(:call).once.and_return(123)
 
         task_instance.send(:user_id)
@@ -437,10 +437,10 @@ RSpec.describe CMDx::Parameter do
 
       it "handles coercion errors by adding to parameter errors" do
         parameter = described_class.new(:age, klass: task_class, type: :integer)
-        parameter_value = double("ParameterValue")
+        parameter_value = double("ParameterEvaluator")
         error = CMDx::CoercionError.new("Invalid integer")
 
-        allow(CMDx::ParameterValue).to receive(:new).and_return(parameter_value)
+        allow(CMDx::ParameterEvaluator).to receive(:new).and_return(parameter_value)
         allow(parameter_value).to receive(:call).and_raise(error)
 
         task_instance.send(:age)
@@ -450,10 +450,10 @@ RSpec.describe CMDx::Parameter do
 
       it "handles validation errors by adding to parameter errors" do
         parameter = described_class.new(:email, klass: task_class, type: :string)
-        parameter_value = double("ParameterValue")
+        parameter_value = double("ParameterEvaluator")
         error = CMDx::ValidationError.new("Invalid format")
 
-        allow(CMDx::ParameterValue).to receive(:new).and_return(parameter_value)
+        allow(CMDx::ParameterEvaluator).to receive(:new).and_return(parameter_value)
         allow(parameter_value).to receive(:call).and_raise(error)
 
         task_instance.send(:email)

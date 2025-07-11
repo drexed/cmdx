@@ -504,7 +504,7 @@ module CMDx
 
       # Stubs parameter value creation and evaluation
       #
-      # This method stubs the ParameterValue class to return a specific value
+      # This method stubs the ParameterEvaluator class to return a specific value
       # when parameter values are evaluated, useful for testing parameter
       # processing without complex setup.
       #
@@ -515,8 +515,8 @@ module CMDx
       # @example Stub parameter value
       #   stub_parameter_value(task, "stubbed_value")
       def stub_parameter_value(task, value)
-        parameter_value = double("ParameterValue")
-        allow(CMDx::ParameterValue).to receive(:new).with(task, anything).and_return(parameter_value)
+        parameter_value = double("ParameterEvaluator")
+        allow(CMDx::ParameterEvaluator).to receive(:new).with(task, anything).and_return(parameter_value)
         allow(parameter_value).to receive(:call).and_return(value)
       end
 

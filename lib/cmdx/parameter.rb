@@ -231,7 +231,7 @@ module CMDx
 
         unless @cmd_parameter_value_cache.key?(parameter.method_name)
           begin
-            parameter_value = ParameterValue.new(self, parameter).call
+            parameter_value = ParameterEvaluator.call(self, parameter)
           rescue CoercionError, ValidationError => e
             parameter.errors.add(parameter.method_name, e.message)
             errors.merge!(parameter.errors.to_hash)

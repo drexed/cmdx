@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::ParameterValue do
+RSpec.describe CMDx::ParameterEvaluator do
   describe "#initialize" do
     context "when creating a parameter value processor" do
       let(:task) { mock_task }
