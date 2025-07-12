@@ -29,9 +29,13 @@ module CMDx
     #   deprecated_task.cmd_settings!(deprecated: true)
     #   TaskDeprecator.call(deprecated_task) # raises DeprecationError
     def call(task)
-      return unless task.cmd_setting(:deprecated)
+      return unless task.cmd_setting?(:deprecated)
 
-      raise DeprecationError, "#{task.class.name} is deprecated"
+      msg = "#{task.class.name} is deprecated"
+      raise(DeprecationError, msg) if task.cmd_setting(:deprecated)
+
+      warn(msg, category: :deprecated)
+      task.logger.warn { msg }
     end
 
   end

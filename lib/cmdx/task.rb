@@ -302,8 +302,6 @@ module CMDx
       cmd_middlewares.call(self) { |task| TaskProcessor.call!(task) }
     end
 
-    private
-
     # Creates a logger instance for this task.
     #
     # @return [Logger] logger instance configured for this task
