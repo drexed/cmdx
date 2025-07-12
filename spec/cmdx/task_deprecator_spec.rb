@@ -4,189 +4,96 @@ require "spec_helper"
 
 RSpec.describe CMDx::TaskDeprecator do
   describe ".call" do
-    let(:logger) { double("Logger") }
-    let(:task_class) { create_simple_task(name: "TestTask") }
-    let(:task) { task_class.new }
+    context "when calling TaskDeprecator directly with mocked task" do
+      let(:task) { double("Task") }
+      let(:task_class) { double("TaskClass", name: "TestTask") }
 
-    before do
-      allow(task).to receive(:logger).and_return(logger)
-    end
-
-    context "when task has no deprecated setting" do
-      it "returns without doing anything" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(false)
-        expect(task).not_to receive(:cmd_setting)
-        expect(logger).not_to receive(:warn)
-        expect(described_class).not_to receive(:warn)
-
-        expect { described_class.call(task) }.not_to raise_error
+      before do
+        allow(task).to receive_messages(class: task_class, logger: double("Logger", warn: nil))
       end
-    end
 
-    context "when task has deprecated setting set to true" do
-      it "raises DeprecationError" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(true)
-        expect(task).to receive(:cmd_setting).with(:deprecated).and_return(true)
-        expect(task).to receive(:class).and_return(double(name: "TestTask"))
-
-        expect { described_class.call(task) }.to raise_error(CMDx::DeprecationError, "TestTask is deprecated")
-      end
-    end
-
-    context "when task has deprecated setting set to false" do
-      it "logs warning and calls logger.warn" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(true)
-        expect(task).to receive(:cmd_setting).with(:deprecated).and_return(false)
-        expect(task).to receive(:class).and_return(double(name: "TestTask"))
-        expect(logger).to receive(:warn) do |&block|
-          expect(block.call).to eq("TestTask will be deprecated. Find a replacement or stop usage")
+      context "when task has deprecated setting set to :raise" do
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(:raise)
         end
-        expect(described_class).to receive(:warn).with("TestTask will be deprecated. Find a replacement or stop usage", category: :deprecated)
 
-        expect { described_class.call(task) }.not_to raise_error
-      end
-    end
-
-    context "when task has deprecated setting set to nil" do
-      it "logs warning and calls logger.warn" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(true)
-        expect(task).to receive(:cmd_setting).with(:deprecated).and_return(nil)
-        expect(task).to receive(:class).and_return(double(name: "TestTask"))
-        expect(logger).to receive(:warn) do |&block|
-          expect(block.call).to eq("TestTask will be deprecated. Find a replacement or stop usage")
+        it "raises DeprecationError" do
+          expect { described_class.call(task) }.to raise_error(CMDx::DeprecationError)
         end
-        expect(described_class).to receive(:warn).with("TestTask will be deprecated. Find a replacement or stop usage", category: :deprecated)
 
-        expect { described_class.call(task) }.not_to raise_error
-      end
-    end
-
-    context "when task has deprecated setting set to empty string" do
-      it "raises DeprecationError" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(true)
-        expect(task).to receive(:cmd_setting).with(:deprecated).and_return("")
-        expect(task).to receive(:class).and_return(double(name: "TestTask"))
-
-        expect { described_class.call(task) }.to raise_error(CMDx::DeprecationError, "TestTask is deprecated")
-      end
-    end
-
-    context "when task has deprecated setting set to truthy value" do
-      it "raises DeprecationError" do
-        expect(task).to receive(:cmd_setting?).with(:deprecated).and_return(true)
-        expect(task).to receive(:cmd_setting).with(:deprecated).and_return("yes")
-        expect(task).to receive(:class).and_return(double(name: "TestTask"))
-
-        expect { described_class.call(task) }.to raise_error(CMDx::DeprecationError, "TestTask is deprecated")
-      end
-    end
-  end
-
-  describe "integration tests" do
-    context "with a task that has no deprecated setting" do
-      let(:task_class) do
-        create_simple_task(name: "RegularTask")
-      end
-
-      it "does not raise error or log warning" do
-        expect(described_class).not_to receive(:warn)
-
-        task = task_class.new
-        expect(task).to be_a(task_class)
-      end
-    end
-
-    context "with a task that is deprecated (true)" do
-      let(:task_class) do
-        create_simple_task(name: "ObsoleteTask") do
-          cmd_settings! deprecated: true
+        it "includes task class name in error message" do
+          expect { described_class.call(task) }.to raise_error(CMDx::DeprecationError, /TestTask usage prohibited/)
         end
       end
 
-      it "raises DeprecationError" do
-        expect { task_class.new }.to raise_error(CMDx::DeprecationError, "ObsoleteTask is deprecated")
-      end
-    end
+      context "when task has deprecated setting set to :warn" do
+        let(:logger) { double("Logger", warn: nil) }
 
-    context "with a task that will be deprecated (false)" do
-      let(:task_class) do
-        create_simple_task(name: "LegacyTask") do
-          cmd_settings! deprecated: false
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(:warn)
+          allow(task).to receive(:logger).and_return(logger)
+        end
+
+        it "does not raise an error" do
+          expect { described_class.call(task) }.not_to raise_error
+        end
+
+        it "warns to stderr with category" do
+          expect(described_class).to receive(:warn).with("[TestTask] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
+          described_class.call(task)
+        end
+
+        it "logs warning message with block" do
+          expect(logger).to receive(:warn) do |&block|
+            expect(block.call).to eq("DEPRECATED: migrate to replacement or discontinue use")
+          end
+          described_class.call(task)
         end
       end
 
-      it "logs warning without raising error" do
-        expected_message = "LegacyTask will be deprecated. Find a replacement or stop usage"
+      context "when task has deprecated setting set to nil" do
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(nil)
+        end
 
-        expect(described_class).to receive(:warn).with(expected_message, category: :deprecated)
+        it "does not raise an error" do
+          expect { described_class.call(task) }.not_to raise_error
+        end
 
-        task = task_class.new
-        expect(task).to be_a(task_class)
-      end
-    end
-
-    context "with a task that has deprecated setting as nil" do
-      let(:task_class) do
-        create_simple_task(name: "NilDeprecatedTask") do
-          cmd_settings! deprecated: nil
+        it "does not warn" do
+          expect(described_class).not_to receive(:warn)
+          described_class.call(task)
         end
       end
 
-      it "logs warning without raising error" do
-        expected_message = "NilDeprecatedTask will be deprecated. Find a replacement or stop usage"
+      context "when task has deprecated setting set to false" do
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(false)
+        end
 
-        expect(described_class).to receive(:warn).with(expected_message, category: :deprecated)
+        it "does not raise an error" do
+          expect { described_class.call(task) }.not_to raise_error
+        end
 
-        task = task_class.new
-        expect(task).to be_a(task_class)
-      end
-    end
-
-    context "with a task that has deprecated setting as empty string" do
-      let(:task_class) do
-        create_simple_task(name: "EmptyDeprecatedTask") do
-          cmd_settings! deprecated: ""
+        it "does not warn" do
+          expect(described_class).not_to receive(:warn)
+          described_class.call(task)
         end
       end
 
-      it "raises DeprecationError" do
-        expect { task_class.new }.to raise_error(CMDx::DeprecationError, "EmptyDeprecatedTask is deprecated")
-      end
-    end
-
-    context "with a task that has deprecated setting as truthy string" do
-      let(:task_class) do
-        create_simple_task(name: "TruthyDeprecatedTask") do
-          cmd_settings! deprecated: "yes"
+      context "when task has deprecated setting set to unknown value" do
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(:unknown)
         end
-      end
 
-      it "raises DeprecationError" do
-        expect { task_class.new }.to raise_error(CMDx::DeprecationError, "TruthyDeprecatedTask is deprecated")
-      end
-    end
-
-    context "with a task that has deprecated setting as number" do
-      let(:task_class) do
-        create_simple_task(name: "NumberDeprecatedTask") do
-          cmd_settings! deprecated: 1
+        it "does not raise an error" do
+          expect { described_class.call(task) }.not_to raise_error
         end
-      end
 
-      it "raises DeprecationError" do
-        expect { task_class.new }.to raise_error(CMDx::DeprecationError, "NumberDeprecatedTask is deprecated")
-      end
-    end
-
-    context "with a task that has deprecated setting as zero" do
-      let(:task_class) do
-        create_simple_task(name: "ZeroDeprecatedTask") do
-          cmd_settings! deprecated: 0
+        it "does not warn" do
+          expect(described_class).not_to receive(:warn)
+          described_class.call(task)
         end
-      end
-
-      it "raises DeprecationError" do
-        expect { task_class.new }.to raise_error(CMDx::DeprecationError, "ZeroDeprecatedTask is deprecated")
       end
     end
   end

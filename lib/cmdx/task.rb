@@ -60,8 +60,6 @@ module CMDx
     #   task = MyTask.new(existing_context)
     #   task.context.name #=> "John"
     def initialize(context = {})
-      TaskDeprecator.call(self)
-
       context  = context.context if context.respond_to?(:context)
 
       @context = Context.build(context)
@@ -69,6 +67,8 @@ module CMDx
       @id      = CMDx::Correlator.generate
       @result  = Result.new(self)
       @chain   = Chain.build(@result)
+
+      TaskDeprecator.call(self)
     end
 
     class << self

@@ -10,41 +10,50 @@ module CMDx
 
     module_function
 
-    # Checks if a task is deprecated and handles deprecation warnings or errors.
-    # Raises a DeprecationError if the task is marked as deprecated with a truthy value,
-    # otherwise logs a warning if the deprecated setting exists but is falsy.
+    # Checks deprecation status of a task and handles it according to the configured behavior.
+    #
+    # This method examines the task's deprecation setting and takes appropriate action:
+    # - :raise - raises DeprecationError to prevent task execution
+    # - :warn or true - issues deprecation warnings through both warn and logger
+    # - nil or false - allows task execution without warnings
     #
     # @param task [Task] the task instance to check for deprecation
     #
     # @return [void]
     #
-    # @raise [DeprecationError] if the task is marked as deprecated
+    # @raise [DeprecationError] when task is marked with deprecated: :raise
     #
-    # @example With a deprecated task
-    #   class ObsoleteTask < CMDx::Task
-    #     cmd_setting :deprecated, true
+    # @example Task with raise deprecation setting
+    #   class MyTask < CMDx::Task
+    #     cmd_settings! deprecated: :raise
     #   end
+    #   CMDx::TaskDeprecator.call(MyTask.new) # raises DeprecationError
     #
-    #   task = ObsoleteTask.new
-    #   CMDx::TaskDeprecator.call(task)
-    #   # => raises DeprecationError: "ObsoleteTask is deprecated"
-    #
-    # @example With a task marked for future deprecation
-    #   class LegacyTask < CMDx::Task
-    #     cmd_setting :deprecated, false
+    # @example Task with warn deprecation setting
+    #   class MyTask < CMDx::Task
+    #     cmd_settings! deprecated: :warn
     #   end
+    #   CMDx::TaskDeprecator.call(MyTask.new) # issues warnings
     #
-    #   task = LegacyTask.new
-    #   CMDx::TaskDeprecator.call(task)
-    #   # => logs warning: "LegacyTask will be deprecated. Find a replacement or stop usage"
+    # @example Task with a proc deprecation setting
+    #   class MyTask < CMDx::Task
+    #     cmd_settings! deprecated: -> { Time.now.year > 2025 ? :raise : :warn }
+    #   end
+    #   CMDx::TaskDeprecator.call(MyTask.new) # issues warnings
+    #
+    # @example Task with no deprecation setting
+    #   class MyTask < CMDx::Task
+    #   end
+    #   CMDx::TaskDeprecator.call(MyTask.new) # no action taken
     def call(task)
-      return unless task.cmd_setting?(:deprecated)
-
-      raise(DeprecationError, "#{task.class.name} is deprecated") if task.cmd_setting(:deprecated)
-
-      msg = "#{task.class.name} will be deprecated. Find a replacement or stop usage"
-      warn(msg, category: :deprecated)
-      task.logger.warn { msg }
+      case task.cmd_setting(:deprecated)
+      when :raise
+        raise(DeprecationError, "#{task.class.name} usage prohibited")
+      when :warn, true
+        msg = "DEPRECATED: migrate to replacement or discontinue use"
+        warn("[#{task.class.name}] #{msg}", category: :deprecated)
+        task.logger.warn { msg }
+      end
     end
 
   end
