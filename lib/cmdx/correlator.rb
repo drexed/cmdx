@@ -13,12 +13,15 @@ module CMDx
     module_function
 
     # Generates a new unique correlation ID using SecureRandom.
+    # Prefers UUID v7 when available, falls back to UUID v4.
     #
-    # @return [String] a new UUID v4 string for use as correlation ID
+    # @return [String] a new UUID string for use as correlation ID
     #
     # @example Generate a new correlation ID
     #   CMDx::Correlator.generate #=> "f47ac10b-58cc-4372-a567-0e02b2c3d479"
     def generate
+      return SecureRandom.uuid_v7 if SecureRandom.respond_to?(:uuid_v7)
+
       SecureRandom.uuid
     end
 
