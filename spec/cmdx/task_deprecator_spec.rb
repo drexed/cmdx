@@ -42,6 +42,19 @@ RSpec.describe CMDx::TaskDeprecator do
           expect(described_class).to receive(:warn).with("[TestTask] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
           described_class.call(task)
         end
+      end
+
+      context "when task has deprecated setting set to :log" do
+        let(:logger) { double("Logger", warn: nil) }
+
+        before do
+          allow(task).to receive(:cmd_setting).with(:deprecated).and_return(:log)
+          allow(task).to receive(:logger).and_return(logger)
+        end
+
+        it "does not raise an error" do
+          expect { described_class.call(task) }.not_to raise_error
+        end
 
         it "logs warning message with block" do
           expect(logger).to receive(:warn) do |&block|

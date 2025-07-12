@@ -30,15 +30,9 @@ module CMDx
     #   end
     #   CMDx::TaskDeprecator.call(MyTask.new) # raises DeprecationError
     #
-    # @example Task with warn deprecation setting
-    #   class MyTask < CMDx::Task
-    #     cmd_settings! deprecated: :warn
-    #   end
-    #   CMDx::TaskDeprecator.call(MyTask.new) # issues warnings
-    #
     # @example Task with a proc deprecation setting
     #   class MyTask < CMDx::Task
-    #     cmd_settings! deprecated: -> { Time.now.year > 2025 ? :raise : :warn }
+    #     cmd_settings! deprecated: -> { Time.now.year > 2025 ? :raise : :log }
     #   end
     #   CMDx::TaskDeprecator.call(MyTask.new) # issues warnings
     #
