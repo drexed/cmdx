@@ -8,9 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [TODO]
 
 - Add table and pretty_table log formatters
-- Revert `docs/parameters/coercion.md` changes
 - Refactor all `docs`
-- Refactor all yard docs
 
 ## [Unreleased]
 
