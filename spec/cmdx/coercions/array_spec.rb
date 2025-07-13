@@ -15,26 +15,31 @@ RSpec.describe CMDx::Coercions::Array do
     context "with JSON string values" do
       it "parses valid JSON array strings" do
         result = coercion.call('["a", "b", "c"]')
+
         expect(result).to eq(%w[a b c])
       end
 
       it "parses JSON arrays with mixed types" do
         result = coercion.call('[1, "string", true, null]')
+
         expect(result).to eq([1, "string", true, nil])
       end
 
       it "parses nested JSON arrays" do
         result = coercion.call('[["a", "b"], ["c", "d"]]')
+
         expect(result).to eq([%w[a b], %w[c d]])
       end
 
       it "parses empty JSON arrays" do
         result = coercion.call("[]")
+
         expect(result).to eq([])
       end
 
       it "parses JSON arrays with objects" do
         result = coercion.call('[{"name": "test"}, {"id": 1}]')
+
         expect(result).to eq([{ "name" => "test" }, { "id" => 1 }])
       end
 
@@ -62,26 +67,31 @@ RSpec.describe CMDx::Coercions::Array do
     context "with non-JSON string values" do
       it "converts regular strings to single-element arrays" do
         result = coercion.call("hello")
+
         expect(result).to eq(["hello"])
       end
 
       it "converts empty strings to single-element arrays" do
         result = coercion.call("")
+
         expect(result).to eq([""])
       end
 
       it "converts strings that contain brackets but don't start with [" do
         result = coercion.call("test [with brackets]")
+
         expect(result).to eq(["test [with brackets]"])
       end
 
       it "handles whitespace-only strings" do
         result = coercion.call("   ")
+
         expect(result).to eq(["   "])
       end
 
       it "handles strings with leading whitespace that look like JSON" do
         result = coercion.call('  ["a", "b"]  ')
+
         expect(result).to eq(['  ["a", "b"]  '])
       end
     end
@@ -90,18 +100,21 @@ RSpec.describe CMDx::Coercions::Array do
       it "returns arrays unchanged" do
         input = %w[a b c]
         result = coercion.call(input)
+
         expect(result).to eq(%w[a b c])
       end
 
       it "returns empty arrays unchanged" do
         input = []
         result = coercion.call(input)
+
         expect(result).to eq([])
       end
 
       it "returns arrays with mixed types unchanged" do
         input = [1, "string", true, nil]
         result = coercion.call(input)
+
         expect(result).to eq([1, "string", true, nil])
       end
     end
@@ -109,6 +122,7 @@ RSpec.describe CMDx::Coercions::Array do
     context "with nil values" do
       it "converts nil to empty array" do
         result = coercion.call(nil)
+
         expect(result).to eq([])
       end
     end
@@ -116,16 +130,19 @@ RSpec.describe CMDx::Coercions::Array do
     context "with numeric values" do
       it "converts integers to single-element arrays" do
         result = coercion.call(123)
+
         expect(result).to eq([123])
       end
 
       it "converts floats to single-element arrays" do
         result = coercion.call(3.14)
+
         expect(result).to eq([3.14])
       end
 
       it "converts zero to single-element arrays" do
         result = coercion.call(0)
+
         expect(result).to eq([0])
       end
     end
@@ -133,11 +150,13 @@ RSpec.describe CMDx::Coercions::Array do
     context "with boolean values" do
       it "converts true to single-element arrays" do
         result = coercion.call(true)
+
         expect(result).to eq([true])
       end
 
       it "converts false to single-element arrays" do
         result = coercion.call(false)
+
         expect(result).to eq([false])
       end
     end
@@ -146,12 +165,14 @@ RSpec.describe CMDx::Coercions::Array do
       it "converts hashes to arrays of key-value pairs" do
         input = { a: 1, b: 2 }
         result = coercion.call(input)
+
         expect(result).to eq([[:a, 1], [:b, 2]])
       end
 
       it "converts empty hashes to empty arrays" do
         input = {}
         result = coercion.call(input)
+
         expect(result).to eq([])
       end
     end
@@ -160,12 +181,14 @@ RSpec.describe CMDx::Coercions::Array do
       it "converts objects to single-element arrays" do
         input = Object.new
         result = coercion.call(input)
+
         expect(result).to eq([input])
       end
 
       it "converts structs to arrays of their values" do
         input = Struct.new(:name, :age).new("John", 30)
         result = coercion.call(input)
+
         expect(result).to eq(["John", 30])
       end
     end
@@ -173,11 +196,13 @@ RSpec.describe CMDx::Coercions::Array do
     context "with options parameter" do
       it "ignores options parameter" do
         result = coercion.call("test", { some: "option" })
+
         expect(result).to eq(["test"])
       end
 
       it "processes JSON with options parameter" do
         result = coercion.call('["a", "b"]', { some: "option" })
+
         expect(result).to eq(%w[a b])
       end
     end
@@ -185,11 +210,7 @@ RSpec.describe CMDx::Coercions::Array do
 
   describe "integration with tasks" do
     let(:task_class) do
-      Class.new(CMDx::Task) do
-        def self.name
-          "ProcessTagsTask"
-        end
-
+      create_simple_task(name: "ProcessTagsTask") do
         required :tags, type: :array
         optional :categories, type: :array, default: []
 
