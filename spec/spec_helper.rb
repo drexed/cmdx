@@ -13,7 +13,7 @@ require "cmdx/rspec/matchers"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[helpers config matchers].each do |dir|
+%w[config helpers].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
@@ -37,11 +37,7 @@ RSpec.configure do |config|
   end
 
   config.include CMDx::Testing::TaskBuilders
-  config.include CMDx::Testing::TaskHelpers
   config.include CMDx::Testing::WorkflowBuilders
-  config.include CMDx::Testing::WorkflowHelpers
-  config.include CMDx::Testing::CallbackBuilders
-  config.include CMDx::Testing::MiddlewareBuilders
 
   config.before do
     CMDx.reset_configuration!
