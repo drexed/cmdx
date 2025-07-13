@@ -182,4 +182,65 @@ RSpec.describe CMDx::Coercions::Array do
       end
     end
   end
+
+  describe "integration with tasks" do
+    let(:task_class) do
+      Class.new(CMDx::Task) do
+        def self.name
+          "ProcessTagsTask"
+        end
+
+        required :tags, type: :array
+        optional :categories, type: :array, default: []
+
+        def call
+          context.processed_tags = tags.map(&:downcase)
+          context.categories_count = categories.length
+        end
+      end
+    end
+
+    it "coerces JSON string parameters to arrays" do
+      result = task_class.call(tags: '["Ruby", "Rails", "CMDx"]')
+
+      expect(result).to be_success
+      expect(result.context.processed_tags).to eq(%w[ruby rails cmdx])
+    end
+
+    it "coerces regular values to single-element arrays" do
+      result = task_class.call(tags: "Ruby")
+
+      expect(result).to be_success
+      expect(result.context.processed_tags).to eq(["ruby"])
+    end
+
+    it "handles array parameters unchanged" do
+      result = task_class.call(tags: %w[Ruby Rails])
+
+      expect(result).to be_success
+      expect(result.context.processed_tags).to eq(%w[ruby rails])
+    end
+
+    it "uses default values for optional array parameters" do
+      result = task_class.call(tags: ["Ruby"])
+
+      expect(result).to be_success
+      expect(result.context.categories_count).to eq(0)
+    end
+
+    it "coerces optional parameters when provided" do
+      result = task_class.call(tags: ["Ruby"], categories: '["Web", "Framework"]')
+
+      expect(result).to be_success
+      expect(result.context.categories_count).to eq(2)
+    end
+
+    it "fails when coercion fails for invalid JSON" do
+      result = task_class.call(tags: '["invalid json')
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to include("JSON::ParserError")
+      expect(result.metadata[:original_exception]).to be_a(JSON::ParserError)
+    end
+  end
 end
