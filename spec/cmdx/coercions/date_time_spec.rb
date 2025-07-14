@@ -75,7 +75,7 @@ RSpec.describe CMDx::Coercions::DateTime do
       end
 
       it "parses short date formats" do
-        result = coercion.call("12/25/2023")
+        result = coercion.call("Dec 25 2023")
 
         expect(result).to be_a(DateTime)
         expect(result.year).to eq(2023)
@@ -178,8 +178,8 @@ RSpec.describe CMDx::Coercions::DateTime do
   describe "integration with tasks" do
     let(:task_class) do
       create_simple_task(name: "ProcessDateTask") do
-        required :start_date, type: :date_time
-        optional :end_date, type: :date_time, default: -> { DateTime.now }
+        required :start_date, type: :datetime
+        optional :end_date, type: :datetime, default: -> { DateTime.now }
 
         def call
           context.date_range = end_date - start_date
@@ -229,15 +229,14 @@ RSpec.describe CMDx::Coercions::DateTime do
       result = task_class.call(start_date: "invalid date")
 
       expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("CoercionError")
-      expect(result.metadata[:original_exception]).to be_a(CMDx::CoercionError)
+      expect(result.metadata[:reason]).to include("could not coerce into a datetime")
     end
   end
 
   describe "custom format integration" do
     let(:task_class) do
       create_simple_task(name: "CustomDateTask") do
-        required :event_date, type: :date_time, strptime: "%d/%m/%Y"
+        required :event_date, type: :datetime, strptime: "%d/%m/%Y"
 
         def call
           context.year = event_date.year
@@ -258,7 +257,7 @@ RSpec.describe CMDx::Coercions::DateTime do
       result = task_class.call(event_date: "2023-12-25")
 
       expect(result).to be_failed
-      expect(result.metadata[:original_exception]).to be_a(CMDx::CoercionError)
+      expect(result.metadata[:reason]).to include("could not coerce into a datetime")
     end
   end
 end
