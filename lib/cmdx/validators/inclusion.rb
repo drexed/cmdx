@@ -45,8 +45,7 @@ module CMDx
       #   Validators::Inclusion.call("guest", inclusion: { in: ["user", "admin"], message: "Invalid role selected" })
       #   # raises ValidationError: "Invalid role selected"
       def call(value, options = {})
-        values = options.dig(:inclusion, :in) ||
-                 options.dig(:inclusion, :within)
+        values = options[:in] || options[:within]
 
         if values.is_a?(Range)
           raise_within_validation_error!(values.begin, values.end, options) unless values.cover?(value)
@@ -70,9 +69,8 @@ module CMDx
       #   raise_of_validation_error!(["user", "admin"], {})
       #   # raises ValidationError: "must be one of: \"user\", \"admin\""
       def raise_of_validation_error!(values, options)
-        values  = values.map(&:inspect).join(", ")
-        message = options.dig(:inclusion, :of_message) ||
-                  options.dig(:inclusion, :message)
+        values  = values.map(&:inspect).join(", ") unless values.nil?
+        message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -96,9 +94,7 @@ module CMDx
       #   raise_within_validation_error!(1, 10, {})
       #   # raises ValidationError: "must be within 1 and 10"
       def raise_within_validation_error!(min, max, options)
-        message = options.dig(:inclusion, :in_message) ||
-                  options.dig(:inclusion, :within_message) ||
-                  options.dig(:inclusion, :message)
+        message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(

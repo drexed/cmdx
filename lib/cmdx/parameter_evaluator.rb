@@ -183,27 +183,25 @@ module CMDx
 
     # Checks if validator should be skipped due to conditional options.
     #
-    # @param key [Symbol] the validator key to check
+    # @param opts [Hash] the validator options
     #
     # @return [Boolean] true if validator should be skipped, false otherwise
     #
     # @example Check if validator should be skipped
     #   evaluator.send(:skip_validator_due_to_conditional?, :presence) #=> false
-    def skip_validator_due_to_conditional?(key)
-      opts = options[key]
+    def skip_validator_due_to_conditional?(opts)
       opts.is_a?(Hash) && !task.cmdx_eval(opts)
     end
 
     # Checks if validator should be skipped due to allow_nil option.
     #
-    # @param key [Symbol] the validator key to check
+    # @param opts [Symbol] the validator options
     #
     # @return [Boolean] true if validator should be skipped, false otherwise
     #
     # @example Check if validator should be skipped for nil
     #   evaluator.send(:skip_validator_due_to_allow_nil?, :presence) #=> true
-    def skip_validator_due_to_allow_nil?(key)
-      opts = options[key]
+    def skip_validator_due_to_allow_nil?(opts)
       opts.is_a?(Hash) && opts[:allow_nil] && value.nil?
     end
 
@@ -221,10 +219,11 @@ module CMDx
       types = CMDx.configuration.validators.registry.keys
 
       options.slice(*types).each_key do |key|
-        next if skip_validator_due_to_allow_nil?(key)
-        next if skip_validator_due_to_conditional?(key)
+        opts = options[key]
+        next if skip_validator_due_to_allow_nil?(opts)
+        next if skip_validator_due_to_conditional?(opts)
 
-        CMDx.configuration.validators.call(task, key, value, options)
+        CMDx.configuration.validators.call(task, key, value, opts)
       end
     end
 

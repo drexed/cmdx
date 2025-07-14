@@ -8,134 +8,134 @@ RSpec.describe CMDx::Validators::Inclusion do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { inclusion: { in: ["admin"] } })
+      expect(validator).to receive(:call).with("value", { in: ["admin"] }) # rubocop:disable RSpec/SubjectStub
 
-      described_class.call("value", { inclusion: { in: ["admin"] } })
+      described_class.call("value", { in: ["admin"] })
     end
   end
 
   describe "#call" do
     context "with array inclusion" do
       it "allows values in the inclusion array" do
-        expect { validator.call("user", { inclusion: { in: %w[user admin] } }) }.not_to raise_error
+        expect { validator.call("user",  { in: %w[user admin] }) }.not_to raise_error
       end
 
       it "allows values in the inclusion array using within" do
-        expect { validator.call("user", { inclusion: { within: %w[user admin] } }) }.not_to raise_error
+        expect { validator.call("user",  { within: %w[user admin] }) }.not_to raise_error
       end
 
       it "raises ValidationError when value is not in inclusion array" do
-        expect { validator.call("guest", { inclusion: { in: %w[user admin] } }) }
+        expect { validator.call("guest",  { in: %w[user admin] }) }
           .to raise_error(CMDx::ValidationError, 'must be one of: "user", "admin"')
       end
 
       it "raises ValidationError when value is not in inclusion array using within" do
-        expect { validator.call("guest", { inclusion: { within: %w[user admin] } }) }
+        expect { validator.call("guest",  { within: %w[user admin] }) }
           .to raise_error(CMDx::ValidationError, 'must be one of: "user", "admin"')
       end
 
       it "uses custom message when provided" do
-        options = { inclusion: { in: %w[user admin], message: "Invalid role selected" } }
+        options = { in: %w[user admin], message: "Invalid role selected" }
 
         expect { validator.call("guest", options) }
           .to raise_error(CMDx::ValidationError, "Invalid role selected")
       end
 
       it "uses custom of_message when provided" do
-        options = { inclusion: { in: %w[user admin], of_message: "Must be %{values}" } }
+        options = { in: %w[user admin], of_message: "Must be %{values}" }
 
         expect { validator.call("guest", options) }
           .to raise_error(CMDx::ValidationError, 'Must be "user", "admin"')
       end
 
       it "handles empty arrays" do
-        expect { validator.call("any_value", { inclusion: { in: [] } }) }
+        expect { validator.call("any_value",  { in: [] }) }
           .to raise_error(CMDx::ValidationError, "must be one of: ")
       end
 
       it "handles nil inclusion array" do
-        expect { validator.call("any_value", { inclusion: { in: nil } }) }
+        expect { validator.call("any_value",  { in: nil }) }
           .to raise_error(CMDx::ValidationError, "must be one of: ")
       end
 
       it "works with different data types" do
-        expect { validator.call(2, { inclusion: { in: [1, 2, 3] } }) }.not_to raise_error
-        expect { validator.call(4, { inclusion: { in: [1, 2, 3] } }) }
+        expect { validator.call(2,  { in: [1, 2, 3] }) }.not_to raise_error
+        expect { validator.call(4,  { in: [1, 2, 3] }) }
           .to raise_error(CMDx::ValidationError, "must be one of: 1, 2, 3")
       end
 
       it "works with symbols" do
-        expect { validator.call(:user, { inclusion: { in: %i[user admin] } }) }.not_to raise_error
-        expect { validator.call(:guest, { inclusion: { in: %i[user admin] } }) }
+        expect { validator.call(:user, { in: %i[user admin] }) }.not_to raise_error
+        expect { validator.call(:guest, { in: %i[user admin] }) }
           .to raise_error(CMDx::ValidationError, "must be one of: :user, :admin")
       end
 
       it "works with mixed types" do
-        expect { validator.call(1, { inclusion: { in: [1, :admin, "user"] } }) }.not_to raise_error
-        expect { validator.call("guest", { inclusion: { in: [1, :admin, "user"] } }) }
+        expect { validator.call(1, { in: [1, :admin, "user"] }) }.not_to raise_error
+        expect { validator.call("guest",  { in: [1, :admin, "user"] }) }
           .to raise_error(CMDx::ValidationError, 'must be one of: 1, :admin, "user"')
       end
 
       it "uses case equality for comparison" do
-        expect { validator.call("hello", { inclusion: { in: [/^h/] } }) }.not_to raise_error
-        expect { validator.call("world", { inclusion: { in: [/^h/] } }) }
+        expect { validator.call("hello",  { in: [/^h/] }) }.not_to raise_error
+        expect { validator.call("world",  { in: [/^h/] }) }
           .to raise_error(CMDx::ValidationError, "must be one of: /^h/")
       end
     end
 
     context "with range inclusion" do
       it "allows values within the inclusion range" do
-        expect { validator.call(5, { inclusion: { in: 1..10 } }) }.not_to raise_error
-        expect { validator.call(1, { inclusion: { in: 1..10 } }) }.not_to raise_error
-        expect { validator.call(10, { inclusion: { in: 1..10 } }) }.not_to raise_error
+        expect { validator.call(5,  { in: 1..10 }) }.not_to raise_error
+        expect { validator.call(1,  { in: 1..10 }) }.not_to raise_error
+        expect { validator.call(10, { in: 1..10 }) }.not_to raise_error
       end
 
       it "allows values within the inclusion range using within" do
-        expect { validator.call(5, { inclusion: { within: 1..10 } }) }.not_to raise_error
+        expect { validator.call(5,  { within: 1..10 }) }.not_to raise_error
       end
 
       it "raises ValidationError when value is outside inclusion range" do
-        expect { validator.call(0, { inclusion: { in: 1..10 } }) }
+        expect { validator.call(0,  { in: 1..10 }) }
           .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
-        expect { validator.call(11, { inclusion: { in: 1..10 } }) }
+        expect { validator.call(11, { in: 1..10 }) }
           .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
       end
 
       it "raises ValidationError when value is outside inclusion range using within" do
-        expect { validator.call(0, { inclusion: { within: 1..10 } }) }
+        expect { validator.call(0,  { within: 1..10 }) }
           .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
       end
 
       it "works with exclusive ranges" do
-        expect { validator.call(9, { inclusion: { in: 1...10 } }) }.not_to raise_error
-        expect { validator.call(10, { inclusion: { in: 1...10 } }) }
+        expect { validator.call(9,  { in: 1...10 }) }.not_to raise_error
+        expect { validator.call(10, { in: 1...10 }) }
           .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
       end
 
       it "uses custom message when provided" do
-        options = { inclusion: { in: 1..10, message: "Value must be in valid range" } }
+        options = { in: 1..10, message: "Value must be in valid range" }
 
         expect { validator.call(15, options) }
           .to raise_error(CMDx::ValidationError, "Value must be in valid range")
       end
 
       it "uses custom in_message when provided" do
-        options = { inclusion: { in: 1..10, in_message: "Must be between %{min} and %{max}" } }
+        options = { in: 1..10, in_message: "Must be between %{min} and %{max}" }
 
         expect { validator.call(15, options) }
           .to raise_error(CMDx::ValidationError, "Must be between 1 and 10")
       end
 
       it "uses custom within_message when provided" do
-        options = { inclusion: { within: 1..10, within_message: "Should be from %{min} to %{max}" } }
+        options = { within: 1..10, within_message: "Should be from %{min} to %{max}" }
 
         expect { validator.call(15, options) }
           .to raise_error(CMDx::ValidationError, "Should be from 1 to 10")
       end
 
       it "works with string ranges" do
-        expect { validator.call("m", { inclusion: { in: "a".."z" } }) }.not_to raise_error
-        expect { validator.call("1", { inclusion: { in: "a".."z" } }) }
+        expect { validator.call("m",  { in: "a".."z" }) }.not_to raise_error
+        expect { validator.call("1",  { in: "a".."z" }) }
           .to raise_error(CMDx::ValidationError, "must be within a and z")
       end
 
@@ -145,19 +145,19 @@ RSpec.describe CMDx::Validators::Inclusion do
         test_date = Date.new(2023, 6, 15)
         outside_date = Date.new(2024, 1, 1)
 
-        expect { validator.call(test_date, { inclusion: { in: start_date..end_date } }) }.not_to raise_error
-        expect { validator.call(outside_date, { inclusion: { in: start_date..end_date } }) }
+        expect { validator.call(test_date, { in: start_date..end_date }) }.not_to raise_error
+        expect { validator.call(outside_date, { in: start_date..end_date }) }
           .to raise_error(CMDx::ValidationError, "must be within #{start_date} and #{end_date}")
       end
     end
 
     context "with nil values" do
       it "allows nil when included" do
-        expect { validator.call(nil, { inclusion: { in: [nil, "admin"] } }) }.not_to raise_error
+        expect { validator.call(nil,  { in: [nil, "admin"] }) }.not_to raise_error
       end
 
       it "raises ValidationError when nil is not included" do
-        expect { validator.call(nil, { inclusion: { in: %w[user admin] } }) }
+        expect { validator.call(nil,  { in: %w[user admin] }) }
           .to raise_error(CMDx::ValidationError, 'must be one of: "user", "admin"')
       end
     end
@@ -168,20 +168,15 @@ RSpec.describe CMDx::Validators::Inclusion do
           .to raise_error(CMDx::ValidationError, "must be one of: ")
       end
 
-      it "raises ValidationError when inclusion hash is empty" do
-        expect { validator.call("admin", { inclusion: {} }) }
-          .to raise_error(CMDx::ValidationError, "must be one of: ")
-      end
-
       it "raises ValidationError when both in and within are nil" do
-        expect { validator.call("admin", { inclusion: { in: nil, within: nil } }) }
+        expect { validator.call("admin", { in: nil, within: nil }) }
           .to raise_error(CMDx::ValidationError, "must be one of: ")
       end
     end
 
     context "with precedence" do
       it "prioritizes 'in' over 'within' when both are provided" do
-        options = { inclusion: { in: ["admin"], within: ["user"] } }
+        options = { in: ["admin"], within: ["user"] }
 
         expect { validator.call("admin", options) }.not_to raise_error
         expect { validator.call("user", options) }
@@ -190,11 +185,9 @@ RSpec.describe CMDx::Validators::Inclusion do
 
       it "prioritizes specific message over general message" do
         options = {
-          inclusion: {
-            in: ["admin"],
-            message: "General message",
-            of_message: "Specific message"
-          }
+          in: ["admin"],
+          message: "General message",
+          of_message: "Specific message"
         }
 
         expect { validator.call("user", options) }

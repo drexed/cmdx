@@ -43,7 +43,7 @@ module CMDx
       #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/, message: "Username must start with letters" })
       #   # raises ValidationError: "Username must start with letters"
       def call(value, options = {})
-        valid = case options[:format]
+        valid = case options
                 in { with: with, without: without }
                   value.match?(with) && !value.match?(without)
                 in { with: with }
@@ -56,7 +56,7 @@ module CMDx
 
         return if valid
 
-        raise ValidationError, options.dig(:format, :message) || I18n.t(
+        raise ValidationError, options[:message] || I18n.t(
           "cmdx.validators.format",
           default: "is an invalid format"
         )

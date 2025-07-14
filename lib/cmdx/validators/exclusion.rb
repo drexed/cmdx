@@ -41,8 +41,7 @@ module CMDx
       #   Validators::Exclusion.call("admin", exclusion: { in: ["admin", "root"], message: "Reserved username not allowed" })
       #   # raises ValidationError: "Reserved username not allowed"
       def call(value, options = {})
-        values = options.dig(:exclusion, :in) ||
-                 options.dig(:exclusion, :within)
+        values = options[:in] || options[:within]
 
         if values.is_a?(Range)
           raise_within_validation_error!(values.begin, values.end, options) if values.cover?(value)
@@ -66,9 +65,8 @@ module CMDx
       #   raise_of_validation_error!(["admin", "root"], {})
       #   # raises ValidationError: "must not be one of: \"admin\", \"root\""
       def raise_of_validation_error!(values, options)
-        values  = values.map(&:inspect).join(", ")
-        message = options.dig(:exclusion, :of_message) ||
-                  options.dig(:exclusion, :message)
+        values  = values.map(&:inspect).join(", ") unless values.nil?
+        message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -92,9 +90,7 @@ module CMDx
       #   raise_within_validation_error!(1, 10, {})
       #   # raises ValidationError: "must not be within 1 and 10"
       def raise_within_validation_error!(min, max, options)
-        message = options.dig(:exclusion, :in_message) ||
-                  options.dig(:exclusion, :within_message) ||
-                  options.dig(:exclusion, :message)
+        message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(

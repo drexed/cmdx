@@ -8,129 +8,129 @@ RSpec.describe CMDx::Validators::Presence do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { presence: {} })
+      expect(validator).to receive(:call).with("value", {}) # rubocop:disable RSpec/SubjectStub
 
-      described_class.call("value", { presence: {} })
+      described_class.call("value", {})
     end
   end
 
   describe "#call" do
     context "with string values" do
       it "allows non-empty strings" do
-        expect { validator.call("hello", { presence: {} }) }.not_to raise_error
+        expect { validator.call("hello", {}) }.not_to raise_error
       end
 
       it "allows strings with content" do
-        expect { validator.call("test string", { presence: {} }) }.not_to raise_error
+        expect { validator.call("test string", {}) }.not_to raise_error
       end
 
       it "allows strings with numbers" do
-        expect { validator.call("123", { presence: {} }) }.not_to raise_error
+        expect { validator.call("123", {}) }.not_to raise_error
       end
 
       it "raises ValidationError for empty strings" do
-        expect { validator.call("", { presence: {} }) }
+        expect { validator.call("",  {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
       it "raises ValidationError for whitespace-only strings" do
-        expect { validator.call("   ", { presence: {} }) }
+        expect { validator.call("   ",  {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
       it "raises ValidationError for tab and newline-only strings" do
-        expect { validator.call("\t\n\r ", { presence: {} }) }
+        expect { validator.call("\t\n\r ", {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
       it "allows strings with whitespace and content" do
-        expect { validator.call("  hello  ", { presence: {} }) }.not_to raise_error
+        expect { validator.call("  hello  ", {}) }.not_to raise_error
       end
 
       it "allows strings with special characters" do
-        expect { validator.call("@#$%", { presence: {} }) }.not_to raise_error
+        expect { validator.call("@#$%", {}) }.not_to raise_error
       end
     end
 
     context "with objects that respond to empty?" do
       it "allows non-empty arrays" do
-        expect { validator.call([1, 2, 3], { presence: {} }) }.not_to raise_error
+        expect { validator.call([1, 2, 3],  {}) }.not_to raise_error
       end
 
       it "allows non-empty hashes" do
-        expect { validator.call({ key: "value" }, { presence: {} }) }.not_to raise_error
+        expect { validator.call({ key: "value" }, {}) }.not_to raise_error
       end
 
       it "raises ValidationError for empty arrays" do
-        expect { validator.call([], { presence: {} }) }
+        expect { validator.call([],  {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
       it "raises ValidationError for empty hashes" do
-        expect { validator.call({}, { presence: {} }) }
+        expect { validator.call({},  {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
       it "allows arrays with nil elements" do
-        expect { validator.call([nil, nil], { presence: {} }) }.not_to raise_error
+        expect { validator.call([nil, nil], {}) }.not_to raise_error
       end
 
       it "allows hashes with nil values" do
-        expect { validator.call({ key: nil }, { presence: {} }) }.not_to raise_error
+        expect { validator.call({ key: nil }, {}) }.not_to raise_error
       end
     end
 
     context "with other objects" do
       it "allows non-nil numeric values" do
-        expect { validator.call(42, { presence: {} }) }.not_to raise_error
-        expect { validator.call(0, { presence: {} }) }.not_to raise_error
-        expect { validator.call(-1, { presence: {} }) }.not_to raise_error
-        expect { validator.call(3.14, { presence: {} }) }.not_to raise_error
+        expect { validator.call(42, {}) }.not_to raise_error
+        expect { validator.call(0, {}) }.not_to raise_error
+        expect { validator.call(-1, {}) }.not_to raise_error
+        expect { validator.call(3.14,  {}) }.not_to raise_error
       end
 
       it "allows boolean values" do
-        expect { validator.call(true, { presence: {} }) }.not_to raise_error
-        expect { validator.call(false, { presence: {} }) }.not_to raise_error
+        expect { validator.call(true,  {}) }.not_to raise_error
+        expect { validator.call(false, {}) }.not_to raise_error
       end
 
       it "allows symbols" do
-        expect { validator.call(:symbol, { presence: {} }) }.not_to raise_error
+        expect { validator.call(:symbol, {}) }.not_to raise_error
       end
 
       it "allows objects" do
-        expect { validator.call(Object.new, { presence: {} }) }.not_to raise_error
+        expect { validator.call(Object.new,  {}) }.not_to raise_error
       end
 
       it "raises ValidationError for nil values" do
-        expect { validator.call(nil, { presence: {} }) }
+        expect { validator.call(nil, {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
     end
 
     context "with custom messages" do
       it "uses custom message when provided" do
-        options = { presence: { message: "This field is required" } }
+        options = { message: "This field is required" }
 
         expect { validator.call("", options) }
           .to raise_error(CMDx::ValidationError, "This field is required")
       end
 
       it "uses custom message for nil values" do
-        options = { presence: { message: "Value cannot be nil" } }
+        options = { message: "Value cannot be nil" }
 
         expect { validator.call(nil, options) }
           .to raise_error(CMDx::ValidationError, "Value cannot be nil")
       end
 
       it "uses custom message for empty arrays" do
-        options = { presence: { message: "Array must contain items" } }
+        options = { message: "Array must contain items" }
 
         expect { validator.call([], options) }
           .to raise_error(CMDx::ValidationError, "Array must contain items")
       end
 
       it "uses custom message for whitespace strings" do
-        options = { presence: { message: "Please enter valid text" } }
+        options = { message: "Please enter valid text" }
 
         expect { validator.call("   ", options) }
           .to raise_error(CMDx::ValidationError, "Please enter valid text")
@@ -144,12 +144,7 @@ RSpec.describe CMDx::Validators::Presence do
       end
 
       it "uses default message when presence option is not a hash" do
-        expect { validator.call("", { presence: "not a hash" }) }
-          .to raise_error(CMDx::ValidationError, "cannot be empty")
-      end
-
-      it "uses default message when presence hash is empty" do
-        expect { validator.call("", { presence: {} }) }
+        expect { validator.call("", "not a hash") }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
 
@@ -160,15 +155,15 @@ RSpec.describe CMDx::Validators::Presence do
 
     context "with edge cases" do
       it "handles zero as valid presence" do
-        expect { validator.call(0, { presence: {} }) }.not_to raise_error
+        expect { validator.call(0, {}) }.not_to raise_error
       end
 
       it "handles false as valid presence" do
-        expect { validator.call(false, { presence: {} }) }.not_to raise_error
+        expect { validator.call(false, {}) }.not_to raise_error
       end
 
       it "handles empty string within array as valid" do
-        expect { validator.call([""], { presence: {} }) }.not_to raise_error
+        expect { validator.call([""], {}) }.not_to raise_error
       end
 
       it "handles custom objects that respond to empty?" do
@@ -177,7 +172,7 @@ RSpec.describe CMDx::Validators::Presence do
           false
         end
 
-        expect { validator.call(custom_object, { presence: {} }) }.not_to raise_error
+        expect { validator.call(custom_object, {}) }.not_to raise_error
       end
 
       it "handles custom empty objects" do
@@ -186,7 +181,7 @@ RSpec.describe CMDx::Validators::Presence do
           true
         end
 
-        expect { validator.call(custom_object, { presence: {} }) }
+        expect { validator.call(custom_object, {}) }
           .to raise_error(CMDx::ValidationError, "cannot be empty")
       end
     end

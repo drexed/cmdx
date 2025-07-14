@@ -8,31 +8,31 @@ RSpec.describe CMDx::Validators::Format do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { format: { with: /\A[a-z]+\z/ } })
+      expect(validator).to receive(:call).with("value", { with: /\A[a-z]+\z/ }) # rubocop:disable RSpec/SubjectStub
 
-      described_class.call("value", { format: { with: /\A[a-z]+\z/ } })
+      described_class.call("value",  { with: /\A[a-z]+\z/ })
     end
   end
 
   describe "#call" do
     context "with positive pattern (with)" do
       it "allows values matching the pattern" do
-        expect { validator.call("abc", { format: { with: /\A[a-z]+\z/ } }) }.not_to raise_error
-        expect { validator.call("user123", { format: { with: /\A[a-z]+\d+\z/ } }) }.not_to raise_error
+        expect { validator.call("abc", { with: /\A[a-z]+\z/ }) }.not_to raise_error
+        expect { validator.call("user123", { with: /\A[a-z]+\d+\z/ }) }.not_to raise_error
       end
 
       it "raises ValidationError when value doesn't match pattern" do
-        expect { validator.call("123", { format: { with: /\A[a-z]+\z/ } }) }
+        expect { validator.call("123", { with: /\A[a-z]+\z/ }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "raises ValidationError when value is empty and pattern requires content" do
-        expect { validator.call("", { format: { with: /\A[a-z]+\z/ } }) }
+        expect { validator.call("", { with: /\A[a-z]+\z/ }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "uses custom message when provided" do
-        options = { format: { with: /\A[a-z]+\z/, message: "Must contain only lowercase letters" } }
+        options = { with: /\A[a-z]+\z/, message: "Must contain only lowercase letters" }
 
         expect { validator.call("123", options) }
           .to raise_error(CMDx::ValidationError, "Must contain only lowercase letters")
@@ -41,31 +41,31 @@ RSpec.describe CMDx::Validators::Format do
       it "works with complex patterns" do
         email_pattern = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
-        expect { validator.call("user@example.com", { format: { with: email_pattern } }) }.not_to raise_error
-        expect { validator.call("invalid-email", { format: { with: email_pattern } }) }
+        expect { validator.call("user@example.com", { with: email_pattern }) }.not_to raise_error
+        expect { validator.call("invalid-email", { with: email_pattern }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
     end
 
     context "with negative pattern (without)" do
       it "allows values not matching the pattern" do
-        expect { validator.call("user", { format: { without: /admin|root/ } }) }.not_to raise_error
-        expect { validator.call("guest123", { format: { without: /admin|root/ } }) }.not_to raise_error
+        expect { validator.call("user",  { without: /admin|root/ }) }.not_to raise_error
+        expect { validator.call("guest123", { without: /admin|root/ }) }.not_to raise_error
       end
 
       it "raises ValidationError when value matches forbidden pattern" do
-        expect { validator.call("admin", { format: { without: /admin|root/ } }) }
+        expect { validator.call("admin", { without: /admin|root/ }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
-        expect { validator.call("root_user", { format: { without: /admin|root/ } }) }
+        expect { validator.call("root_user", { without: /admin|root/ }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "allows empty values when pattern doesn't match" do
-        expect { validator.call("", { format: { without: /admin|root/ } }) }.not_to raise_error
+        expect { validator.call("", { without: /admin|root/ }) }.not_to raise_error
       end
 
       it "uses custom message when provided" do
-        options = { format: { without: /admin|root/, message: "Reserved usernames not allowed" } }
+        options = { without: /admin|root/, message: "Reserved usernames not allowed" }
 
         expect { validator.call("admin", options) }
           .to raise_error(CMDx::ValidationError, "Reserved usernames not allowed")
@@ -74,28 +74,28 @@ RSpec.describe CMDx::Validators::Format do
 
     context "with combined patterns (with and without)" do
       it "allows values matching 'with' pattern and not matching 'without' pattern" do
-        options = { format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ } }
+        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
 
         expect { validator.call("user123", options) }.not_to raise_error
         expect { validator.call("guest456", options) }.not_to raise_error
       end
 
       it "raises ValidationError when value doesn't match 'with' pattern" do
-        options = { format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ } }
+        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
 
         expect { validator.call("123abc", options) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "raises ValidationError when value matches 'without' pattern" do
-        options = { format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ } }
+        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
 
         expect { validator.call("admin123", options) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "raises ValidationError when value fails both patterns" do
-        options = { format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ } }
+        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
 
         expect { validator.call("ADMIN", options) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
@@ -103,11 +103,9 @@ RSpec.describe CMDx::Validators::Format do
 
       it "uses custom message when provided" do
         options = {
-          format: {
-            with: /\A[a-z]+\d+\z/,
-            without: /admin|root/,
-            message: "Invalid username format"
-          }
+          with: /\A[a-z]+\d+\z/,
+          without: /admin|root/,
+          message: "Invalid username format"
         }
 
         expect { validator.call("admin123", options) }
@@ -117,23 +115,23 @@ RSpec.describe CMDx::Validators::Format do
 
     context "with edge cases" do
       it "raises NoMethodError for nil values" do
-        expect { validator.call(nil, { format: { with: /\A[a-z]+\z/ } }) }
+        expect { validator.call(nil,  { with: /\A[a-z]+\z/ }) }
           .to raise_error(NoMethodError, /undefined method 'match\?' for nil/)
       end
 
       it "raises NoMethodError for non-string values" do
-        expect { validator.call(123, { format: { with: /\A\d+\z/ } }) }
+        expect { validator.call(123,  { with: /\A\d+\z/ }) }
           .to raise_error(NoMethodError, /undefined method 'match\?' for an instance of Integer/)
       end
 
       it "handles symbols correctly" do
-        expect { validator.call(:admin, { format: { with: /\A[a-z]+\z/ } }) }.not_to raise_error
-        expect { validator.call(:admin, { format: { without: /admin/ } }) }
+        expect { validator.call(:admin,  { with: /\A[a-z]+\z/ }) }.not_to raise_error
+        expect { validator.call(:admin,  { without: /admin/ }) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
       it "returns early for valid cases" do
-        expect(validator.call("valid", { format: { with: /\A[a-z]+\z/ } })).to be_nil
+        expect(validator.call("valid", { with: /\A[a-z]+\z/ })).to be_nil
       end
     end
 
@@ -143,13 +141,8 @@ RSpec.describe CMDx::Validators::Format do
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
-      it "raises ValidationError when format hash is empty" do
-        expect { validator.call("any_value", { format: {} }) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
       it "raises TypeError when format patterns are nil" do
-        expect { validator.call("any_value", { format: { with: nil } }) }
+        expect { validator.call("any_value", { with: nil }) }
           .to raise_error(TypeError, /wrong argument type nil \(expected Regexp\)/)
       end
     end

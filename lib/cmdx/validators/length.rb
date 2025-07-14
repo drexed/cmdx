@@ -53,7 +53,7 @@ module CMDx
       #   Validators::Length.call("", length: { min: 1, message: "cannot be empty" })
       #   # raises ValidationError: "cannot be empty"
       def call(value, options = {})
-        case options[:length]
+        case options
         in { within: within }
           raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value.length)
         in { not_within: not_within }
@@ -93,9 +93,7 @@ module CMDx
       #   raise_within_validation_error!(5, 10, {})
       #   # raises ValidationError: "length must be within 5 and 10"
       def raise_within_validation_error!(min, max, options)
-        message = options.dig(:length, :within_message) ||
-                  options.dig(:length, :in_message) ||
-                  options.dig(:length, :message)
+        message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -120,9 +118,7 @@ module CMDx
       #   raise_not_within_validation_error!(5, 10, {})
       #   # raises ValidationError: "length must not be within 5 and 10"
       def raise_not_within_validation_error!(min, max, options)
-        message = options.dig(:length, :not_within_message) ||
-                  options.dig(:length, :not_in_message) ||
-                  options.dig(:length, :message)
+        message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -146,8 +142,7 @@ module CMDx
       #   raise_min_validation_error!(5, {})
       #   # raises ValidationError: "length must be at least 5"
       def raise_min_validation_error!(min, options)
-        message = options.dig(:length, :min_message) ||
-                  options.dig(:length, :message)
+        message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -170,8 +165,7 @@ module CMDx
       #   raise_max_validation_error!(10, {})
       #   # raises ValidationError: "length must be at most 10"
       def raise_max_validation_error!(max, options)
-        message = options.dig(:length, :max_message) ||
-                  options.dig(:length, :message)
+        message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -194,8 +188,7 @@ module CMDx
       #   raise_is_validation_error!(5, {})
       #   # raises ValidationError: "length must be 5"
       def raise_is_validation_error!(is, options)
-        message = options.dig(:length, :is_message) ||
-                  options.dig(:length, :message)
+        message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -218,8 +211,7 @@ module CMDx
       #   raise_is_not_validation_error!(5, {})
       #   # raises ValidationError: "length must not be 5"
       def raise_is_not_validation_error!(is_not, options)
-        message = options.dig(:length, :is_not_message) ||
-                  options.dig(:length, :message)
+        message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?
 
         raise ValidationError, message || I18n.t(

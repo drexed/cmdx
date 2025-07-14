@@ -60,7 +60,7 @@ module CMDx
 
         return if present
 
-        message = options.dig(:presence, :message) if options[:presence].is_a?(Hash)
+        message = options[:message] if options.is_a?(Hash)
         raise ValidationError, message || I18n.t(
           "cmdx.validators.presence",
           default: "cannot be empty"

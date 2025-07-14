@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
-- Shallow out the validator options
-`Validators::Presence.call([], presence: { message: "something" })` => `Validators::Presence.call([], { message: "something" })`
 - Add table and pretty_table log formatters
 - Refactor all `docs`
 
