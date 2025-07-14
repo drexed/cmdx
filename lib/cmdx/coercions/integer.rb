@@ -23,11 +23,11 @@ module CMDx
       #
       # @example Converting other numeric types
       #   Coercions::Integer.call(123.45) #=> 123
-      #   Coercions::Integer.call(true) #=> 1
-      #   Coercions::Integer.call(false) #=> 0
+      #   Coercions::Integer.call(Time.now) #=> 1672574400 (timestamp)
+      #   Coercions::Integer.call(Complex(42, 0)) #=> 42
       def call(value, _options = {})
         Integer(value)
-      rescue ArgumentError, TypeError
+      rescue ArgumentError, FloatDomainError, RangeError, TypeError # rubocop:disable Lint/ShadowedException
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_an",
           type: "integer",

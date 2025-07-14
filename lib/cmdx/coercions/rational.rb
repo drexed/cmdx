@@ -27,7 +27,7 @@ module CMDx
       #   Coercions::Rational.call(0.25) #=> (1/4)
       def call(value, _options = {})
         Rational(value)
-      rescue ArgumentError, TypeError
+      rescue ArgumentError, FloatDomainError, TypeError
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",
           type: "rational",
