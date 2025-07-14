@@ -26,7 +26,7 @@ module CMDx
       #   Coercions::Float.call(3.14) #=> 3.14
       def call(value, _options = {})
         Float(value)
-      rescue ArgumentError, TypeError
+      rescue ArgumentError, RangeError, TypeError
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",
           type: "float",

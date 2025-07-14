@@ -16,3 +16,4 @@ Add tests for the file in context.
 - Keep test code concise; avoid unnecessary complexity or duplication.
 - Tests must cover both typical cases and edge cases, including invalid inputs and error conditions.
 - Consider all possible scenarios for each method or behavior and ensure they are tested.
+- Verify all specs are passing
