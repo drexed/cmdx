@@ -5,10 +5,10 @@ module CMDx
     # Coercion class for converting values to Time objects.
     #
     # This coercion handles conversion of various types to Time objects, with special
-    # handling for analog types (Date, DateTime, Time) and custom format parsing.
+    # handling for analog types (DateTime, Time) and custom format parsing.
     class Time < Coercion
 
-      ANALOG_TYPES = %w[Date DateTime Time].freeze
+      ANALOG_TYPES = %w[DateTime Time].freeze
 
       # Converts the given value to a Time object.
       #
@@ -32,6 +32,7 @@ module CMDx
       #   Coercions::Time.call(time) #=> time (unchanged)
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
+        return value.to_time if value.respond_to?(:to_time)
         return ::Time.strptime(value, options[:strptime]) if options[:strptime]
 
         ::Time.parse(value)

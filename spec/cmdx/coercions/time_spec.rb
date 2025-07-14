@@ -24,7 +24,7 @@ RSpec.describe CMDx::Coercions::Time do
         date = Date.new(2023, 12, 25)
         result = coercion.call(date)
 
-        expect(result).to eq(date)
+        expect(result).to eq(date.to_time)
       end
 
       it "returns DateTime objects unchanged" do
