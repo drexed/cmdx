@@ -62,13 +62,13 @@ RSpec.describe CMDx::Coercions::Virtual do
       it "returns true unchanged" do
         result = coercion.call(true)
 
-        expect(result).to eq(true)
+        expect(result).to be(true)
       end
 
       it "returns false unchanged" do
         result = coercion.call(false)
 
-        expect(result).to eq(false)
+        expect(result).to be(false)
       end
     end
 
