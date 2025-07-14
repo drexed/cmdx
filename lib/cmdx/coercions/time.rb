@@ -14,14 +14,14 @@ module CMDx
       #
       # @param value [Object] the value to convert to a Time object
       # @param options [Hash] optional configuration
-      # @option options [String] :format custom format string for parsing
+      # @option options [String] :strptime custom format string for parsing
       #
       # @return [Time] the converted Time object
       #
       # @raise [CoercionError] if the value cannot be converted to a Time object
       #
       # @example Converting with custom format
-      #   Coercions::Time.call('2023-12-25 14:30', format: '%Y-%m-%d %H:%M') #=> 2023-12-25 14:30:00
+      #   Coercions::Time.call('2023-12-25 14:30', strptime: '%Y-%m-%d %H:%M') #=> 2023-12-25 14:30:00
       #
       # @example Converting standard time strings
       #   Coercions::Time.call('2023-12-25 14:30:00') #=> 2023-12-25 14:30:00
@@ -32,7 +32,7 @@ module CMDx
       #   Coercions::Time.call(time) #=> time (unchanged)
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
-        return ::Time.strptime(value, options[:format]) if options[:format]
+        return ::Time.strptime(value, options[:strptime]) if options[:strptime]
 
         ::Time.parse(value)
       rescue ArgumentError, TypeError

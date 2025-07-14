@@ -15,7 +15,7 @@ module CMDx
       #
       # @param value [Object] the value to convert to a DateTime
       # @param options [Hash] optional configuration
-      # @option options [String] :format custom format string for parsing
+      # @option options [String] :strptime custom format string for parsing
       #
       # @return [DateTime] the converted DateTime object
       #
@@ -25,14 +25,14 @@ module CMDx
       #   Coercions::DateTime.call('2023-12-25') #=> #<DateTime: 2023-12-25T00:00:00+00:00>
       #
       # @example Converting with a custom format
-      #   Coercions::DateTime.call('25/12/2023', format: '%d/%m/%Y') #=> #<DateTime: 2023-12-25T00:00:00+00:00>
+      #   Coercions::DateTime.call('25/12/2023', strptime: '%d/%m/%Y') #=> #<DateTime: 2023-12-25T00:00:00+00:00>
       #
       # @example Passing through existing DateTime objects
       #   dt = DateTime.now
       #   Coercions::DateTime.call(dt) #=> dt (unchanged)
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
-        return ::DateTime.strptime(value, options[:format]) if options[:format]
+        return ::DateTime.strptime(value, options[:strptime]) if options[:strptime]
 
         ::DateTime.parse(value)
       rescue TypeError, ::Date::Error
