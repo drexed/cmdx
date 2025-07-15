@@ -133,7 +133,7 @@ module CMDx
         end
       end
 
-      # Alias for create_simple_task for backwards compatibility
+      # Alias for create_simple_task where the task is successful
       alias create_successful_task create_simple_task
 
       # Creates a task that fails with a specific reason and metadata

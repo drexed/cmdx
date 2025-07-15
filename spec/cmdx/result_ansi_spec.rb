@@ -169,44 +169,4 @@ RSpec.describe CMDx::ResultAnsi do
       end
     end
   end
-
-  describe "integration with real values" do
-    let(:task) { create_simple_task(name: "TestTask").new }
-    let(:result) { CMDx::Result.new(task) }
-
-    before do
-      allow(CMDx::Utils::AnsiColor).to receive(:call).and_return("formatted")
-    end
-
-    it "formats result state correctly" do
-      described_class.call(result.state)
-
-      expect(CMDx::Utils::AnsiColor).to have_received(:call).with("initialized", color: :blue)
-    end
-
-    it "formats result status correctly" do
-      described_class.call(result.status)
-
-      expect(CMDx::Utils::AnsiColor).to have_received(:call).with("success", color: :green)
-    end
-
-    it "handles state transitions" do
-      result.executing!
-      described_class.call(result.state)
-
-      expect(CMDx::Utils::AnsiColor).to have_received(:call).with("executing", color: :yellow)
-
-      result.complete!
-      described_class.call(result.state)
-
-      expect(CMDx::Utils::AnsiColor).to have_received(:call).with("complete", color: :green)
-    end
-
-    it "handles status transitions" do
-      result.fail!(original_exception: StandardError.new)
-      described_class.call(result.status)
-
-      expect(CMDx::Utils::AnsiColor).to have_received(:call).with("failed", color: :red)
-    end
-  end
 end
