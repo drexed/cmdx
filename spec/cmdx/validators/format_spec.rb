@@ -8,7 +8,7 @@ RSpec.describe CMDx::Validators::Format do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { with: /\A[a-z]+\z/ }) # rubocop:disable RSpec/SubjectStub
+      expect(validator).to receive(:call).with("value", { with: /\A[a-z]+\z/ })
 
       described_class.call("value",  { with: /\A[a-z]+\z/ })
     end

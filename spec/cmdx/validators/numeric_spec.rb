@@ -8,7 +8,7 @@ RSpec.describe CMDx::Validators::Numeric do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with(42, { min: 10 }) # rubocop:disable RSpec/SubjectStub
+      expect(validator).to receive(:call).with(42, { min: 10 })
 
       described_class.call(42, { min: 10 })
     end

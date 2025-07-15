@@ -8,7 +8,7 @@ RSpec.describe CMDx::Validators::Inclusion do
   describe ".call" do
     it "creates instance and calls #call method" do
       expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { in: ["admin"] }) # rubocop:disable RSpec/SubjectStub
+      expect(validator).to receive(:call).with("value", { in: ["admin"] })
 
       described_class.call("value", { in: ["admin"] })
     end
