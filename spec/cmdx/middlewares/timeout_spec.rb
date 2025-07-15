@@ -94,13 +94,13 @@ RSpec.describe CMDx::Middlewares::Timeout do
       let(:task_class) do
         create_simple_task do
           def should_timeout?
-            @should_timeout || false
+            @should_timeout || false # rubocop:disable RSpec/InstanceVariable
           end
 
           attr_writer :should_timeout
 
           def skip_timeout?
-            @skip_timeout || false
+            @skip_timeout || false # rubocop:disable RSpec/InstanceVariable
           end
 
           attr_writer :skip_timeout
@@ -192,7 +192,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
       let(:task_class) do
         create_simple_task do
           def timeout_value
-            @timeout_value || 1
+            @timeout_value || 1 # rubocop:disable RSpec/InstanceVariable
           end
 
           attr_writer :timeout_value
@@ -266,7 +266,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
   describe "integration with tasks" do
     let(:fast_task_class) do
       create_simple_task(name: "FastProcessingTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 1
+        use :middleware, CMDx::Middlewares::Timeout, seconds: 1 # rubocop:disable RSpec/DescribedClass
 
         def call
           sleep(0.1)
@@ -278,7 +278,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     let(:slow_task_class) do
       create_simple_task(name: "SlowProcessingTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05
+        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05 # rubocop:disable RSpec/DescribedClass
 
         def call
           sleep(0.2)
@@ -290,7 +290,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     let(:conditional_task_class) do
       create_simple_task(name: "ConditionalTimeoutTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05, if: :should_apply_timeout?
+        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05, if: :should_apply_timeout? # rubocop:disable RSpec/DescribedClass
 
         optional :apply_timeout, type: :boolean, default: false
 
@@ -310,7 +310,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     let(:dynamic_timeout_task_class) do
       create_simple_task(name: "DynamicTimeoutTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: :timeout_duration
+        use :middleware, CMDx::Middlewares::Timeout, seconds: :timeout_duration # rubocop:disable RSpec/DescribedClass
 
         required :timeout_duration, type: :float
         optional :work_time, type: :float, default: 0.1
@@ -362,15 +362,15 @@ RSpec.describe CMDx::Middlewares::Timeout do
     end
 
     it "verifies middleware is properly registered on task class" do
-      expect(fast_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Timeout)
-      expect(slow_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Timeout)
-      expect(conditional_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Timeout)
-      expect(dynamic_timeout_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Timeout)
+      expect(fast_task_class.cmd_middlewares.registry).to have_key(described_class)
+      expect(slow_task_class.cmd_middlewares.registry).to have_key(described_class)
+      expect(conditional_task_class.cmd_middlewares.registry).to have_key(described_class)
+      expect(dynamic_timeout_task_class.cmd_middlewares.registry).to have_key(described_class)
     end
 
     it "handles task exceptions that occur before timeout" do
       error_task_class = create_simple_task(name: "ErrorTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 1
+        use :middleware, CMDx::Middlewares::Timeout, seconds: 1 # rubocop:disable RSpec/DescribedClass
 
         def call
           raise StandardError, "Task error occurred"
@@ -382,7 +382,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     it "preserves task context when timeout occurs" do
       partial_work_task_class = create_simple_task(name: "PartialWorkTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05
+        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05 # rubocop:disable RSpec/DescribedClass
 
         def call
           context.step1_completed = true

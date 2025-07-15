@@ -49,8 +49,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
   describe "#call" do
     before do
-      allow(CMDx::Correlator).to receive(:id).and_return(nil)
-      allow(CMDx::Correlator).to receive(:generate).and_return("generated-id")
+      allow(CMDx::Correlator).to receive_messages(id: nil, generate: "generated-id")
       allow(CMDx::Correlator).to receive(:use).and_yield
     end
 
@@ -143,13 +142,13 @@ RSpec.describe CMDx::Middlewares::Correlate do
       let(:task_class) do
         create_simple_task do
           def should_correlate?
-            @should_correlate || false
+            @should_correlate || false # rubocop:disable RSpec/InstanceVariable
           end
 
           attr_writer :should_correlate
 
           def skip_correlation?
-            @skip_correlation || false
+            @skip_correlation || false # rubocop:disable RSpec/InstanceVariable
           end
 
           attr_writer :skip_correlation
@@ -229,7 +228,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
   describe "integration with tasks" do
     let(:basic_task_class) do
       create_simple_task(name: "BasicCorrelatedTask") do
-        use :middleware, CMDx::Middlewares::Correlate, id: "task-correlation-id"
+        use :middleware, CMDx::Middlewares::Correlate, id: "task-correlation-id" # rubocop:disable RSpec/DescribedClass
 
         def call
           context.correlation_used = true
@@ -240,7 +239,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
     let(:dynamic_task_class) do
       create_simple_task(name: "DynamicCorrelatedTask") do
-        use :middleware, CMDx::Middlewares::Correlate, id: :generate_correlation_id
+        use :middleware, CMDx::Middlewares::Correlate, id: :generate_correlation_id # rubocop:disable RSpec/DescribedClass
 
         def call
           context.correlation_used = true
@@ -257,7 +256,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
 
     let(:conditional_task_class) do
       create_simple_task(name: "ConditionalCorrelatedTask") do
-        use :middleware, CMDx::Middlewares::Correlate, id: "conditional-id", if: :should_trace?
+        use :middleware, CMDx::Middlewares::Correlate, id: "conditional-id", if: :should_trace? # rubocop:disable RSpec/DescribedClass
 
         optional :enable_tracing, type: :boolean, default: false
 
@@ -307,14 +306,14 @@ RSpec.describe CMDx::Middlewares::Correlate do
     end
 
     it "verifies middleware is properly registered on task class" do
-      expect(basic_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Correlate)
-      expect(dynamic_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Correlate)
-      expect(conditional_task_class.cmd_middlewares.registry).to have_key(CMDx::Middlewares::Correlate)
+      expect(basic_task_class.cmd_middlewares.registry).to have_key(described_class)
+      expect(dynamic_task_class.cmd_middlewares.registry).to have_key(described_class)
+      expect(conditional_task_class.cmd_middlewares.registry).to have_key(described_class)
     end
 
     it "maintains correlation context when task fails" do
       failing_task_class = create_simple_task(name: "FailingCorrelatedTask") do
-        use :middleware, CMDx::Middlewares::Correlate, id: "failing-task-id"
+        use :middleware, CMDx::Middlewares::Correlate, id: "failing-task-id" # rubocop:disable RSpec/DescribedClass
 
         def call
           context.started = true

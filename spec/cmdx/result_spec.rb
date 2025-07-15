@@ -849,8 +849,7 @@ RSpec.describe CMDx::Result do
     let(:mock_chain) { double("chain") }
 
     before do
-      allow(task).to receive(:context).and_return(mock_context)
-      allow(task).to receive(:chain).and_return(mock_chain)
+      allow(task).to receive_messages(context: mock_context, chain: mock_chain)
     end
 
     it "delegates context to task" do
