@@ -297,7 +297,7 @@ RSpec.describe CMDx::LogFormatters::PrettyJson do
       it "allows JSON::GeneratorError to propagate" do
         # Create an object that can't be serialized to JSON
         problematic_object = Object.new
-        def problematic_object.to_json(*args)
+        def problematic_object.to_json(*_args)
           raise JSON::GeneratorError, "Cannot serialize"
         end
 

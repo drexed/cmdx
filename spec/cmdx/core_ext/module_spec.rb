@@ -377,7 +377,7 @@ RSpec.describe CMDx::CoreExt::ModuleExtensions do # rubocop:disable RSpec/SpecFi
 
   describe "module inclusion" do
     it "includes ModuleExtensions in Module" do
-      expect(Module.included_modules).to include(CMDx::CoreExt::ModuleExtensions)
+      expect(Module.included_modules).to include(described_class)
     end
 
     it "makes methods available on all modules" do
