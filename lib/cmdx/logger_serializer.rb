@@ -39,7 +39,7 @@ module CMDx
     #   LoggerSerializer.call("info", Time.now, task, "Processing user data")
     #   # => { index: 1, chain_id: "abc123", type: "Task", message: "Processing user data", origin: "CMDx", ... }
     def call(_severity, _time, task, message, **options)
-      m = { origin: "CMDx" }
+      m = message.is_a?(Result) ? message.to_h : {}
 
       if options.delete(:ansi_colorize) && message.is_a?(Result)
         COLORED_KEYS.each { |k| m[k] = ResultAnsi.call(m[k]) if m.key?(k) }
@@ -47,6 +47,7 @@ module CMDx
         m.merge!(TaskSerializer.call(task), message: message)
       end
 
+      m[:origin] ||= "CMDx"
       m
     end
 
