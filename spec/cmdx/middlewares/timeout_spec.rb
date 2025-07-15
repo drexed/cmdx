@@ -9,7 +9,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
   let(:task) { task_class.new }
   let(:task_class) { create_simple_task }
   let(:callable) do
-    lambda { |task|
+    lambda { |_task|
       sleep(0.1)
       "result"
     }
@@ -69,7 +69,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
     context "when task execution exceeds timeout" do
       let(:options) { { seconds: 0.05 } }
       let(:slow_callable) do
-        lambda { |task|
+        lambda { |_task|
           sleep(0.2)
           "slow result"
         }
@@ -112,7 +112,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
         it "applies timeout when condition is truthy" do
           task.should_timeout = true
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -123,7 +123,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
         it "skips timeout when condition is falsy" do
           task.should_timeout = false
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -138,7 +138,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
         it "applies timeout when condition is falsy" do
           task.skip_timeout = false
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -149,7 +149,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
         it "skips timeout when condition is truthy" do
           task.skip_timeout = true
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -165,7 +165,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         it "applies timeout when :if is truthy and :unless is falsy" do
           task.should_timeout = true
           task.skip_timeout = false
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -177,7 +177,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         it "skips timeout when :unless is truthy regardless of :if" do
           task.should_timeout = true
           task.skip_timeout = true
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -203,7 +203,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: -> { 0.05 } } }
 
         it "evaluates proc to get timeout value" do
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -219,7 +219,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
         it "calls method to get timeout value" do
           task.timeout_value = 0.05
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.2)
             "slow result"
           }
@@ -234,7 +234,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
         let(:options) { { seconds: -> {} } }
 
         it "falls back to default timeout of 3 seconds" do
-          slow_callable = lambda { |task|
+          slow_callable = lambda { |_task|
             sleep(0.1)
             "slow result"
           }
@@ -242,7 +242,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
           # We need to temporarily override the default timeout to make the test run faster
           # and actually trigger the timeout. We'll mock the timeout call to simulate
           # what would happen with the default 3-second timeout.
-          allow(Timeout).to receive(:timeout).with(3, CMDx::TimeoutError, "execution exceeded 3 seconds") do |limit, exception_class, message|
+          allow(Timeout).to receive(:timeout).with(3, CMDx::TimeoutError, "execution exceeded 3 seconds") do |_limit, exception_class, message|
             raise exception_class, message
           end
 
@@ -255,7 +255,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
 
     context "with callable that raises other exceptions" do
       let(:options) { { seconds: 1 } }
-      let(:error_callable) { ->(task) { raise StandardError, "Something went wrong" } }
+      let(:error_callable) { ->(_task) { raise StandardError, "Something went wrong" } }
 
       it "allows other exceptions to propagate" do
         expect { middleware.call(task, error_callable) }.to raise_error(StandardError, "Something went wrong")

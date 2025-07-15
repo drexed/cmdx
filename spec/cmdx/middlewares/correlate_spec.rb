@@ -8,7 +8,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
   let(:options) { {} }
   let(:task) { task_class.new }
   let(:task_class) { create_simple_task }
-  let(:callable) { ->(task) { "result" } }
+  let(:callable) { ->(_task) { "result" } }
 
   describe "#initialize" do
     context "with default options" do
@@ -217,7 +217,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
     end
 
     context "when callable raises exception" do
-      let(:error_callable) { ->(task) { raise StandardError, "Something went wrong" } }
+      let(:error_callable) { ->(_task) { raise StandardError, "Something went wrong" } }
 
       it "allows exception to propagate while maintaining correlation context" do
         expect(CMDx::Correlator).to receive(:use).and_yield
