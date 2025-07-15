@@ -202,10 +202,12 @@ RSpec.describe CMDx::LogFormatters::Raw do
   end
 
   describe "integration with tasks" do
-    it "works with different message types through task execution" do
+    it "logs messages from task" do
+      local_io = StringIO.new
+
       custom_task = create_simple_task(name: "CustomRawTask") do
         cmd_settings!(
-          logger: Logger.new(StringIO.new),
+          logger: Logger.new(local_io),
           log_formatter: CMDx::LogFormatters::Raw.new # rubocop:disable RSpec/DescribedClass
         )
 
@@ -217,17 +219,16 @@ RSpec.describe CMDx::LogFormatters::Raw do
         end
       end
 
-      task = custom_task.new
-      log_output = StringIO.new
-      task.cmd_setting(:logger).reopen(log_output)
+      custom_task.call
+      logged_content = local_io.tap(&:rewind).read
 
-      task.process
-
-      logged_content = log_output.string
       expect(logged_content).to include("\"String message\"\n")
       expect(logged_content).to include("42\n")
       expect(logged_content).to include("true\n")
       expect(logged_content).to include("{error: \"failed\", code: 500}\n")
+
+      # Task result is logged
+      expect(logged_content).to include("#<CMDx::Result:")
     end
   end
 end
