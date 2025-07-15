@@ -75,6 +75,9 @@ module CMDx
         # Get seconds using yield for dynamic generation
         limit = task.cmdx_yield(seconds) || 3
 
+        # Ensure limit is numeric, fallback to default if not
+        limit = 3 unless limit.is_a?(Numeric)
+
         # Apply timeout protection
         ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds") do
           callable.call(task)
