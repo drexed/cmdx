@@ -73,7 +73,7 @@ RSpec.describe CMDx::Middleware do
     end
   end
 
-  describe "integration with task system" do
+  describe "integration with tasks" do
     it "wraps task execution with custom behavior" do
       logging_middleware = Class.new(described_class) do
         def call(task, callable)
