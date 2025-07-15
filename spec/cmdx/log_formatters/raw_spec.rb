@@ -222,12 +222,13 @@ RSpec.describe CMDx::LogFormatters::Raw do
       custom_task.call
       logged_content = local_io.tap(&:rewind).read
 
+      # Check that raw output is present
       expect(logged_content).to include("\"String message\"\n")
       expect(logged_content).to include("42\n")
       expect(logged_content).to include("true\n")
       expect(logged_content).to include("{error: \"failed\", code: 500}\n")
 
-      # Task result is logged
+      # Task result is logged as raw
       expect(logged_content).to include("#<CMDx::Result:")
     end
   end
