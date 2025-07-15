@@ -29,7 +29,7 @@ module CMDx
       #   result = formatter.call("DEBUG", Time.now, task_object, { status: :success, count: 42 })
       #   # => "{:status=>:success, :count=>42}\n"
       def call(_severity, _time, _task, message)
-        message.inspect << "\n"
+        message.inspect + "\n" # rubocop:disable Style/StringConcatenation
       end
 
     end
