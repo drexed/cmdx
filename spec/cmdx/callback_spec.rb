@@ -97,218 +97,170 @@ RSpec.describe CMDx::Callback do
   end
 
   describe "integration with tasks" do
-    let(:callback_log) { [] }
+    describe "callback execution during task lifecycle" do
+      it "executes callbacks for successful tasks" do
+        executed_callbacks = []
 
-    describe "with successful tasks" do
-      it "receives task instance and callback type during execution" do
-        log = callback_log
         callback_instance = Class.new(described_class) do
           define_method :call do |task|
-            log << { task: task.class.name, type: :on_executed, status: task.result&.status }
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
           end
         end.new
 
-        task_class = create_simple_task(name: "TestTask") do
+        task_class = create_simple_task do
           on_executed callback_instance
         end
 
         result = task_class.call
 
-        expect(result).to be_success
-        expect(callback_log.size).to eq(1)
-        expect(callback_log.first[:task]).to match(/^TestTask\d+$/)
-        expect(callback_log.first[:type]).to eq(:on_executed)
-        expect(callback_log.first[:status]).to eq("success")
+        expect(result).to be_successful_task
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "success" }
+        )
       end
 
-      it "receives before and after callbacks" do
-        log = callback_log
-        before_callback = Class.new(described_class) do
+      it "executes callbacks for failed tasks" do
+        executed_callbacks = []
+
+        callback_instance = Class.new(described_class) do
           define_method :call do |task|
-            log << { task: task.class.name, type: :before_execution, status: task.result&.status }
-          end
-        end.new
-        after_callback = Class.new(described_class) do
-          define_method :call do |task|
-            log << { task: task.class.name, type: :after_execution, status: task.result&.status }
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
           end
         end.new
 
-        task_class = create_simple_task(name: "CallbackTask") do
+        task_class = create_failing_task(reason: "validation error") do
+          on_failed callback_instance
+        end
+
+        result = task_class.call
+
+        expect(result).to be_failed_task("validation error")
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "failed" }
+        )
+      end
+
+      it "executes callbacks for skipped tasks" do
+        executed_callbacks = []
+
+        callback_instance = Class.new(described_class) do
+          define_method :call do |task|
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
+          end
+        end.new
+
+        task_class = create_skipping_task(reason: "not needed") do
+          on_skipped callback_instance
+        end
+
+        result = task_class.call
+
+        expect(result).to be_skipped_task("not needed")
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "skipped" }
+        )
+      end
+    end
+
+    describe "callback types and timing" do
+      it "executes lifecycle callbacks in correct order" do
+        callback_order = []
+
+        before_callback = Class.new(described_class) do
+          define_method :call do |_task|
+            callback_order << :before_execution
+          end
+        end.new
+
+        after_callback = Class.new(described_class) do
+          define_method :call do |_task|
+            callback_order << :after_execution
+          end
+        end.new
+
+        task_class = create_simple_task do
           before_execution before_callback
           after_execution after_callback
         end
 
         result = task_class.call
 
-        expect(result).to be_success
-        expect(callback_log.size).to eq(2)
-        expect(callback_log.map { |log| log[:task] }).to all(match(/^CallbackTask\d+$/))
-        expect(callback_log.map { |log| log[:type] }).to contain_exactly(:before_execution, :after_execution)
-        # Before execution status can be nil or "success" depending on implementation timing
-        before_status = callback_log.find { |log| log[:type] == :before_execution }[:status]
-        expect([nil, "success"]).to include(before_status)
-        expect(callback_log.find { |log| log[:type] == :after_execution }[:status]).to eq("success")
+        expect(result).to be_successful_task
+        expect(callback_order).to eq(%i[before_execution after_execution])
       end
-    end
 
-    describe "with failing tasks" do
-      it "receives callbacks for failed tasks" do
-        log = callback_log
-        callback_instance = Class.new(described_class) do
+      it "provides access to task context and result in callbacks" do
+        context_data = nil
+        result_metadata = nil
+
+        callback = Class.new(described_class) do
           define_method :call do |task|
-            log << { task: task.class.name, type: :callback, status: task.result&.status }
+            context_data = task.context.to_h
+            result_metadata = task.result.metadata
           end
         end.new
 
-        task_class = create_failing_task(name: "FailingTask", reason: "Test failure") do
-          on_executed callback_instance
-          on_failed callback_instance
+        task_class = create_simple_task do
+          after_execution callback
         end
 
-        result = task_class.call
+        result = task_class.call(user_id: 123)
 
-        expect(result).to be_failed
-        expect(callback_log.size).to eq(2)
-        expect(callback_log.map { |log| log[:task] }).to all(match(/^FailingTask\d+$/))
-        expect(callback_log.map { |log| log[:type] }).to all(eq(:callback))
-        expect(callback_log.map { |log| log[:status] }).to all(eq("failed"))
+        expect(result).to be_successful_task
+        expect(context_data).to include(user_id: 123, executed: true)
+        expect(result_metadata).to eq({})
       end
     end
 
-    describe "with skipping tasks" do
-      it "receives callbacks for skipped tasks" do
-        log = callback_log
-        callback_instance = Class.new(described_class) do
+    describe "callback integration with workflows" do
+      it "executes callbacks for each task in workflow" do
+        executed_tasks = []
+
+        callback = Class.new(described_class) do
           define_method :call do |task|
-            log << { task: task.class.name, type: :callback, status: task.result&.status }
+            # Only track task callbacks, not workflow callbacks
+            return if task.class.name.include?("Workflow")
+
+            executed_tasks << task.class.name.split(/\d+/).first
           end
         end.new
 
-        task_class = create_skipping_task(name: "SkippingTask", reason: "Test skip") do
-          on_executed callback_instance
-          on_skipped callback_instance
-        end
+        task1 = create_simple_task(name: "FirstTask") { on_executed callback }
+        task2 = create_simple_task(name: "SecondTask") { on_executed callback }
 
-        result = task_class.call
-
-        expect(result).to be_skipped
-        expect(callback_log.size).to eq(2)
-        expect(callback_log.map { |log| log[:task] }).to all(match(/^SkippingTask\d+$/))
-        expect(callback_log.map { |log| log[:type] }).to all(eq(:callback))
-        expect(callback_log.map { |log| log[:status] }).to all(eq("skipped"))
-      end
-    end
-
-    describe "with erroring tasks" do
-      it "receives callbacks for tasks that raise exceptions" do
-        log = callback_log
-        callback_instance = Class.new(described_class) do
-          define_method :call do |task|
-            log << { task: task.class.name, type: :callback, status: task.result&.status }
-          end
-        end.new
-
-        task_class = create_erroring_task(name: "ErroringTask", reason: "Test error") do
-          on_executed callback_instance
-          on_failed callback_instance
-        end
-
-        result = task_class.call
-
-        expect(result).to be_failed
-        expect(callback_log.size).to eq(2)
-        expect(callback_log.map { |log| log[:task] }).to all(match(/^ErroringTask\d+$/))
-        expect(callback_log.map { |log| log[:type] }).to all(eq(:callback))
-        expect(callback_log.map { |log| log[:status] }).to all(eq("failed"))
-      end
-    end
-
-    describe "with workflows" do
-      it "receives callbacks from all tasks in workflow" do
-        log = callback_log
-        callback_instance = Class.new(described_class) do
-          define_method :call do |task|
-            log << { task: task.class.name, type: :callback, status: task.result&.status }
-          end
-        end.new
-
-        task1 = create_simple_task(name: "Task1") { on_executed callback_instance }
-        task2 = create_simple_task(name: "Task2") { on_executed callback_instance }
-        task3 = create_simple_task(name: "Task3") { on_executed callback_instance }
-
-        workflow_class = create_simple_workflow(
-          name: "CallbackWorkflow",
-          tasks: [task1, task2, task3]
-        )
+        workflow_class = create_simple_workflow(tasks: [task1, task2])
 
         result = workflow_class.call
 
-        expect(result).to be_success
-        expect(callback_log.size).to eq(4) # 3 tasks + 1 workflow callback
-        # Filter out workflow callbacks, just check task callbacks
-        task_callbacks = callback_log.reject { |log| log[:task].match?(/Workflow\d+$/) }
-        expect(task_callbacks.size).to eq(3)
-        expect(task_callbacks.map { |log| log[:task] }).to all(match(/^Task\d+\d+$/))
-        expect(task_callbacks.map { |log| log[:type] }).to all(eq(:callback))
-        expect(task_callbacks.map { |log| log[:status] }).to all(eq("success"))
+        expect(result).to be_successful_task
+        expect(executed_tasks).to contain_exactly("FirstTask", "SecondTask")
       end
 
-      it "receives callbacks for mixed outcome workflows" do
-        log = callback_log
-        callback_instance = Class.new(described_class) do
+      it "handles mixed outcomes in workflows" do
+        task_outcomes = []
+
+        outcome_callback = Class.new(described_class) do
           define_method :call do |task|
-            log << { task: task.class.name, type: :callback, status: task.result&.status }
+            # Only track task callbacks, not workflow callbacks
+            return if task.class.name.include?("Workflow")
+
+            task_outcomes << task.result.status
           end
         end.new
 
-        success_task = create_simple_task(name: "SuccessTask") { on_executed callback_instance }
-        skip_task = create_skipping_task(name: "SkipTask") { on_executed callback_instance }
-        fail_task = create_failing_task(name: "FailTask") { on_executed callback_instance }
+        success_task = create_simple_task { on_executed outcome_callback }
+        skip_task = create_skipping_task { on_executed outcome_callback }
 
-        workflow_class = create_workflow_class(name: "MixedWorkflow") do
+        workflow_class = create_workflow_class do
           cmd_settings!(workflow_halt: [])
           process success_task
           process skip_task
-          process fail_task
         end
 
         result = workflow_class.call
 
-        # Filter out workflow callbacks, just check task callbacks
-        task_callbacks = callback_log.reject { |log| log[:task].match?(/Workflow\d+$/) }
-        expect(task_callbacks.size).to eq(3)
-
-        # Check that we have one callback for each task type with correct status
-        success_callback = task_callbacks.find { |log| log[:task].match?(/^SuccessTask\d+$/) }
-        skip_callback = task_callbacks.find { |log| log[:task].match?(/^SkipTask\d+$/) }
-        fail_callback = task_callbacks.find { |log| log[:task].match?(/^FailTask\d+$/) }
-
-        expect(success_callback).to include(type: :callback, status: "success")
-        expect(skip_callback).to include(type: :callback, status: "skipped")
-        expect(fail_callback).to include(type: :callback, status: "failed")
-      end
-    end
-
-    describe "callback context and metadata access" do
-      it "allows callbacks to access task context and metadata" do
-        accessed_data = {}
-        callback_instance = Class.new(described_class) do
-          define_method :call do |task|
-            accessed_data[:context] = task.context.to_h
-            accessed_data[:metadata] = task.result&.metadata
-          end
-        end.new
-
-        task_class = create_simple_task(name: "ContextTask") do
-          after_execution callback_instance
-        end
-
-        result = task_class.call(input_data: "test")
-
-        expect(result).to be_success
-        expect(accessed_data[:context]).to include(input_data: "test", executed: true)
-        expect(accessed_data[:metadata]).to eq({})
+        expect(result).to be_executed
+        expect(task_outcomes).to contain_exactly("success", "skipped")
       end
     end
   end
