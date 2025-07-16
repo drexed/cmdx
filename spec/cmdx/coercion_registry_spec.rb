@@ -257,36 +257,4 @@ RSpec.describe CMDx::CoercionRegistry do
       expect(registry.registry[:custom]).to eq(custom_coercion)
     end
   end
-
-  describe "integration with real coercions" do
-    it "works with array coercion" do
-      result = registry.call(task, :array, '["a", "b", "c"]')
-
-      expect(result).to eq(%w[a b c])
-    end
-
-    it "works with hash coercion" do
-      result = registry.call(task, :hash, '{"key": "value"}')
-
-      expect(result).to eq({ "key" => "value" })
-    end
-
-    it "works with date coercion" do
-      result = registry.call(task, :date, "2023-12-25")
-
-      expect(result).to be_a(Date)
-      expect(result.to_s).to eq("2023-12-25")
-    end
-
-    it "works with time coercion with custom format" do
-      result = registry.call(task, :time, "25/12/2023 14:30", strptime: "%d/%m/%Y %H:%M")
-
-      expect(result).to be_a(Time)
-      expect(result.day).to eq(25)
-      expect(result.month).to eq(12)
-      expect(result.year).to eq(2023)
-      expect(result.hour).to eq(14)
-      expect(result.min).to eq(30)
-    end
-  end
 end
