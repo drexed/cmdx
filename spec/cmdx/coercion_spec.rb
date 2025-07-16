@@ -70,7 +70,7 @@ RSpec.describe CMDx::Coercion do
     end
   end
 
-  describe "integration with task system" do
+  describe "integration with tasks" do
     let(:task_class) do
       create_task_class(name: "SimpleCoercionTask") do
         required :input, type: :string

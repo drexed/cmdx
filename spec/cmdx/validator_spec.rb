@@ -80,7 +80,7 @@ RSpec.describe CMDx::Validator do
     end
   end
 
-  describe "integration with task system" do
+  describe "integration with tasks" do
     let(:task_class) do
       create_task_class(name: "SimpleValidationTask") do
         required :input, type: :string, presence: {}

@@ -861,7 +861,7 @@ RSpec.describe CMDx::Result do
     end
   end
 
-  describe "integration with task execution" do
+  describe "integration with tasks" do
     let(:successful_task) { create_simple_task(name: "SuccessfulTask") }
     let(:failing_task) { create_failing_task(name: "FailingTask", reason: "test error") }
     let(:skipping_task) { create_skipping_task(name: "SkippingTask", reason: "test skip") }
