@@ -186,6 +186,29 @@ module CMDx
       !valid?
     end
 
+    # Maps over all error messages, yielding the attribute and message to a block.
+    #
+    # Similar to {#each}, but returns an array of the block's return values
+    # instead of iterating without collecting results.
+    #
+    # @yield [Symbol, String] the attribute name and error message
+    # @yieldreturn [Object] the transformed value for each error message
+    #
+    # @return [Array<Object>] array of transformed values from the block
+    #
+    # @example Transform error messages to a custom format
+    #   errors = CMDx::Errors.new
+    #   errors.add(:name, "is required")
+    #   errors.add(:email, "is invalid")
+    #   result = errors.map { |attr, msg| "#{attr.upcase}: #{msg}" }
+    #   result # => ["NAME: is required", "EMAIL: is invalid"]
+    #
+    # @example Extract only attribute names with errors
+    #   errors.map { |attr, _msg| attr } # => [:name, :email]
+    #
+    # @example Return empty array for no errors
+    #   empty_errors = CMDx::Errors.new
+    #   empty_errors.map { |attr, msg| [attr, msg] } # => []
     def map
       errors.each_with_object([]) do |(key, _arr), memo|
         memo.concat(errors[key].map { |val| yield(key, val) })

@@ -83,7 +83,8 @@ RSpec.describe CMDx::Errors do
     end
 
     it "yields attribute and message pairs" do
-      yielded = errors.map { |attr, msg| [attr, msg] }
+      yielded = []
+      errors.each { |attr, msg| yielded << [attr, msg] } # rubocop:disable Style/MapIntoArray
 
       expect(yielded).to contain_exactly(
         [:name, "is required"],
@@ -94,9 +95,92 @@ RSpec.describe CMDx::Errors do
 
     it "doesn't yield anything for empty errors" do
       empty_errors = described_class.new
-      yielded = empty_errors.map { |attr, msg| [attr, msg] }
+      yielded = []
+      empty_errors.each { |attr, msg| yielded << [attr, msg] } # rubocop:disable Style/MapIntoArray
 
       expect(yielded).to be_empty
+    end
+  end
+
+  describe "#map" do
+    before do
+      errors.add(:name, "is required")
+      errors.add(:name, "is too short")
+      errors.add(:email, "is invalid")
+    end
+
+    it "returns array of transformed values" do
+      result = errors.map { |attr, msg| [attr, msg] }
+
+      expect(result).to contain_exactly(
+        [:name, "is required"],
+        [:name, "is too short"],
+        [:email, "is invalid"]
+      )
+    end
+
+    it "transforms error messages to custom format" do
+      result = errors.map { |attr, msg| "#{attr.upcase}: #{msg}" }
+
+      expect(result).to contain_exactly(
+        "NAME: is required",
+        "NAME: is too short",
+        "EMAIL: is invalid"
+      )
+    end
+
+    it "extracts only attribute names" do
+      result = errors.map { |attr, _msg| attr }
+
+      expect(result).to contain_exactly(:name, :name, :email)
+    end
+
+    it "extracts only error messages" do
+      result = errors.map { |_attr, msg| msg }
+
+      expect(result).to contain_exactly(
+        "is required",
+        "is too short",
+        "is invalid"
+      )
+    end
+
+    it "returns empty array for empty errors" do
+      empty_errors = described_class.new
+      result = empty_errors.map { |attr, msg| [attr, msg] }
+
+      expect(result).to be_empty
+    end
+
+    it "preserves order within attributes" do
+      errors.clear
+      errors.add(:status, "first error")
+      errors.add(:status, "second error")
+      errors.add(:status, "third error")
+
+      result = errors.map { |attr, msg| "#{attr}: #{msg}" }
+
+      expect(result).to eq([
+                             "status: first error",
+                             "status: second error",
+                             "status: third error"
+                           ])
+    end
+
+    it "handles complex transformations" do
+      result = errors.map do |attr, msg|
+        {
+          field: attr.to_s.upcase,
+          error: msg,
+          length: msg.length
+        }
+      end
+
+      expect(result).to contain_exactly(
+        { field: "NAME", error: "is required", length: 11 },
+        { field: "NAME", error: "is too short", length: 12 },
+        { field: "EMAIL", error: "is invalid", length: 10 }
+      )
     end
   end
 
