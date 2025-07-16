@@ -79,8 +79,8 @@ module CMDx
       #       context.debug_enabled = debug
       #     end
       #   end
-      def create_task_class(name: "AnonymousTask", &block)
-        task_class = Class.new(CMDx::Task)
+      def create_task_class(name: "AnonymousTask", base: CMDx::Task, &block)
+        task_class = Class.new(base)
         task_class.define_singleton_method(:name) { name }
         task_class.class_eval(&block) if block_given?
         task_class
@@ -123,8 +123,8 @@ module CMDx
       #     expect(result).to be_success
       #     expect(result.context.executed).to be(true)
       #   end
-      def create_simple_task(name: "SimpleTask", &block)
-        create_task_class(name: name) do
+      def create_simple_task(name: "SimpleTask", base: CMDx::Task, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             context.executed = true
           end
@@ -183,8 +183,8 @@ module CMDx
       #   # This raises an exception (caught by perform, propagated by call!)
       #   erroring_task = create_erroring_task(reason: "System error")
       #   expect { erroring_task.call! }.to raise_error(StandardError)
-      def create_failing_task(name: "FailingTask", reason: "Task failed", **metadata, &block)
-        create_task_class(name: name) do
+      def create_failing_task(name: "FailingTask", base: CMDx::Task, reason: "Task failed", **metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             fail!(reason: reason, **metadata)
           end
@@ -228,8 +228,8 @@ module CMDx
       #     optional :should_process, type: :boolean, default: false
       #     # Skip logic is already defined, but you can add conditions here
       #   end
-      def create_skipping_task(name: "SkippingTask", reason: "Task skipped", **metadata, &block)
-        create_task_class(name: name) do
+      def create_skipping_task(name: "SkippingTask", base: CMDx::Task, reason: "Task skipped", **metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             skip!(reason: reason, **metadata)
           end
@@ -284,8 +284,8 @@ module CMDx
       #   failing_task = create_failing_task(reason: "Validation error")
       #   result = failing_task.call
       #   expect(result).to be_failed
-      def create_erroring_task(name: "ErroringTask", reason: "Task errored", **_metadata, &block)
-        create_task_class(name: name) do
+      def create_erroring_task(name: "ErroringTask", base: CMDx::Task, reason: "Task errored", **_metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             raise StandardError, reason
           end

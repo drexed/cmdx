@@ -91,8 +91,8 @@ module CMDx
       #       create_simple_task(name: "SendNotification")
       #     )
       #   end
-      def create_workflow_class(name: "AnonymousWorkflow", &block)
-        workflow_class = Class.new(CMDx::Workflow)
+      def create_workflow_class(name: "AnonymousWorkflow", base: CMDx::Workflow, &block)
+        workflow_class = Class.new(base)
         workflow_class.define_singleton_method(:name) { name }
         workflow_class.class_eval(&block) if block_given?
         workflow_class
@@ -143,8 +143,8 @@ module CMDx
       #   workflow_class = create_simple_workflow(tasks: tasks)
       #   workflow_class.call
       #   expect(execution_order).to eq([:first, :second, :third])
-      def create_simple_workflow(tasks:, name: "SimpleWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_simple_workflow(tasks:, name: "SimpleWorkflow", base: CMDx::Workflow, &block)
+        create_workflow_class(name:, base:) do
           Array(tasks).each { |task| process task }
 
           class_eval(&block) if block_given?
@@ -186,8 +186,8 @@ module CMDx
       #   result = workflow_class.call(initial_data: "test")
       #   expect(result.context.initial_data).to eq("test")
       #   expect(result.context.executed).to be true
-      def create_successful_workflow(name: "SuccessfulWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_successful_workflow(name: "SuccessfulWorkflow", base: CMDx::Workflow, &block)
+        create_workflow_class(name:, base:) do
           process create_successful_task
           process create_successful_task
           process create_successful_task
@@ -235,8 +235,8 @@ module CMDx
       #   # Should complete successfully despite skipped tasks
       #   expect(result).to be_success
       #   expect(result.context.executed).to be true
-      def create_skipping_workflow(name: "SkippingWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_skipping_workflow(name: "SkippingWorkflow", base: CMDx::Workflow, &block)
+        create_workflow_class(name:, base:) do
           process create_successful_task
           process create_skipping_task
           process create_successful_task
@@ -291,8 +291,8 @@ module CMDx
       #
       #   result = workflow_class.call(error_context: "test")
       #   expect(result.context.error_context).to eq("test")
-      def create_failing_workflow(name: "FailingWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_failing_workflow(name: "FailingWorkflow", base: CMDx::Workflow, &block)
+        create_workflow_class(name:, base:) do
           process create_successful_task
           process create_failing_task
           process create_successful_task
@@ -351,8 +351,8 @@ module CMDx
       # @note Erroring tasks throw StandardError exceptions which are caught by the
       #   CMDx system and converted to failed results. This allows testing of
       #   exception handling without breaking the workflow execution framework.
-      def create_erroring_workflow(name: "ErroringWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_erroring_workflow(name: "ErroringWorkflow", base: CMDx::Workflow, &block)
+        create_workflow_class(name:, base:) do
           process create_successful_task
           process create_erroring_task
           process create_successful_task
