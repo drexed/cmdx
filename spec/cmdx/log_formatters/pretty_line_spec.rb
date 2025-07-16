@@ -347,13 +347,13 @@ RSpec.describe CMDx::LogFormatters::PrettyLine do
       logged_content = local_io.tap(&:rewind).read
 
       # Check that pretty line output is present (using regex to handle ANSI codes)
-      expect(logged_content).to match(/INFO.*-- CustomLineTask:/)
-      expect(logged_content).to match(/DEBUG.*-- CustomLineTask:/)
-      expect(logged_content).to match(/WARN.*-- CustomLineTask:/)
-      expect(logged_content).to match(/ERROR.*-- CustomLineTask:/)
+      expect(logged_content).to match(/INFO.*-- CustomLineTask/)
+      expect(logged_content).to match(/DEBUG.*-- CustomLineTask/)
+      expect(logged_content).to match(/WARN.*-- CustomLineTask/)
+      expect(logged_content).to match(/ERROR.*-- CustomLineTask/)
 
       # Task result includes class name
-      expect(logged_content).to include("CustomLineTask:")
+      expect(logged_content).to include("CustomLineTask")
 
       # Verify it has ANSI colors
       expect(logged_content).to include("\e[")

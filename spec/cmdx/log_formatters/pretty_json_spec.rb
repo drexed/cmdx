@@ -377,7 +377,7 @@ RSpec.describe CMDx::LogFormatters::PrettyJson do
       expect(logged_content).to include('"severity": "ERROR"')
 
       # Task result is logged as pretty JSON
-      expect(logged_content).to include('"class": "CustomPrettyJsonTask"')
+      expect(logged_content).to include('"class": "CustomPrettyJsonTask')
 
       # Verify it's actually pretty-formatted (has indentation)
       expect(logged_content).to include("  ") # Contains indentation

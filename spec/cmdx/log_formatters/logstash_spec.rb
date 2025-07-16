@@ -394,7 +394,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
       expect(logged_content).to include('"pid"')
 
       # Task result is logged as JSON
-      expect(logged_content).to include('"class":"CustomLogstashTask"')
+      expect(logged_content).to include('"class":"CustomLogstashTask')
     end
   end
 end

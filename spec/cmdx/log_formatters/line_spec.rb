@@ -290,13 +290,13 @@ RSpec.describe CMDx::LogFormatters::Line do
       logged_content = local_io.tap(&:rewind).read
 
       expect(logged_content).to include("I, [")
-      expect(logged_content).to include("] INFO -- CustomLineTask:")
+      expect(logged_content).to include("] INFO -- CustomLineTask")
       expect(logged_content).to include("D, [")
-      expect(logged_content).to include("] DEBUG -- CustomLineTask:")
+      expect(logged_content).to include("] DEBUG -- CustomLineTask")
       expect(logged_content).to include("W, [")
-      expect(logged_content).to include("] WARN -- CustomLineTask:")
+      expect(logged_content).to include("] WARN -- CustomLineTask")
       expect(logged_content).to include("E, [")
-      expect(logged_content).to include("] ERROR -- CustomLineTask:")
+      expect(logged_content).to include("] ERROR -- CustomLineTask")
     end
   end
 end

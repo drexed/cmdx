@@ -355,7 +355,7 @@ RSpec.describe CMDx::LogFormatters::Json do
       expect(logged_content).to include('"severity":"ERROR"')
 
       # Task result is logged as JSON
-      expect(logged_content).to include('"class":"CustomJsonTask"')
+      expect(logged_content).to include('"class":"CustomJsonTask')
     end
   end
 end
