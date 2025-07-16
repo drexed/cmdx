@@ -10,7 +10,7 @@ module CMDx
   # and display.
   class Errors
 
-    cmdx_attr_delegator :clear, :delete, :each, :empty?, :key?, :keys, :size, :values,
+    cmdx_attr_delegator :clear, :delete, :empty?, :key?, :keys, :size, :values,
                         to: :errors
 
     # @return [Hash] internal hash storing error messages by attribute
@@ -184,6 +184,12 @@ module CMDx
     #   errors.invalid? # => true
     def invalid?
       !valid?
+    end
+
+    def map
+      errors.each_with_object([]) do |(key, _arr), memo|
+        memo.concat(errors[key].map { |val| yield(key, val) })
+      end
     end
 
     # Merges another hash of errors into this collection.
