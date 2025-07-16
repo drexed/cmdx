@@ -48,7 +48,7 @@ RSpec.describe CMDx::ParameterEvaluator do
     end
   end
 
-  describe "integration with basic parameter evaluation" do
+  describe "integration with tasks" do
     let(:task_class) do
       create_task_class(name: "BasicTask") do
         required :name, type: :string
