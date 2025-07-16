@@ -8,6 +8,7 @@ Add tests for the file in context.
 - Use stubs to return predefined values for specific methods. Isolate the unit being tested, but avoid over-mocking; test real behavior when possible. (mocks should be used only when necessary)
 - Ensure each test is independent; avoid shared state between tests.
 - Use let and let! to define test data, ensuring minimal and necessary setup.
+- Context block descriptions should start with the following words: `when`, `with`, `without`
 - Organize tests logically using describe for classes/modules and context for different scenarios.
 - Use subject to define the object under test when appropriate to avoid repetition.
 - Ensure test file paths mirror the structure of the files being tested, but within the spec directory (e.g., lib/cmdx/task.rb → spec/cmdx/task_spec.rb).
