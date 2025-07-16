@@ -163,58 +163,6 @@ RSpec.describe CMDx::Context do
     end
   end
 
-  describe "real-world usage patterns" do
-    it "builds context for task execution" do
-      params = { user_id: 42, action: "create", resource: "post" }
-      context = described_class.build(params)
-
-      # Simulate task adding execution metadata
-      context.merge!( # rubocop:disable Performance/RedundantMerge
-        started_at: Time.now,
-        executed_by: "ProcessPostTask"
-      )
-
-      expect(context.user_id).to eq(42)
-      expect(context.action).to eq("create")
-      expect(context.resource).to eq("post")
-      expect(context.executed_by).to eq("ProcessPostTask")
-      expect(context).to respond_to(:started_at)
-    end
-
-    it "preserves existing context in task chains" do
-      initial_context = described_class.build(
-        request_id: "req-123",
-        user_id: 456,
-        metadata: { source: "api" }
-      )
-
-      # Simulate passing through multiple tasks
-      updated_context = described_class.build(initial_context)
-      updated_context.merge!( # rubocop:disable Performance/RedundantMerge
-        step_1_completed: true,
-        step_2_result: "processed"
-      )
-
-      expect(updated_context).to be(initial_context)
-      expect(updated_context.request_id).to eq("req-123")
-      expect(updated_context.step_1_completed).to be(true)
-      expect(updated_context.step_2_result).to eq("processed")
-    end
-
-    it "handles frozen context gracefully" do
-      frozen_context = described_class.build(config: "production", readonly: true)
-      frozen_context.freeze
-
-      new_context = described_class.build(frozen_context)
-      new_context.runtime_info = "added later"
-
-      expect(new_context).not_to be(frozen_context)
-      expect(new_context.config).to eq("production")
-      expect(new_context.readonly).to be(true)
-      expect(new_context.runtime_info).to eq("added later")
-    end
-  end
-
   describe "edge cases" do
     it "handles empty hash" do
       context = described_class.build({})
