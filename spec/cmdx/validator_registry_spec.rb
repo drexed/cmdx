@@ -27,7 +27,7 @@ RSpec.describe CMDx::ValidatorRegistry do
   describe "#register" do
     it "registers a validator class" do
       validator_class = Class.new do
-        def self.call(value, options)
+        def self.call(value, _options)
           value.length > 5
         end
       end
@@ -38,7 +38,7 @@ RSpec.describe CMDx::ValidatorRegistry do
     end
 
     it "registers a proc validator" do
-      validator_proc = ->(value, options) { value.length > 3 }
+      validator_proc = ->(value, _options) { value.length > 3 }
       registry.register(:proc_validator, validator_proc)
 
       expect(registry.registry[:proc_validator]).to eq(validator_proc)
@@ -96,7 +96,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "executes validator when condition is true" do
         conditional_task.should_validate = true
-        registry.register(:test, ->(value, opts) { value })
+        registry.register(:test, ->(value, _opts) { value })
 
         result = registry.call(conditional_task, :test, "value", if: :should_validate)
 
@@ -105,7 +105,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "skips validator when condition is false" do
         conditional_task.should_validate = false
-        registry.register(:test, ->(value, opts) { value })
+        registry.register(:test, ->(value, _opts) { value })
 
         result = registry.call(conditional_task, :test, "value", if: :should_validate)
 
@@ -113,7 +113,7 @@ RSpec.describe CMDx::ValidatorRegistry do
       end
 
       it "executes validator when no conditions specified" do
-        registry.register(:test, ->(value, opts) { value })
+        registry.register(:test, ->(value, _opts) { value })
 
         result = registry.call(task, :test, "value", {})
 
@@ -140,7 +140,7 @@ RSpec.describe CMDx::ValidatorRegistry do
     context "with custom symbol validators" do
       let(:validator_task) do
         create_task_class(name: "ValidatorTask") do
-          def validate_email(value, options)
+          def validate_email(value, _options)
             value.include?("@") ? nil : "invalid email"
           end
 
@@ -170,7 +170,7 @@ RSpec.describe CMDx::ValidatorRegistry do
     context "with custom string validators" do
       let(:validator_task) do
         create_task_class(name: "ValidatorTask") do
-          def validate_string_method(value, options)
+          def validate_string_method(value, _options)
             value.length > 5 ? nil : "too short"
           end
 
@@ -191,7 +191,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
     context "with custom proc validators" do
       it "executes proc validator" do
-        validator_proc = ->(value, options) { value.length > 3 ? nil : "too short" }
+        validator_proc = ->(value, _options) { value.length > 3 ? nil : "too short" }
         registry.register(:proc_test, validator_proc)
 
         result = registry.call(task, :proc_test, "long", {})
@@ -211,7 +211,7 @@ RSpec.describe CMDx::ValidatorRegistry do
       end
 
       it "handles proc validator with task context" do
-        validator_proc = ->(value, options) { value.upcase }
+        validator_proc = ->(value, _options) { value.upcase }
         registry.register(:upcase, validator_proc)
 
         result = registry.call(task, :upcase, "hello", {})
@@ -279,7 +279,7 @@ RSpec.describe CMDx::ValidatorRegistry do
       it "handles if and unless conditions together" do
         complex_task.validation_enabled = true
         complex_task.strict_mode = false
-        registry.register(:complex, ->(v, o) { "validated" })
+        registry.register(:complex, ->(_v, _o) { "validated" })
 
         result = registry.call(complex_task, :complex, "value", {
                                  if: :validation_enabled,
@@ -291,7 +291,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "skips when if condition is false" do
         complex_task.validation_enabled = false
-        registry.register(:complex, ->(v, o) { "validated" })
+        registry.register(:complex, ->(_v, _o) { "validated" })
 
         result = registry.call(complex_task, :complex, "value", { if: :validation_enabled })
 
@@ -300,7 +300,7 @@ RSpec.describe CMDx::ValidatorRegistry do
 
       it "skips when unless condition is true" do
         complex_task.strict_mode = true
-        registry.register(:complex, ->(v, o) { "validated" })
+        registry.register(:complex, ->(_v, _o) { "validated" })
 
         result = registry.call(complex_task, :complex, "value", { unless: :strict_mode })
 
