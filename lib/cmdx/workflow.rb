@@ -45,7 +45,7 @@ module CMDx
       #   MyWorkflow.process CreateUserTask, SendEmailTask
       #
       # @example Define a conditional workflow group
-      #   MyWorkflow.process NotifyAdminTask, if: -> { Rails.env.production? }
+      #   MyWorkflow.process NotifyAdminTask, if: ->(workflow) { workflow.context.admin.active? }
       #
       # @example Define a workflow group with halt behavior
       #   MyWorkflow.process ValidateInputTask, ProcessDataTask, workflow_halt: :failed

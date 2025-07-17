@@ -26,13 +26,17 @@ module CMDx
       #
       # @example Try accessing a hash key
       #   {name: "John"}.cmdx_try(:name) # => "John"
-      def cmdx_try(key, ...)
+      def cmdx_try(key, *args, **kwargs, &)
         if key.is_a?(Proc)
           return instance_eval(&key) unless is_a?(Module) || key.inspect.include?("(lambda)")
 
-          key.call(...)
+          if key.arity.positive? && args.empty?
+            key.call(self, *args, **kwargs, &)
+          else
+            key.call(*args, **kwargs, &)
+          end
         elsif respond_to?(key, true)
-          send(key, ...)
+          send(key, *args, **kwargs, &)
         elsif is_a?(Hash)
           cmdx_fetch(key)
         end

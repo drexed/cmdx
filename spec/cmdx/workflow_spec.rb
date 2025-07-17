@@ -199,7 +199,7 @@ RSpec.describe CMDx::Workflow do
           always_task = create_simple_task(name: "AlwaysTask")
 
           create_workflow_class do
-            process conditional_task, if: -> { context.user_id > 100 }
+            process conditional_task, if: ->(workflow) { workflow.context.user_id > 100 }
             process always_task
           end
         end
@@ -218,7 +218,7 @@ RSpec.describe CMDx::Workflow do
           always_task = create_simple_task(name: "AlwaysTask")
 
           create_workflow_class do
-            process conditional_task, if: -> { context.user_id < 100 }
+            process conditional_task, if: ->(workflow) { workflow.context.user_id < 100 }
             process always_task
           end
         end
@@ -236,7 +236,7 @@ RSpec.describe CMDx::Workflow do
           always_task = create_simple_task(name: "AlwaysTask")
 
           create_workflow_class do
-            process conditional_task, unless: -> { context.user_id > 100 }
+            process conditional_task, unless: ->(workflow) { workflow.context.user_id > 100 }
             process always_task
           end
         end
@@ -254,7 +254,7 @@ RSpec.describe CMDx::Workflow do
           always_task = create_simple_task(name: "AlwaysTask")
 
           create_workflow_class do
-            process conditional_task, unless: -> { context.user_id < 100 }
+            process conditional_task, unless: ->(workflow) { workflow.context.user_id < 100 }
             process always_task
           end
         end
@@ -442,12 +442,6 @@ RSpec.describe CMDx::Workflow do
 
           # This should not execute due to halt
           process confirmation_task
-
-          private
-
-          def id_limit?
-            context.user_id > 1000
-          end
         end
       end
 
