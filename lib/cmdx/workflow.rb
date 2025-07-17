@@ -52,9 +52,12 @@ module CMDx
       def process(*tasks, **options)
         workflow_groups << Group.new(
           tasks.flatten.map do |task|
-            next task if task <= Task
+            unless task.is_a?(Class) && (task <= Task)
+              raise TypeError,
+                    "must be a Task or Workflow"
+            end
 
-            raise TypeError, "must be a Task or Workflow"
+            task
           end,
           options
         )
@@ -80,11 +83,14 @@ module CMDx
       self.class.workflow_groups.each do |group|
         next unless cmdx_eval(group.options)
 
-        workflow_halt = group.options[:workflow_halt] || cmd_setting(:workflow_halt)
+        workflow_halt = Array(
+          group.options[:workflow_halt] ||
+          cmd_setting(:workflow_halt)
+        ).map(&:to_s)
 
         group.tasks.each do |task|
           task_result = task.call(context)
-          next unless Array(workflow_halt).include?(task_result.status)
+          next unless workflow_halt.include?(task_result.status)
 
           throw!(task_result)
         end
