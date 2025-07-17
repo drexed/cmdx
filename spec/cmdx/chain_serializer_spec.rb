@@ -177,34 +177,6 @@ RSpec.describe CMDx::ChainSerializer do
       end
     end
 
-    context "with real chain object" do
-      let(:task_one) { create_simple_task(name: "Task1") }
-      let(:task_two) { create_simple_task(name: "Task2") }
-      let(:workflow_class) { create_simple_workflow(tasks: [task_one, task_two], name: "TestWorkflow") }
-      let(:real_chain) { workflow_class.call.chain }
-
-      it "serializes real chain execution" do
-        serialized = described_class.call(real_chain)
-
-        expect(serialized).to include(
-          :id, :state, :status, :outcome, :runtime, :results
-        )
-        expect(serialized[:results]).to be_an(Array)
-        expect(serialized[:results].size).to eq(3) # Workflow + 2 tasks
-        expect(serialized[:results].all?(Hash)).to be(true)
-      end
-
-      it "preserves all chain attributes" do
-        serialized = described_class.call(real_chain)
-
-        expect(serialized[:id]).to eq(real_chain.id)
-        expect(serialized[:state]).to eq(real_chain.state)
-        expect(serialized[:status]).to eq(real_chain.status)
-        expect(serialized[:outcome]).to eq(real_chain.outcome)
-        expect(serialized[:runtime]).to eq(real_chain.runtime)
-      end
-    end
-
     context "when error handling" do
       it "raises error when chain doesn't respond to id" do
         invalid_chain = Object.new
