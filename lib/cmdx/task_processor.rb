@@ -239,6 +239,7 @@ module CMDx
     def terminate_call
       Immutator.call(task)
       ResultLogger.call(task.result)
+      task.result
     end
 
   end
