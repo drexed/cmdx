@@ -104,11 +104,11 @@ module CMDx
       # @return [Object] the result of calling the object, or the object itself if not callable
       #
       # @example Invoke a proc
-      #   proc { "hello" }.cmdx_invoke # => "hello"
+      #   proc { "hello" }.cmdx_call # => "hello"
       #
       # @example Invoke a non-callable object
-      #   "hello".cmdx_invoke # => "hello"
-      def cmdx_invoke(...)
+      #   "hello".cmdx_call # => "hello"
+      def cmdx_call(...)
         return self unless respond_to?(:call)
 
         call(...)

@@ -168,31 +168,31 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
     end
   end
 
-  describe "#cmdx_invoke" do
+  describe "#cmdx_call" do
     let(:callable_object) { double("Callable", call: "called") }
     let(:proc_object) { -> { "proc_called" } }
     let(:lambda_object) { ->(x) { "lambda_#{x}" } }
 
     context "with callable objects" do
       it "calls objects that respond to call" do
-        expect(callable_object.cmdx_invoke).to eq("called")
-        expect(proc_object.cmdx_invoke).to eq("proc_called")
-        expect(lambda_object.cmdx_invoke("test")).to eq("lambda_test")
+        expect(callable_object.cmdx_call).to eq("called")
+        expect(proc_object.cmdx_call).to eq("proc_called")
+        expect(lambda_object.cmdx_call("test")).to eq("lambda_test")
       end
 
       it "passes arguments to callable objects" do
         callable_with_args = double("Callable")
         expect(callable_with_args).to receive(:call).with("arg1", "arg2").and_return("result")
-        expect(callable_with_args.cmdx_invoke("arg1", "arg2")).to eq("result")
+        expect(callable_with_args.cmdx_call("arg1", "arg2")).to eq("result")
       end
     end
 
     context "with non-callable objects" do
       it "returns the object itself" do
-        expect(test_object.cmdx_invoke).to eq(test_object)
-        expect("string".cmdx_invoke).to eq("string")
-        expect(42.cmdx_invoke).to eq(42)
-        expect([1, 2, 3].cmdx_invoke).to eq([1, 2, 3])
+        expect(test_object.cmdx_call).to eq(test_object)
+        expect("string".cmdx_call).to eq("string")
+        expect(42.cmdx_call).to eq(42)
+        expect([1, 2, 3].cmdx_call).to eq([1, 2, 3])
       end
     end
   end
@@ -223,7 +223,7 @@ RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFi
         expect(complex_object.cmdx_try(:status)).to eq("active")
         expect(complex_object.cmdx_eval(if: :active?)).to be true
         expect(complex_object.cmdx_yield(:status)).to eq("active")
-        expect(complex_object.cmdx_invoke).to eq("called")
+        expect(complex_object.cmdx_call).to eq("called")
       end
 
       it "handles conditional evaluation with try" do
