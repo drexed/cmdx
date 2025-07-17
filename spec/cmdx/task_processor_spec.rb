@@ -10,7 +10,7 @@ RSpec.describe CMDx::TaskProcessor do
 
   before do
     allow(CMDx::Immutator).to receive(:call).and_return(task)
-    allow(CMDx::ResultLogger).to receive(:call).and_return(nil)
+    allow(CMDx::ResultLogger).to receive(:call) { |result| result }
   end
 
   describe ".call" do
