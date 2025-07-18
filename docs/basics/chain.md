@@ -195,7 +195,7 @@ The `CMDx::Middlewares::Correlate` middleware automatically manages correlation 
 ```ruby
 class ProcessOrderTask < CMDx::Task
   # Apply correlate middleware globally or per-task
-  use CMDx::Middlewares::Correlate
+  use :middleware, CMDx::Middlewares::Correlate
 
   def call
     # Correlation is automatically managed
