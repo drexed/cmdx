@@ -75,6 +75,9 @@ module CMDx
     # Returns a hash representation of the registry.
     #
     # @return [Hash] deep copy of registry with duplicated configuration arrays
+    # @option return [Array] args duplicated positional arguments array
+    # @option return [Hash] kwargs duplicated keyword arguments hash
+    # @option return [Proc, nil] block the original block reference (not duplicated)
     #
     # @example Getting registry hash
     #   registry.to_h
