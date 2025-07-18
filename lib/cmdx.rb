@@ -26,9 +26,9 @@ loader.ignore("#{__dir__}/locales")
 loader.setup
 
 # Pre-load core extensions to avoid circular dependencies
+require_relative "cmdx/core_ext/module"
 require_relative "cmdx/core_ext/object"
 require_relative "cmdx/core_ext/hash"
-require_relative "cmdx/core_ext/module"
 
 # Pre-load configuration to make module methods available
 # This is acceptable since configuration is fundamental to the framework

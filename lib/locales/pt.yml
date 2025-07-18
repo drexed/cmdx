@@ -11,7 +11,6 @@ pt:
       required: "é um parâmetro obrigatório"
       undefined: "delega para método indefinido %{source}"
     validators:
-      custom: "não é válido"
       exclusion:
         of: "não deve ser um de: %{values}"
         within: "não deve estar entre %{min} e %{max}"

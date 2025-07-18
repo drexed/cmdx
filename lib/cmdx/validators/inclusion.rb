@@ -2,106 +2,50 @@
 
 module CMDx
   module Validators
-    # Inclusion validator for parameter validation against allowed values.
+    # Validator class for including values within a specified set.
     #
-    # The Inclusion validator ensures that parameter values ARE within a
-    # specified set of allowed values. It supports both array-based inclusion
-    # (specific values) and range-based inclusion (value ranges).
-    #
-    # @example Basic inclusion validation with array
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :status, inclusion: { in: ['pending', 'processing', 'completed'] }
-    #     required :priority, inclusion: { in: [1, 2, 3, 4, 5] }
-    #   end
-    #
-    # @example Range-based inclusion
-    #   class ProcessUserTask < CMDx::Task
-    #     required :age, inclusion: { in: 18..120 }  # Valid age range
-    #     required :score, inclusion: { within: 0..100 }  # Percentage score
-    #   end
-    #
-    # @example Custom error messages
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :status, inclusion: {
-    #       in: ['pending', 'processing', 'completed'],
-    #       of_message: "must be a valid order status"
-    #     }
-    #     required :age, inclusion: {
-    #       in: 18..120,
-    #       in_message: "must be between %{min} and %{max} years old"
-    #     }
-    #   end
-    #
-    # @example Boolean field validation
-    #   class ProcessUserTask < CMDx::Task
-    #     required :active, inclusion: { in: [true, false] }  # Proper boolean validation
-    #     required :role, inclusion: { in: ['admin', 'user', 'guest'] }
-    #   end
-    #
-    # @example Inclusion validation behavior
-    #   # Array inclusion
-    #   Inclusion.call("pending", inclusion: { in: ['pending', 'active'] })     # passes
-    #   Inclusion.call("cancelled", inclusion: { in: ['pending', 'active'] })   # raises ValidationError
-    #
-    #   # Range inclusion
-    #   Inclusion.call(25, inclusion: { in: 18..65 })  # passes
-    #   Inclusion.call(15, inclusion: { in: 18..65 })  # raises ValidationError
-    #
-    # @see CMDx::Validators::Exclusion For validating values must not be in a set
-    # @see CMDx::Parameter Parameter validation integration
-    # @see CMDx::ValidationError Raised when validation fails
-    module Inclusion
+    # This validator ensures that a value is included in a given array or range
+    # of allowed values. It supports both discrete value inclusion and range-based
+    # inclusion validation.
+    class Inclusion < Validator
 
-      extend self
-
-      # Validates that a parameter value is in the allowed set.
+      # Validates that the given value is included in the inclusion set.
       #
-      # Checks that the value is present in the specified array or range
-      # of allowed values. Raises ValidationError if the value is not found
-      # in the inclusion set.
-      #
-      # @param value [Object] The parameter value to validate
-      # @param options [Hash] Validation configuration options
-      # @option options [Hash] :inclusion Inclusion validation configuration
-      # @option options [Array, Range] :inclusion.in Values/range to include
-      # @option options [Array, Range] :inclusion.within Alias for :in
-      # @option options [String] :inclusion.of_message Error message for array inclusion
-      # @option options [String] :inclusion.in_message Error message for range inclusion
-      # @option options [String] :inclusion.within_message Alias for :in_message
-      # @option options [String] :inclusion.message General error message override
+      # @param value [Object] the value to validate
+      # @param options [Hash] validation options containing inclusion configuration
+      # @option options [Hash] :inclusion inclusion validation configuration
+      # @option options [Array, Range] :inclusion.in the values to include
+      # @option options [Array, Range] :inclusion.within alias for :in
+      # @option options [String] :inclusion.message custom error message
+      # @option options [String] :inclusion.of_message custom error message for array inclusion
+      # @option options [String] :inclusion.in_message custom error message for range inclusion
+      # @option options [String] :inclusion.within_message alias for :in_message
       #
       # @return [void]
-      # @raise [ValidationError] If value is not found in the inclusion set
       #
-      # @example Array inclusion validation
-      #   Inclusion.call("active", inclusion: { in: ['active', 'pending'] })
-      #   # => passes without error
+      # @raise [ValidationError] if the value is not found in the inclusion set
       #
-      # @example Failed array inclusion
-      #   Inclusion.call("cancelled", inclusion: { in: ['active', 'pending'] })
-      #   # => raises ValidationError: "must be one of: \"active\", \"pending\""
+      # @example Including from an array
+      #   Validators::Inclusion.call("user", inclusion: { in: ["user", "admin"] })
+      #   # => nil (no error raised)
       #
-      # @example Range inclusion validation
-      #   Inclusion.call(25, inclusion: { in: 18..65 })
-      #   # => passes without error
+      # @example Including from a range
+      #   Validators::Inclusion.call(5, inclusion: { in: 1..10 })
+      #   # => nil (no error raised)
       #
-      # @example Failed range inclusion
-      #   Inclusion.call(15, inclusion: { in: 18..65 })
-      #   # => raises ValidationError: "must be within 18 and 65"
+      # @example Invalid inclusion from array
+      #   Validators::Inclusion.call("guest", inclusion: { in: ["user", "admin"] })
+      #   # raises ValidationError: "must be one of: \"user\", \"admin\""
       #
-      # @example Boolean validation
-      #   Inclusion.call(true, inclusion: { in: [true, false] })
-      #   # => passes without error
+      # @example Invalid inclusion from range
+      #   Validators::Inclusion.call(15, inclusion: { in: 1..10 })
+      #   # raises ValidationError: "must be within 1 and 10"
       #
-      # @example Custom error messages
-      #   Inclusion.call("invalid", inclusion: {
-      #     in: ['valid', 'pending'],
-      #     of_message: "status must be valid or pending"
-      #   })
-      #   # => raises ValidationError: "status must be valid or pending"
+      # @example Using a custom message
+      #   Validators::Inclusion.call("guest", inclusion: { in: ["user", "admin"], message: "Invalid role selected" })
+      #   # raises ValidationError: "Invalid role selected"
       def call(value, options = {})
-        values = options.dig(:inclusion, :in) ||
-                 options.dig(:inclusion, :within)
+        values = options[:in] || options[:within]
 
         if values.is_a?(Range)
           raise_within_validation_error!(values.begin, values.end, options) unless values.cover?(value)
@@ -112,15 +56,21 @@ module CMDx
 
       private
 
-      # Raises validation error for array-based inclusion violations.
+      # Raises a validation error for array-based inclusion.
       #
-      # @param values [Array] The allowed values array
-      # @param options [Hash] Validation options containing error messages
-      # @raise [ValidationError] With formatted error message
+      # @param values [Array] the allowed values
+      # @param options [Hash] validation options
+      #
+      # @return [void]
+      #
+      # @raise [ValidationError] always raised with appropriate message
+      #
+      # @example
+      #   raise_of_validation_error!(["user", "admin"], {})
+      #   # raises ValidationError: "must be one of: \"user\", \"admin\""
       def raise_of_validation_error!(values, options)
-        values  = values.map(&:inspect).join(", ")
-        message = options.dig(:inclusion, :of_message) ||
-                  options.dig(:inclusion, :message)
+        values  = values.map(&:inspect).join(", ") unless values.nil?
+        message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 
         raise ValidationError, message || I18n.t(
@@ -130,16 +80,21 @@ module CMDx
         )
       end
 
-      # Raises validation error for range-based inclusion violations.
+      # Raises a validation error for range-based inclusion.
       #
-      # @param min [Object] Range minimum value
-      # @param max [Object] Range maximum value
-      # @param options [Hash] Validation options containing error messages
-      # @raise [ValidationError] With formatted error message
+      # @param min [Object] the minimum value of the range
+      # @param max [Object] the maximum value of the range
+      # @param options [Hash] validation options
+      #
+      # @return [void]
+      #
+      # @raise [ValidationError] always raised with appropriate message
+      #
+      # @example
+      #   raise_within_validation_error!(1, 10, {})
+      #   # raises ValidationError: "must be within 1 and 10"
       def raise_within_validation_error!(min, max, options)
-        message = options.dig(:inclusion, :in_message) ||
-                  options.dig(:inclusion, :within_message) ||
-                  options.dig(:inclusion, :message)
+        message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
         raise ValidationError, message || I18n.t(

@@ -27,7 +27,7 @@ CMDx provides comprehensive automatic logging for task execution with structured
 
 - **Automatic logging** - All task results logged after completion with structured data
 - **8 formatters** - Standard (Line, Json, KeyValue, Logstash, Raw) and Stylized (Pretty variants)
-- **Configuration** - Global via `CMDx.configure` or task-specific via `task_settings!`
+- **Configuration** - Global via `CMDx.configure` or task-specific via `cmd_settings!`
 - **Severity mapping** - Success=INFO, Skipped=WARN, Failed=ERROR
 - **Rich metadata** - Includes runtime, chain_id, status, context, and failure chains
 - **Manual logging** - Access `logger` within tasks for custom messages
@@ -93,7 +93,7 @@ Override logging settings for individual tasks:
 
 ```ruby
 class SendEmailTask < CMDx::Task
-  task_settings!(
+  cmd_settings!(
     logger: Rails.logger,
     log_formatter: CMDx::LogFormatters::Json.new,
     log_level: Logger::WARN
@@ -106,7 +106,7 @@ end
 
 # Base class with shared logging configuration
 class ApplicationTask < CMDx::Task
-  task_settings!(
+  cmd_settings!(
     logger: Logger.new("log/tasks.log"),
     log_formatter: CMDx::LogFormatters::Logstash.new,
     log_level: Logger::INFO
@@ -179,7 +179,7 @@ class SlackLogFormatter
 end
 
 class SendNotificationTask < CMDx::Task
-  task_settings!(
+  cmd_settings!(
     logger: Logger.new("log/notifications.log", formatter: SlackLogFormatter.new)
   )
 end

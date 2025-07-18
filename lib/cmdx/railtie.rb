@@ -1,102 +1,29 @@
 # frozen_string_literal: true
 
 module CMDx
-  ##
-  # Railtie provides seamless integration between CMDx and Ruby on Rails applications.
-  # It automatically configures Rails-specific features including internationalization,
-  # autoloading paths, and directory structure conventions for CMDx tasks and workflows.
+  # Rails integration for CMDx framework.
   #
-  # The Railtie handles two main integration aspects:
-  # 1. **I18n Configuration**: Automatically loads CMDx locale files for available locales
-  # 2. **Autoloading Setup**: Configures Rails autoloaders for CMDx command objects
-  #
-  # ## Directory Structure
-  #
-  # The Railtie expects CMDx command objects to be organized in the following structure:
-  # ```
-  # app/
-  #   cmds/
-  #     workflows/          # Workflow command objects
-  #       order_processing_workflow.rb
-  #     tasks/            # Task command objects
-  #       process_order_task.rb
-  #       send_email_task.rb
-  # ```
-  #
-  # ## Automatic Features
-  #
-  # When CMDx is included in a Rails application, the Railtie automatically:
-  # - Adds `app/cmds` to Rails autoload paths
-  # - Configures autoloader to collapse `app/cmds/workflows` and `app/cmds/tasks` directories
-  # - Loads appropriate locale files from CMDx gem for error messages and validations
-  # - Reloads I18n configuration to include CMDx translations
-  #
-  # @example Rails application structure
-  #   # app/cmds/tasks/process_order_task.rb
-  #   class ProcessOrderTask < CMDx::Task
-  #     required :order_id, type: :integer
-  #
-  #     def call
-  #       context.order = Order.find(order_id)
-  #       context.order.process!
-  #     end
-  #   end
-  #
-  # @example Using in Rails controllers
-  #   class OrdersController < ApplicationController
-  #     def process
-  #       result = ProcessOrderTask.call(order_id: params[:id])
-  #
-  #       if result.success?
-  #         redirect_to order_path(result.context.order), notice: 'Order processed!'
-  #       else
-  #         redirect_to order_path(params[:id]), alert: result.metadata[:reason]
-  #       end
-  #     end
-  #   end
-  #
-  # @example I18n integration
-  #   # CMDx automatically loads locale files for validation messages
-  #   # en.yml, es.yml, etc. are automatically available
-  #   result = MyTask.call(invalid_param: nil)
-  #   result.errors.full_messages # Uses localized error messages
-  #
-  # @see Configuration Configuration options for Rails integration
-  # @see Task Task base class for command objects
-  # @see Workflow Workflow base class for multi-task operations
-  # @since 1.0.0
+  # Provides Rails-specific configuration including internationalization
+  # locale loading and autoload path configuration for CMDx workflows and tasks.
   class Railtie < Rails::Railtie
 
     railtie_name :cmdx
 
-    ##
-    # Configures internationalization (I18n) for CMDx in Rails applications.
-    # Automatically loads locale files from the CMDx gem for all configured
-    # application locales, ensuring error messages and validations are properly localized.
+    # Configure internationalization locales for CMDx.
     #
-    # This initializer:
-    # 1. Iterates through all configured application locales
-    # 2. Checks for corresponding CMDx locale files
-    # 3. Adds found locale files to I18n load path
-    # 4. Reloads I18n configuration
+    # Loads available locale files from the CMDx locales directory
+    # and adds them to the I18n load path. Only loads locales that
+    # are configured as available in the Rails application.
     #
     # @param app [Rails::Application] the Rails application instance
+    #
     # @return [void]
     #
-    # @example Available locales
-    #   # If Rails app has config.i18n.available_locales = [:en, :es]
-    #   # This will load:
-    #   # - lib/locales/en.yml (CMDx English translations)
-    #   # - lib/locales/es.yml (CMDx Spanish translations)
+    # @raise [StandardError] if I18n reload fails
     #
-    # @example Localized error messages
-    #   # With Spanish locale active
-    #   class MyTask < CMDx::Task
-    #     required :name, presence: true
-    #   end
-    #
-    #   result = MyTask.call(name: "")
-    #   result.errors.full_messages # Returns Spanish error messages
+    # @example Configure locales during Rails initialization
+    #   # This initializer runs automatically during Rails boot
+    #   # when CMDx is included in a Rails application
     initializer("cmdx.configure_locales") do |app|
       Array(app.config.i18n.available_locales).each do |locale|
         path = File.expand_path("../../../lib/locales/#{locale}.yml", __FILE__)
@@ -108,34 +35,24 @@ module CMDx
       I18n.reload!
     end
 
-    ##
-    # Configures Rails autoloading for CMDx command objects.
-    # Sets up proper autoloading paths and directory collapsing to ensure
-    # CMDx tasks and workflows are loaded correctly in Rails applications.
+    # Configure Rails autoload paths for CMDx components.
     #
-    # This initializer:
-    # 1. Adds `app/cmds` to Rails autoload paths
-    # 2. Configures all autoloaders to collapse concept directories
-    # 3. Ensures proper class name resolution for nested directories
-    #
-    # Directory collapsing means that files in `app/cmds/tasks/` will be loaded
-    # as if they were directly in `app/cmds/`, allowing for better organization
-    # without affecting class naming conventions.
+    # Adds the app/cmds directory to Rails autoload paths and configures
+    # autoloaders to collapse the workflows and tasks subdirectories.
+    # This enables Rails to automatically load CMDx workflows and tasks
+    # from the conventional directory structure.
     #
     # @param app [Rails::Application] the Rails application instance
+    #
     # @return [void]
     #
-    # @example Directory structure and class loading
-    #   # File: app/cmds/tasks/process_order_task.rb
-    #   # Class: ProcessOrderTask (not Tasks::ProcessOrderTask)
+    # @raise [StandardError] if autoloader configuration fails
     #
-    #   # File: app/cmds/workflows/order_processing_workflow.rb
-    #   # Class: OrderProcessingWorkflow (not Workflows::OrderProcessingWorkflow)
-    #
-    # @example Autoloading in action
-    #   # Rails will automatically load these classes when referenced:
-    #   ProcessOrderTask.call(order_id: 123)      # Loads from app/cmds/tasks/
-    #   OrderProcessingWorkflow.call(orders: [...])  # Loads from app/cmds/workflows/
+    # @example Configure autoload paths during Rails initialization
+    #   # This initializer runs automatically during Rails boot
+    #   # Enables loading of:
+    #   # - app/cmds/workflows/my_workflow.rb
+    #   # - app/cmds/tasks/my_task.rb
     initializer("cmdx.configure_rails_auto_load_paths") do |app|
       app.config.autoload_paths += %w[app/cmds]
 

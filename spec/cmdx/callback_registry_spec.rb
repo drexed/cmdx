@@ -3,474 +3,270 @@
 require "spec_helper"
 
 RSpec.describe CMDx::CallbackRegistry do
-  describe "#initialize" do
-    context "when initialized without arguments" do
-      it "creates an empty registry" do
-        registry = described_class.new
+  subject(:registry) { described_class.new }
 
-        expect(registry).to be_empty
-        expect(registry.keys).to eq([])
-      end
+  let(:task) { create_simple_task(name: "TestTask").new }
+
+  describe "TYPES constant" do
+    it "includes all callback types" do
+      expect(described_class::TYPES).to include(
+        :before_validation,
+        :after_validation,
+        :before_execution,
+        :after_execution,
+        :on_executed,
+        :on_good,
+        :on_bad,
+        :on_success,
+        :on_skipped,
+        :on_failed,
+        :on_initialized,
+        :on_executing,
+        :on_complete,
+        :on_interrupted
+      )
     end
 
-    context "when initialized with existing registry" do
-      let(:source_registry) do
-        registry = described_class.new
-        registry[:before_validation] = [[:check_permissions, {}]]
-        registry[:on_success] = [[:log_success, { if: :important? }]]
-        registry
-      end
-
-      it "copies callbacks from source registry" do
-        new_registry = described_class.new(source_registry)
-
-        expect(new_registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(new_registry[:on_success]).to eq([[:log_success, { if: :important? }]])
-      end
-
-      it "creates independent copy of callback definitions" do
-        new_registry = described_class.new(source_registry)
-        new_registry[:before_validation] << [:additional_callback, {}]
-
-        expect(source_registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(new_registry[:before_validation]).to eq([[:check_permissions, {}], [:additional_callback, {}]])
-      end
-    end
-
-    context "when initialized with hash" do
-      let(:source_hash) do
-        {
-          before_validation: [[:check_permissions, {}]],
-          on_success: [[:log_success, {}]]
-        }
-      end
-
-      it "copies callbacks from hash" do
-        registry = described_class.new(source_hash)
-
-        expect(registry[:before_validation]).to eq([[:check_permissions, {}]])
-        expect(registry[:on_success]).to eq([[:log_success, {}]])
-      end
-    end
-
-    context "when initialized with nil" do
-      it "creates empty registry" do
-        registry = described_class.new(nil)
-
-        expect(registry).to be_empty
-      end
+    it "is frozen" do
+      expect(described_class::TYPES).to be_frozen
     end
   end
 
-  describe "Hash behavior" do
-    let(:registry) { described_class.new }
-
-    it "behaves like a Hash" do
-      expect(registry).to be_a(Hash)
-      expect(registry).to respond_to(:keys)
-      expect(registry).to respond_to(:values)
-      expect(registry).to respond_to(:each)
+  describe ".new" do
+    it "creates empty registry" do
+      expect(registry.registry).to eq({})
     end
 
-    it "supports hash assignment" do
-      registry[:test_callback] = [[:method_name, {}]]
+    it "accepts initial registry hash" do
+      initial_registry = { before_execution: [[:method_name, {}]] }
+      registry = described_class.new(initial_registry)
 
-      expect(registry[:test_callback]).to eq([[:method_name, {}]])
+      expect(registry.registry).to eq(initial_registry)
     end
 
-    it "supports hash key checking" do
-      registry[:existing] = [[:method, {}]]
+    it "converts initial registry to hash" do
+      registry = described_class.new(nil)
 
-      expect(registry.key?(:existing)).to be(true)
-      expect(registry.key?(:missing)).to be(false)
-    end
-
-    it "supports hash iteration" do
-      registry[:callback1] = [[:method1, {}]]
-      registry[:callback2] = [[:method2, {}]]
-
-      keys = []
-      values = []
-      registry.each do |k, v|
-        keys << k
-        values << v
-      end
-
-      expect(keys).to contain_exactly(:callback1, :callback2)
-      expect(values).to contain_exactly([[:method1, {}]], [[:method2, {}]])
-    end
-
-    it "supports hash size operations" do
-      expect(registry.size).to eq(0)
-      expect(registry).to be_empty
-
-      registry[:callback] = [[:method, {}]]
-      expect(registry.size).to eq(1)
-      expect(registry).not_to be_empty
+      expect(registry.registry).to eq({})
     end
   end
 
   describe "#register" do
-    let(:registry) { described_class.new }
+    it "registers single symbol callback" do
+      registry.register(:before_execution, :setup_method)
 
-    context "when registering single callable" do
-      it "registers method symbol" do
-        registry.register(:before_validation, :check_permissions)
-
-        expect(registry[:before_validation]).to eq([[[:check_permissions], {}]])
-      end
-
-      it "registers proc" do
-        proc_callable = proc { "test" }
-        registry.register(:on_success, proc_callable)
-
-        expect(registry[:on_success]).to eq([[[proc_callable], {}]])
-      end
-
-      it "registers callback instance" do
-        callback = CMDx::Callback.new
-        registry.register(:on_failure, callback)
-
-        expect(registry[:on_failure]).to eq([[[callback], {}]])
-      end
+      expect(registry.registry[:before_execution]).to eq([[[:setup_method], {}]])
     end
 
-    context "when registering multiple callables" do
-      it "registers multiple method symbols" do
-        registry.register(:before_validation, :check_permissions, :validate_input)
+    it "registers multiple callbacks" do
+      registry.register(:before_execution, :setup_method, :prepare_data)
 
-        expect(registry[:before_validation]).to eq([[%i[check_permissions validate_input], {}]])
-      end
-
-      it "registers mixed callable types" do
-        proc_callable = proc { "test" }
-        registry.register(:on_success, :log_success, proc_callable)
-
-        expect(registry[:on_success]).to eq([[[:log_success, proc_callable], {}]])
-      end
+      expect(registry.registry[:before_execution]).to eq([[%i[setup_method prepare_data], {}]])
     end
 
-    context "when registering with block" do
-      it "includes block as callable" do
-        registry.register(:before_validation) { "block execution" }
+    it "registers callback with options" do
+      condition = -> { true }
+      registry.register(:on_good, :notify_success, if: condition)
 
-        callables = registry[:before_validation].first.first
-        expect(callables.size).to eq(1)
-        expect(callables.first).to be_a(Proc)
-        expect(callables.first.call).to eq("block execution")
-      end
-
-      it "combines callables with block" do
-        registry.register(:on_success, :log_method) { "block execution" }
-
-        callables = registry[:on_success].first.first
-        expect(callables.size).to eq(2)
-        expect(callables.first).to eq(:log_method)
-        expect(callables.last).to be_a(Proc)
-      end
+      expect(registry.registry[:on_good]).to eq([[[:notify_success], { if: condition }]])
     end
 
-    context "when registering with conditions" do
-      it "registers with if condition" do
-        registry.register(:on_success, :log_success, if: :important?)
+    it "registers block callback" do
+      block = -> { "callback" }
+      registry.register(:after_execution, &block)
 
-        expect(registry[:on_success]).to eq([[[:log_success], { if: :important? }]])
-      end
-
-      it "registers with unless condition" do
-        registry.register(:on_failure, :alert_admin, unless: :test_env?)
-
-        expect(registry[:on_failure]).to eq([[[:alert_admin], { unless: :test_env? }]])
-      end
-
-      it "registers with multiple conditions" do
-        registry.register(:on_success, :log_success, if: :important?, unless: :silent?)
-
-        expect(registry[:on_success]).to eq([[[:log_success], { if: :important?, unless: :silent? }]])
-      end
-
-      it "registers with proc conditions" do
-        condition_proc = proc { true }
-        registry.register(:on_success, :log_success, if: condition_proc)
-
-        expect(registry[:on_success]).to eq([[[:log_success], { if: condition_proc }]])
-      end
+      expect(registry.registry[:after_execution]).to eq([[[block], {}]])
     end
 
-    context "when registering to existing callback type" do
-      it "appends to existing callbacks" do
-        registry.register(:before_validation, :first_callback)
-        registry.register(:before_validation, :second_callback)
+    it "registers callback with both callables and block" do
+      block = -> { "callback" }
+      registry.register(:before_validation, :setup, &block)
 
-        expect(registry[:before_validation]).to eq([
-                                                     [[:first_callback], {}],
-                                                     [[:second_callback], {}]
-                                                   ])
-      end
-
-      it "prevents duplicate callback registrations" do
-        registry.register(:before_validation, :check_permissions)
-        registry.register(:before_validation, :check_permissions)
-
-        expect(registry[:before_validation]).to eq([[[:check_permissions], {}]])
-      end
-
-      it "allows same callable with different conditions" do
-        registry.register(:on_success, :log_success, if: :important?)
-        registry.register(:on_success, :log_success, unless: :silent?)
-
-        expect(registry[:on_success]).to eq([
-                                              [[:log_success], { if: :important? }],
-                                              [[:log_success], { unless: :silent? }]
-                                            ])
-      end
+      expect(registry.registry[:before_validation]).to eq([[[:setup, block], {}]])
     end
 
     it "returns self for method chaining" do
-      result = registry.register(:test, :method)
+      result = registry.register(:before_execution, :setup)
 
       expect(result).to eq(registry)
     end
 
-    it "supports chained registration" do
-      registry.register(:before_validation, :check_permissions)
-              .register(:on_success, :log_success)
-              .register(:on_failure, :alert_admin)
+    it "maintains uniqueness of registrations" do
+      registry.register(:before_execution, :setup)
+      registry.register(:before_execution, :setup)
 
-      expect(registry.keys).to contain_exactly(:before_validation, :on_success, :on_failure)
+      expect(registry.registry[:before_execution]).to eq([[[:setup], {}]])
+    end
+
+    it "groups callbacks by type" do
+      registry.register(:before_execution, :setup)
+      registry.register(:after_execution, :cleanup)
+
+      expect(registry.registry).to include(
+        before_execution: [[[:setup], {}]],
+        after_execution: [[[:cleanup], {}]]
+      )
     end
   end
 
   describe "#call" do
-    let(:registry) { described_class.new }
-    let(:task) { mock_task }
+    let(:executed_callbacks) { [] }
+    let(:callback_task) do
+      callbacks = executed_callbacks
+      create_task_class(name: "CallbackTask") do
+        define_method :setup_method do
+          callbacks << :setup_method
+        end
 
-    before do
-      allow(task).to receive(:__cmdx_eval).and_return(true)
-      allow(task).to receive(:__cmdx_try)
+        define_method :cleanup_method do
+          callbacks << :cleanup_method
+        end
+
+        define_method :conditional_method do
+          callbacks << :conditional_method
+        end
+
+        define_method :call do
+          context.executed = true
+        end
+      end.new
     end
 
-    context "when callback type does not exist" do
-      it "does nothing" do
-        registry.call(task, :non_existent_callback)
+    context "with valid callback types" do
+      it "executes symbol callbacks" do
+        registry.register(:before_execution, :setup_method)
+        registry.call(callback_task, :before_execution)
 
-        expect(task).not_to have_received(:__cmdx_eval)
-        expect(task).not_to have_received(:__cmdx_try)
-      end
-    end
-
-    context "when callback type exists" do
-      before do
-        registry.register(:test_callback, :method_name)
+        expect(executed_callbacks).to include(:setup_method)
       end
 
-      it "evaluates callback conditions" do
-        registry.call(task, :test_callback)
+      it "executes string callbacks" do
+        registry.register(:after_execution, "cleanup_method")
+        registry.call(callback_task, :after_execution)
 
-        expect(task).to have_received(:__cmdx_eval).with({})
+        expect(executed_callbacks).to include(:cleanup_method)
       end
 
-      it "executes callable when conditions pass" do
-        registry.call(task, :test_callback)
+      it "executes proc callbacks" do
+        executed = false
+        proc_callback = -> { executed = true }
+        registry.register(:on_good, proc_callback)
 
-        expect(task).to have_received(:__cmdx_try).with(:method_name)
+        registry.call(callback_task, :on_good)
+
+        expect(executed).to be true
       end
 
-      it "skips execution when conditions fail" do
-        allow(task).to receive(:__cmdx_eval).and_return(false)
+      it "executes callable object callbacks" do
+        callable = double("Callable")
+        expect(callable).to receive(:call).with(callback_task)
 
-        registry.call(task, :test_callback)
-
-        expect(task).not_to have_received(:__cmdx_try)
-      end
-    end
-
-    context "when executing multiple callables" do
-      before do
-        registry.register(:test_callback, :first_method, :second_method)
+        registry.register(:on_executed, callable)
+        registry.call(callback_task, :on_executed)
       end
 
-      it "executes all callables in order" do
-        registry.call(task, :test_callback)
+      it "executes multiple callbacks in order" do
+        registry.register(:before_execution, :setup_method, :cleanup_method)
+        registry.call(callback_task, :before_execution)
 
-        expect(task).to have_received(:__cmdx_try).with(:first_method).ordered
-        expect(task).to have_received(:__cmdx_try).with(:second_method).ordered
-      end
-    end
-
-    context "when executing multiple callback definitions" do
-      before do
-        registry.register(:test_callback, :first_callback)
-        registry.register(:test_callback, :second_callback, if: :condition?)
-      end
-
-      it "evaluates conditions for each definition" do
-        registry.call(task, :test_callback)
-
-        expect(task).to have_received(:__cmdx_eval).with({}).ordered
-        expect(task).to have_received(:__cmdx_eval).with({ if: :condition? }).ordered
-      end
-
-      it "executes callbacks with passing conditions" do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
-        allow(task).to receive(:__cmdx_eval).with({ if: :condition? }).and_return(false)
-
-        registry.call(task, :test_callback)
-
-        expect(task).to have_received(:__cmdx_try).with(:first_callback)
-        expect(task).not_to have_received(:__cmdx_try).with(:second_callback)
+        expect(executed_callbacks).to eq(%i[setup_method cleanup_method])
       end
     end
 
-    context "when executing Callback instances" do
-      let(:callback_instance) { double("CallbackInstance") }
+    context "with conditional execution" do
+      it "executes callback when condition is true" do
+        registry.register(:before_execution, :conditional_method, if: -> { true })
+        registry.call(callback_task, :before_execution)
 
-      before do
-        allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
-        allow(callback_instance).to receive(:call)
-        registry.register(:test_callback, callback_instance)
+        expect(executed_callbacks).to include(:conditional_method)
       end
 
-      it "calls callback instance directly" do
-        registry.call(task, :test_callback)
+      it "skips callback when condition is false" do
+        registry.register(:before_execution, :conditional_method, if: -> { false })
+        registry.call(callback_task, :before_execution)
 
-        expect(callback_instance).to have_received(:call).with(task, :test_callback)
-        expect(task).not_to have_received(:__cmdx_try)
-      end
-    end
-
-    context "when executing mixed callable types" do
-      let(:callback_instance) { double("CallbackInstance") }
-      let(:proc_callable) { proc { "test" } }
-
-      before do
-        allow(callback_instance).to receive(:is_a?).with(CMDx::Callback).and_return(true)
-        allow(callback_instance).to receive(:call)
-        registry.register(:test_callback, :method_name, callback_instance, proc_callable)
+        expect(executed_callbacks).not_to include(:conditional_method)
       end
 
-      it "handles each callable appropriately" do
-        registry.call(task, :test_callback)
+      it "evaluates conditions in task context" do
+        task_with_flag = create_task_class do
+          attr_accessor :should_execute
 
-        expect(task).to have_received(:__cmdx_try).with(:method_name).at_least(:once)
-        expect(callback_instance).to have_received(:call).with(task, :test_callback).at_least(:once)
-        expect(task).to have_received(:__cmdx_try).with(proc_callable).at_least(:once)
-      end
-    end
+          def call
+            context.executed = true
+          end
+        end.new
 
-    context "when callback definitions have complex conditions" do
-      before do
-        registry.register(:complex_callback, :always_run)
-        registry.register(:complex_callback, :conditional_run, if: :important?)
-        registry.register(:complex_callback, :never_run, unless: :always_true)
-      end
+        task_with_flag.should_execute = true
+        registry.register(:before_execution, :conditional_method, if: :should_execute)
 
-      it "executes callbacks based on their individual conditions" do
-        allow(task).to receive(:__cmdx_eval).with({}).and_return(true)
-        allow(task).to receive(:__cmdx_eval).with({ if: :important? }).and_return(true)
-        allow(task).to receive(:__cmdx_eval).with({ unless: :always_true }).and_return(false)
+        allow(task_with_flag).to receive(:conditional_method) { executed_callbacks << :conditional_method }
 
-        registry.call(task, :complex_callback)
+        registry.call(task_with_flag, :before_execution)
 
-        expect(task).to have_received(:__cmdx_try).with(:always_run)
-        expect(task).to have_received(:__cmdx_try).with(:conditional_run)
-        expect(task).not_to have_received(:__cmdx_try).with(:never_run)
+        expect(executed_callbacks).to include(:conditional_method)
       end
     end
 
-    context "when registry is empty" do
-      it "handles empty registry gracefully" do
-        expect { registry.call(task, :any_callback) }.not_to raise_error
+    context "with empty registry" do
+      it "does nothing for unregistered callback type" do
+        expect { registry.call(callback_task, :before_execution) }.not_to raise_error
+        expect(executed_callbacks).to be_empty
       end
     end
 
-    context "when callback type value is nil" do
-      before do
-        registry[:test_callback] = nil
-      end
-
-      it "handles nil gracefully" do
-        expect { registry.call(task, :test_callback) }.not_to raise_error
+    context "with invalid callback types" do
+      it "raises UnknownCallbackError for unknown type" do
+        expect { registry.call(callback_task, :invalid_callback) }.to raise_error(
+          CMDx::UnknownCallbackError,
+          "unknown callback invalid_callback"
+        )
       end
     end
 
-    context "when callback type value is not an array" do
-      before do
-        registry[:test_callback] = "not an array"
-      end
+    context "with error handling" do
+      it "allows task errors to propagate" do
+        error_task = create_task_class do
+          def error_method
+            raise StandardError, "callback error"
+          end
 
-      it "wraps non-array values in array" do
-        registry.call(task, :test_callback)
+          def call
+            context.executed = true
+          end
+        end.new
 
-        expect(task).to have_received(:__cmdx_eval).once
+        registry.register(:before_execution, :error_method)
+
+        expect { registry.call(error_task, :before_execution) }.to raise_error(StandardError, "callback error")
       end
     end
   end
 
-  describe "integration scenarios" do
-    let(:registry) { described_class.new }
-    let(:task) { mock_task }
+  describe "#to_h" do
+    it "returns deep copy of registry" do
+      registry.register(:before_execution, :setup)
+      registry.register(:after_execution, :cleanup)
 
-    before do
-      allow(task).to receive(:__cmdx_eval).and_return(true)
-      allow(task).to receive(:__cmdx_try)
+      result = registry.to_h
+
+      expect(result).to eq(
+        before_execution: [[[:setup], {}]],
+        after_execution: [[[:cleanup], {}]]
+      )
     end
 
-    it "supports complex callback registration and execution workflow" do
-      # Register various callback types
-      registry.register(:before_validation, :setup_context)
-      registry.register(:before_validation, :check_permissions, if: :authenticated?)
-      registry.register(:on_success, :log_success, :notify_users)
-      registry.register(:on_failure, :rollback_changes, unless: :read_only?)
+    it "returns independent copy" do
+      registry.register(:before_execution, :setup)
 
-      # Execute before_validation callbacks
-      registry.call(task, :before_validation)
+      result = registry.to_h
+      result[:before_execution] << [[:additional], {}]
 
-      expect(task).to have_received(:__cmdx_try).with(:setup_context)
-      expect(task).to have_received(:__cmdx_try).with(:check_permissions)
-
-      # Reset for next execution
-      allow(task).to receive(:__cmdx_try)
-
-      # Execute on_success callbacks
-      registry.call(task, :on_success)
-
-      expect(task).to have_received(:__cmdx_try).with(:log_success)
-      expect(task).to have_received(:__cmdx_try).with(:notify_users)
+      expect(registry.registry[:before_execution]).to eq([[[:setup], {}]])
     end
 
-    it "maintains callback execution order across multiple registrations" do
-      registry.register(:ordered_callback, :first)
-      registry.register(:ordered_callback, :second)
-      registry.register(:ordered_callback, :third)
-
-      registry.call(task, :ordered_callback)
-
-      expect(task).to have_received(:__cmdx_try).with(:first).ordered
-      expect(task).to have_received(:__cmdx_try).with(:second).ordered
-      expect(task).to have_received(:__cmdx_try).with(:third).ordered
-    end
-
-    it "handles callback registry copying and modification" do
-      original = described_class.new
-      original.register(:shared_callback, :original_method)
-
-      copy = described_class.new(original)
-      copy.register(:shared_callback, :additional_method)
-      copy.register(:new_callback, :new_method)
-
-      # Test original registry unchanged
-      original.call(task, :shared_callback)
-      expect(task).to have_received(:__cmdx_try).with(:original_method).at_least(:once)
-      expect(task).not_to have_received(:__cmdx_try).with(:additional_method)
-
-      # Reset for copy execution
-      allow(task).to receive(:__cmdx_try)
-
-      # Test copy has both methods
-      copy.call(task, :shared_callback)
-      expect(task).to have_received(:__cmdx_try).with(:original_method).at_least(:once)
-      expect(task).to have_received(:__cmdx_try).with(:additional_method).at_least(:once)
+    it "returns empty hash for empty registry" do
+      expect(registry.to_h).to eq({})
     end
   end
 end

@@ -3,625 +3,503 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Task do
-  let(:task_class) do
-    create_simple_task
-  end
+  subject(:task) { task_class.new(context_data) }
 
-  describe ".call" do
-    it "creates a new instance and calls perform" do
-      result = task_class.call
+  let(:task_class) { create_simple_task(name: "TestTask") }
+  let(:context_data) { { user_id: 123, action: "test" } }
 
-      expect(result).to be_a(CMDx::Result)
+  describe ".new" do
+    it "creates task with hash context" do
+      expect(task.context.user_id).to eq(123)
+      expect(task.context.action).to eq("test")
     end
 
-    it "passes arguments to new instance" do
-      params = { user_id: 123, name: "Test" }
-      result = task_class.call(params)
+    it "creates task with existing context" do
+      existing_context = CMDx::Context.build(name: "John")
+      task = task_class.new(existing_context)
 
-      expect(result.context.user_id).to eq(123)
-      expect(result.context.name).to eq("Test")
+      expect(task.context.name).to eq("John")
     end
 
-    it "returns result object" do
-      result = task_class.call
+    it "creates task with object having context method" do
+      context_wrapper = double(context: { name: "Jane" })
+      task = task_class.new(context_wrapper)
 
-      expect(result).to be_a(CMDx::Result)
-      expect(result.task).to be_a(task_class)
+      expect(task.context.name).to eq("Jane")
     end
 
-    context "when calling with a Result object" do
-      let(:source_task) { task_class.new(user_id: 789, email: "test@example.com") }
-      let(:source_result) { source_task.tap(&:perform).result }
-
-      it "extracts context from Result object and executes" do
-        result = task_class.call(source_result)
-
-        expect(result).to be_a(CMDx::Result)
-        expect(result.context.user_id).to eq(789)
-        expect(result.context.email).to eq("test@example.com")
-      end
-
-      it "creates new task instance with extracted context" do
-        result = task_class.call(source_result)
-
-        expect(result.task).to be_a(task_class)
-        expect(result.task).not_to be(source_task)
-        expect(result).not_to be(source_result)
-      end
-    end
-  end
-
-  describe ".call!" do
-    it "creates a new instance and calls perform!" do
-      result = task_class.call!
-
-      expect(result).to be_a(CMDx::Result)
+    it "initializes context as Context object" do
+      expect(task.context).to be_a(CMDx::Context)
     end
 
-    it "passes arguments to new instance" do
-      params = { user_id: 456, email: "test@example.com" }
-      result = task_class.call!(params)
-
-      expect(result.context.user_id).to eq(456)
-      expect(result.context.email).to eq("test@example.com")
-    end
-
-    it "raises exception for failures when task_halt includes status" do
-      failing_task = create_failing_task(reason: "Something went wrong")
-
-      expect { failing_task.call! }.to raise_error(CMDx::Failed)
-    end
-
-    context "when calling with a Result object" do
-      let(:source_task) { task_class.new(user_id: 999, status: "active") }
-      let(:source_result) { source_task.tap(&:perform).result }
-
-      it "extracts context from Result object and executes" do
-        result = task_class.call!(source_result)
-
-        expect(result).to be_a(CMDx::Result)
-        expect(result.context.user_id).to eq(999)
-        expect(result.context.status).to eq("active")
-      end
-
-      it "creates new task instance with extracted context" do
-        result = task_class.call!(source_result)
-
-        expect(result.task).to be_a(task_class)
-        expect(result.task).not_to be(source_task)
-        expect(result).not_to be(source_result)
-      end
-    end
-  end
-
-  describe ".task_setting" do
-    it "returns setting value" do
-      task_class.task_settings!(timeout: 30)
-
-      expect(task_class.task_setting(:timeout)).to eq(30)
-    end
-
-    it "evaluates callable settings" do
-      task_class.task_settings!(current_time: -> { Time.now })
-
-      expect(task_class.task_setting(:current_time)).to be_a(Time)
-    end
-
-    it "returns nil for non-existent settings" do
-      expect(task_class.task_setting(:non_existent)).to be_nil
-    end
-  end
-
-  describe ".task_setting?" do
-    it "returns true for existing settings" do
-      task_class.task_settings!(timeout: 30)
-
-      expect(task_class.task_setting?(:timeout)).to be(true)
-    end
-
-    it "returns false for non-existent settings" do
-      expect(task_class.task_setting?(:non_existent)).to be(false)
-    end
-  end
-
-  describe ".task_settings!" do
-    it "merges new settings with existing ones" do
-      task_class.task_settings!(timeout: 30, retries: 3)
-
-      expect(task_class.task_setting(:timeout)).to eq(30)
-      expect(task_class.task_setting(:retries)).to eq(3)
-    end
-
-    it "overwrites existing settings" do
-      task_class.task_settings!(timeout: 30)
-      task_class.task_settings!(timeout: 60)
-
-      expect(task_class.task_setting(:timeout)).to eq(60)
-    end
-
-    it "returns updated settings hash" do
-      result = task_class.task_settings!(timeout: 30)
-
-      expect(result).to be_a(Hash)
-      expect(result[:timeout]).to eq(30)
-    end
-  end
-
-  describe ".use" do
-    let(:middleware_class) do
-      create_middleware_class(name: "TestMiddleware") do
-        def initialize(options = {})
-          @options = options
-        end
-
-        def call(task, &)
-          yield(task)
-        end
-      end
-    end
-
-    it "adds middleware to registry" do
-      task_class.use(middleware_class)
-
-      expect(task_class.cmd_middlewares).not_to be_empty
-    end
-
-    it "accepts middleware with arguments" do
-      task_class.use(middleware_class, timeout: 30)
-
-      expect(task_class.cmd_middlewares).not_to be_empty
-    end
-
-    it "returns middleware registry" do
-      result = task_class.use(middleware_class)
-
-      expect(result).to be_a(CMDx::MiddlewareRegistry)
-    end
-  end
-
-  describe ".register" do
-    it "adds callback to registry" do
-      task_class.register(:before_execution, :setup_method)
-
-      expect(task_class.cmd_callbacks[:before_execution]).not_to be_empty
-    end
-
-    it "accepts callback with conditions" do
-      task_class.register(:on_success, :notify_users, if: :should_notify?)
-
-      expect(task_class.cmd_callbacks[:on_success]).not_to be_empty
-    end
-
-    it "returns callback registry" do
-      result = task_class.register(:after_execution, :cleanup_method)
-
-      expect(result).to be_a(CMDx::CallbackRegistry)
-    end
-  end
-
-  describe ".optional" do
-    it "adds optional parameters to registry" do
-      task_class.optional(:timeout, type: :integer, default: 30)
-
-      expect(task_class.cmd_parameters).not_to be_empty
-    end
-
-    it "accepts multiple parameters" do
-      task_class.optional(:timeout, :retries, type: :integer)
-
-      expect(task_class.cmd_parameters.size).to eq(2)
-    end
-
-    it "returns parameter registry" do
-      result = task_class.optional(:timeout, type: :integer)
-
-      expect(result).to be_a(CMDx::ParameterRegistry)
-    end
-  end
-
-  describe ".required" do
-    it "adds required parameters to registry" do
-      task_class.required(:user_id, type: :integer)
-
-      expect(task_class.cmd_parameters).not_to be_empty
-    end
-
-    it "accepts multiple parameters" do
-      task_class.required(:user_id, :email, type: :string)
-
-      expect(task_class.cmd_parameters.size).to eq(2)
-    end
-
-    it "returns parameter registry" do
-      result = task_class.required(:user_id, type: :integer)
-
-      expect(result).to be_a(CMDx::ParameterRegistry)
-    end
-  end
-
-  describe "callback methods" do
-    it "defines before_validation callback method" do
-      expect(task_class).to respond_to(:before_validation)
-    end
-
-    it "defines after_validation callback method" do
-      expect(task_class).to respond_to(:after_validation)
-    end
-
-    it "defines before_execution callback method" do
-      expect(task_class).to respond_to(:before_execution)
-    end
-
-    it "defines after_execution callback method" do
-      expect(task_class).to respond_to(:after_execution)
-    end
-
-    it "defines on_success callback method" do
-      expect(task_class).to respond_to(:on_success)
-    end
-
-    it "defines on_failed callback method" do
-      expect(task_class).to respond_to(:on_failed)
-    end
-
-    it "defines on_executed callback method" do
-      expect(task_class).to respond_to(:on_executed)
-    end
-
-    it "accepts callables and options" do
-      expect do
-        task_class.before_execution(:setup_method, if: :should_setup?)
-      end.not_to raise_error
-    end
-
-    it "accepts blocks" do
-      expect do
-        task_class.on_success { |_task| puts "Success!" }
-      end.not_to raise_error
-    end
-  end
-
-  describe "#initialize" do
-    subject(:task) { task_class.new(user_id: 123) }
-
-    it "generates unique id" do
-      expect(task.id).to be_a(String)
-      expect(task.id).not_to be_empty
-    end
-
-    it "initializes errors collection" do
+    it "initializes errors as Errors object" do
       expect(task.errors).to be_a(CMDx::Errors)
     end
 
-    it "builds context from parameters" do
-      expect(task.context).to be_a(CMDx::Context)
-      expect(task.context.user_id).to eq(123)
+    it "generates unique ID" do
+      task1 = task_class.new
+      task2 = task_class.new
+
+      expect(task1.id).to be_a(String)
+      expect(task2.id).to be_a(String)
+      expect(task1.id).not_to eq(task2.id)
     end
 
-    it "creates result object" do
+    it "initializes result as Result object" do
       expect(task.result).to be_a(CMDx::Result)
-      expect(task.result.task).to be(task)
+      expect(task.result.task).to eq(task)
     end
 
-    it "builds execution chain" do
+    it "initializes chain as Chain object" do
       expect(task.chain).to be_a(CMDx::Chain)
+      expect(task.chain.results).to include(task.result)
+    end
+  end
+
+  describe "attribute aliases" do
+    it "provides ctx alias for context" do
+      expect(task.ctx).to eq(task.context)
     end
 
-    it "provides context alias as ctx" do
-      expect(task.ctx).to be(task.context)
+    it "provides res alias for result" do
+      expect(task.res).to eq(task.result)
+    end
+  end
+
+  describe "delegation to result" do
+    it "delegates skip! to result" do
+      expect(task.result).to receive(:skip!).with(reason: "test")
+      task.skip!(reason: "test")
     end
 
-    it "provides result alias as res" do
-      expect(task.res).to be(task.result)
+    it "delegates fail! to result" do
+      expect(task.result).to receive(:fail!).with(reason: "error")
+      task.fail!(reason: "error")
     end
 
-    context "when initializing with a Result object" do
-      let(:source_task) { task_class.new(user_id: 456, name: "Source Task") }
-      let(:source_result) { source_task.tap(&:perform).result }
+    it "delegates throw! to result" do
+      expect(task.result).to receive(:throw!).with("custom_error")
+      task.throw!("custom_error")
+    end
+  end
 
-      it "extracts context from Result object" do
-        new_task = task_class.new(source_result)
+  describe "delegation to class" do
+    it "delegates cmd_middlewares to class" do
+      expect(task.cmd_middlewares).to eq(task_class.cmd_middlewares)
+    end
 
-        expect(new_task.context.user_id).to eq(456)
-        expect(new_task.context.name).to eq("Source Task")
-      end
+    it "delegates cmd_callbacks to class" do
+      expect(task.cmd_callbacks).to eq(task_class.cmd_callbacks)
+    end
 
-      it "creates new Result object for new task" do
-        new_task = task_class.new(source_result)
+    it "delegates cmd_parameters to class" do
+      expect(task.cmd_parameters).to eq(task_class.cmd_parameters)
+    end
 
-        expect(new_task.result).to be_a(CMDx::Result)
-        expect(new_task.result).not_to be(source_result)
-        expect(new_task.result.task).to be(new_task)
-      end
+    it "delegates cmd_settings to class" do
+      expect(task.cmd_settings).to eq(task_class.cmd_settings)
+    end
 
-      it "preserves context data when passed as Result" do
-        # Create and execute a task with additional context data
-        source_task = task_class.new(user_id: 789, name: "Source Task")
-        source_task.context.additional_data = "test value"
-        source_task.perform
+    it "delegates cmd_setting to class" do
+      expect(task.cmd_setting(:logger)).to eq(task_class.cmd_setting(:logger))
+    end
 
-        new_task = task_class.new(source_task.result)
-
-        expect(new_task.context.additional_data).to eq("test value")
-        expect(new_task.context.user_id).to eq(789)
-        expect(new_task.context.name).to eq("Source Task")
-      end
+    it "delegates cmd_setting? to class" do
+      expect(task.cmd_setting?(:logger)).to eq(task_class.cmd_setting?(:logger))
     end
   end
 
   describe "#call" do
-    subject(:task) { task_class.new }
+    let(:task_class) { Class.new(described_class) }
 
     it "raises UndefinedCallError when not implemented" do
-      undefined_task = create_task_class
-      instance = undefined_task.new
+      task = task_class.new
 
-      expect { instance.call }.to raise_error(CMDx::UndefinedCallError)
-    end
-
-    it "does not raise error when implemented" do
-      expect { task.call }.not_to raise_error
+      expect { task.call }.to raise_error(
+        CMDx::UndefinedCallError,
+        /call method not defined in/
+      )
     end
   end
 
-  describe "#perform" do
-    subject(:task) { task_class.new }
+  describe "#process" do
+    it "executes task through middleware" do
+      expect(task.cmd_middlewares).to receive(:call).with(task).and_yield(task)
+      expect(CMDx::TaskProcessor).to receive(:call).with(task)
 
-    it "executes the task" do
-      task.perform
+      task.process
+    end
+  end
 
-      expect(task.result.executed?).to be(true)
+  describe "#process!" do
+    it "executes task through middleware with strict handling" do
+      expect(task.cmd_middlewares).to receive(:call).with(task).and_yield(task)
+      expect(CMDx::TaskProcessor).to receive(:call!).with(task)
+
+      task.process!
+    end
+  end
+
+  describe "#logger" do
+    it "creates logger for the task" do
+      expect(CMDx::Logger).to receive(:call).with(task)
+
+      task.send(:logger)
+    end
+  end
+
+  describe "class methods" do
+    describe "callback registration" do
+      CMDx::CallbackRegistry::TYPES.each do |callback_type|
+        describe ".#{callback_type}" do
+          it "registers callback with symbol" do
+            expect(task_class.cmd_callbacks).to receive(:register) do |type, *callables, **options|
+              expect(type).to eq(callback_type)
+              expect(callables).to eq([:test_callback])
+              expect(options).to eq({})
+            end
+
+            task_class.public_send(callback_type, :test_callback)
+          end
+
+          it "registers callback with proc" do
+            proc_callback = -> { puts "test" }
+            expect(task_class.cmd_callbacks).to receive(:register) do |type, *callables, **options|
+              expect(type).to eq(callback_type)
+              expect(callables).to eq([proc_callback])
+              expect(options).to eq({})
+            end
+
+            task_class.public_send(callback_type, proc_callback)
+          end
+
+          it "registers callback with options" do
+            expect(task_class.cmd_callbacks).to receive(:register) do |type, *callables, **options|
+              expect(type).to eq(callback_type)
+              expect(callables).to eq([:test_callback])
+              expect(options).to eq({ if: :condition })
+            end
+
+            task_class.public_send(callback_type, :test_callback, if: :condition)
+          end
+
+          it "registers callback with block" do
+            expect(task_class.cmd_callbacks).to receive(:register) do |type, *callables, **options, &block|
+              expect(type).to eq(callback_type)
+              expect(callables).to eq([])
+              expect(options).to eq({})
+              expect(block).to be_a(Proc)
+            end
+
+            task_class.public_send(callback_type) { puts "test" }
+          end
+
+          it "registers multiple callbacks" do
+            expect(task_class.cmd_callbacks).to receive(:register) do |type, *callables, **options|
+              expect(type).to eq(callback_type)
+              expect(callables).to eq(%i[first second])
+              expect(options).to eq({})
+            end
+
+            task_class.public_send(callback_type, :first, :second)
+          end
+        end
+      end
     end
 
-    it "handles exceptions gracefully" do
-      failing_task = create_erroring_task(reason: "Something went wrong")
+    describe ".cmd_setting" do
+      it "returns setting value" do
+        task_class.cmd_settings!(test_setting: "test_value")
 
-      instance = failing_task.new
-      instance.perform
+        expect(task_class.cmd_setting(:test_setting)).to eq("test_value")
+      end
 
-      expect(instance.result.failed?).to be(true)
+      it "processes setting through cmdx_yield" do
+        callable_setting = -> { "dynamic_value" }
+        task_class.cmd_settings!(test_setting: callable_setting)
+
+        expect(task_class.cmd_setting(:test_setting)).to eq("dynamic_value")
+      end
     end
 
-    it "freezes task after execution" do
-      # Temporarily disable freezing skip to test freezing behavior
-      original_env = ENV.fetch("SKIP_CMDX_FREEZING", nil)
-      ENV.delete("SKIP_CMDX_FREEZING")
+    describe ".cmd_setting?" do
+      it "returns true for existing setting" do
+        task_class.cmd_settings!(existing_setting: "value")
 
-      task.perform
+        expect(task_class.cmd_setting?(:existing_setting)).to be(true)
+      end
 
-      expect(task).to be_frozen
-
-      # Restore original environment
-      ENV["SKIP_CMDX_FREEZING"] = original_env if original_env
+      it "returns false for non-existing setting" do
+        expect(task_class.cmd_setting?(:non_existing)).to be(false)
+      end
     end
 
-    it "calls middleware when present" do
-      middleware_called = false
-      middleware_class = create_middleware_class(name: "TrackingMiddleware") do
-        define_method(:call) do |task, next_callable|
-          middleware_called = true
-          next_callable.call(task)
+    describe ".cmd_settings!" do
+      it "merges new settings" do
+        original_logger = task_class.cmd_setting(:logger)
+        task_class.cmd_settings!(task_halt: "custom", new_setting: "value")
+
+        expect(task_class.cmd_setting(:task_halt)).to eq("custom")
+        expect(task_class.cmd_setting(:new_setting)).to eq("value")
+        expect(task_class.cmd_setting(:logger)).to eq(original_logger)
+      end
+
+      it "returns updated settings hash" do
+        result = task_class.cmd_settings!(test: "value")
+
+        expect(result).to include(test: "value")
+      end
+    end
+
+    describe ".use" do
+      context "with middleware type" do
+        let(:middleware) { double("middleware") }
+
+        it "registers middleware" do
+          expect(task_class.cmd_middlewares).to receive(:register).with(middleware, timeout: 30)
+
+          task_class.use(:middleware, middleware, timeout: 30)
         end
       end
 
-      task_class.use(middleware_class.new)
-      task.perform
+      context "with callback type" do
+        it "registers callback" do
+          expect(task_class.cmd_callbacks).to receive(:register).with(:callback, :before_execution, :test_callback)
 
-      expect(middleware_called).to be(true)
-    end
-  end
-
-  describe "#perform!" do
-    subject(:task) { task_class.new }
-
-    it "executes the task" do
-      task.perform!
-
-      expect(task.result.executed?).to be(true)
-    end
-
-    it "raises exceptions for failures" do
-      failing_task = create_failing_task(reason: "Something went wrong")
-
-      instance = failing_task.new
-
-      expect { instance.perform! }.to raise_error(CMDx::Failed)
-    end
-
-    it "calls middleware when present" do
-      middleware_called = false
-      middleware_class = create_middleware_class(name: "TrackingMiddleware") do
-        define_method(:call) do |task, next_callable|
-          middleware_called = true
-          next_callable.call(task)
+          task_class.use(:callback, :before_execution, :test_callback)
         end
       end
 
-      task_class.use(middleware_class.new)
-      task.perform!
+      context "with validator type" do
+        it "registers validator" do
+          expect(task_class).to receive(:cmd_validators).and_return(double(register: nil))
 
-      expect(middleware_called).to be(true)
+          task_class.use(:validator, :presence, :field)
+        end
+      end
+
+      context "with coercion type" do
+        it "registers coercion" do
+          expect(task_class).to receive(:cmd_coercions).and_return(double(register: nil))
+
+          task_class.use(:coercion, :string, :field)
+        end
+      end
+    end
+
+    describe ".optional" do
+      it "creates optional parameters" do
+        expect(CMDx::Parameter).to receive(:optional).with(:name, :email, type: :string, klass: task_class).and_return([])
+
+        task_class.optional :name, :email, type: :string
+      end
+
+      it "adds parameters to registry" do
+        parameters = [double("parameter")]
+        allow(CMDx::Parameter).to receive(:optional).and_return(parameters)
+
+        expect(task_class.cmd_parameters.registry).to receive(:concat).with(parameters)
+
+        task_class.optional :name
+      end
+
+      it "passes block to Parameter.optional" do
+        block = proc { puts "test" }
+        expect(CMDx::Parameter).to receive(:optional).with(:user, type: :hash, klass: task_class) do |&passed_block|
+          expect(passed_block).to eq(block)
+        end.and_return([])
+
+        task_class.optional :user, type: :hash, &block
+      end
+    end
+
+    describe ".required" do
+      it "creates required parameters" do
+        expect(CMDx::Parameter).to receive(:required).with(:user_id, :action, type: :string, klass: task_class).and_return([])
+
+        task_class.required :user_id, :action, type: :string
+      end
+
+      it "adds parameters to registry" do
+        parameters = [double("parameter")]
+        allow(CMDx::Parameter).to receive(:required).and_return(parameters)
+
+        expect(task_class.cmd_parameters.registry).to receive(:concat).with(parameters)
+
+        task_class.required :user_id
+      end
+
+      it "passes block to Parameter.required" do
+        block = proc { puts "test" }
+        expect(CMDx::Parameter).to receive(:required).with(:user, type: :hash, klass: task_class) do |&passed_block|
+          expect(passed_block).to eq(block)
+        end.and_return([])
+
+        task_class.required :user, type: :hash, &block
+      end
+    end
+
+    describe ".call" do
+      it "creates instance and processes it" do
+        allow(task_class).to receive(:new).with(user_id: 123).and_call_original
+        expect_any_instance_of(task_class).to receive(:process)
+
+        result = task_class.call(user_id: 123)
+
+        expect(result).to be_a(CMDx::Result)
+      end
+
+      it "returns result from executed task" do
+        result = task_class.call(user_id: 123)
+
+        expect(result.context.user_id).to eq(123)
+        expect(result.context.executed).to be(true)
+      end
+    end
+
+    describe ".call!" do
+      it "creates instance and processes it with strict handling" do
+        allow(task_class).to receive(:new).with(user_id: 123).and_call_original
+        expect_any_instance_of(task_class).to receive(:process!)
+
+        result = task_class.call!(user_id: 123)
+
+        expect(result).to be_a(CMDx::Result)
+      end
+
+      it "returns result from executed task" do
+        result = task_class.call!(user_id: 123)
+
+        expect(result.context.user_id).to eq(123)
+        expect(result.context.executed).to be(true)
+      end
+
+      context "when task fails with halt setting" do
+        let(:failing_task_class) do
+          create_failing_task(name: "FailingTask").tap do |klass|
+            klass.cmd_settings!(task_halt: ["failed"])
+          end
+        end
+
+        it "raises Fault for failed task with halt setting" do
+          expect { failing_task_class.call! }.to raise_error(CMDx::Fault)
+        end
+      end
     end
   end
 
-  describe "delegation methods" do
-    subject(:task) { task_class.new }
-
-    it "delegates skip! to result" do
-      expect(task.result).to receive(:skip!)
-      task.skip!
+  describe "settings defaults" do
+    it "has default cmd_settings" do
+      expect(task_class.cmd_settings).to include(:logger, :task_halt, :workflow_halt, :tags)
+      expect(task_class.cmd_settings[:tags]).to eq([])
     end
 
-    it "delegates fail! to result" do
-      expect(task.result).to receive(:fail!)
-      task.fail!
+    it "has default cmd_middlewares" do
+      expect(task_class.cmd_middlewares).to be_a(CMDx::MiddlewareRegistry)
     end
 
-    it "delegates throw! to result" do
-      expect(task.result).to receive(:throw!)
-      task.throw!
+    it "has default cmd_callbacks" do
+      expect(task_class.cmd_callbacks).to be_a(CMDx::CallbackRegistry)
     end
 
-    it "delegates cmd_middlewares to class" do
-      expect(task.cmd_middlewares).to be(task_class.cmd_middlewares)
-    end
-
-    it "delegates cmd_callbacks to class" do
-      expect(task.cmd_callbacks).to be(task_class.cmd_callbacks)
-    end
-
-    it "delegates cmd_parameters to class" do
-      expect(task.cmd_parameters).to be(task_class.cmd_parameters)
-    end
-
-    it "delegates task_setting to class" do
-      task_class.task_settings!(timeout: 30)
-
-      expect(task.task_setting(:timeout)).to eq(30)
-    end
-
-    it "delegates task_setting? to class" do
-      task_class.task_settings!(timeout: 30)
-
-      expect(task.task_setting?(:timeout)).to be(true)
+    it "has default cmd_parameters" do
+      expect(task_class.cmd_parameters).to be_a(CMDx::ParameterRegistry)
     end
   end
 
-  describe "parameter handling" do
-    let(:parameterized_task) do
-      create_task_class(name: "ParameterizedTask") do
+  describe "integration scenarios" do
+    let(:integrated_task_class) do
+      create_task_class(name: "IntegratedTask") do
         required :user_id, type: :integer
-        optional :notify, type: :boolean, default: true
+        optional :message, type: :string, default: "Hello"
+
+        before_execution :setup
+        on_success :cleanup
 
         def call
-          context.result = "User #{user_id} processed"
-          context.notify = notify # Access the parameter to trigger default resolution
+          context.processed_user = user_id * 2
+          context.final_message = message
+        end
+
+        private
+
+        def setup
+          context.setup_done = true
+        end
+
+        def cleanup
+          context.cleanup_done = true
         end
       end
+    end
+
+    it "executes full task lifecycle" do
+      result = integrated_task_class.call(user_id: 5, message: "Hello")
+
+      expect(result).to be_successful_task
+      expect(result.context.user_id).to eq(5)
+      expect(result.context.message).to eq("Hello")
+      expect(result.context.processed_user).to eq(10)
+      expect(result.context.final_message).to eq("Hello")
+      expect(result.context.setup_done).to be(true)
+      expect(result.context.cleanup_done).to be(true)
     end
 
     it "validates required parameters" do
-      result = parameterized_task.call
+      result = integrated_task_class.call(message: "Custom")
 
-      expect(result.failed?).to be(true)
-      expect(result.metadata[:reason]).to include("is a required parameter")
+      expect(result).to be_failed_task
+      expect(result.metadata[:reason]).to include("user_id")
     end
 
-    it "allows access to parameters in call method" do
-      result = parameterized_task.call(user_id: 123)
+    it "coerces parameter types" do
+      result = integrated_task_class.call(user_id: "10")
 
-      expect(result.context.result).to eq("User 123 processed")
-    end
-
-    it "applies default values for optional parameters" do
-      result = parameterized_task.call(user_id: 123)
-
-      expect(result.context.notify).to be(true)
-    end
-
-    it "accepts explicit values for optional parameters" do
-      result = parameterized_task.call(user_id: 123, notify: false)
-
-      expect(result.context.notify).to be(false)
-    end
-  end
-
-  describe "callback execution" do
-    let(:callback_tracking) { [] }
-    let(:callbacked_task) do
-      tracking = callback_tracking
-      create_task_class(name: "CallbackedTask") do
-        before_execution -> { tracking << :before_execution }
-        after_execution -> { tracking << :after_execution }
-        on_success -> { tracking << :on_success }
-
-        def call
-          # Successful execution
-        end
-      end
-    end
-
-    it "executes callbacks in correct order" do
-      callbacked_task.call
-
-      expect(callback_tracking).to include(:before_execution, :after_execution, :on_success)
-    end
-
-    it "executes before_execution callbacks before call" do
-      callbacked_task.call
-
-      expect(callback_tracking.first).to eq(:before_execution)
-    end
-
-    it "executes after_execution callbacks after call" do
-      callbacked_task.call
-
-      expect(callback_tracking.last).to eq(:after_execution)
+      expect(result).to be_successful_task
+      expect(result.context.user_id).to eq("10")
+      expect(result.context.processed_user).to eq(20)
     end
   end
 
   describe "error handling" do
-    let(:error_task) do
-      create_erroring_task(reason: "Test error")
-    end
+    context "when task raises exception" do
+      let(:erroring_task_class) { create_erroring_task(name: "ErroringTask", reason: "Database error") }
 
-    it "captures exceptions in perform" do
-      instance = error_task.new
-      instance.perform
+      it "handles exception in process" do
+        task = erroring_task_class.new
+        task.process
 
-      expect(instance.result.failed?).to be(true)
-      expect(instance.result.metadata[:reason]).to eq("[StandardError] Test error")
-      expect(instance.result.metadata[:original_exception]).to be_a(StandardError)
-    end
+        expect(task.result).to be_failed_task
+        expect(task.result.metadata[:reason]).to include("Database error")
+      end
 
-    it "propagates exceptions in perform!" do
-      instance = error_task.new
+      it "propagates exception in process!" do
+        task = erroring_task_class.new
 
-      expect { instance.perform! }.to raise_error(StandardError)
-    end
-  end
-
-  describe "result state management" do
-    let(:state_task) do
-      create_task_class(name: "StateTask") do
-        def call
-          context.processed = true
-        end
+        expect { task.process! }.to raise_error(StandardError, "Database error")
       end
     end
 
-    it "starts with initialized state" do
-      instance = state_task.new
+    context "when task uses fail!" do
+      let(:failing_task_class) { create_failing_task(name: "FailingTask", reason: "Validation failed") }
 
-      expect(instance.result.initialized?).to be(true)
-    end
+      it "marks result as failed" do
+        result = failing_task_class.call
 
-    it "transitions to executing during call" do
-      task_with_callback = create_task_class(name: "TaskWithCallback") do
-        on_executing do
-          context.executing_captured = result.executing?
-        end
-
-        def call
-          # Implementation
-        end
+        expect(result).to be_failed_task
+        expect(result.metadata[:reason]).to eq("Validation failed")
       end
-
-      result = task_with_callback.call
-
-      expect(result.context.executing_captured).to be(true)
     end
 
-    it "transitions to executed after call" do
-      result = state_task.call
+    context "when task uses skip!" do
+      let(:skipping_task_class) { create_skipping_task(name: "SkippingTask", reason: "Feature disabled") }
 
-      expect(result.executed?).to be(true)
-    end
+      it "marks result as skipped" do
+        result = skipping_task_class.call
 
-    it "sets success status for completed tasks" do
-      result = state_task.call
-
-      expect(result.success?).to be(true)
+        expect(result).to be_skipped_task
+        expect(result.metadata[:reason]).to eq("Feature disabled")
+      end
     end
   end
 end

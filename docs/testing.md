@@ -24,7 +24,7 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
 ## TLDR
 
 - **Custom matchers** - 40+ specialized RSpec matchers for testing CMDx tasks and results
-- **Setup** - Require `cmdx/rspec/result_matchers` and `cmdx/rspec/task_matchers`
+- **Setup** - Require `cmdx/rspec/matchers`
 - **Result matchers** - `be_successful_task`, `be_failed_task`, `be_skipped_task` with chainable metadata
 - **Task matchers** - Parameter validation, lifecycle, exception handling, and configuration testing
 - **Composable** - Chain matchers for complex validation scenarios
@@ -35,18 +35,17 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
 To use CMDx's custom matchers in an external RSpec-based project update your `spec/spec_helper.rb` or `spec/rails_helper.rb`:
 
 ```ruby
-require "cmdx/rspec/result_matchers"
-require "cmdx/rspec/task_matchers"
+require "cmdx/rspec/matchers"
 ```
 
 ## Matcher Organization
 
 CMDx matchers are organized into two primary files with comprehensive YARD documentation:
 
-| File | Purpose | Matcher Count |
-|------|---------|---------------|
-| `result_matchers.rb` | Task execution outcomes and side effects | 25+ matchers |
-| `task_matchers.rb` | Task behavior, validation, and lifecycle | 15+ matchers |
+| Purpose | Matcher Count |
+|---------|---------------|
+| Task execution outcomes and side effects | 15+ matchers |
+| Task behavior, validation, and lifecycle | 5+ matchers |
 
 All matchers include:
 - Complete parameter descriptions
@@ -437,15 +436,15 @@ expect(SimpleTask).not_to have_middleware(ComplexMiddleware)
 
 ```ruby
 # Test setting presence
-expect(ConfiguredTask).to have_task_setting(:timeout)
-expect(CustomTask).to have_task_setting(:priority)
+expect(ConfiguredTask).to have_cmd_setting(:timeout)
+expect(CustomTask).to have_cmd_setting(:priority)
 
 # Test setting with specific value
-expect(TimedTask).to have_task_setting(:timeout, 30)
-expect(PriorityTask).to have_task_setting(:priority, "high")
+expect(TimedTask).to have_cmd_setting(:timeout, 30)
+expect(PriorityTask).to have_cmd_setting(:priority, "high")
 
 # Negated usage
-expect(SimpleTask).not_to have_task_setting(:complex_setting)
+expect(SimpleTask).not_to have_cmd_setting(:complex_setting)
 ```
 
 ## Composable Testing

@@ -11,7 +11,6 @@ hi:
       required: "एक आवश्यक पैरामीटर है"
       undefined: "अपरिभाषित मेथड %{source} को प्रत्यायोजित करता है"
     validators:
-      custom: "मान्य नहीं है"
       exclusion:
         of: "इनमें से एक नहीं होना चाहिए: %{values}"
         within: "%{min} और %{max} के बीच नहीं होना चाहिए"

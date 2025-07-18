@@ -11,7 +11,6 @@ ja:
       required: "必須パラメータです"
       undefined: "未定義メソッド%{source}に委譲します"
     validators:
-      custom: "無効です"
       exclusion:
         of: "次のいずれかであってはいけません: %{values}"
         within: "%{min}と%{max}の間であってはいけません"

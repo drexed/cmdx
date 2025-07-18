@@ -11,7 +11,6 @@
       required: "er en påkrevd parameter"
       undefined: "delegerer til udefinert metode %{source}"
     validators:
-      custom: "er ikke gyldig"
       exclusion:
         of: "må ikke være en av: %{values}"
         within: "må ikke være mellom %{min} og %{max}"

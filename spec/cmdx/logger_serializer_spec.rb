@@ -3,306 +3,216 @@
 require "spec_helper"
 
 RSpec.describe CMDx::LoggerSerializer do
+  let(:task) { create_simple_task.new }
+  let(:result) { CMDx::Result.new(task) }
+  let(:mock_task_serializer) do
+    {
+      index: 0,
+      chain_id: "chain_123",
+      type: "Task",
+      class: "SimpleTask",
+      id: "task_456",
+      tags: []
+    }
+  end
+
+  before do
+    allow(CMDx::TaskSerializer).to receive(:call).with(task).and_return(mock_task_serializer)
+    allow(CMDx::ResultAnsi).to receive(:call)
+  end
+
   describe ".call" do
-    let(:severity) { :info }
-    let(:time) { Time.now }
-    let(:task) { mock_task }
-    let(:task_serializer_data) do
-      {
-        index: 0,
-        chain_id: "test-chain-id",
-        type: "Task",
-        class: "TestTask",
-        id: "test-task-id",
-        tags: []
-      }
-    end
-
-    before do
-      allow(CMDx::TaskSerializer).to receive(:call).with(task).and_return(task_serializer_data)
-    end
-
-    context "when message is a plain string" do
-      let(:message) { "Test log message" }
-
-      it "includes task serializer data" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).to include(task_serializer_data)
-      end
-
-      it "includes the message" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:message]).to eq("Test log message")
-      end
-
-      it "sets origin to CMDx" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:origin]).to eq("CMDx")
-      end
-
-      it "returns hash with all expected keys" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).to include(
-          origin: "CMDx",
-          index: 0,
-          chain_id: "test-chain-id",
-          type: "Task",
-          class: "TestTask",
-          id: "test-task-id",
-          tags: [],
-          message: "Test log message"
-        )
-      end
-    end
-
-    context "when message is a plain object" do
-      let(:message) { 42 }
-
-      it "includes the message as-is" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:message]).to eq(42)
-      end
-
-      it "includes task serializer data" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).to include(task_serializer_data)
-      end
-
-      it "sets origin to CMDx" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:origin]).to eq("CMDx")
-      end
-    end
-
-    context "when message responds to to_h but is not a Result" do
-      let(:message) { double("HashLikeMessage", to_h: { action: "process", item_id: 123 }) }
-
-      before do
-        allow(message).to receive(:is_a?).with(CMDx::Result).and_return(false)
-      end
-
-      it "merges message hash with task data" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).to include(
-          action: "process",
-          item_id: 123,
-          index: 0,
-          chain_id: "test-chain-id",
-          type: "Task",
-          class: "TestTask",
-          id: "test-task-id",
-          tags: [],
-          message: message
-        )
-      end
-
-      it "sets origin to CMDx" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:origin]).to eq("CMDx")
-      end
-    end
-
     context "when message is a Result object" do
       let(:result_hash) do
         {
           state: "complete",
           status: "success",
-          outcome: "success",
-          metadata: {},
-          runtime: 0.5,
-          origin: "CMDx"
+          outcome: "good",
+          index: 0,
+          runtime: 0.001
         }
       end
-      let(:message) { double("Result", to_h: result_hash, is_a?: true) }
 
       before do
-        allow(message).to receive(:is_a?).with(CMDx::Result).and_return(true)
+        allow(result).to receive(:to_h).and_return(result_hash)
       end
 
-      it "returns the result hash directly" do
-        result = described_class.call(severity, time, task, message)
+      it "returns the result hash with origin set" do
+        output = described_class.call("info", Time.now, task, result)
 
-        expect(result).to eq(result_hash)
+        expect(output).to eq(result_hash.merge(origin: "CMDx"))
       end
 
-      it "preserves existing origin" do
-        result = described_class.call(severity, time, task, message)
+      it "preserves existing origin if already set in result" do
+        result_hash[:origin] = "ExistingOrigin"
 
-        expect(result[:origin]).to eq("CMDx")
+        output = described_class.call("info", Time.now, task, result)
+
+        expect(output[:origin]).to eq("ExistingOrigin")
       end
 
-      it "does not include task serializer data" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).not_to include(:index, :chain_id, :type, :class, :id, :tags)
-      end
-
-      it "does not include message field" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result).not_to have_key(:message)
-      end
-
-      context "when ansi_colorize option is false" do
-        it "does not colorize result values" do
-          result = described_class.call(severity, time, task, message, ansi_colorize: false)
-
-          expect(result[:state]).to eq("complete")
-          expect(result[:status]).to eq("success")
-          expect(result[:outcome]).to eq("success")
-        end
-      end
-
-      context "when ansi_colorize option is true" do
-        let(:colorized_state) { "\e[32mcomplete\e[0m" }
-        let(:colorized_status) { "\e[32msuccess\e[0m" }
-        let(:colorized_outcome) { "\e[32msuccess\e[0m" }
+      context "with ansi_colorize option" do
+        let(:colored_state) { "\e[32mcomplete\e[0m" }
+        let(:colored_status) { "\e[32msuccess\e[0m" }
+        let(:colored_outcome) { "\e[32mgood\e[0m" }
 
         before do
-          allow(CMDx::ResultAnsi).to receive(:call).with("complete").and_return(colorized_state)
-          allow(CMDx::ResultAnsi).to receive(:call).with("success").and_return(colorized_status)
-          allow(CMDx::ResultAnsi).to receive(:call).with("success").and_return(colorized_outcome)
+          allow(CMDx::ResultAnsi).to receive(:call).with("complete").and_return(colored_state)
+          allow(CMDx::ResultAnsi).to receive(:call).with("success").and_return(colored_status)
+          allow(CMDx::ResultAnsi).to receive(:call).with("good").and_return(colored_outcome)
         end
 
-        it "colorizes state, status, and outcome values" do
-          result = described_class.call(severity, time, task, message, ansi_colorize: true)
+        it "applies ANSI colorization to colored keys" do
+          output = described_class.call("info", Time.now, task, result, ansi_colorize: true)
 
-          expect(result[:state]).to eq(colorized_state)
-          expect(result[:status]).to eq(colorized_status)
-          expect(result[:outcome]).to eq(colorized_outcome)
+          expect(output[:state]).to eq(colored_state)
+          expect(output[:status]).to eq(colored_status)
+          expect(output[:outcome]).to eq(colored_outcome)
+          expect(output[:index]).to eq(0) # Not colorized
+          expect(output[:runtime]).to eq(0.001) # Not colorized
         end
 
-        it "calls ResultAnsi for each colored key" do
-          described_class.call(severity, time, task, message, ansi_colorize: true)
+        it "only colorizes keys that exist in result" do
+          result_hash.delete(:outcome)
 
-          expect(CMDx::ResultAnsi).to have_received(:call).with("complete")
-          expect(CMDx::ResultAnsi).to have_received(:call).with("success").twice
+          output = described_class.call("info", Time.now, task, result, ansi_colorize: true)
+
+          expect(output[:state]).to eq(colored_state)
+          expect(output[:status]).to eq(colored_status)
+          expect(output).not_to have_key(:outcome)
+          expect(CMDx::ResultAnsi).not_to have_received(:call).with("good")
         end
 
-        it "preserves non-colored values" do
-          result = described_class.call(severity, time, task, message, ansi_colorize: true)
+        it "preserves result hash when keys are missing" do
+          result_hash.delete(:state)
+          result_hash.delete(:status)
+          result_hash.delete(:outcome)
 
-          expect(result[:metadata]).to eq({})
-          expect(result[:runtime]).to eq(0.5)
+          output = described_class.call("info", Time.now, task, result, ansi_colorize: true)
+
+          expect(output[:index]).to eq(0)
+          expect(output[:runtime]).to eq(0.001)
+          expect(CMDx::ResultAnsi).not_to have_received(:call)
         end
       end
 
-      context "when result hash is missing colored keys" do
-        let(:result_hash) { { state: "running", metadata: {} } }
+      context "without ansi_colorize option" do
+        it "does not apply ANSI colorization" do
+          output = described_class.call("info", Time.now, task, result)
 
-        before do
-          allow(CMDx::ResultAnsi).to receive(:call).with("running").and_return("\e[33mrunning\e[0m")
-        end
-
-        it "only colorizes existing keys" do
-          result = described_class.call(severity, time, task, message, ansi_colorize: true)
-
-          expect(result[:state]).to eq("\e[33mrunning\e[0m")
-          expect(result).not_to have_key(:status)
-          expect(result).not_to have_key(:outcome)
+          expect(output[:state]).to eq("complete")
+          expect(output[:status]).to eq("success")
+          expect(output[:outcome]).to eq("good")
+          expect(CMDx::ResultAnsi).not_to have_received(:call)
         end
       end
     end
 
-    context "when message is nil" do
-      let(:message) { nil }
+    context "when message is not a Result object" do
+      let(:message) { "Processing user data" }
 
-      it "includes nil as message" do
-        result = described_class.call(severity, time, task, message)
+      it "merges TaskSerializer output with message" do
+        output = described_class.call("info", Time.now, task, message)
 
-        expect(result[:message]).to be_nil
+        expected = mock_task_serializer.merge(
+          message: message,
+          origin: "CMDx"
+        )
+        expect(output).to eq(expected)
       end
 
-      it "includes task serializer data" do
-        result = described_class.call(severity, time, task, message)
+      it "delegates to TaskSerializer" do
+        described_class.call("info", Time.now, task, message)
 
-        expect(result).to include(task_serializer_data)
-      end
-    end
-
-    context "when options contain additional keys" do
-      let(:message) { "test message" }
-      let(:options) { { custom_key: "custom_value", another_key: 123 } }
-
-      it "ignores non-ansi_colorize options" do
-        result = described_class.call(severity, time, task, message, **options)
-
-        expect(result).not_to have_key(:custom_key)
-        expect(result).not_to have_key(:another_key)
-      end
-    end
-
-    context "when origin is not present in message hash" do
-      let(:message) { double("Message", to_h: { data: "test" }, is_a?: false) }
-
-      it "sets origin to CMDx" do
-        result = described_class.call(severity, time, task, message)
-
-        expect(result[:origin]).to eq("CMDx")
-      end
-    end
-
-    context "when origin is already present in message hash" do
-      let(:existing_origin) { "CustomOrigin" }
-      let(:message) { double("Message", to_h: { origin: existing_origin }, is_a?: true) }
-
-      before do
-        allow(message).to receive(:is_a?).with(CMDx::Result).and_return(true)
+        expect(CMDx::TaskSerializer).to have_received(:call).with(task)
       end
 
-      it "preserves existing origin" do
-        result = described_class.call(severity, time, task, message)
+      it "preserves origin if already set in TaskSerializer output" do
+        mock_task_serializer[:origin] = "TaskOrigin"
 
-        expect(result[:origin]).to eq(existing_origin)
-      end
-    end
+        output = described_class.call("info", Time.now, task, message)
 
-    context "when TaskSerializer raises an error" do
-      let(:message) { "test message" }
-
-      before do
-        allow(CMDx::TaskSerializer).to receive(:call).with(task).and_raise(StandardError, "serialization error")
+        expect(output[:origin]).to eq("TaskOrigin")
       end
 
-      it "allows the error to propagate" do
-        expect { described_class.call(severity, time, task, message) }.to raise_error(StandardError, "serialization error")
+      context "with different message types" do
+        it "handles string messages" do
+          output = described_class.call("info", Time.now, task, "test message")
+
+          expect(output[:message]).to eq("test message")
+        end
+
+        it "handles hash messages" do
+          hash_message = { action: "process", data: "test" }
+          output = described_class.call("info", Time.now, task, hash_message)
+
+          expect(output[:message]).to eq(hash_message)
+        end
+
+        it "handles nil messages" do
+          output = described_class.call("info", Time.now, task, nil)
+
+          expect(output[:message]).to be_nil
+        end
+
+        it "handles numeric messages" do
+          output = described_class.call("info", Time.now, task, 42)
+
+          expect(output[:message]).to eq(42)
+        end
       end
-    end
 
-    context "when ResultAnsi raises an error" do
-      let(:result_hash) { { state: "complete", status: "success" } }
-      let(:message) { double("Result", to_h: result_hash, is_a?: true) }
+      context "with ansi_colorize option" do
+        it "ignores ansi_colorize option for non-Result messages" do
+          output = described_class.call("info", Time.now, task, message, ansi_colorize: true)
 
-      before do
-        allow(message).to receive(:is_a?).with(CMDx::Result).and_return(true)
-        allow(CMDx::ResultAnsi).to receive(:call).and_raise(StandardError, "colorization error")
-      end
-
-      it "allows the error to propagate" do
-        expect { described_class.call(severity, time, task, message, ansi_colorize: true) }.to raise_error(StandardError, "colorization error")
+          expected = mock_task_serializer.merge(
+            message: message,
+            origin: "CMDx"
+          )
+          expect(output).to eq(expected)
+          expect(CMDx::ResultAnsi).not_to have_received(:call)
+        end
       end
     end
 
-    context "when message to_h method raises an error" do
-      let(:message) { double("Message") }
+    context "when parameter handling" do
+      it "ignores severity parameter" do
+        output = described_class.call("debug", Time.now, task, "message")
 
-      before do
-        allow(message).to receive(:respond_to?).with(:to_h).and_return(true)
-        allow(message).to receive(:to_h).and_raise(StandardError, "to_h error")
+        expect(output).to include(message: "message")
       end
 
-      it "allows the error to propagate" do
-        expect { described_class.call(severity, time, task, message) }.to raise_error(StandardError, "to_h error")
+      it "ignores time parameter" do
+        specific_time = Time.new(2024, 1, 1, 12, 0, 0)
+        output = described_class.call("info", specific_time, task, "message")
+
+        expect(output).to include(message: "message")
       end
+    end
+
+    context "with edge cases" do
+      it "handles empty result hash" do
+        allow(result).to receive(:to_h).and_return({})
+
+        output = described_class.call("info", Time.now, task, result)
+
+        expect(output).to eq({ origin: "CMDx" })
+      end
+
+      it "handles TaskSerializer returning empty hash" do
+        allow(CMDx::TaskSerializer).to receive(:call).and_return({})
+
+        output = described_class.call("info", Time.now, task, "message")
+
+        expect(output).to eq({ message: "message", origin: "CMDx" })
+      end
+    end
+  end
+
+  describe "COLORED_KEYS constant" do
+    it "contains expected keys for ANSI colorization" do
+      expect(described_class::COLORED_KEYS).to eq(%i[state status outcome])
     end
   end
 end

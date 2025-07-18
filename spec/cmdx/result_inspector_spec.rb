@@ -4,339 +4,243 @@ require "spec_helper"
 
 RSpec.describe CMDx::ResultInspector do
   describe ".call" do
-    context "when inspecting basic result information" do
-      it "formats class name with colon" do
-        result_hash = { class: "ProcessOrderTask" }
+    subject(:call) { described_class.call(result) }
 
-        output = described_class.call(result_hash)
+    context "with empty result" do
+      let(:result) { {} }
 
-        expect(output).to eq("ProcessOrderTask:")
+      it "returns empty string" do
+        expect(call).to eq("")
       end
+    end
 
-      it "formats basic attributes with key=value pairs" do
-        result_hash = {
-          class: "ProcessOrderTask",
-          type: "Task",
-          index: 0,
-          state: "complete"
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ProcessOrderTask: type=Task index=0 state=complete")
-      end
-
-      it "handles string and numeric values" do
-        result_hash = {
-          class: "MyTask",
-          id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-          index: 42,
-          runtime: 1.5
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("MyTask: index=42 id=018c2b95-b764-7615-a924-cc5b910ed1e5 runtime=1.5")
-      end
-
-      it "includes all standard result attributes" do
-        result_hash = {
-          class: "ComplexTask",
-          type: "Task",
-          index: 1,
-          id: "abc123",
+    context "with basic result attributes" do
+      let(:result) do
+        {
+          class: "TestTask",
           state: "complete",
           status: "success",
-          outcome: "success"
+          id: "task_123"
         }
+      end
 
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ComplexTask: type=Task index=1 id=abc123 state=complete status=success outcome=success")
+      it "formats basic attributes with proper ordering" do
+        expect(call).to eq("TestTask: id=task_123 state=complete status=success")
       end
     end
 
-    context "when inspecting result metadata" do
-      it "formats metadata hash" do
-        result_hash = {
-          class: "ProcessOrderTask",
-          metadata: { order_id: 123, user_id: 456 }
+    context "with all ordered keys present" do
+      let(:result) do
+        {
+          runtime: 1.5,
+          class: "ProcessTask",
+          pid: 12_345,
+          tags: %w[urgent batch],
+          metadata: { user: "admin" },
+          outcome: "good",
+          status: "success",
+          state: "complete",
+          index: 2,
+          id: "proc_456",
+          type: "workflow"
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ProcessOrderTask: metadata={order_id: 123, user_id: 456}")
       end
 
-      it "handles empty metadata" do
-        result_hash = {
-          class: "SimpleTask",
-          metadata: {}
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("SimpleTask: metadata={}")
-      end
-
-      it "handles metadata with various value types" do
-        result_hash = {
-          class: "VariedTask",
-          metadata: { string_val: "test", number_val: 42, bool_val: true }
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("VariedTask: metadata={string_val: \"test\", number_val: 42, bool_val: true}")
+      it "formats all attributes in correct order" do
+        expected = "ProcessTask: type=workflow index=2 id=proc_456 state=complete status=success outcome=good metadata={user: \"admin\"} tags=[\"urgent\", \"batch\"] pid=12345 runtime=1.5"
+        expect(call).to eq(expected)
       end
     end
 
-    context "when inspecting failure references" do
+    context "with caused_failure information" do
+      let(:result) do
+        {
+          class: "ValidationTask",
+          state: "interrupted",
+          status: "failed",
+          caused_failure: {
+            index: 1,
+            class: "InputValidation",
+            id: "val_789"
+          }
+        }
+      end
+
       it "formats caused_failure with special syntax" do
-        result_hash = {
-          class: "FailedTask",
-          caused_failure: { index: 0, class: "ValidationTask", id: "val123" }
+        expect(call).to eq("ValidationTask: state=interrupted status=failed caused_failure=<[1] InputValidation: val_789>")
+      end
+    end
+
+    context "with threw_failure information" do
+      let(:result) do
+        {
+          class: "ProcessingTask",
+          state: "interrupted",
+          status: "failed",
+          threw_failure: {
+            index: 3,
+            class: "DataProcessor",
+            id: "proc_101"
+          }
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FailedTask: caused_failure=<[0] ValidationTask: val123>")
       end
 
       it "formats threw_failure with special syntax" do
-        result_hash = {
-          class: "FailedTask",
-          threw_failure: { index: 2, class: "ProcessingTask", id: "proc456" }
+        expect(call).to eq("ProcessingTask: state=interrupted status=failed threw_failure=<[3] DataProcessor: proc_101>")
+      end
+    end
+
+    context "with both failure types" do
+      let(:result) do
+        {
+          class: "ChainTask",
+          caused_failure: {
+            index: 0,
+            class: "InitialTask",
+            id: "init_001"
+          },
+          threw_failure: {
+            index: 2,
+            class: "FinalTask",
+            id: "final_003"
+          }
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FailedTask: threw_failure=<[2] ProcessingTask: proc456>")
       end
 
-      it "formats both caused_failure and threw_failure" do
-        result_hash = {
-          class: "FailedTask",
-          caused_failure: { index: 1, class: "InputTask", id: "input789" },
-          threw_failure: { index: 3, class: "OutputTask", id: "output012" }
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FailedTask: caused_failure=<[1] InputTask: input789> threw_failure=<[3] OutputTask: output012>")
+      it "formats both failure types correctly" do
+        expect(call).to eq("ChainTask: caused_failure=<[0] InitialTask: init_001> threw_failure=<[2] FinalTask: final_003>")
       end
+    end
 
-      it "includes failure references with other attributes" do
-        result_hash = {
-          class: "ComplexFailedTask",
-          type: "Task",
+    context "with minimal result" do
+      let(:result) { { id: "simple_task" } }
+
+      it "formats single attribute" do
+        expect(call).to eq("id=simple_task")
+      end
+    end
+
+    context "with unordered keys in result hash" do
+      let(:result) do
+        {
+          runtime: 2.1,
+          id: "unordered_123",
+          class: "UnorderedTask",
           index: 5,
-          state: "interrupted",
-          status: "failed",
-          caused_failure: { index: 2, class: "DependencyTask", id: "dep345" }
+          state: "executing"
         }
+      end
 
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ComplexFailedTask: type=Task index=5 state=interrupted status=failed caused_failure=<[2] DependencyTask: dep345>")
+      it "outputs keys in predefined order regardless of input order" do
+        expect(call).to eq("UnorderedTask: index=5 id=unordered_123 state=executing runtime=2.1")
       end
     end
 
-    context "when inspecting execution information" do
-      it "includes runtime information" do
-        result_hash = {
-          class: "TimedTask",
-          runtime: 2.5
+    context "with keys not in ORDERED_KEYS" do
+      let(:result) do
+        {
+          class: "CustomTask",
+          custom_field: "ignored",
+          state: "complete",
+          another_field: "also_ignored"
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("TimedTask: runtime=2.5")
       end
 
-      it "includes process ID information" do
-        result_hash = {
-          class: "ProcessTask",
-          pid: 1234
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ProcessTask: pid=1234")
-      end
-
-      it "includes tags information" do
-        result_hash = {
-          class: "TaggedTask",
-          tags: %w[important user-action]
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("TaggedTask: tags=[\"important\", \"user-action\"]")
-      end
-
-      it "combines execution information with other attributes" do
-        result_hash = {
-          class: "FullTask",
-          index: 0,
-          runtime: 1.2,
-          pid: 5678,
-          tags: ["fast"]
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FullTask: index=0 tags=[\"fast\"] pid=5678 runtime=1.2")
+      it "only includes keys from ORDERED_KEYS" do
+        expect(call).to eq("CustomTask: state=complete")
       end
     end
 
-    context "when handling attribute ordering" do
-      it "follows consistent key ordering" do
-        result_hash = {
-          runtime: 0.5,
-          class: "OrderedTask",
-          index: 1,
-          type: "Task",
-          id: "ordered123"
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("OrderedTask: type=Task index=1 id=ordered123 runtime=0.5")
-      end
-
-      it "places class first regardless of input order" do
-        result_hash = {
-          status: "success",
-          metadata: { test: true },
-          class: "StatusTask",
-          state: "complete"
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("StatusTask: state=complete status=success metadata={test: true}")
-      end
-
-      it "maintains proper order with all attribute types" do
-        result_hash = {
-          threw_failure: { index: 1, class: "HelperTask", id: "help123" },
-          runtime: 3.0,
-          class: "ComprehensiveTask",
-          metadata: { priority: "high" },
-          type: "Task",
-          index: 0,
-          caused_failure: { index: 2, class: "DependTask", id: "dep456" }
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ComprehensiveTask: type=Task index=0 metadata={priority: \"high\"} runtime=3.0 caused_failure=<[2] DependTask: dep456> threw_failure=<[1] HelperTask: help123>")
-      end
-    end
-
-    context "when handling missing or nil attributes" do
-      it "skips missing keys" do
-        result_hash = {
-          class: "SparseTask",
-          index: 1
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("SparseTask: index=1")
-      end
-
-      it "handles empty result hash" do
-        result_hash = {}
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("")
-      end
-
-      it "includes keys with nil values" do
-        result_hash = {
+    context "with nil values" do
+      let(:result) do
+        {
           class: "NilTask",
-          metadata: nil,
-          runtime: 0.0
+          state: nil,
+          status: "success"
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("NilTask: metadata= runtime=0.0")
       end
 
-      it "skips keys not in the ordered list" do
-        result_hash = {
-          class: "FilteredTask",
-          index: 0,
-          unknown_key: "ignored",
-          another_unknown: 42
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FilteredTask: index=0")
+      it "includes nil values in output" do
+        expect(call).to eq("NilTask: state= status=success")
       end
     end
 
-    context "when inspecting complex result scenarios" do
-      it "handles comprehensive successful result" do
-        result_hash = {
-          class: "ProcessOrderTask",
-          type: "Task",
-          index: 0,
-          id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-          state: "complete",
-          status: "success",
-          outcome: "success",
-          metadata: { order_id: 123, customer_id: 456 },
-          runtime: 0.5,
-          pid: 9876
+    context "with complex metadata values" do
+      let(:result) do
+        {
+          class: "ComplexTask",
+          metadata: { nested: { data: [1, 2, 3] } },
+          tags: %w[tag1 tag2]
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("ProcessOrderTask: type=Task index=0 id=018c2b95-b764-7615-a924-cc5b910ed1e5 state=complete status=success outcome=success metadata={order_id: 123, customer_id: 456} pid=9876 runtime=0.5")
       end
 
-      it "handles comprehensive failed result" do
-        result_hash = {
-          class: "FailedProcessTask",
-          type: "Task",
-          index: 2,
-          id: "failed-task-id",
-          state: "interrupted",
-          status: "failed",
-          outcome: "failed",
-          metadata: { error_code: 500, message: "Processing failed" },
-          runtime: 1.8,
-          caused_failure: { index: 0, class: "ValidationTask", id: "validation-id" },
-          threw_failure: { index: 1, class: "NetworkTask", id: "network-id" }
+      it "includes complex values as string representations" do
+        expect(call).to eq("ComplexTask: metadata={nested: {data: [1, 2, 3]}} tags=[\"tag1\", \"tag2\"]")
+      end
+    end
+
+    context "when result doesn't respond to key? method" do
+      let(:result) { "not a hash" }
+
+      it "raises NoMethodError" do
+        expect { call }.to raise_error(NoMethodError)
+      end
+    end
+
+    context "when result has malformed failure data" do
+      let(:result) do
+        {
+          class: "BrokenTask",
+          caused_failure: { incomplete: "data" }
         }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("FailedProcessTask: type=Task index=2 id=failed-task-id state=interrupted status=failed outcome=failed metadata={error_code: 500, message: \"Processing failed\"} runtime=1.8 caused_failure=<[0] ValidationTask: validation-id> threw_failure=<[1] NetworkTask: network-id>")
       end
 
-      it "handles skipped result with minimal information" do
-        result_hash = {
-          class: "SkippedTask",
-          type: "Task",
-          index: 1,
-          state: "complete",
-          status: "skipped",
-          outcome: "skipped",
-          metadata: { reason: "Already processed" }
-        }
-
-        output = described_class.call(result_hash)
-
-        expect(output).to eq("SkippedTask: type=Task index=1 state=complete status=skipped outcome=skipped metadata={reason: \"Already processed\"}")
+      it "handles missing failure keys gracefully" do
+        expect(call).to eq("BrokenTask: caused_failure=<[] : >")
       end
+    end
+
+    context "with boolean values" do
+      let(:result) do
+        {
+          class: "BooleanTask",
+          status: true,
+          outcome: false
+        }
+      end
+
+      it "formats boolean values correctly" do
+        expect(call).to eq("BooleanTask: status=true outcome=false")
+      end
+    end
+
+    context "with numeric values" do
+      let(:result) do
+        {
+          class: "NumericTask",
+          index: 42,
+          runtime: 3.14159,
+          pid: 0
+        }
+      end
+
+      it "formats numeric values correctly" do
+        expect(call).to eq("NumericTask: index=42 pid=0 runtime=3.14159")
+      end
+    end
+  end
+
+  describe "ORDERED_KEYS constant" do
+    it "contains expected keys in specific order" do
+      expected_keys = %i[
+        class type index id state status outcome metadata
+        tags pid runtime caused_failure threw_failure
+      ]
+      expect(described_class::ORDERED_KEYS).to eq(expected_keys)
+    end
+
+    it "is frozen" do
+      expect(described_class::ORDERED_KEYS).to be_frozen
     end
   end
 end

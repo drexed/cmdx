@@ -11,7 +11,6 @@ ko:
       required: "필수 매개변수입니다"
       undefined: "정의되지 않은 메서드 %{source}에 위임합니다"
     validators:
-      custom: "유효하지 않습니다"
       exclusion:
         of: "다음 중 하나가 아니어야 합니다: %{values}"
         within: "%{min}과 %{max} 사이에 있지 않아야 합니다"

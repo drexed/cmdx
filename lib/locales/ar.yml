@@ -11,7 +11,6 @@ ar:
       required: "معامل مطلوب"
       undefined: "يفوض لطريقة غير معرفة %{source}"
     validators:
-      custom: "غير صالح"
       exclusion:
         of: "يجب ألا يكون أحد: %{values}"
         within: "يجب ألا يكون بين %{min} و %{max}"

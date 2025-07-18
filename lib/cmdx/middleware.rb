@@ -1,71 +1,49 @@
 # frozen_string_literal: true
 
 module CMDx
-  ##
-  # Base class for CMDx middleware that follows Rack-style interface.
+  # Base class for implementing middleware functionality in task execution.
   #
-  # Middleware components can wrap task execution to provide cross-cutting
-  # concerns like logging, authentication, caching, or error handling.
-  # Each middleware must implement the `call` method which receives the
-  # task instance and a callable that represents the next middleware
-  # in the chain.
-  #
-  # @example Basic middleware implementation
-  #   class LoggingMiddleware < CMDx::Middleware
-  #     def call(task, callable)
-  #       puts "Before executing #{task.class.name}"
-  #       result = callable.call(task)
-  #       puts "After executing #{task.class.name}"
-  #       result
-  #     end
-  #   end
-  #
-  # @example Middleware with initialization parameters
-  #   class AuthenticationMiddleware < CMDx::Middleware
-  #     def initialize(required_role)
-  #       @required_role = required_role
-  #     end
-  #
-  #     def call(task, callable)
-  #       unless task.context.user&.has_role?(@required_role)
-  #         task.fail!(reason: "Insufficient permissions")
-  #         return task.result
-  #       end
-  #       callable.call(task)
-  #     end
-  #   end
-  #
-  # @example Short-circuiting middleware
-  #   class CachingMiddleware < CMDx::Middleware
-  #     def call(task, callable)
-  #       cache_key = "#{task.class.name}:#{task.context.to_h.hash}"
-  #
-  #       if cached_result = Rails.cache.read(cache_key)
-  #         task.result.merge!(cached_result)
-  #         return task.result
-  #       end
-  #
-  #       result = callable.call(task)
-  #       Rails.cache.write(cache_key, result.to_h) if result.success?
-  #       result
-  #     end
-  #   end
-  #
-  # @see MiddlewareRegistry management
-  # @see Task middleware integration
+  # Middleware provides a way to wrap task execution with custom behavior
+  # such as logging, timing, authentication, or other cross-cutting concerns.
+  # All middleware implementations must inherit from this class and implement
+  # the abstract call method.
   class Middleware
 
-    ##
-    # Executes the middleware logic.
+    # Executes middleware by creating a new instance and calling it.
     #
-    # This method must be implemented by subclasses to define the middleware
-    # behavior. The method receives the task instance and a callable that
-    # represents the next middleware in the chain or the final task execution.
+    # @param task [Task] the task instance being wrapped by the middleware
+    # @param callable [Proc] the callable object to execute within the middleware
     #
-    # @param task [Task] the task instance being executed
-    # @param callable [#call] the next middleware or task execution callable
-    # @return [Result] the task execution result
-    # @abstract Subclasses must implement this method
+    # @return [Object] the result of the middleware execution
+    #
+    # @raise [UndefinedCallError] when the middleware subclass doesn't implement call
+    #
+    # @example Execute middleware on a task
+    #   MyMiddleware.call(task, -> { task.process })
+    def self.call(task, callable)
+      new.call(task, callable)
+    end
+
+    # Abstract method that must be implemented by middleware subclasses.
+    #
+    # This method contains the actual middleware logic to be executed.
+    # Subclasses must override this method to provide their specific
+    # middleware implementation that wraps the callable execution.
+    #
+    # @param _task [Task] the task instance being wrapped by the middleware
+    # @param _callable [Proc] the callable object to execute within the middleware
+    #
+    # @return [Object] the result of the middleware execution
+    #
+    # @raise [UndefinedCallError] always raised in the base class
+    #
+    # @example Implement in a subclass
+    #   def call(task, callable)
+    #     puts "Before #{task.class.name} execution"
+    #     result = callable.call
+    #     puts "After #{task.class.name} execution"
+    #     result
+    #   end
     def call(_task, _callable)
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end

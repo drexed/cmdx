@@ -11,7 +11,6 @@ it:
       required: "è un parametro obbligatorio"
       undefined: "delega al metodo indefinito %{source}"
     validators:
-      custom: "non è valido"
       exclusion:
         of: "non deve essere uno di: %{values}"
         within: "non deve essere tra %{min} e %{max}"

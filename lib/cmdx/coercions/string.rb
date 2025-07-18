@@ -2,41 +2,33 @@
 
 module CMDx
   module Coercions
-    # Coerces values to String type.
+    # Coercion class for converting values to strings.
     #
-    # The String coercion converts parameter values to String objects
-    # using Ruby's built-in String() method, which handles various
-    # input types safely.
-    #
-    # @example Basic string coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :order_id, type: :string
-    #     optional :notes, type: :string
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::String.call(123)        # => "123"
-    #   Coercions::String.call(:symbol)    # => "symbol"
-    #   Coercions::String.call(true)       # => "true"
-    #   Coercions::String.call(nil)        # => ""
-    #   Coercions::String.call([1, 2])     # => "12" (array to_s)
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module String
+    # This coercion handles conversion of various types to strings using Ruby's
+    # built-in String() method, which provides consistent string conversion
+    # behavior across different object types.
+    class String < Coercion
 
-      module_function
-
-      # Coerce a value to String.
+      # Converts the given value to a string.
       #
-      # @param value [Object] value to coerce to string
-      # @param _options [Hash] coercion options (unused)
-      # @return [String] coerced string value
-      # @raise [CoercionError] if coercion fails
+      # @param value [Object] the value to convert to a string
+      # @param _options [Hash] optional configuration (currently unused)
       #
-      # @example
-      #   Coercions::String.call(123)    # => "123"
-      #   Coercions::String.call(:test)  # => "test"
+      # @return [String] the converted string value
+      #
+      # @raise [TypeError] if the value cannot be converted to a string
+      #
+      # @example Converting numbers
+      #   Coercions::String.call(123) #=> "123"
+      #   Coercions::String.call(45.67) #=> "45.67"
+      #
+      # @example Converting symbols and nil
+      #   Coercions::String.call(:symbol) #=> "symbol"
+      #   Coercions::String.call(nil) #=> ""
+      #
+      # @example Converting boolean values
+      #   Coercions::String.call(true) #=> "true"
+      #   Coercions::String.call(false) #=> "false"
       def call(value, _options = {})
         String(value)
       end

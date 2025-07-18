@@ -3,333 +3,427 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Validators::Numeric do
+  subject(:validator) { described_class.new }
+
+  describe ".call" do
+    it "creates instance and calls #call method" do
+      expect(described_class).to receive(:new).and_return(validator)
+      expect(validator).to receive(:call).with(42, { min: 10 })
+
+      described_class.call(42, { min: 10 })
+    end
+  end
+
   describe "#call" do
-    context "with within range validation" do
-      it "passes when value is within range" do
-        expect { described_class.call(50, numeric: { within: 1..100 }) }.not_to raise_error
+    context "with within validation" do
+      it "allows values within the range" do
+        expect { validator.call(5,  { within: 1..10 }) }.not_to raise_error
+        expect { validator.call(1,  { within: 1..10 }) }.not_to raise_error
+        expect { validator.call(10, { within: 1..10 }) }.not_to raise_error
       end
 
-      it "passes when float value is within range" do
-        expect { described_class.call(2.5, numeric: { within: 1.0..5.0 }) }.not_to raise_error
+      it "allows values within the range using in alias" do
+        expect { validator.call(5,  { in: 1..10 }) }.not_to raise_error
       end
 
-      it "passes when value is at range boundaries" do
-        expect { described_class.call(1, numeric: { within: 1..100 }) }.not_to raise_error
-        expect { described_class.call(100, numeric: { within: 1..100 }) }.not_to raise_error
+      it "raises ValidationError when value is outside the range" do
+        expect { validator.call(0,  { within: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
+        expect { validator.call(11, { within: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
       end
 
-      it "raises ValidationError when value is below range" do
-        expect do
-          described_class.call(0, numeric: { within: 1..100 })
-        end.to raise_error(CMDx::ValidationError, "must be within 1 and 100")
+      it "raises ValidationError when value is outside the range using in alias" do
+        expect { validator.call(0, { in: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
       end
 
-      it "raises ValidationError when value is above range" do
-        expect do
-          described_class.call(150, numeric: { within: 1..100 })
-        end.to raise_error(CMDx::ValidationError, "must be within 1 and 100")
-      end
-    end
-
-    context "with in range validation" do
-      it "passes when value is in range" do
-        expect { described_class.call(25, numeric: { in: 10..50 }) }.not_to raise_error
+      it "works with exclusive ranges" do
+        expect { validator.call(10, { within: 1...10 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 1 and 10")
+        expect { validator.call(9, { within: 1...10 }) }.not_to raise_error
       end
 
-      it "raises ValidationError when value is not in range" do
-        expect do
-          described_class.call(5, numeric: { in: 10..50 })
-        end.to raise_error(CMDx::ValidationError, "must be within 10 and 50")
-      end
-    end
-
-    context "with not_within range validation" do
-      it "passes when value is not within forbidden range" do
-        expect { described_class.call(5, numeric: { not_within: 10..20 }) }.not_to raise_error
+      it "works with float ranges" do
+        expect { validator.call(5.5,  { within: 1.0..10.0 }) }.not_to raise_error
+        expect { validator.call(0.5,  { within: 1.0..10.0 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 1.0 and 10.0")
       end
 
-      it "passes when value is outside forbidden boundaries" do
-        expect { described_class.call(9, numeric: { not_within: 10..20 }) }.not_to raise_error
-        expect { described_class.call(21, numeric: { not_within: 10..20 }) }.not_to raise_error
+      it "uses custom within_message when provided" do
+        options = { within: 1..10, within_message: "Value must be between %{min} and %{max}" }
+
+        expect { validator.call(0, options) }
+          .to raise_error(CMDx::ValidationError, "Value must be between 1 and 10")
       end
 
-      it "raises ValidationError when value is within forbidden range" do
-        expect do
-          described_class.call(15, numeric: { not_within: 10..20 })
-        end.to raise_error(CMDx::ValidationError, "must not be within 10 and 20")
-      end
-    end
+      it "uses custom in_message when provided" do
+        options = { in: 1..10, in_message: "Must be from %{min} to %{max}" }
 
-    context "with not_in range validation" do
-      it "passes when value is not in forbidden range" do
-        expect { described_class.call(25, numeric: { not_in: 10..20 }) }.not_to raise_error
+        expect { validator.call(0, options) }
+          .to raise_error(CMDx::ValidationError, "Must be from 1 to 10")
       end
 
-      it "raises ValidationError when value is in forbidden range" do
-        expect do
-          described_class.call(15, numeric: { not_in: 10..20 })
-        end.to raise_error(CMDx::ValidationError, "must not be within 10 and 20")
+      it "uses custom message when provided" do
+        options = { within: 1..10, message: "Age must be between %{min} and %{max}" }
+
+        expect { validator.call(0, options) }
+          .to raise_error(CMDx::ValidationError, "Age must be between 1 and 10")
       end
     end
 
-    context "with minimum value validation" do
-      it "passes when value meets minimum" do
-        expect { described_class.call(25, numeric: { min: 18 }) }.not_to raise_error
+    context "with not_within validation" do
+      it "allows values outside the range" do
+        expect { validator.call(0,  { not_within: 1..10 }) }.not_to raise_error
+        expect { validator.call(11, { not_within: 1..10 }) }.not_to raise_error
       end
 
-      it "passes when value exceeds minimum" do
-        expect { described_class.call(30, numeric: { min: 18 }) }.not_to raise_error
+      it "allows values outside the range using not_in alias" do
+        expect { validator.call(0,  { not_in: 1..10 }) }.not_to raise_error
       end
 
-      it "passes when value equals minimum" do
-        expect { described_class.call(18, numeric: { min: 18 }) }.not_to raise_error
+      it "raises ValidationError when value is within the excluded range" do
+        expect { validator.call(5,  { not_within: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must not be within 1 and 10")
+        expect { validator.call(1,  { not_within: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must not be within 1 and 10")
+      end
+
+      it "raises ValidationError when value is within the excluded range using not_in alias" do
+        expect { validator.call(5,  { not_in: 1..10 }) }
+          .to raise_error(CMDx::ValidationError, "must not be within 1 and 10")
+      end
+
+      it "works with exclusive ranges" do
+        expect { validator.call(10, { not_within: 1...10 }) }.not_to raise_error
+        expect { validator.call(9, { not_within: 1...10 }) }
+          .to raise_error(CMDx::ValidationError, "must not be within 1 and 10")
+      end
+
+      it "uses custom not_within_message when provided" do
+        options = { not_within: 1..10, not_within_message: "Cannot be between %{min} and %{max}" }
+
+        expect { validator.call(5, options) }
+          .to raise_error(CMDx::ValidationError, "Cannot be between 1 and 10")
+      end
+
+      it "uses custom not_in_message when provided" do
+        options = { not_in: 1..10, not_in_message: "Must not be from %{min} to %{max}" }
+
+        expect { validator.call(5, options) }
+          .to raise_error(CMDx::ValidationError, "Must not be from 1 to 10")
+      end
+
+      it "uses custom message when provided" do
+        options = { not_within: 1..10, message: "Age cannot be between %{min} and %{max}" }
+
+        expect { validator.call(5, options) }
+          .to raise_error(CMDx::ValidationError, "Age cannot be between 1 and 10")
+      end
+    end
+
+    context "with min/max validation" do
+      it "allows values within min and max bounds" do
+        expect { validator.call(15,  { min: 10, max: 20 }) }.not_to raise_error
+        expect { validator.call(10,  { min: 10, max: 20 }) }.not_to raise_error
+        expect { validator.call(20,  { min: 10, max: 20 }) }.not_to raise_error
+      end
+
+      it "raises ValidationError when value is outside min/max bounds" do
+        expect { validator.call(9, { min: 10, max: 20 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 10 and 20")
+        expect { validator.call(21, { min: 10, max: 20 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 10 and 20")
+      end
+
+      it "works with float values" do
+        expect { validator.call(15.5,  { min: 10.0, max: 20.0 }) }.not_to raise_error
+        expect { validator.call(9.9, { min: 10.0, max: 20.0 }) }
+          .to raise_error(CMDx::ValidationError, "must be within 10.0 and 20.0")
+      end
+    end
+
+    context "with min validation" do
+      it "allows values at or above minimum" do
+        expect { validator.call(10,  { min: 10 }) }.not_to raise_error
+        expect { validator.call(15,  { min: 10 }) }.not_to raise_error
       end
 
       it "raises ValidationError when value is below minimum" do
-        expect do
-          described_class.call(15, numeric: { min: 18 })
-        end.to raise_error(CMDx::ValidationError, "must be at least 18")
+        expect { validator.call(9, { min: 10 }) }
+          .to raise_error(CMDx::ValidationError, "must be at least 10")
+      end
+
+      it "works with float values" do
+        expect { validator.call(10.1, { min: 10.0 }) }.not_to raise_error
+        expect { validator.call(9.9, { min: 10.0 }) }
+          .to raise_error(CMDx::ValidationError, "must be at least 10.0")
+      end
+
+      it "uses custom min_message when provided" do
+        options = { min: 18, min_message: "Must be at least %{min} years old" }
+
+        expect { validator.call(17, options) }
+          .to raise_error(CMDx::ValidationError, "Must be at least 18 years old")
+      end
+
+      it "uses custom message when provided" do
+        options = { min: 18, message: "Age must be at least %{min}" }
+
+        expect { validator.call(17, options) }
+          .to raise_error(CMDx::ValidationError, "Age must be at least 18")
       end
     end
 
-    context "with maximum value validation" do
-      it "passes when value is under maximum" do
-        expect { described_class.call(50, numeric: { max: 100 }) }.not_to raise_error
-      end
-
-      it "passes when value equals maximum" do
-        expect { described_class.call(100, numeric: { max: 100 }) }.not_to raise_error
-      end
-
-      it "raises ValidationError when value exceeds maximum" do
-        expect do
-          described_class.call(150, numeric: { max: 100 })
-        end.to raise_error(CMDx::ValidationError, "must be at most 100")
-      end
-    end
-
-    context "with combined min and max validation" do
-      it "passes when value is between min and max" do
-        expect { described_class.call(3.5, numeric: { min: 1.0, max: 5.0 }) }.not_to raise_error
-      end
-
-      it "passes when value equals boundaries" do
-        expect { described_class.call(1.0, numeric: { min: 1.0, max: 5.0 }) }.not_to raise_error
-        expect { described_class.call(5.0, numeric: { min: 1.0, max: 5.0 }) }.not_to raise_error
-      end
-
-      it "raises ValidationError when value is below minimum" do
-        expect do
-          described_class.call(0.5, numeric: { min: 1.0, max: 5.0 })
-        end.to raise_error(CMDx::ValidationError, "must be within 1.0 and 5.0")
+    context "with max validation" do
+      it "allows values at or below maximum" do
+        expect { validator.call(20,  { max: 20 }) }.not_to raise_error
+        expect { validator.call(15,  { max: 20 }) }.not_to raise_error
       end
 
       it "raises ValidationError when value is above maximum" do
-        expect do
-          described_class.call(6.0, numeric: { min: 1.0, max: 5.0 })
-        end.to raise_error(CMDx::ValidationError, "must be within 1.0 and 5.0")
+        expect { validator.call(21,  { max: 20 }) }
+          .to raise_error(CMDx::ValidationError, "must be at most 20")
+      end
+
+      it "works with float values" do
+        expect { validator.call(19.9,  { max: 20.0 }) }.not_to raise_error
+        expect { validator.call(20.1,  { max: 20.0 }) }
+          .to raise_error(CMDx::ValidationError, "must be at most 20.0")
+      end
+
+      it "uses custom max_message when provided" do
+        options = { max: 65, max_message: "Cannot exceed %{max} years" }
+
+        expect { validator.call(66, options) }
+          .to raise_error(CMDx::ValidationError, "Cannot exceed 65 years")
+      end
+
+      it "uses custom message when provided" do
+        options = { max: 65, message: "Age cannot exceed %{max}" }
+
+        expect { validator.call(66, options) }
+          .to raise_error(CMDx::ValidationError, "Age cannot exceed 65")
       end
     end
 
-    context "with exact value validation" do
-      it "passes when value matches exactly" do
-        expect { described_class.call(42, numeric: { is: 42 }) }.not_to raise_error
+    context "with is validation" do
+      it "allows values that match exactly" do
+        expect { validator.call(42, { is: 42 }) }.not_to raise_error
+        expect { validator.call(3.14,  { is: 3.14 }) }.not_to raise_error
       end
 
-      it "passes when float value matches exactly" do
-        expect { described_class.call(3.14, numeric: { is: 3.14 }) }.not_to raise_error
+      it "raises ValidationError when value doesn't match exactly" do
+        expect { validator.call(41,  { is: 42 }) }
+          .to raise_error(CMDx::ValidationError, "must be 42")
+        expect { validator.call(43,  { is: 42 }) }
+          .to raise_error(CMDx::ValidationError, "must be 42")
       end
 
-      it "raises ValidationError when value does not match" do
-        expect do
-          described_class.call(41, numeric: { is: 42 })
-        end.to raise_error(CMDx::ValidationError, "must be 42")
+      it "works with negative values" do
+        expect { validator.call(-10,  { is: -10 }) }.not_to raise_error
+        expect { validator.call(-9, { is: -10 }) }
+          .to raise_error(CMDx::ValidationError, "must be -10")
       end
 
-      it "raises ValidationError when value is close but not exact" do
-        expect do
-          described_class.call(3.141, numeric: { is: 3.14 })
-        end.to raise_error(CMDx::ValidationError, "must be 3.14")
-      end
-    end
-
-    context "with forbidden exact value validation" do
-      it "passes when value does not match forbidden value" do
-        expect { described_class.call(5, numeric: { is_not: 0 }) }.not_to raise_error
+      it "works with zero" do
+        expect { validator.call(0,  { is: 0 }) }.not_to raise_error
+        expect { validator.call(1,  { is: 0 }) }
+          .to raise_error(CMDx::ValidationError, "must be 0")
       end
 
-      it "passes when value is different from forbidden value" do
-        expect { described_class.call(1, numeric: { is_not: 0 }) }.not_to raise_error
-        expect { described_class.call(-1, numeric: { is_not: 0 }) }.not_to raise_error
+      it "uses custom is_message when provided" do
+        options = { is: 100, is_message: "Value must be exactly %{is}" }
+
+        expect { validator.call(99, options) }
+          .to raise_error(CMDx::ValidationError, "Value must be exactly 100")
       end
 
-      it "raises ValidationError when value matches forbidden value" do
-        expect do
-          described_class.call(0, numeric: { is_not: 0 })
-        end.to raise_error(CMDx::ValidationError, "must not be 0")
-      end
-    end
+      it "uses custom message when provided" do
+        options = { is: 100, message: "Score must be %{is}" }
 
-    context "with custom error messages" do
-      it "uses custom within_message" do
-        expect do
-          described_class.call(150, numeric: {
-                                 within: 1..100,
-                                 within_message: "must be between %{min} and %{max} items"
-                               })
-        end.to raise_error(CMDx::ValidationError, "must be between 1 and 100 items")
-      end
-
-      it "uses custom in_message" do
-        expect do
-          described_class.call(5, numeric: {
-                                 in: 10..50,
-                                 in_message: "should be from %{min} to %{max}"
-                               })
-        end.to raise_error(CMDx::ValidationError, "should be from 10 to 50")
-      end
-
-      it "uses custom not_within_message" do
-        expect do
-          described_class.call(15, numeric: {
-                                 not_within: 10..20,
-                                 not_within_message: "cannot be between %{min} and %{max}"
-                               })
-        end.to raise_error(CMDx::ValidationError, "cannot be between 10 and 20")
-      end
-
-      it "uses custom min_message" do
-        expect do
-          described_class.call(15, numeric: {
-                                 min: 18,
-                                 min_message: "must be at least %{min} years old"
-                               })
-        end.to raise_error(CMDx::ValidationError, "must be at least 18 years old")
-      end
-
-      it "uses custom max_message" do
-        expect do
-          described_class.call(150, numeric: {
-                                 max: 100,
-                                 max_message: "cannot exceed %{max} points"
-                               })
-        end.to raise_error(CMDx::ValidationError, "cannot exceed 100 points")
-      end
-
-      it "uses custom is_message" do
-        expect do
-          described_class.call(41, numeric: {
-                                 is: 42,
-                                 is_message: "must be exactly %{is}"
-                               })
-        end.to raise_error(CMDx::ValidationError, "must be exactly 42")
-      end
-
-      it "uses custom is_not_message" do
-        expect do
-          described_class.call(0, numeric: {
-                                 is_not: 0,
-                                 is_not_message: "cannot be %{is_not}"
-                               })
-        end.to raise_error(CMDx::ValidationError, "cannot be 0")
-      end
-
-      it "uses general message override" do
-        expect do
-          described_class.call(5, numeric: {
-                                 min: 10,
-                                 message: "general numeric error"
-                               })
-        end.to raise_error(CMDx::ValidationError, "general numeric error")
-      end
-
-      it "uses I18n translation when available" do
-        allow(I18n).to receive(:t).with("cmdx.validators.numeric.min", min: 10, default: "must be at least 10").and_return("translated min error")
-
-        expect do
-          described_class.call(5, numeric: { min: 10 })
-        end.to raise_error(CMDx::ValidationError, "translated min error")
+        expect { validator.call(99, options) }
+          .to raise_error(CMDx::ValidationError, "Score must be 100")
       end
     end
 
-    context "with different numeric types" do
-      it "validates integer values" do
-        expect { described_class.call(42, numeric: { min: 1 }) }.not_to raise_error
+    context "with is_not validation" do
+      it "allows values that don't match" do
+        expect { validator.call(41,  { is_not: 42 }) }.not_to raise_error
+        expect { validator.call(43,  { is_not: 42 }) }.not_to raise_error
       end
 
-      it "validates float values" do
-        expect { described_class.call(19.99, numeric: { max: 20.0 }) }.not_to raise_error
+      it "raises ValidationError when value matches exactly" do
+        expect { validator.call(42,  { is_not: 42 }) }
+          .to raise_error(CMDx::ValidationError, "must not be 42")
       end
 
-      it "validates negative integers" do
-        expect { described_class.call(-5, numeric: { within: -10..0 }) }.not_to raise_error
+      it "works with negative values" do
+        expect { validator.call(-9,  { is_not: -10 }) }.not_to raise_error
+        expect { validator.call(-10,  { is_not: -10 }) }
+          .to raise_error(CMDx::ValidationError, "must not be -10")
       end
 
-      it "validates negative floats" do
-        expect { described_class.call(-2.5, numeric: { min: -5.0 }) }.not_to raise_error
+      it "works with zero" do
+        expect { validator.call(1,  { is_not: 0 }) }.not_to raise_error
+        expect { validator.call(0,  { is_not: 0 }) }
+          .to raise_error(CMDx::ValidationError, "must not be 0")
       end
 
-      it "validates zero" do
-        expect { described_class.call(0, numeric: { within: -1..1 }) }.not_to raise_error
+      it "uses custom is_not_message when provided" do
+        options = { is_not: 13, is_not_message: "Value cannot be %{is_not}" }
+
+        expect { validator.call(13, options) }
+          .to raise_error(CMDx::ValidationError, "Value cannot be 13")
       end
 
-      it "validates large numbers" do
-        expect { described_class.call(1_000_000, numeric: { min: 500_000 }) }.not_to raise_error
-      end
+      it "uses custom message when provided" do
+        options = { is_not: 13, message: "Lucky number %{is_not} is not allowed" }
 
-      it "validates decimal values" do
-        expect { described_class.call(BigDecimal("3.14159"), numeric: { within: 3..4 }) }.not_to raise_error
-      end
-
-      it "validates rational values" do
-        expect { described_class.call(Rational(3, 4), numeric: { within: 0..1 }) }.not_to raise_error
+        expect { validator.call(13, options) }
+          .to raise_error(CMDx::ValidationError, "Lucky number 13 is not allowed")
       end
     end
 
-    context "with edge cases" do
-      it "handles zero as minimum" do
-        expect { described_class.call(5, numeric: { min: 0 }) }.not_to raise_error
+    context "with missing options" do
+      it "raises ArgumentError when no numeric options are provided" do
+        expect { validator.call(42, {}) }
+          .to raise_error(ArgumentError, "no known numeric validator options given")
       end
 
-      it "handles negative ranges" do
-        expect { described_class.call(-5, numeric: { within: -10..-1 }) }.not_to raise_error
+      it "raises ArgumentError when numeric hash has unknown keys" do
+        expect { validator.call(42, { unknown: "value" }) }
+          .to raise_error(ArgumentError, "no known numeric validator options given")
       end
+    end
+  end
 
-      it "handles fractional boundaries" do
-        expect { described_class.call(2.5, numeric: { within: 2.1..2.9 }) }.not_to raise_error
-      end
+  describe "integration with tasks" do
+    let(:task_class) do
+      create_simple_task(name: "NumericValidationTask") do
+        required :age, type: :integer, numeric: { min: 18, max: 65 }
+        required :score, type: :float, numeric: { within: 0.0..100.0 }
+        optional :quantity, type: :integer, default: 1, numeric: { min: 1 }
 
-      it "handles exclusive ranges" do
-        expect { described_class.call(5, numeric: { within: 1...10 }) }.not_to raise_error
-      end
-
-      it "raises ValidationError for exclusive range boundary" do
-        expect do
-          described_class.call(10, numeric: { within: 1...10 })
-        end.to raise_error(CMDx::ValidationError, "must be within 1 and 10")
-      end
-
-      it "handles very small numbers" do
-        expect { described_class.call(0.0001, numeric: { min: 0 }) }.not_to raise_error
-      end
-
-      it "handles very large numbers" do
-        expect { described_class.call(Float::INFINITY, numeric: { min: 1000 }) }.not_to raise_error
+        def call
+          context.validated_data = { age: age, score: score, quantity: quantity }
+        end
       end
     end
 
-    context "with invalid options" do
-      it "raises ArgumentError when no valid options provided" do
-        expect do
-          described_class.call(42, numeric: {})
-        end.to raise_error(ArgumentError, "no known numeric validator options given")
+    it "validates successfully with valid values" do
+      result = task_class.call(age: 25, score: 85.5, quantity: 3)
+
+      expect(result).to be_success
+      expect(result.context.validated_data).to eq({ age: 25, score: 85.5, quantity: 3 })
+    end
+
+    it "fails when age is below minimum" do
+      result = task_class.call(age: 17, score: 85.5)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("age must be within 18 and 65")
+      expect(result.metadata[:messages]).to eq({ age: ["must be within 18 and 65"] })
+    end
+
+    it "fails when age is above maximum" do
+      result = task_class.call(age: 66, score: 85.5)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("age must be within 18 and 65")
+      expect(result.metadata[:messages]).to eq({ age: ["must be within 18 and 65"] })
+    end
+
+    it "fails when score is outside range" do
+      result = task_class.call(age: 25, score: 105.0)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("score must be within 0.0 and 100.0")
+      expect(result.metadata[:messages]).to eq({ score: ["must be within 0.0 and 100.0"] })
+    end
+
+    it "fails when quantity is below minimum" do
+      result = task_class.call(age: 25, score: 85.5, quantity: 0)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("quantity must be at least 1")
+      expect(result.metadata[:messages]).to eq({ quantity: ["must be at least 1"] })
+    end
+
+    it "validates with custom error messages" do
+      custom_task = create_simple_task(name: "CustomMessageTask") do
+        required :temperature, type: :float, numeric: {
+          min: -40.0,
+          max: 50.0,
+          message: "Temperature must be between %{min}°C and %{max}°C"
+        }
+
+        def call
+          context.temp = temperature
+        end
       end
 
-      it "raises ArgumentError when only invalid options provided" do
-        expect do
-          described_class.call(42, numeric: { invalid: 5 })
-        end.to raise_error(ArgumentError, "no known numeric validator options given")
+      result = custom_task.call(temperature: 60.0)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("temperature Temperature must be between -40.0°C and 50.0°C")
+      expect(result.metadata[:messages]).to eq({ temperature: ["Temperature must be between -40.0°C and 50.0°C"] })
+    end
+
+    it "works with exact value validation" do
+      exact_task = create_simple_task(name: "ExactValueTask") do
+        required :magic_number, type: :integer, numeric: { is: 42 }
+
+        def call
+          context.magic = magic_number
+        end
       end
+
+      expect(exact_task.call(magic_number: 42)).to be_success
+
+      result = exact_task.call(magic_number: 41)
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("magic_number must be 42")
+    end
+
+    it "works with exclusion validation" do
+      exclusion_task = create_simple_task(name: "ExclusionTask") do
+        required :port, type: :integer, numeric: { is_not: 80, message: "Port %{is_not} is reserved" }
+
+        def call
+          context.port = port
+        end
+      end
+
+      expect(exclusion_task.call(port: 8080)).to be_success
+
+      result = exclusion_task.call(port: 80)
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("port Port 80 is reserved")
+    end
+
+    it "works with multiple numeric validations" do
+      multi_task = create_simple_task(name: "MultiValidationTask") do
+        required :cpu_cores, type: :integer, numeric: { min: 1, max: 64 }
+        required :memory_gb, type: :integer, numeric: { within: 1..256 }
+        required :disk_gb, type: :integer, numeric: { min: 10 }
+
+        def call
+          context.config = { cpu_cores: cpu_cores, memory_gb: memory_gb, disk_gb: disk_gb }
+        end
+      end
+
+      result = multi_task.call(cpu_cores: 4, memory_gb: 8, disk_gb: 100)
+      expect(result).to be_success
+
+      result = multi_task.call(cpu_cores: 0, memory_gb: 8, disk_gb: 100)
+      expect(result).to be_failed
+
+      result = multi_task.call(cpu_cores: 4, memory_gb: 300, disk_gb: 100)
+      expect(result).to be_failed
+
+      result = multi_task.call(cpu_cores: 4, memory_gb: 8, disk_gb: 5)
+      expect(result).to be_failed
     end
   end
 end

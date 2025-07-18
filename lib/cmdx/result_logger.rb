@@ -1,47 +1,13 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Result-specific logging module for task execution outcomes.
+  # Logger utilities for task execution results.
   #
-  # The ResultLogger module provides specialized logging functionality for
-  # CMDx task results. It automatically maps result statuses to appropriate
-  # log severity levels and handles conditional logging based on logger
-  # availability and configuration.
-  #
-  # @example Successful task result logging
-  #   task = ProcessOrderTask.call(order_id: 123)
-  #   ResultLogger.call(task.result)
-  #   # Logs at INFO level: "ProcessOrderTask completed successfully"
-  #
-  # @example Failed task result logging
-  #   task = ProcessOrderTask.call(invalid_params)
-  #   ResultLogger.call(task.result)
-  #   # Logs at ERROR level: "ProcessOrderTask failed with errors"
-  #
-  # @example Skipped task result logging
-  #   task = ProcessOrderTask.new
-  #   task.skip!(reason: "Order already processed")
-  #   ResultLogger.call(task.result)
-  #   # Logs at WARN level: "ProcessOrderTask was skipped"
-  #
-  # @example Integration with task execution
-  #   class ProcessOrderTask < CMDx::Task
-  #     def call
-  #       # Task logic here
-  #     end
-  #
-  #     # ResultLogger.call is automatically invoked after task execution
-  #   end
-  #
-  # @see CMDx::Result Result object status and state management
-  # @see CMDx::Logger Logger configuration and setup
-  # @see CMDx::Task Task execution and result handling
+  # This module provides functionality to log task execution results with appropriate
+  # severity levels based on the result status. It automatically maps result statuses
+  # to corresponding log levels and delegates to the task's configured logger.
   module ResultLogger
 
-    # Mapping of result statuses to corresponding log severity levels.
-    #
-    # Maps CMDx result status constants to Ruby Logger severity levels
-    # to ensure appropriate logging levels for different task outcomes.
     STATUS_TO_SEVERITY = {
       Result::SUCCESS => :info,   # Successful task completion
       Result::SKIPPED => :warn,   # Task was skipped
@@ -50,54 +16,25 @@ module CMDx
 
     module_function
 
-    # Logs a task result at the appropriate severity level.
+    # Logs the task execution result with appropriate severity level.
     #
-    # Determines the appropriate log severity based on the result status
-    # and logs the result object using the task's configured logger.
-    # Does nothing if no logger is configured for the task.
+    # This method retrieves the logger from the task and logs the result using
+    # the severity level mapped from the result's status. If no logger is configured
+    # for the task, the method returns early without logging.
     #
-    # @param result [CMDx::Result] The task result to log
+    # @param result [Result] the task execution result to log
+    #
     # @return [void]
     #
-    # @example Logging a successful result
-    #   task = ProcessOrderTask.call(order_id: 123)
-    #   ResultLogger.call(task.result)
-    #   # Logs at INFO level with result details
+    # @example Log a successful task result
+    #   result = task.process
+    #   CMDx::ResultLogger.call(result)
+    #   # => logs at info level: "Task completed successfully"
     #
-    # @example Logging a failed result
-    #   task = ProcessOrderTask.new
-    #   task.fail!(reason: "Invalid order ID")
-    #   ResultLogger.call(task.result)
-    #   # Logs at ERROR level with failure details
-    #
-    # @example Logging a skipped result
-    #   task = ProcessOrderTask.new
-    #   task.skip!(reason: "Order already processed")
-    #   ResultLogger.call(task.result)
-    #   # Logs at WARN level with skip reason
-    #
-    # @example No logger configured
-    #   class SimpleTask < CMDx::Task
-    #     # No logger setting
-    #   end
-    #
-    #   task = SimpleTask.call
-    #   ResultLogger.call(task.result)  # Does nothing - no logger available
-    #
-    # @example Custom logger configuration
-    #   class MyTask < CMDx::Task
-    #     task_settings!(
-    #       logger: Logger.new(STDOUT),
-    #       log_formatter: CMDx::LogFormatters::Json.new
-    #     )
-    #   end
-    #
-    #   task = MyTask.call
-    #   ResultLogger.call(task.result)  # Logs in JSON format to STDOUT
-    #
-    # @note This method is typically called automatically by the CMDx framework
-    #   after task execution completes, ensuring that all task results are
-    #   properly logged according to their outcome.
+    # @example Log a failed task result
+    #   result = failing_task.process
+    #   CMDx::ResultLogger.call(result)
+    #   # => logs at error level: "Task failed with error"
     def call(result)
       logger = result.task.send(:logger)
       return if logger.nil?

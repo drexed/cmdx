@@ -31,7 +31,7 @@ Or install it yourself as:
 ```ruby
 # Setup task
 class SendWelcomeEmailTask < CMDx::Task
-  use CMDx::Middlewares::Timeout, seconds: 5
+  use :middleware, CMDx::Middlewares::Timeout, seconds: 5
 
   on_success :track_email_delivery!
 

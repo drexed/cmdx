@@ -1,36 +1,12 @@
 # frozen_string_literal: true
 
 module Cmdx
-  ##
-  # Rails generator for creating CMDx workflow task classes.
+  # Rails generator for creating CMDx workflow files.
   #
-  # This generator creates workflow task files that coordinate multiple
-  # individual tasks in a structured workflow. Workflow tasks inherit
-  # from CMDx::Workflow and provide orchestration capabilities for
-  # complex business processes.
-  #
-  # The generator handles name normalization, ensuring proper file naming
-  # conventions and class names. Generated workflow tasks inherit from
-  # ApplicationWorkflow when available, falling back to CMDx::Workflow.
-  #
-  # @example Generate a workflow task
-  #   rails generate cmdx:workflow OrderProcessing
-  #   rails generate cmdx:workflow PaymentWorkflow  # "Workflow" suffix preserved
-  #
-  # @example Generated file location
-  #   app/cmds/order_processing_workflow.rb
-  #   app/cmds/payment_workflow.rb
-  #
-  # @example Generated class structure
-  #   class OrderProcessingWorkflow < ApplicationWorkflow
-  #     def call
-  #       # Workflow orchestration logic
-  #     end
-  #   end
-  #
-  # @see CMDx::Workflow Base workflow class
-  # @see Rails::Generators::NamedBase Rails generator base class
-  # @since 1.0.0
+  # This generator creates workflow files in the app/cmds directory with proper
+  # class naming conventions and inheritance. It ensures workflow names end with
+  # "Workflow" suffix and creates files in the correct location within the Rails
+  # application structure.
   class WorkflowGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path("templates", __dir__)
@@ -38,28 +14,23 @@ module Cmdx
 
     desc "Creates a workflow with the given NAME"
 
-    ##
-    # Copies the workflow task template to the application commands directory.
+    # Creates the workflow file from the template.
     #
-    # Creates a new workflow task file in `app/cmds/` with the normalized
-    # name. The generator automatically handles:
-    # - Removing "workflow" suffix from the provided name for filename
-    # - Converting to snake_case for file naming
-    # - Adding "_workflow" suffix to the filename
-    # - Setting up proper class inheritance
-    # - Ensuring class names end with "Workflow"
+    # Generates a new workflow file in the app/cmds directory based on the provided
+    # name. The file name is normalized to ensure it ends with "_workflow.rb" and
+    # is placed in the appropriate subdirectory structure.
     #
     # @return [void]
-    # @raise [Thor::Error] if the destination file cannot be created
     #
-    # @example File generation
-    #   # Input: rails generate cmdx:workflow OrderProcessing
-    #   # Creates: app/cmds/order_processing_workflow.rb
-    #   # Class: OrderProcessingWorkflow
+    # @raise [Thor::Error] if the destination file cannot be created or already exists without force
     #
-    #   # Input: rails generate cmdx:workflow PaymentWorkflow
-    #   # Creates: app/cmds/payment_workflow.rb
-    #   # Class: PaymentWorkflow
+    # @example Generate a user workflow
+    #   rails generate cmdx:workflow user
+    #   # => Creates app/cmds/user_workflow.rb
+    #
+    # @example Generate a nested workflow
+    #   rails generate cmdx:workflow admin/users
+    #   # => Creates app/cmds/admin/users_workflow.rb
     def copy_files
       name = file_name.sub(/_?workflow$/i, "")
       path = File.join("app/cmds", class_path, "#{name}_workflow.rb")
@@ -68,37 +39,41 @@ module Cmdx
 
     private
 
-    ##
-    # Normalizes the class name by ensuring it ends with "Workflow".
+    # Ensures the class name ends with "Workflow" suffix.
     #
-    # Ensures consistent class naming by appending "Workflow" suffix
-    # to the provided generator name if it doesn't already end with it,
-    # allowing users to specify either "OrderProcessing" or "OrderProcessingWorkflow".
+    # Takes the provided class name and appends "Workflow" if it doesn't already
+    # end with that suffix, ensuring consistent naming conventions across
+    # all generated workflow classes.
     #
-    # @return [String] the normalized class name with "Workflow" suffix
+    # @return [String] the class name with "Workflow" suffix
     #
-    # @example Class name normalization
-    #   # Input: "OrderProcessing"
-    #   # Output: "OrderProcessingWorkflow"
+    # @example Class name without suffix
+    #   # Given name: "User"
+    #   class_name # => "UserWorkflow"
     #
-    #   # Input: "PaymentWorkflow"
-    #   # Output: "PaymentWorkflow"
+    # @example Class name with suffix
+    #   # Given name: "UserWorkflow"
+    #   class_name # => "UserWorkflow"
     def class_name
       @class_name ||= super.end_with?("Workflow") ? super : "#{super}Workflow"
     end
 
-    ##
-    # Determines the parent class for the generated workflow task.
+    # Determines the parent class for the generated workflow.
     #
-    # Attempts to use ApplicationWorkflow as the parent class if available,
-    # falling back to CMDx::Workflow if ApplicationWorkflow is not defined.
-    # This allows applications to define custom base workflow behavior.
+    # Attempts to use ApplicationWorkflow as the parent class if it exists in the
+    # application, otherwise falls back to CMDx::Workflow as the base class.
+    # This allows applications to define their own base workflow class with
+    # common functionality.
     #
-    # @return [String] the parent class name to inherit from
+    # @return [Class] the parent class for the generated workflow
     #
-    # @example Parent class resolution
-    #   # If ApplicationWorkflow exists: "ApplicationWorkflow"
-    #   # If ApplicationWorkflow missing: "CMDx::Workflow"
+    # @raise [StandardError] if neither ApplicationWorkflow nor CMDx::Workflow are available
+    #
+    # @example With ApplicationWorkflow defined
+    #   parent_class_name # => ApplicationWorkflow
+    #
+    # @example Without ApplicationWorkflow
+    #   parent_class_name # => CMDx::Workflow
     def parent_class_name
       ApplicationWorkflow
     rescue StandardError

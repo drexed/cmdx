@@ -3,77 +3,62 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Coercions::Time do
+  subject(:coercion) { described_class.new }
+
+  describe ".call" do
+    it "creates instance and calls #call method" do
+      expect(described_class.call("2023-12-25 14:30:00")).to be_a(Time)
+    end
+  end
+
   describe "#call" do
-    context "with Time values" do
-      it "returns Time unchanged" do
-        time = Time.new(2023, 12, 25, 10, 30, 45)
-        expect(described_class.call(time)).to eq(time)
+    context "with analog types" do
+      it "returns Time objects unchanged" do
+        time = Time.new(2023, 12, 25, 14, 30, 45)
+        result = coercion.call(time)
+
+        expect(result).to eq(time)
       end
 
-      it "returns current time unchanged" do
-        time = Time.now
-        expect(described_class.call(time)).to eq(time)
-      end
-    end
-
-    context "with Date values" do
-      it "returns Date unchanged" do
+      it "returns Date objects unchanged" do
         date = Date.new(2023, 12, 25)
-        expect(described_class.call(date)).to eq(date)
+        result = coercion.call(date)
+
+        expect(result).to eq(date.to_time)
+      end
+
+      it "returns DateTime objects unchanged" do
+        dt = DateTime.new(2023, 12, 25, 14, 30, 45)
+        result = coercion.call(dt)
+
+        expect(result).to eq(dt)
       end
     end
 
-    context "with DateTime values" do
-      it "returns DateTime unchanged" do
-        datetime = DateTime.new(2023, 12, 25, 10, 30, 45)
-        expect(described_class.call(datetime)).to eq(datetime)
-      end
-    end
+    context "with string values and default parsing" do
+      it "parses ISO 8601 datetime strings" do
+        result = coercion.call("2023-12-25 14:30:45")
 
-    context "with string values using standard format" do
-      it "parses ISO 8601 datetime string" do
-        result = described_class.call("2023-12-25T10:30:45")
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
         expect(result.month).to eq(12)
         expect(result.day).to eq(25)
-        expect(result.hour).to eq(10)
+        expect(result.hour).to eq(14)
         expect(result.min).to eq(30)
         expect(result.sec).to eq(45)
       end
 
-      it "parses date string without time" do
-        result = described_class.call("2023-12-25")
+      it "parses time strings with timezone" do
+        result = coercion.call("2023-12-25 14:30:45 +0500")
+
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
-        expect(result.month).to eq(12)
-        expect(result.day).to eq(25)
+        expect(result.utc_offset).to eq(18_000) # 5 hours in seconds
       end
 
-      it "parses datetime with timezone" do
-        result = described_class.call("2023-12-25 10:30:45 UTC")
-        expect(result).to be_a(Time)
-        expect(result.year).to eq(2023)
-        expect(result.month).to eq(12)
-        expect(result.day).to eq(25)
-      end
+      it "parses common datetime formats" do
+        result = coercion.call("December 25, 2023 14:30")
 
-      it "raises CoercionError for invalid datetime string" do
-        expect do
-          described_class.call("invalid datetime")
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-
-      it "raises CoercionError for empty string" do
-        expect do
-          described_class.call("")
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with custom format option" do
-      it "parses time with custom format" do
-        result = described_class.call("25/12/2023 14:30", format: "%d/%m/%Y %H:%M")
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
         expect(result.month).to eq(12)
@@ -82,160 +67,210 @@ RSpec.describe CMDx::Coercions::Time do
         expect(result.min).to eq(30)
       end
 
-      it "parses time with different custom format" do
-        result = described_class.call("2023-12-25 10:30:45", format: "%Y-%m-%d %H:%M:%S")
+      it "parses date-only strings" do
+        result = coercion.call("2023-12-25")
+
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
         expect(result.month).to eq(12)
         expect(result.day).to eq(25)
-        expect(result.hour).to eq(10)
+      end
+
+      it "parses short datetime formats" do
+        result = coercion.call("Dec 25 2023 2:30 PM")
+
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2023)
+        expect(result.month).to eq(12)
+        expect(result.day).to eq(25)
+        expect(result.hour).to eq(14)
+        expect(result.min).to eq(30)
+      end
+    end
+
+    context "with custom strptime format" do
+      it "parses dates with custom format" do
+        result = coercion.call("25/12/2023", strptime: "%d/%m/%Y")
+
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2023)
+        expect(result.month).to eq(12)
+        expect(result.day).to eq(25)
+      end
+
+      it "parses datetime with custom format" do
+        result = coercion.call("25-12-2023 14:30", strptime: "%d-%m-%Y %H:%M")
+
+        expect(result).to be_a(Time)
+        expect(result.year).to eq(2023)
+        expect(result.month).to eq(12)
+        expect(result.day).to eq(25)
+        expect(result.hour).to eq(14)
+        expect(result.min).to eq(30)
+      end
+
+      it "parses time with custom format" do
+        result = coercion.call("14:30:45", strptime: "%H:%M:%S")
+
+        expect(result).to be_a(Time)
+        expect(result.hour).to eq(14)
         expect(result.min).to eq(30)
         expect(result.sec).to eq(45)
       end
 
-      it "raises CoercionError for mismatched format" do
-        expect do
-          described_class.call("25/12/2023", format: "%Y-%m-%d")
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-
-      it "raises CoercionError for invalid format string" do
-        expect do
-          described_class.call("2023-12-25", format: "invalid format")
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
+      it "raises CoercionError for invalid format" do
+        expect { coercion.call("invalid", strptime: "%d/%m/%Y") }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
       end
     end
 
-    context "with numeric values" do
-      it "raises CoercionError for integer" do
-        expect do
-          described_class.call(1_703_505_045)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
+    context "with invalid values" do
+      it "raises CoercionError for invalid time strings" do
+        expect { coercion.call("not a time") }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
       end
 
-      it "raises CoercionError for float" do
-        expect do
-          described_class.call(1_703_505_045.123)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with boolean values" do
-      it "raises CoercionError for true" do
-        expect do
-          described_class.call(true)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
+      it "raises CoercionError for empty strings" do
+        expect { coercion.call("") }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
       end
 
-      it "raises CoercionError for false" do
-        expect do
-          described_class.call(false)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with nil values" do
-      it "raises CoercionError for nil" do
-        expect do
-          described_class.call(nil)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with array values" do
-      it "raises CoercionError for empty array" do
-        expect do
-          described_class.call([])
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
+      it "raises CoercionError for numeric values" do
+        expect { coercion.call(123) }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
       end
 
-      it "raises CoercionError for non-empty array" do
-        expect do
-          described_class.call([2023, 12, 25, 10, 30, 45])
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
+      it "raises CoercionError for boolean values" do
+        expect { coercion.call(true) }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
+      end
+
+      it "raises CoercionError for nil values" do
+        expect { coercion.call(nil) }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
+      end
+
+      it "raises CoercionError for array values" do
+        expect { coercion.call([]) }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
+      end
+
+      it "raises CoercionError for hash values" do
+        expect { coercion.call({}) }.to raise_error(
+          CMDx::CoercionError, /could not coerce into a time/
+        )
       end
     end
 
-    context "with hash values" do
-      it "raises CoercionError for empty hash" do
-        expect do
-          described_class.call({})
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
+    context "with options parameter" do
+      it "ignores unknown options" do
+        result = coercion.call("2023-12-25 14:30:00", unknown: "option")
 
-      it "raises CoercionError for non-empty hash" do
-        expect do
-          described_class.call({ year: 2023, month: 12, day: 25 })
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with symbol values" do
-      it "raises CoercionError for symbol" do
-        expect do
-          described_class.call(:now)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with object values" do
-      it "raises CoercionError for object" do
-        expect do
-          described_class.call(Object.new)
-        end.to raise_error(CMDx::CoercionError, /could not coerce into a time/)
-      end
-    end
-
-    context "with I18n translation" do
-      it "uses I18n translation when available" do
-        allow(I18n).to receive(:t).with("cmdx.coercions.into_a", type: "time", default: "could not coerce into a time").and_return("translated error")
-
-        expect do
-          described_class.call("invalid")
-        end.to raise_error(CMDx::CoercionError, "translated error")
-      end
-    end
-
-    context "with edge cases" do
-      it "handles midnight time" do
-        result = described_class.call("2023-12-25 00:00:00")
-        expect(result).to be_a(Time)
-        expect(result.hour).to eq(0)
-        expect(result.min).to eq(0)
-        expect(result.sec).to eq(0)
-      end
-
-      it "handles end of day time" do
-        result = described_class.call("2023-12-25 23:59:59")
-        expect(result).to be_a(Time)
-        expect(result.hour).to eq(23)
-        expect(result.min).to eq(59)
-        expect(result.sec).to eq(59)
-      end
-
-      it "handles leap year datetime" do
-        result = described_class.call("2024-02-29 12:00:00")
-        expect(result).to be_a(Time)
-        expect(result.year).to eq(2024)
-        expect(result.month).to eq(2)
-        expect(result.day).to eq(29)
-      end
-
-      it "handles invalid leap year datetime by adjusting to valid date" do
-        result = described_class.call("2023-02-29 12:00:00")
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
-        expect(result.month).to eq(3)
-        expect(result.day).to eq(1)
       end
 
-      it "handles time with milliseconds" do
-        result = described_class.call("2023-12-25T10:30:45.123Z")
+      it "processes strptime option correctly" do
+        result = coercion.call("25/12/2023", strptime: "%d/%m/%Y", other: "ignored")
+
         expect(result).to be_a(Time)
         expect(result.year).to eq(2023)
         expect(result.month).to eq(12)
         expect(result.day).to eq(25)
       end
+    end
+  end
+
+  describe "integration with tasks" do
+    let(:task_class) do
+      create_simple_task(name: "ProcessTimeTask") do
+        required :start_time, type: :time
+        optional :end_time, type: :time, default: -> { Time.now }
+
+        def call
+          context.duration = end_time - start_time
+          context.formatted_start = start_time.strftime("%H:%M:%S")
+        end
+      end
+    end
+
+    it "coerces time string parameters to Time" do
+      result = task_class.call(start_time: "2023-12-25 14:30:00")
+
+      expect(result).to be_success
+      expect(result.context.formatted_start).to eq("14:30:00")
+    end
+
+    it "handles Time parameters unchanged" do
+      time = Time.new(2023, 12, 25, 14, 30, 45)
+      result = task_class.call(start_time: time)
+
+      expect(result).to be_success
+      expect(result.context.formatted_start).to eq("14:30:45")
+    end
+
+    it "handles Date parameters unchanged" do
+      date = Date.new(2023, 12, 25)
+      result = task_class.call(start_time: date)
+
+      expect(result).to be_success
+      expect(result.context.duration).to be_a(Numeric)
+    end
+
+    it "uses default values for optional time parameters" do
+      result = task_class.call(start_time: "2023-12-25 14:30:00")
+
+      expect(result).to be_success
+      expect(result.context.duration).to be_a(Numeric)
+    end
+
+    it "coerces optional parameters when provided" do
+      result = task_class.call(start_time: "2023-12-25 14:30:00", end_time: "2023-12-25 15:30:00")
+
+      expect(result).to be_success
+      expect(result.context.duration).to eq(3600) # 1 hour in seconds
+    end
+
+    it "fails when coercion fails for invalid times" do
+      result = task_class.call(start_time: "invalid time")
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to include("could not coerce into a time")
+    end
+  end
+
+  describe "custom format integration" do
+    let(:task_class) do
+      create_simple_task(name: "CustomTimeTask") do
+        required :event_time, type: :time, strptime: "%d/%m/%Y %H:%M"
+
+        def call
+          context.hour = event_time.hour
+          context.minute = event_time.min
+        end
+      end
+    end
+
+    it "uses custom strptime format from parameter definition" do
+      result = task_class.call(event_time: "25/12/2023 14:30")
+
+      expect(result).to be_success
+      expect(result.context.hour).to eq(14)
+      expect(result.context.minute).to eq(30)
+    end
+
+    it "fails with invalid format for custom strptime" do
+      result = task_class.call(event_time: "2023-12-25 14:30")
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to include("could not coerce into a time")
     end
   end
 end

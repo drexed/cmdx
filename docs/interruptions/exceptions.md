@@ -187,7 +187,7 @@ CMDx faults have special handling in both call methods:
 ```ruby
 class ProcessOrderWithHaltTask < CMDx::Task
   # Configure to halt on failures
-  task_settings!(task_halt: [CMDx::Result::FAILED])
+  cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
     fail!(reason: "This is a controlled failure")

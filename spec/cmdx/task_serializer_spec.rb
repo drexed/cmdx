@@ -3,331 +3,217 @@
 require "spec_helper"
 
 RSpec.describe CMDx::TaskSerializer do
-  let(:task_result) do
-    mock_result(index: 1)
-  end
-
-  let(:task_chain) do
-    mock_chain(id: "chain-abc-123")
-  end
-
-  let(:task_class) do
-    create_task_class(name: "ProcessOrderTask") do
-      task_settings!(tags: %i[order payment])
-
-      def call
-        # Implementation
-      end
-    end
-  end
-
-  let(:workflow_class) do
-    create_workflow_class(name: "OrderProcessingWorkflow") do
-      task_settings!(tags: %i[workflow orders])
-    end
-  end
-
-  let(:task_instance) do
-    instance = mock_task(
-      id: "task-def-456",
-      result: task_result,
-      chain: task_chain,
-      class: task_class
-    )
-    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-    allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(false)
-    instance
-  end
-
-  let(:workflow_instance) do
-    instance = mock_task(
-      id: "workflow-ghi-789",
-      result: task_result,
-      chain: task_chain,
-      class: workflow_class
-    )
-    allow(instance).to receive(:task_setting).with(:tags).and_return(%i[workflow orders])
-    allow(instance).to receive(:is_a?).with(CMDx::Workflow).and_return(true)
-    instance
-  end
-
   describe ".call" do
-    context "when serializing a task" do
-      subject(:serialized_data) { described_class.call(task_instance) }
+    let(:task_class) { create_simple_task(name: "TestTask") }
+    let(:task) { task_class.new }
+    let(:chain) { instance_double(CMDx::Chain, id: "chain_123") }
+    let(:result) { instance_double(CMDx::Result, index: 2) }
 
-      it "returns a hash" do
-        expect(serialized_data).to be_a(Hash)
+    before do
+      allow(task).to receive_messages(chain: chain, result: result, id: "task_456")
+      allow(task).to receive(:cmd_setting).with(:tags).and_return(%i[user validation])
+    end
+
+    context "with task object" do
+      it "returns serialized task hash" do
+        serialized = described_class.call(task)
+
+        expect(serialized).to include(
+          index: 2,
+          chain_id: "chain_123",
+          type: "Task",
+          id: "task_456",
+          tags: %i[user validation]
+        )
+        expect(serialized[:class]).to start_with("TestTask")
       end
 
-      it "includes the task index from result" do
-        expect(serialized_data[:index]).to eq(1)
+      it "extracts index from task result" do
+        serialized = described_class.call(task)
+
+        expect(serialized[:index]).to eq(2)
       end
 
-      it "includes the chain id" do
-        expect(serialized_data[:chain_id]).to eq("chain-abc-123")
+      it "extracts chain_id from task chain" do
+        serialized = described_class.call(task)
+
+        expect(serialized[:chain_id]).to eq("chain_123")
       end
 
-      it "sets type as Task" do
-        expect(serialized_data[:type]).to eq("Task")
+      it "uses class name for class field" do
+        serialized = described_class.call(task)
+
+        expect(serialized[:class]).to start_with("TestTask")
       end
 
-      it "includes the class name" do
-        expect(serialized_data[:class]).to eq("ProcessOrderTask")
+      it "extracts id from task" do
+        serialized = described_class.call(task)
+
+        expect(serialized[:id]).to eq("task_456")
       end
 
-      it "includes the task id" do
-        expect(serialized_data[:id]).to eq("task-def-456")
-      end
+      it "extracts tags from cmd_setting" do
+        serialized = described_class.call(task)
 
-      it "includes the task tags" do
-        expect(serialized_data[:tags]).to eq(%i[order payment])
-      end
-
-      it "includes all expected keys" do
-        expected_keys = %i[index chain_id type class id tags]
-
-        expect(serialized_data.keys).to match_array(expected_keys)
+        expect(serialized[:tags]).to eq(%i[user validation])
       end
     end
 
-    context "when serializing a workflow" do
-      subject(:serialized_data) { described_class.call(workflow_instance) }
+    context "with workflow object" do
+      let(:workflow_class) { create_simple_workflow(name: "TestWorkflow", tasks: [task_class]) }
+      let(:workflow) { workflow_class.new }
 
-      it "returns a hash" do
-        expect(serialized_data).to be_a(Hash)
+      before do
+        allow(workflow).to receive_messages(chain: chain, result: result, id: "workflow_789")
+        allow(workflow).to receive(:cmd_setting).with(:tags).and_return(%i[process orchestration])
       end
 
-      it "includes the workflow index from result" do
-        expect(serialized_data[:index]).to eq(1)
+      it "returns type as Workflow" do
+        serialized = described_class.call(workflow)
+
+        expect(serialized[:type]).to eq("Workflow")
       end
 
-      it "includes the chain id" do
-        expect(serialized_data[:chain_id]).to eq("chain-abc-123")
-      end
+      it "serializes workflow with all expected fields" do
+        serialized = described_class.call(workflow)
 
-      it "sets type as Workflow" do
-        expect(serialized_data[:type]).to eq("Workflow")
-      end
-
-      it "includes the class name" do
-        expect(serialized_data[:class]).to eq("OrderProcessingWorkflow")
-      end
-
-      it "includes the workflow id" do
-        expect(serialized_data[:id]).to eq("workflow-ghi-789")
-      end
-
-      it "includes the workflow tags" do
-        expect(serialized_data[:tags]).to eq(%i[workflow orders])
-      end
-
-      it "includes all expected keys" do
-        expected_keys = %i[index chain_id type class id tags]
-
-        expect(serialized_data.keys).to match_array(expected_keys)
+        expect(serialized).to include(
+          index: 2,
+          chain_id: "chain_123",
+          type: "Workflow",
+          id: "workflow_789",
+          tags: %i[process orchestration]
+        )
+        expect(serialized[:class]).to start_with("TestWorkflow")
       end
     end
 
-    context "when task has no tags" do
-      let(:tagless_task_class) do
-        create_task_class(name: "TaglessTask") do
+    context "when task execution" do
+      let(:executed_task_class) do
+        create_task_class(name: "RealExecutionTask") do
+          required :input, type: :string
+
           def call
-            # Implementation
+            context.processed = "processed_#{input}"
           end
         end
       end
 
-      let(:tagless_task) do
-        instance = mock_task(
-          id: "task-xyz-999",
-          result: task_result,
-          chain: task_chain,
-          class: tagless_task_class
+      it "serializes executed task" do
+        result = executed_task_class.call(input: "test")
+
+        serialized = described_class.call(result.task)
+
+        expect(serialized).to include(
+          type: "Task"
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([])
-        instance
-      end
-
-      it "includes empty tags array" do
-        serialized_data = described_class.call(tagless_task)
-
-        expect(serialized_data[:tags]).to eq([])
+        expect(serialized[:class]).to start_with("RealExecutionTask")
+        expect(serialized[:index]).to be_a(Integer)
+        expect(serialized[:chain_id]).to be_a(String)
+        expect(serialized[:id]).to be_a(String)
+        expect(serialized[:tags]).to be_an(Array)
       end
     end
 
-    context "when task has different index values" do
-      it "serializes index 0" do
-        task_with_index_zero = mock_task(
-          id: "task-def-456",
-          result: mock_result(index: 0),
-          chain: task_chain,
-          class: task_class
-        )
-        allow(task_with_index_zero).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_index_zero)
-
-        expect(serialized_data[:index]).to eq(0)
+    context "when workflow execution" do
+      let(:step_task_class) { create_simple_task(name: "StepTask") }
+      let(:executed_workflow_class) do
+        create_simple_workflow(name: "RealExecutionWorkflow", tasks: [step_task_class])
       end
 
-      it "serializes higher index values" do
-        task_with_high_index = mock_task(
-          id: "task-def-456",
-          result: mock_result(index: 42),
-          chain: task_chain,
-          class: task_class
-        )
-        allow(task_with_high_index).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_high_index)
+      it "serializes executed workflow" do
+        result = executed_workflow_class.call
 
-        expect(serialized_data[:index]).to eq(42)
+        serialized = described_class.call(result.task)
+
+        expect(serialized).to include(
+          type: "Workflow"
+        )
+        expect(serialized[:class]).to start_with("RealExecutionWorkflow")
+        expect(serialized[:index]).to be_a(Integer)
+        expect(serialized[:chain_id]).to be_a(String)
+        expect(serialized[:id]).to be_a(String)
+        expect(serialized[:tags]).to be_an(Array)
       end
     end
 
-    context "when task has different chain ids" do
-      it "serializes different chain id format" do
-        task_with_uuid_chain = mock_task(
-          id: "task-def-456",
-          result: task_result,
-          chain: mock_chain(id: "550e8400-e29b-41d4-a716-446655440000"),
-          class: task_class
-        )
-        allow(task_with_uuid_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_uuid_chain)
-
-        expect(serialized_data[:chain_id]).to eq("550e8400-e29b-41d4-a716-446655440000")
+    context "with empty tags" do
+      before do
+        allow(task).to receive(:cmd_setting).with(:tags).and_return([])
       end
 
-      it "serializes short chain id" do
-        task_with_short_chain = mock_task(
-          id: "task-def-456",
-          result: task_result,
-          chain: mock_chain(id: "abc"),
-          class: task_class
-        )
-        allow(task_with_short_chain).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_short_chain)
+      it "returns empty array for tags" do
+        serialized = described_class.call(task)
 
-        expect(serialized_data[:chain_id]).to eq("abc")
+        expect(serialized[:tags]).to eq([])
       end
     end
 
-    context "when task has different id formats" do
-      it "serializes UUID format id" do
-        task_with_uuid_id = mock_task(
-          id: "550e8400-e29b-41d4-a716-446655440000",
-          result: task_result,
-          chain: task_chain,
-          class: task_class
-        )
-        allow(task_with_uuid_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_uuid_id)
-
-        expect(serialized_data[:id]).to eq("550e8400-e29b-41d4-a716-446655440000")
+    context "with nil tags" do
+      before do
+        allow(task).to receive(:cmd_setting).with(:tags).and_return(nil)
       end
 
-      it "serializes short id" do
-        task_with_short_id = mock_task(
-          id: "xyz",
-          result: task_result,
-          chain: task_chain,
-          class: task_class
-        )
-        allow(task_with_short_id).to receive(:task_setting).with(:tags).and_return(%i[order payment])
-        serialized_data = described_class.call(task_with_short_id)
+      it "returns nil for tags" do
+        serialized = described_class.call(task)
 
-        expect(serialized_data[:id]).to eq("xyz")
+        expect(serialized[:tags]).to be_nil
       end
     end
 
-    context "when task has various tag configurations" do
-      it "serializes string tags" do
-        task_with_string_tags = create_task_class(name: "StringTagTask") do
-          task_settings!(tags: %w[urgent payment])
+    context "when task lacks required methods" do
+      let(:incomplete_task) { Object.new }
 
-          def call
-            # Implementation
-          end
-        end
-
-        instance = mock_task(
-          id: "task-str-123",
-          result: task_result,
-          chain: task_chain,
-          class: task_with_string_tags
+      it "raises NoMethodError for missing result method" do
+        expect { described_class.call(incomplete_task) }.to raise_error(
+          NoMethodError,
+          /undefined method.*result/
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return(%w[urgent payment])
-
-        serialized_data = described_class.call(instance)
-
-        expect(serialized_data[:tags]).to eq(%w[urgent payment])
-      end
-
-      it "serializes mixed tag types" do
-        task_with_mixed_tags = create_task_class(name: "MixedTagTask") do
-          task_settings!(tags: [:symbol, "string", 123])
-
-          def call
-            # Implementation
-          end
-        end
-
-        instance = mock_task(
-          id: "task-mix-123",
-          result: task_result,
-          chain: task_chain,
-          class: task_with_mixed_tags
-        )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([:symbol, "string", 123])
-
-        serialized_data = described_class.call(instance)
-
-        expect(serialized_data[:tags]).to eq([:symbol, "string", 123])
-      end
-
-      it "serializes single tag" do
-        task_with_single_tag = create_task_class(name: "SingleTagTask") do
-          task_settings!(tags: [:important])
-
-          def call
-            # Implementation
-          end
-        end
-
-        instance = mock_task(
-          id: "task-single-123",
-          result: task_result,
-          chain: task_chain,
-          class: task_with_single_tag
-        )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([:important])
-
-        serialized_data = described_class.call(instance)
-
-        expect(serialized_data[:tags]).to eq([:important])
       end
     end
 
-    context "when task class has complex names" do
-      let(:namespaced_task_class) do
-        stub_const("TestNamespace::NamespacedTask", create_task_class(name: "TestNamespace::NamespacedTask") do
-          def call
-            # Implementation
-          end
-        end)
+    context "when result lacks index method" do
+      let(:incomplete_result) { Object.new }
+
+      before do
+        allow(task).to receive(:result).and_return(incomplete_result)
       end
 
-      it "serializes namespaced class name" do
-        instance = mock_task(
-          id: "namespaced-123",
-          result: task_result,
-          chain: task_chain,
-          class: namespaced_task_class
+      it "raises NoMethodError for missing index method" do
+        expect { described_class.call(task) }.to raise_error(
+          NoMethodError,
+          /undefined method.*index/
         )
-        allow(instance).to receive(:task_setting).with(:tags).and_return([])
+      end
+    end
 
-        serialized_data = described_class.call(instance)
+    context "when chain lacks id method" do
+      let(:incomplete_chain) { Object.new }
 
-        expect(serialized_data[:class]).to eq("TestNamespace::NamespacedTask")
+      before do
+        allow(task).to receive(:chain).and_return(incomplete_chain)
+      end
+
+      it "raises NoMethodError for missing id method" do
+        expect { described_class.call(task) }.to raise_error(
+          NoMethodError,
+          /undefined method.*id/
+        )
+      end
+    end
+
+    context "when task lacks cmd_setting method" do
+      let(:task_without_cmd_setting) { Object.new }
+
+      before do
+        allow(task_without_cmd_setting).to receive_messages(result: result, chain: chain, id: "task_456", class: double(name: "TestTask"))
+      end
+
+      it "raises NoMethodError for missing cmd_setting method" do
+        expect { described_class.call(task_without_cmd_setting) }.to raise_error(
+          NoMethodError,
+          /undefined method.*cmd_setting/
+        )
       end
     end
   end

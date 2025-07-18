@@ -11,7 +11,6 @@ tr:
       required: "gerekli bir parametredir"
       undefined: "tanımsız metoda %{source} yetki verir"
     validators:
-      custom: "geçerli değil"
       exclusion:
         of: "şunlardan biri olmamalı: %{values}"
         within: "%{min} ve %{max} arasında olmamalı"

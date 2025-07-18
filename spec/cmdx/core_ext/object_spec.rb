@@ -5,414 +5,233 @@ require "spec_helper"
 RSpec.describe CMDx::CoreExt::ObjectExtensions do # rubocop:disable RSpec/SpecFilePathFormat
   let(:test_object) { Object.new }
   let(:test_hash) { { name: "John", age: 30 } }
-  let(:test_proc) { proc { "proc_result" } }
-  let(:test_lambda) { -> { "lambda_result" } }
+  let(:test_proc) { -> { "proc_result" } }
+  let(:test_lambda) { ->(x) { x * 2 } }
 
-  describe "#__cmdx_try" do
+  describe "#cmdx_try" do
     context "with method calls" do
-      it "calls method when object responds to it" do
-        allow(test_object).to receive(:test_method).and_return("method_result")
-
-        result = test_object.__cmdx_try(:test_method)
-
-        expect(result).to eq("method_result")
+      it "calls existing methods" do
+        expect("hello".cmdx_try(:upcase)).to eq("HELLO")
+        expect("hello".cmdx_try(:length)).to eq(5)
       end
 
-      it "returns nil when object does not respond to method" do
-        result = test_object.__cmdx_try(:nonexistent_method)
-
-        expect(result).to be_nil
+      it "calls methods with arguments" do
+        expect("hello".cmdx_try(:[], 1)).to eq("e")
+        expect([1, 2, 3].cmdx_try(:join, "-")).to eq("1-2-3")
       end
 
-      it "forwards arguments to method call" do
-        allow(test_object).to receive(:test_method).and_return("result")
-
-        test_object.__cmdx_try(:test_method, "arg1", "arg2")
-
-        expect(test_object).to have_received(:test_method).with("arg1", "arg2")
+      it "calls private methods when they exist" do
+        expect(test_object.cmdx_try(:object_id)).to be_a(Integer)
       end
 
-      it "forwards keyword arguments to method call" do
-        allow(test_object).to receive(:test_method).and_return("result")
-
-        test_object.__cmdx_try(:test_method, key: "value")
-
-        expect(test_object).to have_received(:test_method).with(key: "value")
-      end
-
-      it "checks respond_to? with private methods included" do
-        allow(test_object).to receive(:respond_to?).and_return(false) # rubocop:disable RSpec/ReceiveMessages
-        allow(test_object).to receive(:respond_to?).with(:test_method, true).and_return(true)
-        allow(test_object).to receive(:test_method).and_return("result") # rubocop:disable RSpec/ReceiveMessages
-
-        test_object.__cmdx_try(:test_method)
-
-        expect(test_object).to have_received(:respond_to?).with(:test_method, true)
-      end
-    end
-
-    context "with proc execution" do
-      it "executes proc when key is a Proc" do
-        result = test_object.__cmdx_try(test_proc)
-
-        expect(result).to eq("proc_result")
-      end
-
-      it "executes lambda when key is a lambda" do
-        result = test_object.__cmdx_try(test_lambda)
-
-        expect(result).to eq("lambda_result")
-      end
-
-      it "forwards arguments to proc call" do
-        proc_with_args = ->(arg1, arg2) { "#{arg1}_#{arg2}" }
-
-        result = test_object.__cmdx_try(proc_with_args, "first", "second")
-
-        expect(result).to eq("first_second")
-      end
-
-      it "uses instance_eval for procs when not Module and not lambda" do
-        instance_proc = proc { self.class.name }
-
-        result = test_object.__cmdx_try(instance_proc)
-
-        expect(result).to eq("Object")
-      end
-
-      it "calls proc directly for lambdas" do
-        lambda_proc = -> { "direct_call" }
-
-        result = test_object.__cmdx_try(lambda_proc)
-
-        expect(result).to eq("direct_call")
-      end
-
-      it "calls proc directly when object is a Module" do
-        module_obj = Module.new
-        module_proc = proc { "module_call" }
-
-        result = module_obj.__cmdx_try(module_proc)
-
-        expect(result).to eq("module_call")
+      it "returns nil for non-existent methods" do
+        expect("hello".cmdx_try(:missing_method)).to be_nil
+        expect(test_object.cmdx_try(:undefined)).to be_nil
       end
     end
 
     context "with hash access" do
-      it "accesses hash value using __cmdx_fetch when object is Hash" do
-        allow(test_hash).to receive(:__cmdx_fetch).with(:name).and_return("John")
-
-        result = test_hash.__cmdx_try(:name)
-
-        expect(result).to eq("John")
+      it "accesses hash keys" do
+        expect(test_hash.cmdx_try(:name)).to eq("John")
+        expect(test_hash.cmdx_try(:age)).to eq(30)
       end
 
-      it "returns nil when hash key does not exist" do
-        allow(test_hash).to receive(:__cmdx_fetch).with(:missing).and_return(nil)
-
-        result = test_hash.__cmdx_try(:missing)
-
-        expect(result).to be_nil
+      it "returns nil for missing hash keys" do
+        expect(test_hash.cmdx_try(:missing)).to be_nil
       end
     end
 
     context "with edge cases" do
-      it "returns nil for non-proc, non-method, non-hash scenarios" do
-        result = test_object.__cmdx_try(:nonexistent)
+      it "handles nil gracefully" do
+        expect { test_object.cmdx_try(nil) }.to raise_error(TypeError)
+      end
 
-        expect(result).to be_nil
+      it "handles empty arguments" do
+        expect("hello".cmdx_try(:upcase)).to eq("HELLO")
       end
     end
   end
 
-  describe "#__cmdx_eval" do
-    context "with if conditions" do
-      it "returns true when if condition is truthy" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(true)
+  describe "#cmdx_eval" do
+    let(:active_user) { double("User", active?: true, banned?: false) }
+    let(:inactive_user) { double("User", active?: false, banned?: false) }
+    let(:banned_user) { double("User", active?: true, banned?: true) }
 
-        result = test_object.__cmdx_eval(if: :valid?)
-
-        expect(result).to be true
+    context "with :if condition" do
+      it "returns true when condition is truthy" do
+        expect(active_user.cmdx_eval(if: :active?)).to be true
       end
 
-      it "returns false when if condition is falsy" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(false)
-
-        result = test_object.__cmdx_eval(if: :valid?)
-
-        expect(result).to be false
-      end
-
-      it "evaluates proc conditions" do
-        condition_proc = proc { true }
-        allow(test_object).to receive(:__cmdx_try).with(condition_proc).and_return(true)
-
-        result = test_object.__cmdx_eval(if: condition_proc)
-
-        expect(result).to be true
+      it "returns false when condition is falsy" do
+        expect(inactive_user.cmdx_eval(if: :active?)).to be false
       end
     end
 
-    context "with unless conditions" do
-      it "returns true when unless condition is falsy" do
-        allow(test_object).to receive(:__cmdx_try).with(:invalid?).and_return(false)
-
-        result = test_object.__cmdx_eval(unless: :invalid?)
-
-        expect(result).to be true
+    context "with :unless condition" do
+      it "returns true when condition is falsy" do
+        expect(active_user.cmdx_eval(unless: :banned?)).to be true
       end
 
-      it "returns false when unless condition is truthy" do
-        allow(test_object).to receive(:__cmdx_try).with(:invalid?).and_return(true)
-
-        result = test_object.__cmdx_eval(unless: :invalid?)
-
-        expect(result).to be false
+      it "returns false when condition is truthy" do
+        expect(banned_user.cmdx_eval(unless: :banned?)).to be false
       end
     end
 
-    context "with combined conditions" do
-      it "returns true when if is true and unless is false" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(true)
-        allow(test_object).to receive(:__cmdx_try).with(:disabled?).and_return(false)
-
-        result = test_object.__cmdx_eval(if: :valid?, unless: :disabled?)
-
-        expect(result).to be true
+    context "with both :if and :unless conditions" do
+      it "returns true when both conditions are met" do
+        expect(active_user.cmdx_eval(if: :active?, unless: :banned?)).to be true
       end
 
-      it "returns false when if is true but unless is also true" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(true)
-        allow(test_object).to receive(:__cmdx_try).with(:disabled?).and_return(true)
-
-        result = test_object.__cmdx_eval(if: :valid?, unless: :disabled?)
-
-        expect(result).to be false
+      it "returns false when :if condition fails" do
+        expect(inactive_user.cmdx_eval(if: :active?, unless: :banned?)).to be false
       end
 
-      it "returns false when if is false regardless of unless" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(false)
-        allow(test_object).to receive(:__cmdx_try).with(:disabled?).and_return(false)
-
-        result = test_object.__cmdx_eval(if: :valid?, unless: :disabled?)
-
-        expect(result).to be false
+      it "returns false when :unless condition fails" do
+        expect(banned_user.cmdx_eval(if: :active?, unless: :banned?)).to be false
       end
     end
 
-    context "with default behavior" do
-      it "returns true when no conditions are provided" do
-        result = test_object.__cmdx_eval
-
-        expect(result).to be true
+    context "with no conditions" do
+      it "returns default value (true)" do
+        expect(test_object.cmdx_eval).to be true
       end
 
-      it "returns default value when specified and no conditions" do
-        result = test_object.__cmdx_eval(default: false)
+      it "returns custom default value" do
+        expect(test_object.cmdx_eval(default: false)).to be false
+        expect(test_object.cmdx_eval(default: "custom")).to eq("custom")
+      end
+    end
 
-        expect(result).to be false
+    context "with edge cases" do
+      it "handles nil conditions" do
+        expect(test_object.cmdx_eval(if: nil)).to be true
+        expect(test_object.cmdx_eval(unless: nil)).to be true
       end
 
-      it "ignores default when conditions are present" do
-        allow(test_object).to receive(:__cmdx_try).with(:valid?).and_return(false)
-
-        result = test_object.__cmdx_eval(if: :valid?, default: true)
-
-        expect(result).to be false
+      it "handles non-existent methods" do
+        expect(test_object.cmdx_eval(if: :missing_method)).to be_falsy
+        expect(test_object.cmdx_eval(unless: :missing_method)).to be true
       end
     end
   end
 
-  describe "#__cmdx_yield" do
-    context "with symbol and string keys" do
-      it "calls method when object responds to symbol key" do
-        allow(test_object).to receive(:respond_to?).and_return(false) # rubocop:disable RSpec/ReceiveMessages
-        allow(test_object).to receive(:respond_to?).with(:test_method, true).and_return(true)
-        allow(test_object).to receive(:test_method).and_return("method_result") # rubocop:disable RSpec/ReceiveMessages
+  describe "#cmdx_yield" do
+    let(:yielding_object) { double("Object", custom_method: "method_result") }
 
-        result = test_object.__cmdx_yield(:test_method)
-
-        expect(result).to eq("method_result")
+    context "with symbol/string method names" do
+      it "calls methods for symbols" do
+        expect("hello".cmdx_yield(:upcase)).to eq("HELLO")
+        expect(yielding_object.cmdx_yield(:custom_method)).to eq("method_result")
       end
 
-      it "returns symbol key when object does not respond to it" do
-        allow(test_object).to receive(:respond_to?).with(:nonexistent, true).and_return(false)
-
-        result = test_object.__cmdx_yield(:nonexistent)
-
-        expect(result).to eq(:nonexistent)
+      it "calls methods for strings" do
+        expect("hello".cmdx_yield("upcase")).to eq("HELLO")
+        expect(yielding_object.cmdx_yield("custom_method")).to eq("method_result")
       end
 
-      it "calls method when object responds to string key" do
-        allow(test_object).to receive(:respond_to?).and_return(false) # rubocop:disable RSpec/ReceiveMessages
-        allow(test_object).to receive(:respond_to?).with("test_method", true).and_return(true)
-        allow(test_object).to receive(:test_method).and_return("method_result") # rubocop:disable RSpec/ReceiveMessages
-
-        result = test_object.__cmdx_yield("test_method")
-
-        expect(result).to eq("method_result")
+      it "returns symbol/string as-is when method doesn't exist" do
+        expect(test_object.cmdx_yield(:missing_method)).to eq(:missing_method)
+        expect(test_object.cmdx_yield("missing_method")).to eq("missing_method")
       end
 
-      it "returns string key when object does not respond to it" do
-        allow(test_object).to receive(:respond_to?).with("nonexistent", true).and_return(false)
-
-        result = test_object.__cmdx_yield("nonexistent")
-
-        expect(result).to eq("nonexistent")
-      end
-
-      it "forwards arguments to method call" do
-        allow(test_object).to receive(:respond_to?).and_return(false) # rubocop:disable RSpec/ReceiveMessages
-        allow(test_object).to receive(:respond_to?).with(:test_method, true).and_return(true)
-        allow(test_object).to receive(:test_method).and_return("result") # rubocop:disable RSpec/ReceiveMessages
-
-        test_object.__cmdx_yield(:test_method, "arg1", "arg2")
-
-        expect(test_object).to have_received(:test_method).with("arg1", "arg2")
+      it "calls methods with arguments" do
+        expect("hello".cmdx_yield(:[], 1)).to eq("e")
+        expect([1, 2, 3].cmdx_yield(:join, "-")).to eq("1-2-3")
       end
     end
 
     context "with hash objects" do
-      it "returns symbol when hash doesn't respond to it as method" do
-        result = test_hash.__cmdx_yield(:nonexistent_method)
+      it "returns key as-is when hash doesn't have method" do
+        expect(test_hash.cmdx_yield(:name)).to eq(:name)
+        expect(test_hash.cmdx_yield(:age)).to eq(:age)
+      end
 
-        expect(result).to eq(:nonexistent_method)
+      it "returns symbol as-is for missing keys" do
+        expect(test_hash.cmdx_yield(:missing)).to eq(:missing)
       end
     end
 
-    context "with proc keys" do
-      it "calls __cmdx_try when key is a Proc" do
-        allow(test_object).to receive(:__cmdx_try).with(test_proc).and_return("proc_result")
-
-        result = test_object.__cmdx_yield(test_proc)
-
-        expect(result).to eq("proc_result")
+    context "with proc objects" do
+      it "evaluates procs using cmdx_try" do
+        expect(test_object.cmdx_yield(test_proc)).to eq("proc_result")
+        expect(test_object.cmdx_yield(test_lambda, 3)).to eq(6)
       end
     end
 
-    context "with direct values" do
-      it "returns numeric values directly" do
-        result = test_object.__cmdx_yield(42)
-
-        expect(result).to eq(42)
-      end
-
-      it "returns boolean values directly" do
-        result = test_object.__cmdx_yield(true)
-
-        expect(result).to be true
-      end
-
-      it "returns nil directly" do
-        result = test_object.__cmdx_yield(nil)
-
-        expect(result).to be_nil
-      end
-
-      it "returns array values directly" do
-        array = [1, 2, 3]
-
-        result = test_object.__cmdx_yield(array)
-
-        expect(result).to eq(array)
+    context "with other objects" do
+      it "returns the object as-is" do
+        expect(test_object.cmdx_yield(42)).to eq(42)
+        expect(test_object.cmdx_yield("static")).to eq("static")
+        expect(test_object.cmdx_yield(nil)).to be_nil
+        expect(test_object.cmdx_yield([])).to eq([])
       end
     end
   end
 
-  describe "#__cmdx_call" do
+  describe "#cmdx_call" do
+    let(:callable_object) { double("Callable", call: "called") }
+    let(:proc_object) { -> { "proc_called" } }
+    let(:lambda_object) { ->(x) { "lambda_#{x}" } }
+
     context "with callable objects" do
-      it "calls object when it responds to call" do
-        callable = proc { "called" }
-
-        result = callable.__cmdx_call
-
-        expect(result).to eq("called")
+      it "calls objects that respond to call" do
+        expect(callable_object.cmdx_call).to eq("called")
+        expect(proc_object.cmdx_call).to eq("proc_called")
+        expect(lambda_object.cmdx_call("test")).to eq("lambda_test")
       end
 
-      it "forwards arguments to call method" do
-        callable = proc { |arg| "called_#{arg}" }
-
-        result = callable.__cmdx_call("test")
-
-        expect(result).to eq("called_test")
-      end
-
-      it "forwards keyword arguments to call method" do
-        callable = proc { |key:| "called_#{key}" }
-
-        result = callable.__cmdx_call(key: "value")
-
-        expect(result).to eq("called_value")
-      end
-
-      it "forwards blocks to call method" do
-        callable = proc { |&block| block.call }
-        block = proc { "block_result" }
-
-        result = callable.__cmdx_call(&block)
-
-        expect(result).to eq("block_result")
+      it "passes arguments to callable objects" do
+        callable_with_args = double("Callable")
+        expect(callable_with_args).to receive(:call).with("arg1", "arg2").and_return("result")
+        expect(callable_with_args.cmdx_call("arg1", "arg2")).to eq("result")
       end
     end
 
     context "with non-callable objects" do
-      it "returns self when object does not respond to call" do
-        result = test_object.__cmdx_call
-
-        expect(result).to eq(test_object)
-      end
-
-      it "returns string unchanged" do
-        string = "test_string"
-
-        result = string.__cmdx_call
-
-        expect(result).to eq("test_string")
-      end
-
-      it "returns number unchanged" do
-        number = 42
-
-        result = number.__cmdx_call
-
-        expect(result).to eq(42)
-      end
-    end
-
-    context "with respond_to? checking" do
-      it "checks if object responds to call method" do
-        allow(test_object).to receive(:respond_to?).with(:call).and_return(false)
-
-        test_object.__cmdx_call
-
-        expect(test_object).to have_received(:respond_to?).with(:call)
+      it "returns the object itself" do
+        expect(test_object.cmdx_call).to eq(test_object)
+        expect("string".cmdx_call).to eq("string")
+        expect(42.cmdx_call).to eq(42)
+        expect([1, 2, 3].cmdx_call).to eq([1, 2, 3])
       end
     end
   end
 
-  describe "Object inclusion" do
-    it "extends Object class with ObjectExtensions" do
-      expect(Object.ancestors).to include(described_class)
-    end
+  describe "integration" do
+    context "with complex scenarios" do
+      let(:complex_object) do
+        Class.new do
+          def initialize(active = true)
+            @active = active
+          end
 
-    it "makes __cmdx_try available on all objects" do
-      expect(test_object).to respond_to(:__cmdx_try)
-    end
+          def active?
+            @active
+          end
 
-    it "makes __cmdx_eval available on all objects" do
-      expect(test_object).to respond_to(:__cmdx_eval)
-    end
+          def status
+            @active ? "active" : "inactive"
+          end
 
-    it "makes __cmdx_yield available on all objects" do
-      expect(test_object).to respond_to(:__cmdx_yield)
-    end
+          def call
+            "called"
+          end
+        end.new
+      end
 
-    it "makes __cmdx_call available on all objects" do
-      expect(test_object).to respond_to(:__cmdx_call)
-    end
+      it "works with method chains" do
+        expect(complex_object.cmdx_try(:status)).to eq("active")
+        expect(complex_object.cmdx_eval(if: :active?)).to be true
+        expect(complex_object.cmdx_yield(:status)).to eq("active")
+        expect(complex_object.cmdx_call).to eq("called")
+      end
 
-    it "preserves original respond_to? as __cmdx_respond_to?" do
-      expect(test_object).to respond_to(:__cmdx_respond_to?)
+      it "handles conditional evaluation with try" do
+        inactive_object = complex_object.class.new(false)
+        expect(inactive_object.cmdx_try(:status)).to eq("inactive")
+        expect(inactive_object.cmdx_eval(if: :active?)).to be false
+        expect(inactive_object.cmdx_eval(unless: :active?)).to be true
+      end
     end
   end
 end

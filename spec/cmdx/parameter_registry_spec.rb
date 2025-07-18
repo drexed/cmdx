@@ -5,298 +5,271 @@ require "spec_helper"
 RSpec.describe CMDx::ParameterRegistry do
   subject(:registry) { described_class.new }
 
-  let(:valid_parameter) { mock_parameter(valid?: true, method_name: :param1, children: []) }
-  let(:invalid_parameter) { mock_parameter(valid?: false, method_name: :param2, children: []) }
-  let(:task) { mock_task }
+  describe "#initialize" do
+    it "creates empty registry" do
+      expect(registry.registry).to eq([])
+    end
+  end
 
-  describe "Array behavior" do
-    it "extends Array class" do
-      expect(registry).to be_a(Array)
+  describe "#dup" do
+    let(:mock_parameter) { double("Parameter", dup: double("DuplicatedParameter")) }
+
+    before do
+      registry.registry << mock_parameter
     end
 
-    it "can store parameter objects" do
-      registry << valid_parameter
-      registry << invalid_parameter
+    it "creates new registry instance" do
+      duplicated = registry.dup
 
-      expect(registry.size).to eq(2)
-      expect(registry.first).to eq(valid_parameter)
-      expect(registry.last).to eq(invalid_parameter)
+      expect(duplicated).to be_a(described_class)
+      expect(duplicated).not_to be(registry)
     end
 
-    it "supports array enumeration methods" do
-      registry << valid_parameter
-      registry << invalid_parameter
+    it "duplicates all parameters in registry" do
+      duplicated = registry.dup
 
-      expect(registry.map(&:valid?)).to eq([true, false])
+      expect(mock_parameter).to have_received(:dup)
+      expect(duplicated.registry.first).to be(mock_parameter.dup)
+    end
+
+    it "maintains independence from original registry" do
+      duplicated = registry.dup
+      new_parameter = double("NewParameter")
+
+      duplicated.registry << new_parameter
+
+      expect(registry.registry).to contain_exactly(mock_parameter)
+      expect(duplicated.registry).to contain_exactly(mock_parameter.dup, new_parameter)
     end
   end
 
   describe "#valid?" do
+    context "when registry is empty" do
+      it "returns true" do
+        expect(registry).to be_valid
+      end
+    end
+
     context "when all parameters are valid" do
+      let(:valid_parameter_one) { double("Parameter", valid?: true) }
+      let(:valid_parameter_two) { double("Parameter", valid?: true) }
+
       before do
-        registry << valid_parameter
-        registry << mock_parameter(valid?: true)
+        registry.registry.push(valid_parameter_one, valid_parameter_two)
       end
 
       it "returns true" do
-        expect(registry.valid?).to be(true)
+        expect(registry).to be_valid
       end
     end
 
     context "when some parameters are invalid" do
+      let(:valid_parameter) { double("Parameter", valid?: true) }
+      let(:invalid_parameter) { double("Parameter", valid?: false) }
+
       before do
-        registry << valid_parameter
-        registry << invalid_parameter
+        registry.registry.push(valid_parameter, invalid_parameter)
       end
 
       it "returns false" do
-        expect(registry.valid?).to be(false)
+        expect(registry).not_to be_valid
       end
     end
 
     context "when all parameters are invalid" do
+      let(:invalid_parameter_one) { double("Parameter", valid?: false) }
+      let(:invalid_parameter_two) { double("Parameter", valid?: false) }
+
       before do
-        registry << invalid_parameter
-        registry << mock_parameter(valid?: false)
+        registry.registry.push(invalid_parameter_one, invalid_parameter_two)
       end
 
       it "returns false" do
-        expect(registry.valid?).to be(false)
-      end
-    end
-
-    context "when registry is empty" do
-      it "returns true" do
-        expect(registry.valid?).to be(true)
-      end
-    end
-  end
-
-  describe "#invalid?" do
-    context "when registry is valid" do
-      before do
-        registry << valid_parameter
-      end
-
-      it "returns false" do
-        expect(registry.invalid?).to be(false)
-      end
-    end
-
-    context "when registry is invalid" do
-      before do
-        registry << invalid_parameter
-      end
-
-      it "returns true" do
-        expect(registry.invalid?).to be(true)
-      end
-    end
-
-    context "when registry is empty" do
-      it "returns false" do
-        expect(registry.invalid?).to be(false)
+        expect(registry).not_to be_valid
       end
     end
   end
 
   describe "#validate!" do
-    context "when validating simple parameters" do
-      before do
-        registry << valid_parameter
-        registry << invalid_parameter
-      end
+    let(:task) { instance_double("Task") }
 
-      it "calls method for each parameter on task" do
-        expect(task).to receive(:send).with(:param1)
-        expect(task).to receive(:send).with(:param2)
-
-        registry.validate!(task)
+    context "when registry is empty" do
+      it "does not raise error" do
+        expect { registry.validate!(task) }.not_to raise_error
       end
     end
 
-    context "when parameters have children" do
-      let(:child_parameter) { mock_parameter(method_name: :child_param, children: []) }
-      let(:parent_parameter) do
-        mock_parameter(
-          method_name: :parent_param,
-          children: [child_parameter],
-          valid?: true
-        )
+    context "when parameter is defined on task" do
+      let(:parameter) do
+        double("Parameter",
+               method_name: :test_param,
+               children: [])
       end
 
       before do
-        registry << parent_parameter
+        registry.registry << parameter
+        allow(task).to receive(:test_param)
       end
 
-      it "validates parent and child parameters" do
-        expect(task).to receive(:send).with(:parent_param)
-        expect(task).to receive(:send).with(:child_param)
-
+      it "calls parameter method on task" do
         registry.validate!(task)
+
+        expect(task).to have_received(:test_param)
       end
     end
 
-    context "when parameters have nested children" do
-      let(:grandchild_parameter) { mock_parameter(method_name: :grandchild_param, children: []) }
+    context "when parameter has children" do
       let(:child_parameter) do
-        mock_parameter(
-          method_name: :child_param,
-          children: [grandchild_parameter]
-        )
+        double("Parameter",
+               method_name: :child_param,
+               children: [])
       end
       let(:parent_parameter) do
-        mock_parameter(
-          method_name: :parent_param,
-          children: [child_parameter],
-          valid?: true
-        )
+        double("Parameter",
+               method_name: :parent_param,
+               children: [child_parameter])
       end
 
       before do
-        registry << parent_parameter
+        registry.registry << parent_parameter
+        allow(task).to receive(:parent_param)
+        allow(task).to receive(:child_param)
       end
 
-      it "recursively validates all levels of nested parameters" do
-        expect(task).to receive(:send).with(:parent_param)
-        expect(task).to receive(:send).with(:child_param)
-        expect(task).to receive(:send).with(:grandchild_param)
-
-        registry.validate!(task)
-      end
-
-      it "validates nested parameters in depth-first order" do
-        call_order = []
-        allow(task).to receive(:send) { |method| call_order << method }
-
+      it "recursively validates child parameters" do
         registry.validate!(task)
 
-        expect(call_order).to eq(%i[parent_param child_param grandchild_param])
+        expect(task).to have_received(:parent_param)
+        expect(task).to have_received(:child_param)
       end
     end
 
-    context "when multiple parameters have children" do
-      let(:first_child_param) { mock_parameter(method_name: :child1, children: []) }
-      let(:second_child_param) { mock_parameter(method_name: :child2, children: []) }
-      let(:first_parent_param) do
-        mock_parameter(
-          method_name: :parent1,
-          children: [first_child_param],
-          valid?: true
-        )
+    context "when parameter has deeply nested children" do
+      let(:grandchild_parameter) do
+        double("Parameter",
+               method_name: :grandchild_param,
+               children: [])
       end
-      let(:second_parent_param) do
-        mock_parameter(
-          method_name: :parent2,
-          children: [second_child_param],
-          valid?: true
-        )
+      let(:child_parameter) do
+        double("Parameter",
+               method_name: :child_param,
+               children: [grandchild_parameter])
+      end
+      let(:parent_parameter) do
+        double("Parameter",
+               method_name: :parent_param,
+               children: [child_parameter])
       end
 
       before do
-        registry << first_parent_param
-        registry << second_parent_param
+        registry.registry << parent_parameter
+        allow(task).to receive(:parent_param)
+        allow(task).to receive(:child_param)
+        allow(task).to receive(:grandchild_param)
       end
 
-      it "validates all parameters and their children" do
-        expect(task).to receive(:send).with(:parent1)
-        expect(task).to receive(:send).with(:child1)
-        expect(task).to receive(:send).with(:parent2)
-        expect(task).to receive(:send).with(:child2)
-
+      it "recursively validates all nested parameters" do
         registry.validate!(task)
+
+        expect(task).to have_received(:parent_param)
+        expect(task).to have_received(:child_param)
+        expect(task).to have_received(:grandchild_param)
+      end
+    end
+
+    context "when multiple parameters exist" do
+      let(:parameter_one) do
+        double("Parameter",
+               method_name: :param1,
+               children: [])
+      end
+      let(:parameter_two) do
+        double("Parameter",
+               method_name: :param2,
+               children: [])
+      end
+
+      before do
+        registry.registry.push(parameter_one, parameter_two)
+        allow(task).to receive(:param1)
+        allow(task).to receive(:param2)
+      end
+
+      it "validates all parameters" do
+        registry.validate!(task)
+
+        expect(task).to have_received(:param1)
+        expect(task).to have_received(:param2)
       end
     end
   end
 
   describe "#to_h" do
-    it "responds to to_h method" do
-      expect(registry).to respond_to(:to_h)
+    context "when registry is empty" do
+      it "returns empty array" do
+        expect(registry.to_h).to eq([])
+      end
     end
-  end
 
-  describe "#to_a" do
-    it "responds to to_a method" do
-      expect(registry).to respond_to(:to_a)
+    context "when registry has parameters" do
+      let(:parameter_one_hash) { { name: :param1, type: :string } }
+      let(:parameter_two_hash) { { name: :param2, type: :integer } }
+      let(:parameter_one) { double("Parameter", to_h: parameter_one_hash) }
+      let(:parameter_two) { double("Parameter", to_h: parameter_two_hash) }
+
+      before do
+        registry.registry.push(parameter_one, parameter_two)
+      end
+
+      it "returns array of parameter hashes" do
+        expect(registry.to_h).to eq([parameter_one_hash, parameter_two_hash])
+      end
+
+      it "calls to_h on each parameter" do
+        registry.to_h
+
+        expect(parameter_one).to have_received(:to_h)
+        expect(parameter_two).to have_received(:to_h)
+      end
     end
   end
 
   describe "#to_s" do
-    it "responds to to_s method" do
-      expect(registry).to respond_to(:to_s)
-    end
-  end
-
-  describe "complex scenarios" do
-    context "when registry has mixed parameter types with complex hierarchies" do
-      let(:leaf_param) { mock_parameter(method_name: :leaf, children: [], valid?: true) }
-      let(:branch_param) do
-        mock_parameter(
-          method_name: :branch,
-          children: [leaf_param],
-          valid?: false
-        )
-      end
-      let(:root_param) do
-        mock_parameter(
-          method_name: :root,
-          children: [branch_param],
-          valid?: true
-        )
-      end
-
-      before do
-        registry << root_param
-        registry << valid_parameter
-      end
-
-      it "correctly reports validity based on direct parameters only" do
-        expect(registry.valid?).to be(true)
-        expect(registry.invalid?).to be(false)
-      end
-
-      it "validates all parameters including nested ones" do
-        expect(task).to receive(:send).with(:root)
-        expect(task).to receive(:send).with(:branch)
-        expect(task).to receive(:send).with(:leaf)
-        expect(task).to receive(:send).with(:param1)
-
-        registry.validate!(task)
+    context "when registry is empty" do
+      it "returns empty string" do
+        expect(registry.to_s).to eq("")
       end
     end
 
-    context "when working with large parameter collections" do
+    context "when registry has parameters" do
+      let(:parameter_one) { double("Parameter", to_s: "param1 (string, required)") }
+      let(:parameter_two) { double("Parameter", to_s: "param2 (integer, optional)") }
+
       before do
-        10.times do |i|
-          param = mock_parameter(method_name: :"param#{i}", children: [], valid?: true)
-          registry << param
-        end
+        registry.registry.push(parameter_one, parameter_two)
       end
 
-      it "handles large collections efficiently" do
-        expect(registry.size).to eq(10)
-        expect(registry.valid?).to be(true)
+      it "returns newline-separated parameter strings" do
+        expect(registry.to_s).to eq("param1 (string, required)\nparam2 (integer, optional)")
       end
 
-      it "validates all parameters in large collections" do
-        10.times { |i| expect(task).to receive(:send).with(:"param#{i}") }
+      it "calls to_s on each parameter" do
+        registry.to_s
 
-        registry.validate!(task)
+        expect(parameter_one).to have_received(:to_s)
+        expect(parameter_two).to have_received(:to_s)
       end
     end
 
-    context "when parameters raise exceptions during validation" do
-      let(:failing_parameter) do
-        mock_parameter(method_name: :failing_param, children: [], valid?: true)
-      end
+    context "when registry has single parameter" do
+      let(:parameter) { double("Parameter", to_s: "single_param (boolean)") }
 
       before do
-        registry << failing_parameter
-        allow(task).to receive(:send).with(:failing_param).and_raise(StandardError, "Validation failed")
+        registry.registry << parameter
       end
 
-      it "allows exceptions to propagate" do
-        expect { registry.validate!(task) }.to raise_error(StandardError, "Validation failed")
+      it "returns parameter string without newlines" do
+        expect(registry.to_s).to eq("single_param (boolean)")
       end
     end
   end

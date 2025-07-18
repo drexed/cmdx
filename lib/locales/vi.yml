@@ -11,7 +11,6 @@ vi:
       required: "là một tham số bắt buộc"
       undefined: "ủy quyền cho phương thức không xác định %{source}"
     validators:
-      custom: "không hợp lệ"
       exclusion:
         of: "không được là một trong: %{values}"
         within: "không được nằm giữa %{min} và %{max}"

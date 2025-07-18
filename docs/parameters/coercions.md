@@ -20,11 +20,10 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
   - [Numeric Coercion](#numeric-coercion)
 - [Coercion with Nested Parameters](#coercion-with-nested-parameters)
 - [Coercion Error Handling](#coercion-error-handling)
-  - [Single Type Coercion Errors](#single-type-coercion-errors)
-  - [Multiple Type Coercion Errors](#multiple-type-coercion-errors)
 - [Custom Coercion Options](#custom-coercion-options)
   - [Date/Time Format Options](#datetime-format-options)
   - [BigDecimal Precision Options](#bigdecimal-precision-options)
+- [Custom Coercions](#custom-coercions)
 
 ## TLDR
 
@@ -33,6 +32,7 @@ string-to-integer conversion to complex JSON parsing and custom type handling.
 - **No conversion** - Default `:virtual` type returns values unchanged
 - **Before validation** - Coercion happens automatically before parameter validation
 - **Rich types** - Supports all Ruby built-ins plus JSON parsing for arrays/hashes
+- **Custom coercions** - Register custom coercion types
 
 ## Coercion Fundamentals
 
@@ -316,13 +316,11 @@ end
 > [!WARNING]
 > When coercion fails, CMDx provides detailed error information including the parameter name, attempted types, and specific failure reasons.
 
-### Single Type Coercion Errors
-
 ```ruby
 class ValidateUserProfileTask < CMDx::Task
 
   required :age, type: :integer
-  required :salary, type: :float
+  required :salary, type: [:float, :big_decimal]
   required :is_employed, type: :boolean
 
   def call
@@ -341,42 +339,11 @@ result = ValidateUserProfileTask.call(
 result.failed?  #=> true
 result.metadata
 #=> {
-#     reason: "age could not coerce into an integer. salary could not coerce into a float. is_employed could not coerce into a boolean.",
+#     reason: "age could not coerce into an integer. could not coerce into one of: float, big_decimal. is_employed could not coerce into a boolean.",
 #     messages: {
 #       age: ["could not coerce into an integer"],
-#       salary: ["could not coerce into a float"],
+#       salary: ["could not coerce into one of: float, big_decimal"],
 #       is_employed: ["could not coerce into a boolean"]
-#     }
-#   }
-```
-
-### Multiple Type Coercion Errors
-
-```ruby
-class ProcessFlexibleDataTask < CMDx::Task
-
-  required :order_value, type: [:float, :integer]
-  required :customer_data, type: [:hash, :array, :string]
-
-  def call
-    # Task logic here
-  end
-
-end
-
-# Failed coercion with multiple types
-result = ProcessFlexibleDataTask.call(
-  order_value: "invalid-number",
-  customer_data: Object.new
-)
-
-result.failed?  #=> true
-result.metadata
-#=> {
-#     reason: "order_value could not coerce into one of: float, integer. customer_data could not coerce into one of: hash, array, string.",
-#     messages: {
-#       order_value: ["could not coerce into one of: float, integer"],
-#       customer_data: ["could not coerce into one of: hash, array, string"]
 #     }
 #   }
 ```
@@ -427,6 +394,50 @@ class CalculatePricingTask < CMDx::Task
 
 end
 ```
+
+## Custom Coercions
+
+> [!NOTE]
+> CMDx allows you to register custom coercions for domain-specific types that aren't covered by the built-in coercions. Custom coercions can be registered globally or per-task basis.
+
+```ruby
+module MoneyCoercion
+  module_function
+
+  def call(value, options = {})
+    return value if value.is_a?(BigDecimal)
+
+    # Handle string amounts like "$123.45"
+    if value.is_a?(String)
+      clean_value = value.gsub(/[$,]/, '')
+      BigDecimal(clean_value)
+    else
+      BigDecimal(value.to_s)
+    end
+  end
+end
+
+CMDx.configure do |config|
+  config.coercions.register(:money, MoneyCoercion)
+  config.coercions.register(:slug, proc do |value|
+    value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
+  end)
+end
+
+# Now use in any task
+class ProcessProductTask < CMDx::Task
+  required :cost, type: :money
+  required :slug, type: :slug
+
+  def call
+    cost #=> 123.45
+    slug #=> "my-blog-post-title" (URL-friendly)
+  end
+end
+```
+
+> [!TIP]
+> Custom coercions should be idempotent - calling them multiple times with the same input should produce the same result. This ensures predictable behavior when coercions are applied during parameter processing.
 
 ---
 

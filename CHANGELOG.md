@@ -8,10 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [TODO]
 
 - Add table and pretty_table log formatters
-- Add method and proc style validations
-- Refactor parameter modules and classes for more robust usages
+- Refactor all `docs`
 
 ## [Unreleased]
+
+### Added
+- Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
+- Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration
+- Added `CallbackRegistry` class to take uninstantiated callback classes
+- Added `Validator` and `Coercion` classes to build their respective handlers
+
+### Changed
+- Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`
+- Updated `ParameterRegistry` class to not inherit from `Hash`
+- Updated `MiddlewareRegistry` class to not inherit from `Hash`
+- Updated `CallbackRegistry` class to not inherit from `Hash`
+
+### Removed
+- Removed task `register` class method
+- Removed `Custom` validator since users can create and register a custom one
 
 ## [1.0.1] - 2025-07-07
 

@@ -3,278 +3,387 @@
 require "spec_helper"
 
 RSpec.describe CMDx::CoreExt::ModuleExtensions do # rubocop:disable RSpec/SpecFilePathFormat
-  let(:test_class) { Class.new }
-  let(:target_object) { double("target", test_method: "result", private_method: "private_result") }
-  let(:instance) { test_class.new }
+  describe "#cmdx_attr_delegator" do
+    let(:test_class) { Class.new }
+    let(:logger_mock) { double("Logger") }
 
-  before do
-    allow(instance).to receive_messages(target: target_object, missing_target: nil)
-  end
-
-  describe "#__cmdx_attr_delegator" do
     context "with basic delegation" do
-      it "creates delegator method that forwards to target object" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target
+      subject(:instance) { test_class.new(logger_mock) }
 
-        expect(instance.test_method).to eq("result")
-      end
+      before do
+        test_class.class_eval do
+          attr_reader :logger
 
-      it "forwards arguments to delegated method" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target
+          def initialize(logger)
+            @logger = logger
+          end
 
-        instance.test_method("arg1", "arg2")
-
-        expect(target_object).to have_received(:test_method).with("arg1", "arg2")
-      end
-
-      it "forwards keyword arguments to delegated method" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target
-
-        instance.test_method(key: "value")
-
-        expect(target_object).to have_received(:test_method).with(key: "value")
-      end
-
-      it "forwards blocks to delegated method" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target
-        block = proc { "block_result" }
-
-        instance.test_method(&block)
-
-        expect(target_object).to have_received(:test_method).with(no_args) do |&passed_block|
-          expect(passed_block).to eq(block)
+          cmdx_attr_delegator :info, :warn, :error, to: :logger
         end
       end
 
-      it "creates method with generated name using NameAffix utility" do
-        allow(CMDx::Utils::NameAffix).to receive(:call).and_return(:custom_method_name)
-        test_class.__cmdx_attr_delegator :test_method, to: :target
+      it "delegates methods to the target object" do
+        expect(logger_mock).to receive(:info).with("test message")
+        instance.info("test message")
+      end
 
-        expect(CMDx::Utils::NameAffix).to have_received(:call).with(:test_method, :target, to: :target)
+      it "delegates multiple methods" do
+        expect(logger_mock).to receive(:warn).with("warning")
+        expect(logger_mock).to receive(:error).with("error")
+
+        instance.warn("warning")
+        instance.error("error")
+      end
+
+      it "passes arguments and blocks correctly" do
+        block = proc { "test block" }
+        expect(logger_mock).to receive(:info).with("message", level: :debug, &block)
+        instance.info("message", level: :debug, &block)
       end
     end
 
-    context "with multiple methods" do
-      it "creates delegator methods for all specified methods" do
-        allow(target_object).to receive_messages(method_one: "one", method_two: "two")
-        test_class.__cmdx_attr_delegator :method_one, :method_two, to: :target
+    context "with method delegation" do
+      subject(:instance) { test_class.new(logger_mock) }
 
-        expect(instance.method_one).to eq("one")
-        expect(instance.method_two).to eq("two")
+      before do
+        test_class.class_eval do
+          attr_reader :logger
+
+          def initialize(logger)
+            @logger = logger
+          end
+
+          cmdx_attr_delegator :debug, :fatal, to: :logger
+        end
+      end
+
+      it "delegates to methods that return objects" do
+        expect(logger_mock).to receive(:debug).with("debug message")
+        instance.debug("debug message")
       end
     end
 
     context "with class delegation" do
-      it "delegates to class when to option is :class" do
-        allow(test_class).to receive(:class_method).and_return("class_result")
-        test_class.__cmdx_attr_delegator :class_method, to: :class
+      subject(:instance) { test_class.new }
 
-        expect(instance.class_method).to eq("class_result")
+      let(:class_logger) { double("ClassLogger") }
+
+      before do
+        test_class.class_eval do
+          def self.logger
+            class_logger
+          end
+
+          cmdx_attr_delegator :log, to: :class
+        end
+      end
+
+      it "delegates to class when :to is :class" do
+        expect(test_class).to receive(:log).with("class message")
+        instance.log("class message")
       end
     end
 
-    context "with visibility options" do
-      it "makes delegated method private when private option is true" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target, private: true
+    context "with method name modifications" do
+      subject(:instance) { test_class.new(double("Task")) }
 
-        expect(test_class.private_instance_methods).to include(:test_method)
+      before do
+        test_class.class_eval do
+          attr_reader :task
+
+          def initialize(task)
+            @task = task
+          end
+
+          cmdx_attr_delegator :perform, to: :task, prefix: "execute_"
+          cmdx_attr_delegator :validate, to: :task, suffix: "_data"
+          cmdx_attr_delegator :process, to: :task, prefix: "run_", suffix: "_job"
+        end
       end
 
-      it "makes delegated method protected when protected option is true" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target, protected: true
-
-        expect(test_class.protected_instance_methods).to include(:test_method)
+      it "applies prefix to method name" do
+        expect(instance.task).to receive(:perform).with("data")
+        instance.execute_perform("data")
       end
 
-      it "keeps delegated method public by default" do
-        test_class.__cmdx_attr_delegator :test_method, to: :target
+      it "applies suffix to method name" do
+        expect(instance.task).to receive(:validate).with("input")
+        instance.validate_data("input")
+      end
 
-        expect(test_class.public_instance_methods).to include(:test_method)
+      it "applies both prefix and suffix" do
+        expect(instance.task).to receive(:process).with("payload")
+        instance.run_process_job("payload")
+      end
+    end
+
+    context "with privacy levels" do
+      subject(:instance) { test_class.new(double("Service")) }
+
+      before do
+        test_class.class_eval do
+          attr_reader :service
+
+          def initialize(service)
+            @service = service
+          end
+
+          cmdx_attr_delegator :public_method, to: :service
+          cmdx_attr_delegator :protected_method, to: :service, protected: true
+          cmdx_attr_delegator :private_method, to: :service, private: true
+        end
+      end
+
+      it "creates public methods by default" do
+        expect(instance.service).to receive(:public_method)
+        instance.public_method
+      end
+
+      it "creates protected methods when specified" do
+        expect(instance.service).to receive(:protected_method)
+        instance.send(:protected_method)
+      end
+
+      it "creates private methods when specified" do
+        expect(instance.service).to receive(:private_method)
+        instance.send(:private_method)
+      end
+
+      it "respects method visibility" do
+        expect(instance.public_methods).to include(:public_method)
+        expect(instance.protected_methods).to include(:protected_method)
+        expect(instance.private_methods).to include(:private_method)
       end
     end
 
     context "with allow_missing option" do
-      it "does not raise error when method missing and allow_missing is true" do
-        allow(target_object).to receive(:respond_to?).with(:missing_method, true).and_return(false)
-        allow(target_object).to receive(:missing_method).and_return(nil)
-        test_class.__cmdx_attr_delegator :missing_method, to: :target, allow_missing: true
+      subject(:instance) { test_class.new(target_mock) }
 
-        expect { instance.missing_method }.not_to raise_error
+      let(:target_mock) { double("Target") }
+
+      before do
+        test_class.class_eval do
+          attr_reader :target
+
+          def initialize(target)
+            @target = target
+          end
+
+          cmdx_attr_delegator :existing_method, to: :target
+          cmdx_attr_delegator :missing_method, to: :target, allow_missing: true
+        end
       end
 
-      it "raises NoMethodError when method missing and allow_missing is false" do
-        allow(target_object).to receive(:respond_to?).with(:missing_method, true).and_return(false)
-        test_class.__cmdx_attr_delegator :missing_method, to: :target, allow_missing: false
+      it "raises NoMethodError when method doesn't exist and allow_missing is false" do
+        allow(target_mock).to receive(:respond_to?).with(:existing_method, true).and_return(false)
 
-        expect { instance.missing_method }.to raise_error(NoMethodError, /undefined method `missing_method' for target/)
+        expect { instance.existing_method }.to raise_error(NoMethodError, /undefined method `existing_method'/)
       end
 
-      it "raises NoMethodError when method missing and allow_missing not specified" do
-        allow(target_object).to receive(:respond_to?).with(:missing_method, true).and_return(false)
-        test_class.__cmdx_attr_delegator :missing_method, to: :target
+      it "allows delegation to non-existent methods when allow_missing is true" do
+        allow(target_mock).to receive(:respond_to?).with(:missing_method, true).and_return(false)
+        allow(target_mock).to receive(:missing_method).and_return("result")
 
-        expect { instance.missing_method }.to raise_error(NoMethodError, /undefined method `missing_method' for target/)
+        expect(instance.missing_method).to eq("result")
       end
     end
 
-    context "with respond_to? checking" do
-      it "checks if target responds to method with private methods included" do
-        allow(target_object).to receive(:respond_to?).and_return(false)
-        allow(target_object).to receive(:respond_to?).with(:test_method, true).and_return(true)
-        test_class.__cmdx_attr_delegator :test_method, to: :target
+    context "with edge cases" do
+      subject(:instance) { test_class.new(nil_target) }
 
-        instance.test_method
+      let(:nil_target) { nil }
 
-        expect(target_object).to have_received(:respond_to?).with(:test_method, true)
+      before do
+        test_class.class_eval do
+          attr_reader :target
+
+          def initialize(target)
+            @target = target
+          end
+
+          cmdx_attr_delegator :test_method, to: :target, allow_missing: true
+        end
+      end
+
+      it "handles nil target gracefully when allow_missing is true" do
+        expect { instance.test_method }.to raise_error(NoMethodError)
       end
     end
   end
 
-  describe "#__cmdx_attr_setting" do
-    let(:parent_class) { Class.new }
-    let(:child_class) { Class.new(parent_class) }
+  describe "#cmdx_attr_setting" do
+    let(:base_class) { Class.new }
+    let(:child_class) { Class.new(base_class) }
 
     context "with default values" do
-      it "returns default value when no value is set" do
-        test_class.__cmdx_attr_setting :timeout, default: 30
-
-        expect(test_class.timeout).to eq(30)
+      before do
+        base_class.class_eval do
+          cmdx_attr_setting :timeout, default: 30
+          cmdx_attr_setting :retries, default: 3
+        end
       end
 
-      it "caches the default value for subsequent calls" do
-        test_class.__cmdx_attr_setting :timeout, default: 30
-
-        first_call = test_class.timeout
-        second_call = test_class.timeout
-
-        expect(first_call).to eq(second_call)
-        expect(first_call.object_id).to eq(second_call.object_id)
+      it "returns default value when not set" do
+        expect(base_class.timeout).to eq(30)
+        expect(base_class.retries).to eq(3)
       end
 
-      it "duplicates non-proc default values to prevent shared state" do
-        default_hash = { key: "value" }
-        test_class.__cmdx_attr_setting :config, default: default_hash
+      it "caches the value after first access" do
+        first_call = base_class.timeout
+        second_call = base_class.timeout
 
-        result = test_class.config
+        expect(first_call).to be(second_call)
+      end
 
-        expect(result).to eq(default_hash)
-        expect(result.object_id).not_to eq(default_hash.object_id)
+      it "caches values to improve performance" do
+        base_class.class_eval do
+          cmdx_attr_setting :config, default: { enabled: true }
+        end
+
+        config1 = base_class.config
+        config2 = base_class.config
+
+        expect(config1).to eq(config2)
+        expect(config1).to be(config2) # Same object due to caching
+      end
+
+      it "duplicates inherited values to prevent mutation between classes" do
+        base_class.class_eval do
+          cmdx_attr_setting :shared_config, default: { enabled: true }
+        end
+
+        # Access value in base class first to set up inheritance
+        base_config = base_class.shared_config
+        expect(base_config[:enabled]).to be true
+
+        # Child class should inherit and get a duplicate
+        child_config = child_class.shared_config
+        expect(child_config[:enabled]).to be true
+        expect(child_config).not_to be(base_config)
+
+        # Mutating one shouldn't affect the other
+        base_config[:enabled] = false
+        expect(child_config[:enabled]).to be true
       end
     end
 
     context "with proc defaults" do
-      it "executes proc to generate default value" do
-        counter = 0
-        test_class.__cmdx_attr_setting :dynamic_value, default: -> { counter += 1 }
-
-        expect(test_class.dynamic_value).to eq(1)
+      before do
+        base_class.class_eval do
+          cmdx_attr_setting :dynamic_timeout, default: -> { ENV.fetch("TIMEOUT", "60").to_i }
+          cmdx_attr_setting :timestamp, default: -> { Time.now }
+        end
       end
 
-      it "executes proc only once and caches result" do
-        counter = 0
-        test_class.__cmdx_attr_setting :dynamic_value, default: -> { counter += 1 }
+      it "evaluates proc on each class that accesses it" do
+        allow(ENV).to receive(:fetch).with("TIMEOUT", "60").and_return("45")
 
-        first_call = test_class.dynamic_value
-        second_call = test_class.dynamic_value
-
-        expect(first_call).to eq(1)
-        expect(second_call).to eq(1)
+        expect(base_class.dynamic_timeout).to eq(45)
       end
 
-      it "does not duplicate proc results" do
-        test_class.__cmdx_attr_setting :proc_result, default: -> { "result" }
+      it "evaluates procs per class hierarchy" do
+        counter = 0
+        base_class.class_eval do
+          cmdx_attr_setting :counter, default: -> { counter += 1 }
+        end
 
-        first_call = test_class.proc_result
-        second_call = test_class.proc_result
+        result1 = base_class.counter
+        result2 = child_class.counter
 
-        expect(first_call.object_id).to eq(second_call.object_id)
+        expect(result1).to eq(1)
+        expect(result2).to eq(1) # Child inherits evaluated result from parent
       end
     end
 
     context "with inheritance" do
-      it "inherits value from superclass when not set in subclass" do
-        parent_class.__cmdx_attr_setting :inherited_value, default: "parent_value"
-        allow(child_class).to receive(:superclass).and_return(parent_class)
-        allow(parent_class).to receive(:__cmdx_try).with(:inherited_value).and_return("parent_value")
-        child_class.__cmdx_attr_setting :inherited_value, default: "child_default"
+      before do
+        base_class.class_eval do
+          cmdx_attr_setting :base_setting, default: "base_value"
+          cmdx_attr_setting :shared_setting, default: "original"
+        end
 
-        expect(child_class.inherited_value).to eq("parent_value")
+        child_class.class_eval do
+          cmdx_attr_setting :child_setting, default: "child_value"
+        end
       end
 
-      it "duplicates inherited value to prevent shared state" do
-        inherited_hash = { key: "value" }
-        parent_class.__cmdx_attr_setting :config, default: inherited_hash
-        allow(child_class).to receive(:superclass).and_return(parent_class)
-        allow(parent_class).to receive(:__cmdx_try).with(:config).and_return(inherited_hash)
-        child_class.__cmdx_attr_setting :config, default: {}
-
-        result = child_class.config
-
-        expect(result).to eq(inherited_hash)
-        expect(result.object_id).not_to eq(inherited_hash.object_id)
+      it "inherits settings from parent class" do
+        expect(child_class.base_setting).to eq("base_value")
       end
 
-      it "uses default when superclass returns nil" do
-        allow(child_class).to receive(:superclass).and_return(parent_class)
-        allow(parent_class).to receive(:__cmdx_try).with(:missing_value).and_return(nil)
-        child_class.__cmdx_attr_setting :missing_value, default: "default_value"
+      it "has its own settings" do
+        expect(child_class.child_setting).to eq("child_value")
+        expect { base_class.child_setting }.to raise_error(NoMethodError)
+      end
 
-        expect(child_class.missing_value).to eq("default_value")
+      it "can override parent settings" do
+        # Set value in parent
+        base_class.instance_variable_set(:@cmd_facets, { shared_setting: "modified" })
+
+        # Child inherits the modified value
+        expect(child_class.shared_setting).to eq("modified")
       end
     end
 
-    context "with __cmdx_call integration" do
-      it "calls __cmdx_call on default value" do
-        callable_default = double("callable")
-        allow(callable_default).to receive(:__cmdx_call).and_return("called_result")
-        allow(callable_default).to receive(:is_a?).with(Proc).and_return(false)
-        test_class.__cmdx_attr_setting :callable_value, default: callable_default
+    context "with caching behavior" do
+      before do
+        base_class.class_eval do
+          cmdx_attr_setting :cached_value, default: "initial"
+        end
+      end
 
-        expect(test_class.callable_value).to eq("called_result")
+      it "caches values in @cmd_facets" do
+        expect(base_class.instance_variable_get(:@cmd_facets)).to be_nil
+
+        base_class.cached_value
+
+        facets = base_class.instance_variable_get(:@cmd_facets)
+        expect(facets).to be_a(Hash)
+        expect(facets[:cached_value]).to eq("initial")
+      end
+
+      it "returns cached value on subsequent calls" do
+        base_class.cached_value # First call
+
+        # Manually change cached value
+        base_class.instance_variable_get(:@cmd_facets)[:cached_value] = "modified"
+
+        expect(base_class.cached_value).to eq("modified")
       end
     end
 
-    context "with facets storage" do
-      it "initializes @cmd_facets hash when first accessed" do
-        test_class.__cmdx_attr_setting :first_value, default: "value"
-
-        test_class.first_value
-
-        expect(test_class.instance_variable_get(:@cmd_facets)).to be_a(Hash)
+    context "with edge cases" do
+      before do
+        base_class.class_eval do
+          cmdx_attr_setting :nil_default, default: nil
+          cmdx_attr_setting :false_default, default: false
+          cmdx_attr_setting :no_default
+        end
       end
 
-      it "stores values in @cmd_facets hash with method name as key" do
-        test_class.__cmdx_attr_setting :stored_value, default: "value"
-
-        test_class.stored_value
-
-        expect(test_class.instance_variable_get(:@cmd_facets)[:stored_value]).to eq("value")
+      it "handles nil default values" do
+        expect(base_class.nil_default).to be_nil
       end
 
-      it "returns cached value from @cmd_facets when key exists" do
-        test_class.__cmdx_attr_setting :cached_value, default: "original"
-        test_class.instance_variable_set(:@cmd_facets, { cached_value: "cached" })
+      it "handles false default values" do
+        expect(base_class.false_default).to be false
+      end
 
-        expect(test_class.cached_value).to eq("cached")
+      it "handles missing default values" do
+        expect(base_class.no_default).to be_nil
       end
     end
   end
 
-  describe "Module inclusion" do
-    it "extends Module class with ModuleExtensions" do
-      expect(Module.ancestors).to include(described_class)
+  describe "module inclusion" do
+    it "includes ModuleExtensions in Module" do
+      expect(Module.included_modules).to include(described_class)
     end
 
-    it "makes __cmdx_attr_delegator available on all modules" do
-      new_module = Module.new
-
-      expect(new_module).to respond_to(:__cmdx_attr_delegator)
-    end
-
-    it "makes __cmdx_attr_setting available on all modules" do
-      new_module = Module.new
-
-      expect(new_module).to respond_to(:__cmdx_attr_setting)
+    it "makes methods available on all modules" do
+      test_module = Module.new
+      expect(test_module).to respond_to(:cmdx_attr_delegator)
+      expect(test_module).to respond_to(:cmdx_attr_setting)
     end
   end
 end

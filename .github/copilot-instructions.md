@@ -36,10 +36,14 @@ business logic within service/command objects.
 ## Testing
 - Follow the RSpec Style Guide (https://rspec.rubystyle.guide/)
 - Write comprehensive tests using RSpec
+- It's ok to put multiple assertions in the same example
 - Include both BDD and TDD based tests
 - Create test objects to share across tests
 - Do NOT make tests for obvious or reflective expectations
-- Update tests and update Yardocs as your write code
+- Prefer real objects over mocks. Use `instance_double` if necessary; never `double`
+- Don't test declarative configuration
+- Use appropriate matchers
+- Update tests and update Yardocs after you write code
 
 ## Documentation
 - Utilize the YARDoc format when documenting Ruby code

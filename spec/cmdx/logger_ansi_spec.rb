@@ -4,304 +4,175 @@ require "spec_helper"
 
 RSpec.describe CMDx::LoggerAnsi do
   describe ".call" do
-    context "when input is DEBUG severity" do
-      it "returns blue bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("DEBUG", color: :blue, mode: :bold).and_return("\e[1;34mDEBUG\e[0m")
+    let(:message) { "DEBUG: Starting process" }
+    let(:formatted_message) { "\e[1;34;49m#{message}\e[0m" }
 
-        result = described_class.call("DEBUG")
+    before do
+      allow(CMDx::Utils::AnsiColor).to receive(:call).and_return(formatted_message)
+    end
 
-        expect(result).to eq("\e[1;34mDEBUG\e[0m")
+    it "delegates to Utils::AnsiColor with correct arguments" do
+      described_class.call(message)
+
+      expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+        message,
+        color: :blue,
+        mode: :bold
+      )
+    end
+
+    it "returns the formatted message from Utils::AnsiColor" do
+      result = described_class.call(message)
+
+      expect(result).to eq(formatted_message)
+    end
+
+    context "with different severity levels" do
+      it "formats debug messages with blue color" do
+        described_class.call("DEBUG: test")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "DEBUG: test",
+          color: :blue,
+          mode: :bold
+        )
       end
 
-      it "calls AnsiColor with correct parameters" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
+      it "formats info messages with green color" do
+        described_class.call("INFO: test")
 
-        described_class.call("DEBUG")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "INFO: test",
+          color: :green,
+          mode: :bold
+        )
+      end
 
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("DEBUG", color: :blue, mode: :bold)
+      it "formats warning messages with yellow color" do
+        described_class.call("WARN: test")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "WARN: test",
+          color: :yellow,
+          mode: :bold
+        )
+      end
+
+      it "formats error messages with red color" do
+        described_class.call("ERROR: test")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "ERROR: test",
+          color: :red,
+          mode: :bold
+        )
+      end
+
+      it "formats fatal messages with magenta color" do
+        described_class.call("FATAL: test")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "FATAL: test",
+          color: :magenta,
+          mode: :bold
+        )
       end
     end
 
-    context "when input is INFO severity" do
-      it "returns green bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("INFO", color: :green, mode: :bold).and_return("\e[1;32mINFO\e[0m")
+    context "with edge cases" do
+      it "handles unknown severity with default color" do
+        described_class.call("UNKNOWN: test")
 
-        result = described_class.call("INFO")
-
-        expect(result).to eq("\e[1;32mINFO\e[0m")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "UNKNOWN: test",
+          color: :default,
+          mode: :bold
+        )
       end
 
-      it "calls AnsiColor with correct parameters" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
+      it "handles empty string" do
+        described_class.call("")
 
-        described_class.call("INFO")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("INFO", color: :green, mode: :bold)
-      end
-    end
-
-    context "when input is WARN severity" do
-      it "returns yellow bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("WARN", color: :yellow, mode: :bold).and_return("\e[1;33mWARN\e[0m")
-
-        result = described_class.call("WARN")
-
-        expect(result).to eq("\e[1;33mWARN\e[0m")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "",
+          color: :default,
+          mode: :bold
+        )
       end
 
-      it "calls AnsiColor with correct parameters" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("WARN")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("WARN", color: :yellow, mode: :bold)
-      end
-    end
-
-    context "when input is ERROR severity" do
-      it "returns red bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("ERROR", color: :red, mode: :bold).and_return("\e[1;31mERROR\e[0m")
-
-        result = described_class.call("ERROR")
-
-        expect(result).to eq("\e[1;31mERROR\e[0m")
-      end
-
-      it "calls AnsiColor with correct parameters" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("ERROR")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("ERROR", color: :red, mode: :bold)
-      end
-    end
-
-    context "when input is FATAL severity" do
-      it "returns magenta bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("FATAL", color: :magenta, mode: :bold).and_return("\e[1;35mFATAL\e[0m")
-
-        result = described_class.call("FATAL")
-
-        expect(result).to eq("\e[1;35mFATAL\e[0m")
-      end
-
-      it "calls AnsiColor with correct parameters" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("FATAL")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("FATAL", color: :magenta, mode: :bold)
-      end
-    end
-
-    context "when input is unknown severity" do
-      it "returns default color bold formatted string" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("CUSTOM", color: :default, mode: :bold).and_return("\e[1;39mCUSTOM\e[0m")
-
-        result = described_class.call("CUSTOM")
-
-        expect(result).to eq("\e[1;39mCUSTOM\e[0m")
-      end
-
-      it "calls AnsiColor with default color" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("UNKNOWN")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("UNKNOWN", color: :default, mode: :bold)
-      end
-    end
-
-    context "when input is lowercase severity" do
-      it "treats as unknown and uses default color" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("debug", color: :default, mode: :bold).and_return("\e[1;39mdebug\e[0m")
-
-        result = described_class.call("debug")
-
-        expect(result).to eq("\e[1;39mdebug\e[0m")
-      end
-    end
-
-    context "when input is empty string" do
-      it "handles gracefully with default color" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).with("", color: :default, mode: :bold).and_return("\e[1;39m\e[0m")
-
-        result = described_class.call("")
-
-        expect(result).to eq("\e[1;39m\e[0m")
-      end
-    end
-
-    context "when input is single character" do
-      it "maps D to blue" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
+      it "handles single character messages" do
         described_class.call("D")
 
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("D", color: :blue, mode: :bold)
-      end
-
-      it "maps I to green" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("I")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("I", color: :green, mode: :bold)
-      end
-
-      it "maps W to yellow" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("W")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("W", color: :yellow, mode: :bold)
-      end
-
-      it "maps E to red" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("E")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("E", color: :red, mode: :bold)
-      end
-
-      it "maps F to magenta" do
-        allow(CMDx::Utils::AnsiColor).to receive(:call)
-
-        described_class.call("F")
-
-        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("F", color: :magenta, mode: :bold)
-      end
-    end
-
-    context "when AnsiColor raises an error" do
-      before do
-        allow(CMDx::Utils::AnsiColor).to receive(:call).and_raise(StandardError, "color error")
-      end
-
-      it "allows the error to propagate" do
-        expect { described_class.call("INFO") }.to raise_error(StandardError, "color error")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(
+          "D",
+          color: :blue,
+          mode: :bold
+        )
       end
     end
   end
 
   describe ".color" do
-    context "when input starts with D" do
-      it "returns blue for DEBUG" do
-        result = described_class.color("DEBUG")
-
-        expect(result).to eq(:blue)
-      end
-
-      it "returns blue for single D" do
-        result = described_class.color("D")
-
-        expect(result).to eq(:blue)
-      end
-
-      it "returns blue for D with other text" do
-        result = described_class.color("Debug Message")
-
-        expect(result).to eq(:blue)
-      end
+    it "returns blue for debug messages" do
+      expect(described_class.color("DEBUG: test")).to eq(:blue)
     end
 
-    context "when input starts with I" do
-      it "returns green for INFO" do
-        result = described_class.color("INFO")
-
-        expect(result).to eq(:green)
-      end
-
-      it "returns green for single I" do
-        result = described_class.color("I")
-
-        expect(result).to eq(:green)
-      end
+    it "returns green for info messages" do
+      expect(described_class.color("INFO: test")).to eq(:green)
     end
 
-    context "when input starts with W" do
-      it "returns yellow for WARN" do
-        result = described_class.color("WARN")
-
-        expect(result).to eq(:yellow)
-      end
-
-      it "returns yellow for WARNING" do
-        result = described_class.color("WARNING")
-
-        expect(result).to eq(:yellow)
-      end
+    it "returns yellow for warning messages" do
+      expect(described_class.color("WARN: test")).to eq(:yellow)
     end
 
-    context "when input starts with E" do
-      it "returns red for ERROR" do
-        result = described_class.color("ERROR")
-
-        expect(result).to eq(:red)
-      end
-
-      it "returns red for EXCEPTION" do
-        result = described_class.color("EXCEPTION")
-
-        expect(result).to eq(:red)
-      end
+    it "returns red for error messages" do
+      expect(described_class.color("ERROR: test")).to eq(:red)
     end
 
-    context "when input starts with F" do
-      it "returns magenta for FATAL" do
-        result = described_class.color("FATAL")
-
-        expect(result).to eq(:magenta)
-      end
-
-      it "returns magenta for FAILURE" do
-        result = described_class.color("FAILURE")
-
-        expect(result).to eq(:magenta)
-      end
+    it "returns magenta for fatal messages" do
+      expect(described_class.color("FATAL: test")).to eq(:magenta)
     end
 
-    context "when input starts with unmapped character" do
-      it "returns default for CUSTOM" do
-        result = described_class.color("CUSTOM")
-
-        expect(result).to eq(:default)
-      end
-
-      it "returns default for TRACE" do
-        result = described_class.color("TRACE")
-
-        expect(result).to eq(:default)
-      end
-
-      it "returns default for lowercase" do
-        result = described_class.color("debug")
-
-        expect(result).to eq(:default)
-      end
-
-      it "returns default for numbers" do
-        result = described_class.color("123")
-
-        expect(result).to eq(:default)
-      end
+    it "returns default for unknown severity" do
+      expect(described_class.color("UNKNOWN: test")).to eq(:default)
     end
 
-    context "when input is empty string" do
-      it "handles gracefully and returns default" do
-        result = described_class.color("")
-
-        expect(result).to eq(:default)
-      end
+    it "returns default for empty string" do
+      expect(described_class.color("")).to eq(:default)
     end
 
-    context "when input is not a string" do
-      it "works with symbols" do
-        result = described_class.color(:DEBUG)
+    it "works with lowercase severity indicators" do
+      expect(described_class.color("debug: test")).to eq(:default)
+    end
 
-        expect(result).to eq(:blue)
-      end
+    it "works with mixed case messages" do
+      expect(described_class.color("Debug: test")).to eq(:blue)
+    end
+
+    it "handles numeric characters" do
+      expect(described_class.color("1: test")).to eq(:default)
+    end
+
+    it "handles special characters" do
+      expect(described_class.color("@: test")).to eq(:default)
+    end
+  end
+
+  describe "SEVERITY_COLORS constant" do
+    it "is frozen" do
+      expect(described_class::SEVERITY_COLORS).to be_frozen
+    end
+
+    it "contains expected severity mappings" do
+      expect(described_class::SEVERITY_COLORS).to eq(
+        {
+          "D" => :blue,
+          "I" => :green,
+          "W" => :yellow,
+          "E" => :red,
+          "F" => :magenta
+        }
+      )
     end
   end
 end

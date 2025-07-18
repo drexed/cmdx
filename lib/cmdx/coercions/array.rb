@@ -2,47 +2,29 @@
 
 module CMDx
   module Coercions
-    # Coerces values to Array type.
+    # Coercion class for converting values to arrays.
     #
-    # The Array coercion converts parameter values to Array objects,
-    # with special handling for JSON-formatted strings and general
-    # array conversion using Ruby's Array() method.
-    #
-    # @example Basic array coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     optional :tags, type: :array, default: []
-    #     optional :item_ids, type: :array
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::Array.call([1, 2, 3])      # => [1, 2, 3]
-    #   Coercions::Array.call("hello")        # => ["hello"]
-    #   Coercions::Array.call('["a","b"]')    # => ["a", "b"] (JSON)
-    #   Coercions::Array.call('[1,2,3]')      # => [1, 2, 3] (JSON)
-    #   Coercions::Array.call(nil)            # => []
-    #   Coercions::Array.call(42)             # => [42]
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module Array
+    # This coercion handles conversion of various types to arrays, with special
+    # handling for JSON-formatted strings that start with "[".
+    class Array < Coercion
 
-      module_function
-
-      # Coerce a value to Array.
+      # Converts the given value to an array.
       #
-      # If the value is a JSON-formatted string (starts with '['), it will
-      # be parsed as JSON. Otherwise, it uses Ruby's Array() method for
-      # general array conversion.
+      # @param value [Object] the value to convert to an array
+      # @param _options [Hash] optional configuration (currently unused)
       #
-      # @param value [Object] value to coerce to array
-      # @param _options [Hash] coercion options (unused)
-      # @return [Array] coerced array value
-      # @raise [JSON::ParserError] if JSON parsing fails
+      # @return [Array] the converted array value
       #
-      # @example
-      #   Coercions::Array.call("test")         # => ["test"]
-      #   Coercions::Array.call('["a","b"]')    # => ["a", "b"]
-      #   Coercions::Array.call([1, 2])         # => [1, 2]
+      # @raise [JSON::ParserError] if value is a JSON string that cannot be parsed
+      # @raise [TypeError] if the value cannot be converted to an array
+      #
+      # @example Converting a JSON string
+      #   Coercions::Array.call('["a", "b", "c"]') #=> ["a", "b", "c"]
+      #
+      # @example Converting other values
+      #   Coercions::Array.call("hello") #=> ["hello"]
+      #   Coercions::Array.call(123) #=> [123]
+      #   Coercions::Array.call(nil) #=> []
       def call(value, _options = {})
         if value.is_a?(::String) && value.start_with?("[")
           JSON.parse(value)

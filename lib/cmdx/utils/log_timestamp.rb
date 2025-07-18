@@ -2,60 +2,31 @@
 
 module CMDx
   module Utils
-    # Utility for formatting timestamps in CMDx log entries.
+    # Utility module for formatting timestamps into standardized string representations.
     #
-    # LogTimestamp provides consistent timestamp formatting across all CMDx
-    # log formatters, ensuring uniform time representation in logs regardless
-    # of the chosen output format. Uses ISO 8601 format with microsecond precision.
-    #
-    # @example Basic timestamp formatting
-    #   Utils::LogTimestamp.call(Time.now)
-    #   # => "2022-07-17T18:43:15.123456"
-    #
-    # @example Usage in log formatters
-    #   timestamp = Utils::LogTimestamp.call(time.utc)
-    #   log_entry = "#{severity} [#{timestamp}] #{message}"
-    #
-    # @example Consistent formatting across formatters
-    #   # JSON formatter
-    #   { "timestamp": Utils::LogTimestamp.call(time.utc) }
-    #
-    #   # Line formatter
-    #   "[#{Utils::LogTimestamp.call(time.utc)} ##{Process.pid}]"
-    #
-    # @see CMDx::LogFormatters::Json Uses this for JSON timestamp field
-    # @see CMDx::LogFormatters::Line Uses this for traditional log format
-    # @see CMDx::LogFormatters::Logstash Uses this for @timestamp field
+    # This module provides functionality to convert Time objects into consistent
+    # ISO 8601-like formatted strings with microsecond precision, suitable for
+    # logging and timestamp display purposes.
     module LogTimestamp
 
-      # ISO 8601 datetime format with microsecond precision
-      # @return [String] strftime format string for consistent timestamp formatting
       DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
 
       module_function
 
-      # Formats a Time object as an ISO 8601 timestamp string.
+      # Formats a Time object into a standardized timestamp string.
       #
-      # Converts the given time to a standardized string representation
-      # using ISO 8601 format with microsecond precision. This ensures
-      # consistent timestamp formatting across all CMDx log outputs.
+      # @param time [Time] the time object to format
       #
-      # @param time [Time] Time object to format
-      # @return [String] ISO 8601 formatted timestamp with microseconds
+      # @return [String] the formatted timestamp string in ISO 8601-like format
       #
-      # @example Current time formatting
-      #   LogTimestamp.call(Time.now)
-      #   # => "2022-07-17T18:43:15.123456"
+      # @raise [NoMethodError] if the time object doesn't respond to strftime
       #
-      # @example UTC time formatting for logs
-      #   LogTimestamp.call(Time.now.utc)
-      #   # => "2022-07-17T18:43:15.123456"
+      # @example Basic timestamp formatting
+      #   LogTimestamp.call(Time.now) #=> "2023-12-25T10:30:45.123456"
       #
-      # @example Integration with log formatters
-      #   def format_log_entry(severity, time, message)
-      #     timestamp = LogTimestamp.call(time.utc)
-      #     "#{severity} [#{timestamp}] #{message}"
-      #   end
+      # @example With specific time
+      #   time = Time.new(2023, 12, 25, 10, 30, 45, 123456)
+      #   LogTimestamp.call(time) #=> "2023-12-25T10:30:45.123456"
       def call(time)
         time.strftime(DATETIME_FORMAT)
       end

@@ -11,7 +11,6 @@ zh:
       required: "是必需参数"
       undefined: "委托给未定义的方法%{source}"
     validators:
-      custom: "无效"
       exclusion:
         of: "不能是以下任一值: %{values}"
         within: "不能在%{min}和%{max}之间"

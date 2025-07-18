@@ -4,267 +4,168 @@ require "spec_helper"
 
 RSpec.describe CMDx::ResultAnsi do
   describe ".call" do
-    context "when colorizing result states" do
-      it "applies blue color to initialized state" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("initialized", color: :blue)
+    let(:formatted_string) { "\e[32mtest\e[0m" }
 
-        described_class.call("initialized")
+    before do
+      allow(CMDx::Utils::AnsiColor).to receive(:call).and_return(formatted_string)
+    end
+
+    context "with result states" do
+      it "formats initialized state with blue color" do
+        described_class.call(CMDx::Result::INITIALIZED)
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("initialized", color: :blue)
       end
 
-      it "applies yellow color to executing state" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("executing", color: :yellow)
+      it "formats executing state with yellow color" do
+        described_class.call(CMDx::Result::EXECUTING)
 
-        described_class.call("executing")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("executing", color: :yellow)
       end
 
-      it "applies green color to complete state" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("complete", color: :green)
+      it "formats complete state with green color" do
+        described_class.call(CMDx::Result::COMPLETE)
 
-        described_class.call("complete")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("complete", color: :green)
       end
 
-      it "applies red color to interrupted state" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("interrupted", color: :red)
+      it "formats interrupted state with red color" do
+        described_class.call(CMDx::Result::INTERRUPTED)
 
-        described_class.call("interrupted")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("interrupted", color: :red)
       end
     end
 
-    context "when colorizing result statuses" do
-      it "applies green color to success status" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("success", color: :green)
+    context "with result statuses" do
+      it "formats success status with green color" do
+        described_class.call(CMDx::Result::SUCCESS)
 
-        described_class.call("success")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("success", color: :green)
       end
 
-      it "applies yellow color to skipped status" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("skipped", color: :yellow)
+      it "formats skipped status with yellow color" do
+        described_class.call(CMDx::Result::SKIPPED)
 
-        described_class.call("skipped")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("skipped", color: :yellow)
       end
 
-      it "applies red color to failed status" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("failed", color: :red)
+      it "formats failed status with red color" do
+        described_class.call(CMDx::Result::FAILED)
 
-        described_class.call("failed")
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("failed", color: :red)
       end
     end
 
-    context "when colorizing unknown values" do
-      it "applies default color to unknown state" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("unknown", color: :default)
-
+    context "with unknown values" do
+      it "formats unknown string with default color" do
         described_class.call("unknown")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("unknown", color: :default)
       end
 
-      it "applies default color to arbitrary string" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("pending", color: :default)
-
-        described_class.call("pending")
-      end
-
-      it "applies default color to empty string" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("", color: :default)
-
+      it "formats empty string with default color" do
         described_class.call("")
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with("", color: :default)
+      end
+
+      it "formats nil with default color" do
+        described_class.call(nil)
+
+        expect(CMDx::Utils::AnsiColor).to have_received(:call).with(nil, color: :default)
       end
     end
 
-    context "when integrating with Utils::AnsiColor" do
-      it "returns the formatted string from Utils::AnsiColor" do
-        formatted_string = "\e[32msuccess\e[0m"
-        allow(CMDx::Utils::AnsiColor).to receive(:call).and_return(formatted_string)
+    it "returns the formatted string from Utils::AnsiColor" do
+      result = described_class.call(CMDx::Result::SUCCESS)
 
-        result = described_class.call("success")
-
-        expect(result).to eq(formatted_string)
-      end
-
-      it "passes through the original string and determined color" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("complete", color: :green).and_return("formatted")
-
-        described_class.call("complete")
-      end
+      expect(result).to eq(formatted_string)
     end
   end
 
   describe ".color" do
-    context "when determining colors for result states" do
+    context "with result states" do
       it "returns blue for initialized state" do
-        color = described_class.color("initialized")
-
-        expect(color).to eq(:blue)
+        expect(described_class.color(CMDx::Result::INITIALIZED)).to eq(:blue)
       end
 
       it "returns yellow for executing state" do
-        color = described_class.color("executing")
-
-        expect(color).to eq(:yellow)
+        expect(described_class.color(CMDx::Result::EXECUTING)).to eq(:yellow)
       end
 
       it "returns green for complete state" do
-        color = described_class.color("complete")
-
-        expect(color).to eq(:green)
+        expect(described_class.color(CMDx::Result::COMPLETE)).to eq(:green)
       end
 
       it "returns red for interrupted state" do
-        color = described_class.color("interrupted")
-
-        expect(color).to eq(:red)
+        expect(described_class.color(CMDx::Result::INTERRUPTED)).to eq(:red)
       end
     end
 
-    context "when determining colors for result statuses" do
+    context "with result statuses" do
       it "returns green for success status" do
-        color = described_class.color("success")
-
-        expect(color).to eq(:green)
+        expect(described_class.color(CMDx::Result::SUCCESS)).to eq(:green)
       end
 
       it "returns yellow for skipped status" do
-        color = described_class.color("skipped")
-
-        expect(color).to eq(:yellow)
+        expect(described_class.color(CMDx::Result::SKIPPED)).to eq(:yellow)
       end
 
       it "returns red for failed status" do
-        color = described_class.color("failed")
-
-        expect(color).to eq(:red)
+        expect(described_class.color(CMDx::Result::FAILED)).to eq(:red)
       end
     end
 
-    context "when determining colors for unknown values" do
-      it "returns default for unknown state" do
-        color = described_class.color("unknown")
-
-        expect(color).to eq(:default)
-      end
-
-      it "returns default for arbitrary string" do
-        color = described_class.color("pending")
-
-        expect(color).to eq(:default)
+    context "with unknown values" do
+      it "returns default for unknown string" do
+        expect(described_class.color("unknown")).to eq(:default)
       end
 
       it "returns default for empty string" do
-        color = described_class.color("")
-
-        expect(color).to eq(:default)
+        expect(described_class.color("")).to eq(:default)
       end
 
-      it "returns default for nil value" do
-        color = described_class.color(nil)
-
-        expect(color).to eq(:default)
-      end
-    end
-
-    context "when handling color mapping behavior" do
-      it "correctly identifies state colors" do
-        state_values = %w[initialized executing complete interrupted]
-        expected_colors = %i[blue yellow green red]
-
-        state_values.each_with_index do |state, index|
-          color = described_class.color(state)
-          expect(color).to eq(expected_colors[index])
-        end
+      it "returns default for nil" do
+        expect(described_class.color(nil)).to eq(:default)
       end
 
-      it "correctly identifies status colors" do
-        status_values = %w[success skipped failed]
-        expected_colors = %i[green yellow red]
-
-        status_values.each_with_index do |status, index|
-          color = described_class.color(status)
-          expect(color).to eq(expected_colors[index])
-        end
-      end
-
-      it "falls back to default for unrecognized values" do
-        unrecognized_values = %w[nonexistent invalid custom_state]
-
-        unrecognized_values.each do |value|
-          color = described_class.color(value)
-          expect(color).to eq(:default)
-        end
+      it "returns default for integer" do
+        expect(described_class.color(123)).to eq(:default)
       end
     end
   end
 
-  describe "integration with result values" do
-    context "when using actual result constants" do
-      it "handles complete state with success status combination" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("complete", color: :green)
-        described_class.call("complete")
-
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("success", color: :green)
-        described_class.call("success")
+  describe "constants" do
+    describe "STATE_COLORS" do
+      it "maps all result states to appropriate colors" do
+        expect(described_class::STATE_COLORS).to eq(
+          {
+            CMDx::Result::INITIALIZED => :blue,
+            CMDx::Result::EXECUTING => :yellow,
+            CMDx::Result::COMPLETE => :green,
+            CMDx::Result::INTERRUPTED => :red
+          }
+        )
       end
 
-      it "handles interrupted state with failed status combination" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("interrupted", color: :red)
-        described_class.call("interrupted")
-
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("failed", color: :red)
-        described_class.call("failed")
-      end
-
-      it "handles executing state with mixed status scenarios" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("executing", color: :yellow)
-        described_class.call("executing")
-
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("skipped", color: :yellow)
-        described_class.call("skipped")
+      it "is frozen" do
+        expect(described_class::STATE_COLORS).to be_frozen
       end
     end
 
-    context "when working with result inspection scenarios" do
-      it "provides consistent colors for result display" do
-        states = %w[initialized executing complete interrupted]
-        statuses = %w[success skipped failed]
-
-        states.each do |state|
-          expect(CMDx::Utils::AnsiColor).to receive(:call).with(state, color: anything)
-          described_class.call(state)
-        end
-
-        statuses.each do |status|
-          expect(CMDx::Utils::AnsiColor).to receive(:call).with(status, color: anything)
-          described_class.call(status)
-        end
+    describe "STATUS_COLORS" do
+      it "maps all result statuses to appropriate colors" do
+        expect(described_class::STATUS_COLORS).to eq(
+          {
+            CMDx::Result::SUCCESS => :green,
+            CMDx::Result::SKIPPED => :yellow,
+            CMDx::Result::FAILED => :red
+          }
+        )
       end
 
-      it "handles case sensitivity correctly" do
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("COMPLETE", color: :default)
-        described_class.call("COMPLETE")
-
-        expect(CMDx::Utils::AnsiColor).to receive(:call).with("Success", color: :default)
-        described_class.call("Success")
-      end
-    end
-
-    context "when testing color consistency between call and color methods" do
-      it "ensures call and color methods return consistent results" do
-        test_values = %w[initialized executing complete interrupted success skipped failed unknown]
-
-        test_values.each do |value|
-          expected_color = described_class.color(value)
-          expect(CMDx::Utils::AnsiColor).to receive(:call).with(value, color: expected_color)
-          described_class.call(value)
-        end
-      end
-
-      it "handles edge cases consistently" do
-        edge_cases = ["", nil, "mixed_CASE", "123", "special-chars"]
-
-        edge_cases.each do |value|
-          expected_color = described_class.color(value)
-          expect(expected_color).to eq(:default)
-          expect(CMDx::Utils::AnsiColor).to receive(:call).with(value, color: :default)
-          described_class.call(value)
-        end
+      it "is frozen" do
+        expect(described_class::STATUS_COLORS).to be_frozen
       end
     end
   end

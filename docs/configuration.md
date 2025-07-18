@@ -10,6 +10,8 @@ CMDx provides a flexible configuration system that allows customization at both 
   - [Configuration Options](#configuration-options)
   - [Global Middlewares](#global-middlewares)
   - [Global Callbacks](#global-callbacks)
+  - [Global Coercions](#global-coercions)
+  - [Global Validators](#global-validators)
 - [Task Settings](#task-settings)
   - [Available Task Settings](#available-task-settings)
   - [Workflow Configuration](#workflow-configuration)
@@ -21,7 +23,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 
 - **Hierarchy** - Global → Task Settings → Runtime (each level overrides previous)
 - **Global config** - Framework-wide defaults via `CMDx.configure`
-- **Task settings** - Class-level overrides using `task_settings!`
+- **Task settings** - Class-level overrides using `cmd_settings!`
 - **Key options** - `task_halt`, `workflow_halt`, `logger`, `middlewares`, `callbacks`
 - **Generator** - Use `rails g cmdx:install` to create configuration file
 - **Inheritance** - Settings are inherited from parent classes
@@ -31,7 +33,7 @@ CMDx provides a flexible configuration system that allows customization at both 
 CMDx follows a three-tier configuration hierarchy:
 
 1. **Global Configuration**: Framework-wide defaults
-2. **Task Settings**: Class-level overrides via `task_settings!`
+2. **Task Settings**: Class-level overrides via `cmd_settings!`
 3. **Runtime Parameters**: Instance-specific overrides during execution
 
 > [!IMPORTANT]
@@ -56,6 +58,8 @@ This creates `config/initializers/cmdx.rb` with default settings.
 | `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
 | `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
 | `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
+| `coercions`   | CoercionRegistry      | Built-in coercions | Global coercion registry for custom parameter types |
+| `validators`  | ValidatorRegistry     | Built-in validators | Global validator registry for parameter validation |
 
 ### Global Middlewares
 
@@ -82,30 +86,70 @@ Configure callbacks that automatically apply to all tasks in your application:
 CMDx.configure do |config|
   # Add method callbacks
   config.callbacks.register :before_execution, :log_task_start
-  config.callbacks.register :after_execution, :log_task_end
 
   # Add callback instances
   config.callbacks.register :on_success, NotificationCallback.new([:slack])
-  config.callbacks.register :on_failure, AlertCallback.new(severity: :critical)
 
   # Add conditional callbacks
   config.callbacks.register :on_failure, :page_admin, if: :production?
-  config.callbacks.register :before_validation, :skip_validation, unless: :validate_params?
 
   # Add proc callbacks
-  config.callbacks.register :on_complete, proc { |task, callback_type|
+  config.callbacks.register :on_complete, proc { |task, type|
     Metrics.increment("task.#{task.class.name.underscore}.completed")
+  }
+end
+```
+
+### Global Coercions
+
+Configure custom coercions that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add custom coercion classes
+  config.coercions.register :money, MoneyCoercion
+
+  # Add complex coercions with options support
+  config.coercions.register :tags, proc { |value, options|
+    separator = options[:separator] || ','
+    max_tags = options[:max_tags] || 10
+
+    tags = value.to_s.split(separator).map(&:strip).reject(&:empty?)
+    tags = tags.first(max_tags) if max_tags
+    tags.uniq
+  }
+end
+```
+
+### Global Validators
+
+Configure validators that automatically apply to all tasks in your application:
+
+```ruby
+CMDx.configure do |config|
+  # Add validator classes
+  config.validators.register :email, EmailValidator
+
+  # Add complex validators with options support
+  config.validators.register :phone, proc { |value, options|
+    country = options.dig(:phone, :country) || "US"
+    case country
+    when "US"
+      value.match?(/\A\d{3}-\d{3}-\d{4}\z/)
+    else
+      value.match?(/\A\+?\d{10,15}\z/)
+    end
   }
 end
 ```
 
 ## Task Settings
 
-Override global configuration for specific tasks or workflows using `task_settings!`:
+Override global configuration for specific tasks or workflows using `cmd_settings!`:
 
 ```ruby
 class ProcessPaymentTask < CMDx::Task
-  task_settings!(
+  cmd_settings!(
     task_halt: ["failed"],                       # Only halt on failures
     tags: ["payments", "critical"],              # Add logging tags
     logger: Rails.logger,                        # Use Rails logger
@@ -137,7 +181,7 @@ Configure halt behavior for workflows:
 ```ruby
 class OrderProcessingWorkflow < CMDx::Workflow
   # Strict workflow - halt on any failure
-  task_settings!(workflow_halt: ["failed", "skipped"])
+  cmd_settings!(workflow_halt: ["failed", "skipped"])
 
   process ValidateOrderTask
   process ChargePaymentTask
@@ -155,14 +199,16 @@ CMDx.configuration.logger      #=> <Logger instance>
 CMDx.configuration.task_halt   #=> "failed"
 CMDx.configuration.middlewares #=> <MiddlewareRegistry instance>
 CMDx.configuration.callbacks   #=> <CallbackRegistry instance>
+CMDx.configuration.coercions   #=> <CoercionRegistry instance>
+CMDx.configuration.validators  #=> <ValidatorRegistry instance>
 
 # Task-specific settings
 class AnalyzeDataTask < CMDx::Task
-  task_settings!(tags: ["analytics"])
+  cmd_settings!(tags: ["analytics"])
 
   def call
-    tags = task_setting(:tags)               # Gets ["analytics"]
-    halt_statuses = task_setting(:task_halt) # Gets global default
+    tags = cmd_setting(:tags)               # Gets ["analytics"]
+    halt_statuses = cmd_setting(:task_halt) # Gets global default
   end
 end
 ```

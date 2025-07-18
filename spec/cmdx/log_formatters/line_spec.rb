@@ -3,273 +3,300 @@
 require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::Line do
+  subject(:formatter) { described_class.new }
+
   describe "#call" do
-    let(:task) { mock_task(class: double(name: "TestTask")) }
-    let(:time) { Time.utc(2022, 7, 17, 18, 43, 15.123456) }
-    let(:serialized_data) do
-      {
-        index: 0,
-        chain_id: "test-chain-id",
-        type: "Task",
-        class: "TestTask",
-        id: "test-task-id",
-        tags: [],
-        state: "complete",
-        status: "success",
-        outcome: "success",
-        metadata: {},
-        runtime: 15,
-        origin: "CMDx"
-      }
-    end
+    let(:severity) { "INFO" }
+    let(:time) { Time.parse("2024-01-01T12:00:00Z") }
+    let(:task) { double("task", class: double("task_class", name: "TestTask")) }
+    let(:mock_logger_serializer) { "test message" }
 
     before do
-      allow(CMDx::LoggerSerializer).to receive(:call).and_return(serialized_data)
-      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2022-07-17T18:43:15.123456")
-      allow(Process).to receive(:pid).and_return(1234)
+      allow(CMDx::LoggerSerializer).to receive(:call).and_return(mock_logger_serializer)
+      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2024-01-01T12:00:00.000000")
+      allow(Process).to receive(:pid).and_return(12_345)
     end
 
-    context "with basic log entry" do
-      it "returns line formatted string with newline" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+    context "with string messages" do
+      it "formats simple strings as line" do
+        result = formatter.call(severity, time, task, "Hello World")
 
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("INFO")
-        expect(result).to include("TestTask")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "includes severity initial in line format" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+      it "formats empty strings as line" do
+        result = formatter.call(severity, time, task, "")
 
-        expect(result).to start_with("I,")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "includes timestamp in brackets" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+      it "formats strings with special characters as line" do
+        result = formatter.call(severity, time, task, "Hello\nWorld\t!")
 
-        expect(result).to include("[2022-07-17T18:43:15.123456 #1234]")
-      end
-
-      it "includes full severity after timestamp" do
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("] INFO --")
-      end
-
-      it "includes task class name" do
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("-- TestTask:")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
     end
 
-    context "with different severity levels" do
-      it "formats DEBUG severity correctly" do
-        result = described_class.new.call("DEBUG", time, task, "Debug message")
+    context "with numeric messages" do
+      it "formats integers as line" do
+        result = formatter.call(severity, time, task, 42)
 
-        expect(result).to start_with("D,")
-        expect(result).to include("] DEBUG --")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "formats WARN severity correctly" do
-        result = described_class.new.call("WARN", time, task, "Warning message")
+      it "formats floats as line" do
+        result = formatter.call(severity, time, task, 3.14)
 
-        expect(result).to start_with("W,")
-        expect(result).to include("] WARN --")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "formats ERROR severity correctly" do
-        result = described_class.new.call("ERROR", time, task, "Error message")
+      it "formats zero as line" do
+        result = formatter.call(severity, time, task, 0)
 
-        expect(result).to start_with("E,")
-        expect(result).to include("] ERROR --")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "formats FATAL severity correctly" do
-        result = described_class.new.call("FATAL", time, task, "Fatal message")
+      it "formats negative numbers as line" do
+        result = formatter.call(severity, time, task, -123)
 
-        expect(result).to start_with("F,")
-        expect(result).to include("] FATAL --")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
     end
 
-    context "with serialized task data" do
-      it "includes serialized data as key=value pairs in message section" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+    context "with boolean messages" do
+      it "formats true as line" do
+        result = formatter.call(severity, time, task, true)
 
-        expect(result).to include("index=0")
-        expect(result).to include("chain_id=test-chain-id")
-        expect(result).to include("type=Task")
-        expect(result).to include("class=TestTask")
-        expect(result).to include("state=complete")
-        expect(result).to include("status=success")
-        expect(result).to include("outcome=success")
-        expect(result).to include("runtime=15")
-        expect(result).to include("origin=CMDx")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "formats message section with space-separated key=value pairs" do
-        result = described_class.new.call("INFO", time, task, "Test message")
-        message_part = result.split(": ").last.chomp
+      it "formats false as line" do
+        result = formatter.call(severity, time, task, false)
 
-        pairs = message_part.split
-        expect(pairs.length).to be > 5
-        expect(pairs).to all(include("="))
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
     end
 
-    context "with different message types" do
-      it "handles string messages" do
-        result = described_class.new.call("INFO", time, task, "String message")
+    context "with nil messages" do
+      it "formats nil as line" do
+        result = formatter.call(severity, time, task, nil)
 
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("-- TestTask:")
-      end
-
-      it "handles hash messages" do
-        hash_message = { key: "value", number: 42 }
-        result = described_class.new.call("INFO", time, task, hash_message)
-
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("-- TestTask:")
-      end
-
-      it "handles array messages" do
-        array_message = %w[item1 item2 item3]
-        result = described_class.new.call("INFO", time, task, array_message)
-
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("-- TestTask:")
-      end
-
-      it "handles nil messages" do
-        result = described_class.new.call("INFO", time, task, nil)
-
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("-- TestTask:")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
     end
 
-    context "with time conversion" do
-      it "converts time to UTC before formatting" do
-        local_time = Time.new(2022, 7, 17, 20, 43, 15.123456)
-        expected_utc = local_time.utc
+    context "with array messages" do
+      it "formats simple arrays as line" do
+        result = formatter.call(severity, time, task, [1, 2, 3])
 
-        described_class.new.call("INFO", local_time, task, "Test message")
-
-        expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(expected_utc)
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
       end
 
-      it "handles already UTC time correctly" do
-        utc_time = Time.utc(2022, 7, 17, 18, 43, 15.123456)
+      it "formats empty arrays as line" do
+        result = formatter.call(severity, time, task, [])
 
-        described_class.new.call("INFO", utc_time, task, "Test message")
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+
+      it "formats arrays with mixed types as line" do
+        result = formatter.call(severity, time, task, [1, "string", true, nil])
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+
+      it "formats nested arrays as line" do
+        result = formatter.call(severity, time, task, [[1, 2], [3, 4]])
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+    end
+
+    context "with hash messages" do
+      let(:mock_logger_serializer) { { key1: "value1", key2: "value2" } }
+
+      it "formats simple hashes as key=value pairs" do
+        result = formatter.call(severity, time, task, { a: 1, b: 2 })
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: key1=value1 key2=value2\n")
+      end
+
+      it "formats empty hashes as line" do
+        allow(CMDx::LoggerSerializer).to receive(:call).and_return({})
+        result = formatter.call(severity, time, task, {})
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: \n")
+      end
+
+      it "formats hashes with string keys as key=value pairs" do
+        allow(CMDx::LoggerSerializer).to receive(:call).and_return({ "name" => "test", "value" => 42 })
+        result = formatter.call(severity, time, task, { "name" => "test", "value" => 42 })
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: name=test value=42\n")
+      end
+
+      it "formats nested hashes as key=value pairs" do
+        nested_hash = { user: { name: "John", age: 30 } }
+        allow(CMDx::LoggerSerializer).to receive(:call).and_return(nested_hash)
+        result = formatter.call(severity, time, task, nested_hash)
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: user={name: \"John\", age: 30}\n")
+      end
+    end
+
+    context "with complex objects" do
+      it "formats custom objects as line" do
+        object = Object.new
+        result = formatter.call(severity, time, task, object)
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+
+      it "formats structs as line" do
+        person = Struct.new(:name, :age).new("John", 30)
+        result = formatter.call(severity, time, task, person)
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+
+      it "formats symbols as line" do
+        result = formatter.call(severity, time, task, :symbol)
+
+        expect(result).to eq("I, [2024-01-01T12:00:00.000000 #12345] INFO -- TestTask: test message\n")
+      end
+    end
+
+    context "with required line fields" do
+      it "includes severity initial in line output" do
+        result = formatter.call("ERROR", time, task, "test")
+
+        expect(result).to start_with("E, [")
+        expect(result).to include("] ERROR -- ")
+      end
+
+      it "includes pid in line output" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("#12345]")
+      end
+
+      it "includes timestamp in line output" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("[2024-01-01T12:00:00.000000 #")
+      end
+
+      it "includes task class name in line output" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("-- TestTask:")
+      end
+
+      it "calls Utils::LogTimestamp with UTC time" do
+        utc_time = time.utc
+        allow(time).to receive(:utc).and_return(utc_time)
+
+        formatter.call(severity, time, task, "test")
 
         expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(utc_time)
       end
     end
 
-    context "with LoggerSerializer integration" do
-      it "calls LoggerSerializer with correct parameters" do
-        message = "Test message"
+    context "with parameter handling" do
+      it "passes all parameters to LoggerSerializer" do
+        formatter.call(severity, time, task, "message")
 
-        described_class.new.call("INFO", time, task, message)
-
-        expect(CMDx::LoggerSerializer).to have_received(:call).with("INFO", time, task, message)
+        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task, "message")
       end
 
-      it "uses LoggerSerializer return value in message section" do
-        custom_data = { custom_field: "custom_value" }
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(custom_data)
+      it "handles different severity levels" do
+        %w[DEBUG INFO WARN ERROR FATAL].each do |level|
+          result = formatter.call(level, time, task, "message")
 
-        result = described_class.new.call("INFO", time, task, "Test message")
+          expect(result).to include("] #{level} -- ")
+          expect(result).to start_with("#{level[0]}, [")
+        end
+      end
 
-        expect(result).to include("custom_field=custom_value")
+      it "handles different time values" do
+        time1 = Time.parse("2024-01-01T12:00:00Z")
+        time2 = Time.parse("2024-12-31T23:59:59Z")
+
+        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time1.utc).and_return("2024-01-01T12:00:00.000000")
+        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time2.utc).and_return("2024-12-31T23:59:59.000000")
+
+        result1 = formatter.call(severity, time1, task, "message")
+        result2 = formatter.call(severity, time2, task, "message")
+
+        expect(result1).to include("2024-01-01T12:00:00.000000")
+        expect(result2).to include("2024-12-31T23:59:59.000000")
+      end
+
+      it "handles different task objects" do
+        task1 = double("task1", class: double("task_class1", name: "Task1"))
+        task2 = double("task2", class: double("task_class2", name: "Task2"))
+
+        result1 = formatter.call(severity, time, task1, "message")
+        result2 = formatter.call(severity, time, task2, "message")
+
+        expect(result1).to include("-- Task1:")
+        expect(result2).to include("-- Task2:")
+      end
+
+      it "handles empty severity parameter gracefully" do
+        result = formatter.call("", time, task, "message")
+
+        expect(result).to include("[2024-01-01T12:00:00.000000 #12345]")
+        expect(result).to include("-- TestTask:")
+        expect(result).to end_with("test message\n")
+        expect(result).to start_with(", [") # empty severity[0]
       end
     end
 
-    context "with non-hash serialized data" do
-      it "handles string serialized data" do
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return("string_data")
+    context "with output format" do
+      it "outputs single line with newline" do
+        result = formatter.call(severity, time, task, "test")
 
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("string_data")
         expect(result).to end_with("\n")
-      end
-
-      it "handles array serialized data" do
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(%w[item1 item2])
-
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("[\"item1\", \"item2\"]")
-        expect(result).to end_with("\n")
-      end
-
-      it "handles numeric serialized data" do
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(42)
-
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("42")
-        expect(result).to end_with("\n")
-      end
-    end
-
-    context "with line format structure" do
-      it "follows traditional Ruby logger format structure" do
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        # Format: "SEVERITY_INITIAL, [TIMESTAMP #PID] SEVERITY -- CLASS: MESSAGE"
-        expect(result).to match(/^[A-Z], \[.+ #\d+\] [A-Z]+ -- \w+: .+\n$/)
-      end
-
-      it "produces single-line output" do
-        result = described_class.new.call("INFO", time, task, "Test message")
-
         expect(result.count("\n")).to eq(1)
-        expect(result.chomp).not_to include("\n")
       end
 
-      it "includes process ID in timestamp section" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+      it "follows traditional log format structure" do
+        result = formatter.call(severity, time, task, "test")
 
-        expect(result).to include("#1234")
+        expect(result).to match(/^[A-Z], \[.+ #\d+\] [A-Z]+ -- .+: .+\n$/)
       end
     end
+  end
 
-    context "with hash data processing" do
-      it "converts hash to key=value format in message section" do
-        hash_data = { key1: "value1", key2: "value2", key3: 123 }
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(hash_data)
+  describe "integration with tasks" do
+    it "logs messages from task as line format" do
+      local_io = StringIO.new
 
-        result = described_class.new.call("INFO", time, task, "Test message")
+      custom_task = create_simple_task(name: "CustomLineTask") do
+        cmd_settings!(
+          logger: Logger.new(local_io),
+          log_formatter: CMDx::LogFormatters::Line.new # rubocop:disable RSpec/DescribedClass
+        )
 
-        expect(result).to include("key1=value1")
-        expect(result).to include("key2=value2")
-        expect(result).to include("key3=123")
+        def call
+          logger.info("String message")
+          logger.debug("Debug info")
+          logger.warn("Warning message")
+          logger.error("Error occurred")
+        end
       end
 
-      it "preserves order of hash keys in message section" do
-        ordered_hash = { first: 1, second: 2, third: 3 }
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(ordered_hash)
+      custom_task.call
+      logged_content = local_io.tap(&:rewind).read
 
-        result = described_class.new.call("INFO", time, task, "Test message")
-        message_part = result.split(": ").last.chomp
-
-        first_pos = message_part.index("first=1")
-        second_pos = message_part.index("second=2")
-        third_pos = message_part.index("third=3")
-
-        expect(first_pos).to be < second_pos
-        expect(second_pos).to be < third_pos
-      end
+      expect(logged_content).to include("I, [")
+      expect(logged_content).to include("] INFO -- CustomLineTask")
+      expect(logged_content).to include("D, [")
+      expect(logged_content).to include("] DEBUG -- CustomLineTask")
+      expect(logged_content).to include("W, [")
+      expect(logged_content).to include("] WARN -- CustomLineTask")
+      expect(logged_content).to include("E, [")
+      expect(logged_content).to include("] ERROR -- CustomLineTask")
     end
   end
 end

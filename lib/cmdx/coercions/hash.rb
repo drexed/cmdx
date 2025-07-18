@@ -2,47 +2,33 @@
 
 module CMDx
   module Coercions
-    # Coerces values to Hash type.
+    # Coercion class for converting values to hashes.
     #
-    # The Hash coercion converts parameter values to Hash objects
-    # with support for various input formats including JSON strings,
-    # arrays (converted to hash), and Rails parameters.
-    #
-    # @example Basic hash coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     optional :metadata, type: :hash, default: {}
-    #     optional :options, type: :hash
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::Hash.call({a: 1})              # => {a: 1}
-    #   Coercions::Hash.call('{"a":1,"b":2}')     # => {"a"=>1, "b"=>2} (JSON)
-    #   Coercions::Hash.call([:a, 1, :b, 2])     # => {:a=>1, :b=>2} (Array)
-    #   Coercions::Hash.call("invalid")           # => raises CoercionError
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module Hash
+    # This coercion handles conversion of various types to hashes, with special
+    # handling for JSON-formatted strings that start with "{" and array-to-hash
+    # conversion using array splatting.
+    class Hash < Coercion
 
-      extend self
-
-      # Coerce a value to Hash.
+      # Converts the given value to a hash.
       #
-      # Supports multiple input formats:
-      # - Hash objects (returned as-is)
-      # - ActionController::Parameters (returned as-is)
-      # - JSON strings starting with '{' (parsed as JSON)
-      # - Arrays (converted using Hash[*array])
+      # @param value [Object] the value to convert to a hash
+      # @param _options [Hash] optional configuration (currently unused)
       #
-      # @param value [Object] value to coerce to hash
-      # @param _options [Hash] coercion options (unused)
-      # @return [Hash] coerced hash value
-      # @raise [CoercionError] if coercion fails
+      # @return [Hash] the converted hash value
       #
-      # @example
-      #   Coercions::Hash.call({key: "value"})      # => {key: "value"}
-      #   Coercions::Hash.call('{"a": 1}')          # => {"a" => 1}
-      #   Coercions::Hash.call([:a, 1, :b, 2])     # => {:a => 1, :b => 2}
+      # @raise [CoercionError] if the value cannot be converted to a hash
+      # @raise [JSON::ParserError] if value is a JSON string that cannot be parsed
+      # @raise [ArgumentError] if array cannot be converted to hash pairs
+      # @raise [TypeError] if the value type is not supported
+      #
+      # @example Converting a JSON string
+      #   Coercions::Hash.call('{"a": 1, "b": 2}') #=> {"a" => 1, "b" => 2}
+      #
+      # @example Converting an array to hash
+      #   Coercions::Hash.call(["a", 1, "b", 2]) #=> {"a" => 1, "b" => 2}
+      #
+      # @example Passing through existing hashes
+      #   Coercions::Hash.call({"key" => "value"}) #=> {"key" => "value"}
       def call(value, _options = {})
         case value.class.name
         when "Hash", "ActionController::Parameters"
@@ -60,11 +46,6 @@ module CMDx
 
       private
 
-      # Raise a standardized coercion error.
-      #
-      # @return [void]
-      # @raise [CoercionError] always raises coercion error
-      # @api private
       def raise_coercion_error!
         raise CoercionError, I18n.t(
           "cmdx.coercions.into_a",

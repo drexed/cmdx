@@ -4,277 +4,318 @@ require "spec_helper"
 
 RSpec.describe CMDx::ResultSerializer do
   describe ".call" do
-    let(:task_class) do
-      create_task_class(name: "ProcessingTask") do
-        def call
-          context.processed = true
-        end
+    let(:task) { create_simple_task(name: "TestTask").new }
+    let(:result) { CMDx::Result.new(task) }
+    let(:mock_task_serializer) do
+      {
+        index: 0,
+        chain_id: "abc123",
+        type: "Task",
+        class: "TestTask",
+        id: "def456",
+        tags: []
+      }
+    end
+
+    before do
+      allow(CMDx::TaskSerializer).to receive(:call).with(task).and_return(mock_task_serializer)
+      allow(result).to receive(:runtime).and_return(0.05)
+    end
+
+    context "with successful result" do
+      it "returns hash with task and result data" do
+        serialized = described_class.call(result)
+
+        expect(serialized).to include(
+          index: 0,
+          chain_id: "abc123",
+          type: "Task",
+          class: "TestTask",
+          id: "def456",
+          tags: [],
+          state: "initialized",
+          status: "success",
+          outcome: "initialized",
+          metadata: {},
+          runtime: 0.05
+        )
+      end
+
+      it "does not include failure fields" do
+        serialized = described_class.call(result)
+
+        expect(serialized).not_to have_key(:caused_failure)
+        expect(serialized).not_to have_key(:threw_failure)
+      end
+
+      it "delegates to TaskSerializer" do
+        described_class.call(result)
+
+        expect(CMDx::TaskSerializer).to have_received(:call).with(task)
       end
     end
 
-    let(:task) { task_class.new(order_id: 123) }
-
-    context "when serializing a successful result" do
-      let(:result) do
-        task.perform
-        task.result
+    context "with executed successful result" do
+      before do
+        result.executing!
+        result.complete!
       end
 
-      it "returns a hash with basic result information" do
+      it "returns complete state and success status" do
         serialized = described_class.call(result)
 
         expect(serialized).to include(
           state: "complete",
           status: "success",
-          outcome: "success",
-          metadata: {}
+          outcome: "success"
         )
-        expect(serialized[:runtime]).to be_a(Numeric)
-      end
-
-      it "includes task serialization data" do
-        serialized = described_class.call(result)
-
-        expect(serialized).to include(
-          class: "ProcessingTask",
-          type: "Task",
-          index: 0
-        )
-        expect(serialized[:id]).to be_a(String)
-      end
-
-      it "delegates to TaskSerializer for task information" do
-        # Create a fresh task instance to avoid state contamination
-        fresh_task_class = create_task_class(name: "FreshTask") do
-          def call
-            context.processed = true
-          end
-        end
-
-        fresh_instance = fresh_task_class.new
-        fresh_instance.perform
-        fresh_result = fresh_instance.result
-
-        expect(CMDx::TaskSerializer).to receive(:call).with(fresh_instance).and_call_original
-
-        described_class.call(fresh_result)
       end
     end
 
-    context "when serializing a failed result" do
-      let(:failed_task_class) do
-        create_failing_task(
-          name: "ValidationTask",
-          reason: "Validation failed",
-          code: 422,
-          errors: ["Invalid email"]
-        )
+    context "with skipped result" do
+      before do
+        result.skip!(reason: "condition not met", original_exception: StandardError.new)
       end
 
-      let(:result) do
-        instance = failed_task_class.new
-        instance.perform
-        instance.result
-      end
-
-      it "returns a hash with failed state and metadata" do
+      it "returns skipped status with metadata" do
         serialized = described_class.call(result)
 
         expect(serialized).to include(
-          state: "interrupted",
-          status: "failed",
-          outcome: "failed",
-          metadata: {
-            reason: "Validation failed",
-            code: 422,
-            errors: ["Invalid email"]
-          }
-        )
-      end
-
-      it "includes runtime information" do
-        serialized = described_class.call(result)
-
-        expect(serialized[:runtime]).to be_a(Numeric)
-        expect(serialized[:runtime]).to be >= 0
-      end
-    end
-
-    context "when serializing a skipped result" do
-      let(:skipped_task_class) do
-        create_skipping_task(
-          name: "OrderTask",
-          reason: "Order already processed"
-        )
-      end
-
-      let(:result) do
-        instance = skipped_task_class.new
-        instance.perform
-        instance.result
-      end
-
-      it "returns a hash with skipped state and metadata" do
-        serialized = described_class.call(result)
-
-        expect(serialized).to include(
-          state: "interrupted",
+          state: "initialized",
           status: "skipped",
-          outcome: "skipped",
-          metadata: { reason: "Order already processed" }
+          outcome: "initialized"
         )
-      end
-    end
-
-    context "when result has failure chain information" do
-      let(:failing_task_class) do
-        create_failing_task(
-          name: "ProcessingTask",
-          reason: "Processing failed"
-        )
+        expect(serialized[:metadata]).to include(reason: "condition not met")
+        expect(serialized[:metadata]).to have_key(:original_exception)
       end
 
-      let(:caused_failure_result) do
-        instance = failing_task_class.new
-        instance.perform
-        instance.result
-      end
-
-      let(:threw_failure_result) do
-        instance = failing_task_class.new
-        instance.perform
-        instance.result
-      end
-
-      let(:main_result) do
-        instance = failing_task_class.new
-        instance.perform
-        result = instance.result
-
-        # Mock failure chain methods
-        allow(result).to receive_messages(failed?: true, caused_failure?: false, threw_failure?: false, caused_failure: caused_failure_result, threw_failure: threw_failure_result)
-
-        result
-      end
-
-      it "includes caused_failure information without recursion" do
-        allow(caused_failure_result).to receive(:to_h).and_return(
-          class: "ValidationTask",
-          state: "interrupted",
-          status: "failed",
-          caused_failure: { nested: "data" },
-          threw_failure: { nested: "data" }
-        )
-
-        serialized = described_class.call(main_result)
-
-        expect(serialized[:caused_failure]).to eq(
-          class: "ValidationTask",
-          state: "interrupted",
-          status: "failed"
-        )
-      end
-
-      it "includes threw_failure information without recursion" do
-        allow(threw_failure_result).to receive(:to_h).and_return(
-          class: "ProcessingTask",
-          state: "interrupted",
-          status: "failed",
-          caused_failure: { nested: "data" },
-          threw_failure: { nested: "data" }
-        )
-
-        serialized = described_class.call(main_result)
-
-        expect(serialized[:threw_failure]).to eq(
-          class: "ProcessingTask",
-          state: "interrupted",
-          status: "failed"
-        )
-      end
-
-      it "strips nested failure information to prevent recursion" do
-        failure_data = {
-          class: "NestedTask",
-          state: "interrupted",
-          status: "failed",
-          caused_failure: { deeply: { nested: "failure" } },
-          threw_failure: { deeply: { nested: "failure" } }
-        }
-
-        allow(caused_failure_result).to receive(:to_h).and_return(failure_data)
-
-        serialized = described_class.call(main_result)
-
-        expect(serialized[:caused_failure]).not_to have_key(:caused_failure)
-        expect(serialized[:caused_failure]).not_to have_key(:threw_failure)
-      end
-    end
-
-    context "when result does not have failure chain" do
-      let(:simple_failed_task_class) do
-        create_failing_task(
-          name: "SimpleFailedTask",
-          reason: "Simple failure"
-        )
-      end
-
-      let(:result) do
-        instance = simple_failed_task_class.new
-        instance.perform
-        result = instance.result
-
-        # Mock no failure chain
-        allow(result).to receive_messages(caused_failure?: true, threw_failure?: true)
-
-        result
-      end
-
-      it "does not include caused_failure when not present" do
+      it "does not include failure fields for skipped result" do
         serialized = described_class.call(result)
 
         expect(serialized).not_to have_key(:caused_failure)
-      end
-
-      it "does not include threw_failure when not present" do
-        serialized = described_class.call(result)
-
         expect(serialized).not_to have_key(:threw_failure)
       end
     end
 
-    context "when serializing different result outcomes" do
-      it "correctly identifies success outcome" do
-        task.perform
-        serialized = described_class.call(task.result)
+    context "with failed result" do
+      let(:mock_caused_failure) { { class: "CausedTask", state: "interrupted", status: "failed" } }
+      let(:mock_threw_failure) { { class: "ThrewTask", state: "interrupted", status: "failed" } }
 
-        expect(serialized[:outcome]).to eq("success")
+      before do
+        result.fail!(error: "validation failed", original_exception: StandardError.new)
+
+        allow(result).to receive_messages(caused_failure?: false, threw_failure?: false, caused_failure: double("caused_result", to_h: mock_caused_failure.merge(caused_failure: "nested", threw_failure: "nested")), threw_failure: double("threw_result", to_h: mock_threw_failure.merge(caused_failure: "nested", threw_failure: "nested")))
       end
 
-      it "correctly identifies failed outcome" do
-        failed_task_class = create_failing_task(
-          name: "FailedOutcomeTask",
-          reason: "Test failure"
+      it "returns failed status with metadata" do
+        serialized = described_class.call(result)
+
+        expect(serialized).to include(
+          state: "initialized",
+          status: "failed",
+          outcome: "initialized"
         )
-
-        instance = failed_task_class.new
-        instance.perform
-        serialized = described_class.call(instance.result)
-
-        expect(serialized[:outcome]).to eq("failed")
+        expect(serialized[:metadata]).to include(error: "validation failed")
+        expect(serialized[:metadata]).to have_key(:original_exception)
       end
 
-      it "correctly identifies skipped outcome" do
-        skipped_task_class = create_skipping_task(
-          name: "SkippedOutcomeTask",
-          reason: "Test skip"
+      it "includes stripped caused_failure" do
+        serialized = described_class.call(result)
+
+        expect(serialized[:caused_failure]).to eq(
+          class: "CausedTask",
+          state: "interrupted",
+          status: "failed"
+        )
+      end
+
+      it "includes stripped threw_failure" do
+        serialized = described_class.call(result)
+
+        expect(serialized[:threw_failure]).to eq(
+          class: "ThrewTask",
+          state: "interrupted",
+          status: "failed"
+        )
+      end
+
+      it "strips caused_failure and threw_failure from nested results" do
+        serialized = described_class.call(result)
+
+        expect(serialized[:caused_failure]).not_to have_key(:caused_failure)
+        expect(serialized[:caused_failure]).not_to have_key(:threw_failure)
+        expect(serialized[:threw_failure]).not_to have_key(:caused_failure)
+        expect(serialized[:threw_failure]).not_to have_key(:threw_failure)
+      end
+    end
+
+    context "with executed failed result" do
+      before do
+        result.executing!
+        result.fail!(error: "execution error", original_exception: StandardError.new)
+        result.executed!
+      end
+
+      it "returns interrupted state and failed status" do
+        serialized = described_class.call(result)
+
+        expect(serialized).to include(
+          state: "interrupted",
+          status: "failed",
+          outcome: "interrupted"
+        )
+      end
+    end
+
+    context "with different metadata types" do
+      it "handles empty metadata" do
+        serialized = described_class.call(result)
+
+        expect(serialized[:metadata]).to eq({})
+      end
+
+      it "handles complex metadata" do
+        result.fail!(
+          error: "validation failed",
+          details: { field: "email", value: "invalid" },
+          timestamp: Time.now,
+          original_exception: StandardError.new
         )
 
-        instance = skipped_task_class.new
-        instance.perform
-        serialized = described_class.call(instance.result)
+        serialized = described_class.call(result)
 
-        expect(serialized[:outcome]).to eq("skipped")
+        expect(serialized[:metadata]).to include(
+          error: "validation failed",
+          details: { field: "email", value: "invalid" }
+        )
+        expect(serialized[:metadata]).to have_key(:timestamp)
+      end
+    end
+
+    context "with runtime variations" do
+      it "handles nil runtime" do
+        allow(result).to receive(:runtime).and_return(nil)
+
+        serialized = described_class.call(result)
+
+        expect(serialized[:runtime]).to be_nil
+      end
+
+      it "handles zero runtime" do
+        allow(result).to receive(:runtime).and_return(0.0)
+
+        serialized = described_class.call(result)
+
+        expect(serialized[:runtime]).to eq(0.0)
+      end
+
+      it "handles measured runtime" do
+        allow(result).to receive(:runtime).and_return(1.5)
+
+        serialized = described_class.call(result)
+
+        expect(serialized[:runtime]).to eq(1.5)
+      end
+    end
+
+    context "when error handling" do
+      it "raises error when TaskSerializer fails" do
+        allow(CMDx::TaskSerializer).to receive(:call).and_raise(StandardError, "task error")
+
+        expect { described_class.call(result) }.to raise_error(StandardError, "task error")
+      end
+
+      it "raises error when result doesn't respond to required methods" do
+        invalid_result = Object.new
+        allow(invalid_result).to receive(:task).and_return(task)
+
+        expect { described_class.call(invalid_result) }.to raise_error(NoMethodError)
+      end
+
+      it "raises error when task is invalid for TaskSerializer" do
+        allow(CMDx::TaskSerializer).to receive(:call).and_raise(TypeError, "invalid task")
+
+        expect { described_class.call(result) }.to raise_error(TypeError, "invalid task")
+      end
+    end
+  end
+
+  describe "STRIP_FAILURE" do
+    let(:mock_result) { double("result") }
+    let(:hash) { { existing: "data" } }
+    let(:failure_data) { { class: "FailedTask", caused_failure: "nested", threw_failure: "nested" } }
+    let(:mock_failure) { double("failure", to_h: failure_data) }
+
+    context "when result has the failure" do
+      before do
+        allow(mock_result).to receive_messages(caused_failure?: true, caused_failure: mock_failure)
+      end
+
+      it "does not modify hash when result has caused_failure" do
+        original_hash = hash.dup
+
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash).to eq(original_hash)
+      end
+    end
+
+    context "when result does not have the failure" do
+      before do
+        allow(mock_result).to receive_messages(caused_failure?: false, caused_failure: mock_failure)
+      end
+
+      it "adds stripped failure data to hash" do
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash[:caused_failure]).to eq(class: "FailedTask")
+      end
+
+      it "preserves existing hash data" do
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash[:existing]).to eq("data")
+      end
+
+      it "removes caused_failure and threw_failure from nested data" do
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash[:caused_failure]).not_to have_key(:caused_failure)
+        expect(hash[:caused_failure]).not_to have_key(:threw_failure)
+      end
+    end
+
+    context "with threw_failure" do
+      before do
+        allow(mock_result).to receive_messages(threw_failure?: false, threw_failure: mock_failure)
+      end
+
+      it "strips threw_failure when result doesn't have it" do
+        described_class::STRIP_FAILURE.call(hash, mock_result, :threw_failure)
+
+        expect(hash[:threw_failure]).to eq(class: "FailedTask")
+        expect(hash[:threw_failure]).not_to have_key(:caused_failure)
+        expect(hash[:threw_failure]).not_to have_key(:threw_failure)
+      end
+    end
+
+    context "with different failure data structures" do
+      it "handles empty failure data" do
+        empty_failure = double("empty_failure", to_h: {})
+        allow(mock_result).to receive_messages(caused_failure?: false, caused_failure: empty_failure)
+
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash[:caused_failure]).to eq({})
+      end
+
+      it "handles failure data without nested failures" do
+        clean_failure = double("clean_failure", to_h: { class: "CleanTask", status: "failed" })
+        allow(mock_result).to receive_messages(caused_failure?: false, caused_failure: clean_failure)
+
+        described_class::STRIP_FAILURE.call(hash, mock_result, :caused_failure)
+
+        expect(hash[:caused_failure]).to eq(class: "CleanTask", status: "failed")
       end
     end
   end

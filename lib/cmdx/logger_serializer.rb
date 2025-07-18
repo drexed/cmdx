@@ -1,140 +1,50 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Logger message serialization module for structured log output.
+  # Serializes log messages for structured logging output.
   #
-  # The LoggerSerializer module provides functionality to serialize log messages
-  # into structured hash format suitable for various log formatters. It handles
-  # different message types including Result objects and plain messages, with
-  # optional ANSI colorization for terminal output.
-  #
-  # @example Basic message serialization
-  #   task = ProcessOrderTask.new
-  #   message = "Processing order 123"
-  #
-  #   LoggerSerializer.call(:info, Time.now, task, message)
-  #   # => {
-  #   #   origin: "CMDx",
-  #   #   index: 0,
-  #   #   chain_id: "...",
-  #   #   type: "Task",
-  #   #   class: "ProcessOrderTask",
-  #   #   id: "...",
-  #   #   tags: [],
-  #   #   message: "Processing order 123"
-  #   # }
-  #
-  # @example Result object serialization
-  #   result = task.result  # CMDx::Result instance
-  #
-  #   LoggerSerializer.call(:info, Time.now, task, result)
-  #   # => {
-  #   #   origin: "CMDx",
-  #   #   state: "complete",
-  #   #   status: "success",
-  #   #   outcome: "success",
-  #   #   metadata: {},
-  #   #   runtime: 0.5,
-  #   #   index: 0,
-  #   #   chain_id: "...",
-  #   #   # ... other result data
-  #   # }
-  #
-  # @example Colorized result serialization
-  #   LoggerSerializer.call(:info, Time.now, task, result, ansi_colorize: true)
-  #   # => Same as above but with ANSI color codes in state/status/outcome values
-  #
-  # @see CMDx::Result Result object structure and data
-  # @see CMDx::TaskSerializer Task serialization functionality
-  # @see CMDx::ResultAnsi Result ANSI colorization
+  # This module provides functionality to convert log messages into a structured
+  # hash format suitable for various logging formatters. It handles special
+  # processing for Result objects, including optional ANSI colorization of
+  # specific keys and merging of task serialization data.
   module LoggerSerializer
 
-    # Keys that should be colorized when ANSI colorization is enabled.
-    #
-    # These keys represent result state information that benefits from
-    # color coding in terminal output for better visual distinction.
     COLORED_KEYS = %i[
       state status outcome
     ].freeze
 
     module_function
 
-    # Serializes a log message into a structured hash format.
+    # Converts a log message into a structured hash format.
     #
-    # Converts log messages into hash format suitable for structured logging.
-    # Handles both Result objects and plain messages differently, with optional
-    # ANSI colorization for terminal-friendly output.
+    # Processes the message based on its type - if it's a Result object,
+    # optionally colorizes specific keys. For non-Result messages, merges
+    # task serialization data and the original message.
     #
-    # @param _severity [Symbol] Log severity level (not used in current implementation)
-    # @param _time [Time] Log timestamp (not used in current implementation)
-    # @param task [CMDx::Task] The task instance generating the log message
-    # @param message [Object] The message to serialize (Result object or other)
-    # @param options [Hash] Serialization options
-    # @option options [Boolean] :ansi_colorize (false) Whether to apply ANSI colors
-    # @return [Hash] Structured hash representation of the log message
+    # @param _severity [String] The log severity level (unused but kept for compatibility)
+    # @param _time [Time] The log timestamp (unused but kept for compatibility)
+    # @param task [CMDx::Task] The task instance associated with the log message
+    # @param message [Object] The message to be serialized (can be a Result or any object)
+    # @param options [Hash] Additional options for serialization
+    # @option options [Boolean] :ansi_colorize Whether to apply ANSI colorization to Result objects
     #
-    # @example Plain message serialization
-    #   LoggerSerializer.call(:info, Time.now, task, "Task started")
-    #   # => {
-    #   #   origin: "CMDx",
-    #   #   index: 0,
-    #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   type: "Task",
-    #   #   class: "MyTask",
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   tags: [],
-    #   #   message: "Task started"
-    #   # }
+    # @return [Hash] A structured hash representation of the log message with origin set to "CMDx"
     #
-    # @example Result object serialization
+    # @example Serializing a Result object with colorization
     #   result = CMDx::Result.new(task)
-    #   result.complete!
+    #   LoggerSerializer.call("info", Time.now, task, result, ansi_colorize: true)
+    #   # => { state: "\e[32msuccess\e[0m", status: "complete", origin: "CMDx", ... }
     #
-    #   LoggerSerializer.call(:info, Time.now, task, result)
-    #   # => {
-    #   #   origin: "CMDx",
-    #   #   state: "complete",
-    #   #   status: "success",
-    #   #   outcome: "success",
-    #   #   metadata: {},
-    #   #   runtime: 0.001,
-    #   #   index: 0,
-    #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   type: "Task",
-    #   #   class: "MyTask",
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   tags: []
-    #   # }
-    #
-    # @example Colorized result serialization
-    #   LoggerSerializer.call(:info, Time.now, task, result, ansi_colorize: true)
-    #   # => Same as above but state/status/outcome values contain ANSI color codes
-    #   # => { state: "\e[32mcomplete\e[0m", status: "\e[32msuccess\e[0m", ... }
-    #
-    # @example Hash-like message object
-    #   custom_message = OpenStruct.new(action: "process", item_id: 123)
-    #   LoggerSerializer.call(:debug, Time.now, task, custom_message)
-    #   # => {
-    #   #   origin: "CMDx",
-    #   #   action: "process",
-    #   #   item_id: 123,
-    #   #   index: 0,
-    #   #   chain_id: "...",
-    #   #   type: "Task",
-    #   #   class: "MyTask",
-    #   #   id: "...",
-    #   #   tags: []
-    #   # }
+    # @example Serializing a plain message
+    #   LoggerSerializer.call("info", Time.now, task, "Processing user data")
+    #   # => { index: 1, chain_id: "abc123", type: "Task", message: "Processing user data", origin: "CMDx", ... }
     def call(_severity, _time, task, message, **options)
-      m = message.respond_to?(:to_h) ? message.to_h : {}
+      m = message.is_a?(Result) ? message.to_h : {}
 
       if options.delete(:ansi_colorize) && message.is_a?(Result)
         COLORED_KEYS.each { |k| m[k] = ResultAnsi.call(m[k]) if m.key?(k) }
       elsif !message.is_a?(Result)
-        m.merge!(
-          TaskSerializer.call(task),
-          message: message
-        )
+        m.merge!(TaskSerializer.call(task), message: message)
       end
 
       m[:origin] ||= "CMDx"

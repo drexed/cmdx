@@ -3,225 +3,439 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Validators::Length do
+  subject(:validator) { described_class.new }
+
+  describe ".call" do
+    it "creates instance and calls #call method" do
+      expect(described_class).to receive(:new).and_return(validator)
+      expect(validator).to receive(:call).with("value", { min: 3 })
+
+      described_class.call("value", { min: 3 })
+    end
+  end
+
   describe "#call" do
-    context "with within range validation" do
-      it "passes when string length is within range" do
-        expect { described_class.call("hello", length: { within: 3..10 }) }.not_to raise_error
+    context "with within validation" do
+      it "allows values within the specified range" do
+        expect { validator.call("hello", { within: 3..10 }) }.not_to raise_error
+        expect { validator.call("hi", { within: 1..5 }) }.not_to raise_error
+        expect { validator.call("test",  { within: 4..4 }) }.not_to raise_error
       end
 
-      it "passes when array length is within range" do
-        expect { described_class.call([1, 2, 3], length: { within: 2..5 }) }.not_to raise_error
+      it "allows values within the specified range using in alias" do
+        expect { validator.call("hello", { in: 3..10 }) }.not_to raise_error
+        expect { validator.call("hi",  { in: 1..5 }) }.not_to raise_error
       end
 
-      it "passes when length is at range boundaries" do
-        expect { described_class.call("abc", length: { within: 3..10 }) }.not_to raise_error
-        expect { described_class.call("abcdefghij", length: { within: 3..10 }) }.not_to raise_error
+      it "raises ValidationError when value is outside range" do
+        expect { validator.call("hi",  { within: 3..10 }) }
+          .to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
       end
 
-      it "raises ValidationError when length is below range" do
-        expect do
-          described_class.call("hi", length: { within: 3..10 })
-        end.to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
+      it "raises ValidationError when value is outside range using in alias" do
+        expect { validator.call("hello world!",  { in: 3..10 }) }
+          .to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
       end
 
-      it "raises ValidationError when length is above range" do
-        expect do
-          described_class.call("this is too long", length: { within: 3..10 })
-        end.to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
-      end
-    end
+      it "uses custom within_message when provided" do
+        options = { within: 3..10, within_message: "Must be between %{min} and %{max} characters" }
 
-    context "with minimum length validation" do
-      it "passes when length meets minimum" do
-        expect { described_class.call("password", length: { min: 8 }) }.not_to raise_error
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Must be between 3 and 10 characters")
       end
 
-      it "passes when length exceeds minimum" do
-        expect { described_class.call("long password", length: { min: 8 }) }.not_to raise_error
+      it "uses custom in_message when provided" do
+        options = { in: 3..10, in_message: "Length should be %{min}-%{max}" }
+
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Length should be 3-10")
       end
 
-      it "passes when length equals minimum" do
-        expect { described_class.call("exactly8", length: { min: 8 }) }.not_to raise_error
-      end
+      it "uses custom message when provided" do
+        options = { within: 3..10, message: "Invalid length" }
 
-      it "raises ValidationError when length is below minimum" do
-        expect do
-          described_class.call("short", length: { min: 8 })
-        end.to raise_error(CMDx::ValidationError, "length must be at least 8")
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Invalid length")
       end
     end
 
-    context "with maximum length validation" do
-      it "passes when length is under maximum" do
-        expect { described_class.call("short", length: { max: 10 }) }.not_to raise_error
+    context "with not_within validation" do
+      it "allows values outside the forbidden range" do
+        expect { validator.call("hi",  { not_within: 3..10 }) }.not_to raise_error
+        expect { validator.call("hello world!",  { not_within: 3..10 }) }.not_to raise_error
       end
 
-      it "passes when length equals maximum" do
-        expect { described_class.call("exactly10!", length: { max: 10 }) }.not_to raise_error
+      it "allows values outside the forbidden range using not_in alias" do
+        expect { validator.call("hi",  { not_in: 3..10 }) }.not_to raise_error
+        expect { validator.call("hello world!",  { not_in: 3..10 }) }.not_to raise_error
       end
 
-      it "raises ValidationError when length exceeds maximum" do
-        expect do
-          described_class.call("this is too long", length: { max: 10 })
-        end.to raise_error(CMDx::ValidationError, "length must be at most 10")
-      end
-    end
-
-    context "with combined min and max validation" do
-      it "passes when length is between min and max" do
-        expect { described_class.call("username", length: { min: 3, max: 20 }) }.not_to raise_error
+      it "raises ValidationError when value is within forbidden range" do
+        expect { validator.call("hello", { not_within: 3..10 }) }
+          .to raise_error(CMDx::ValidationError, "length must not be within 3 and 10")
       end
 
-      it "passes when length equals boundaries" do
-        expect { described_class.call("abc", length: { min: 3, max: 20 }) }.not_to raise_error
-        expect { described_class.call("a" * 20, length: { min: 3, max: 20 }) }.not_to raise_error
+      it "raises ValidationError when value is within forbidden range using not_in alias" do
+        expect { validator.call("test", { not_in: 3..10 }) }
+          .to raise_error(CMDx::ValidationError, "length must not be within 3 and 10")
       end
 
-      it "raises ValidationError when length is below minimum" do
-        expect do
-          described_class.call("ab", length: { min: 3, max: 20 })
-        end.to raise_error(CMDx::ValidationError, "length must be within 3 and 20")
+      it "uses custom not_within_message when provided" do
+        options = { not_within: 3..10, not_within_message: "Cannot be %{min} to %{max} chars" }
+
+        expect { validator.call("hello", options) }
+          .to raise_error(CMDx::ValidationError, "Cannot be 3 to 10 chars")
       end
 
-      it "raises ValidationError when length is above maximum" do
-        expect do
-          described_class.call("a" * 25, length: { min: 3, max: 20 })
-        end.to raise_error(CMDx::ValidationError, "length must be within 3 and 20")
-      end
-    end
+      it "uses custom not_in_message when provided" do
+        options = { not_in: 3..10, not_in_message: "Forbidden range: %{min}-%{max}" }
 
-    context "with exact length validation" do
-      it "passes when length matches exactly" do
-        expect { described_class.call("US", length: { is: 2 }) }.not_to raise_error
+        expect { validator.call("test", options) }
+          .to raise_error(CMDx::ValidationError, "Forbidden range: 3-10")
       end
 
-      it "passes when array length matches exactly" do
-        expect { described_class.call([1, 2, 3], length: { is: 3 }) }.not_to raise_error
-      end
+      it "uses custom message when provided" do
+        options = { not_within: 3..10, message: "Length not allowed" }
 
-      it "raises ValidationError when length does not match" do
-        expect do
-          described_class.call("USA", length: { is: 2 })
-        end.to raise_error(CMDx::ValidationError, "length must be 2")
-      end
-
-      it "raises ValidationError when length is shorter" do
-        expect do
-          described_class.call("U", length: { is: 2 })
-        end.to raise_error(CMDx::ValidationError, "length must be 2")
+        expect { validator.call("hello", options) }
+          .to raise_error(CMDx::ValidationError, "Length not allowed")
       end
     end
 
-    context "with custom error messages" do
-      it "uses custom min_message" do
-        expect do
-          described_class.call("short", length: {
-                                 min: 8,
-                                 min_message: "must be at least %{min} characters for security"
-                               })
-        end.to raise_error(CMDx::ValidationError, "must be at least 8 characters for security")
+    context "with min validation" do
+      it "allows values meeting minimum length" do
+        expect { validator.call("hello", { min: 5 }) }.not_to raise_error
+        expect { validator.call("hello world",  { min: 5 }) }.not_to raise_error
       end
 
-      it "uses custom max_message" do
-        expect do
-          described_class.call("this is too long", length: {
-                                 max: 10,
-                                 max_message: "cannot exceed %{max} characters"
-                               })
-        end.to raise_error(CMDx::ValidationError, "cannot exceed 10 characters")
+      it "raises ValidationError when value is below minimum" do
+        expect { validator.call("hi",  { min: 5 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at least 5")
       end
 
-      it "uses custom is_message" do
-        expect do
-          described_class.call("USA", length: {
-                                 is: 2,
-                                 is_message: "must be exactly %{is} characters"
-                               })
-        end.to raise_error(CMDx::ValidationError, "must be exactly 2 characters")
+      it "uses custom min_message when provided" do
+        options = { min: 5, min_message: "Must have at least %{min} characters" }
+
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Must have at least 5 characters")
       end
 
-      it "uses general message override" do
-        expect do
-          described_class.call("fail", length: {
-                                 min: 10,
-                                 message: "general length error"
-                               })
-        end.to raise_error(CMDx::ValidationError, "general length error")
-      end
+      it "uses custom message when provided" do
+        options = { min: 5, message: "Too short" }
 
-      it "uses I18n translation when available" do
-        allow(I18n).to receive(:t).with("cmdx.validators.length.min", min: 5, default: "length must be at least 5").and_return("translated min error")
-
-        expect do
-          described_class.call("hi", length: { min: 5 })
-        end.to raise_error(CMDx::ValidationError, "translated min error")
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Too short")
       end
     end
 
-    context "with different object types" do
-      it "validates string length" do
-        expect { described_class.call("hello", length: { min: 3 }) }.not_to raise_error
+    context "with max validation" do
+      it "allows values meeting maximum length" do
+        expect { validator.call("hello", { max: 10 }) }.not_to raise_error
+        expect { validator.call("hi",  { max: 10 }) }.not_to raise_error
       end
 
-      it "validates array length" do
-        expect { described_class.call([1, 2, 3, 4], length: { max: 5 }) }.not_to raise_error
+      it "raises ValidationError when value exceeds maximum" do
+        expect { validator.call("hello world!",  { max: 10 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at most 10")
       end
 
-      it "validates hash length" do
-        expect { described_class.call({ a: 1, b: 2 }, length: { is: 2 }) }.not_to raise_error
+      it "uses custom max_message when provided" do
+        options = { max: 10, max_message: "Cannot exceed %{max} characters" }
+
+        expect { validator.call("hello world!", options) }
+          .to raise_error(CMDx::ValidationError, "Cannot exceed 10 characters")
       end
 
-      it "validates set length" do
-        expect { described_class.call(Set.new([1, 2, 3]), length: { within: 2..5 }) }.not_to raise_error
+      it "uses custom message when provided" do
+        options = { max: 10, message: "Too long" }
+
+        expect { validator.call("hello world!", options) }
+          .to raise_error(CMDx::ValidationError, "Too long")
+      end
+    end
+
+    context "with min and max validation" do
+      it "allows values within min/max range" do
+        expect { validator.call("hello", { min: 3, max: 10 }) }.not_to raise_error
+        expect { validator.call("test",  { min: 3, max: 10 }) }.not_to raise_error
       end
 
-      it "validates custom object with length method" do
-        custom_object = double("CustomObject", length: 7)
-        expect { described_class.call(custom_object, length: { min: 5 }) }.not_to raise_error
+      it "raises ValidationError when value is outside min/max range" do
+        expect { validator.call("hi",  { min: 3, max: 10 }) }
+          .to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
+        expect { validator.call("hello world!",  { min: 3, max: 10 }) }
+          .to raise_error(CMDx::ValidationError, "length must be within 3 and 10")
+      end
+
+      it "uses custom message when provided" do
+        options = { min: 3, max: 10, message: "Invalid range" }
+
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Invalid range")
+      end
+    end
+
+    context "with is validation" do
+      it "allows values with exact length" do
+        expect { validator.call("hello", { is: 5 }) }.not_to raise_error
+        expect { validator.call("test", { is: 4 }) }.not_to raise_error
+      end
+
+      it "raises ValidationError when value has different length" do
+        expect { validator.call("hello", { is: 3 }) }
+          .to raise_error(CMDx::ValidationError, "length must be 3")
+        expect { validator.call("hi", { is: 5 }) }
+          .to raise_error(CMDx::ValidationError, "length must be 5")
+      end
+
+      it "uses custom is_message when provided" do
+        options = { is: 5, is_message: "Must be exactly %{is} characters" }
+
+        expect { validator.call("hello world", options) }
+          .to raise_error(CMDx::ValidationError, "Must be exactly 5 characters")
+      end
+
+      it "uses custom message when provided" do
+        options = { is: 5, message: "Wrong length" }
+
+        expect { validator.call("hello world", options) }
+          .to raise_error(CMDx::ValidationError, "Wrong length")
+      end
+    end
+
+    context "with is_not validation" do
+      it "allows values with different length" do
+        expect { validator.call("hello", { is_not: 3 }) }.not_to raise_error
+        expect { validator.call("hi", { is_not: 5 }) }.not_to raise_error
+      end
+
+      it "raises ValidationError when value has forbidden length" do
+        expect { validator.call("hello", { is_not: 5 }) }
+          .to raise_error(CMDx::ValidationError, "length must not be 5")
+        expect { validator.call("test", { is_not: 4 }) }
+          .to raise_error(CMDx::ValidationError, "length must not be 4")
+      end
+
+      it "uses custom is_not_message when provided" do
+        options = { is_not: 5, is_not_message: "Cannot be %{is_not} characters long" }
+
+        expect { validator.call("hello", options) }
+          .to raise_error(CMDx::ValidationError, "Cannot be 5 characters long")
+      end
+
+      it "uses custom message when provided" do
+        options = { is_not: 5, message: "Forbidden length" }
+
+        expect { validator.call("hello", options) }
+          .to raise_error(CMDx::ValidationError, "Forbidden length")
+      end
+    end
+
+    context "with different data types" do
+      it "works with arrays" do
+        expect { validator.call([1, 2, 3], { min: 2 }) }.not_to raise_error
+        expect { validator.call([1], { min: 2 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at least 2")
+      end
+
+      it "works with hashes" do
+        expect { validator.call({ a: 1, b: 2 }, { min: 2 }) }.not_to raise_error
+        expect { validator.call({ a: 1 },  { min: 2 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at least 2")
+      end
+
+      it "works with empty strings" do
+        expect { validator.call("",  { min: 1 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at least 1")
+        expect { validator.call("",  { is: 0 }) }.not_to raise_error
+      end
+
+      it "works with empty arrays" do
+        expect { validator.call([],  { min: 1 }) }
+          .to raise_error(CMDx::ValidationError, "length must be at least 1")
+        expect { validator.call([],  { is: 0 }) }.not_to raise_error
       end
     end
 
     context "with edge cases" do
-      it "handles empty string" do
-        expect { described_class.call("", length: { min: 0 }) }.not_to raise_error
+      it "handles zero length requirements" do
+        expect { validator.call("",  { is: 0 }) }.not_to raise_error
+        expect { validator.call("",  { max: 0 }) }.not_to raise_error
+        expect { validator.call("",  { within: 0..0 }) }.not_to raise_error
       end
 
-      it "handles empty array" do
-        expect { described_class.call([], length: { is: 0 }) }.not_to raise_error
+      it "handles single character ranges" do
+        expect { validator.call("a", { within: 1..1 }) }.not_to raise_error
+        expect { validator.call("ab", { within: 1..1 }) }
+          .to raise_error(CMDx::ValidationError, "length must be within 1 and 1")
       end
 
-      it "handles unicode strings" do
-        expect { described_class.call("héllo", length: { is: 5 }) }.not_to raise_error
-      end
-
-      it "handles very long strings" do
+      it "handles large numbers" do
         long_string = "a" * 1000
-        expect { described_class.call(long_string, length: { min: 500 }) }.not_to raise_error
-      end
-
-      it "handles exclusive ranges" do
-        expect { described_class.call("test", length: { within: 1...10 }) }.not_to raise_error
-      end
-
-      it "raises ValidationError for exclusive range boundary" do
-        expect do
-          described_class.call("a" * 10, length: { within: 1...10 })
-        end.to raise_error(CMDx::ValidationError, "length must be within 1 and 10")
+        expect { validator.call(long_string,  { min: 999 }) }.not_to raise_error
+        expect { validator.call(long_string,  { max: 1001 }) }.not_to raise_error
       end
     end
 
     context "with invalid options" do
-      it "raises ArgumentError when no valid options provided" do
-        expect do
-          described_class.call("test", length: {})
-        end.to raise_error(ArgumentError, "no known length validator options given")
+      it "raises ArgumentError when no known options are provided" do
+        expect { validator.call("hello",  {}) }
+          .to raise_error(ArgumentError, "no known length validator options given")
       end
 
-      it "raises ArgumentError when only invalid options provided" do
-        expect do
-          described_class.call("test", length: { invalid: 5 })
-        end.to raise_error(ArgumentError, "no known length validator options given")
+      it "raises ArgumentError when invalid option keys are provided" do
+        expect { validator.call("hello",  { invalid: 5 }) }
+          .to raise_error(ArgumentError, "no known length validator options given")
       end
+    end
+
+    context "with message interpolation" do
+      it "interpolates variables in custom messages" do
+        options = { min: 5, min_message: "Minimum is %{min}" }
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Minimum is 5")
+      end
+
+      it "interpolates multiple variables" do
+        options = { within: 3..10, within_message: "Range: %{min}-%{max}" }
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Range: 3-10")
+      end
+
+      it "handles messages without interpolation" do
+        options = { min: 5, min_message: "Fixed message" }
+        expect { validator.call("hi", options) }
+          .to raise_error(CMDx::ValidationError, "Fixed message")
+      end
+    end
+  end
+
+  describe "integration with tasks" do
+    let(:task_class) do
+      create_simple_task(name: "LengthValidationTask") do
+        required :username, type: :string, length: { min: 3, max: 20 }
+        optional :password, type: :string, default: "default", length: { min: 8, message: "Password too short" }
+        optional :bio, type: :string, default: "", length: { max: 500 }
+
+        def call
+          context.validated_user = { username: username, password: password, bio: bio }
+        end
+      end
+    end
+
+    it "validates successfully with valid lengths" do
+      result = task_class.call(username: "johndoe", password: "secret123", bio: "Short bio")
+
+      expect(result).to be_success
+      expect(result.context.validated_user).to eq({
+                                                    username: "johndoe",
+                                                    password: "secret123",
+                                                    bio: "Short bio"
+                                                  })
+    end
+
+    it "fails when username is too short" do
+      result = task_class.call(username: "jo", password: "validpassword")
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("username length must be within 3 and 20")
+      expect(result.metadata[:messages]).to eq({ username: ["length must be within 3 and 20"] })
+    end
+
+    it "fails when username is too long" do
+      result = task_class.call(username: "a" * 25, password: "validpassword")
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("username length must be within 3 and 20")
+      expect(result.metadata[:messages]).to eq({ username: ["length must be within 3 and 20"] })
+    end
+
+    it "fails when password is too short with custom message" do
+      result = task_class.call(username: "johndoe", password: "short")
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("password Password too short")
+      expect(result.metadata[:messages]).to eq({ password: ["Password too short"] })
+    end
+
+    it "fails when bio is too long" do
+      result = task_class.call(username: "johndoe", password: "validpassword", bio: "a" * 501)
+
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("bio length must be at most 500")
+      expect(result.metadata[:messages]).to eq({ bio: ["length must be at most 500"] })
+    end
+
+    it "validates with exact length requirement" do
+      exact_task = create_simple_task(name: "ExactLengthTask") do
+        required :code, type: :string, length: { is: 6, message: "Code must be exactly 6 characters" }
+
+        def call
+          context.validated_code = code
+        end
+      end
+
+      expect(exact_task.call(code: "ABC123")).to be_success
+
+      result = exact_task.call(code: "ABC12")
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("code Code must be exactly 6 characters")
+      expect(result.metadata[:messages]).to eq({ code: ["Code must be exactly 6 characters"] })
+    end
+
+    it "validates with forbidden length" do
+      forbidden_task = create_simple_task(name: "ForbiddenLengthTask") do
+        required :input, type: :string, length: { is_not: 13, message: "Superstitious about 13 characters" }
+
+        def call
+          context.validated_input = input
+        end
+      end
+
+      expect(forbidden_task.call(input: "hello world")).to be_success
+
+      result = forbidden_task.call(input: "exactly 13 ch")
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("input Superstitious about 13 characters")
+      expect(result.metadata[:messages]).to eq({ input: ["Superstitious about 13 characters"] })
+    end
+
+    it "works with multiple length validations" do
+      multi_task = create_simple_task(name: "MultiLengthTask") do
+        required :title, type: :string, length: { min: 5, max: 100 }
+        required :slug, type: :string, length: { min: 3, max: 50 }
+        optional :summary, type: :string, default: "", length: { max: 200 }
+
+        def call
+          context.validated_data = { title: title, slug: slug, summary: summary }
+        end
+      end
+
+      result = multi_task.call(title: "Valid Title", slug: "valid-slug", summary: "A short summary")
+      expect(result).to be_success
+
+      result = multi_task.call(title: "Hi", slug: "valid-slug")
+      expect(result).to be_failed
+
+      result = multi_task.call(title: "Valid Title", slug: "hi")
+      expect(result).to be_failed
+    end
+
+    it "handles array length validation" do
+      array_task = create_simple_task(name: "ArrayLengthTask") do
+        required :tags, type: :array, length: { min: 1, max: 5, message: "Must have 1-5 tags" }
+
+        def call
+          context.validated_tags = tags
+        end
+      end
+
+      expect(array_task.call(tags: %w[ruby rails])).to be_success
+
+      result = array_task.call(tags: [])
+      expect(result).to be_failed
+      expect(result.metadata[:reason]).to eq("tags Must have 1-5 tags")
+      expect(result.metadata[:messages]).to eq({ tags: ["Must have 1-5 tags"] })
     end
   end
 end

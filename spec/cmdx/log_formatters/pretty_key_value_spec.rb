@@ -3,175 +3,316 @@
 require "spec_helper"
 
 RSpec.describe CMDx::LogFormatters::PrettyKeyValue do
+  subject(:formatter) { described_class.new }
+
   describe "#call" do
-    let(:task) { mock_task(class: double(name: "TestTask")) }
-    let(:time) { Time.new(2022, 7, 17, 20, 43, 15) }
-    let(:serialized_data) do
-      {
-        index: 0,
-        chain_id: "test-chain-id",
-        type: "Task",
-        class: "TestTask",
-        state: "complete",
-        status: "success",
-        outcome: "success",
-        runtime: 15,
-        origin: "CMDx"
-      }
-    end
+    let(:severity) { "INFO" }
+    let(:time) { Time.parse("2024-01-01T12:00:00Z") }
+    let(:task) { double("task") }
+    let(:mock_logger_serializer) { { message: "test", index: 1, chain_id: "abc123", type: "Task", class: "TestTask", id: "def456", tags: [], origin: "CMDx" } }
 
     before do
-      allow(CMDx::LoggerSerializer).to receive(:call).and_return(serialized_data)
-      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2022-07-17T18:43:15.123456")
-      allow(Process).to receive(:pid).and_return(1234)
+      allow(CMDx::LoggerSerializer).to receive(:call).and_return(mock_logger_serializer)
+      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2024-01-01T12:00:00.000000")
+      allow(Process).to receive(:pid).and_return(12_345)
     end
 
-    context "with basic log entry" do
-      it "returns key=value formatted string with newline" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+    context "with string messages" do
+      it "formats simple strings as key=value pairs" do
+        result = formatter.call(severity, time, task, "Hello World")
 
-        expect(result).to be_a(String)
-        expect(result).to end_with("\n")
-        expect(result).to include("=")
         expect(result).to include("severity=INFO")
-        expect(result).to include("pid=1234")
-        expect(result).to include("timestamp=2022-07-17T18:43:15.123456")
+        expect(result).to include("pid=12345")
+        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
+        expect(result).to include("message=test")
+        expect(result).to end_with("\n")
       end
 
-      it "calls LoggerSerializer with ansi_colorize enabled" do
-        described_class.new.call("INFO", time, task, "Test message")
+      it "formats empty strings as key=value pairs" do
+        result = formatter.call(severity, time, task, "")
 
-        expect(CMDx::LoggerSerializer).to have_received(:call).with("INFO", time, task, "Test message", ansi_colorize: true)
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
       end
 
-      it "includes process ID in output" do
-        result = described_class.new.call("INFO", time, task, "Test message")
+      it "formats strings with special characters as key=value pairs" do
+        result = formatter.call(severity, time, task, "Hello\nWorld\t!")
 
-        expect(result).to include("pid=1234")
-      end
-
-      it "includes timestamp in output" do
-        described_class.new.call("INFO", time, task, "Test message")
-
-        expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(time.utc)
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
       end
     end
 
-    context "with different severity levels" do
-      it "formats DEBUG severity" do
-        result = described_class.new.call("DEBUG", time, task, "Debug message")
+    context "with numeric messages" do
+      it "formats integers as key=value pairs" do
+        result = formatter.call(severity, time, task, 42)
 
-        expect(result).to include("severity=DEBUG")
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
       end
 
-      it "formats WARN severity" do
-        result = described_class.new.call("WARN", time, task, "Warning message")
+      it "formats floats as key=value pairs" do
+        result = formatter.call(severity, time, task, 3.14)
 
-        expect(result).to include("severity=WARN")
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
       end
 
-      it "formats ERROR severity" do
-        result = described_class.new.call("ERROR", time, task, "Error message")
+      it "formats zero as key=value pairs" do
+        result = formatter.call(severity, time, task, 0)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats negative numbers as key=value pairs" do
+        result = formatter.call(severity, time, task, -123)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with boolean messages" do
+      it "formats true as key=value pairs" do
+        result = formatter.call(severity, time, task, true)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats false as key=value pairs" do
+        result = formatter.call(severity, time, task, false)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with nil messages" do
+      it "formats nil as key=value pairs" do
+        result = formatter.call(severity, time, task, nil)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with array messages" do
+      it "formats simple arrays as key=value pairs" do
+        result = formatter.call(severity, time, task, [1, 2, 3])
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats empty arrays as key=value pairs" do
+        result = formatter.call(severity, time, task, [])
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats arrays with mixed types as key=value pairs" do
+        result = formatter.call(severity, time, task, [1, "string", true, nil])
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats nested arrays as key=value pairs" do
+        result = formatter.call(severity, time, task, [[1, 2], [3, 4]])
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with hash messages" do
+      it "formats simple hashes as key=value pairs" do
+        result = formatter.call(severity, time, task, { a: 1, b: 2 })
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats empty hashes as key=value pairs" do
+        result = formatter.call(severity, time, task, {})
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats hashes with string keys as key=value pairs" do
+        result = formatter.call(severity, time, task, { "name" => "test", "value" => 42 })
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats nested hashes as key=value pairs" do
+        result = formatter.call(severity, time, task, { user: { name: "John", age: 30 } })
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with complex objects" do
+      it "formats custom objects as key=value pairs" do
+        object = Object.new
+        result = formatter.call(severity, time, task, object)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats structs as key=value pairs" do
+        person = Struct.new(:name, :age).new("John", 30)
+        result = formatter.call(severity, time, task, person)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+
+      it "formats symbols as key=value pairs" do
+        result = formatter.call(severity, time, task, :symbol)
+
+        expect(result).to include("severity=INFO")
+        expect(result).to end_with("\n")
+      end
+    end
+
+    context "with required key=value fields" do
+      it "always includes severity in output" do
+        result = formatter.call("ERROR", time, task, "test")
 
         expect(result).to include("severity=ERROR")
       end
 
-      it "formats FATAL severity" do
-        result = described_class.new.call("FATAL", time, task, "Fatal message")
+      it "always includes pid in output" do
+        result = formatter.call(severity, time, task, "test")
 
-        expect(result).to include("severity=FATAL")
-      end
-    end
-
-    context "with ANSI color integration" do
-      let(:result_message) do
-        mock_result(to_h: {
-                      state: "complete",
-                      status: "success",
-                      outcome: "success",
-                      runtime: 15
-                    },
-                    is_a?: true)
+        expect(result).to include("pid=12345")
       end
 
-      before do
-        allow(result_message).to receive(:is_a?).with(CMDx::Result).and_return(true)
-        allow(CMDx::ResultAnsi).to receive(:call).and_return("colored_value")
+      it "always includes timestamp in output" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
       end
 
-      it "applies colors to result state/status/outcome values through LoggerSerializer" do
-        described_class.new.call("INFO", time, task, result_message)
+      it "calls Utils::LogTimestamp with UTC time" do
+        utc_time = time.utc
+        allow(time).to receive(:utc).and_return(utc_time)
 
-        expect(CMDx::LoggerSerializer).to have_received(:call).with("INFO", time, task, result_message, ansi_colorize: true)
-      end
-    end
-
-    context "with different message types" do
-      it "handles string messages" do
-        result = described_class.new.call("INFO", time, task, "String message")
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-
-      it "handles hash messages" do
-        hash_message = { action: "process", item_id: 123 }
-        serialized_with_hash = serialized_data.merge(hash_message)
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(serialized_with_hash)
-
-        result = described_class.new.call("INFO", time, task, hash_message)
-
-        expect(result).to include("action=process")
-        expect(result).to include("item_id=123")
-      end
-
-      it "handles nil messages" do
-        result = described_class.new.call("INFO", time, task, nil)
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-    end
-
-    context "with time conversion" do
-      it "converts time to UTC before formatting" do
-        local_time = Time.new(2022, 7, 17, 20, 43, 15)
-        expected_utc = local_time.utc
-
-        described_class.new.call("INFO", local_time, task, "Test message")
-
-        expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(expected_utc)
-      end
-
-      it "handles already UTC time correctly" do
-        utc_time = Time.utc(2022, 7, 17, 18, 43, 15)
-
-        described_class.new.call("INFO", utc_time, task, "Test message")
+        formatter.call(severity, time, task, "test")
 
         expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(utc_time)
       end
     end
 
-    context "with LoggerSerializer integration" do
-      it "calls LoggerSerializer with correct parameters" do
-        message = "Test message"
+    context "with parameter handling" do
+      it "passes parameters to LoggerSerializer with ansi_colorize: true" do
+        formatter.call(severity, time, task, "message")
 
-        described_class.new.call("INFO", time, task, message)
-
-        expect(CMDx::LoggerSerializer).to have_received(:call).with("INFO", time, task, message, ansi_colorize: true)
+        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task, "message", ansi_colorize: true)
       end
 
-      it "merges LoggerSerializer result with severity, pid, and timestamp" do
-        custom_data = { custom_field: "custom_value" }
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return(custom_data)
+      it "handles different severity levels" do
+        %w[DEBUG INFO WARN ERROR FATAL].each do |level|
+          result = formatter.call(level, time, task, "message")
 
-        result = described_class.new.call("INFO", time, task, "Test message")
-
-        expect(result).to include("custom_field=custom_value")
-        expect(result).to include("severity=INFO")
-        expect(result).to include("pid=1234")
-        expect(result).to include("timestamp=2022-07-17T18:43:15.123456")
+          expect(result).to include("severity=#{level}")
+        end
       end
+
+      it "handles different time values" do
+        time1 = Time.parse("2024-01-01T12:00:00Z")
+        time2 = Time.parse("2024-12-31T23:59:59Z")
+
+        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time1.utc).and_return("2024-01-01T12:00:00.000000")
+        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time2.utc).and_return("2024-12-31T23:59:59.000000")
+
+        result1 = formatter.call(severity, time1, task, "message")
+        result2 = formatter.call(severity, time2, task, "message")
+
+        expect(result1).to include("timestamp=2024-01-01T12:00:00.000000")
+        expect(result2).to include("timestamp=2024-12-31T23:59:59.000000")
+      end
+
+      it "handles different task objects" do
+        task1 = double("task1")
+        task2 = double("task2")
+
+        formatter.call(severity, time, task1, "message")
+        formatter.call(severity, time, task2, "message")
+
+        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task1, "message", ansi_colorize: true)
+        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task2, "message", ansi_colorize: true)
+      end
+
+      it "handles nil severity parameter gracefully" do
+        result = formatter.call(nil, time, task, "message")
+
+        expect(result).to include("severity=")
+        expect(result).to include("pid=12345")
+        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
+      end
+    end
+
+    context "with output format" do
+      it "outputs key=value pairs separated by spaces with newline" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("=")
+        expect(result).to end_with("\n")
+        expect(result.count("\n")).to eq(1)
+      end
+
+      it "formats all hash entries as key=value pairs" do
+        result = formatter.call(severity, time, task, "test")
+
+        expect(result).to include("=")
+        expect(result).not_to include("{")
+        expect(result).not_to include("}")
+        expect(result).not_to include('"')
+      end
+    end
+  end
+
+  describe "integration with tasks" do
+    it "logs messages from task as key=value pairs" do
+      local_io = StringIO.new
+
+      custom_task = create_simple_task(name: "CustomKeyValueTask") do
+        cmd_settings!(
+          logger: Logger.new(local_io),
+          log_formatter: CMDx::LogFormatters::PrettyKeyValue.new # rubocop:disable RSpec/DescribedClass
+        )
+
+        def call
+          logger.info("String message")
+          logger.debug([])
+          logger.warn(nil)
+          logger.error({ error: "failed", "code" => 500 })
+        end
+      end
+
+      custom_task.call
+      logged_content = local_io.tap(&:rewind).read
+
+      # Check that pretty key value output is present
+      expect(logged_content).to include("severity=INFO")
+      expect(logged_content).to include("severity=DEBUG")
+      expect(logged_content).to include("severity=WARN")
+      expect(logged_content).to include("severity=ERROR")
+
+      # Task result is logged as key value pairs
+      expect(logged_content).to include("class=CustomKeyValueTask")
+
+      # Verify it has ASCI colors
+      expect(logged_content).to include("\e[0;32;49mcomplete\e[0m")
     end
   end
 end

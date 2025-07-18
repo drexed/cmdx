@@ -3,219 +3,181 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Middleware do
-  let(:task) { mock_task }
-  let(:callable) { double("Callable") }
+  subject(:middleware) { described_class.new }
 
-  describe "#call" do
-    context "when called on base Middleware class" do
-      subject(:middleware) { described_class.new }
+  describe ".call" do
+    it "creates instance and delegates to instance call method" do
+      task = double("task")
+      callable = -> { "result" }
 
-      it "raises UndefinedCallError" do
-        expect { middleware.call(task, callable) }.to raise_error(CMDx::UndefinedCallError, /call method not defined in CMDx::Middleware/)
-      end
+      allow_any_instance_of(described_class).to receive(:call).with(task, callable).and_return("delegated")
+
+      result = described_class.call(task, callable)
+
+      expect(result).to eq("delegated")
     end
 
-    context "when subclass implements call method" do
-      subject(:middleware) { custom_middleware_class.new }
+    it "passes task and callable to instance call method" do
+      task = double("task")
+      callable = -> { "test_result" }
 
-      let(:custom_middleware_class) do
-        create_middleware_class do
-          def call(task, callable)
-            callable.call(task)
-          end
-        end
-      end
+      allow_any_instance_of(described_class).to receive(:call).with(task, callable).and_return("middleware_result")
 
-      it "executes the implemented call method" do
-        expect(callable).to receive(:call).with(task)
+      result = described_class.call(task, callable)
 
-        middleware.call(task, callable)
-      end
-
-      it "returns the result from callable" do
-        expected_result = double("Result")
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-
-        result = middleware.call(task, callable)
-
-        expect(result).to eq(expected_result)
-      end
-    end
-
-    context "when subclass modifies behavior before calling next middleware" do
-      subject(:middleware) { logging_middleware_class.new }
-
-      let(:logging_middleware_class) do
-        create_middleware_class do
-          attr_reader :logged_messages
-
-          def initialize
-            @logged_messages = []
-          end
-
-          def call(task, callable)
-            logged_messages << "Before execution"
-            result = callable.call(task)
-            logged_messages << "After execution"
-            result
-          end
-        end
-      end
-
-      it "executes custom logic before and after calling next middleware" do
-        expected_result = double("Result")
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-
-        result = middleware.call(task, callable)
-
-        expect(middleware.logged_messages).to eq(["Before execution", "After execution"])
-        expect(result).to eq(expected_result)
-      end
-    end
-
-    context "when subclass short-circuits execution" do
-      subject(:middleware) { short_circuit_middleware_class.new }
-
-      let(:short_circuit_middleware_class) do
-        create_middleware_class do
-          def call(task, callable)
-            return "short-circuited" if task.should_skip?
-
-            callable.call(task)
-          end
-        end
-      end
-
-      it "returns early without calling next middleware when condition is met" do
-        allow(task).to receive(:should_skip?).and_return(true)
-        allow(callable).to receive(:call)
-
-        result = middleware.call(task, callable)
-
-        expect(callable).not_to have_received(:call)
-        expect(result).to eq("short-circuited")
-      end
-
-      it "calls next middleware when condition is not met" do
-        expected_result = double("Result")
-        allow(task).to receive(:should_skip?).and_return(false)
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-
-        result = middleware.call(task, callable)
-
-        expect(callable).to have_received(:call).with(task)
-        expect(result).to eq(expected_result)
-      end
-    end
-
-    context "when subclass accepts initialization parameters" do
-      let(:parameterized_middleware_class) do
-        create_middleware_class do
-          attr_reader :config
-
-          def initialize(config = {})
-            @config = config
-          end
-
-          def call(task, callable)
-            if config[:enabled]
-              callable.call(task)
-            else
-              "disabled"
-            end
-          end
-        end
-      end
-
-      it "uses parameters to control behavior" do
-        enabled_middleware = parameterized_middleware_class.new(enabled: true)
-        expected_result = double("Result")
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-
-        result = enabled_middleware.call(task, callable)
-
-        expect(result).to eq(expected_result)
-      end
-
-      it "can be disabled via parameters" do
-        disabled_middleware = parameterized_middleware_class.new(enabled: false)
-        allow(callable).to receive(:call)
-
-        result = disabled_middleware.call(task, callable)
-
-        expect(callable).not_to have_received(:call)
-        expect(result).to eq("disabled")
-      end
-    end
-
-    context "when subclass modifies task state" do
-      subject(:middleware) { state_modifying_middleware_class.new }
-
-      let(:state_modifying_middleware_class) do
-        create_middleware_class do
-          def call(task, callable)
-            task.add_metadata("middleware_executed", true)
-            callable.call(task)
-          end
-        end
-      end
-
-      it "modifies task state before calling next middleware" do
-        expected_result = double("Result")
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-        allow(task).to receive(:add_metadata)
-
-        result = middleware.call(task, callable)
-
-        expect(task).to have_received(:add_metadata).with("middleware_executed", true)
-        expect(result).to eq(expected_result)
-      end
-    end
-
-    context "when subclass handles exceptions" do
-      subject(:middleware) { exception_handling_middleware_class.new }
-
-      let(:exception_handling_middleware_class) do
-        create_middleware_class do
-          def call(task, callable)
-            callable.call(task)
-          rescue StandardError => e
-            "Error handled: #{e.message}"
-          end
-        end
-      end
-
-      it "catches and handles exceptions from next middleware" do
-        allow(callable).to receive(:call).with(task).and_raise(StandardError, "Something went wrong")
-
-        result = middleware.call(task, callable)
-
-        expect(result).to eq("Error handled: Something went wrong")
-      end
-
-      it "returns normal result when no exception occurs" do
-        expected_result = double("Result")
-        allow(callable).to receive(:call).with(task).and_return(expected_result)
-
-        result = middleware.call(task, callable)
-
-        expect(result).to eq(expected_result)
-      end
+      expect(result).to eq("middleware_result")
     end
   end
 
-  describe "inheritance" do
-    it "can be subclassed" do
-      subclass = create_middleware_class
+  describe "#call" do
+    it "raises UndefinedCallError with descriptive message" do
+      task = double("task")
+      callable = -> { "result" }
 
-      expect(subclass.superclass).to eq(described_class)
+      expect { middleware.call(task, callable) }.to raise_error(
+        CMDx::UndefinedCallError,
+        "call method not defined in CMDx::Middleware"
+      )
+    end
+  end
+
+  describe "subclass implementation" do
+    let(:working_middleware_class) do
+      Class.new(described_class) do
+        def call(task, callable)
+          "before_#{task.class.name}_#{callable.call}_after"
+        end
+      end
     end
 
-    it "allows multiple levels of inheritance" do
-      base_middleware = create_middleware_class
-      derived_middleware = Class.new(base_middleware)
+    let(:broken_middleware_class) do
+      Class.new(described_class) do
+        # Intentionally doesn't implement call method
+      end
+    end
 
-      expect(derived_middleware.ancestors).to include(base_middleware, described_class)
+    let(:task) { double("task", class: double(name: "TestTask")) }
+    let(:callable) { -> { "executed" } }
+
+    it "works when subclass properly implements call method" do
+      result = working_middleware_class.call(task, callable)
+
+      expect(result).to eq("before_TestTask_executed_after")
+    end
+
+    it "raises error when subclass doesn't implement call method" do
+      expect { broken_middleware_class.call(task, callable) }.to raise_error(
+        CMDx::UndefinedCallError,
+        /call method not defined in/
+      )
+    end
+  end
+
+  describe "integration with tasks" do
+    it "wraps task execution with custom behavior" do
+      logging_middleware = Class.new(described_class) do
+        def call(task, callable)
+          task.context.middleware_started = true
+          result = callable.call(task)
+          task.context.middleware_finished = true
+          result
+        end
+      end
+
+      task_class = create_task_class(name: "LoggingMiddlewareTask") do
+        use :middleware, logging_middleware
+
+        def call
+          context.executed = true
+        end
+      end
+
+      result = task_class.call
+
+      expect(result).to be_successful_task
+      expect(result.context.executed).to be true
+      expect(result.context.middleware_started).to be true
+      expect(result.context.middleware_finished).to be true
+    end
+
+    it "can modify task context during execution" do
+      context_middleware = Class.new(described_class) do
+        def call(task, callable)
+          task.context.middleware_data = "set by middleware"
+          callable.call(task)
+        end
+      end
+
+      task_class = create_task_class(name: "ContextMiddlewareTask") do
+        use :middleware, context_middleware
+
+        def call
+          context.executed = true
+          context.task_data = "set by task"
+        end
+      end
+
+      result = task_class.call
+
+      expect(result).to be_successful_task
+      expect(result.context.executed).to be true
+      expect(result.context.middleware_data).to eq("set by middleware")
+      expect(result.context.task_data).to eq("set by task")
+    end
+
+    it "handles multiple middleware in order" do
+      first_middleware = Class.new(described_class) do
+        def call(task, callable)
+          task.context.first_middleware = true
+          callable.call(task)
+        end
+      end
+
+      second_middleware = Class.new(described_class) do
+        def call(task, callable)
+          task.context.second_middleware = true
+          callable.call(task)
+        end
+      end
+
+      task_class = create_task_class(name: "MultipleMiddlewareTask") do
+        use :middleware, first_middleware
+        use :middleware, second_middleware
+
+        def call
+          context.executed = true
+        end
+      end
+
+      result = task_class.call
+
+      expect(result).to be_successful_task
+      expect(result.context.executed).to be true
+      expect(result.context.first_middleware).to be true
+      expect(result.context.second_middleware).to be true
+    end
+
+    it "integrates with the task system architecture" do
+      simple_middleware = Class.new(described_class) do
+        def call(task, callable)
+          task.context.middleware_executed = true
+          callable.call(task)
+        end
+      end
+
+      task_class = create_task_class(name: "IntegratedMiddlewareTask") do
+        use :middleware, simple_middleware
+
+        def call
+          context.task_executed = true
+        end
+      end
+
+      result = task_class.call
+
+      expect(result).to be_successful_task
+      expect(result.context.task_executed).to be true
+      expect(result.context.middleware_executed).to be true
     end
   end
 end

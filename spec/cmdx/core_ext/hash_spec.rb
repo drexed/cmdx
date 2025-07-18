@@ -3,376 +3,224 @@
 require "spec_helper"
 
 RSpec.describe CMDx::CoreExt::HashExtensions do # rubocop:disable RSpec/SpecFilePathFormat
-  let(:test_hash) { { name: "John", "age" => 30, id: 123 } }
-  let(:empty_hash) { {} }
-  let(:symbol_hash) { { first_name: "Jane", last_name: "Doe" } }
-  let(:string_hash) { { "email" => "jane@example.com", "phone" => "555-1234" } }
+  subject(:hash) { { name: "John", "age" => 30, :count => 42 } }
 
-  describe "#__cmdx_fetch" do
+  describe "#cmdx_fetch" do
     context "with symbol keys" do
-      it "returns value for existing symbol key" do
-        result = test_hash.__cmdx_fetch(:name)
-
-        expect(result).to eq("John")
+      it "fetches value for existing symbol key" do
+        expect(hash.cmdx_fetch(:name)).to eq("John")
       end
 
-      it "returns value for symbol key when string equivalent exists" do
-        result = test_hash.__cmdx_fetch(:age)
-
-        expect(result).to eq(30)
+      it "fetches value for symbol key when string equivalent exists" do
+        expect(hash.cmdx_fetch(:age)).to eq(30)
       end
 
       it "returns nil for non-existent symbol key" do
-        result = test_hash.__cmdx_fetch(:missing)
-
-        expect(result).to be_nil
-      end
-
-      it "tries symbol key first then string conversion" do
-        allow(test_hash).to receive(:fetch).with(:name).and_yield
-        allow(test_hash).to receive(:[]).with("name").and_return("fallback")
-
-        result = test_hash.__cmdx_fetch(:name)
-
-        expect(result).to eq("fallback")
+        expect(hash.cmdx_fetch(:missing)).to be_nil
       end
     end
 
     context "with string keys" do
-      it "returns value for existing string key" do
-        result = test_hash.__cmdx_fetch("age")
-
-        expect(result).to eq(30)
+      it "fetches value for existing string key" do
+        expect(hash.cmdx_fetch("age")).to eq(30)
       end
 
-      it "returns value for string key when symbol equivalent exists" do
-        result = test_hash.__cmdx_fetch("name")
-
-        expect(result).to eq("John")
+      it "fetches value for string key when symbol equivalent exists" do
+        expect(hash.cmdx_fetch("name")).to eq("John")
       end
 
       it "returns nil for non-existent string key" do
-        result = test_hash.__cmdx_fetch("missing")
-
-        expect(result).to be_nil
-      end
-
-      it "tries string key first then symbol conversion" do
-        allow(test_hash).to receive(:fetch).with("age").and_yield
-        allow(test_hash).to receive(:[]).with(:age).and_return("fallback")
-
-        result = test_hash.__cmdx_fetch("age")
-
-        expect(result).to eq("fallback")
+        expect(hash.cmdx_fetch("missing")).to be_nil
       end
     end
 
     context "with other key types" do
-      it "returns value for numeric keys" do
-        hash_with_numeric = { 1 => "one", 2 => "two" }
+      let(:hash_with_numeric_keys) { { 1 => "one", 2 => "two" } }
 
-        result = hash_with_numeric.__cmdx_fetch(1)
-
-        expect(result).to eq("one")
+      it "fetches value for integer key" do
+        expect(hash_with_numeric_keys.cmdx_fetch(1)).to eq("one")
       end
 
-      it "returns nil for non-existent numeric keys" do
-        result = test_hash.__cmdx_fetch(999)
-
-        expect(result).to be_nil
-      end
-
-      it "uses direct hash access for non-string, non-symbol keys" do
-        hash_with_object = { Object.new => "object_value" }
-        key = hash_with_object.keys.first
-
-        result = hash_with_object.__cmdx_fetch(key)
-
-        expect(result).to eq("object_value")
+      it "returns nil for non-existent integer key" do
+        expect(hash_with_numeric_keys.cmdx_fetch(99)).to be_nil
       end
     end
 
-    context "with empty hash" do
-      it "returns nil for any key" do
-        result = empty_hash.__cmdx_fetch(:any_key)
+    context "with edge cases" do
+      let(:empty_hash) { {} }
+      let(:hash_with_nil_value) { { key: nil } }
+      let(:hash_with_false_value) { { key: false } }
 
-        expect(result).to be_nil
-      end
-    end
-
-    context "with symbol-only hash" do
-      it "finds symbol keys directly" do
-        result = symbol_hash.__cmdx_fetch(:first_name)
-
-        expect(result).to eq("Jane")
+      it "returns nil for empty hash" do
+        expect(empty_hash.cmdx_fetch(:any_key)).to be_nil
       end
 
-      it "finds symbol keys via string conversion" do
-        result = symbol_hash.__cmdx_fetch("first_name")
-
-        expect(result).to eq("Jane")
-      end
-    end
-
-    context "with string-only hash" do
-      it "finds string keys directly" do
-        result = string_hash.__cmdx_fetch("email")
-
-        expect(result).to eq("jane@example.com")
+      it "returns nil when value is explicitly nil" do
+        expect(hash_with_nil_value.cmdx_fetch(:key)).to be_nil
       end
 
-      it "finds string keys via symbol conversion" do
-        result = string_hash.__cmdx_fetch(:email)
-
-        expect(result).to eq("jane@example.com")
+      it "returns false when value is explicitly false" do
+        expect(hash_with_false_value.cmdx_fetch(:key)).to be false
       end
     end
   end
 
-  describe "#__cmdx_key?" do
-    context "with existing keys" do
+  describe "#cmdx_key?" do
+    context "with symbol keys" do
       it "returns true for existing symbol key" do
-        result = test_hash.__cmdx_key?(:name)
-
-        expect(result).to be true
-      end
-
-      it "returns true for existing string key" do
-        result = test_hash.__cmdx_key?("age")
-
-        expect(result).to be true
+        expect(hash.cmdx_key?(:name)).to be true
       end
 
       it "returns true for symbol key when string equivalent exists" do
-        result = test_hash.__cmdx_key?(:age)
-
-        expect(result).to be true
+        expect(hash.cmdx_key?(:age)).to be true
       end
 
-      it "returns true for string key when symbol equivalent exists" do
-        result = test_hash.__cmdx_key?("name")
-
-        expect(result).to be true
+      it "returns false for non-existent symbol key" do
+        expect(hash.cmdx_key?(:missing)).to be false
       end
     end
 
-    context "with non-existent keys" do
-      it "returns false for non-existent symbol key" do
-        result = test_hash.__cmdx_key?(:missing)
+    context "with string keys" do
+      it "returns true for existing string key" do
+        expect(hash.cmdx_key?("age")).to be true
+      end
 
-        expect(result).to be false
+      it "returns true for string key when symbol equivalent exists" do
+        expect(hash.cmdx_key?("name")).to be true
       end
 
       it "returns false for non-existent string key" do
-        result = test_hash.__cmdx_key?("missing")
-
-        expect(result).to be false
+        expect(hash.cmdx_key?("missing")).to be false
       end
     end
 
     context "with other key types" do
-      it "returns true for existing numeric key" do
-        hash_with_numeric = { 1 => "one" }
+      let(:hash_with_numeric_keys) { { 1 => "one", 2 => "two" } }
 
-        result = hash_with_numeric.__cmdx_key?(1)
-
-        expect(result).to be true
+      it "returns true for existing integer key" do
+        expect(hash_with_numeric_keys.cmdx_key?(1)).to be true
       end
 
-      it "returns false for non-existent numeric key" do
-        result = test_hash.__cmdx_key?(999)
-
-        expect(result).to be false
-      end
-
-      it "handles object keys" do
-        key = Object.new
-        hash_with_object = { key => "value" }
-
-        result = hash_with_object.__cmdx_key?(key)
-
-        expect(result).to be true
+      it "returns false for non-existent integer key" do
+        expect(hash_with_numeric_keys.cmdx_key?(99)).to be false
       end
     end
 
-    context "with key conversion errors" do
-      it "returns false when key conversion raises NoMethodError" do
-        problematic_key = Object.new
-        allow(problematic_key).to receive(:to_s).and_raise(NoMethodError)
-        allow(problematic_key).to receive(:to_sym).and_raise(NoMethodError)
+    context "with edge cases" do
+      let(:empty_hash) { {} }
+      let(:hash_with_nil_value) { { key: nil } }
+      let(:object_without_to_s) { Object.new }
 
-        result = test_hash.__cmdx_key?(problematic_key)
-
-        expect(result).to be false
-      end
-    end
-
-    context "with key? method checking" do
-      it "calls key? with original key first" do
-        allow(test_hash).to receive(:key?).with(:name).and_return(true)
-
-        test_hash.__cmdx_key?(:name)
-
-        expect(test_hash).to have_received(:key?).with(:name)
+      it "returns false for empty hash" do
+        expect(empty_hash.cmdx_key?(:any_key)).to be false
       end
 
-      it "calls key? with converted key when original fails" do
-        allow(test_hash).to receive(:key?).with(:missing).and_return(false)
-        allow(test_hash).to receive(:key?).with("missing").and_return(false)
+      it "returns true for key with nil value" do
+        expect(hash_with_nil_value.cmdx_key?(:key)).to be true
+      end
 
-        test_hash.__cmdx_key?(:missing)
+      it "handles objects that don't respond to to_s/to_sym gracefully" do
+        allow(object_without_to_s).to receive(:to_s).and_raise(NoMethodError)
+        allow(object_without_to_s).to receive(:to_sym).and_raise(NoMethodError)
 
-        expect(test_hash).to have_received(:key?).with(:missing)
-        expect(test_hash).to have_received(:key?).with("missing")
+        expect(hash.cmdx_key?(object_without_to_s)).to be false
       end
     end
   end
 
-  describe "#__cmdx_respond_to?" do
-    context "with real hash methods" do
+  describe "#cmdx_respond_to?" do
+    context "with actual Hash methods" do
       it "returns true for existing Hash methods" do
-        result = test_hash.__cmdx_respond_to?(:keys)
-
-        expect(result).to be true
+        expect(hash.cmdx_respond_to?(:keys)).to be true
+        expect(hash.cmdx_respond_to?(:values)).to be true
+        expect(hash.cmdx_respond_to?(:each)).to be true
       end
 
-      it "returns true for private Hash methods when include_private is true" do
-        result = test_hash.__cmdx_respond_to?(:initialize, true)
-
-        expect(result).to be true
+      it "returns true for existing Hash methods as strings" do
+        expect(hash.cmdx_respond_to?("keys")).to be true
+        expect(hash.cmdx_respond_to?("values")).to be true
       end
 
-      it "returns false for private Hash methods when include_private is false" do
-        result = test_hash.__cmdx_respond_to?(:initialize, false)
-
-        expect(result).to be false
+      it "returns false for non-existent methods" do
+        expect(hash.cmdx_respond_to?(:non_existent_method)).to be false
       end
     end
 
-    context "with hash keys as methods" do
-      it "returns true when hash contains symbol key" do
-        result = test_hash.__cmdx_respond_to?(:name)
-
-        expect(result).to be true
+    context "with keys as method names" do
+      it "returns true for existing symbol keys" do
+        expect(hash.cmdx_respond_to?(:name)).to be true
+        expect(hash.cmdx_respond_to?(:count)).to be true
       end
 
-      it "returns true when hash contains string key" do
-        result = test_hash.__cmdx_respond_to?("age")
-
-        expect(result).to be true
+      it "returns true for existing string keys" do
+        expect(hash.cmdx_respond_to?("age")).to be true
       end
 
-      it "returns true for symbol method when string key exists" do
-        result = test_hash.__cmdx_respond_to?(:age)
-
-        expect(result).to be true
+      it "returns true for symbol key when string equivalent exists" do
+        expect(hash.cmdx_respond_to?(:age)).to be true
       end
 
-      it "returns true for string method when symbol key exists" do
-        result = test_hash.__cmdx_respond_to?("name")
-
-        expect(result).to be true
-      end
-    end
-
-    context "with non-existent methods and keys" do
-      it "returns false when method does not exist and key not found" do
-        result = test_hash.__cmdx_respond_to?(:nonexistent_method)
-
-        expect(result).to be false
-      end
-    end
-
-    context "with respond_to? method checking" do
-      it "calls original respond_to? method first" do
-        allow(test_hash).to receive(:respond_to?).with(:keys, false).and_return(true)
-
-        test_hash.__cmdx_respond_to?(:keys)
-
-        expect(test_hash).to have_received(:respond_to?).with(:keys, false)
+      it "returns true for string key when symbol equivalent exists" do
+        expect(hash.cmdx_respond_to?("name")).to be true
       end
 
-      it "falls back to __cmdx_key? when respond_to? returns false" do
-        allow(test_hash).to receive(:respond_to?).with(:name, false).and_return(false)
-        allow(test_hash).to receive(:__cmdx_key?).with(:name).and_return(true)
-
-        result = test_hash.__cmdx_respond_to?(:name)
-
-        expect(result).to be true
-        expect(test_hash).to have_received(:__cmdx_key?).with(:name)
-      end
-
-      it "handles NoMethodError from respond_to? by falling back to __cmdx_key?" do
-        allow(test_hash).to receive(:respond_to?).and_raise(NoMethodError)
-        allow(test_hash).to receive(:__cmdx_key?).with(:name).and_return(true)
-
-        result = test_hash.__cmdx_respond_to?(:name)
-
-        expect(result).to be true
-        expect(test_hash).to have_received(:__cmdx_key?).with(:name)
+      it "returns false for non-existent keys" do
+        expect(hash.cmdx_respond_to?(:missing)).to be false
+        expect(hash.cmdx_respond_to?("missing")).to be false
       end
     end
 
     context "with include_private parameter" do
-      it "forwards include_private parameter to respond_to?" do
-        allow(test_hash).to receive(:respond_to?).with(:keys, true).and_return(true)
-
-        test_hash.__cmdx_respond_to?(:keys, true)
-
-        expect(test_hash).to have_received(:respond_to?).with(:keys, true)
+      it "respects include_private parameter for methods" do
+        expect(hash.cmdx_respond_to?(:initialize, true)).to be true
+        expect(hash.cmdx_respond_to?(:initialize, false)).to be false
       end
 
-      it "defaults include_private to false" do
-        allow(test_hash).to receive(:respond_to?).with(:keys, false).and_return(true)
-
-        test_hash.__cmdx_respond_to?(:keys)
-
-        expect(test_hash).to have_received(:respond_to?).with(:keys, false)
+      it "works with keys regardless of include_private parameter" do
+        expect(hash.cmdx_respond_to?(:name, true)).to be true
+        expect(hash.cmdx_respond_to?(:name, false)).to be true
       end
     end
 
-    context "with key conversion" do
-      it "converts symbol to symbol when checking respond_to?" do
-        allow(test_hash).to receive(:respond_to?).with(:name, false).and_return(false)
-        allow(test_hash).to receive(:__cmdx_key?).with(:name).and_return(true)
+    context "with edge cases" do
+      let(:empty_hash) { {} }
+      let(:object_without_to_sym) { Object.new }
 
-        test_hash.__cmdx_respond_to?(:name)
-
-        expect(test_hash).to have_received(:respond_to?).with(:name, false)
+      it "returns false for empty hash with non-existent key" do
+        expect(empty_hash.cmdx_respond_to?(:any_key)).to be false
       end
 
-      it "converts string to symbol when checking respond_to?" do
-        allow(test_hash).to receive(:respond_to?).with(:age, false).and_return(false)
-        allow(test_hash).to receive(:__cmdx_key?).with("age").and_return(true)
+      it "handles objects that don't respond to to_sym gracefully" do
+        allow(object_without_to_sym).to receive(:to_sym).and_raise(NoMethodError)
 
-        test_hash.__cmdx_respond_to?("age")
-
-        expect(test_hash).to have_received(:respond_to?).with(:age, false)
+        expect(hash.cmdx_respond_to?(object_without_to_sym)).to be false
       end
     end
   end
 
-  describe "Hash inclusion" do
-    it "extends Hash class with HashExtensions" do
-      expect(Hash.ancestors).to include(described_class)
-    end
+  describe "integration" do
+    context "with mixed symbol and string keys" do
+      let(:mixed_hash) { { :symbol_key => "symbol_value", "string_key" => "string_value" } }
 
-    it "makes __cmdx_fetch available on all hashes" do
-      new_hash = {}
+      it "works consistently across all methods" do
+        # cmdx_fetch
+        expect(mixed_hash.cmdx_fetch(:symbol_key)).to eq("symbol_value")
+        expect(mixed_hash.cmdx_fetch("symbol_key")).to eq("symbol_value")
+        expect(mixed_hash.cmdx_fetch(:string_key)).to eq("string_value")
+        expect(mixed_hash.cmdx_fetch("string_key")).to eq("string_value")
 
-      expect(new_hash).to respond_to(:__cmdx_fetch)
-    end
+        # cmdx_key?
+        expect(mixed_hash.cmdx_key?(:symbol_key)).to be true
+        expect(mixed_hash.cmdx_key?("symbol_key")).to be true
+        expect(mixed_hash.cmdx_key?(:string_key)).to be true
+        expect(mixed_hash.cmdx_key?("string_key")).to be true
 
-    it "makes __cmdx_key? available on all hashes" do
-      new_hash = {}
-
-      expect(new_hash).to respond_to(:__cmdx_key?)
-    end
-
-    it "makes __cmdx_respond_to? available on all hashes" do
-      new_hash = {}
-
-      expect(new_hash).to respond_to(:__cmdx_respond_to?)
+        # cmdx_respond_to?
+        expect(mixed_hash.cmdx_respond_to?(:symbol_key)).to be true
+        expect(mixed_hash.cmdx_respond_to?("symbol_key")).to be true
+        expect(mixed_hash.cmdx_respond_to?(:string_key)).to be true
+        expect(mixed_hash.cmdx_respond_to?("string_key")).to be true
+      end
     end
   end
 end

@@ -2,41 +2,28 @@
 
 module CMDx
   module Coercions
-    # Coerces values to Complex type.
+    # Coercion class for converting values to complex numbers.
     #
-    # The Complex coercion converts parameter values to Complex number objects
-    # using Ruby's built-in Complex() method, with proper error handling
-    # for values that cannot be converted to complex numbers.
-    #
-    # @example Basic complex coercion
-    #   class MathTask < CMDx::Task
-    #     required :complex_number, type: :complex
-    #     optional :coefficient, type: :complex, default: Complex(1, 0)
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::Complex.call("1+2i")      # => (1+2i)
-    #   Coercions::Complex.call("3-4i")      # => (3-4i)
-    #   Coercions::Complex.call(5)           # => (5+0i)
-    #   Coercions::Complex.call("invalid")   # => raises CoercionError
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module Complex
+    # This coercion handles conversion of various types to complex numbers,
+    # including strings, integers, floats, and other numeric types.
+    class Complex < Coercion
 
-      module_function
-
-      # Coerce a value to Complex.
+      # Converts the given value to a complex number.
       #
-      # @param value [Object] value to coerce to complex number
-      # @param _options [Hash] coercion options (unused)
-      # @return [Complex] coerced complex number value
-      # @raise [CoercionError] if coercion fails
+      # @param value [Object] the value to convert to a complex number
+      # @param _options [Hash] optional configuration (currently unused)
       #
-      # @example
-      #   Coercions::Complex.call("1+2i")    # => (1+2i)
-      #   Coercions::Complex.call(42)        # => (42+0i)
-      #   Coercions::Complex.call("3.5-2i")  # => (3.5-2i)
+      # @return [Complex] the converted complex number value
+      #
+      # @raise [CoercionError] if the value cannot be converted to a complex number
+      #
+      # @example Converting numeric values
+      #   Coercions::Complex.call(5) #=> (5+0i)
+      #   Coercions::Complex.call(3.14) #=> (3.14+0i)
+      #
+      # @example Converting string representations
+      #   Coercions::Complex.call("2+3i") #=> (2+3i)
+      #   Coercions::Complex.call("1-2i") #=> (1-2i)
       def call(value, _options = {})
         Complex(value)
       rescue ArgumentError, TypeError

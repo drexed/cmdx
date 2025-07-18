@@ -1,101 +1,39 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Logger configuration and setup module for CMDx tasks.
+  # Logger configuration and retrieval utilities for task execution.
   #
-  # The Logger module provides centralized logger configuration and initialization
-  # for CMDx tasks. It handles logger setup, formatter assignment, log level
-  # configuration, and progname assignment based on task settings.
-  #
-  # @example Basic logger usage
-  #   class ProcessOrderTask < CMDx::Task
-  #     def call
-  #       logger.info "Processing order #{order_id}"
-  #       logger.debug { "Order details: #{order.inspect}" }
-  #     end
-  #   end
-  #
-  # @example Task-specific logger configuration
-  #   class ProcessOrderTask < CMDx::Task
-  #     task_settings!(
-  #       logger: Rails.logger,
-  #       log_formatter: CMDx::LogFormatters::Json.new,
-  #       log_level: Logger::INFO
-  #     )
-  #   end
-  #
-  # @example Global logger configuration
-  #   CMDx.configure do |config|
-  #     config.logger = Logger.new($stdout)
-  #     config.log_formatter = CMDx::LogFormatters::PrettyLine.new
-  #     config.log_level = Logger::WARN
-  #   end
-  #
-  # @example Custom logger with specific formatter
-  #   logger = Logger.new(STDOUT)
-  #   logger.formatter = CMDx::LogFormatters::Logstash.new
-  #   logger.level = Logger::DEBUG
-  #
-  #   class MyTask < CMDx::Task
-  #     task_settings!(logger: logger)
-  #   end
-  #
-  # @see CMDx::LogFormatters Log formatting options
-  # @see CMDx::ResultLogger Result-specific logging functionality
-  # @see CMDx::Task Task logging integration
+  # This module provides functionality to configure and retrieve logger instances
+  # for task execution, applying task-specific settings such as formatter, level,
+  # and program name when available.
   module Logger
 
     module_function
 
-    # Configures and returns a logger instance for a task.
+    # Configures and returns a logger instance for the given task.
     #
-    # Retrieves the logger from task settings and applies additional configuration
-    # including formatter, log level, and progname if specified in task settings.
-    # Returns nil if no logger is configured.
+    # This method retrieves the logger from task settings and applies any
+    # available configuration options including formatter, level, and program name.
+    # The task itself is set as the logger's program name for identification.
     #
-    # @param task [CMDx::Task] The task instance to configure logging for
-    # @return [::Logger, nil] Configured logger instance or nil if not set
+    # @param task [Task] the task instance to configure logging for
     #
-    # @example Basic logger retrieval
-    #   task = ProcessOrderTask.new
-    #   logger = Logger.call(task)
-    #   logger.info "Task started" if logger
+    # @return [Logger, nil] the configured logger instance or nil if no logger is set
+    #
+    # @example Configure logger for a task
+    #   logger = CMDx::Logger.call(task)
+    #   logger.info("Task started")
     #
     # @example Logger with custom formatter
-    #   class MyTask < CMDx::Task
-    #     task_settings!(
-    #       logger: Logger.new(STDOUT),
-    #       log_formatter: CMDx::LogFormatters::Json.new
-    #     )
-    #   end
-    #
-    #   task = MyTask.new
-    #   logger = Logger.call(task)  # Logger with JSON formatter applied
-    #
-    # @example Logger with custom level
-    #   class MyTask < CMDx::Task
-    #     task_settings!(
-    #       logger: Logger.new(STDOUT),
-    #       log_level: Logger::DEBUG
-    #     )
-    #   end
-    #
-    #   task = MyTask.new
-    #   logger = Logger.call(task)  # Logger with DEBUG level applied
-    #
-    # @example No logger configured
-    #   class MyTask < CMDx::Task
-    #     # No logger setting
-    #   end
-    #
-    #   task = MyTask.new
-    #   logger = Logger.call(task)  # => nil
+    #   task.set_cmd_setting(:log_formatter, custom_formatter)
+    #   logger = CMDx::Logger.call(task)
+    #   logger.debug("Debug message")
     def call(task)
-      logger = task.task_setting(:logger)
+      logger = task.cmd_setting(:logger)
 
       unless logger.nil?
-        logger.formatter = task.task_setting(:log_formatter) if task.task_setting?(:log_formatter)
-        logger.level     = task.task_setting(:log_level) if task.task_setting?(:log_level)
+        logger.formatter = task.cmd_setting(:log_formatter) if task.cmd_setting?(:log_formatter)
+        logger.level     = task.cmd_setting(:log_level) if task.cmd_setting?(:log_level)
         logger.progname  = task
       end
 

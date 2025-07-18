@@ -1,105 +1,114 @@
 # frozen_string_literal: true
 
 module CMDx
-  ##
-  # The CallbackRegistry collection provides a lifecycle callback system that executes
-  # registered callbacks at specific points during task execution. Callbacks can be
-  # conditionally executed based on task state and support both method references
-  # and callable objects.
+  # Registry for managing callback definitions and execution within tasks.
   #
-  # The CallbackRegistry collection extends Hash to provide specialized functionality for
-  # managing collections of callback definitions within CMDx tasks. It handles
-  # callback registration, conditional execution, and inspection.
-  #
-  # @example Basic callback usage
-  #   callback_registry = CallbackRegistry.new
-  #   callback_registry.register(:before_validation, :check_permissions)
-  #   callback_registry.register(:on_success, :log_success, if: :important?)
-  #   callback_registry.register(:on_failure, proc { alert_admin }, unless: :test_env?)
-  #
-  #   callback_registry.call(task, :before_validation)
-  #
-  # @example Hash-like operations
-  #   callback_registry[:before_validation] = [[:check_permissions, {}]]
-  #   callback_registry.keys  # => [:before_validation]
-  #   callback_registry.empty?  # => false
-  #   callback_registry.each { |callback_name, callbacks| puts "#{callback_name}: #{callbacks}" }
-  #
-  # @see Callback Base callback execution class
-  # @see Task Task lifecycle callbacks
-  # @since 1.0.0
-  class CallbackRegistry < Hash
+  # This registry handles the registration and execution of callbacks at various
+  # points in the task lifecycle, including validation, execution, and outcome
+  # handling phases.
+  class CallbackRegistry
 
-    ##
-    # Initializes a new CallbackRegistry.
-    #
-    # @param registry [CallbackRegistry, Hash, nil] Optional registry to copy from
-    #
-    # @example Initialize empty registry
-    #   registry = CallbackRegistry.new
-    #
-    # @example Initialize with existing registry
-    #   global_callbacks = CallbackRegistry.new
-    #   task_callbacks = CallbackRegistry.new(global_callbacks)
-    def initialize(registry = nil)
-      super()
+    TYPES = [
+      :before_validation,
+      :after_validation,
+      :before_execution,
+      :after_execution,
+      :on_executed,
+      :on_good,
+      :on_bad,
+      *Result::STATUSES.map { |s| :"on_#{s}" },
+      *Result::STATES.map { |s| :"on_#{s}" }
+    ].freeze
 
-      registry&.each do |callback_type, callback_definitions|
-        self[callback_type] = callback_definitions.dup
-      end
+    # The internal hash storing callback definitions.
+    #
+    # @return [Hash] hash containing callback type keys and callback definition arrays
+    attr_reader :registry
+
+    # Initializes a new callback registry.
+    #
+    # @param registry [Hash] initial registry hash with callback definitions
+    #
+    # @return [CallbackRegistry] a new callback registry instance
+    #
+    # @example Creating an empty registry
+    #   CallbackRegistry.new
+    #
+    # @example Creating a registry with initial callbacks
+    #   CallbackRegistry.new(before_execution: [[:my_callback, {}]])
+    def initialize(registry = {})
+      @registry = registry.to_h
     end
 
-    # Registers a callback for the given callback type.
+    # Registers one or more callbacks for a specific type.
     #
-    # @param callback [Symbol] The callback type (e.g., :before_validation, :on_success)
-    # @param callables [Array<Symbol, Proc, #call>] Methods or callables to execute
-    # @param options [Hash] Conditions for callback execution
-    # @option options [Symbol, Proc, #call] :if condition that must be truthy
-    # @option options [Symbol, Proc, #call] :unless condition that must be falsy
-    # @param block [Proc] Block to execute as part of the callback
-    # @return [CallbackRegistry] self for method chaining
+    # @param type [Symbol] the callback type to register
+    # @param callables [Array<Object>] callable objects to register
+    # @param options [Hash] options for conditional callback execution
+    # @param block [Proc] optional block to register as a callback
     #
-    # @example Register method callback
-    #   registry.register(:before_validation, :check_permissions)
+    # @return [CallbackRegistry] returns self for method chaining
     #
-    # @example Register conditional callback
-    #   registry.register(:on_failure, :alert_admin, if: :critical?)
+    # @example Registering a symbol callback
+    #   registry.register(:before_execution, :setup_database)
     #
-    # @example Register proc callback
-    #   registry.register(:on_success, proc { log_completion })
-    def register(callback, *callables, **options, &block)
+    # @example Registering a Proc callback
+    #   registry.register(:on_good, ->(task) { puts "Task completed: #{task.name}" })
+    #
+    # @example Registering a Callback class
+    #   registry.register(:after_validation, NotificationCallback)
+    #
+    # @example Registering multiple callbacks with options
+    #   registry.register(:on_good, :send_notification, :log_success, if: -> { Rails.env.production? })
+    #
+    # @example Registering a block callback
+    #   registry.register(:after_validation) { |task| puts "Validation complete" }
+    def register(type, *callables, **options, &block)
       callables << block if block_given?
-      (self[callback] ||= []).push([callables, options]).uniq!
+      (registry[type] ||= []).push([callables, options]).uniq!
       self
     end
 
-    # Executes all callbacks registered for a specific callback type on the given task.
-    # Each callback is evaluated for its conditions (if/unless) before execution.
+    # Executes all registered callbacks for a specific type.
     #
-    # @param task [Task] The task instance to execute callbacks on
-    # @param callback [Symbol] The callback type to execute (e.g., :before_validation, :on_success)
+    # @param task [Task] the task instance to execute callbacks on
+    # @param type [Symbol] the callback type to execute
+    #
     # @return [void]
     #
-    # @example Execute callbacks
+    # @raise [UnknownCallbackError] when the callback type is not recognized
+    #
+    # @example Executing before_validation callbacks
     #   registry.call(task, :before_validation)
     #
-    # @example Execute conditional callbacks
-    #   # Only executes if task.critical? returns true
-    #   registry.call(task, :on_failure) # where registry has on_failure :alert, if: :critical?
-    def call(task, callback)
-      return unless key?(callback)
+    # @example Executing outcome callbacks
+    #   registry.call(task, :on_good)
+    def call(task, type)
+      raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
-      Array(self[callback]).each do |callables, options|
-        next unless task.__cmdx_eval(options)
+      Array(registry[type]).each do |callables, options|
+        next unless task.cmdx_eval(options)
 
-        Array(callables).each do |c|
-          if c.is_a?(Callback)
-            c.call(task, callback)
+        Array(callables).each do |callable|
+          case callable
+          when Symbol, String, Proc
+            task.cmdx_try(callable)
           else
-            task.__cmdx_try(c)
+            callable.call(task)
           end
         end
       end
+    end
+
+    # Returns a hash representation of the registry.
+    #
+    # @return [Hash] a deep copy of the registry hash
+    #
+    # @example Getting registry contents
+    #   registry.to_h
+    #   # => { before_execution: [[:setup, {}]], on_good: [[:notify, { if: -> { true } }]] }
+    def to_h
+      registry.transform_values(&:dup)
     end
 
   end

@@ -3,188 +3,199 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Coercions::Virtual do
+  subject(:coercion) { described_class.new }
+
+  describe ".call" do
+    it "creates instance and calls #call method" do
+      expect(described_class.call("value")).to eq("value")
+    end
+  end
+
   describe "#call" do
-    context "with any values" do
-      it "returns string value unchanged" do
-        expect(described_class.call("hello")).to eq("hello")
+    context "with string values" do
+      it "returns strings unchanged" do
+        result = coercion.call("hello")
+
+        expect(result).to eq("hello")
       end
 
-      it "returns integer value unchanged" do
-        expect(described_class.call(123)).to eq(123)
+      it "returns empty strings unchanged" do
+        result = coercion.call("")
+
+        expect(result).to eq("")
       end
 
-      it "returns float value unchanged" do
-        expect(described_class.call(3.14)).to eq(3.14)
-      end
+      it "returns strings with special characters unchanged" do
+        result = coercion.call("hello\nworld\t!")
 
-      it "returns boolean true unchanged" do
-        expect(described_class.call(true)).to be(true)
-      end
-
-      it "returns boolean false unchanged" do
-        expect(described_class.call(false)).to be(false)
-      end
-
-      it "returns nil unchanged" do
-        expect(described_class.call(nil)).to be_nil
-      end
-
-      it "returns array unchanged" do
-        array = [1, 2, 3]
-        expect(described_class.call(array)).to eq(array)
-      end
-
-      it "returns hash unchanged" do
-        hash = { key: "value" }
-        expect(described_class.call(hash)).to eq(hash)
-      end
-
-      it "returns symbol unchanged" do
-        expect(described_class.call(:test)).to eq(:test)
-      end
-
-      it "returns object unchanged" do
-        obj = Object.new
-        expect(described_class.call(obj)).to eq(obj)
+        expect(result).to eq("hello\nworld\t!")
       end
     end
 
-    context "with complex values" do
-      it "returns empty string unchanged" do
-        expect(described_class.call("")).to eq("")
+    context "with numeric values" do
+      it "returns integers unchanged" do
+        result = coercion.call(123)
+
+        expect(result).to eq(123)
       end
 
-      it "returns empty array unchanged" do
-        expect(described_class.call([])).to eq([])
+      it "returns floats unchanged" do
+        result = coercion.call(3.14)
+
+        expect(result).to eq(3.14)
       end
 
-      it "returns empty hash unchanged" do
-        expect(described_class.call({})).to eq({})
-      end
-
-      it "returns nested array unchanged" do
-        array = [[1, 2], [3, 4]]
-        expect(described_class.call(array)).to eq(array)
-      end
-
-      it "returns nested hash unchanged" do
-        hash = { outer: { inner: "value" } }
-        expect(described_class.call(hash)).to eq(hash)
-      end
-    end
-
-    context "with numeric edge cases" do
       it "returns zero unchanged" do
-        expect(described_class.call(0)).to eq(0)
+        result = coercion.call(0)
+
+        expect(result).to eq(0)
       end
 
-      it "returns negative integer unchanged" do
-        expect(described_class.call(-123)).to eq(-123)
-      end
+      it "returns negative numbers unchanged" do
+        result = coercion.call(-42)
 
-      it "returns negative float unchanged" do
-        expect(described_class.call(-3.14)).to eq(-3.14)
-      end
-
-      it "returns very large number unchanged" do
-        large_number = 999_999_999_999_999_999_999
-        expect(described_class.call(large_number)).to eq(large_number)
-      end
-
-      it "returns very small number unchanged" do
-        small_number = 0.000000000000001
-        expect(described_class.call(small_number)).to eq(small_number)
+        expect(result).to eq(-42)
       end
     end
 
-    context "with special objects" do
-      it "returns Date unchanged" do
-        date = Date.new(2023, 12, 25)
-        expect(described_class.call(date)).to eq(date)
+    context "with boolean values" do
+      it "returns true unchanged" do
+        result = coercion.call(true)
+
+        expect(result).to be(true)
       end
 
-      it "returns Time unchanged" do
-        time = Time.new(2023, 12, 25, 10, 30, 45)
-        expect(described_class.call(time)).to eq(time)
+      it "returns false unchanged" do
+        result = coercion.call(false)
+
+        expect(result).to be(false)
+      end
+    end
+
+    context "with nil values" do
+      it "returns nil unchanged" do
+        result = coercion.call(nil)
+
+        expect(result).to be_nil
+      end
+    end
+
+    context "with array values" do
+      it "returns arrays unchanged" do
+        input = %w[a b c]
+        result = coercion.call(input)
+
+        expect(result).to eq(%w[a b c])
       end
 
-      it "returns BigDecimal unchanged" do
-        big_decimal = BigDecimal("123.45")
-        expect(described_class.call(big_decimal)).to eq(big_decimal)
+      it "returns empty arrays unchanged" do
+        input = []
+        result = coercion.call(input)
+
+        expect(result).to eq([])
+      end
+    end
+
+    context "with hash values" do
+      it "returns hashes unchanged" do
+        input = { a: 1, b: 2 }
+        result = coercion.call(input)
+
+        expect(result).to eq({ a: 1, b: 2 })
       end
 
-      it "returns Rational unchanged" do
-        rational = Rational(3, 4)
-        expect(described_class.call(rational)).to eq(rational)
+      it "returns empty hashes unchanged" do
+        input = {}
+        result = coercion.call(input)
+
+        expect(result).to eq({})
+      end
+    end
+
+    context "with complex objects" do
+      it "returns objects unchanged" do
+        input = Object.new
+        result = coercion.call(input)
+
+        expect(result).to equal(input)
       end
 
-      it "returns Complex unchanged" do
-        complex = Complex(1, 2)
-        expect(described_class.call(complex)).to eq(complex)
+      it "returns structs unchanged" do
+        input = Struct.new(:name, :age).new("John", 30)
+        result = coercion.call(input)
+
+        expect(result).to equal(input)
       end
     end
 
     context "with options parameter" do
       it "ignores options parameter" do
-        expect(described_class.call("test", { key: "value" })).to eq("test")
+        result = coercion.call("test", { some: "option" })
+
+        expect(result).to eq("test")
       end
 
-      it "works with empty options" do
-        expect(described_class.call(42, {})).to eq(42)
-      end
+      it "returns value unchanged regardless of options" do
+        result = coercion.call(42, { complex: { nested: "options" } })
 
-      it "works with nil options" do
-        expect(described_class.call(:symbol, nil)).to eq(:symbol)
+        expect(result).to eq(42)
       end
+    end
+  end
 
-      it "works with complex options" do
-        options = { format: "%Y-%m-%d", precision: 10, custom: { nested: "value" } }
-        expect(described_class.call("unchanged", options)).to eq("unchanged")
+  describe "integration with tasks" do
+    let(:task_class) do
+      create_simple_task(name: "ProcessVirtualTask") do
+        required :data, type: :virtual
+        optional :metadata, type: :virtual, default: "default_meta"
+
+        def call
+          context.processed_data = data
+          context.metadata_info = metadata
+        end
       end
     end
 
-    context "with string variations" do
-      it "returns string with spaces unchanged" do
-        expect(described_class.call("  hello world  ")).to eq("  hello world  ")
-      end
+    it "preserves original parameter values" do
+      result = task_class.call(data: { complex: "object" })
 
-      it "returns string with special characters unchanged" do
-        expect(described_class.call("hello@world!#$%")).to eq("hello@world!#$%")
-      end
-
-      it "returns unicode string unchanged" do
-        expect(described_class.call("héllo wörld")).to eq("héllo wörld")
-      end
-
-      it "returns emoji string unchanged" do
-        expect(described_class.call("😀 hello 🌍")).to eq("😀 hello 🌍")
-      end
-
-      it "returns newline string unchanged" do
-        expect(described_class.call("hello\nworld")).to eq("hello\nworld")
-      end
+      expect(result).to be_success
+      expect(result.context.processed_data).to eq({ complex: "object" })
     end
 
-    context "with class and module values" do
-      it "returns class unchanged" do
-        expect(described_class.call(String)).to eq(String)
-      end
+    it "works with string parameters" do
+      result = task_class.call(data: "raw_string")
 
-      it "returns module unchanged" do
-        expect(described_class.call(Enumerable)).to eq(Enumerable)
-      end
+      expect(result).to be_success
+      expect(result.context.processed_data).to eq("raw_string")
     end
 
-    context "with proc and lambda values" do
-      it "returns proc unchanged" do
-        proc_obj = proc { "test" }
-        expect(described_class.call(proc_obj)).to eq(proc_obj)
-      end
+    it "works with array parameters" do
+      result = task_class.call(data: [1, 2, 3])
 
-      it "returns lambda unchanged" do
-        lambda_obj = -> { "test" }
-        expect(described_class.call(lambda_obj)).to eq(lambda_obj)
-      end
+      expect(result).to be_success
+      expect(result.context.processed_data).to eq([1, 2, 3])
+    end
+
+    it "preserves nil values" do
+      result = task_class.call(data: nil)
+
+      expect(result).to be_success
+      expect(result.context.processed_data).to be_nil
+    end
+
+    it "uses default values for optional virtual parameters" do
+      result = task_class.call(data: "test")
+
+      expect(result).to be_success
+      expect(result.context.metadata_info).to eq("default_meta")
+    end
+
+    it "preserves optional parameters when provided" do
+      result = task_class.call(data: "test", metadata: { custom: "value" })
+
+      expect(result).to be_success
+      expect(result.context.metadata_info).to eq({ custom: "value" })
     end
   end
 end

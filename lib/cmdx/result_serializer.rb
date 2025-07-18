@@ -1,84 +1,14 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Result serialization utility for converting Result objects to hash representations.
-  #
-  # The ResultSerializer module provides functionality to serialize Result instances
-  # into structured hash representations suitable for inspection, logging, debugging,
-  # and data interchange. It handles failure chain information and integrates with
-  # TaskSerializer for comprehensive result data.
-  #
-  # @example Basic result serialization
-  #   task = ProcessOrderTask.call(order_id: 123)
-  #   result = task.result
-  #
-  #   ResultSerializer.call(result)
-  #   # => {
-  #   #   class: "ProcessOrderTask",
-  #   #   type: "Task",
-  #   #   index: 0,
-  #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-  #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-  #   #   tags: [],
-  #   #   state: "complete",
-  #   #   status: "success",
-  #   #   outcome: "success",
-  #   #   metadata: {},
-  #   #   runtime: 0.5
-  #   # }
-  #
-  # @example Failed result serialization
-  #   task = ProcessOrderTask.new
-  #   task.fail!(reason: "Invalid order data", code: 422)
-  #   result = task.result
-  #
-  #   ResultSerializer.call(result)
-  #   # => {
-  #   #   class: "ProcessOrderTask",
-  #   #   type: "Task",
-  #   #   index: 0,
-  #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-  #   #   state: "interrupted",
-  #   #   status: "failed",
-  #   #   outcome: "failed",
-  #   #   metadata: { reason: "Invalid order data", code: 422 },
-  #   #   runtime: 0.1,
-  #   #   caused_failure: { ... },  # Failure chain information
-  #   #   threw_failure: { ... }
-  #   # }
-  #
-  # @example Result with failure chain
-  #   # When a result has failure chain information, it's included but
-  #   # stripped of recursive caused_failure/threw_failure to prevent cycles
-  #   ResultSerializer.call(result_with_failures)
-  #   # => {
-  #   #   # ... standard result data ...
-  #   #   caused_failure: {
-  #   #     class: "ValidationTask",
-  #   #     index: 1,
-  #   #     state: "interrupted",
-  #   #     status: "failed"
-  #   #     # caused_failure and threw_failure are stripped to prevent recursion
-  #   #   },
-  #   #   threw_failure: {
-  #   #     class: "ProcessingTask",
-  #   #     index: 2,
-  #   #     state: "interrupted",
-  #   #     status: "failed"
-  #   #     # caused_failure and threw_failure are stripped to prevent recursion
-  #   #   }
-  #   # }
-  #
-  # @see CMDx::Result Result object creation and state management
-  # @see CMDx::TaskSerializer Task serialization functionality
-  # @see CMDx::ResultInspector Human-readable result formatting
+  # Provides serialization functionality for CMDx::Result objects,
+  # converting them into structured hash representations suitable for
+  # logging, storage, or transmission.
   module ResultSerializer
 
-    # Proc for stripping failure chain information to prevent recursion.
-    #
-    # This proc is used to include failure chain information (caused_failure
-    # and threw_failure) while preventing infinite recursion by stripping
-    # the same fields from nested failure objects.
+    # A proc that removes failure-related metadata from the hash representation
+    # when the result hasn't actually failed in the specified way.
+    # This prevents duplicate failure information from appearing in logs.
     STRIP_FAILURE = proc do |h, r, k|
       unless r.send(:"#{k}?")
         # Strip caused/threw failures since its the same info as the log line
@@ -88,67 +18,33 @@ module CMDx
 
     module_function
 
-    # Converts a Result object to a hash representation.
+    # Converts a Result object into a structured hash representation.
+    # Combines task serialization data with result-specific information
+    # including execution state, status, outcome, metadata, and runtime.
     #
-    # Serializes a Result instance into a structured hash containing all
-    # relevant result information including task data, execution state,
-    # status, metadata, runtime, and failure chain information.
+    # @param result [CMDx::Result] the result object to serialize
     #
-    # @param result [CMDx::Result] The result object to serialize
-    # @return [Hash] Structured hash representation of the result
+    # @return [Hash] a structured hash containing task information and result details
+    #   including :state, :status, :outcome, :metadata, :runtime, and optionally
+    #   :caused_failure and :threw_failure if the result failed
     #
-    # @example Successful result serialization
-    #   result = ProcessOrderTask.call(order_id: 123).result
-    #   ResultSerializer.call(result)
-    #   # => {
-    #   #   class: "ProcessOrderTask",
-    #   #   type: "Task",
-    #   #   index: 0,
-    #   #   chain_id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   tags: [],
-    #   #   state: "complete",
-    #   #   status: "success",
-    #   #   outcome: "success",
-    #   #   metadata: {},
-    #   #   runtime: 0.5
-    #   # }
+    # @raise [NoMethodError] if result doesn't respond to expected methods
+    # @raise [TypeError] if result.task is invalid for TaskSerializer
     #
-    # @example Failed result with metadata
-    #   task = ProcessOrderTask.new
-    #   task.fail!(reason: "Validation failed", errors: ["Invalid email"])
-    #   result = task.result
+    # @example Serializing a successful result
+    #   result = task.call
+    #   CMDx::ResultSerializer.call(result)
+    #   #=> { index: 0, chain_id: "abc123", type: "Task", class: "MyTask",
+    #   #     id: "def456", tags: [], state: "complete", status: "success",
+    #   #     outcome: "good", metadata: {}, runtime: 0.05 }
     #
-    #   ResultSerializer.call(result)
-    #   # => {
-    #   #   class: "ProcessOrderTask",
-    #   #   type: "Task",
-    #   #   index: 0,
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   state: "interrupted",
-    #   #   status: "failed",
-    #   #   outcome: "failed",
-    #   #   metadata: { reason: "Validation failed", errors: ["Invalid email"] },
-    #   #   runtime: 0.1
-    #   # }
-    #
-    # @example Skipped result serialization
-    #   task = ProcessOrderTask.new
-    #   task.skip!(reason: "Order already processed")
-    #   result = task.result
-    #
-    #   ResultSerializer.call(result)
-    #   # => {
-    #   #   class: "ProcessOrderTask",
-    #   #   type: "Task",
-    #   #   index: 0,
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   state: "interrupted",
-    #   #   status: "skipped",
-    #   #   outcome: "skipped",
-    #   #   metadata: { reason: "Order already processed" },
-    #   #   runtime: 0.05
-    #   # }
+    # @example Serializing a failed result
+    #   result = task.call
+    #   CMDx::ResultSerializer.call(result)
+    #   #=> { index: 0, chain_id: "abc123", type: "Task", class: "MyTask",
+    #   #     id: "def456", tags: [], state: "interrupted", status: "failed",
+    #   #     outcome: "bad", metadata: { error: "Something went wrong" },
+    #   #     runtime: 0.02, caused_failure: {...}, threw_failure: {...} }
     def call(result)
       TaskSerializer.call(result.task).tap do |hash|
         hash.merge!(

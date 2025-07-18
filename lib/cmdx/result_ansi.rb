@@ -1,47 +1,20 @@
 # frozen_string_literal: true
 
 module CMDx
-  # ANSI color formatting module for result states and statuses.
+  # ANSI color formatting for result states and statuses.
   #
-  # The ResultAnsi module provides ANSI color formatting for result state and
-  # status values to enhance readability in terminal output. It maps different
-  # result states and statuses to appropriate colors for visual distinction.
-  #
-  # @example Basic result colorization
-  #   ResultAnsi.call("complete")     # => Green colored text
-  #   ResultAnsi.call("success")      # => Green colored text
-  #   ResultAnsi.call("failed")       # => Red colored text
-  #   ResultAnsi.call("interrupted")  # => Red colored text
-  #
-  # @example Usage in log formatters
-  #   result_data = { state: "complete", status: "success" }
-  #   colored_state = ResultAnsi.call(result_data[:state])
-  #   colored_status = ResultAnsi.call(result_data[:status])
-  #
-  # @example Integration with pretty formatters
-  #   # Used internally by PrettyLine, PrettyJson, PrettyKeyValue formatters
-  #   formatted_status = ResultAnsi.call("failed")  # => Red "failed"
-  #
-  # @see CMDx::Result Result states and statuses
-  # @see CMDx::Utils::AnsiColor ANSI color utility functions
-  # @see CMDx::LogFormatters::PrettyLine Pretty line formatter with colors
+  # This module provides functionality to apply appropriate ANSI color codes
+  # to result states and statuses for enhanced console output readability.
+  # It maps execution states and completion statuses to corresponding colors
+  # and provides methods to format strings with these colors.
   module ResultAnsi
 
-    # Mapping of result states to ANSI colors.
-    #
-    # Maps Result state constants to their corresponding color codes
-    # for consistent visual representation of execution states.
     STATE_COLORS = {
       Result::INITIALIZED => :blue,     # Initial state - blue
       Result::EXECUTING => :yellow,     # Currently executing - yellow
       Result::COMPLETE => :green,       # Successfully completed - green
       Result::INTERRUPTED => :red       # Execution interrupted - red
     }.freeze
-
-    # Mapping of result statuses to ANSI colors.
-    #
-    # Maps Result status constants to their corresponding color codes
-    # for consistent visual representation of execution outcomes.
     STATUS_COLORS = {
       Result::SUCCESS => :green,        # Successful completion - green
       Result::SKIPPED => :yellow,       # Intentionally skipped - yellow
@@ -50,71 +23,32 @@ module CMDx
 
     module_function
 
-    # Applies ANSI color formatting to a result state or status string.
+    # Applies ANSI color formatting to a string based on its state or status.
     #
-    # Formats the input string with appropriate ANSI color codes based on
-    # whether it matches a known result state or status value. Falls back
-    # to default color for unknown values.
+    # @param s [String] the string to format with ANSI color codes
     #
-    # @param s [String] The state or status string to colorize
-    # @return [String] The string with ANSI color codes applied
+    # @return [String] the formatted string with appropriate ANSI color codes
     #
-    # @example Colorizing result states
-    #   ResultAnsi.call("initialized")  # => "\e[34minitialized\e[0m" (blue)
-    #   ResultAnsi.call("executing")    # => "\e[33mexecuting\e[0m" (yellow)
-    #   ResultAnsi.call("complete")     # => "\e[32mcomplete\e[0m" (green)
-    #   ResultAnsi.call("interrupted")  # => "\e[31minterrupted\e[0m" (red)
+    # @example Format a result state
+    #   ResultAnsi.call(Result::EXECUTING) #=> "\e[0;33;49mexecuting\e[0m"
     #
-    # @example Colorizing result statuses
-    #   ResultAnsi.call("success")      # => "\e[32msuccess\e[0m" (green)
-    #   ResultAnsi.call("skipped")      # => "\e[33mskipped\e[0m" (yellow)
-    #   ResultAnsi.call("failed")       # => "\e[31mfailed\e[0m" (red)
-    #
-    # @example Unknown value
-    #   ResultAnsi.call("unknown")      # => "\e[39munknown\e[0m" (default color)
-    #
-    # @example Usage in result formatting
-    #   result = ProcessOrderTask.call
-    #   colored_state = ResultAnsi.call(result.state)
-    #   colored_status = ResultAnsi.call(result.status)
-    #   puts "Task #{colored_state} with #{colored_status}"
-    #   # => "Task complete with success" (with appropriate colors)
+    # @example Format a result status
+    #   ResultAnsi.call(Result::SUCCESS) #=> "\e[0;32;49msuccess\e[0m"
     def call(s)
       Utils::AnsiColor.call(s, color: color(s))
     end
 
-    # Determines the appropriate color for a result state or status string.
+    # Determines the appropriate ANSI color for a given state or status.
     #
-    # Looks up the input string in both the STATE_COLORS and STATUS_COLORS
-    # mapping hashes to find the corresponding color symbol. First checks
-    # STATE_COLORS, then STATUS_COLORS, and falls back to the default color
-    # if no mapping is found in either hash.
+    # @param s [String] the state or status string to determine color for
     #
-    # @param s [String] The state or status string to determine color for
-    # @return [Symbol] The color symbol for the state or status
+    # @return [Symbol] the color symbol corresponding to the state/status, or :default if not found
     #
-    # @example Result state color mapping
-    #   color("initialized")  # => :blue
-    #   color("executing")    # => :yellow
-    #   color("complete")     # => :green
-    #   color("interrupted")  # => :red
+    # @example Get color for a state
+    #   ResultAnsi.color(Result::COMPLETE) #=> :green
     #
-    # @example Result status color mapping
-    #   color("success")      # => :green
-    #   color("skipped")      # => :yellow
-    #   color("failed")       # => :red
-    #
-    # @example Unknown state or status
-    #   color("unknown")      # => :default
-    #   color("pending")      # => :default
-    #
-    # @example Precedence behavior
-    #   # If a string exists in both hashes, STATE_COLORS takes precedence
-    #   color("some_value")   # => STATE_COLORS["some_value"] || STATUS_COLORS["some_value"] || :default
-    #
-    # @note STATE_COLORS mapping is checked before STATUS_COLORS mapping
-    # @see STATE_COLORS The mapping hash for result states
-    # @see STATUS_COLORS The mapping hash for result statuses
+    # @example Get color for unknown value
+    #   ResultAnsi.color("unknown") #=> :default
     def color(s)
       STATE_COLORS[s] || STATUS_COLORS[s] || :default
     end

@@ -24,7 +24,7 @@ module CMDx
     #       "OrderProcessingWorkflow"
     #     end
     #
-    #     task_settings!(workflow_halt: [:failed], tags: [:orders])
+    #     cmd_settings!(workflow_halt: [:failed], tags: [:orders])
     #     process task1
     #     process task2, task3
     #   end
@@ -59,6 +59,7 @@ module CMDx
       # a clean interface for creating workflow classes with optional naming and
       # custom behavior through block evaluation.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
       # @param name [String] name for the workflow class (defaults to "AnonymousWorkflow")
       # @param block [Proc] optional block to evaluate in workflow class context
       # @return [Class] new workflow class inheriting from CMDx::Workflow
@@ -71,14 +72,14 @@ module CMDx
       #
       # @example Named workflow class with settings
       #   workflow_class = create_workflow_class(name: "OrderProcessingWorkflow") do
-      #     task_settings!(workflow_halt: [:failed], tags: [:orders])
+      #     cmd_settings!(workflow_halt: [:failed], tags: [:orders])
       #     process create_simple_task(name: "ValidateOrder")
       #     process create_simple_task(name: "ProcessPayment")
       #   end
       #
       # @example Workflow class with complex configuration
       #   workflow_class = create_workflow_class(name: "DataPipelineWorkflow") do
-      #     task_settings!(timeout: 300, retries: 2, tags: [:data, :pipeline])
+      #     cmd_settings!(timeout: 300, retries: 2, tags: [:data, :pipeline])
       #
       #     # Sequential validation tasks
       #     process create_simple_task(name: "ValidateInput")
@@ -91,9 +92,12 @@ module CMDx
       #       create_simple_task(name: "SendNotification")
       #     )
       #   end
-      def create_workflow_class(name: "AnonymousWorkflow", &block)
-        workflow_class = Class.new(CMDx::Workflow)
-        workflow_class.define_singleton_method(:name) { name }
+      def create_workflow_class(base: nil, name: "AnonymousWorkflow", &block)
+        workflow_class = Class.new(base || CMDx::Workflow)
+        workflow_class.define_singleton_method(:name) do
+          hash = rand(10_000).to_s.rjust(4, "0")
+          "#{name}#{hash}"
+        end
         workflow_class.class_eval(&block) if block_given?
         workflow_class
       end
@@ -104,6 +108,7 @@ module CMDx
       # in the order specified. Each task runs individually in its own group,
       # ensuring sequential execution with proper dependency handling.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
       # @param tasks [Array<Class>] array of task classes to process sequentially
       # @param name [String] name for the workflow class (defaults to "SimpleWorkflow")
       # @param block [Proc] optional block for additional configuration
@@ -129,7 +134,7 @@ module CMDx
       #     tasks: tasks,
       #     name: "DataProcessingWorkflow"
       #   ) do
-      #     task_settings!(timeout: 60, tags: [:data_processing])
+      #     cmd_settings!(timeout: 60, tags: [:data_processing])
       #   end
       #
       # @example Testing sequential execution order
@@ -143,9 +148,223 @@ module CMDx
       #   workflow_class = create_simple_workflow(tasks: tasks)
       #   workflow_class.call
       #   expect(execution_order).to eq([:first, :second, :third])
-      def create_simple_workflow(tasks:, name: "SimpleWorkflow", &block)
-        create_workflow_class(name: name) do
+      def create_simple_workflow(tasks:, base: nil, name: "SimpleWorkflow", &block)
+        create_workflow_class(name:, base:) do
           Array(tasks).each { |task| process task }
+
+          class_eval(&block) if block_given?
+        end
+      end
+
+      # Creates a workflow that always succeeds with multiple successful tasks
+      #
+      # This workflow is designed for testing success scenarios and positive path
+      # execution flows. It contains multiple successful tasks that will complete
+      # without errors, making it ideal for testing workflow coordination,
+      # context propagation, and success callbacks.
+      #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
+      # @param name [String] name for the workflow class (defaults to "SuccessfulWorkflow")
+      # @param block [Proc] optional block for additional configuration
+      # @return [Class] workflow class that will always succeed
+      #
+      # @example Basic successful workflow testing
+      #   workflow_class = create_successful_workflow
+      #   result = workflow_class.call
+      #   expect(result).to be_success
+      #   expect(result.status).to eq("success")
+      #
+      # @example Testing success callbacks and middleware
+      #   callbacks_executed = []
+      #   workflow_class = create_successful_workflow(name: "CallbackTestWorkflow") do
+      #     on_success { |task| callbacks_executed << :success }
+      #     on_executed { |task| callbacks_executed << :executed }
+      #   end
+      #
+      #   result = workflow_class.call
+      #   expect(callbacks_executed).to include(:success, :executed)
+      #
+      # @example Testing context propagation through successful tasks
+      #   workflow_class = create_successful_workflow(name: "ContextWorkflow") do
+      #     cmd_settings!(tags: [:success_testing])
+      #   end
+      #
+      #   result = workflow_class.call(initial_data: "test")
+      #   expect(result.context.initial_data).to eq("test")
+      #   expect(result.context.executed).to be true
+      def create_successful_workflow(base: nil, name: "SuccessfulWorkflow", &block)
+        create_workflow_class(name:, base:) do
+          process create_successful_task(name: "SuccessfulTask1")
+          process create_successful_task(name: "SuccessfulTask2")
+          process create_successful_task(name: "SuccessfulTask3")
+
+          class_eval(&block) if block_given?
+        end
+      end
+
+      # Creates a workflow that includes skipped tasks for testing skip scenarios
+      #
+      # This workflow is designed for testing skip behavior and conditional execution
+      # patterns. It contains a mix of successful and skipping tasks, making it ideal
+      # for testing workflow halt behavior, skip callbacks, and conditional logic
+      # when some tasks are intentionally bypassed.
+      #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
+      # @param name [String] name for the workflow class (defaults to "SkippingWorkflow")
+      # @param block [Proc] optional block for additional configuration
+      # @return [Class] workflow class that includes skipped tasks
+      #
+      # @example Basic skipping workflow testing
+      #   workflow_class = create_skipping_workflow
+      #   result = workflow_class.call
+      #   expect(result).to be_success  # Workflow continues after skips by default
+      #
+      # @example Testing skip callbacks and handling
+      #   skip_callbacks = []
+      #   workflow_class = create_skipping_workflow(name: "SkipCallbackWorkflow") do
+      #     on_skipped { |task| skip_callbacks << task.class.name }
+      #   end
+      #
+      #   result = workflow_class.call
+      #   expect(skip_callbacks).not_to be_empty
+      #
+      # @example Testing workflow halt on skip conditions
+      #   workflow_class = create_skipping_workflow(name: "HaltOnSkipWorkflow") do
+      #     cmd_settings!(workflow_halt: [:skipped])
+      #   end
+      #
+      #   expect { workflow_class.call! }.to raise_error(CMDx::Fault)
+      #
+      # @example Testing mixed success and skip scenarios
+      #   workflow_class = create_skipping_workflow(name: "MixedResultWorkflow")
+      #   result = workflow_class.call(test_condition: true)
+      #
+      #   # Should complete successfully despite skipped tasks
+      #   expect(result).to be_success
+      #   expect(result.context.executed).to be true
+      def create_skipping_workflow(base: nil, name: "SkippingWorkflow", &block)
+        create_workflow_class(name:, base:) do
+          process create_successful_task(name: "PreSkipTask")
+          process create_skipping_task(name: "SkippingTask")
+          process create_successful_task(name: "PostSkipTask")
+
+          class_eval(&block) if block_given?
+        end
+      end
+
+      # Creates a workflow that includes failing tasks for testing failure scenarios
+      #
+      # This workflow is designed for testing failure handling, error propagation,
+      # and fault tolerance patterns. It contains a mix of successful and failing
+      # tasks, making it ideal for testing workflow halt behavior, error callbacks,
+      # and failure recovery mechanisms.
+      #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
+      # @param name [String] name for the workflow class (defaults to "FailingWorkflow")
+      # @param block [Proc] optional block for additional configuration
+      # @return [Class] workflow class that includes failing tasks
+      #
+      # @example Basic failing workflow testing
+      #   workflow_class = create_failing_workflow
+      #   result = workflow_class.call
+      #   expect(result).to be_failed
+      #
+      # @example Testing failure callbacks and error handling
+      #   error_callbacks = []
+      #   workflow_class = create_failing_workflow(name: "ErrorHandlingWorkflow") do
+      #     on_failed { |task| error_callbacks << task.result.metadata[:reason] }
+      #   end
+      #
+      #   result = workflow_class.call
+      #   expect(error_callbacks).not_to be_empty
+      #
+      # @example Testing workflow halt on failure (default behavior)
+      #   workflow_class = create_failing_workflow(name: "HaltOnFailWorkflow")
+      #
+      #   expect { workflow_class.call! }.to raise_error(CMDx::Fault)
+      #
+      # @example Testing failure isolation and continuation
+      #   workflow_class = create_failing_workflow(name: "ContinueOnFailWorkflow") do
+      #     cmd_settings!(workflow_halt: [])  # Don't halt on any status
+      #   end
+      #
+      #   result = workflow_class.call
+      #   expect(result).to be_failed  # Overall workflow fails
+      #   expect(result.context.executed).to be true  # But other tasks still ran
+      #
+      # @example Testing custom failure handling
+      #   workflow_class = create_failing_workflow(name: "CustomFailureWorkflow") do
+      #     cmd_settings!(workflow_halt: [:failed], tags: [:error_testing])
+      #   end
+      #
+      #   result = workflow_class.call(error_context: "test")
+      #   expect(result.context.error_context).to eq("test")
+      def create_failing_workflow(base: nil, name: "FailingWorkflow", &block)
+        create_workflow_class(name:, base:) do
+          process create_successful_task(name: "PreFailTask")
+          process create_failing_task(name: "FailingTask")
+          process create_successful_task(name: "PostFailTask")
+
+          class_eval(&block) if block_given?
+        end
+      end
+
+      # Creates a workflow that includes erroring tasks for testing exception scenarios
+      #
+      # This workflow is designed for testing exception handling, unexpected error
+      # scenarios, and system fault tolerance. It contains a mix of successful and
+      # erroring tasks, making it ideal for testing workflow exception propagation,
+      # error callbacks, and system resilience under unexpected conditions.
+      #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Workflow)
+      # @param name [String] name for the workflow class (defaults to "ErroringWorkflow")
+      # @param block [Proc] optional block for additional configuration
+      # @return [Class] workflow class that includes erroring tasks
+      #
+      # @example Basic erroring workflow testing
+      #   workflow_class = create_erroring_workflow
+      #   result = workflow_class.call
+      #   expect(result).to be_failed  # Errors are converted to failures
+      #
+      # @example Testing exception handling and conversion
+      #   workflow_class = create_erroring_workflow(name: "ExceptionWorkflow")
+      #   result = workflow_class.call
+      #
+      #   expect(result).to be_failed
+      #   expect(result.metadata[:original_exception]).to be_a(StandardError)
+      #
+      # @example Testing error callbacks and logging
+      #   error_logs = []
+      #   workflow_class = create_erroring_workflow(name: "ErrorLoggingWorkflow") do
+      #     on_failed { |task| error_logs << task.result.metadata[:reason] }
+      #   end
+      #
+      #   result = workflow_class.call
+      #   expect(error_logs).not_to be_empty
+      #   expect(error_logs.first).to include("StandardError")
+      #
+      # @example Testing system resilience with exceptions
+      #   workflow_class = create_erroring_workflow(name: "ResilienceWorkflow") do
+      #     cmd_settings!(workflow_halt: [], tags: [:resilience_testing])
+      #   end
+      #
+      #   result = workflow_class.call(test_data: "resilience")
+      #   expect(result).to be_failed  # Workflow fails due to error
+      #   expect(result.context.test_data).to eq("resilience")  # Context preserved
+      #
+      # @example Testing error isolation and fault boundaries
+      #   workflow_class = create_erroring_workflow(name: "FaultBoundaryWorkflow")
+      #
+      #   expect { workflow_class.call! }.to raise_error(CMDx::Fault)
+      #
+      # @note Erroring tasks throw StandardError exceptions which are caught by the
+      #   CMDx system and converted to failed results. This allows testing of
+      #   exception handling without breaking the workflow execution framework.
+      def create_erroring_workflow(base: nil, name: "ErroringWorkflow", &block)
+        create_workflow_class(name:, base:) do
+          process create_successful_task(name: "PreErrorTask")
+          process create_erroring_task(name: "ErroringTask")
+          process create_successful_task(name: "PostErrorTask")
 
           class_eval(&block) if block_given?
         end

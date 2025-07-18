@@ -11,7 +11,6 @@ nl:
       required: "is een vereiste parameter"
       undefined: "delegeert naar ongedefinieerde methode %{source}"
     validators:
-      custom: "is niet geldig"
       exclusion:
         of: "mag niet een van zijn: %{values}"
         within: "mag niet tussen %{min} en %{max} liggen"

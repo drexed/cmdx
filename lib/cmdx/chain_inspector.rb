@@ -1,137 +1,44 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Chain inspection utility for generating comprehensive chain summaries.
+  # Provides formatted inspection and display functionality for execution chains.
   #
-  # The ChainInspector module provides functionality to convert Chain instances
-  # into detailed, human-readable string representations. It creates formatted
-  # summaries that include chain metadata, all task results, and summary statistics
-  # with visual separators for easy debugging and monitoring.
-  #
-  # @example Basic chain inspection
-  #   result = ProcessOrderTask.call(order_id: 123)
-  #   chain = result.chain
-  #
-  #   ChainInspector.call(chain)
-  #   # => "
-  #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-  #   #   ================================================
-  #   #
-  #   #   {
-  #   #     class: "ProcessOrderTask",
-  #   #     type: "Task",
-  #   #     index: 0,
-  #   #     id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-  #   #     tags: [],
-  #   #     state: "complete",
-  #   #     status: "success",
-  #   #     outcome: "success",
-  #   #     metadata: {},
-  #   #     runtime: 0.5
-  #   #   }
-  #   #
-  #   #   ================================================
-  #   #   state: complete | status: success | outcome: success | runtime: 0.5
-  #   #   "
-  #
-  # @example Chain with multiple tasks
-  #   class ComplexTask < CMDx::Task
-  #     def call
-  #       SubTask1.call(context)
-  #       SubTask2.call(context)
-  #     end
-  #   end
-  #
-  #   result = ComplexTask.call
-  #   ChainInspector.call(result.chain)
-  #   # => Shows formatted output with all three task results and summary
-  #
-  # @example Failed chain inspection
-  #   # When a chain contains failed tasks, the summary reflects the failure state
-  #   ChainInspector.call(failed_chain)
-  #   # => Shows all task results with failure information and failed summary
-  #
-  # @see CMDx::Chain Chain execution context and result tracking
-  # @see CMDx::Result Individual result inspection via to_h
+  # This module formats chain execution information into a human-readable string
+  # representation, including the chain ID, individual task results, and summary
+  # information about the chain's final state.
   module ChainInspector
 
-    # Keys to display in the chain summary footer.
-    #
-    # These keys represent the most important chain-level information
-    # that should be displayed in the summary footer for quick reference.
     FOOTER_KEYS = %i[
       state status outcome runtime
     ].freeze
 
     module_function
 
-    # Converts a Chain instance to a comprehensive string representation.
+    # Formats a chain into a human-readable inspection string.
     #
-    # Creates a formatted summary that includes:
-    # - Chain header with unique ID
-    # - Visual separator line
-    # - Pretty-printed hash representation of each result
-    # - Visual separator line
-    # - Summary footer with key chain statistics
+    # Creates a formatted display showing the chain ID, individual task results,
+    # and summary footer with execution state information. The output includes
+    # visual separators and structured formatting for easy reading.
     #
-    # @param chain [CMDx::Chain] The chain instance to inspect
-    # @return [String] Formatted chain summary with task details and statistics
+    # @param chain [CMDx::Chain] the chain object to inspect
     #
-    # @example Single task chain
-    #   chain = SimpleTask.call.chain
-    #   ChainInspector.call(chain)
-    #   # => "
-    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-    #   #   ================================================
-    #   #
-    #   #   {
-    #   #     class: "SimpleTask",
-    #   #     type: "Task",
-    #   #     index: 0,
-    #   #     state: "complete",
-    #   #     status: "success",
-    #   #     outcome: "success",
-    #   #     runtime: 0.1
-    #   #   }
-    #   #
-    #   #   ================================================
-    #   #   state: complete | status: success | outcome: success | runtime: 0.1
-    #   #   "
+    # @return [String] formatted multi-line string representation of the chain
     #
-    # @example Multi-task chain
-    #   class ParentTask < CMDx::Task
-    #     def call
-    #       ChildTask1.call(context)
-    #       ChildTask2.call(context)
-    #     end
-    #   end
+    # @raise [NoMethodError] if chain doesn't respond to required methods (id, results, state, status, outcome, runtime)
     #
-    #   chain = ParentTask.call.chain
-    #   ChainInspector.call(chain)
-    #   # => "
-    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-    #   #   ================================================
+    # @example Inspect a simple chain
+    #   chain = CMDx::Chain.new(id: "abc123")
+    #   result = CMDx::Result.new(task)
+    #   chain.results << result
+    #   puts CMDx::ChainInspector.call(chain)
+    #   # Output:
+    #   # chain: abc123
+    #   # ===================
     #   #
-    #   #   { class: "ParentTask", index: 0, state: "complete", status: "success", ... }
-    #   #   { class: "ChildTask1", index: 1, state: "complete", status: "success", ... }
-    #   #   { class: "ChildTask2", index: 2, state: "complete", status: "success", ... }
+    #   # {:state=>"complete", :status=>"success", ...}
     #   #
-    #   #   ================================================
-    #   #   state: complete | status: success | outcome: success | runtime: 0.5
-    #   #   "
-    #
-    # @example Failed chain inspection
-    #   failed_chain = FailingTask.call.chain
-    #   ChainInspector.call(failed_chain)
-    #   # => "
-    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-    #   #   ================================================
-    #   #
-    #   #   { class: "FailingTask", state: "interrupted", status: "failed", metadata: { reason: "Error" }, ... }
-    #   #
-    #   #   ================================================
-    #   #   state: interrupted | status: failed | outcome: failed | runtime: 0.1
-    #   #   "
+    #   # ===================
+    #   # state: complete | status: success | outcome: success | runtime: 0.001
     def call(chain)
       header = "\nchain: #{chain.id}"
       footer = FOOTER_KEYS.map { |key| "#{key}: #{chain.send(key)}" }.join(" | ")

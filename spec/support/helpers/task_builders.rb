@@ -49,6 +49,7 @@ module CMDx
       # a clean interface for creating task classes with optional naming and
       # custom behavior through block evaluation.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Task)
       # @param name [String] name for the task class (defaults to "AnonymousTask")
       # @param block [Proc] optional block to evaluate in task class context
       # @return [Class] new task class inheriting from CMDx::Task
@@ -71,7 +72,7 @@ module CMDx
       #
       # @example Task class with additional configuration
       #   task_class = create_task_class(name: "ConfiguredTask") do
-      #     task_settings!(timeout: 30, retries: 3)
+      #     cmd_settings!(timeout: 30, retries: 3)
       #     optional :debug, type: :boolean, default: false
       #
       #     def call
@@ -79,9 +80,12 @@ module CMDx
       #       context.debug_enabled = debug
       #     end
       #   end
-      def create_task_class(name: "AnonymousTask", &block)
-        task_class = Class.new(CMDx::Task)
-        task_class.define_singleton_method(:name) { name }
+      def create_task_class(base: nil, name: "AnonymousTask", &block)
+        task_class = Class.new(base || CMDx::Task)
+        task_class.define_singleton_method(:name) do
+          hash = rand(10_000).to_s.rjust(4, "0")
+          "#{name}#{hash}"
+        end
         task_class.class_eval(&block) if block_given?
         task_class
       end
@@ -92,6 +96,7 @@ module CMDx
       # flow without complex logic. It simply marks itself as executed and
       # always succeeds.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Task)
       # @param name [String] name for the task class (defaults to "SimpleTask")
       # @param block [Proc] optional block for additional configuration
       # @return [Class] task class that sets context.executed = true
@@ -112,7 +117,7 @@ module CMDx
       #
       #     # The call method is already defined to set context.executed = true
       #     # Additional configuration can be added here
-      #     task_settings!(timeout: 10)
+      #     cmd_settings!(timeout: 10)
       #   end
       #
       # @example Using in RSpec tests
@@ -123,8 +128,8 @@ module CMDx
       #     expect(result).to be_success
       #     expect(result.context.executed).to be(true)
       #   end
-      def create_simple_task(name: "SimpleTask", &block)
-        create_task_class(name: name) do
+      def create_simple_task(base: nil, name: "SimpleTask", &block)
+        create_task_class(name:, base:) do
           define_method :call do
             context.executed = true
           end
@@ -133,7 +138,7 @@ module CMDx
         end
       end
 
-      # Alias for create_simple_task for backwards compatibility
+      # Alias for create_simple_task where the task is successful
       alias create_successful_task create_simple_task
 
       # Creates a task that fails with a specific reason and metadata
@@ -143,6 +148,7 @@ module CMDx
       # The task uses the fail! method, which marks the result as failed without
       # raising an exception.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Task)
       # @param name [String] name for the task class (defaults to "FailingTask")
       # @param reason [String] failure reason for the task (defaults to "Task failed")
       # @param metadata [Hash] additional metadata to include in failure
@@ -171,7 +177,7 @@ module CMDx
       # @example Failing task with additional configuration
       #   task_class = create_failing_task(name: "ValidationTask") do
       #     required :data, type: :hash
-      #     task_settings!(tags: [:validation, :critical])
+      #     cmd_settings!(tags: [:validation, :critical])
       #   end
       #
       # @example Comparing with create_erroring_task
@@ -183,8 +189,8 @@ module CMDx
       #   # This raises an exception (caught by perform, propagated by call!)
       #   erroring_task = create_erroring_task(reason: "System error")
       #   expect { erroring_task.call! }.to raise_error(StandardError)
-      def create_failing_task(name: "FailingTask", reason: "Task failed", **metadata, &block)
-        create_task_class(name: name) do
+      def create_failing_task(base: nil, name: "FailingTask", reason: "Task failed", **metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             fail!(reason: reason, **metadata)
           end
@@ -199,6 +205,7 @@ module CMDx
       # execution paths. It always skips when executed, marking the result
       # as skipped rather than failed or successful.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Task)
       # @param name [String] name for the task class (defaults to "SkippingTask")
       # @param reason [String] skip reason for the task (defaults to "Task skipped")
       # @param metadata [Hash] additional metadata to include in skip
@@ -228,8 +235,8 @@ module CMDx
       #     optional :should_process, type: :boolean, default: false
       #     # Skip logic is already defined, but you can add conditions here
       #   end
-      def create_skipping_task(name: "SkippingTask", reason: "Task skipped", **metadata, &block)
-        create_task_class(name: name) do
+      def create_skipping_task(base: nil, name: "SkippingTask", reason: "Task skipped", **metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             skip!(reason: reason, **metadata)
           end
@@ -247,6 +254,7 @@ module CMDx
       # When using perform(), the exception is caught and the result is marked as failed.
       # When using call!() or perform!(), the exception propagates to the caller.
       #
+      # @param base [Class] base class to inherit from (defaults to CMDx::Task)
       # @param name [String] name for the task class (defaults to "ErroringTask")
       # @param reason [String] error message for the raised exception (defaults to "Task errored")
       # @param metadata [Hash] additional metadata (reserved for future use)
@@ -262,7 +270,7 @@ module CMDx
       #
       #   # perform catches exceptions and marks result as failed
       #   instance = task_class.new
-      #   instance.perform
+      #   instance.process
       #   expect(instance.result).to be_failed
       #   expect(instance.result.metadata[:reason]).to include("Network timeout")
       #
@@ -272,7 +280,7 @@ module CMDx
       # @example Erroring task with additional configuration
       #   task_class = create_erroring_task(name: "DatabaseTask") do
       #     required :connection_string, type: :string
-      #     task_settings!(timeout: 5, retries: 3)
+      #     cmd_settings!(timeout: 5, retries: 3)
       #   end
       #
       # @example Comparing different error scenarios
@@ -284,8 +292,8 @@ module CMDx
       #   failing_task = create_failing_task(reason: "Validation error")
       #   result = failing_task.call
       #   expect(result).to be_failed
-      def create_erroring_task(name: "ErroringTask", reason: "Task errored", **_metadata, &block)
-        create_task_class(name: name) do
+      def create_erroring_task(base: nil, name: "ErroringTask", reason: "Task errored", **_metadata, &block)
+        create_task_class(name:, base:) do
           define_method :call do
             raise StandardError, reason
           end

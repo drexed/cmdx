@@ -2,54 +2,35 @@
 
 module CMDx
   module Coercions
-    # Coerces values to Date type.
+    # Coercion class for converting values to Date objects.
     #
-    # The Date coercion converts parameter values to Date objects
-    # with support for date parsing, custom format strings, and
-    # automatic handling of date-like objects.
-    #
-    # @example Basic date coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :order_date, type: :date
-    #     optional :delivery_date, type: :date, format: "%Y-%m-%d"
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::Date.call("2023-12-25")                    # => Date object
-    #   Coercions::Date.call("25/12/2023", format: "%d/%m/%Y") # Custom format
-    #   Coercions::Date.call(Time.now)                        # => Date (from Time)
-    #   Coercions::Date.call("invalid")                       # => raises CoercionError
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module Date
+    # This coercion handles conversion of various types to Date objects, with support
+    # for custom date formats and automatic detection of date-like objects.
+    class Date < Coercion
 
-      # Date-compatible class names that are passed through unchanged
-      # @return [Array<String>] class names that represent date-like objects
       ANALOG_TYPES = %w[Date DateTime Time].freeze
 
-      module_function
-
-      # Coerce a value to Date.
+      # Converts the given value to a Date object.
       #
-      # Handles multiple input formats:
-      # - Date, DateTime, Time objects (returned as Date)
-      # - String with custom format (parsed using strptime)
-      # - String with standard format (parsed using Date.parse)
+      # @param value [Object] the value to convert to a Date
+      # @param options [Hash] optional configuration
+      # @option options [String] :strptime custom date format for parsing
       #
-      # @param value [Object] value to coerce to date
-      # @param options [Hash] coercion options
-      # @option options [String] :format custom date format string
-      # @return [Date] coerced date value
-      # @raise [CoercionError] if coercion fails
+      # @return [Date] the converted Date object
       #
-      # @example
-      #   Coercions::Date.call("2023-12-25")                      # => Date
-      #   Coercions::Date.call("25/12/2023", format: "%d/%m/%Y")  # => Date with custom format
-      #   Coercions::Date.call(Time.now)                          # => Date from Time
+      # @raise [CoercionError] if the value cannot be converted to a Date
+      #
+      # @example Converting a string with default parsing
+      #   Coercions::Date.call('2023-12-25') #=> #<Date: 2023-12-25>
+      #
+      # @example Converting with custom format
+      #   Coercions::Date.call('25/12/2023', strptime: '%d/%m/%Y') #=> #<Date: 2023-12-25>
+      #
+      # @example Converting existing date-like objects
+      #   Coercions::Date.call(DateTime.now) #=> #<Date: 2023-12-25>
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
-        return ::Date.strptime(value, options[:format]) if options[:format]
+        return ::Date.strptime(value, options[:strptime]) if options[:strptime]
 
         ::Date.parse(value)
       rescue TypeError, ::Date::Error

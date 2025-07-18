@@ -3,455 +3,596 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Workflow do
-  describe ".workflow_groups" do
-    it "returns an empty array when no groups are defined" do
-      workflow_class = create_workflow_class
+  let(:context_data) { { user_id: 123, action: "test" } }
 
+  describe "inheritance" do
+    it "inherits from Task" do
+      expect(described_class.superclass).to eq(CMDx::Task)
+    end
+  end
+
+  describe "Group struct" do
+    let(:tasks) { [create_simple_task] }
+    let(:options) { { workflow_halt: :failed } }
+    let(:group) { described_class::Group.new(tasks, options) }
+
+    it "holds tasks and options" do
+      expect(group.tasks).to eq(tasks)
+      expect(group.options).to eq(options)
+    end
+  end
+
+  describe ".workflow_groups" do
+    let(:workflow_class) { create_workflow_class }
+
+    it "returns empty array by default" do
       expect(workflow_class.workflow_groups).to eq([])
     end
 
-    it "returns array of defined groups" do
-      task_a = create_task_class(name: "TaskA")
-      task_b = create_task_class(name: "TaskB")
-      workflow_class = create_workflow_class(name: "TestWorkflow") do
-        process task_a
-        process task_b
-      end
+    it "maintains workflow groups state" do
+      task = create_simple_task
+      workflow_class.process task
 
-      groups = workflow_class.workflow_groups
-
-      expect(groups.size).to eq(2)
-      expect(groups.first.tasks).to eq([task_a])
-      expect(groups.first.options).to eq({})
-    end
-
-    it "preserves task declaration order" do
-      task_a = create_task_class(name: "TaskA")
-      task_b = create_task_class(name: "TaskB")
-      task_c = create_task_class(name: "TaskC")
-      workflow_class = create_workflow_class(name: "OrderTestWorkflow") do
-        process task_c
-        process task_a
-        process task_b
-      end
-
-      groups = workflow_class.workflow_groups
-      tasks = groups.map(&:tasks).flatten
-
-      expect(tasks).to eq([task_c, task_a, task_b])
-    end
-
-    it "maintains groups across multiple process calls" do
-      task_a = create_task_class(name: "TaskA")
-      task_b = create_task_class(name: "TaskB")
-      task_c = create_task_class(name: "TaskC")
-      workflow_class = create_workflow_class(name: "MultiProcessWorkflow")
-
-      workflow_class.process task_a
-      workflow_class.process task_b, task_c
-
-      groups = workflow_class.workflow_groups
-      expect(groups.size).to eq(2)
-      expect(groups.first.tasks).to eq([task_a])
-      expect(groups.last.tasks).to eq([task_b, task_c])
-    end
-
-    it "inherits empty groups from parent class" do
-      parent_workflow = create_workflow_class(name: "ParentWorkflow")
-      child_workflow = Class.new(parent_workflow)
-
-      expect(child_workflow.workflow_groups).to eq([])
-    end
-
-    it "does not share groups between different workflow classes" do
-      task_a = create_task_class(name: "TaskA")
-      task_b = create_task_class(name: "TaskB")
-      workflow_class_one = create_workflow_class(name: "WorkflowOne")
-      workflow_class_two = create_workflow_class(name: "WorkflowTwo")
-
-      workflow_class_one.process task_a
-      workflow_class_two.process task_b
-
-      expect(workflow_class_one.workflow_groups.size).to eq(1)
-      expect(workflow_class_two.workflow_groups.size).to eq(1)
-      expect(workflow_class_one.workflow_groups.first.tasks).to eq([task_a])
-      expect(workflow_class_two.workflow_groups.first.tasks).to eq([task_b])
+      expect(workflow_class.workflow_groups.size).to eq(1)
+      expect(workflow_class.workflow_groups.first.tasks).to eq([task])
     end
   end
 
   describe ".process" do
-    let(:workflow_class) { create_workflow_class(name: "ProcessTestWorkflow") }
-    let(:task_a) { create_task_class(name: "TaskA") }
-    let(:task_b) { create_task_class(name: "TaskB") }
+    let(:workflow_class) { create_workflow_class }
+    let(:task_one) { create_simple_task(name: "Task1") }
+    let(:task_two) { create_simple_task(name: "Task2") }
 
-    it "creates group with single task" do
-      workflow_class.process task_a
+    context "with single task" do
+      it "creates group with one task" do
+        workflow_class.process task_one
 
-      group = workflow_class.workflow_groups.first
-      expect(group.tasks).to eq([task_a])
-      expect(group.options).to eq({})
-    end
-
-    it "creates group with multiple tasks" do
-      workflow_class.process task_a, task_b
-
-      group = workflow_class.workflow_groups.first
-      expect(group.tasks).to eq([task_a, task_b])
-    end
-
-    it "accepts options for group configuration" do
-      workflow_class.process task_a, task_b, if: proc { true }, workflow_halt: ["failed"]
-
-      group = workflow_class.workflow_groups.first
-      expect(group.options[:if]).to be_a(Proc)
-      expect(group.options[:workflow_halt]).to eq(["failed"])
-    end
-
-    it "handles flattened task arrays" do
-      workflow_class.process [task_a, task_b]
-
-      group = workflow_class.workflow_groups.first
-      expect(group.tasks).to eq([task_a, task_b])
-    end
-
-    it "raises error for non-task classes" do
-      expect do
-        workflow_class.process String
-      end.to raise_error(TypeError, "must be a Task or Workflow")
-    end
-
-    it "allows nested workflow classes" do
-      nested_workflow = create_workflow_class(name: "NestedWorkflow")
-      workflow_class.process nested_workflow
-
-      group = workflow_class.workflow_groups.first
-      expect(group.tasks).to eq([nested_workflow])
-    end
-
-    it "creates separate groups for multiple process calls" do
-      workflow_class.process task_a
-      workflow_class.process task_b
-
-      expect(workflow_class.workflow_groups.size).to eq(2)
-    end
-
-    it "preserves order of task addition" do
-      task_c = create_task_class(name: "TaskC")
-      task_d = create_task_class(name: "TaskD")
-
-      workflow_class.process task_a, task_b
-      workflow_class.process task_c
-      workflow_class.process task_d
-
-      groups = workflow_class.workflow_groups
-      expect(groups[0].tasks).to eq([task_a, task_b])
-      expect(groups[1].tasks).to eq([task_c])
-      expect(groups[2].tasks).to eq([task_d])
-    end
-  end
-
-  describe "::Group" do
-    let(:task_a) { create_task_class(name: "TaskA") }
-    let(:task_b) { create_task_class(name: "TaskB") }
-
-    describe "#initialize" do
-      it "sets tasks and options" do
-        options = { workflow_halt: [:failed] }
-        group = described_class::Group.new([task_a, task_b], options)
-
-        expect(group.tasks).to eq([task_a, task_b])
-        expect(group.options).to eq(options)
-      end
-
-      it "handles empty options" do
-        group = described_class::Group.new([task_a], {})
-
-        expect(group.tasks).to eq([task_a])
-        expect(group.options).to eq({})
+        expect(workflow_class.workflow_groups.size).to eq(1)
+        expect(workflow_class.workflow_groups.first.tasks).to eq([task_one])
+        expect(workflow_class.workflow_groups.first.options).to eq({})
       end
     end
 
-    describe "#to_a" do
-      it "returns array representation" do
-        options = { workflow_halt: [:failed] }
-        group = described_class::Group.new([task_a], options)
+    context "with multiple tasks" do
+      it "creates group with multiple tasks" do
+        workflow_class.process task_one, task_two
 
-        expect(group.to_a).to eq([[task_a], options])
+        expect(workflow_class.workflow_groups.size).to eq(1)
+        expect(workflow_class.workflow_groups.first.tasks).to eq([task_one, task_two])
+      end
+    end
+
+    context "with flattened array of tasks" do
+      it "flattens task arrays" do
+        workflow_class.process [task_one, task_two]
+
+        expect(workflow_class.workflow_groups.size).to eq(1)
+        expect(workflow_class.workflow_groups.first.tasks).to eq([task_one, task_two])
+      end
+    end
+
+    context "with options" do
+      it "stores options in group" do
+        options = { workflow_halt: :failed, if: -> { true } }
+        workflow_class.process task_one, **options
+
+        expect(workflow_class.workflow_groups.first.options).to eq(options)
+      end
+    end
+
+    context "with invalid task" do
+      it "raises TypeError for non-Task class" do
+        expect { workflow_class.process String }.to raise_error(TypeError, "must be a Task or Workflow")
+      end
+
+      it "raises TypeError for regular object" do
+        expect { workflow_class.process "not a task" }.to raise_error(TypeError, "must be a Task or Workflow")
+      end
+    end
+
+    context "with multiple process calls" do
+      it "creates multiple groups" do
+        workflow_class.process task_one
+        workflow_class.process task_two
+
+        expect(workflow_class.workflow_groups.size).to eq(2)
+        expect(workflow_class.workflow_groups[0].tasks).to eq([task_one])
+        expect(workflow_class.workflow_groups[1].tasks).to eq([task_two])
       end
     end
   end
 
   describe "#call" do
-    let(:simple_task) { create_simple_task(name: "SimpleTask") }
-    let(:failing_task) { create_failing_task(name: "FailingTask", reason: "Task failed") }
+    context "with successful tasks" do
+      let(:workflow_class) do
+        task_one = create_simple_task(name: "Task1")
+        task_two = create_simple_task(name: "Task2")
 
-    context "when workflow has no groups" do
-      let(:workflow_class) { create_workflow_class(name: "EmptyWorkflow") }
+        create_workflow_class do
+          process task_one
+          process task_two
+        end
+      end
 
-      it "returns successful result" do
-        result = workflow_class.call(test: "data")
+      it "executes all tasks successfully" do
+        result = workflow_class.call(context_data)
 
-        expect(result).to be_a(CMDx::Result)
-        expect(result.status).to eq("success")
+        expect(result).to be_success
+        expect(result.context.executed).to be(true)
+      end
+
+      it "preserves context across tasks" do
+        result = workflow_class.call(context_data)
+
+        expect(result.context.user_id).to eq(123)
+        expect(result.context.action).to eq("test")
       end
     end
 
-    context "when all tasks succeed" do
-      it "executes all tasks and returns success" do
-        task = simple_task
-        workflow_class = create_workflow_class(name: "SuccessfulWorkflow") do
-          process task
+    context "with failing task" do
+      let(:workflow_class) do
+        before_task = create_simple_task(name: "BeforeTask")
+        failing_task = create_failing_task(name: "FailingTask", reason: "Validation failed")
+        after_task = create_simple_task(name: "AfterTask")
+
+        create_workflow_class do
+          process before_task
+          process failing_task
+          process after_task
         end
+      end
 
-        result = workflow_class.call(test: "data")
+      it "halts on failed task by default" do
+        result = workflow_class.call(context_data)
 
-        expect(result.status).to eq("success")
+        expect(result).to be_failed
+        expect(result.metadata[:reason]).to eq("Validation failed")
+      end
+    end
+
+    context "with skipping task" do
+      let(:workflow_class) do
+        before_task = create_simple_task(name: "BeforeTask")
+        skipping_task = create_skipping_task(name: "SkippingTask", reason: "Feature disabled")
+        after_task = create_simple_task(name: "AfterTask")
+
+        create_workflow_class do
+          process before_task
+          process skipping_task
+          process after_task
+        end
+      end
+
+      it "continues execution after skipped task" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
         expect(result.context.executed).to be(true)
       end
     end
 
-    context "when task fails with default halt behavior" do
-      it "stops execution on failure" do
-        task = failing_task
-        workflow_class = create_workflow_class(name: "FailingWorkflow") do
-          process task
+    context "with erroring task" do
+      let(:workflow_class) do
+        before_task = create_simple_task(name: "BeforeTask")
+        erroring_task = create_erroring_task(name: "ErroringTask", reason: "System error")
+        after_task = create_simple_task(name: "AfterTask")
+
+        create_workflow_class do
+          process before_task
+          process erroring_task
+          process after_task
         end
+      end
 
-        result = workflow_class.call(test: "data")
+      it "converts error to failed result and halts" do
+        result = workflow_class.call(context_data)
 
-        expect(result.status).to eq("failed")
+        expect(result).to be_failed
+        expect(result.metadata[:reason]).to include("System error")
       end
     end
 
-    context "when groups have custom halt behavior" do
-      it "respects group-level workflow_halt setting" do
-        task = failing_task
-        workflow_class = create_workflow_class(name: "CustomHaltWorkflow") do
-          process task, workflow_halt: []
-        end
+    context "with conditional execution" do
+      context "when if condition is true" do
+        let(:workflow_class) do
+          conditional_task = create_simple_task(name: "ConditionalTask")
+          always_task = create_simple_task(name: "AlwaysTask")
 
-        result = workflow_class.call(test: "data")
-
-        expect(result.status).to eq("success")
-      end
-
-      it "handles multiple halt statuses" do
-        skipping_task = create_skipping_task(name: "SkippingTask", reason: "Skipping task")
-
-        workflow_class = create_workflow_class(name: "MultiHaltWorkflow") do
-          process skipping_task, workflow_halt: %w[failed skipped]
-        end
-
-        result = workflow_class.call(test: "data")
-
-        expect(result.status).to eq("skipped")
-      end
-    end
-
-    context "when using conditional execution" do
-      it "evaluates if conditions" do
-        task = simple_task
-        workflow_class = create_workflow_class(name: "ConditionalIfWorkflow") do
-          process task, if: proc { context.should_run }
-        end
-
-        result = workflow_class.call(should_run: true)
-        expect(result.context.executed).to be(true)
-
-        result = workflow_class.call(should_run: false)
-        expect(result.context.executed).to be_nil
-      end
-
-      it "evaluates unless conditions" do
-        task = simple_task
-        workflow_class = create_workflow_class(name: "ConditionalUnlessWorkflow") do
-          process task, unless: proc { context.should_skip }
-        end
-
-        result = workflow_class.call(should_skip: false)
-        expect(result.context.executed).to be(true)
-
-        result = workflow_class.call(should_skip: true)
-        expect(result.context.executed).to be_nil
-      end
-
-      it "supports symbol method conditions" do
-        task = simple_task
-        workflow_class = create_workflow_class(name: "SymbolMethodWorkflow") do
-          process task, if: :should_execute?
-
-          private
-
-          def should_execute?
-            context.enabled
+          create_workflow_class do
+            process conditional_task, if: ->(workflow) { workflow.context.user_id > 100 }
+            process always_task
           end
         end
 
-        result = workflow_class.call(enabled: true)
-        expect(result.context.executed).to be(true)
+        it "executes conditional group" do
+          result = workflow_class.call(context_data)
 
-        result = workflow_class.call(enabled: false)
-        expect(result.context.executed).to be_nil
+          expect(result).to be_success
+          expect(result.context.executed).to be(true)
+        end
+      end
+
+      context "when if condition is false" do
+        let(:workflow_class) do
+          conditional_task = create_simple_task(name: "ConditionalTask")
+          always_task = create_simple_task(name: "AlwaysTask")
+
+          create_workflow_class do
+            process conditional_task, if: ->(workflow) { workflow.context.user_id < 100 }
+            process always_task
+          end
+        end
+
+        it "skips conditional group" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_success
+        end
+      end
+
+      context "when unless condition is true" do
+        let(:workflow_class) do
+          conditional_task = create_simple_task(name: "ConditionalTask")
+          always_task = create_simple_task(name: "AlwaysTask")
+
+          create_workflow_class do
+            process conditional_task, unless: ->(workflow) { workflow.context.user_id > 100 }
+            process always_task
+          end
+        end
+
+        it "skips conditional group" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_success
+        end
+      end
+
+      context "when unless condition is false" do
+        let(:workflow_class) do
+          conditional_task = create_simple_task(name: "ConditionalTask")
+          always_task = create_simple_task(name: "AlwaysTask")
+
+          create_workflow_class do
+            process conditional_task, unless: ->(workflow) { workflow.context.user_id < 100 }
+            process always_task
+          end
+        end
+
+        it "executes conditional group" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_success
+          expect(result.context.executed).to be(true)
+        end
       end
     end
 
-    context "when handling edge cases" do
-      it "handles empty task arrays in groups" do
-        workflow_class = create_workflow_class(name: "EmptyGroupWorkflow")
-        workflow_class.instance_variable_set(:@workflow_groups, [described_class::Group.new([], {})])
+    context "with workflow halt configuration" do
+      context "when workflow_halt is set to failed" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          failing_task = create_failing_task(name: "FailingTask")
+          after_task = create_simple_task(name: "AfterTask")
 
-        result = workflow_class.call(test: "data")
-
-        expect(result.status).to eq("success")
-      end
-
-      it "handles groups with empty options" do
-        task = simple_task
-        workflow_class = create_workflow_class(name: "EmptyOptionsWorkflow") do
-          process task
+          create_workflow_class do
+            process before_task
+            process failing_task, workflow_halt: :failed
+            process after_task
+          end
         end
 
-        result = workflow_class.call(test: "data")
+        it "halts on failed status" do
+          result = workflow_class.call(context_data)
 
-        expect(result.status).to eq("success")
+          expect(result).to be_failed
+        end
+      end
+
+      context "when workflow_halt is set to skipped" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          skipping_task = create_skipping_task(name: "SkippingTask")
+          after_task = create_simple_task(name: "AfterTask")
+
+          create_workflow_class do
+            process before_task
+            process skipping_task, workflow_halt: :skipped
+            process after_task
+          end
+        end
+
+        it "halts on skipped status" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_skipped
+        end
+      end
+
+      context "when workflow_halt is set to array of statuses" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          skipping_task = create_skipping_task(name: "SkippingTask")
+          after_task = create_simple_task(name: "AfterTask")
+
+          create_workflow_class do
+            process before_task
+            process skipping_task, workflow_halt: %i[failed skipped]
+            process after_task
+          end
+        end
+
+        it "halts on any specified status" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_skipped
+        end
+      end
+
+      context "when workflow_halt is empty array" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          failing_task = create_failing_task(name: "FailingTask")
+          after_task = create_simple_task(name: "AfterTask")
+
+          create_workflow_class do
+            process before_task
+            process failing_task, workflow_halt: []
+            process after_task
+          end
+        end
+
+        it "continues execution regardless of status" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_success
+          expect(result.context.executed).to be(true)
+        end
+      end
+
+      context "when workflow_halt is set via cmd_setting" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          skipping_task = create_skipping_task(name: "SkippingTask")
+          after_task = create_simple_task(name: "AfterTask")
+
+          create_workflow_class do
+            cmd_settings!(workflow_halt: :skipped)
+            process before_task
+            process skipping_task
+            process after_task
+          end
+        end
+
+        it "uses cmd_setting for halt behavior" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_skipped
+        end
+      end
+
+      context "when group workflow_halt overrides cmd_setting" do
+        let(:workflow_class) do
+          before_task = create_simple_task(name: "BeforeTask")
+          skipping_task = create_skipping_task(name: "SkippingTask")
+          after_task = create_simple_task(name: "AfterTask")
+
+          create_workflow_class do
+            cmd_settings!(workflow_halt: :skipped)
+            process before_task
+            process skipping_task, workflow_halt: []
+            process after_task
+          end
+        end
+
+        it "uses group-level workflow_halt setting" do
+          result = workflow_class.call(context_data)
+
+          expect(result).to be_success
+          expect(result.context.executed).to be(true)
+        end
+      end
+    end
+
+    context "with nested workflows" do
+      let(:inner_workflow_class) do
+        inner_task = create_simple_task(name: "InnerTask")
+
+        create_workflow_class(name: "InnerWorkflow") do
+          process inner_task
+        end
+      end
+
+      let(:workflow_class) do
+        inner = inner_workflow_class
+        before_task = create_simple_task(name: "BeforeTask")
+        after_task = create_simple_task(name: "AfterTask")
+
+        create_workflow_class(name: "OuterWorkflow") do
+          process before_task
+          process inner
+          process after_task
+        end
+      end
+
+      it "executes nested workflows" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
         expect(result.context.executed).to be(true)
+      end
+    end
+
+    context "with complex workflow scenario" do
+      let(:workflow_class) do
+        validate_task = create_simple_task(name: "ValidateInput")
+        premium_task = create_failing_task(name: "ProcessPremium", reason: "Unauthorized")
+        payment_task = create_failing_task(name: "ProcessPayment", reason: "Payment failed")
+        confirmation_task = create_simple_task(name: "SendConfirmation")
+
+        create_workflow_class(name: "ComplexWorkflow") do
+          # Initial validation
+          process validate_task
+
+          # # Conditional processing - user_id 123 is not > 1000, so this should be skipped
+          process premium_task, if: ->(workflow) { workflow.context.user_id > 1000 }
+
+          # Main processing that might fail
+          process payment_task, workflow_halt: :failed
+
+          # This should not execute due to halt
+          process confirmation_task
+        end
+      end
+
+      it "executes conditional logic and halts appropriately" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_failed
+        expect(result.metadata[:reason]).to eq("Payment failed")
+      end
+    end
+
+    context "without workflow groups" do
+      let(:workflow_class) { create_workflow_class }
+
+      it "completes successfully with no tasks" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
+      end
+    end
+
+    context "with context propagation" do
+      let(:workflow_class) do
+        step1_task = create_task_class do
+          define_method :call do
+            context.step1_completed = true
+            context.processed_data = "step1"
+          end
+        end
+
+        step2_task = create_task_class do
+          define_method :call do
+            context.step2_completed = true
+            context.processed_data += "_step2"
+          end
+        end
+
+        create_workflow_class do
+          process step1_task
+          process step2_task
+        end
+      end
+
+      it "maintains context across all tasks" do
+        result = workflow_class.call(context_data)
+
+        expect(result.context.step1_completed).to be(true)
+        expect(result.context.step2_completed).to be(true)
+        expect(result.context.processed_data).to eq("step1_step2")
+        expect(result.context.user_id).to eq(123)
       end
     end
   end
 
-  describe "integration scenarios" do
-    let(:counter_task_one) do
-      create_task_class(name: "CounterTaskOne") do
-        def call
-          context.counter ||= 0
-          context.counter += 1
-          context.executed_tasks ||= []
-          context.executed_tasks << "counter_#{context.counter}"
-        end
+  context "when using workflow builders" do
+    describe "simple workflow" do
+      let(:tasks) do
+        [
+          create_simple_task(name: "Task1"),
+          create_simple_task(name: "Task2"),
+          create_simple_task(name: "Task3")
+        ]
+      end
+      let(:workflow_class) { create_simple_workflow(tasks: tasks, name: "BuilderWorkflow") }
+
+      it "executes all tasks in sequence" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
+        expect(result.context.executed).to be(true)
       end
     end
 
-    let(:failing_task) do
-      create_task_class(name: "FailingTask") do
-        def call
-          context.executed_tasks ||= []
-          context.executed_tasks << "failing_task"
-          fail!(reason: "Task failed")
-        end
-      end
-    end
+    describe "successful workflow" do
+      let(:workflow_class) do
+        success_task_one = create_simple_task(name: "SuccessfulTask1")
+        success_task_two = create_simple_task(name: "SuccessfulTask2")
+        success_task3 = create_simple_task(name: "SuccessfulTask3")
 
-    it "executes simple workflow workflow" do
-      task = counter_task_one
-      workflow_class = create_workflow_class(name: "SimpleWorkflowWorkflow") do
-        process task
-        process task
-      end
-
-      result = workflow_class.call(test: "data")
-
-      expect(result.status).to eq("success")
-      expect(result.context.executed_tasks).to eq(%w[counter_1 counter_2])
-    end
-
-    it "stops execution on first failure with default halt behavior" do
-      # Create separate counter task classes to avoid shared state
-      counter_task_two = create_task_class(name: "CounterTaskTwo") do
-        def call
-          context.counter ||= 0
-          context.counter += 1
-          context.executed_tasks ||= []
-          context.executed_tasks << "counter_#{context.counter}"
+        create_workflow_class(name: "SuccessWorkflow") do
+          process success_task_one
+          process success_task_two
+          process success_task3
         end
       end
 
-      task_one = counter_task_one
-      task_two = counter_task_two
-      failing = failing_task
-      workflow_class = create_workflow_class(name: "FailureHaltWorkflow") do
-        process task_one
-        process failing
-        process task_two
+      it "completes successfully" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
       end
-
-      result = workflow_class.call(test: "data")
-
-      expect(result.context.executed_tasks).to eq(%w[counter_1 failing_task])
-      expect(result.status).to eq("failed")
     end
 
-    it "continues execution with custom halt behavior" do
-      counter = counter_task_one
-      failing = failing_task
-      workflow_class = create_workflow_class(name: "ContinueOnFailureWorkflow") do
-        process counter
-        process failing, workflow_halt: []
-        process counter
-      end
+    describe "failing workflow" do
+      let(:workflow_class) do
+        pre_task = create_simple_task(name: "PreFailTask")
+        fail_task = create_failing_task(name: "FailingTask")
+        post_task = create_simple_task(name: "PostFailTask")
 
-      result = workflow_class.call(test: "data")
-
-      expect(result.context.executed_tasks).to eq(%w[counter_1 failing_task counter_2])
-      expect(result.status).to eq("success")
-    end
-
-    it "handles conditional execution with context data" do
-      counter = counter_task_one
-      conditional_task = create_task_class(name: "ConditionalTask") do
-        def call
-          context.conditional_executed = true
+        create_workflow_class(name: "FailWorkflow") do
+          process pre_task
+          process fail_task
+          process post_task
         end
       end
 
-      workflow_class = create_workflow_class(name: "ConditionalExecutionWorkflow") do
-        process counter
-        process conditional_task, if: proc { context.counter > 0 }
+      it "fails appropriately" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_failed
       end
-
-      result = workflow_class.call(test: "data")
-
-      expect(result.context.conditional_executed).to be(true)
-      expect(result.status).to eq("success")
     end
 
-    it "handles nested workflow execution" do
-      counter = counter_task_one
-      inner_workflow = create_workflow_class(name: "InnerWorkflow") do
-        process counter
-        process counter
-      end
+    describe "skipping workflow" do
+      let(:workflow_class) do
+        pre_task = create_simple_task(name: "PreSkipTask")
+        skip_task = create_skipping_task(name: "SkippingTask")
+        post_task = create_simple_task(name: "PostSkipTask")
 
-      outer_workflow = create_workflow_class(name: "OuterWorkflow") do
-        process counter
-        process inner_workflow
-        process counter
-      end
-
-      result = outer_workflow.call(test: "data")
-
-      expect(result.status).to eq("success")
-      expect(result.context.counter).to eq(4)
-    end
-
-    it "preserves context across all tasks" do
-      data_task = create_task_class(name: "DataTask") do
-        def call
-          context.shared_data ||= []
-          context.shared_data << "task_#{object_id}"
+        create_workflow_class(name: "SkipWorkflow") do
+          process pre_task
+          process skip_task
+          process post_task
         end
       end
 
-      workflow_class = create_workflow_class(name: "ContextPreservationWorkflow") do
-        process data_task
-        process data_task
-        process data_task
+      it "handles skipped tasks" do
+        result = workflow_class.call(context_data)
+
+        expect(result).to be_success
+      end
+    end
+
+    describe "erroring workflow" do
+      let(:workflow_class) do
+        pre_task = create_simple_task(name: "PreErrorTask")
+        error_task = create_erroring_task(name: "ErroringTask")
+        post_task = create_simple_task(name: "PostErrorTask")
+
+        create_workflow_class(name: "ErrorWorkflow") do
+          process pre_task
+          process error_task
+          process post_task
+        end
       end
 
-      result = workflow_class.call(test: "data")
+      it "handles erroring tasks" do
+        result = workflow_class.call(context_data)
 
-      expect(result.status).to eq("success")
-      expect(result.context.shared_data.size).to eq(3)
-      expect(result.context.shared_data.all? { |item| item.start_with?("task_") }).to be(true)
+        expect(result).to be_failed
+      end
     end
   end
 end

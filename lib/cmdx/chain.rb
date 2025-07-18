@@ -1,79 +1,42 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Thread-local chain that tracks task execution results within a correlation context.
+  # Manages execution chains for task results with thread-local storage support.
   #
-  # A Chain represents a sequence of task executions that are logically related,
-  # typically within the same request or operation flow. It provides thread-local
-  # storage to ensure that tasks executing in the same thread share the same chain
-  # while maintaining isolation across different threads.
-  #
-  # @example Basic usage with automatic chain creation
-  #   # Chain is automatically created when first task runs
-  #   result1 = MyTask.call(data: "first")
-  #   result2 = MyTask.call(data: "second")
-  #
-  #   result1.chain.id == result2.chain.id  #=> true
-  #   result1.index                         #=> 0
-  #   result2.index                         #=> 1
-  #
-  # @example Using custom chain ID
-  #   chain = CMDx::Chain.new(id: "custom-correlation-123")
-  #   CMDx::Chain.current = chain
-  #
-  #   result = MyTask.call(data: "test")
-  #   result.chain.id  #=> "custom-correlation-123"
-  #
-  # @example Thread isolation
-  #   # Each thread gets its own chain
-  #   Thread.new do
-  #     result = MyTask.call(data: "thread1")
-  #     result.chain.id  #=> unique ID for this thread
-  #   end
-  #
-  #   Thread.new do
-  #     result = MyTask.call(data: "thread2")
-  #     result.chain.id  #=> different unique ID
-  #   end
-  #
-  # @example Temporary chain context
-  #   CMDx::Chain.use(id: "temp-correlation") do
-  #     result = MyTask.call(data: "test")
-  #     result.chain.id  #=> "temp-correlation"
-  #   end
-  #   # Original chain is restored after block
-  #
-  # @see CMDx::Correlator
-  # @since 1.0.0
+  # Chain provides a mechanism to track and correlate multiple task executions
+  # within a single logical operation. It maintains a collection of results
+  # and provides thread-local storage for tracking the current execution chain.
+  # The chain automatically delegates common methods to its results collection
+  # and the first result for convenient access to execution state.
   class Chain
 
-    # Thread-local storage key for the current chain
     THREAD_KEY = :cmdx_correlation_chain
 
-    __cmdx_attr_delegator :index, :first, :last, :size,
-                          to: :results
-    __cmdx_attr_delegator :state, :status, :outcome, :runtime,
-                          to: :first
+    cmdx_attr_delegator :index, :first, :last, :size,
+                        to: :results
+    cmdx_attr_delegator :state, :status, :outcome, :runtime,
+                        to: :first
 
-    # @!attribute [r] id
-    #   @return [String] the unique identifier for this chain
-    # @!attribute [r] results
-    #   @return [Array<CMDx::Result>] the collection of task results in this chain
-    attr_reader :id, :results
+    # @return [String] the unique identifier for this chain
+    attr_reader :id
 
-    # Creates a new chain instance.
+    # @return [Array<CMDx::Result>] the collection of task results in this chain
+    attr_reader :results
+
+    # Creates a new execution chain with optional attributes.
     #
-    # @param attributes [Hash] configuration options for the chain
-    # @option attributes [String] :id custom identifier for the chain.
-    #   If not provided, uses the current correlator ID or generates a new UUID.
+    # @param attributes [Hash] optional attributes for chain initialization
+    # @option attributes [String] :id custom chain identifier, defaults to current correlation ID or generates new one
     #
-    # @example Create chain with default ID
+    # @return [Chain] the newly created chain instance
+    #
+    # @example Create a chain with default ID
     #   chain = CMDx::Chain.new
-    #   chain.id  #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+    #   chain.id #=> "generated-uuid"
     #
-    # @example Create chain with custom ID
-    #   chain = CMDx::Chain.new(id: "user-session-123")
-    #   chain.id  #=> "user-session-123"
+    # @example Create a chain with custom ID
+    #   chain = CMDx::Chain.new(id: "custom-123")
+    #   chain.id #=> "custom-123"
     def initialize(attributes = {})
       @id      = attributes[:id] || CMDx::Correlator.id || CMDx::Correlator.generate
       @results = []
@@ -81,53 +44,55 @@ module CMDx
 
     class << self
 
-      # Returns the current thread-local chain.
+      # Gets the current execution chain from thread-local storage.
       #
-      # @return [CMDx::Chain, nil] the chain for the current thread, or nil if none exists
+      # @return [Chain, nil] the current chain or nil if none is set
       #
-      # @example
-      #   CMDx::Chain.current  #=> nil (no chain set)
-      #
-      #   MyTask.call(data: "test")
-      #   CMDx::Chain.current  #=> #<CMDx::Chain:0x... @id="018c2b95...">
+      # @example Access current chain
+      #   chain = CMDx::Chain.current
+      #   chain.id if chain #=> "current-chain-id"
       def current
         Thread.current[THREAD_KEY]
       end
 
-      # Sets the current thread-local chain.
+      # Sets the current execution chain in thread-local storage.
       #
-      # @param chain [CMDx::Chain, nil] the chain to set for the current thread
-      # @return [CMDx::Chain, nil] the chain that was set
+      # @param chain [Chain, nil] the chain to set as current
       #
-      # @example
-      #   chain = CMDx::Chain.new(id: "custom-id")
-      #   CMDx::Chain.current = chain
-      #   CMDx::Chain.current.id  #=> "custom-id"
+      # @return [Chain, nil] the chain that was set
+      #
+      # @example Set current chain
+      #   new_chain = CMDx::Chain.new
+      #   CMDx::Chain.current = new_chain
+      #   CMDx::Chain.current.id #=> new_chain.id
       def current=(chain)
         Thread.current[THREAD_KEY] = chain
       end
 
-      # Clears the current thread-local chain.
+      # Clears the current execution chain from thread-local storage.
       #
-      # @return [nil]
+      # @return [nil] always returns nil
       #
-      # @example
-      #   CMDx::Chain.current  #=> #<CMDx::Chain:0x...>
+      # @example Clear current chain
       #   CMDx::Chain.clear
-      #   CMDx::Chain.current  #=> nil
+      #   CMDx::Chain.current #=> nil
       def clear
         Thread.current[THREAD_KEY] = nil
       end
 
-      # Adds a result to the current chain, creating a new chain if none exists.
+      # Builds or extends the current execution chain with a new result.
       #
-      # This method is typically called internally by the task execution framework
-      # and should not be used directly in application code.
+      # @param result [CMDx::Result] the result to add to the chain
       #
-      # @param result [CMDx::Result] the task result to add to the chain
-      # @return [CMDx::Chain] the chain containing the result
+      # @return [Chain] the current chain with the result added
       #
-      # @api private
+      # @raise [TypeError] if result is not a Result instance
+      #
+      # @example Build chain with result
+      #   task = MyTask.new
+      #   result = CMDx::Result.new(task)
+      #   chain = CMDx::Chain.build(result)
+      #   chain.results.size #=> 1
       def build(result)
         raise TypeError, "must be a Result" unless result.is_a?(Result)
 
@@ -138,50 +103,28 @@ module CMDx
 
     end
 
-    # Converts the chain to a hash representation.
+    # Converts the chain to a hash representation using the serializer.
     #
-    # Serializes the chain and all its results into a structured hash
-    # suitable for logging, debugging, and data interchange.
+    # @return [Hash] serialized hash representation of the chain
     #
-    # @return [Hash] Structured hash representation of the chain
-    #
-    # @example
-    #   chain.to_h
-    #   # => {
-    #   #   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-    #   #   state: "complete",
-    #   #   status: "success",
-    #   #   outcome: "success",
-    #   #   runtime: 0.5,
-    #   #   results: [
-    #   #     { class: "ProcessOrderTask", state: "complete", status: "success", ... },
-    #   #     { class: "SendEmailTask", state: "complete", status: "success", ... }
-    #   #   ]
-    #   # }
+    # @example Convert to hash
+    #   chain.to_h #=> { id: "abc123", results: [...], state: "complete" }
     def to_h
       ChainSerializer.call(self)
     end
     alias to_a to_h
 
-    # Converts the chain to a string representation for inspection.
+    # Converts the chain to a formatted string representation.
     #
-    # Creates a comprehensive, human-readable summary of the chain including
-    # all task results with formatted headers and footers.
+    # @return [String] formatted string representation of the chain
     #
-    # @return [String] Formatted chain summary with task details
-    #
-    # @example
-    #   chain.to_s
-    #   # => "
-    #   #   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-    #   #   ================================================
-    #   #
-    #   #   ProcessOrderTask: index=0 state=complete status=success ...
-    #   #   SendEmailTask: index=1 state=complete status=success ...
-    #   #
-    #   #   ================================================
-    #   #   state: complete | status: success | outcome: success | runtime: 0.5
-    #   #   "
+    # @example Convert to string
+    #   puts chain.to_s
+    #   # chain: abc123
+    #   # ===================
+    #   # {...}
+    #   # ===================
+    #   # state: complete | status: success | outcome: success | runtime: 0.001
     def to_s
       ChainInspector.call(self)
     end

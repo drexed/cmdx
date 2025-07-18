@@ -2,54 +2,38 @@
 
 module CMDx
   module Coercions
-    # Coerces values to Time type.
+    # Coercion class for converting values to Time objects.
     #
-    # The Time coercion converts parameter values to Time objects
-    # with support for time parsing, custom format strings, and
-    # automatic handling of time-like objects.
-    #
-    # @example Basic time coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :created_at, type: :time
-    #     optional :scheduled_at, type: :time, format: "%Y-%m-%d %H:%M:%S"
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::Time.call("2023-12-25 14:30:00")                      # => Time object
-    #   Coercions::Time.call("25/12/2023 2:30 PM", format: "%d/%m/%Y %l:%M %p") # Custom format
-    #   Coercions::Time.call(Date.today)                                 # => Time (from Date)
-    #   Coercions::Time.call("invalid")                                  # => raises CoercionError
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module Time
+    # This coercion handles conversion of various types to Time objects, with special
+    # handling for analog types (DateTime, Time) and custom format parsing.
+    class Time < Coercion
 
-      # Time-compatible class names that are passed through unchanged
-      # @return [Array<String>] class names that represent time-like objects
-      ANALOG_TYPES = %w[Date DateTime Time].freeze
+      ANALOG_TYPES = %w[DateTime Time].freeze
 
-      module_function
-
-      # Coerce a value to Time.
+      # Converts the given value to a Time object.
       #
-      # Handles multiple input formats:
-      # - Date, DateTime, Time objects (returned as-is)
-      # - String with custom format (parsed using strptime)
-      # - String with standard format (parsed using Time.parse)
+      # @param value [Object] the value to convert to a Time object
+      # @param options [Hash] optional configuration
+      # @option options [String] :strptime custom format string for parsing
       #
-      # @param value [Object] value to coerce to time
-      # @param options [Hash] coercion options
-      # @option options [String] :format custom time format string
-      # @return [Time] coerced time value
-      # @raise [CoercionError] if coercion fails
+      # @return [Time] the converted Time object
       #
-      # @example
-      #   Coercions::Time.call("2023-12-25 14:30:00")                        # => Time
-      #   Coercions::Time.call("25/12/2023 14:30", format: "%d/%m/%Y %H:%M") # => Time with custom format
-      #   Coercions::Time.call(DateTime.now)                                 # => Time from DateTime
+      # @raise [CoercionError] if the value cannot be converted to a Time object
+      #
+      # @example Converting with custom format
+      #   Coercions::Time.call('2023-12-25 14:30', strptime: '%Y-%m-%d %H:%M') #=> 2023-12-25 14:30:00
+      #
+      # @example Converting standard time strings
+      #   Coercions::Time.call('2023-12-25 14:30:00') #=> 2023-12-25 14:30:00
+      #   Coercions::Time.call('Dec 25, 2023') #=> 2023-12-25 00:00:00
+      #
+      # @example Analog types pass through unchanged
+      #   time = Time.now
+      #   Coercions::Time.call(time) #=> time (unchanged)
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
-        return ::Time.strptime(value, options[:format]) if options[:format]
+        return value.to_time if value.respond_to?(:to_time)
+        return ::Time.strptime(value, options[:strptime]) if options[:strptime]
 
         ::Time.parse(value)
       rescue ArgumentError, TypeError

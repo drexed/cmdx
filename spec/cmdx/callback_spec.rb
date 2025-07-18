@@ -3,280 +3,265 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Callback do
-  describe "#call" do
-    let(:callback) { described_class.new }
-    let(:task) { mock_task }
-    let(:callback_type) { :before_validation }
+  subject(:callback) { described_class.new }
 
-    it "raises UndefinedCallError when not implemented" do
-      expect { callback.call(task, callback_type) }.to raise_error(
+  describe ".call" do
+    it "creates instance and delegates to instance call method" do
+      task = instance_double("Task")
+      allow_any_instance_of(described_class).to receive(:call).with(task, :before).and_return("delegated")
+
+      result = described_class.call(task, :before)
+
+      expect(result).to eq("delegated")
+    end
+
+    it "passes task and type to instance call method" do
+      task = instance_double("Task")
+      allow_any_instance_of(described_class).to receive(:call).with(task, :after).and_return("result")
+
+      result = described_class.call(task, :after)
+
+      expect(result).to eq("result")
+    end
+  end
+
+  describe "#call" do
+    it "raises UndefinedCallError with descriptive message" do
+      task = instance_double("Task")
+
+      expect { callback.call(task, :before) }.to raise_error(
         CMDx::UndefinedCallError,
         "call method not defined in CMDx::Callback"
       )
     end
+  end
 
-    it "includes the actual class name in error message" do
-      custom_callback_class = Class.new(described_class)
-      custom_callback = custom_callback_class.new
+  describe "subclass implementation" do
+    let(:working_callback_class) do
+      Class.new(described_class) do
+        def call(task, type)
+          "executed_#{type}_for_#{task.class.name}"
+        end
+      end
+    end
 
-      expect { custom_callback.call(task, callback_type) }.to raise_error(
+    let(:broken_callback_class) do
+      Class.new(described_class) do
+        # Intentionally doesn't implement call method
+      end
+    end
+
+    it "works when subclass properly implements call method" do
+      task = instance_double("Task", class: double(name: "TestTask"))
+
+      result = working_callback_class.call(task, :before)
+
+      expect(result).to eq("executed_before_for_TestTask")
+    end
+
+    it "raises error when subclass doesn't implement call method" do
+      task = instance_double("Task")
+
+      expect { broken_callback_class.call(task, :before) }.to raise_error(
         CMDx::UndefinedCallError,
         /call method not defined in/
       )
     end
+  end
 
-    it "accepts task and callback_type parameters" do
-      expect { callback.call(task, callback_type) }.to raise_error(CMDx::UndefinedCallError)
-    end
-
-    it "accepts any number of parameters without error when overridden" do
-      callback_class = Class.new(described_class) do
-        def call(*args)
-          args
+  describe "callback inheritance" do
+    let(:parent_callback_class) do
+      Class.new(described_class) do
+        def call(_task, type)
+          "executed_#{type}"
         end
       end
-      callback_instance = callback_class.new
+    end
 
-      expect(callback_instance.call(task, callback_type)).to eq([task, callback_type])
+    let(:child_callback_class) do
+      parent_class = parent_callback_class
+      Class.new(parent_class) do
+        def call(task, type)
+          "#{super}_with_child_behavior"
+        end
+      end
+    end
+
+    it "allows subclasses to extend parent behavior" do
+      task = instance_double("Task")
+
+      result = child_callback_class.call(task, :before)
+
+      expect(result).to eq("executed_before_with_child_behavior")
     end
   end
 
-  describe "subclass implementation" do
-    let(:task) { mock_task(class: double(name: "TestTask")) }
-    let(:callback_type) { :on_success }
+  describe "integration with tasks" do
+    describe "callback execution during task lifecycle" do
+      it "executes callbacks for successful tasks" do
+        executed_callbacks = []
 
-    context "when subclass implements call method" do
-      let(:callback_class) do
-        Class.new(described_class) do
-          def call(task, callback_type)
-            "Callback executed for #{task.class.name} with #{callback_type}"
+        callback_instance = Class.new(described_class) do
+          define_method :call do |task|
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
           end
+        end.new
+
+        task_class = create_simple_task do
+          on_executed callback_instance
         end
+
+        result = task_class.call
+
+        expect(result).to be_successful_task
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "success" }
+        )
       end
-      let(:callback) { callback_class.new }
 
-      it "executes the overridden call method" do
-        result = callback.call(task, callback_type)
+      it "executes callbacks for failed tasks" do
+        executed_callbacks = []
 
-        expect(result).to eq("Callback executed for TestTask with on_success")
-      end
-
-      it "can access task parameter" do
-        callback_class = Class.new(described_class) do
-          def call(task, _callback_type)
-            task.class.name
+        callback_instance = Class.new(described_class) do
+          define_method :call do |task|
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
           end
+        end.new
+
+        task_class = create_failing_task(reason: "validation error") do
+          on_failed callback_instance
         end
-        callback = callback_class.new
 
-        expect(callback.call(task, callback_type)).to eq("TestTask")
+        result = task_class.call
+
+        expect(result).to be_failed_task("validation error")
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "failed" }
+        )
       end
 
-      it "can access callback_type parameter" do
-        callback_class = Class.new(described_class) do
-          def call(_task, callback_type)
-            callback_type
+      it "executes callbacks for skipped tasks" do
+        executed_callbacks = []
+
+        callback_instance = Class.new(described_class) do
+          define_method :call do |task|
+            executed_callbacks << { type: :callback, task_status: task.result&.status }
           end
+        end.new
+
+        task_class = create_skipping_task(reason: "not needed") do
+          on_skipped callback_instance
         end
-        callback = callback_class.new
 
-        expect(callback.call(task, callback_type)).to eq(:on_success)
-      end
-    end
+        result = task_class.call
 
-    context "when subclass has initialization parameters" do
-      let(:callback_class) do
-        Class.new(described_class) do
-          def initialize(prefix)
-            @prefix = prefix
-          end
-
-          def call(_task, callback_type)
-            "#{@prefix}: #{callback_type}"
-          end
-        end
-      end
-
-      it "can use initialization parameters in call method" do
-        callback = callback_class.new("LOG")
-
-        expect(callback.call(task, callback_type)).to eq("LOG: on_success")
-      end
-    end
-
-    context "when subclass performs conditional logic" do
-      let(:callback_class) do
-        Class.new(described_class) do
-          def call(_task, callback_type)
-            return "skipped" unless callback_type == :on_success
-
-            "executed"
-          end
-        end
-      end
-      let(:callback) { callback_class.new }
-
-      it "executes when condition is met" do
-        expect(callback.call(task, :on_success)).to eq("executed")
-      end
-
-      it "skips when condition is not met" do
-        expect(callback.call(task, :on_failure)).to eq("skipped")
-      end
-    end
-
-    context "when subclass interacts with task state" do
-      let(:callback_class) do
-        Class.new(described_class) do
-          def call(task, _callback_type)
-            task.result.status if task.respond_to?(:result)
-          end
-        end
-      end
-      let(:callback) { callback_class.new }
-      let(:result) { mock_result(status: "completed") }
-      let(:task_with_result) { mock_task(result: result) }
-
-      it "can interact with task properties" do
-        expect(callback.call(task_with_result, callback_type)).to eq("completed")
-      end
-
-      it "handles tasks without expected properties" do
-        task_without_result = double("Task")
-        allow(task_without_result).to receive(:respond_to?).with(:result).and_return(false)
-        expect(callback.call(task_without_result, callback_type)).to be_nil
-      end
-    end
-
-    context "when subclass raises errors" do
-      let(:callback_class) do
-        Class.new(described_class) do
-          def call(_task, _callback_type)
-            raise StandardError, "Callback execution failed"
-          end
-        end
-      end
-      let(:callback) { callback_class.new }
-
-      it "propagates errors from callback execution" do
-        expect { callback.call(task, callback_type) }.to raise_error(
-          StandardError,
-          "Callback execution failed"
+        expect(result).to be_skipped_task("not needed")
+        expect(executed_callbacks).to contain_exactly(
+          { type: :callback, task_status: "skipped" }
         )
       end
     end
 
-    context "when subclass returns different types" do
-      it "can return nil" do
-        callback_class = Class.new(described_class) do
-          def call(_task, _callback_type)
-            nil
+    describe "callback types and timing" do
+      it "executes lifecycle callbacks in correct order" do
+        callback_order = []
+
+        before_callback = Class.new(described_class) do
+          define_method :call do |_task|
+            callback_order << :before_execution
           end
-        end
-        callback = callback_class.new
+        end.new
 
-        expect(callback.call(task, callback_type)).to be_nil
-      end
-
-      it "can return boolean values" do
-        callback_class = Class.new(described_class) do
-          def call(_task, callback_type)
-            callback_type == :on_success
+        after_callback = Class.new(described_class) do
+          define_method :call do |_task|
+            callback_order << :after_execution
           end
-        end
-        callback = callback_class.new
+        end.new
 
-        expect(callback.call(task, :on_success)).to be(true)
-        expect(callback.call(task, :on_failure)).to be(false)
+        task_class = create_simple_task do
+          before_execution before_callback
+          after_execution after_callback
+        end
+
+        result = task_class.call
+
+        expect(result).to be_successful_task
+        expect(callback_order).to eq(%i[before_execution after_execution])
       end
 
-      it "can return complex objects" do
-        callback_class = Class.new(described_class) do
-          def call(task, callback_type)
-            { task: task.class.name, callback: callback_type, timestamp: Time.now }
+      it "provides access to task context and result in callbacks" do
+        context_data = nil
+        result_metadata = nil
+
+        callback = Class.new(described_class) do
+          define_method :call do |task|
+            context_data = task.context.to_h
+            result_metadata = task.result.metadata
           end
-        end
-        callback = callback_class.new
+        end.new
 
-        result = callback.call(task, callback_type)
-        expect(result).to include(task: "TestTask", callback: :on_success)
-        expect(result[:timestamp]).to be_a(Time)
+        task_class = create_simple_task do
+          after_execution callback
+        end
+
+        result = task_class.call(user_id: 123)
+
+        expect(result).to be_successful_task
+        expect(context_data).to include(user_id: 123, executed: true)
+        expect(result_metadata).to eq({})
       end
     end
-  end
 
-  describe "inheritance" do
-    it "can be subclassed" do
-      callback_class = Class.new(described_class)
+    describe "callback integration with workflows" do
+      it "executes callbacks for each task in workflow" do
+        executed_tasks = []
 
-      expect(callback_class.superclass).to eq(described_class)
-      expect(callback_class.new).to be_a(described_class)
-    end
+        callback = Class.new(described_class) do
+          define_method :call do |task|
+            # Only track task callbacks, not workflow callbacks
+            return if task.class.name.include?("Workflow")
 
-    it "supports multiple levels of inheritance" do
-      base_callback = Class.new(described_class) do
-        def call(_task, _callback_type)
-          "base"
-        end
+            executed_tasks << task.class.name.split(/\d+/).first
+          end
+        end.new
+
+        task1 = create_simple_task(name: "FirstTask") { on_executed callback }
+        task2 = create_simple_task(name: "SecondTask") { on_executed callback }
+
+        workflow_class = create_simple_workflow(tasks: [task1, task2])
+
+        result = workflow_class.call
+
+        expect(result).to be_successful_task
+        expect(executed_tasks).to contain_exactly("FirstTask", "SecondTask")
       end
 
-      specialized_callback = Class.new(base_callback) do
-        def call(task, callback_type)
-          "#{super} specialized"
+      it "handles mixed outcomes in workflows" do
+        task_outcomes = []
+
+        outcome_callback = Class.new(described_class) do
+          define_method :call do |task|
+            # Only track task callbacks, not workflow callbacks
+            return if task.class.name.include?("Workflow")
+
+            task_outcomes << task.result.status
+          end
+        end.new
+
+        success_task = create_simple_task { on_executed outcome_callback }
+        skip_task = create_skipping_task { on_executed outcome_callback }
+
+        workflow_class = create_workflow_class do
+          cmd_settings!(workflow_halt: [])
+          process success_task
+          process skip_task
         end
+
+        result = workflow_class.call
+
+        expect(result).to be_executed
+        expect(task_outcomes).to contain_exactly("success", "skipped")
       end
-
-      callback = specialized_callback.new
-      expect(callback.call(mock_task, :test)).to eq("base specialized")
-    end
-
-    it "allows callbacks to share common functionality" do
-      logging_callback = Class.new(described_class) do
-        def call(task, callback_type)
-          log_message(task, callback_type)
-        end
-
-        private
-
-        def log_message(task, callback_type)
-          "Logged: #{task.class.name} - #{callback_type}"
-        end
-      end
-
-      callback = logging_callback.new
-      task = mock_task(class: double(name: "MyTask"))
-
-      expect(callback.call(task, :test)).to eq("Logged: MyTask - test")
-    end
-  end
-
-  describe "method signature flexibility" do
-    it "allows callbacks with additional parameters" do
-      callback_class = Class.new(described_class) do
-        def call(task, callback_type, *additional_args, **kwargs)
-          [task, callback_type, additional_args, kwargs]
-        end
-      end
-      callback = callback_class.new
-
-      result = callback.call(mock_task, :test, "extra", key: "value")
-      expect(result[2]).to eq(["extra"])
-      expect(result[3]).to eq(key: "value")
-    end
-
-    it "allows callbacks with block parameters" do
-      callback_class = Class.new(described_class) do
-        def call(_task, _callback_type, &block)
-          block&.call || "no block"
-        end
-      end
-      callback = callback_class.new
-
-      result_with_block = callback.call(mock_task, :test) { "block executed" }
-      result_without_block = callback.call(mock_task, :test)
-
-      expect(result_with_block).to eq("block executed")
-      expect(result_without_block).to eq("no block")
     end
   end
 end

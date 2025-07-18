@@ -2,45 +2,33 @@
 
 module CMDx
   module Coercions
-    # Coerces values to BigDecimal type.
+    # Coercion class for converting values to BigDecimal.
     #
-    # The BigDecimal coercion converts parameter values to BigDecimal objects
-    # for high-precision decimal arithmetic. Supports configurable precision
-    # and handles various numeric input formats.
-    #
-    # @example Basic BigDecimal coercion
-    #   class ProcessOrderTask < CMDx::Task
-    #     required :total_amount, type: :big_decimal
-    #     optional :tax_rate, type: :big_decimal, precision: 4
-    #   end
-    #
-    # @example Coercion behavior
-    #   Coercions::BigDecimal.call("123.45")          # => #<BigDecimal:...,'0.12345E3',18(27)>
-    #   Coercions::BigDecimal.call(42)                # => #<BigDecimal:...,'0.42E2',9(18)>
-    #   Coercions::BigDecimal.call("0.333333", precision: 6)  # Custom precision
-    #
-    # @see ParameterValue Parameter value coercion
-    # @see Parameter Parameter type definitions
-    module BigDecimal
+    # This coercion handles conversion of various types to BigDecimal with
+    # configurable precision. It provides precise decimal arithmetic capabilities
+    # for financial calculations and other use cases requiring exact decimal representation.
+    class BigDecimal < Coercion
 
-      # Default precision for BigDecimal calculations
-      # @return [Integer] default precision value
       DEFAULT_PRECISION = 14
 
-      module_function
-
-      # Coerce a value to BigDecimal.
+      # Converts the given value to a BigDecimal.
       #
-      # @param value [Object] value to coerce to BigDecimal
-      # @param options [Hash] coercion options
-      # @option options [Integer] :precision decimal precision (default: 14)
-      # @return [BigDecimal] coerced BigDecimal value
-      # @raise [CoercionError] if coercion fails
+      # @param value [Object] the value to convert to a BigDecimal
+      # @param options [Hash] optional configuration
+      # @option options [Integer] :precision the precision for the BigDecimal (defaults to 14)
       #
-      # @example
-      #   Coercions::BigDecimal.call("123.45")                    # => BigDecimal with default precision
-      #   Coercions::BigDecimal.call("0.333", precision: 10)      # => BigDecimal with custom precision
-      #   Coercions::BigDecimal.call(42.5)                        # => BigDecimal from float
+      # @return [BigDecimal] the converted BigDecimal value
+      #
+      # @raise [CoercionError] if the value cannot be converted to a BigDecimal
+      #
+      # @example Converting a string
+      #   Coercions::BigDecimal.call('123.45') #=> #<BigDecimal:...,'0.12345E3',18(27)>
+      #
+      # @example Converting with custom precision
+      #   Coercions::BigDecimal.call('123.456789', precision: 10) #=> #<BigDecimal:...,'0.123456789E3',18(27)>
+      #
+      # @example Converting an integer
+      #   Coercions::BigDecimal.call(100) #=> #<BigDecimal:...,'0.1E3',9(18)>
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError
