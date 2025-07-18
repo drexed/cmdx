@@ -1,24 +1,30 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Registry for managing validator definitions and execution within tasks.
+  # Registry for parameter validation handlers in the CMDx framework.
   #
-  # This registry handles the registration and execution of validators for
-  # parameter validation, including built-in validators and custom validators
-  # that can be registered at runtime.
+  # ValidatorRegistry manages the collection of validator implementations
+  # that can be used for parameter validation in tasks. It provides a
+  # centralized registry where validators can be registered by type and
+  # invoked during parameter processing. The registry comes pre-loaded
+  # with built-in validators for common validation scenarios.
   class ValidatorRegistry
 
-    # The internal hash storing validator definitions.
-    #
-    # @return [Hash] hash containing validator type keys and validator class values
+    # @return [Hash] internal hash storing validator implementations by type
     attr_reader :registry
 
-    # Initializes a new validator registry with built-in validators.
+    # Creates a new validator registry with built-in validators.
     #
-    # @return [ValidatorRegistry] a new validator registry instance
+    # The registry is initialized with standard validators including
+    # exclusion, format, inclusion, length, numeric, and presence validation.
+    # These built-in validators provide common validation functionality
+    # that can be immediately used without additional registration.
     #
-    # @example Creating a validator registry
-    #   ValidatorRegistry.new
+    # @return [ValidatorRegistry] a new registry instance with built-in validators
+    #
+    # @example Create a new validator registry
+    #   registry = ValidatorRegistry.new
+    #   registry.registry.keys # => [:exclusion, :format, :inclusion, :length, :numeric, :presence]
     def initialize
       @registry = {
         exclusion: Validators::Exclusion,
@@ -30,46 +36,62 @@ module CMDx
       }
     end
 
-    # Registers a custom validator for a specific type.
+    # Registers a new validator implementation for the specified type.
     #
-    # @param type [Symbol] the validator type to register
-    # @param validator [Class, Module, Symbol, Proc] the validator to register
+    # This method allows custom validators to be added to the registry,
+    # enabling extended validation functionality beyond the built-in
+    # validators. The validator can be a class, symbol, string, or proc
+    # that implements the validation logic.
+    #
+    # @param type [Symbol] the validator type identifier
+    # @param validator [Class, Symbol, String, Proc] the validator implementation
     #
     # @return [ValidatorRegistry] returns self for method chaining
     #
-    # @example Registering a custom validator class
+    # @example Register a custom validator class
     #   registry.register(:email, EmailValidator)
     #
-    # @example Registering a Proc validator
-    #   registry.register(:custom, ->(value, opts) { value.length > 3 })
+    # @example Register a symbol validator
+    #   registry.register(:zipcode, :validate_zipcode)
     #
-    # @example Registering a Symbol validator
-    #   registry.register(:password, :validate_password_strength)
+    # @example Register a proc validator
+    #   registry.register(:positive, ->(value, options) { value > 0 })
     #
-    # @example Chaining validator registrations
-    #   registry.register(:phone, PhoneValidator)
-    #           .register(:zipcode, ZipcodeValidator)
+    # @example Method chaining
+    #   registry.register(:email, EmailValidator)
+    #           .register(:phone, PhoneValidator)
     def register(type, validator)
       registry[type] = validator
       self
     end
 
-    # Executes validation for a specific type on a given value.
+    # Executes validation for a parameter value using the specified validator type.
     #
-    # @param task [Task] the task instance to execute validation on
-    # @param type [Symbol] the validator type to execute
+    # This method performs validation by looking up the registered validator
+    # for the given type and executing it with the provided value and options.
+    # The validation is only performed if the task's evaluation of the options
+    # returns a truthy value, allowing for conditional validation.
+    #
+    # @param task [Task] the task instance performing validation
+    # @param type [Symbol] the validator type to use
     # @param value [Object] the value to validate
-    # @param options [Hash] options for conditional validation execution
+    # @param options [Hash] validation options and configuration
     #
-    # @return [Object, nil] returns the validation result or nil if skipped
+    # @return [Object, nil] the validation result or nil if validation was skipped
     #
-    # @raise [UnknownValidatorError] when the validator type is not registered
+    # @raise [UnknownValidatorError] if the specified validator type is not registered
     #
-    # @example Validating with a built-in validator
+    # @example Validate with a built-in validator
     #   registry.call(task, :presence, "", {})
+    #   # => may raise ValidationError if value is blank
     #
-    # @example Validating with options
-    #   registry.call(task, :length, "test", { minimum: 5 })
+    # @example Validate with options
+    #   registry.call(task, :length, "hello", minimum: 3, maximum: 10)
+    #   # => validates string length is between 3 and 10 characters
+    #
+    # @example Conditional validation that gets skipped
+    #   registry.call(task, :presence, "", if: -> { false })
+    #   # => returns nil without performing validation
     def call(task, type, value, options = {})
       raise UnknownValidatorError, "unknown validator #{type}" unless registry.key?(type)
       return unless task.cmdx_eval(options)
