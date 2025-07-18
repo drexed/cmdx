@@ -42,22 +42,25 @@ module CMDx
       # @raise [TypeError] if any task is not a Task or Workflow subclass
       #
       # @example Define a simple workflow group
-      #   MyWorkflow.process CreateUserTask, SendEmailTask
+      #   class MyWorkflow < CMDx::Workflow
+      #     process CreateUserTask, SendEmailTask
+      #   end
       #
       # @example Define a conditional workflow group
-      #   MyWorkflow.process NotifyAdminTask, if: ->(workflow) { workflow.context.admin.active? }
+      #   class MyWorkflow < CMDx::Workflow
+      #     process NotifyAdminTask, if: ->(workflow) { workflow.context.admin.active? }
+      #   end
       #
       # @example Define a workflow group with halt behavior
-      #   MyWorkflow.process ValidateInputTask, ProcessDataTask, workflow_halt: :failed
+      #   class MyWorkflow < CMDx::Workflow
+      #     process ValidateInputTask, ProcessDataTask, workflow_halt: :failed
+      #   end
       def process(*tasks, **options)
         workflow_groups << Group.new(
           tasks.flatten.map do |task|
-            unless task.is_a?(Class) && (task <= Task)
-              raise TypeError,
-                    "must be a Task or Workflow"
-            end
+            next task if task.is_a?(Class) && (task <= Task)
 
-            task
+            raise TypeError, "must be a Task or Workflow"
           end,
           options
         )

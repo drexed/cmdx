@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0]
+
 ### Added
 - Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
 - Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration

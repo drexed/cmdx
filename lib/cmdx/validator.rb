@@ -29,8 +29,8 @@ module CMDx
     # Subclasses must override this method to provide their specific
     # validation implementation.
     #
-    # @param _value [Object] the value to be validated
-    # @param _options [Hash] optional validation configuration
+    # @param value [Object] the value to be validated
+    # @param options [Hash] optional validation configuration
     #
     # @return [Object] the result of the validation execution
     #
@@ -40,7 +40,7 @@ module CMDx
     #   def call(value, options)
     #     raise ValidationError, "Value too short" if value.length < options[:min_length]
     #   end
-    def call(_value, _options = {})
+    def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 
