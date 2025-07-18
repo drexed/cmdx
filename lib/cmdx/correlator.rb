@@ -73,7 +73,7 @@ module CMDx
     #
     # @example Use temporary correlation ID
     #   CMDx::Correlator.use("temp-123") do
-    #     puts CMDx::Correlator.id  # => "temp-123"
+    #     puts CMDx::Correlator.id  #=> "temp-123"
     #     # ... perform work ...
     #   end
     #   # Previous correlation ID is restored

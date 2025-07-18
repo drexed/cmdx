@@ -71,7 +71,7 @@ module CMDx
       #     cmdx_attr_setting :timeout, default: 30
       #   end
       #
-      #   BaseTask.timeout # => 30
+      #   BaseTask.timeout #=> 30
       #
       # @example Define a setting with a dynamic default
       #   class Task

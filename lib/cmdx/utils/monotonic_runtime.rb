@@ -19,12 +19,10 @@ module CMDx
       # @return [Integer] the execution time in milliseconds
       #
       # @example Basic usage
-      #   runtime = MonotonicRuntime.call { sleep(0.1) }
-      #   # => 100 (approximately)
+      #   MonotonicRuntime.call { sleep(0.1) } #=> 100 (approximately)
       #
       # @example Measuring database query time
-      #   query_time = MonotonicRuntime.call { User.find(1) }
-      #   # => 15 (milliseconds)
+      #   MonotonicRuntime.call { User.find(1) } #=> 15 (milliseconds)
       def call(&)
         now = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
         yield

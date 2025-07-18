@@ -22,7 +22,7 @@ module CMDx
     #
     # @example Creating a new registry
     #   registry = CoercionRegistry.new
-    #   registry.registry[:string] # => Coercions::String
+    #   registry.registry[:string] #=> Coercions::String
     def initialize
       @registry = {
         array: Coercions::Array,
@@ -74,11 +74,11 @@ module CMDx
     #
     # @example Coercing a string to integer
     #   registry.call(task, :integer, "42")
-    #   # => 42
+    #   #=> 42
     #
     # @example Coercing with options
     #   registry.call(task, :array, "a,b,c", delimiter: ",")
-    #   # => ["a", "b", "c"]
+    #   #=> ["a", "b", "c"]
     def call(task, type, value, options = {})
       raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
 

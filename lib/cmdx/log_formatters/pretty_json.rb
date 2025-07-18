@@ -24,7 +24,7 @@ module CMDx
       # @example Formatting a log entry
       #   formatter = CMDx::LogFormatters::PrettyJson.new
       #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   # => "{\n  \"severity\": \"INFO\",\n  \"pid\": 12345,\n  \"timestamp\": \"2024-01-01T12:00:00Z\",\n  \"message\": \"Task completed\"\n}\n"
+      #   #=> "{\n  \"severity\": \"INFO\",\n  \"pid\": 12345,\n  \"timestamp\": \"2024-01-01T12:00:00Z\",\n  \"message\": \"Task completed\"\n}\n"
       def call(severity, time, task, message)
         m = LoggerSerializer.call(severity, time, task, message).merge!(
           severity:,

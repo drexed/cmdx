@@ -37,7 +37,7 @@ module CMDx
     #
     # @example Create a new error collection
     #   errors = CMDx::Errors.new
-    #   errors.empty? # => true
+    #   errors.empty? #=> true
     def initialize
       @errors = {}
     end
@@ -56,17 +56,17 @@ module CMDx
     # @example Add an error to an attribute
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
-    #   errors[:name] # => ["is required"]
+    #   errors[:name] #=> ["is required"]
     #
     # @example Add multiple errors to the same attribute
     #   errors.add(:email, "is required")
     #   errors.add(:email, "must be valid")
-    #   errors[:email] # => ["is required", "must be valid"]
+    #   errors[:email] #=> ["is required", "must be valid"]
     #
     # @example Duplicate errors are automatically removed
     #   errors.add(:age, "must be positive")
     #   errors.add(:age, "must be positive")
-    #   errors[:age] # => ["must be positive"]
+    #   errors[:age] #=> ["must be positive"]
     def add(key, value)
       errors[key] ||= []
       errors[key] << value
@@ -84,11 +84,11 @@ module CMDx
     # @example Check if a specific error exists
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
-    #   errors.added?(:name, "is required") # => true
-    #   errors.added?(:name, "is invalid") # => false
+    #   errors.added?(:name, "is required") #=> true
+    #   errors.added?(:name, "is invalid") #=> false
     #
     # @example Check error on attribute without errors
-    #   errors.added?(:missing, "any error") # => false
+    #   errors.added?(:missing, "any error") #=> false
     def added?(key, val)
       return false unless key?(key)
 
@@ -125,10 +125,10 @@ module CMDx
     #
     # @example Format a full error message
     #   errors = CMDx::Errors.new
-    #   errors.full_message(:name, "is required") # => "name is required"
+    #   errors.full_message(:name, "is required") #=> "name is required"
     #
     # @example Format with different attribute types
-    #   errors.full_message("email", "must be valid") # => "email must be valid"
+    #   errors.full_message("email", "must be valid") #=> "email must be valid"
     def full_message(key, value)
       "#{key} #{value}"
     end
@@ -141,11 +141,11 @@ module CMDx
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
     #   errors.add(:email, "is invalid")
-    #   errors.full_messages # => ["name is required", "email is invalid"]
+    #   errors.full_messages #=> ["name is required", "email is invalid"]
     #
     # @example Empty errors return empty array
     #   errors = CMDx::Errors.new
-    #   errors.full_messages # => []
+    #   errors.full_messages #=> []
     def full_messages
       errors.each_with_object([]) do |(key, arr), memo|
         arr.each { |val| memo << full_message(key, val) }
@@ -163,10 +163,10 @@ module CMDx
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
     #   errors.add(:name, "is too short")
-    #   errors.full_messages_for(:name) # => ["name is required", "name is too short"]
+    #   errors.full_messages_for(:name) #=> ["name is required", "name is too short"]
     #
     # @example Get messages for attribute without errors
-    #   errors.full_messages_for(:missing) # => []
+    #   errors.full_messages_for(:missing) #=> []
     def full_messages_for(key)
       return [] unless key?(key)
 
@@ -179,9 +179,9 @@ module CMDx
     #
     # @example Check if errors are present
     #   errors = CMDx::Errors.new
-    #   errors.invalid? # => false
+    #   errors.invalid? #=> false
     #   errors.add(:name, "is required")
-    #   errors.invalid? # => true
+    #   errors.invalid? #=> true
     def invalid?
       !valid?
     end
@@ -201,14 +201,14 @@ module CMDx
     #   errors.add(:name, "is required")
     #   errors.add(:email, "is invalid")
     #   result = errors.map { |attr, msg| "#{attr.upcase}: #{msg}" }
-    #   result # => ["NAME: is required", "EMAIL: is invalid"]
+    #   result #=> ["NAME: is required", "EMAIL: is invalid"]
     #
     # @example Extract only attribute names with errors
-    #   errors.map { |attr, _msg| attr } # => [:name, :email]
+    #   errors.map { |attr, _msg| attr } #=> [:name, :email]
     #
     # @example Return empty array for no errors
     #   empty_errors = CMDx::Errors.new
-    #   empty_errors.map { |attr, msg| [attr, msg] } # => []
+    #   empty_errors.map { |attr, msg| [attr, msg] } #=> []
     def map
       errors.each_with_object([]) do |(key, _arr), memo|
         memo.concat(errors[key].map { |val| yield(key, val) })
@@ -229,13 +229,13 @@ module CMDx
     #   errors.add(:name, "is required")
     #   other_errors = { email: ["is invalid"], name: ["is too short"] }
     #   errors.merge!(other_errors)
-    #   errors[:name] # => ["is required", "is too short"]
-    #   errors[:email] # => ["is invalid"]
+    #   errors[:name] #=> ["is required", "is too short"]
+    #   errors[:email] #=> ["is invalid"]
     #
     # @example Merge with duplicate errors
     #   errors.add(:age, "must be positive")
     #   errors.merge!(age: ["must be positive", "must be an integer"])
-    #   errors[:age] # => ["must be positive", "must be an integer"]
+    #   errors[:age] #=> ["must be positive", "must be an integer"]
     def merge!(hash)
       errors.merge!(hash) do |_, arr1, arr2|
         arr3 = arr1 + arr2
@@ -254,10 +254,10 @@ module CMDx
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
     #   errors.add(:name, "is too short")
-    #   errors.messages_for(:name) # => ["is required", "is too short"]
+    #   errors.messages_for(:name) #=> ["is required", "is too short"]
     #
     # @example Get messages for attribute without errors
-    #   errors.messages_for(:missing) # => []
+    #   errors.messages_for(:missing) #=> []
     def messages_for(key)
       return [] unless key?(key)
 
@@ -271,9 +271,9 @@ module CMDx
     #
     # @example Check if errors are present
     #   errors = CMDx::Errors.new
-    #   errors.present? # => false
+    #   errors.present? #=> false
     #   errors.add(:name, "is required")
-    #   errors.present? # => true
+    #   errors.present? #=> true
     def present?
       !blank?
     end
@@ -287,14 +287,14 @@ module CMDx
     # @example Get raw error messages hash
     #   errors = CMDx::Errors.new
     #   errors.add(:name, "is required")
-    #   errors.to_hash # => { name: ["is required"] }
+    #   errors.to_hash #=> { name: ["is required"] }
     #
     # @example Get full formatted messages hash
-    #   errors.to_hash(true) # => { name: ["name is required"] }
+    #   errors.to_hash(true) #=> { name: ["name is required"] }
     #
     # @example Empty errors return empty hash
     #   errors = CMDx::Errors.new
-    #   errors.to_hash # => {}
+    #   errors.to_hash #=> {}
     def to_hash(full_messages = false)
       return errors unless full_messages
 

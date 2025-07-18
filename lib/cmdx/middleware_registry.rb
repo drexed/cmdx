@@ -81,7 +81,7 @@ module CMDx
     #
     # @example Getting registry hash
     #   registry.to_h
-    #   # => { TimeoutMiddleware => [[30], {}, nil] }
+    #   #=> { TimeoutMiddleware => [[30], {}, nil] }
     def to_h
       registry.transform_values do |config|
         args, kwargs, block = config

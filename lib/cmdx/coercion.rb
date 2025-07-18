@@ -19,7 +19,7 @@ module CMDx
     #
     # @example Execute a coercion on a value
     #   IntegerCoercion.call("42")
-    #   # => 42
+    #   #=> 42
     def self.call(value, options = {})
       new.call(value, options)
     end

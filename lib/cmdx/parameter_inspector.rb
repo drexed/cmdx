@@ -36,7 +36,7 @@ module CMDx
     # @example Format a simple parameter
     #   parameter = { name: :user_id, type: :integer, required: true }
     #   ParameterInspector.call(parameter)
-    #   # => "Parameter: name=user_id type=integer required=true"
+    #   #=> "Parameter: name=user_id type=integer required=true"
     #
     # @example Format a parameter with children
     #   parameter = {
@@ -49,7 +49,7 @@ module CMDx
     #     ]
     #   }
     #   ParameterInspector.call(parameter)
-    #   # => "Parameter: name=payment type=hash required=true
+    #   #=> "Parameter: name=payment type=hash required=true
     #   #       ↳ Parameter: name=amount type=big_decimal required=true
     #   #       ↳ Parameter: name=currency type=string required=true"
     def call(parameter, depth = 1)

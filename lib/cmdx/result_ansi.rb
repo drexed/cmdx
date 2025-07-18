@@ -34,13 +34,13 @@ module CMDx
     # @return [String] the input string with ANSI color codes applied
     #
     # @example Colorize a success status
-    #   ResultAnsi.call("success") # => "\e[0;32;49msuccess\e[0m" (green)
+    #   ResultAnsi.call("success") #=> "\e[0;32;49msuccess\e[0m" (green)
     #
     # @example Colorize a failed status
-    #   ResultAnsi.call("failed") # => "\e[0;31;49mfailed\e[0m" (red)
+    #   ResultAnsi.call("failed") #=> "\e[0;31;49mfailed\e[0m" (red)
     #
     # @example Colorize an executing state
-    #   ResultAnsi.call("executing") # => "\e[0;33;49mexecuting\e[0m" (yellow)
+    #   ResultAnsi.call("executing") #=> "\e[0;33;49mexecuting\e[0m" (yellow)
     def call(s)
       Utils::AnsiColor.call(s, color: color(s))
     end
@@ -56,13 +56,13 @@ module CMDx
     # @return [Symbol] the color symbol (:blue, :yellow, :green, :red, or :default)
     #
     # @example Get color for success status
-    #   ResultAnsi.color("success") # => :green
+    #   ResultAnsi.color("success") #=> :green
     #
     # @example Get color for unknown value
-    #   ResultAnsi.color("unknown") # => :default
+    #   ResultAnsi.color("unknown") #=> :default
     #
     # @example Get color for executing state
-    #   ResultAnsi.color("executing") # => :yellow
+    #   ResultAnsi.color("executing") #=> :yellow
     def color(s)
       STATE_COLORS[s] || STATUS_COLORS[s] || :default
     end

@@ -28,12 +28,12 @@ module CMDx
     #   task = MyTask.new(user_id: 123)
     #   task.process
     #   CMDx::Immutator.call(task)
-    #   task.frozen? # => true
+    #   task.frozen? #=> true
     #
     # @example Skip freezing for testing
     #   ENV["SKIP_CMDX_FREEZING"] = "1"
     #   CMDx::Immutator.call(task)
-    #   task.frozen? # => false
+    #   task.frozen? #=> false
     def call(task)
       # Stubbing on frozen objects is not allowed
       skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)

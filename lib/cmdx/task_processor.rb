@@ -42,7 +42,7 @@ module CMDx
       # @example Execute a task safely
       #   task = ProcessDataTask.new(data: raw_data)
       #   result = TaskProcessor.call(task)
-      #   puts result.status # => "success", "failed", or "skipped"
+      #   puts result.status #=> "success", "failed", or "skipped"
       def call(task)
         new(task).call
       end

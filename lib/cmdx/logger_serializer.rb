@@ -53,7 +53,7 @@ module CMDx
     # @example Serialize a result message with ANSI colors
     #   task = ProcessDataTask.call(data: "test")
     #   LoggerSerializer.call(:info, Time.now, task, task.result, ansi_colorize: true)
-    #   # => {
+    #   #=> {
     #   #   origin: "CMDx",
     #   #   index: 0,
     #   #   chain_id: "abc123",
@@ -71,7 +71,7 @@ module CMDx
     # @example Serialize a string message with task context
     #   task = MyTask.new(context: {data: "test"})
     #   LoggerSerializer.call(:warn, Time.now, task, "Processing started")
-    #   # => {
+    #   #=> {
     #   #   origin: "CMDx",
     #   #   index: 0,
     #   #   chain_id: "abc123",
@@ -85,7 +85,7 @@ module CMDx
     # @example Serialize a result message without colors
     #   task = ValidationTask.call(email: "invalid")
     #   LoggerSerializer.call(:error, Time.now, task, task.result)
-    #   # => {
+    #   #=> {
     #   #   origin: "CMDx",
     #   #   index: 1,
     #   #   chain_id: "xyz789",

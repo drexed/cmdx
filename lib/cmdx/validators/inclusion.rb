@@ -27,11 +27,11 @@ module CMDx
       #
       # @example Including from an array
       #   Validators::Inclusion.call("user", inclusion: { in: ["user", "admin"] })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Including from a range
       #   Validators::Inclusion.call(5, inclusion: { in: 1..10 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Invalid inclusion from array
       #   Validators::Inclusion.call("guest", inclusion: { in: ["user", "admin"] })

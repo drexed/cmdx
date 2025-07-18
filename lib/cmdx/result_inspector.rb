@@ -44,12 +44,12 @@ module CMDx
     # @example Format a successful task result
     #   result = MyTask.call
     #   ResultInspector.call(result)
-    #   # => "MyTask: type=Task index=0 id=abc123 state=executed status=success outcome=good"
+    #   #=> "MyTask: type=Task index=0 id=abc123 state=executed status=success outcome=good"
     #
     # @example Format a result with failure reference
     #   result = MyTask.call
     #   ResultInspector.call(result)
-    #   # => "MyTask: index=1 state=executed status=failure caused_failure=<[2] ValidationError: def456>"
+    #   #=> "MyTask: index=1 state=executed status=failure caused_failure=<[2] ValidationError: def456>"
     def call(result)
       ORDERED_KEYS.filter_map do |key|
         next unless result.key?(key)

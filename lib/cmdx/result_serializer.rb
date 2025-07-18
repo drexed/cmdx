@@ -51,7 +51,7 @@ module CMDx
     # @example Serialize a successful result
     #   task = SuccessfulTask.new(data: "test")
     #   ResultSerializer.call(result)
-    #   # => {
+    #   #=> {
     #   #   index: 0,
     #   #   chain_id: "abc123",
     #   #   type: "Task",
@@ -68,7 +68,7 @@ module CMDx
     # @example Serialize a failed result with failure stripping
     #   task = FailingTask.call
     #   ResultSerializer.call(task.result)
-    #   # => {
+    #   #=> {
     #   #   index: 1,
     #   #   chain_id: "xyz789",
     #   #   type: "Task",

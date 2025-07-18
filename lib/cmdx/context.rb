@@ -23,16 +23,16 @@ module CMDx
     #
     # @example Build context from hash
     #   Context.build(name: "John", age: 30)
-    #   # => #<CMDx::Context :name="John" :age=30>
+    #   #=> #<CMDx::Context :name="John" :age=30>
     #
     # @example Build context from existing context
     #   existing = Context.build(user_id: 123)
     #   Context.build(existing)
-    #   # => returns existing context unchanged
+    #   #=> returns existing context unchanged
     #
     # @example Build context from hash-like object
     #   Context.build(OpenStruct.new(status: "active"))
-    #   # => #<CMDx::Context :status="active">
+    #   #=> #<CMDx::Context :status="active">
     def self.build(context = {})
       return context if context.is_a?(self) && !context.frozen?
 

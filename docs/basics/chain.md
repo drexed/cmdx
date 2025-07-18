@@ -29,17 +29,17 @@ Chains use thread-local storage to automatically group related task executions w
 # Each thread gets its own chain context
 Thread.new do
   result = ProcessOrderTask.call(order_id: 123)
-  result.chain.id    # => unique ID for this thread
+  result.chain.id    #=> unique ID for this thread
 end
 
 Thread.new do
   result = ProcessOrderTask.call(order_id: 456)
-  result.chain.id    # => different unique ID
+  result.chain.id    #=> different unique ID
 end
 
 # Access the current thread's chain
-CMDx::Chain.current  # => current chain or nil
-CMDx::Chain.clear    # => clears current thread's chain
+CMDx::Chain.current  #=> current chain or nil
+CMDx::Chain.clear    #=> clears current thread's chain
 ```
 
 ## Automatic Chain Creation

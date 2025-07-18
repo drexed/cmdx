@@ -34,7 +34,7 @@ module CMDx
     # @example Serialize a basic task
     #   task = ProcessDataTask.new
     #   TaskSerializer.call(task)
-    #   # => {
+    #   #=> {
     #   #   index: 0,
     #   #   chain_id: "abc123",
     #   #   type: "Task",

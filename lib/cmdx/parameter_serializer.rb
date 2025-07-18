@@ -33,7 +33,7 @@ module CMDx
     #     optional :age, type: :integer
     #   end
     #   ParameterSerializer.call(user_param)
-    #   # => {
+    #   #=> {
     #   #   source: :context,
     #   #   name: :user,
     #   #   type: :hash,

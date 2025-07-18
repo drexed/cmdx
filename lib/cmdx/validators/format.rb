@@ -25,7 +25,7 @@ module CMDx
       #
       # @example Validating with a positive pattern
       #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/ })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Validating with a negative pattern
       #   Validators::Format.call("admin", format: { without: /admin|root/ })
@@ -33,7 +33,7 @@ module CMDx
       #
       # @example Validating with both patterns
       #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Invalid format with positive pattern
       #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/ })

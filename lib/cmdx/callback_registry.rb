@@ -106,7 +106,7 @@ module CMDx
     #
     # @example Getting registry contents
     #   registry.to_h
-    #   # => { before_execution: [[:setup, {}]], on_good: [[:notify, { if: -> { true } }]] }
+    #   #=> { before_execution: [[:setup, {}]], on_good: [[:notify, { if: -> { true } }]] }
     def to_h
       registry.transform_values(&:dup)
     end

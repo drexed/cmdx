@@ -34,8 +34,8 @@ module CMDx
       #     process TaskC, if: :condition_met?
       #   end
       #
-      #   MyWorkflow.workflow_groups.size # => 2
-      #   MyWorkflow.workflow_groups.first.tasks # => [TaskA, TaskB]
+      #   MyWorkflow.workflow_groups.size #=> 2
+      #   MyWorkflow.workflow_groups.first.tasks #=> [TaskA, TaskB]
       def workflow_groups
         @workflow_groups ||= []
       end

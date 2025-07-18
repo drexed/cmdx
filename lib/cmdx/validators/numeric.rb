@@ -40,7 +40,7 @@ module CMDx
       #
       # @example Range validation
       #   Validators::Numeric.call(5, numeric: { within: 1..10 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Range exclusion
       #   Validators::Numeric.call(5, numeric: { not_within: 1..10 })
@@ -48,7 +48,7 @@ module CMDx
       #
       # @example Min/max validation
       #   Validators::Numeric.call(15, numeric: { min: 10, max: 20 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Minimum value validation
       #   Validators::Numeric.call(5, numeric: { min: 10 })
@@ -56,7 +56,7 @@ module CMDx
       #
       # @example Exact value validation
       #   Validators::Numeric.call(42, numeric: { is: 42 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Custom error message
       #   Validators::Numeric.call(5, numeric: { min: 10, message: "Age must be at least %{min}" })

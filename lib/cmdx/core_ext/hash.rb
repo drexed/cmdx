@@ -16,13 +16,13 @@ module CMDx
       #
       # @example Fetch with symbol key
       #   hash = { name: "John", "age" => 30 }
-      #   hash.cmdx_fetch(:name) # => "John"
-      #   hash.cmdx_fetch(:age)  # => 30
+      #   hash.cmdx_fetch(:name) #=> "John"
+      #   hash.cmdx_fetch(:age)  #=> 30
       #
       # @example Fetch with string key
       #   hash = { name: "John", "age" => 30 }
-      #   hash.cmdx_fetch("name") # => "John"
-      #   hash.cmdx_fetch("age")  # => 30
+      #   hash.cmdx_fetch("name") #=> "John"
+      #   hash.cmdx_fetch("age")  #=> 30
       def cmdx_fetch(key)
         case key
         when Symbol then fetch(key) { self[key.to_s] }
@@ -40,11 +40,11 @@ module CMDx
       #
       # @example Check key existence
       #   hash = { name: "John", "age" => 30 }
-      #   hash.cmdx_key?(:name)   # => true
-      #   hash.cmdx_key?("name")  # => true
-      #   hash.cmdx_key?(:age)    # => true
-      #   hash.cmdx_key?("age")   # => true
-      #   hash.cmdx_key?(:missing) # => false
+      #   hash.cmdx_key?(:name)   #=> true
+      #   hash.cmdx_key?("name")  #=> true
+      #   hash.cmdx_key?(:age)    #=> true
+      #   hash.cmdx_key?("age")   #=> true
+      #   hash.cmdx_key?(:missing) #=> false
       def cmdx_key?(key)
         key?(key) || key?(
           case key
@@ -66,10 +66,10 @@ module CMDx
       #
       # @example Check method or key response
       #   hash = { name: "John", "age" => 30 }
-      #   hash.cmdx_respond_to?(:keys)     # => true (method exists)
-      #   hash.cmdx_respond_to?(:name)     # => true (key exists)
-      #   hash.cmdx_respond_to?("age")     # => true (key exists)
-      #   hash.cmdx_respond_to?(:missing)  # => false
+      #   hash.cmdx_respond_to?(:keys)     #=> true (method exists)
+      #   hash.cmdx_respond_to?(:name)     #=> true (key exists)
+      #   hash.cmdx_respond_to?("age")     #=> true (key exists)
+      #   hash.cmdx_respond_to?(:missing)  #=> false
       def cmdx_respond_to?(key, include_private = false)
         respond_to?(key.to_sym, include_private) || cmdx_key?(key)
       rescue NoMethodError

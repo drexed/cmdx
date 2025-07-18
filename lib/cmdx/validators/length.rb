@@ -39,7 +39,7 @@ module CMDx
       #
       # @example Validating within a range
       #   Validators::Length.call("hello", length: { within: 1..10 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Validating minimum length
       #   Validators::Length.call("hi", length: { min: 5 })
@@ -47,7 +47,7 @@ module CMDx
       #
       # @example Validating exact length
       #   Validators::Length.call("test", length: { is: 4 })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Validating with custom message
       #   Validators::Length.call("", length: { min: 1, message: "cannot be empty" })

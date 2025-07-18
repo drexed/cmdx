@@ -19,12 +19,10 @@ module CMDx
     # @raise [ValidationError] when validation fails
     #
     # @example Execute a validator on a value
-    #   PresenceValidator.call("some_value")
-    #   # => "some_value"
+    #   PresenceValidator.call("some_value") #=> "some_value"
     #
     # @example Execute with options
-    #   NumericValidator.call(42, greater_than: 10)
-    #   # => 42
+    #   NumericValidator.call(42, greater_than: 10) #=> 42
     def self.call(value, options = {})
       new.call(value, options)
     end

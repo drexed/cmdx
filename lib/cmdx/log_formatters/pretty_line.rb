@@ -25,7 +25,7 @@ module CMDx
       # @example Formatting a log entry
       #   formatter = CMDx::LogFormatters::PrettyLine.new
       #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   # => "\e[32mI\e[0m, [2024-01-01T12:00:00.000Z #12345] \e[32mINFO\e[0m -- MyTask: Task completed\n"
+      #   #=> "\e[32mI\e[0m, [2024-01-01T12:00:00.000Z #12345] \e[32mINFO\e[0m -- MyTask: Task completed\n"
       def call(severity, time, task, message)
         i = LoggerAnsi.call(severity[0])
         s = LoggerAnsi.call(severity)

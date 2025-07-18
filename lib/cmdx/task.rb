@@ -58,16 +58,16 @@ module CMDx
     #
     # @example Create task with hash context
     #   task = MyTask.new(user_id: 123, action: "process")
-    #   task.context.user_id # => 123
+    #   task.context.user_id #=> 123
     #
     # @example Create task with existing context
     #   existing_context = OtherTask.call(status: "active")
     #   task = MyTask.new(existing_context)
-    #   task.context.status # => "active"
+    #   task.context.status #=> "active"
     #
     # @example Create task with empty context
     #   task = MyTask.new
-    #   task.context # => empty Context instance
+    #   task.context #=> empty Context instance
     def initialize(context = {})
       context  = context.context if context.respond_to?(:context)
 
@@ -140,11 +140,11 @@ module CMDx
       # @return [Object] the configuration value, or nil if key doesn't exist
       #
       # @example Get logger setting
-      #   MyTask.cmd_setting(:logger) # => Logger instance
+      #   MyTask.cmd_setting(:logger) #=> Logger instance
       #
       # @example Get custom setting
       #   MyTask.cmd_settings!(timeout: 30)
-      #   MyTask.cmd_setting(:timeout) # => 30
+      #   MyTask.cmd_setting(:timeout) #=> 30
       def cmd_setting(key)
         cmdx_yield(cmd_settings[key])
       end
@@ -156,10 +156,10 @@ module CMDx
       # @return [Boolean] true if the setting key exists, false otherwise
       #
       # @example Check for existing setting
-      #   MyTask.cmd_setting?(:logger) # => true
+      #   MyTask.cmd_setting?(:logger) #=> true
       #
       # @example Check for non-existing setting
-      #   MyTask.cmd_setting?(:nonexistent) # => false
+      #   MyTask.cmd_setting?(:nonexistent) #=> false
       def cmd_setting?(key)
         cmd_settings.key?(key)
       end
@@ -316,7 +316,7 @@ module CMDx
       #
       # @example Execute task
       #   result = MyTask.call(user_id: 123, action: "process")
-      #   puts result.status # => "success" or "failed" or "skipped"
+      #   puts result.status #=> "success" or "failed" or "skipped"
       def call(...)
         instance = new(...)
         instance.process
@@ -389,7 +389,7 @@ module CMDx
     # @example Process a task instance
     #   task = MyTask.new(data: "input")
     #   task.process
-    #   puts task.result.status # => "success", "failed", or "skipped"
+    #   puts task.result.status #=> "success", "failed", or "skipped"
     def process
       cmd_middlewares.call(self) { |task| TaskProcessor.call(task) }
     end

@@ -24,11 +24,11 @@ module Cmdx
     #
     # @example Generate a user task
     #   rails generate cmdx:task user
-    #   # => Creates app/cmds/user_task.rb
+    #   #=> Creates app/cmds/user_task.rb
     #
     # @example Generate a nested task
     #   rails generate cmdx:task admin/users
-    #   # => Creates app/cmds/admin/users_task.rb
+    #   #=> Creates app/cmds/admin/users_task.rb
     def copy_files
       name = file_name.sub(/_?task$/i, "")
       path = File.join("app/cmds", class_path, "#{name}_task.rb")
@@ -47,11 +47,11 @@ module Cmdx
     #
     # @example Class name without suffix
     #   # Given name: "User"
-    #   class_name # => "UserTask"
+    #   class_name #=> "UserTask"
     #
     # @example Class name with suffix
     #   # Given name: "UserTask"
-    #   class_name # => "UserTask"
+    #   class_name #=> "UserTask"
     def class_name
       @class_name ||= super.end_with?("Task") ? super : "#{super}Task"
     end
@@ -68,10 +68,10 @@ module Cmdx
     # @raise [StandardError] if neither ApplicationTask nor CMDx::Task are available
     #
     # @example With ApplicationTask defined
-    #   parent_class_name # => ApplicationTask
+    #   parent_class_name #=> ApplicationTask
     #
     # @example Without ApplicationTask
-    #   parent_class_name # => CMDx::Task
+    #   parent_class_name #=> CMDx::Task
     def parent_class_name
       ApplicationTask
     rescue StandardError

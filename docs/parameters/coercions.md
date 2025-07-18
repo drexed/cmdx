@@ -126,10 +126,10 @@ class ProcessOrderDataTask < CMDx::Task
 end
 
 # Different inputs produce different coerced types
-ProcessOrderDataTask.call(amount: "149.99")         # => 149.99 (float)
-ProcessOrderDataTask.call(amount: "150")            # => 150 (integer)
-ProcessOrderDataTask.call(shipping_info: '{"address":"123 Main St"}')  # => hash
-ProcessOrderDataTask.call(shipping_info: "Express shipping")           # => string
+ProcessOrderDataTask.call(amount: "149.99")         #=> 149.99 (float)
+ProcessOrderDataTask.call(amount: "150")            #=> 150 (integer)
+ProcessOrderDataTask.call(shipping_info: '{"address":"123 Main St"}')  #=> hash
+ProcessOrderDataTask.call(shipping_info: "Express shipping")           #=> string
 ```
 
 ## Advanced Coercion Examples
@@ -150,10 +150,10 @@ class ProcessOrderItemsTask < CMDx::Task
 end
 
 # Array coercion handles multiple input formats
-ProcessOrderItemsTask.call(item_ids: [101, 102, 103])         # => already array
-ProcessOrderItemsTask.call(item_ids: "[101,102,103]")         # => from JSON string
-ProcessOrderItemsTask.call(item_ids: "101")                   # => ["101"] (wrapped)
-ProcessOrderItemsTask.call(item_ids: nil)                     # => [] (nil to empty)
+ProcessOrderItemsTask.call(item_ids: [101, 102, 103])         #=> already array
+ProcessOrderItemsTask.call(item_ids: "[101,102,103]")         #=> from JSON string
+ProcessOrderItemsTask.call(item_ids: "101")                   #=> ["101"] (wrapped)
+ProcessOrderItemsTask.call(item_ids: nil)                     #=> [] (nil to empty)
 ```
 
 ### Hash Coercion
@@ -195,12 +195,12 @@ class ValidateUserSettingsTask < CMDx::Task
 end
 
 # Boolean coercion recognizes many text patterns
-ValidateUserSettingsTask.call(email_notifications: "true")    # => true
-ValidateUserSettingsTask.call(email_notifications: "yes")     # => true
-ValidateUserSettingsTask.call(email_notifications: "1")       # => true
-ValidateUserSettingsTask.call(email_notifications: "false")   # => false
-ValidateUserSettingsTask.call(email_notifications: "no")      # => false
-ValidateUserSettingsTask.call(email_notifications: "0")       # => false
+ValidateUserSettingsTask.call(email_notifications: "true")    #=> true
+ValidateUserSettingsTask.call(email_notifications: "yes")     #=> true
+ValidateUserSettingsTask.call(email_notifications: "1")       #=> true
+ValidateUserSettingsTask.call(email_notifications: "false")   #=> false
+ValidateUserSettingsTask.call(email_notifications: "no")      #=> false
+ValidateUserSettingsTask.call(email_notifications: "0")       #=> false
 ```
 
 ### Date and Time Coercion

@@ -21,7 +21,7 @@ module CMDx
     # @example Serializing a workflow chain
     #   chain = UserWorkflow.call(user_id: 123)
     #   ChainSerializer.call(chain)
-    #   # => {
+    #   #=> {
     #   #   id: "abc123",
     #   #   state: :complete,
     #   #   status: :success,

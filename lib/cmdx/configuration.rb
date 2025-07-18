@@ -51,7 +51,7 @@ module CMDx
     # @example
     #   config = CMDx::Configuration.new
     #   hash = config.to_h
-    #   puts hash[:task_halt] # => "failed"
+    #   puts hash[:task_halt] #=> "failed"
     #
     # @return [Hash] Hash containing all configuration values
     def to_h
@@ -109,7 +109,7 @@ module CMDx
   #
   # @example
   #   CMDx.reset_configuration!
-  #   CMDx.configuration.task_halt # => "failed"
+  #   CMDx.configuration.task_halt #=> "failed"
   #
   # @return [Configuration] A new configuration instance with defaults
   def reset_configuration!

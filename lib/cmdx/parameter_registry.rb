@@ -20,7 +20,7 @@ module CMDx
     #
     # @example Creating a new registry
     #   registry = ParameterRegistry.new
-    #   registry.registry # => []
+    #   registry.registry #=> []
     def initialize
       @registry = []
     end
@@ -35,7 +35,7 @@ module CMDx
     # @example Duplicate a registry
     #   original = ParameterRegistry.new
     #   duplicate = original.dup
-    #   duplicate.object_id != original.object_id # => true
+    #   duplicate.object_id != original.object_id #=> true
     def dup
       new_registry = self.class.new
       new_registry.instance_variable_set(:@registry, registry.map(&:dup))
@@ -47,7 +47,7 @@ module CMDx
     # @return [Boolean] true if all parameters are valid, false otherwise
     #
     # @example Check registry validity
-    #   registry.valid? # => true
+    #   registry.valid? #=> true
     def valid?
       registry.all?(&:valid?)
     end
@@ -74,7 +74,7 @@ module CMDx
     # @return [Array<Hash>] array of parameter hash representations
     #
     # @example Convert registry to hash
-    #   registry.to_h # => [{name: :user_id, type: :integer}, {name: :email, type: :string}]
+    #   registry.to_h #=> [{name: :user_id, type: :integer}, {name: :email, type: :string}]
     def to_h
       registry.map(&:to_h)
     end
@@ -84,7 +84,7 @@ module CMDx
     # @return [String] string representation of all parameters, joined by newlines
     #
     # @example Convert registry to string
-    #   registry.to_s # => "user_id: integer\nemail: string"
+    #   registry.to_s #=> "user_id: integer\nemail: string"
     def to_s
       registry.map(&:to_s).join("\n")
     end

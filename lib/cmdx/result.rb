@@ -47,8 +47,8 @@ module CMDx
     #
     # @example Create a result for a task
     #   result = CMDx::Result.new(my_task)
-    #   result.state   # => "initialized"
-    #   result.status  # => "success"
+    #   result.state   #=> "initialized"
+    #   result.status  #=> "success"
     def initialize(task)
       raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)
 
@@ -64,16 +64,16 @@ module CMDx
       # @return [Boolean] true if the result matches the state
       #
       # @example Check if result is initialized
-      #   result.initialized? # => true
+      #   result.initialized? #=> true
       #
       # @example Check if result is executing
-      #   result.executing? # => false
+      #   result.executing? #=> false
       #
       # @example Check if result is complete
-      #   result.complete? # => false
+      #   result.complete? #=> false
       #
       # @example Check if result is interrupted
-      #   result.interrupted? # => false
+      #   result.interrupted? #=> false
       define_method(:"#{s}?") { state == s }
 
       # Executes the provided block if the result is in the specified state.
@@ -110,12 +110,12 @@ module CMDx
     #
     # @example Mark successful task as executed
     #   result.executed!
-    #   result.complete? # => true
+    #   result.complete? #=> true
     #
     # @example Mark failed task as executed
     #   result.fail!
     #   result.executed!
-    #   result.interrupted? # => true
+    #   result.interrupted? #=> true
     def executed!
       success? ? complete! : interrupt!
     end
@@ -125,9 +125,9 @@ module CMDx
     # @return [Boolean] true if the result is complete or interrupted
     #
     # @example Check if result was executed
-    #   result.executed? # => false
+    #   result.executed? #=> false
     #   result.executed!
-    #   result.executed? # => true
+    #   result.executed? #=> true
     def executed?
       complete? || interrupted?
     end
@@ -157,7 +157,7 @@ module CMDx
     #
     # @example Start task execution
     #   result.executing!
-    #   result.executing? # => true
+    #   result.executing? #=> true
     def executing!
       return if executing?
 
@@ -175,7 +175,7 @@ module CMDx
     # @example Complete task execution
     #   result.executing!
     #   result.complete!
-    #   result.complete? # => true
+    #   result.complete? #=> true
     def complete!
       return if complete?
 
@@ -193,7 +193,7 @@ module CMDx
     # @example Interrupt task execution
     #   result.executing!
     #   result.interrupt!
-    #   result.interrupted? # => true
+    #   result.interrupted? #=> true
     def interrupt!
       return if interrupted?
 
@@ -208,13 +208,13 @@ module CMDx
       # @return [Boolean] true if the result matches the status
       #
       # @example Check if result is successful
-      #   result.success? # => true
+      #   result.success? #=> true
       #
       # @example Check if result is skipped
-      #   result.skipped? # => false
+      #   result.skipped? #=> false
       #
       # @example Check if result is failed
-      #   result.failed? # => false
+      #   result.failed? #=> false
       define_method(:"#{s}?") { status == s }
 
       # Executes the provided block if the result has the specified status.
@@ -246,9 +246,9 @@ module CMDx
     # @return [Boolean] true if the result is not failed
     #
     # @example Check for good outcome
-    #   result.good? # => true (initially successful)
+    #   result.good? #=> true (initially successful)
     #   result.fail!
-    #   result.good? # => false
+    #   result.good? #=> false
     def good?
       !failed?
     end
@@ -275,9 +275,9 @@ module CMDx
     # @return [Boolean] true if the result is not successful
     #
     # @example Check for bad outcome
-    #   result.bad? # => false (initially successful)
+    #   result.bad? #=> false (initially successful)
     #   result.skip!
-    #   result.bad? # => true
+    #   result.bad? #=> true
     def bad?
       !success?
     end
@@ -312,8 +312,8 @@ module CMDx
     #
     # @example Skip a task with reason
     #   result.skip!(reason: "Dependencies not met")
-    #   result.skipped? # => true
-    #   result.metadata[:reason] # => "Dependencies not met"
+    #   result.skipped? #=> true
+    #   result.metadata[:reason] #=> "Dependencies not met"
     def skip!(**metadata)
       return if skipped?
 
@@ -338,8 +338,8 @@ module CMDx
     #
     # @example Fail a task with error message
     #   result.fail!(reason: "Database connection failed")
-    #   result.failed? # => true
-    #   result.metadata[:error] # => "Database connection failed"
+    #   result.failed? #=> true
+    #   result.metadata[:error] #=> "Database connection failed"
     def fail!(**metadata)
       return if failed?
 
@@ -379,7 +379,7 @@ module CMDx
     #   failed_result = Result.new(task)
     #   failed_result.fail!(reason: "network timeout")
     #   current_result.throw!(failed_result)
-    #   current_result.failed? # => true
+    #   current_result.failed? #=> true
     def throw!(result, local_metadata = {})
       raise TypeError, "must be a Result" unless result.is_a?(Result)
 
@@ -394,7 +394,7 @@ module CMDx
     # @return [CMDx::Result, nil] the result that caused the failure, or nil if not failed
     #
     # @example Find the original failure cause
-    #   result.caused_failure # => #<Result task=OriginalTask status=failed>
+    #   result.caused_failure #=> #<Result task=OriginalTask status=failed>
     def caused_failure
       return unless failed?
 
@@ -406,7 +406,7 @@ module CMDx
     # @return [Boolean] true if this result caused the failure
     #
     # @example Check if result caused failure
-    #   result.caused_failure? # => true
+    #   result.caused_failure? #=> true
     def caused_failure?
       return false unless failed?
 
@@ -418,7 +418,7 @@ module CMDx
     # @return [CMDx::Result, nil] the result that received the thrown failure, or nil if not failed
     #
     # @example Find where failure was thrown
-    #   result.threw_failure # => #<Result task=PropagatorTask status=failed>
+    #   result.threw_failure #=> #<Result task=PropagatorTask status=failed>
     def threw_failure
       return unless failed?
 
@@ -431,7 +431,7 @@ module CMDx
     # @return [Boolean] true if this result threw a failure
     #
     # @example Check if result threw failure
-    #   result.threw_failure? # => false
+    #   result.threw_failure? #=> false
     def threw_failure?
       return false unless failed?
 
@@ -443,7 +443,7 @@ module CMDx
     # @return [Boolean] true if this result received a thrown failure
     #
     # @example Check if result received thrown failure
-    #   result.thrown_failure? # => true
+    #   result.thrown_failure? #=> true
     def thrown_failure?
       failed? && !caused_failure?
     end
@@ -453,7 +453,7 @@ module CMDx
     # @return [Integer] the zero-based index of this result
     #
     # @example Get result index
-    #   result.index # => 2
+    #   result.index #=> 2
     def index
       chain.index(self)
     end
@@ -463,9 +463,9 @@ module CMDx
     # @return [String] the outcome (state or status)
     #
     # @example Get result outcome
-    #   result.outcome # => "success"
+    #   result.outcome #=> "success"
     #   result.fail!
-    #   result.outcome # => "failed"
+    #   result.outcome #=> "failed"
     def outcome
       initialized? || thrown_failure? ? state : status
     end
@@ -477,10 +477,10 @@ module CMDx
     # @return [Float, nil] the runtime in seconds, or nil if not measured
     #
     # @example Get existing runtime
-    #   result.runtime # => 1.234
+    #   result.runtime #=> 1.234
     #
     # @example Measure runtime with block
-    #   result.runtime { sleep 1 } # => 1.0
+    #   result.runtime { sleep 1 } #=> 1.0
     def runtime(&)
       return @runtime unless block_given?
 
@@ -492,7 +492,7 @@ module CMDx
     # @return [Hash] serialized representation of the result
     #
     # @example Convert to hash
-    #   result.to_h # => { state: "complete", status: "success", ... }
+    #   result.to_h #=> { state: "complete", status: "success", ... }
     def to_h
       ResultSerializer.call(self)
     end
@@ -502,7 +502,7 @@ module CMDx
     # @return [String] formatted string representation
     #
     # @example Convert to string
-    #   result.to_s # => "Result[complete/success]"
+    #   result.to_s #=> "Result[complete/success]"
     def to_s
       ResultInspector.call(to_h)
     end

@@ -24,7 +24,7 @@ module CMDx
     #
     # @example Create a new validator registry
     #   registry = ValidatorRegistry.new
-    #   registry.registry.keys # => [:exclusion, :format, :inclusion, :length, :numeric, :presence]
+    #   registry.registry.keys #=> [:exclusion, :format, :inclusion, :length, :numeric, :presence]
     def initialize
       @registry = {
         exclusion: Validators::Exclusion,
@@ -83,15 +83,15 @@ module CMDx
     #
     # @example Validate with a built-in validator
     #   registry.call(task, :presence, "", {})
-    #   # => may raise ValidationError if value is blank
+    #   #=> may raise ValidationError if value is blank
     #
     # @example Validate with options
     #   registry.call(task, :length, "hello", minimum: 3, maximum: 10)
-    #   # => validates string length is between 3 and 10 characters
+    #   #=> validates string length is between 3 and 10 characters
     #
     # @example Conditional validation that gets skipped
     #   registry.call(task, :presence, "", if: -> { false })
-    #   # => returns nil without performing validation
+    #   #=> returns nil without performing validation
     def call(task, type, value, options = {})
       raise UnknownValidatorError, "unknown validator #{type}" unless registry.key?(type)
       return unless task.cmdx_eval(options)

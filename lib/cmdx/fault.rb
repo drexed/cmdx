@@ -28,7 +28,7 @@ module CMDx
     #   result = CMDx::Result.new(task)
     #   result.fail!(reason: "Database connection failed")
     #   fault = CMDx::Fault.new(result)
-    #   fault.message # => "Database connection failed"
+    #   fault.message #=> "Database connection failed"
     def initialize(result)
       @result = result
       super(result.metadata[:reason] || I18n.t("cmdx.faults.unspecified", default: "no reason given"))
@@ -52,7 +52,7 @@ module CMDx
       #   result = CMDx::Result.new(task)
       #   result.fail!
       #   fault = CMDx::Fault.build(result)
-      #   fault.class # => CMDx::Failed
+      #   fault.class #=> CMDx::Failed
       def build(result)
         fault = CMDx.const_get(result.status.capitalize)
         fault.new(result)

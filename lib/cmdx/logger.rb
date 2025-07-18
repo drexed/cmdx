@@ -32,7 +32,7 @@ module CMDx
     #
     #   task = MyTask.call
     #   logger = CMDx::Logger.call(task)
-    #   # => Returns configured logger with DEBUG level and JSON formatter
+    #   #=> Returns configured logger with DEBUG level and JSON formatter
     def call(task)
       logger = task.cmd_setting(:logger)
 

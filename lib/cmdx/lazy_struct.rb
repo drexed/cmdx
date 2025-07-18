@@ -1,29 +1,28 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Hash-like data structure with dynamic attribute access and automatic key normalization.
+  # Flexible struct-like object with symbol-based attribute access and dynamic assignment.
   #
-  # LazyStruct provides a flexible data container that combines hash-like access patterns
-  # with dynamic method calls. All keys are automatically converted to symbols for
-  # consistent access, and the structure supports both bracket notation and method-style
-  # attribute access through method_missing.
+  # LazyStruct provides a hash-like object that automatically converts string keys to symbols
+  # and supports both hash-style and method-style attribute access. It's designed for
+  # storing and accessing dynamic attributes with lazy evaluation and flexible assignment patterns.
   class LazyStruct
 
-    # Creates a new LazyStruct instance from the provided arguments.
+    # Creates a new LazyStruct instance with the provided attributes.
     #
-    # @param args [Hash, #to_h] initial data for the structure, must respond to to_h
+    # @param args [Hash, #to_h] initial attributes for the struct
     #
     # @return [LazyStruct] a new LazyStruct instance
     #
     # @raise [ArgumentError] if args doesn't respond to to_h
     #
-    # @example Create with hash data
+    # @example Create with hash attributes
     #   struct = LazyStruct.new(name: "John", age: 30)
-    #   struct.name # => "John"
+    #   struct.name #=> "John"
     #
     # @example Create with hash-like object
     #   struct = LazyStruct.new(OpenStruct.new(status: "active"))
-    #   struct.status # => "active"
+    #   struct.status #=> "active"
     def initialize(args = {})
       unless args.respond_to?(:to_h)
         raise ArgumentError,
@@ -35,34 +34,36 @@ module CMDx
 
     # Retrieves the value for the specified key.
     #
-    # @param key [Symbol, String] the key to retrieve
+    # @param key [Symbol, String] the key to look up
     #
     # @return [Object, nil] the value associated with the key, or nil if not found
     #
-    # @example Access existing key
+    # @example Access attribute by symbol
     #   struct = LazyStruct.new(name: "John")
-    #   struct[:name] # => "John"
-    #   struct["name"] # => "John"
+    #   struct[:name] #=> "John"
+    #
+    # @example Access attribute by string
+    #   struct[:name] #=> "John"
+    #   struct["name"] #=> "John"
     def [](key)
       table[symbolized_key(key)]
     end
 
-    # Fetches the value for the specified key with optional default handling.
+    # Retrieves the value for the specified key or returns/yields a default.
     #
-    # @param key [Symbol, String] the key to fetch
-    # @param args [Array] optional default value or block arguments
+    # @param key [Symbol, String] the key to look up
+    # @param args [Array] additional arguments passed to Hash#fetch
     #
-    # @return [Object] the value associated with the key, or default if not found
+    # @return [Object] the value associated with the key, or default value
     #
     # @raise [KeyError] if key is not found and no default is provided
     #
     # @example Fetch with default value
     #   struct = LazyStruct.new(name: "John")
-    #   struct.fetch!(:name) # => "John"
-    #   struct.fetch!(:missing, "default") # => "default"
+    #   struct.fetch!(:age, 25) #=> 25
     #
-    # @example Fetch with block
-    #   struct.fetch!(:missing) { "computed default" } # => "computed default"
+    # @example Fetch with block default
+    #   struct.fetch!(:missing) { "default" } #=> "default"
     def fetch!(key, ...)
       table.fetch(symbolized_key(key), ...)
     end
@@ -76,107 +77,115 @@ module CMDx
     #
     # @example Store a value
     #   struct = LazyStruct.new
-    #   struct.store!(:name, "John") # => "John"
-    #   struct[:name] # => "John"
+    #   struct.store!(:name, "John") #=> "John"
+    #   struct.name #=> "John"
     def store!(key, value)
       table[symbolized_key(key)] = value
     end
     alias []= store!
 
-    # Merges the provided arguments into the current structure.
+    # Merges the provided arguments into the struct's attributes.
     #
-    # @param args [Hash, #to_h] the data to merge, must respond to to_h
+    # @param args [Hash, #to_h] attributes to merge into the struct
     #
-    # @return [LazyStruct] returns self for method chaining
+    # @return [LazyStruct] self for method chaining
     #
-    # @example Merge additional data
+    # @example Merge attributes
     #   struct = LazyStruct.new(name: "John")
     #   struct.merge!(age: 30, city: "NYC")
-    #   struct.age # => 30
+    #   struct.age #=> 30
     def merge!(args = {})
       args.to_h.each { |key, value| store!(symbolized_key(key), value) }
       self
     end
 
-    # Deletes the specified key from the structure.
+    # Deletes the specified key from the struct.
     #
     # @param key [Symbol, String] the key to delete
-    # @param block [Proc] optional block to execute if key is not found
+    # @param block [Proc] optional block to yield if key is not found
     #
     # @return [Object, nil] the deleted value, or result of block if key not found
     #
-    # @example Delete a key
+    # @example Delete an attribute
     #   struct = LazyStruct.new(name: "John", age: 30)
-    #   struct.delete!(:age) # => 30
-    #   struct.age # => nil
+    #   struct.delete!(:age) #=> 30
+    #   struct.age #=> nil
+    #
+    # @example Delete with default block
+    #   struct.delete!(:missing) { "not found" } #=> "not found"
     def delete!(key, &)
       table.delete(symbolized_key(key), &)
     end
     alias delete_field! delete!
 
-    # Checks equality with another LazyStruct instance.
+    # Checks equality with another object.
     #
-    # @param other [Object] the object to compare with
+    # @param other [Object] the object to compare against
     #
-    # @return [Boolean] true if both objects are LazyStruct instances with the same data
+    # @return [Boolean] true if other is a LazyStruct with identical attributes
     #
-    # @example Compare structures
+    # @example Compare structs
     #   struct1 = LazyStruct.new(name: "John")
     #   struct2 = LazyStruct.new(name: "John")
-    #   struct1.eql?(struct2) # => true
+    #   struct1.eql?(struct2) #=> true
     def eql?(other)
       other.is_a?(self.class) && (to_h == other.to_h)
     end
     alias == eql?
 
-    # Extracts nested values using the specified key path.
+    # Extracts nested values using key path traversal.
     #
-    # @param key [Symbol, String] the first key in the path
-    # @param keys [Array] additional keys for nested access
+    # @param key [Symbol, String] the initial key to look up
+    # @param keys [Array<Symbol, String>] additional keys for nested traversal
     #
-    # @return [Object, nil] the value at the specified path, or nil if not found
+    # @return [Object, nil] the nested value, or nil if any key in the path is missing
     #
     # @example Dig into nested structure
     #   struct = LazyStruct.new(user: { profile: { name: "John" } })
-    #   struct.dig(:user, :profile, :name) # => "John"
+    #   struct.dig(:user, :profile, :name) #=> "John"
+    #   struct.dig(:user, :missing, :name) #=> nil
     def dig(key, *keys)
       table.dig(symbolized_key(key), *keys)
     end
 
-    # Iterates over each key-value pair in the structure.
+    # Iterates over each key-value pair in the struct.
     #
-    # @param block [Proc] the block to execute for each pair
+    # @param block [Proc] the block to execute for each key-value pair
     #
-    # @return [LazyStruct] returns self if block given, otherwise returns enumerator
+    # @return [Enumerator, LazyStruct] an enumerator if no block given, self otherwise
     #
     # @example Iterate over pairs
     #   struct = LazyStruct.new(name: "John", age: 30)
     #   struct.each_pair { |key, value| puts "#{key}: #{value}" }
-    #   # Output: name: John, age: 30
+    #   # Output: name: John
+    #   #         age: 30
     def each_pair(&)
       table.each_pair(&)
     end
 
-    # Converts the structure to a hash representation.
+    # Converts the struct to a hash representation.
     #
-    # @param block [Proc] optional block for hash transformation
+    # @param block [Proc] optional block for transforming key-value pairs
     #
-    # @return [Hash] hash representation of the structure
+    # @return [Hash] a hash containing all the struct's attributes
     #
     # @example Convert to hash
     #   struct = LazyStruct.new(name: "John", age: 30)
-    #   struct.to_h # => {:name=>"John", :age=>30}
+    #   struct.to_h #=> { name: "John", age: 30 }
+    #
+    # @example Convert with transformation
+    #   struct.to_h { |k, v| [k.to_s, v.to_s] } #=> { "name" => "John", "age" => "30" }
     def to_h(&)
       table.to_h(&)
     end
 
-    # Returns a string representation of the structure.
+    # Returns a string representation of the struct for debugging.
     #
-    # @return [String] formatted string showing class name and key-value pairs
+    # @return [String] a formatted string showing the class name and attributes
     #
-    # @example Inspect structure
+    # @example Inspect struct
     #   struct = LazyStruct.new(name: "John", age: 30)
-    #   struct.inspect # => "#<CMDx::LazyStruct :name=\"John\" :age=30>"
+    #   struct.inspect #=> "#<CMDx::LazyStruct :name=\"John\" :age=30>"
     def inspect
       "#<#{self.class.name}#{table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
     end
@@ -184,50 +193,49 @@ module CMDx
 
     private
 
-    # Returns the internal hash table, initializing it if needed.
+    # Returns the internal hash table storing the struct's attributes.
     #
-    # @return [Hash] the internal hash storage
+    # @return [Hash] the internal attribute storage
     def table
       @table ||= {}
     end
 
-    # Provides dynamic method access to stored values and assignment.
+    # Handles dynamic method calls for attribute access and assignment.
     #
     # @param method_name [Symbol] the method name being called
-    # @param args [Array] method arguments
+    # @param args [Array] arguments passed to the method
     # @param _kwargs [Hash] keyword arguments (unused)
-    # @param block [Proc] optional block (unused)
+    # @param block [Proc] block passed to the method (unused)
     #
-    # @return [Object] the value for the method name, or result of assignment
+    # @return [Object, nil] the attribute value for getters, or the assigned value for setters
     #
-    # @example Dynamic method access
+    # @example Dynamic attribute access
     #   struct = LazyStruct.new(name: "John")
-    #   struct.name # => "John"
-    #   struct.age = 30
-    #   struct.age # => 30
+    #   struct.name #=> "John"
+    #   struct.age = 30 #=> 30
     def method_missing(method_name, *args, **_kwargs, &)
       table.fetch(symbolized_key(method_name)) do
         store!(method_name[0..-2], args.first) if method_name.end_with?("=")
       end
     end
 
-    # Checks if the structure responds to the specified method name.
+    # Checks if the struct responds to a method name.
     #
     # @param method_name [Symbol] the method name to check
     # @param include_private [Boolean] whether to include private methods
     #
-    # @return [Boolean] true if method is available or key exists in structure
+    # @return [Boolean] true if the struct has the attribute or responds to the method
     def respond_to_missing?(method_name, include_private = false)
       table.key?(symbolized_key(method_name)) || super
     end
 
     # Converts a key to a symbol for consistent internal storage.
     #
-    # @param key [Object] the key to convert to symbol
+    # @param key [Symbol, String, Object] the key to convert
     #
     # @return [Symbol] the symbolized key
     #
-    # @raise [TypeError] if key cannot be converted to symbol
+    # @raise [TypeError] if the key cannot be converted to a symbol
     def symbolized_key(key)
       key.to_sym
     rescue NoMethodError
