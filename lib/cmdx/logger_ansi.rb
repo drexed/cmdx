@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
-  # ANSI color formatting utilities for log severity levels.
+  # ANSI color formatting for logger severity levels and text output.
   #
-  # This module provides functionality to apply ANSI color codes to log messages
-  # based on their severity level. It maps standard log severity indicators to
-  # appropriate colors for enhanced readability in terminal output.
+  # LoggerAnsi provides utility methods for applying ANSI color codes to logger
+  # severity indicators and general text formatting. It maps standard logger
+  # severity levels to appropriate colors for enhanced readability in terminal output,
+  # delegating actual color application to the AnsiColor utility module.
   module LoggerAnsi
 
     SEVERITY_COLORS = {
@@ -18,32 +19,47 @@ module CMDx
 
     module_function
 
-    # Applies ANSI color formatting to a log message based on its severity level.
+    # Applies ANSI color formatting to text based on severity level indication.
     #
-    # @param s [String] the log message string to format
+    # This method extracts the color for the given text based on its first character
+    # (typically a severity indicator) and applies both the determined color and bold
+    # formatting using the AnsiColor utility. The method provides consistent color
+    # formatting for logger output across the CMDx framework.
     #
-    # @return [String] the formatted message with ANSI color codes applied
+    # @param s [String] the text to format, typically starting with a severity indicator
     #
-    # @example Format a debug message
-    #   CMDx::LoggerAnsi.call("DEBUG: Starting process") #=> "\e[1;34;49mDEBUG: Starting process\e[0m"
+    # @return [String] the formatted text with ANSI color and bold styling applied
     #
-    # @example Format an error message
-    #   CMDx::LoggerAnsi.call("ERROR: Connection failed") #=> "\e[1;31;49mERROR: Connection failed\e[0m"
+    # @example Format debug severity text
+    #   LoggerAnsi.call("DEBUG: Starting process") #=> "\e[1;34;49mDEBUG: Starting process\e[0m"
+    #
+    # @example Format error severity text
+    #   LoggerAnsi.call("ERROR: Operation failed") #=> "\e[1;31;49mERROR: Operation failed\e[0m"
+    #
+    # @example Format text with unknown severity
+    #   LoggerAnsi.call("CUSTOM: Message") #=> "\e[1;39;49mCUSTOM: Message\e[0m"
     def call(s)
       Utils::AnsiColor.call(s, color: color(s), mode: :bold)
     end
 
-    # Determines the appropriate color for a log message based on its severity level.
+    # Determines the appropriate color for text based on its severity indicator.
     #
-    # @param s [String] the log message string to analyze
+    # This method extracts the first character from the provided text and maps it
+    # to a corresponding color defined in SEVERITY_COLORS. If no matching severity
+    # is found, it returns the default color to ensure consistent formatting behavior.
     #
-    # @return [Symbol] the color symbol corresponding to the severity level
+    # @param s [String] the text to analyze, typically starting with a severity indicator
     #
-    # @example Get color for debug message
-    #   CMDx::LoggerAnsi.color("DEBUG: message") #=> :blue
+    # @return [Symbol] the color symbol corresponding to the severity level, or :default if not found
+    #
+    # @example Get color for debug severity
+    #   LoggerAnsi.color("DEBUG: Message") #=> :blue
+    #
+    # @example Get color for error severity
+    #   LoggerAnsi.color("ERROR: Failed") #=> :red
     #
     # @example Get color for unknown severity
-    #   CMDx::LoggerAnsi.color("UNKNOWN: message") #=> :default
+    #   LoggerAnsi.color("UNKNOWN: Text") #=> :default
     def color(s)
       SEVERITY_COLORS[s[0]] || :default
     end
