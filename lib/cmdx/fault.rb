@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Exception class for task execution faults with result context.
+  # Base fault class for handling task execution failures and interruptions.
   #
-  # Fault provides a specialized exception that carries task execution context
-  # including the failed result, task instance, and execution chain. It serves
-  # as the base class for specific fault types and provides factory methods
-  # for creating fault instances and conditional fault matchers.
+  # Faults are exceptions raised when tasks encounter specific execution states
+  # that prevent normal completion. Unlike regular exceptions, faults carry
+  # rich context information including the task result, execution chain, and
+  # contextual data that led to the fault condition. Faults can be caught and
+  # handled based on specific task types or custom matching criteria.
   class Fault < Error
 
     cmdx_attr_delegator :task, :chain, :context,
@@ -15,20 +16,16 @@ module CMDx
     # @return [CMDx::Result] the result object that caused this fault
     attr_reader :result
 
-    # Creates a new fault instance with the given result context.
+    # Creates a new fault instance from a task execution result.
     #
-    # The fault message is derived from the result's metadata reason or falls
-    # back to a default internationalized message if no reason is provided.
+    # @param result [CMDx::Result] the task result that caused the fault
     #
-    # @param result [CMDx::Result] the failed task result that caused this fault
+    # @return [CMDx::Fault] the newly created fault instance
     #
-    # @return [Fault] the newly created fault instance
-    #
-    # @example Create a fault from a failed result
-    #   result = CMDx::Result.new(task)
-    #   result.fail!(reason: "Database connection failed")
+    # @example Create fault from failed task result
+    #   result = SomeTask.call(invalid_data: true)
     #   fault = CMDx::Fault.new(result)
-    #   fault.message #=> "Database connection failed"
+    #   fault.task #=> SomeTask instance
     def initialize(result)
       @result = result
       super(result.metadata[:reason] || I18n.t("cmdx.faults.unspecified", default: "no reason given"))
@@ -36,21 +33,25 @@ module CMDx
 
     class << self
 
-      # Builds a fault instance based on the result's status.
+      # Builds a specific fault type based on the result's status.
       #
-      # Creates a specific fault subclass by capitalizing the result status
-      # and looking up the corresponding fault class constant. This allows
-      # for status-specific fault types like Failed, Skipped, etc.
+      # Creates an instance of the appropriate fault subclass (Skipped, Failed, etc.)
+      # by capitalizing the result status and looking up the corresponding fault class.
+      # This provides dynamic fault creation based on task execution outcomes.
       #
-      # @param result [CMDx::Result] the failed task result
+      # @param result [CMDx::Result] the task result to build a fault from
       #
-      # @return [Fault] a fault instance of the appropriate subclass
+      # @return [CMDx::Fault] an instance of the appropriate fault subclass
       #
       # @raise [NameError] if no fault class exists for the result status
       #
-      # @example Build a fault for a failed result
-      #   result = CMDx::Result.new(task)
-      #   result.fail!
+      # @example Build fault from skipped task result
+      #   result = SomeTask.call # result.status is :skipped
+      #   fault = CMDx::Fault.build(result)
+      #   fault.class #=> CMDx::Skipped
+      #
+      # @example Build fault from failed task result
+      #   result = SomeTask.call # result.status is :failed
       #   fault = CMDx::Fault.build(result)
       #   fault.class #=> CMDx::Failed
       def build(result)
@@ -60,19 +61,28 @@ module CMDx
 
       # Creates a fault matcher that matches faults from specific task classes.
       #
-      # Returns a temporary fault class that can be used in rescue clauses
-      # to catch faults only from the specified task types. The matcher uses
-      # the === operator to check if the fault's task is an instance of any
-      # of the given task classes.
+      # Returns a dynamically created fault class that can be used in rescue blocks
+      # to catch faults only when they originate from specific task types. This enables
+      # selective fault handling based on the task that generated the fault.
       #
-      # @param tasks [Array<Class>] task classes to match against
+      # @param tasks [Array<Class>] one or more task classes to match against
       #
-      # @return [Class] a temporary fault class that matches the specified tasks
+      # @return [Class] a fault matcher class that responds to case equality
       #
-      # @example Match faults from specific task classes
-      #   rescue CMDx::Fault.for?(UserCreateTask, UserUpdateTask) => fault
-      #     # Handle faults only from user-related tasks
-      #     logger.error "User operation failed: #{fault.message}"
+      # @example Catch faults from specific task types
+      #   begin
+      #     PaymentTask.call!
+      #   rescue CMDx::Fault.for?(PaymentTask, RefundTask) => e
+      #     puts "Payment operation failed: #{e.message}"
+      #   end
+      #
+      # @example Match faults from multiple task types
+      #   UserTaskFaults = CMDx::Fault.for?(CreateUserTask, UpdateUserTask, DeleteUserTask)
+      #
+      #   begin
+      #     workflow.call!
+      #   rescue CMDx::Fault.for?(CreateUserTask, UpdateUserTask, DeleteUserTask) => e
+      #     handle_user_operation_failure(e)
       #   end
       def for?(*tasks)
         temp_fault = Class.new(self) do
@@ -84,22 +94,33 @@ module CMDx
         temp_fault.tap { |c| c.instance_variable_set(:@tasks, tasks) }
       end
 
-      # Creates a fault matcher that matches faults based on a custom condition.
+      # Creates a fault matcher using a custom block for matching criteria.
       #
-      # Returns a temporary fault class that can be used in rescue clauses
-      # to catch faults that satisfy the given block condition. The matcher
-      # uses the === operator to evaluate the block against the fault instance.
+      # Returns a dynamically created fault class that uses the provided block
+      # to determine if a fault should be matched. The block receives the fault
+      # instance and should return true if the fault matches the desired criteria.
+      # This enables custom fault handling logic beyond simple task type matching.
       #
-      # @param block [Proc] the condition block to evaluate against fault instances
+      # @param block [Proc] a block that receives a fault and returns boolean
       #
-      # @return [Class] a temporary fault class that matches the block condition
+      # @return [Class] a fault matcher class that responds to case equality
       #
       # @raise [ArgumentError] if no block is provided
       #
-      # @example Match faults based on custom condition
-      #   rescue CMDx::Fault.matches? { |f| f.task.context.user_id == current_user.id } => fault
-      #     # Handle faults only for current user's operations
-      #     notify_user_of_failure(fault)
+      # @example Match faults by custom criteria
+      #   begin
+      #     LongRunningTask.call!
+      #   rescue CMDx::Fault.matches? { |fault| fault.context[:timeout_exceeded] } => e
+      #     puts "Task timed out: #{e.message}"
+      #   end
+      #
+      # @example Match faults by metadata content
+      #   ValidationFault = CMDx::Fault.matches? { |fault| fault.result.metadata[:type] == "validation_error" }
+      #
+      #   begin
+      #     ValidateUserTask.call!
+      #   rescue ValidationFault => e
+      #     display_validation_errors(e.result.errors)
       #   end
       def matches?(&block)
         raise ArgumentError, "block required" unless block_given?
