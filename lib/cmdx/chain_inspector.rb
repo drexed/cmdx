@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Provides formatted inspection and display functionality for execution chains.
+  # Provides formatted inspection and display functionality for chain execution results.
   #
-  # This module formats chain execution information into a human-readable string
-  # representation, including the chain ID, individual task results, and summary
-  # information about the chain's final state.
+  # ChainInspector creates human-readable string representations of execution chains,
+  # displaying chain metadata, individual task results, and execution summary information
+  # in a formatted layout. The inspector processes chain data to provide comprehensive
+  # debugging and monitoring output for task execution sequences.
   module ChainInspector
 
     FOOTER_KEYS = %i[
@@ -14,31 +15,30 @@ module CMDx
 
     module_function
 
-    # Formats a chain into a human-readable inspection string.
+    # Formats a chain into a human-readable inspection string with headers, results, and summary.
     #
-    # Creates a formatted display showing the chain ID, individual task results,
-    # and summary footer with execution state information. The output includes
-    # visual separators and structured formatting for easy reading.
+    # Creates a comprehensive string representation of the execution chain including
+    # a header with the chain ID, formatted individual task results, and a footer
+    # summary with key execution metadata. The output uses visual separators for
+    # clear section delineation and consistent formatting.
     #
-    # @param chain [CMDx::Chain] the chain object to inspect
+    # @param chain [Chain] the execution chain to format and inspect
     #
-    # @return [String] formatted multi-line string representation of the chain
+    # @return [String] formatted multi-line string representation of the chain execution
     #
-    # @raise [NoMethodError] if chain doesn't respond to required methods (id, results, state, status, outcome, runtime)
-    #
-    # @example Inspect a simple chain
-    #   chain = CMDx::Chain.new(id: "abc123")
-    #   result = CMDx::Result.new(task)
-    #   chain.results << result
-    #   puts CMDx::ChainInspector.call(chain)
-    #   # Output:
-    #   # chain: abc123
-    #   # ===================
+    # @example Format a simple chain
+    #   chain = MyWorkflow.call(user_id: 123)
+    #   output = ChainInspector.call(chain.chain)
+    #   puts output
+    #   # =>
+    #   # chain: abc123-def456-789
+    #   # ===============================
     #   #
-    #   # {:state=>"complete", :status=>"success", ...}
+    #   # {:task=>"MyTask", :state=>"complete", :status=>"success"}
+    #   # {:task=>"OtherTask", :state=>"complete", :status=>"success"}
     #   #
-    #   # ===================
-    #   # state: complete | status: success | outcome: success | runtime: 0.001
+    #   # ===============================
+    #   # state: complete | status: success | outcome: good | runtime: 0.025
     def call(chain)
       header = "\nchain: #{chain.id}"
       footer = FOOTER_KEYS.map { |key| "#{key}: #{chain.send(key)}" }.join(" | ")
