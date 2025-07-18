@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
+[1.5]
+- Rebuild parameters to use a less magical approach
+- Validators to add errors directly instead of raising errors
+- Coercions to add errors directly instead of raising errors
+- Update procs to call with object as first item
+[1.1.1]
 - Add table and pretty_table log formatters
 - Refactor all `docs`
 

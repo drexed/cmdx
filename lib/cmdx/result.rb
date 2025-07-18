@@ -302,7 +302,6 @@ module CMDx
     # Transitions the result to skipped status and sets metadata
     #
     # @param metadata [Hash] additional metadata about why the task was skipped
-    #
     # @option metadata [String] :reason the reason for skipping
     # @option metadata [Exception] :original_exception the original exception that caused skipping
     #
@@ -329,7 +328,6 @@ module CMDx
     # Transitions the result to failed status and sets metadata
     #
     # @param metadata [Hash] additional metadata about the failure
-    #
     # @option metadata [String] :error the error message
     # @option metadata [Exception] :original_exception the original exception that caused failure
     #
