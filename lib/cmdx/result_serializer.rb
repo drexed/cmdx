@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Provides serialization functionality for CMDx::Result objects,
-  # converting them into structured hash representations suitable for
-  # logging, storage, or transmission.
+  # Result serialization module for converting result objects to hash format.
+  #
+  # This module provides functionality to serialize result objects into a
+  # standardized hash representation that includes essential metadata about
+  # the result such as task information, execution state, status, outcome,
+  # metadata, and runtime. For failed results, it intelligently strips
+  # redundant failure information to avoid duplication in serialized output.
   module ResultSerializer
 
-    # A proc that removes failure-related metadata from the hash representation
-    # when the result hasn't actually failed in the specified way.
-    # This prevents duplicate failure information from appearing in logs.
+    # Proc for stripping failure information from serialized results.
+    # Removes caused_failure and threw_failure keys when the result doesn't
+    # have the corresponding failure state, avoiding redundant information.
     STRIP_FAILURE = proc do |h, r, k|
       unless r.send(:"#{k}?")
         # Strip caused/threw failures since its the same info as the log line
@@ -18,33 +22,67 @@ module CMDx
 
     module_function
 
-    # Converts a Result object into a structured hash representation.
-    # Combines task serialization data with result-specific information
-    # including execution state, status, outcome, metadata, and runtime.
+    # Serializes a result object into a hash representation.
+    #
+    # Converts a result instance into a standardized hash format containing
+    # task metadata and execution information. For failed results, applies
+    # intelligent failure stripping to remove redundant caused_failure and
+    # threw_failure information that would duplicate log output.
     #
     # @param result [CMDx::Result] the result object to serialize
     #
-    # @return [Hash] a structured hash containing task information and result details
-    #   including :state, :status, :outcome, :metadata, :runtime, and optionally
-    #   :caused_failure and :threw_failure if the result failed
+    # @return [Hash] a hash containing the result's metadata and execution information
+    # @option return [Integer] :index the result's position index in the execution chain
+    # @option return [String] :chain_id the unique identifier of the result's execution chain
+    # @option return [String] :type the task type, either "Task" or "Workflow"
+    # @option return [String] :class the full class name of the task
+    # @option return [String] :id the unique identifier of the task instance
+    # @option return [Array] :tags the tags associated with the task from cmd settings
+    # @option return [Symbol] :state the execution state (:executing, :complete, :interrupted)
+    # @option return [Symbol] :status the execution status (:success, :failed, :skipped)
+    # @option return [Symbol] :outcome the execution outcome (:good, :bad)
+    # @option return [Hash] :metadata additional metadata collected during execution
+    # @option return [Float] :runtime the execution runtime in seconds
+    # @option return [Hash] :caused_failure failure information if result caused a failure (stripped for non-failed results)
+    # @option return [Hash] :threw_failure failure information if result threw a failure (stripped for non-failed results)
     #
-    # @raise [NoMethodError] if result doesn't respond to expected methods
-    # @raise [TypeError] if result.task is invalid for TaskSerializer
+    # @raise [NoMethodError] if the result doesn't respond to required methods
     #
-    # @example Serializing a successful result
-    #   result = task.call
-    #   CMDx::ResultSerializer.call(result)
-    #   #=> { index: 0, chain_id: "abc123", type: "Task", class: "MyTask",
-    #   #     id: "def456", tags: [], state: "complete", status: "success",
-    #   #     outcome: "good", metadata: {}, runtime: 0.05 }
+    # @example Serialize a successful result
+    #   task = SuccessfulTask.new(data: "test")
+    #   ResultSerializer.call(result)
+    #   # => {
+    #   #   index: 0,
+    #   #   chain_id: "abc123",
+    #   #   type: "Task",
+    #   #   class: "SuccessfulTask",
+    #   #   id: "def456",
+    #   #   tags: [],
+    #   #   state: :complete,
+    #   #   status: :success,
+    #   #   outcome: :good,
+    #   #   metadata: {},
+    #   #   runtime: 0.045
+    #   # }
     #
-    # @example Serializing a failed result
-    #   result = task.call
-    #   CMDx::ResultSerializer.call(result)
-    #   #=> { index: 0, chain_id: "abc123", type: "Task", class: "MyTask",
-    #   #     id: "def456", tags: [], state: "interrupted", status: "failed",
-    #   #     outcome: "bad", metadata: { error: "Something went wrong" },
-    #   #     runtime: 0.02, caused_failure: {...}, threw_failure: {...} }
+    # @example Serialize a failed result with failure stripping
+    #   task = FailingTask.call
+    #   ResultSerializer.call(task.result)
+    #   # => {
+    #   #   index: 1,
+    #   #   chain_id: "xyz789",
+    #   #   type: "Task",
+    #   #   class: "FailingTask",
+    #   #   id: "ghi012",
+    #   #   tags: [],
+    #   #   state: :interrupted,
+    #   #   status: :failed,
+    #   #   outcome: :bad,
+    #   #   metadata: { reason: "Database connection failed" },
+    #   #   runtime: 0.012,
+    #   #   caused_failure: { message: "Task failed", ... },
+    #   #   threw_failure: { message: "Validation error", ... },
+    #   # }
     def call(result)
       TaskSerializer.call(result.task).tap do |hash|
         hash.merge!(
