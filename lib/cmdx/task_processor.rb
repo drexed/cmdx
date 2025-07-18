@@ -1,82 +1,72 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Handles the execution orchestration of Task instances with middleware and callback support.
+  # Core task execution processor handling the complete task lifecycle.
   #
-  # TaskProcessor provides the core execution logic for Task instances, managing
-  # the complete lifecycle including parameter validation, callback execution,
-  # middleware processing, error handling, and result finalization. It supports
-  # both regular and bang execution modes with different error handling behaviors.
+  # TaskProcessor manages the execution pipeline for individual tasks, coordinating
+  # parameter validation, callback invocation, error handling, and result state
+  # management. It provides both safe execution (capturing exceptions) and unsafe
+  # execution (re-raising exceptions) modes through call and call! methods respectively.
+  # The processor ensures proper state transitions, handles fault propagation, and
+  # maintains execution context throughout the task lifecycle.
   class TaskProcessor
 
     # @return [CMDx::Task] The task instance being executed
     attr_reader :task
 
-    # Creates a new TaskProcessor instance for the specified task.
+    # Creates a new task processor for the specified task instance.
     #
-    # @param task [CMDx::Task] the task instance to execute
+    # @param task [CMDx::Task] the task instance to process
     #
-    # @return [TaskProcessor] a new TaskProcessor instance
+    # @return [TaskProcessor] a new processor instance for the task
     #
-    # @example Create processor for a task
+    # @example Create a processor for a task
     #   task = MyTask.new(user_id: 123)
     #   processor = TaskProcessor.new(task)
-    #   processor.task # => #<MyTask:...>
     def initialize(task)
       @task = task
     end
 
     class << self
 
-      # Executes a task with full error handling and result management.
+      # Executes the specified task and returns the result without raising exceptions.
       #
-      # This is a convenience method that creates a new TaskProcessor instance
-      # and immediately calls the safe execution method. It provides the same
-      # comprehensive error handling as the instance method, catching faults
-      # and StandardErrors and converting them to failed results.
+      # Creates a new processor instance and executes the task through the complete
+      # lifecycle including validation, callbacks, and error handling. Exceptions
+      # are captured in the result rather than being raised to the caller.
       #
       # @param task [CMDx::Task] the task instance to execute
       #
-      # @return [Result] the task's result object after execution
+      # @return [CMDx::Result] the execution result containing state and status information
       #
-      # @raise [UndefinedCallError] if the task doesn't implement a call method
-      #
-      # @example Execute a task safely using class method
-      #   task = MyTask.new(name: "test")
+      # @example Execute a task safely
+      #   task = ProcessDataTask.new(data: raw_data)
       #   result = TaskProcessor.call(task)
-      #   result.success? # => true or false
-      #
-      # @example Handle task with validation errors
-      #   task = MyTask.new # missing required parameters
-      #   result = TaskProcessor.call(task)
-      #   result.failed? # => true
+      #   puts result.status # => "success", "failed", or "skipped"
       def call(task)
         new(task).call
       end
 
-      # Executes a task with bang semantics, re-raising exceptions.
+      # Executes the specified task and raises exceptions on failure.
       #
-      # This is a convenience method that creates a new TaskProcessor instance
-      # and immediately calls the strict execution method. It provides the same
-      # strict error handling as the instance method, re-raising exceptions
-      # after proper cleanup and chain clearing.
+      # Creates a new processor instance and executes the task through the complete
+      # lifecycle. Unlike call, this method will re-raise exceptions including
+      # Fault exceptions when their status matches the task's halt configuration.
       #
       # @param task [CMDx::Task] the task instance to execute
       #
-      # @return [Result] the task's result object after execution
+      # @return [CMDx::Result] the execution result on success
       #
-      # @raise [UndefinedCallError] if the task doesn't implement a call method
-      # @raise [Fault] if a fault occurs during execution
+      # @raise [CMDx::Fault] when a fault occurs with status matching task halt configuration
+      # @raise [StandardError] when unexpected errors occur during execution
       #
-      # @example Execute task with strict error handling
-      #   task = MyTask.new(name: "test")
-      #   result = TaskProcessor.call!(task) # raises on failure
-      #
-      # @example Handle exceptions in bang mode
+      # @example Execute a task with exception raising
+      #   task = CriticalTask.new(operation: "delete")
       #   begin
-      #     TaskProcessor.call!(task)
+      #     result = TaskProcessor.call!(task)
+      #     puts "Success: #{result.status}"
       #   rescue CMDx::Fault => e
-      #     puts "Task failed: #{e.result.status}"
+      #     puts "Task failed: #{e.message}"
       #   end
       def call!(task)
         new(task).call!
@@ -84,28 +74,24 @@ module CMDx
 
     end
 
-    # Executes the task with full error handling and result management.
+    # Executes the task with safe error handling and returns the result.
     #
-    # This method provides safe task execution with comprehensive error handling,
-    # automatic result state management, and callback execution. Faults are caught
-    # and processed according to task halt settings, while StandardErrors are
-    # converted to failed results.
+    # Runs the complete task execution pipeline including parameter validation,
+    # callback invocation, and the task's call method. Captures all exceptions
+    # as result status rather than raising them, ensuring the chain continues
+    # execution. Handles both standard errors and Fault exceptions according
+    # to the task's halt configuration.
     #
-    # @return [Result] the task's result object after execution
+    # @return [CMDx::Result] the execution result with captured state and status
     #
-    # @raise [UndefinedCallError] if the task doesn't implement a call method
-    #
-    # @example Execute a task safely
-    #   task = MyTask.new(name: "test")
+    # @example Safe task execution
     #   processor = TaskProcessor.new(task)
     #   result = processor.call
-    #   result.success? # => true or false
-    #
-    # @example Handle task with validation errors
-    #   task = MyTask.new # missing required parameters
-    #   processor = TaskProcessor.new(task)
-    #   result = processor.call
-    #   result.failed? # => true
+    #   if result.success?
+    #     puts "Task completed successfully"
+    #   else
+    #     puts "Task failed: #{result.metadata[:reason]}"
+    #   end
     def call
       task.result.runtime do
         before_call
@@ -128,27 +114,27 @@ module CMDx
       terminate_call
     end
 
-    # Executes the task with bang semantics, re-raising exceptions.
+    # Executes the task with exception raising on halt conditions.
     #
-    # This method provides strict task execution where exceptions are re-raised
-    # after proper cleanup. It clears the execution chain on failures and
-    # provides different error handling behavior compared to the regular call method.
+    # Runs the complete task execution pipeline including parameter validation,
+    # callback invocation, and the task's call method. Unlike call, this method
+    # will re-raise Fault exceptions when their status matches the task's halt
+    # configuration, and clears the execution chain before raising.
     #
-    # @return [Result] the task's result object after execution
+    # @return [CMDx::Result] the execution result on successful completion
     #
-    # @raise [UndefinedCallError] if the task doesn't implement a call method
-    # @raise [Fault] if a fault occurs during execution
+    # @raise [CMDx::Fault] when a fault occurs with status matching task halt configuration
+    # @raise [CMDx::UndefinedCallError] when the task's call method is not implemented
+    # @raise [StandardError] when unexpected errors occur during execution
     #
-    # @example Execute task with strict error handling
-    #   task = MyTask.new(name: "test")
-    #   processor = TaskProcessor.new(task)
-    #   result = processor.call! # raises on failure
-    #
-    # @example Handle exceptions in bang mode
+    # @example Task execution with exception raising
+    #   processor = TaskProcessor.new(critical_task)
     #   begin
-    #     processor.call!
+    #     result = processor.call!
+    #     puts "Task succeeded"
     #   rescue CMDx::Fault => e
-    #     puts "Task failed: #{e.result.status}"
+    #     puts "Critical failure: #{e.message}"
+    #     # Chain is cleared, execution stops
     #   end
     def call!
       task.result.runtime do
@@ -173,7 +159,11 @@ module CMDx
 
     private
 
-    # Executes pre-execution callbacks and parameter validation.
+    # Executes pre-execution callbacks and sets the task to executing state.
+    #
+    # Invokes before_execution callbacks, transitions the result to executing
+    # state, and triggers on_executing callbacks. This method prepares the
+    # task for execution and notifies registered callbacks about the state change.
     #
     # @return [void]
     def before_call
@@ -183,16 +173,14 @@ module CMDx
       task.cmd_callbacks.call(task, :on_executing)
     end
 
-    # Validates task parameters and handles validation errors.
+    # Validates task parameters and handles validation failures.
     #
-    # This method orchestrates the parameter validation process by executing
-    # validation callbacks, performing parameter validation, and handling
-    # any validation errors that occur. If validation fails, the task result
-    # is marked as failed with detailed error messages.
+    # Executes parameter validation callbacks, validates all task parameters
+    # against their defined rules, and sets the task result to failed if
+    # validation errors are found. Collects all validation messages into
+    # the result metadata.
     #
     # @return [void]
-    #
-    # @raise [Exception] Validations, coercions, or exceptions
     def validate_parameters
       task.cmd_callbacks.call(task, :before_validation)
 
@@ -207,19 +195,28 @@ module CMDx
       task.cmd_callbacks.call(task, :after_validation)
     end
 
-    # Clears the execution chain and re-raises the given exception.
+    # Clears the execution chain and raises the specified exception.
     #
-    # @param exception [Exception] the exception to re-raise after chain cleanup
+    # This method is used to clean up the execution context before
+    # re-raising exceptions, ensuring that the chain state is properly
+    # reset when execution cannot continue.
     #
-    # @return [void] this method never returns as it always raises
+    # @param exception [Exception] the exception to raise after clearing the chain
     #
-    # @raise [Exception] always re-raises the provided exception
+    # @return [void]
+    #
+    # @raise [Exception] the provided exception after chain cleanup
     def raise!(exception)
       Chain.clear
       raise(exception)
     end
 
-    # Executes post-execution callbacks based on result state and status.
+    # Executes post-execution callbacks based on task result state and status.
+    #
+    # Invokes appropriate callbacks based on the task's final execution state
+    # (success, failure, etc.) and status. Handles both state-specific and
+    # status-specific callback invocation, as well as general execution
+    # completion callbacks.
     #
     # @return [void]
     def after_call
@@ -233,9 +230,13 @@ module CMDx
       task.cmd_callbacks.call(task, :after_execution)
     end
 
-    # Finalizes task execution with immutability and logging.
+    # Finalizes task execution by freezing state and logging results.
     #
-    # @return [Result] the task's result object
+    # Applies immutability to the task instance and logs the execution
+    # result. This method ensures that the task state cannot be modified
+    # after execution and provides visibility into the execution outcome.
+    #
+    # @return [void]
     def terminate_call
       Immutator.call(task)
       ResultLogger.call(task.result)
