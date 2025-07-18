@@ -37,18 +37,18 @@ module CMDx
     # @return [Hash] Additional metadata associated with the result
     attr_reader :metadata
 
-    # Creates a new Result instance for the specified task.
+    # Initializes a new result for the given task
     #
-    # @param task [CMDx::Task] the task instance that will generate this result
+    # @param task [CMDx::Task] the task to create a result for
     #
-    # @return [Result] a new Result instance
+    # @return [CMDx::Result] a new result instance
     #
-    # @raise [TypeError] if task is not a Task or Workflow instance
+    # @raise [TypeError] if task is not a Task or Workflow
     #
     # @example Create a result for a task
-    #   task = MyTask.new
-    #   result = Result.new(task)
-    #   result.state # => "initialized"
+    #   result = CMDx::Result.new(my_task)
+    #   result.state   # => "initialized"
+    #   result.status  # => "success"
     def initialize(task)
       raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)
 
@@ -103,45 +103,45 @@ module CMDx
       end
     end
 
-    # Transitions the result to its final executed state based on current status.
+    # Marks the result as executed by transitioning to complete or interrupted state
+    # based on the current status
     #
-    # @return [Result] returns self for method chaining
+    # @return [void]
     #
-    # @example Complete successful execution
-    #   result.success? # => true
-    #   result.executed! # transitions to complete
+    # @example Mark successful task as executed
+    #   result.executed!
     #   result.complete? # => true
     #
-    # @example Handle failed execution
+    # @example Mark failed task as executed
     #   result.fail!
-    #   result.executed! # transitions to interrupted
+    #   result.executed!
     #   result.interrupted? # => true
     def executed!
       success? ? complete! : interrupt!
     end
 
-    # Checks if the result has finished executing (either complete or interrupted).
+    # Checks if the result has been executed (either complete or interrupted)
     #
-    # @return [Boolean] true if the result is in a final execution state
+    # @return [Boolean] true if the result is complete or interrupted
     #
-    # @example Check execution completion
+    # @example Check if result was executed
     #   result.executed? # => false
-    #   result.complete!
+    #   result.executed!
     #   result.executed? # => true
     def executed?
       complete? || interrupted?
     end
 
-    # Executes the provided block if the result has finished executing.
+    # Executes the provided block if the result has been executed
     #
-    # @param block [Proc] the block to execute if result is executed
+    # @param block [Proc] the block to execute if result was executed
     #
     # @return [Result] returns self for method chaining
     #
     # @raise [ArgumentError] if no block is provided
     #
-    # @example Handle executed result
-    #   result.on_executed { |r| puts "Task completed with #{r.status}" }
+    # @example Handle executed results
+    #   result.on_executed { |r| puts "Task execution finished" }
     def on_executed(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -149,14 +149,13 @@ module CMDx
       self
     end
 
-    # Transitions the result to executing state.
+    # Transitions the result to executing state
     #
-    # @return [Result] returns self for method chaining
+    # @return [void]
     #
     # @raise [RuntimeError] if not transitioning from initialized state
     #
     # @example Start task execution
-    #   result.initialized? # => true
     #   result.executing!
     #   result.executing? # => true
     def executing!
@@ -167,9 +166,9 @@ module CMDx
       @state = EXECUTING
     end
 
-    # Transitions the result to complete state.
+    # Transitions the result to complete state
     #
-    # @return [Result] returns self for method chaining
+    # @return [void]
     #
     # @raise [RuntimeError] if not transitioning from executing state
     #
@@ -185,15 +184,14 @@ module CMDx
       @state = COMPLETE
     end
 
-    # Transitions the result to interrupted state due to failure.
+    # Transitions the result to interrupted state
     #
-    # @return [Result] returns self for method chaining
+    # @return [void]
     #
-    # @raise [RuntimeError] if trying to transition from complete state
+    # @raise [RuntimeError] if transitioning from complete state
     #
-    # @example Interrupt execution on failure
+    # @example Interrupt task execution
     #   result.executing!
-    #   result.fail!
     #   result.interrupt!
     #   result.interrupted? # => true
     def interrupt!
@@ -243,19 +241,19 @@ module CMDx
       end
     end
 
-    # Checks if the result has a positive outcome (not failed).
+    # Checks if the result has a good outcome (not failed)
     #
-    # @return [Boolean] true if the result is successful or skipped
+    # @return [Boolean] true if the result is not failed
     #
     # @example Check for good outcome
-    #   result.good? # => true (success or skipped)
+    #   result.good? # => true (initially successful)
     #   result.fail!
     #   result.good? # => false
     def good?
       !failed?
     end
 
-    # Executes the provided block if the result has a good outcome.
+    # Executes the provided block if the result has a good outcome
     #
     # @param block [Proc] the block to execute if result is good
     #
@@ -263,8 +261,8 @@ module CMDx
     #
     # @raise [ArgumentError] if no block is provided
     #
-    # @example Handle good outcome
-    #   result.on_good { |r| puts "Task succeeded with #{r.status}" }
+    # @example Handle good results
+    #   result.on_good { |r| puts "Task had good outcome" }
     def on_good(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -272,9 +270,9 @@ module CMDx
       self
     end
 
-    # Checks if the result has a negative outcome (not successful).
+    # Checks if the result has a bad outcome (not successful)
     #
-    # @return [Boolean] true if the result is skipped or failed
+    # @return [Boolean] true if the result is not successful
     #
     # @example Check for bad outcome
     #   result.bad? # => false (initially successful)
@@ -284,7 +282,7 @@ module CMDx
       !success?
     end
 
-    # Executes the provided block if the result has a bad outcome.
+    # Executes the provided block if the result has a bad outcome
     #
     # @param block [Proc] the block to execute if result is bad
     #
@@ -293,7 +291,7 @@ module CMDx
     # @raise [ArgumentError] if no block is provided
     #
     # @example Handle bad outcome
-    #   result.on_bad { |r| puts "Task had issues: #{r.status}" }
+    #   result.on_bad { |r| puts "Task had bad outcome: #{r.status}" }
     def on_bad(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -301,18 +299,22 @@ module CMDx
       self
     end
 
-    # Transitions the result to skipped status with optional metadata.
+    # Transitions the result to skipped status and sets metadata
     #
-    # @param metadata [Hash] additional metadata to store with the skip
+    # @param metadata [Hash] additional metadata about why the task was skipped
     #
-    # @return [Result] returns self for method chaining
+    # @option metadata [String] :reason the reason for skipping
+    # @option metadata [Exception] :original_exception the original exception that caused skipping
+    #
+    # @return [void]
     #
     # @raise [RuntimeError] if not transitioning from success status
+    # @raise [CMDx::Fault] if no original_exception in metadata (via halt!)
     #
     # @example Skip a task with reason
-    #   result.skip!(reason: "condition not met")
+    #   result.skip!(reason: "Dependencies not met")
     #   result.skipped? # => true
-    #   result.metadata[:reason] # => "condition not met"
+    #   result.metadata[:reason] # => "Dependencies not met"
     def skip!(**metadata)
       return if skipped?
 
@@ -324,18 +326,22 @@ module CMDx
       halt! unless metadata[:original_exception]
     end
 
-    # Transitions the result to failed status with optional metadata.
+    # Transitions the result to failed status and sets metadata
     #
-    # @param metadata [Hash] additional metadata to store with the failure
+    # @param metadata [Hash] additional metadata about the failure
     #
-    # @return [Result] returns self for method chaining
+    # @option metadata [String] :error the error message
+    # @option metadata [Exception] :original_exception the original exception that caused failure
+    #
+    # @return [void]
     #
     # @raise [RuntimeError] if not transitioning from success status
+    # @raise [CMDx::Fault] if no original_exception in metadata (via halt!)
     #
-    # @example Fail a task with error details
-    #   result.fail!(error: "validation failed", code: 422)
+    # @example Fail a task with error message
+    #   result.fail!(reason: "Database connection failed")
     #   result.failed? # => true
-    #   result.metadata[:error] # => "validation failed"
+    #   result.metadata[:error] # => "Database connection failed"
     def fail!(**metadata)
       return if failed?
 
@@ -347,33 +353,33 @@ module CMDx
       halt! unless metadata[:original_exception]
     end
 
-    # Raises a Fault exception to halt execution chain if result is not successful.
+    # Halts execution by raising a fault if the result is not successful
     #
-    # @return [nil] never returns normally
+    # @return [void]
     #
-    # @raise [Fault] if the result is not successful
+    # @raise [CMDx::Fault] if the result is not successful
     #
-    # @example Halt execution on failure
-    #   result.fail!
-    #   result.halt! # raises Fault
+    # @example Halt on failed result
+    #   result.fail!(reason: "Something went wrong")
+    #   result.halt! # raises CMDx::Fault
     def halt!
       return if success?
 
       raise Fault.build(self)
     end
 
-    # Propagates status and metadata from another result to this result.
+    # Throws the status and metadata from another result to this result
     #
-    # @param result [Result] the result to throw/propagate from
+    # @param result [CMDx::Result] the result to throw from
     # @param local_metadata [Hash] additional metadata to merge
     #
-    # @return [Result] returns self for method chaining
+    # @return [void]
     #
     # @raise [TypeError] if result is not a Result instance
     #
-    # @example Throw failure from another result
+    # @example Throw from a failed result
     #   failed_result = Result.new(task)
-    #   failed_result.fail!(error: "network timeout")
+    #   failed_result.fail!(reason: "network timeout")
     #   current_result.throw!(failed_result)
     #   current_result.failed? # => true
     def throw!(result, local_metadata = {})
@@ -385,38 +391,36 @@ module CMDx
       fail!(**md) if result.failed?
     end
 
-    # Finds the original result that caused a failure in the execution chain.
+    # Finds the result that originally caused a failure in the chain
     #
-    # @return [Result, nil] the result that originally caused the failure, or nil if not failed
+    # @return [CMDx::Result, nil] the result that caused the failure, or nil if not failed
     #
-    # @example Find original failure cause
-    #   chain.results.last.caused_failure
-    #   # => #<Result task=OriginalTask status=failed>
+    # @example Find the original failure cause
+    #   result.caused_failure # => #<Result task=OriginalTask status=failed>
     def caused_failure
       return unless failed?
 
       chain.results.reverse.find(&:failed?)
     end
 
-    # Checks if this result is the original cause of failure in the chain.
+    # Checks if this result caused a failure in the chain
     #
-    # @return [Boolean] true if this result caused the failure chain
+    # @return [Boolean] true if this result caused the failure
     #
-    # @example Check if this result caused failure
-    #   result.caused_failure? # => true if this is the original failure
+    # @example Check if result caused failure
+    #   result.caused_failure? # => true
     def caused_failure?
       return false unless failed?
 
       caused_failure == self
     end
 
-    # Finds the result that threw/propagated this failure.
+    # Finds the result that this failure was thrown to
     #
-    # @return [Result, nil] the result that threw this failure, or nil if not applicable
+    # @return [CMDx::Result, nil] the result that received the thrown failure, or nil if not failed
     #
-    # @example Find failure propagator
-    #   result.threw_failure
-    #   # => #<Result task=PropagatorTask status=failed>
+    # @example Find where failure was thrown
+    #   result.threw_failure # => #<Result task=PropagatorTask status=failed>
     def threw_failure
       return unless failed?
 
@@ -424,93 +428,92 @@ module CMDx
       results.find { |r| r.index > index } || results.last
     end
 
-    # Checks if this result threw/propagated a failure.
+    # Checks if this result threw a failure to another result
     #
     # @return [Boolean] true if this result threw a failure
     #
-    # @example Check if this result threw failure
-    #   result.threw_failure? # => true if this result propagated failure
+    # @example Check if result threw failure
+    #   result.threw_failure? # => false
     def threw_failure?
       return false unless failed?
 
       threw_failure == self
     end
 
-    # Checks if this result represents a propagated failure (not the original cause).
+    # Checks if this result received a thrown failure from another result
     #
-    # @return [Boolean] true if this is a propagated failure
+    # @return [Boolean] true if this result received a thrown failure
     #
-    # @example Check if failure was propagated
-    #   result.thrown_failure? # => true if failure came from earlier in chain
+    # @example Check if result received thrown failure
+    #   result.thrown_failure? # => true
     def thrown_failure?
       failed? && !caused_failure?
     end
 
-    # Gets the index position of this result in the execution chain.
+    # Returns the index of this result in the chain
     #
-    # @return [Integer] the zero-based index position in the chain
+    # @return [Integer] the zero-based index of this result
     #
-    # @example Get result position
-    #   result.index # => 2 (third result in chain)
+    # @example Get result index
+    #   result.index # => 2
     def index
       chain.index(self)
     end
 
-    # Determines the overall outcome of this result.
+    # Returns the outcome of the result (state for certain cases, status otherwise)
     #
-    # @return [String] the outcome - state for certain conditions, status otherwise
+    # @return [String] the outcome (state or status)
     #
     # @example Get result outcome
-    #   result.outcome # => "success" or "failed" or "initialized"
+    #   result.outcome # => "success"
+    #   result.fail!
+    #   result.outcome # => "failed"
     def outcome
       initialized? || thrown_failure? ? state : status
     end
 
-    # Gets or measures the runtime duration of the result's execution.
+    # Gets or measures the runtime of the result
     #
-    # @param block [Proc] optional block to measure execution time
+    # @param block [Proc] optional block to measure runtime for
     #
     # @return [Float, nil] the runtime in seconds, or nil if not measured
     #
     # @example Get existing runtime
-    #   result.runtime # => 0.523 (seconds)
+    #   result.runtime # => 1.234
     #
-    # @example Measure execution time
-    #   result.runtime { sleep 1; do_work }
-    #   result.runtime # => 1.001
+    # @example Measure runtime with block
+    #   result.runtime { sleep 1 } # => 1.0
     def runtime(&)
       return @runtime unless block_given?
 
       @runtime = Utils::MonotonicRuntime.call(&)
     end
 
-    # Converts the result to a hash representation.
+    # Converts the result to a hash representation
     #
-    # @return [Hash] hash representation of the result
+    # @return [Hash] serialized representation of the result
     #
     # @example Convert to hash
-    #   result.to_h
-    #   # => {state: "complete", status: "success", metadata: {}}
+    #   result.to_h # => { state: "complete", status: "success", ... }
     def to_h
       ResultSerializer.call(self)
     end
 
-    # Returns a string representation of the result.
+    # Returns a string representation of the result
     #
     # @return [String] formatted string representation
     #
-    # @example Get string representation
-    #   result.to_s
-    #   # => "MyTask [complete/success]"
+    # @example Convert to string
+    #   result.to_s # => "Result[complete/success]"
     def to_s
       ResultInspector.call(to_h)
     end
 
-    # Deconstructs the result for pattern matching.
+    # Deconstructs the result for pattern matching
     #
-    # @return [Array] array containing state and status
+    # @return [Array<String>] array containing state and status
     #
-    # @example Pattern match on result
+    # @example Pattern matching with deconstruct
     #   case result
     #   in ["complete", "success"]
     #     puts "Task completed successfully"
@@ -519,16 +522,16 @@ module CMDx
       [state, status]
     end
 
-    # Deconstructs the result to a hash for pattern matching with keys.
+    # Deconstructs the result with keys for pattern matching
     #
-    # @param keys [Array<Symbol>, nil] specific keys to extract, or nil for all
+    # @param keys [Array<Symbol>, nil] specific keys to include in deconstruction
     #
-    # @return [Hash] hash containing requested attributes
+    # @return [Hash] hash with requested attributes
     #
-    # @example Pattern match with keys
+    # @example Pattern matching with specific keys
     #   case result
-    #   in {state: "complete", good: true}
-    #     puts "Task completed successfully"
+    #   in { state: "complete", good: true }
+    #     puts "Task finished well"
     #   end
     def deconstruct_keys(keys)
       attributes = {
