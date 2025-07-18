@@ -1,37 +1,36 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Freezes task objects after execution to ensure immutability.
+  # Provides object immutability functionality for tasks and their associated objects.
   #
-  # This module provides the final step in the task lifecycle by freezing
-  # task instances and their associated objects to prevent further modification.
-  # The freezing behavior can be controlled via environment variables and
-  # is conditionally applied based on the task's position in the execution chain.
+  # This module freezes task objects and their related components after execution
+  # to prevent unintended modifications. It supports conditional freezing through
+  # environment variable configuration, allowing developers to disable immutability
+  # during testing scenarios where object stubbing is required.
   module Immutator
 
     module_function
 
-    # Freezes task objects after execution to make them immutable.
+    # Freezes a task and its associated objects to prevent further modification.
     #
-    # Always freezes the task and its result. For the first task in a chain
-    # (index 0), also freezes the context and chain, then clears the chain.
-    # Freezing can be skipped entirely by setting the SKIP_CMDX_FREEZING
-    # environment variable to a truthy value.
+    # This method makes the task, its result, and related objects immutable after
+    # execution. If the task result index is zero (indicating the first task in a chain),
+    # it also freezes the context and chain objects. The freezing behavior can be
+    # disabled via the SKIP_CMDX_FREEZING environment variable for testing purposes.
     #
-    # @param task [Task] the task instance to freeze after execution
+    # @param task [CMDx::Task] the task instance to freeze along with its associated objects
     #
-    # @return [nil] always returns nil
+    # @return [void] returns nil when freezing is skipped, otherwise no meaningful return value
     #
-    # @raise [StandardError] if any freeze operation fails
-    #
-    # @example Freeze a completed task
-    #   task = MyTask.new(user_id: 123)
-    #   task.process
+    # @example Freeze a task after execution
+    #   task = MyTask.call(user_id: 123)
     #   CMDx::Immutator.call(task)
     #   task.frozen? #=> true
+    #   task.result.frozen? #=> true
     #
-    # @example Skip freezing for testing
-    #   ENV["SKIP_CMDX_FREEZING"] = "1"
+    # @example Skip freezing during testing
+    #   ENV["SKIP_CMDX_FREEZING"] = "true"
+    #   task = MyTask.call(user_id: 123)
     #   CMDx::Immutator.call(task)
     #   task.frozen? #=> false
     def call(task)
