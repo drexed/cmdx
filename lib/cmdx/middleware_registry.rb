@@ -8,8 +8,6 @@ module CMDx
   # authentication, and error handling.
   class MiddlewareRegistry
 
-    # The internal hash storing middleware definitions and their configurations.
-    #
     # @return [Hash] hash containing middleware classes/objects and their configurations
     attr_reader :registry
 

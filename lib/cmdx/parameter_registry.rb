@@ -9,8 +9,6 @@ module CMDx
   # parameter structures through recursive validation.
   class ParameterRegistry
 
-    # The internal array storing parameter definitions.
-    #
     # @return [Array<Parameter>] array containing parameter definition objects
     attr_reader :registry
 

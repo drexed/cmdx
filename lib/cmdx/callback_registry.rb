@@ -20,8 +20,6 @@ module CMDx
       *Result::STATES.map { |s| :"on_#{s}" }
     ].freeze
 
-    # The internal hash storing callback definitions.
-    #
     # @return [Hash] hash containing callback type keys and callback definition arrays
     attr_reader :registry
 
