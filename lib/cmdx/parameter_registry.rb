@@ -1,34 +1,41 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Registry for managing parameter definitions and validation within tasks.
+  # Registry for managing parameter definitions within tasks.
   #
-  # This registry handles the storage and validation of parameter definitions,
-  # including nested parameter structures and recursive validation logic.
+  # This registry maintains a collection of parameter definitions and provides
+  # validation functionality to ensure all parameters are properly configured
+  # and accessible on their associated tasks. It supports both flat and nested
+  # parameter structures through recursive validation.
   class ParameterRegistry
 
     # The internal array storing parameter definitions.
     #
-    # @return [Array] array containing parameter definition objects
+    # @return [Array<Parameter>] array containing parameter definition objects
     attr_reader :registry
 
-    # Initializes a new parameter registry.
+    # Initializes a new parameter registry with an empty parameter collection.
     #
     # @return [ParameterRegistry] a new parameter registry instance
     #
-    # @example Creating an empty registry
-    #   ParameterRegistry.new
+    # @example Creating a new registry
+    #   registry = ParameterRegistry.new
+    #   registry.registry # => []
     def initialize
       @registry = []
     end
 
-    # Creates a deep copy of the parameter registry.
+    # Creates a duplicate of the parameter registry with deep-copied parameters.
+    #
+    # This method creates a new registry instance with duplicated parameter
+    # definitions, ensuring changes to the duplicate don't affect the original.
     #
     # @return [ParameterRegistry] a new registry instance with duplicated parameters
     #
-    # @example Duplicating a registry
+    # @example Duplicate a registry
     #   original = ParameterRegistry.new
-    #   copy = original.dup
+    #   duplicate = original.dup
+    #   duplicate.object_id != original.object_id # => true
     def dup
       new_registry = self.class.new
       new_registry.instance_variable_set(:@registry, registry.map(&:dup))
@@ -39,43 +46,45 @@ module CMDx
     #
     # @return [Boolean] true if all parameters are valid, false otherwise
     #
-    # @example Checking registry validity
-    #   registry.valid?
-    #   # => true
+    # @example Check registry validity
+    #   registry.valid? # => true
     def valid?
       registry.all?(&:valid?)
     end
 
     # Validates all parameters in the registry against a task instance.
     #
+    # This method ensures that each parameter is properly defined and accessible
+    # on the provided task, including nested parameters through recursive validation.
+    #
     # @param task [Task] the task instance to validate parameters against
     #
     # @return [void]
     #
-    # @example Validating parameters
-    #   registry.validate!(task)
+    # @raise [NoMethodError] if a parameter method is not defined on the task
+    #
+    # @example Validate parameters against a task
+    #   registry.validate!(task_instance)
     def validate!(task)
       registry.each { |p| recursive_validate!(task, p) }
     end
 
-    # Returns a hash representation of the registry.
+    # Converts the parameter registry to a hash representation.
     #
-    # @return [Hash] serialized hash representation of all parameters
+    # @return [Array<Hash>] array of parameter hash representations
     #
-    # @example Getting registry hash
-    #   registry.to_h
-    #   # => { name: { type: :string, required: true }, age: { type: :integer } }
+    # @example Convert registry to hash
+    #   registry.to_h # => [{name: :user_id, type: :integer}, {name: :email, type: :string}]
     def to_h
       registry.map(&:to_h)
     end
 
-    # Returns a string representation of the registry.
+    # Converts the parameter registry to a string representation.
     #
-    # @return [String] formatted string representation of all parameters
+    # @return [String] string representation of all parameters, joined by newlines
     #
-    # @example Getting registry string
-    #   registry.to_s
-    #   # => "name (string, required), age (integer)"
+    # @example Convert registry to string
+    #   registry.to_s # => "user_id: integer\nemail: string"
     def to_s
       registry.map(&:to_s).join("\n")
     end
@@ -84,13 +93,12 @@ module CMDx
 
     # Recursively validates a parameter and its children against a task.
     #
-    # @param task [Task] the task instance to validate against
+    # @param task [Task] the task instance to validate the parameter against
     # @param parameter [Parameter] the parameter to validate
     #
     # @return [void]
     #
-    # @example Recursive validation (internal use)
-    #   recursive_validate!(task, parameter)
+    # @raise [NoMethodError] if the parameter method is not defined on the task
     def recursive_validate!(task, parameter)
       task.send(parameter.method_name) # Make sure parameter is defined on task
       parameter.children.each { |child| recursive_validate!(task, child) }
