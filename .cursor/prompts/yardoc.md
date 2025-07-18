@@ -8,5 +8,6 @@ Add yardoc to the file in context using the following guidelines:
 - Update any pre-existing documentation to match stated rules
 - Do NOT include `CMDx` module level docs
 - Module level docs description should NOT include `@example`
-- Method level docs should include `@example`, `@return`, and any `@raise`
+- Method level docs should include `@example`, `param`, `@options`, `@return`, and any `@raise`
+- Hash `@params` should expand with possible `@option`
 - Module and method level docs should NOT include `@since`
