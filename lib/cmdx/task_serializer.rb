@@ -1,33 +1,46 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Serializes Task objects into hash representations for external consumption.
-  # Provides a consistent interface for converting task execution data into
-  # structured format suitable for logging, API responses, or persistence.
+  # Task serialization module for converting task objects to hash format.
+  #
+  # TaskSerializer provides functionality to serialize task objects into a
+  # standardized hash representation that includes essential metadata about
+  # the task such as its index, chain ID, type, class, ID, and tags. The
+  # serialized format is commonly used for debugging, logging, and introspection
+  # purposes throughout the task execution pipeline.
   module TaskSerializer
 
     module_function
 
-    # Converts a task object into a hash representation containing task metadata.
-    # Extracts key task attributes including execution index, chain association,
-    # type classification, and associated tags for complete task identification.
+    # Serializes a task object into a hash representation.
     #
-    # @param task [Task] the task instance to serialize
+    # Converts a task instance into a standardized hash format containing
+    # key metadata about the task's execution context and classification.
+    # The serialization includes information from the task's result, chain,
+    # and command settings to provide comprehensive task identification.
     #
-    # @return [Hash] hash containing task metadata and execution details
+    # @param task [CMDx::Task, CMDx::Workflow] the task or workflow object to serialize
     #
-    # @raise [NoMethodError] if task doesn't respond to required methods
+    # @return [Hash] a hash containing the task's metadata
+    # @option return [Integer] :index the task's position index in the execution chain
+    # @option return [String] :chain_id the unique identifier of the task's execution chain
+    # @option return [String] :type the task type, either "Task" or "Workflow"
+    # @option return [String] :class the full class name of the task
+    # @option return [String] :id the unique identifier of the task instance
+    # @option return [Array] :tags the tags associated with the task from cmd settings
     #
-    # @example Serializing a task
-    #   task = UserRegistrationTask.call(email: "user@example.com")
+    # @raise [NoMethodError] if the task doesn't respond to required methods
+    #
+    # @example Serialize a basic task
+    #   task = ProcessDataTask.new
     #   TaskSerializer.call(task)
     #   # => {
     #   #   index: 0,
     #   #   chain_id: "abc123",
     #   #   type: "Task",
-    #   #   class: "UserRegistrationTask",
+    #   #   class: "ProcessDataTask",
     #   #   id: "def456",
-    #   #   tags: [:authentication, :user_management]
+    #   #   tags: []
     #   # }
     def call(task)
       {
