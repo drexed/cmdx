@@ -15,11 +15,11 @@ module CMDx
     #
     # @param task [CMDx::Task] the task instance to check for deprecation
     # @return [void]
-    # @raise [DeprecationError] when task's deprecated setting is :raise
+    # @raise [DeprecationError] when task's deprecated setting is :error
     #
     # @example Handle task with raise deprecation
     #   class MyTask < CMDx::Task
-    #     cmd_setting!(deprecated: :raise)
+    #     cmd_setting!(deprecated: :error)
     #   end
     #   task = MyTask.new
     #   TaskDeprecator.call(task) # raises DeprecationError
@@ -33,17 +33,17 @@ module CMDx
     #
     # @example Handle task with warn deprecation
     #   class MyTask < CMDx::Task
-    #     cmd_setting!(deprecated: :warn)
+    #     cmd_setting!(deprecated: :warning)
     #   end
     #   task = MyTask.new
     #   TaskDeprecator.call(task) # issues Ruby warning
     def call(task)
       case task.cmd_setting(:deprecated)
-      when :raise
+      when :error
         raise(DeprecationError, "#{task.class.name} usage prohibited")
       when :log, true
         task.logger.warn { "DEPRECATED: migrate to replacement or discontinue use" }
-      when :warn
+      when :warning
         warn("[#{task.class.name}] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
       end
     end
