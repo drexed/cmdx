@@ -6,3 +6,4 @@ Update the file in context using the following guidelines:
 - Update any pre-existing documentation to match stated rules
 - Examples should not cross boundaries or focus
 - Docs must cover both typical use cases, including invalid inputs and error conditions
+- Use GitHub flavored markdown, including alerts to emphasize critical information (https://github.com/orgs/community/discussions/16925)
