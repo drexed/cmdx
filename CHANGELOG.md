@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validators to add errors directly instead of raising errors
 - Coercions to add errors directly instead of raising errors
 - Update procs to call with object as first item
-[1.1.1]
-- Add table and pretty_table log formatters
-- Refactor all `docs`
 
 ## [Unreleased]
+
+[1.1.1]
+### Changed
+- Updated all docs and specs
+- Update deprecation key words
 
 ## [1.1.0]
 
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration
 - Added `CallbackRegistry` class to take uninstantiated callback classes
 - Added `Validator` and `Coercion` classes to build their respective handlers
+- Added deprecation setting
 
 ### Changed
 - Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`
