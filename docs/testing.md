@@ -550,4 +550,4 @@ expect(error_result).to be_failed_task
 ---
 
 - **Prev:** [Internationalization (i18n)](internationalization.md)
-- **Next:** [AI Prompts](ai_prompts.md)
+- **Next:** [Deprecation](deprecation.md)
