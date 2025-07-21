@@ -1,63 +1,86 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Orchestrates sequential execution of multiple tasks and workflows.
+  # Sequential task execution orchestration system for CMDx framework.
   #
-  # Workflow provides a way to chain multiple tasks together with conditional
-  # execution logic and halt behavior. Tasks are organized into groups that can
-  # be conditionally executed based on options, and execution can be halted
-  # based on task results.
+  # Workflow provides declarative composition of multiple tasks into linear pipelines
+  # with conditional execution, context propagation, and configurable halt behavior.
+  # Workflows inherit from Task, gaining all task capabilities including callbacks,
+  # parameter validation, result tracking, and configuration while coordinating
+  # other tasks rather than implementing business logic directly.
   class Workflow < Task
 
-    # Container for holding a group of tasks and their execution options.
+    # Data structure containing a group of tasks and their execution options.
     #
     # @!attribute [r] tasks
-    #   @return [Array<Task>] the tasks in this group
+    #   @return [Array<Class>] array of Task or Workflow classes to execute
     # @!attribute [r] options
-    #   @return [Hash] the execution options for this group
+    #   @return [Hash] execution options including conditional and halt configuration
     Group = Struct.new(:tasks, :options)
 
     class << self
 
-      # Returns the collection of workflow groups defined for this workflow.
+      # Returns the array of workflow groups defined for this workflow class.
       #
-      # @return [Array<Group>] array of workflow groups to be executed
+      # Each group contains tasks and their execution options. Groups are processed
+      # sequentially during workflow execution, with each group's tasks executing
+      # in order unless halted by a result status.
+      #
+      # @return [Array<Group>] array of workflow groups containing tasks and options
       #
       # @example Access workflow groups
-      #   MyWorkflow.workflow_groups #=> [#<Group:...>, #<Group:...>]
+      #   class MyWorkflow < CMDx::Workflow
+      #     process TaskA, TaskB
+      #     process TaskC, if: :condition_met?
+      #   end
+      #
+      #   MyWorkflow.workflow_groups.size #=> 2
+      #   MyWorkflow.workflow_groups.first.tasks #=> [TaskA, TaskB]
       def workflow_groups
         @workflow_groups ||= []
       end
 
-      # Defines a group of tasks to be executed as part of this workflow.
+      # Declares a group of tasks to execute sequentially with optional conditions.
       #
-      # @param tasks [Array<Task>] tasks to include in this workflow group
-      # @param options [Hash] execution options for this group
-      # @option options [Symbol, Array<Symbol>] :workflow_halt status values that will halt workflow execution
-      # @option options [Proc] :if conditional proc that determines if this group should execute
-      # @option options [Proc] :unless conditional proc that determines if this group should be skipped
+      # Tasks are executed in the order specified, with shared context propagated
+      # between executions. Groups support conditional execution and configurable
+      # halt behavior to control workflow flow based on task results.
+      #
+      # @param tasks [Array<Class>] Task or Workflow classes to execute in sequence
+      # @param options [Hash] execution configuration options
+      #
+      # @option options [Proc, Symbol, String] :if condition that must be truthy for group execution
+      # @option options [Proc, Symbol, String] :unless condition that must be falsy for group execution
+      # @option options [String, Array<String>] :workflow_halt result statuses that halt workflow execution
       #
       # @return [void]
       #
-      # @raise [TypeError] if any task is not a Task or Workflow subclass
+      # @raise [TypeError] when tasks contain objects that are not Task or Workflow classes
       #
-      # @example Define a simple workflow group
-      #   MyWorkflow.process CreateUserTask, SendEmailTask
+      # @example Declare sequential tasks
+      #   class UserRegistrationWorkflow < CMDx::Workflow
+      #     process CreateUserTask, SendWelcomeEmailTask
+      #   end
       #
-      # @example Define a conditional workflow group
-      #   MyWorkflow.process NotifyAdminTask, if: ->(workflow) { workflow.context.admin.active? }
+      # @example Declare conditional task group
+      #   class OrderProcessingWorkflow < CMDx::Workflow
+      #     process ValidateOrderTask
+      #     process ChargePaymentTask, if: ->(workflow) { workflow.context.payment_required? }
+      #     process ShipOrderTask, unless: :digital_product?
+      #     process NotifyAdminTask, if: proc { context.admin.active? }
+      #   end
       #
-      # @example Define a workflow group with halt behavior
-      #   MyWorkflow.process ValidateInputTask, ProcessDataTask, workflow_halt: :failed
+      # @example Configure halt behavior per group
+      #   class DataProcessingWorkflow < CMDx::Workflow
+      #     process LoadDataTask, ValidateDataTask, workflow_halt: %w[failed skipped]
+      #     process OptionalCleanupTask, workflow_halt: []
+      #   end
       def process(*tasks, **options)
         workflow_groups << Group.new(
           tasks.flatten.map do |task|
-            unless task.is_a?(Class) && (task <= Task)
-              raise TypeError,
-                    "must be a Task or Workflow"
-            end
+            next task if task.is_a?(Class) && (task <= Task)
 
-            task
+            raise TypeError, "must be a Task or Workflow"
           end,
           options
         )
@@ -65,8 +88,6 @@ module CMDx
 
     end
 
-    # Executes all workflow groups in sequence.
-    #
     # Each group is evaluated for conditional execution, and if the group should
     # execute, all tasks in the group are called in sequence. If any task returns
     # a status that matches the workflow halt criteria, execution is halted and
@@ -76,9 +97,9 @@ module CMDx
     #
     # @raise [Fault] if a task fails and its status matches the workflow halt criteria
     #
-    # @example Execute workflow with halt on failure
+    # @example Execute workflow
     #   workflow = MyWorkflow.new(user_id: 123)
-    #   workflow.call # Executes all groups until halt condition is met
+    #   workflow.call
     def call
       self.class.workflow_groups.each do |group|
         next unless cmdx_eval(group.options)

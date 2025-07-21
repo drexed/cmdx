@@ -1,285 +1,215 @@
 # Parameters - Coercions
 
-Parameter coercions provide automatic type conversion for task arguments, enabling
-flexible input handling while ensuring type safety within task execution. Coercions
-transform raw input values into expected types, supporting everything from simple
-string-to-integer conversion to complex JSON parsing and custom type handling.
+Parameter coercions provide automatic type conversion for task arguments, enabling flexible input handling while ensuring type safety. Coercions transform raw input values into expected types, supporting everything from simple string-to-integer conversion to complex JSON parsing and custom type handling.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
 - [Coercion Fundamentals](#coercion-fundamentals)
-  - [Available Coercion Types](#available-coercion-types)
-  - [Basic Type Coercion](#basic-type-coercion)
 - [Multiple Type Coercion](#multiple-type-coercion)
-- [Advanced Coercion Examples](#advanced-coercion-examples)
-  - [Array Coercion](#array-coercion)
-  - [Hash Coercion](#hash-coercion)
-  - [Boolean Coercion](#boolean-coercion)
-  - [Date and Time Coercion](#date-and-time-coercion)
-  - [Numeric Coercion](#numeric-coercion)
+- [Advanced Examples](#advanced-examples)
 - [Coercion with Nested Parameters](#coercion-with-nested-parameters)
-- [Coercion Error Handling](#coercion-error-handling)
+- [Error Handling](#error-handling)
 - [Custom Coercion Options](#custom-coercion-options)
-  - [Date/Time Format Options](#datetime-format-options)
-  - [BigDecimal Precision Options](#bigdecimal-precision-options)
 - [Custom Coercions](#custom-coercions)
 
 ## TLDR
 
-- **Type coercion** - Automatic conversion using `type:` option (`:integer`, `:boolean`, `:array`, `:hash`, etc.)
-- **Multiple types** - Fallback with `type: [:float, :integer]` - tries each until one succeeds
-- **No conversion** - Default `:virtual` type returns values unchanged
-- **Before validation** - Coercion happens automatically before parameter validation
-- **Rich types** - Supports all Ruby built-ins plus JSON parsing for arrays/hashes
-- **Custom coercions** - Register custom coercion types
+```ruby
+# Basic type coercion
+required :user_id, type: :integer     # "123" → 123
+required :active, type: :boolean      # "true" → true
+required :tags, type: :array          # "[1,2,3]" → [1, 2, 3]
+
+# Multiple type fallback
+required :amount, type: [:float, :integer]  # Tries float, then integer
+
+# Custom formats
+required :created_at, type: :date, format: "%Y-%m-%d"
+
+# No conversion (default)
+required :raw_data, type: :virtual    # Returns unchanged
+```
 
 ## Coercion Fundamentals
 
 > [!NOTE]
-> By default, parameters use the `:virtual` type which returns values unchanged. Type coercion is specified using the `:type` option and occurs automatically during parameter value resolution, before validation.
+> Parameters use `:virtual` type by default (no conversion). Coercion occurs automatically during parameter resolution, before validation.
 
-### Available Coercion Types
+### Available Types
 
-CMDx supports comprehensive type coercion for Ruby's built-in types:
+| Type | Description | Example |
+|------|-------------|---------|
+| `:array` | Array conversion, handles JSON | `"[1,2,3]"` → `[1, 2, 3]` |
+| `:big_decimal` | High-precision decimal | `"123.45"` → `BigDecimal("123.45")` |
+| `:boolean` | True/false with text patterns | `"yes"` → `true` |
+| `:complex` | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
+| `:date` | Date objects | `"2023-12-25"` → `Date` |
+| `:datetime` | DateTime objects | `"2023-12-25 10:30"` → `DateTime` |
+| `:float` | Floating-point | `"123.45"` → `123.45` |
+| `:hash` | Hash conversion, handles JSON | `'{"a":1}'` → `{"a" => 1}` |
+| `:integer` | Integer, handles hex/octal | `"0xFF"` → `255` |
+| `:rational` | Rational numbers | `"1/2"` → `Rational(1, 2)` |
+| `:string` | String conversion | `123` → `"123"` |
+| `:time` | Time objects | `"10:30:00"` → `Time` |
+| `:virtual` | No conversion (default) | Input unchanged |
 
-| Type | Description | Example Input | Example Output |
-|------|-------------|---------------|----------------|
-| `:array` | Converts to Array, handles JSON strings | `"[1,2,3]"` | `[1, 2, 3]` |
-| `:big_decimal` | High-precision decimal arithmetic | `"123.456"` | `BigDecimal("123.456")` |
-| `:boolean` | True/false conversion with text patterns | `"true"`, `"yes"`, `"1"` | `true` |
-| `:complex` | Complex number conversion | `"1+2i"` | `Complex(1, 2)` |
-| `:date` | Date object conversion | `"2023-12-25"` | `Date.new(2023, 12, 25)` |
-| `:datetime` | DateTime object conversion | `"2023-12-25 10:30"` | `DateTime` object |
-| `:float` | Floating-point number conversion | `"123.45"` | `123.45` |
-| `:hash` | Hash conversion, handles JSON strings | `'{"a":1}'` | `{"a" => 1}` |
-| `:integer` | Integer conversion, handles various formats | `"123"`, `"0xFF"` | `123`, `255` |
-| `:rational` | Rational number conversion | `"1/2"`, `0.5` | `Rational(1, 2)` |
-| `:string` | String conversion for any object | `123`, `:symbol` | `"123"`, `"symbol"` |
-| `:time` | Time object conversion | `"2023-12-25 10:30"` | `Time` object |
-| `:virtual` | No conversion (default) | `anything` | `anything` |
-
-### Basic Type Coercion
+### Basic Usage
 
 ```ruby
-class ProcessUserDataTask < CMDx::Task
-
+class ProcessPaymentTask < CMDx::Task
+  required :amount, type: :float
   required :user_id, type: :integer
-  required :order_total, type: :float
-  required :is_premium, type: :boolean
-  required :notes, type: :string
+  required :send_email, type: :boolean
 
-  optional :product_tags, type: :array, default: []
-  optional :preferences, type: :hash, default: {}
-  optional :created_at, type: :datetime
-  optional :delivery_date, type: :date
+  optional :metadata, type: :hash, default: {}
+  optional :tags, type: :array, default: []
 
   def call
-    user_id       #=> 12345 (integer from "12345")
-    order_total   #=> 299.99 (float from "299.99")
-    is_premium    #=> true (boolean from "true")
-    notes         #=> "Rush delivery" (string)
-    product_tags  #=> ["electronics", "phone"] (array from JSON)
-    preferences   #=> {"notifications" => true} (hash from JSON)
-    created_at    #=> DateTime object
-    delivery_date #=> Date object
-  end
+    # All parameters automatically coerced
+    charge_amount = amount * 100  # Float math
+    user = User.find(user_id)     # Integer lookup
 
+    send_notification if send_email  # Boolean logic
+  end
 end
 
-# Coercion happens automatically
-ProcessUserDataTask.call(
-  user_id: "12345",
-  order_total: "299.99",
-  is_premium: "yes",
-  notes: 67890,
-  product_tags: "[\"electronics\",\"phone\"]",
-  preferences: '{"notifications":true}',
-  created_at: "2023-12-25 14:30:00",
-  delivery_date: "2023-12-28"
+# Usage with string inputs
+ProcessPaymentTask.call(
+  amount: "99.99",           # → 99.99 (Float)
+  user_id: "12345",          # → 12345 (Integer)
+  send_email: "true",        # → true (Boolean)
+  metadata: '{"source":"web"}',  # → {"source" => "web"} (Hash)
+  tags: "[\"priority\"]"     # → ["priority"] (Array)
 )
 ```
 
 ## Multiple Type Coercion
 
 > [!TIP]
-> Parameters can specify multiple types for fallback coercion, attempting each type in order until one succeeds. This provides flexible input handling while maintaining type safety.
+> Specify multiple types for fallback coercion. CMDx attempts each type in order until one succeeds.
 
 ```ruby
-class ProcessOrderDataTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
+  # Numeric: try precise float, fall back to integer
+  required :total, type: [:float, :integer]
 
-  # Try float first for precise calculations, fall back to integer
-  required :amount, type: [:float, :integer]
+  # Data: try structured hash, fall back to raw string
+  optional :notes, type: [:hash, :string]
 
-  # Try hash first for structured data, fall back to string for raw data
-  optional :shipping_info, type: [:hash, :string]
-
-  # Complex fallback for timestamps
-  optional :scheduled_at, type: [:datetime, :date, :string]
+  # Temporal: flexible date/time handling
+  optional :due_date, type: [:datetime, :date, :string]
 
   def call
-    amount        #=> 149.99 (float) or 150 (integer) depending on input
-    shipping_info #=> {"address" => "123 Main St"} (hash) or "Express shipping" (string)
-    scheduled_at  #=> DateTime, Date, or String depending on input format
-  end
+    case total
+    when Float   then process_precise_amount(total)
+    when Integer then process_rounded_amount(total)
+    end
 
+    case notes
+    when Hash   then structured_notes = notes
+    when String then fallback_notes = notes
+    end
+  end
 end
 
-# Different inputs produce different coerced types
-ProcessOrderDataTask.call(amount: "149.99")         # => 149.99 (float)
-ProcessOrderDataTask.call(amount: "150")            # => 150 (integer)
-ProcessOrderDataTask.call(shipping_info: '{"address":"123 Main St"}')  # => hash
-ProcessOrderDataTask.call(shipping_info: "Express shipping")           # => string
+# Different inputs produce different types
+ProcessOrderTask.call(total: "99.99")  # → 99.99 (Float)
+ProcessOrderTask.call(total: "100")    # → 100 (Integer)
 ```
 
-## Advanced Coercion Examples
+## Advanced Examples
 
-### Array Coercion
-
-```ruby
-class ProcessOrderItemsTask < CMDx::Task
-
-  required :item_ids, type: :array
-  optional :quantities, type: :array, default: []
-
-  def call
-    item_ids   #=> Array of product IDs
-    quantities #=> Array of quantities or empty array
-  end
-
-end
-
-# Array coercion handles multiple input formats
-ProcessOrderItemsTask.call(item_ids: [101, 102, 103])         # => already array
-ProcessOrderItemsTask.call(item_ids: "[101,102,103]")         # => from JSON string
-ProcessOrderItemsTask.call(item_ids: "101")                   # => ["101"] (wrapped)
-ProcessOrderItemsTask.call(item_ids: nil)                     # => [] (nil to empty)
-```
-
-### Hash Coercion
+### Array and Hash Coercion
 
 ```ruby
-class ProcessOrderConfigTask < CMDx::Task
-
-  required :shipping_config, type: :hash
-  optional :payment_options, type: :hash, default: {}
-
-  def call
-    shipping_config  #=> Hash with shipping configuration
-    payment_options  #=> Hash with payment options or empty hash
-  end
-
-end
-
-# Hash coercion supports multiple formats
-ProcessOrderConfigTask.call(shipping_config: {carrier: "UPS", speed: "express"})
-ProcessOrderConfigTask.call(shipping_config: '{"carrier":"UPS","speed":"express"}')
-ProcessOrderConfigTask.call(shipping_config: [:carrier, "UPS", :speed, "express"])
-```
-
-### Boolean Coercion
-
-```ruby
-class ValidateUserSettingsTask < CMDx::Task
-
-  required :email_notifications, type: :boolean
-  required :is_active, type: :boolean
-  optional :marketing_consent, type: :boolean, default: false
+class ProcessInventoryTask < CMDx::Task
+  required :product_ids, type: :array
+  required :config, type: :hash
 
   def call
-    email_notifications #=> true or false from various inputs
-    is_active          #=> true or false
-    marketing_consent  #=> true or false with default
+    products = Product.where(id: product_ids)
+    apply_configuration(config)
   end
-
 end
 
-# Boolean coercion recognizes many text patterns
-ValidateUserSettingsTask.call(email_notifications: "true")    # => true
-ValidateUserSettingsTask.call(email_notifications: "yes")     # => true
-ValidateUserSettingsTask.call(email_notifications: "1")       # => true
-ValidateUserSettingsTask.call(email_notifications: "false")   # => false
-ValidateUserSettingsTask.call(email_notifications: "no")      # => false
-ValidateUserSettingsTask.call(email_notifications: "0")       # => false
-```
+# Multiple input formats supported
+ProcessInventoryTask.call(
+  product_ids: [1, 2, 3],              # Already array
+  product_ids: "[1,2,3]",              # JSON string
+  product_ids: "1",                    # Single value → ["1"]
 
-### Date and Time Coercion
-
-```ruby
-class ProcessOrderScheduleTask < CMDx::Task
-
-  required :order_date, type: :date
-  required :created_at, type: :datetime
-  optional :updated_at, type: :time
-
-  # Custom format options for specific date/time formats
-  optional :delivery_date, type: :date, format: "%Y-%m-%d"
-  optional :pickup_time, type: :time, format: "%H:%M:%S"
-
-  def call
-    order_date    #=> Date object
-    created_at    #=> DateTime object
-    updated_at    #=> Time object
-    delivery_date #=> Date parsed with custom format
-    pickup_time   #=> Time parsed with custom format
-  end
-
-end
-
-ProcessOrderScheduleTask.call(
-  order_date: "2023-12-25",
-  created_at: "2023-12-25 10:30:00",
-  updated_at: "2023-12-25 10:30:00",
-  delivery_date: "2023-12-28",
-  pickup_time: "14:30:00"
+  config: {key: "value"},              # Already hash
+  config: '{"key":"value"}',           # JSON string
+  config: [:key, "value"]              # Array pairs → Hash
 )
 ```
 
-### Numeric Coercion
+### Boolean Patterns
 
 ```ruby
-class CalculateOrderTotalsTask < CMDx::Task
-
-  required :item_count, type: :integer
-  required :subtotal, type: :float
-  required :tax_rate, type: :float
-
-  # High-precision for financial calculations
-  optional :discount_amount, type: :big_decimal, precision: 4
-
-  # For specialized calculations
-  optional :shipping_ratio, type: :rational
-  optional :complex_calculation, type: :complex
+class UpdateUserSettingsTask < CMDx::Task
+  required :notifications, type: :boolean
+  required :active, type: :boolean
 
   def call
-    item_count          #=> Integer from various formats
-    subtotal            #=> Float for currency
-    tax_rate            #=> Float for percentage
-    discount_amount     #=> BigDecimal with specified precision
-    shipping_ratio      #=> Rational number
-    complex_calculation #=> Complex number
+    user.update!(
+      email_notifications: notifications,
+      account_active: active
+    )
   end
-
 end
 
-CalculateOrderTotalsTask.call(
-  item_count: "5",
-  subtotal: "249.99",
-  tax_rate: "0.0875",
-  discount_amount: "25.0000",
-  shipping_ratio: "1/10",
-  complex_calculation: "1+2i"
+# Boolean coercion recognizes many patterns
+UpdateUserSettingsTask.call(
+  notifications: "true",    # → true
+  notifications: "yes",     # → true
+  notifications: "1",       # → true
+  notifications: "on",      # → true
+
+  active: "false",          # → false
+  active: "no",             # → false
+  active: "0",              # → false
+  active: "off"             # → false
+)
+```
+
+### Date and Time Handling
+
+```ruby
+class ScheduleEventTask < CMDx::Task
+  required :event_date, type: :date
+  required :start_time, type: :time
+
+  # Custom formats for specific inputs
+  optional :deadline, type: :date, format: "%m/%d/%Y"
+  optional :meeting_time, type: :time, format: "%I:%M %p"
+
+  def call
+    Event.create!(
+      scheduled_date: event_date,
+      start_time: start_time,
+      deadline: deadline,
+      meeting_time: meeting_time
+    )
+  end
+end
+
+ScheduleEventTask.call(
+  event_date: "2023-12-25",      # Standard ISO format
+  start_time: "14:30:00",        # 24-hour format
+  deadline: "12/31/2023",        # Custom MM/DD/YYYY format
+  meeting_time: "2:30 PM"        # 12-hour with AM/PM
 )
 ```
 
 ## Coercion with Nested Parameters
 
 > [!IMPORTANT]
-> Coercion works seamlessly with nested parameter structures, applying type conversion at each level of the hierarchy.
+> Coercion applies at every level of nested parameter structures, enabling complex data transformation while maintaining type safety.
 
 ```ruby
-class ProcessOrderDetailsTask < CMDx::Task
-
+class ProcessOrderTask < CMDx::Task
   required :order, type: :hash do
     required :id, type: :integer
     required :total, type: :float
@@ -287,157 +217,178 @@ class ProcessOrderDetailsTask < CMDx::Task
 
     optional :customer, type: :hash do
       required :id, type: :integer
-      required :is_active, type: :boolean
-      optional :created_at, type: :datetime
+      required :active, type: :boolean
+      optional :signup_date, type: :date
     end
   end
 
   def call
-    order #=> Hash (coerced from JSON string if needed)
+    order_id = order[:id]              # Integer (coerced)
+    total_amount = order[:total]       # Float (coerced)
 
-    # Nested coercions
-    id    #=> Integer (from order.id)
-    total #=> Float (from order.total)
-    items #=> Array (from order.items)
-
-    # Deep nested coercions
-    if customer
-      customer_id = id          # Integer (from order.customer.id)
-      active_status = is_active # Boolean (from order.customer.is_active)
-      created_time = created_at # DateTime (from order.customer.created_at)
+    if order[:customer]
+      customer_id = order[:customer][:id]        # Integer (coerced)
+      is_active = order[:customer][:active]      # Boolean (coerced)
+      signup = order[:customer][:signup_date]    # Date (coerced)
     end
   end
-
 end
+
+# JSON input with automatic nested coercion
+ProcessOrderTask.call(
+  order: '{
+    "id": "12345",
+    "total": "299.99",
+    "items": ["item1", "item2"],
+    "customer": {
+      "id": "67890",
+      "active": "true",
+      "signup_date": "2023-01-15"
+    }
+  }'
+)
 ```
 
-## Coercion Error Handling
+## Error Handling
 
 > [!WARNING]
-> When coercion fails, CMDx provides detailed error information including the parameter name, attempted types, and specific failure reasons.
+> Coercion failures provide detailed error information including parameter paths, attempted types, and specific failure reasons.
 
 ```ruby
-class ValidateUserProfileTask < CMDx::Task
-
-  required :age, type: :integer
-  required :salary, type: [:float, :big_decimal]
-  required :is_employed, type: :boolean
+class ProcessDataTask < CMDx::Task
+  required :count, type: :integer
+  required :amount, type: [:float, :big_decimal]
+  required :active, type: :boolean
 
   def call
-    # Task logic here
+    # Task logic
   end
-
 end
 
-# Invalid coercion inputs
-result = ValidateUserProfileTask.call(
-  age: "not-a-number",
-  salary: "invalid-amount",
-  is_employed: "maybe"
+# Invalid inputs
+result = ProcessDataTask.call(
+  count: "not-a-number",
+  amount: "invalid-float",
+  active: "maybe"
 )
 
-result.failed?  #=> true
+result.failed?  # → true
 result.metadata
-#=> {
-#     reason: "age could not coerce into an integer. could not coerce into one of: float, big_decimal. is_employed could not coerce into a boolean.",
-#     messages: {
-#       age: ["could not coerce into an integer"],
-#       salary: ["could not coerce into one of: float, big_decimal"],
-#       is_employed: ["could not coerce into a boolean"]
-#     }
+# {
+#   reason: "count could not coerce into an integer. amount could not coerce into one of: float, big_decimal. active could not coerce into a boolean.",
+#   messages: {
+#     count: ["could not coerce into an integer"],
+#     amount: ["could not coerce into one of: float, big_decimal"],
+#     active: ["could not coerce into a boolean"]
 #   }
+# }
+```
+
+### Common Error Scenarios
+
+```ruby
+# Invalid array JSON
+ProcessDataTask.call(items: "[invalid json")
+# → "items could not coerce into an array"
+
+# Invalid date format
+ProcessDataTask.call(start_date: "not-a-date")
+# → "start_date could not coerce into a date"
+
+# Multiple type failure
+ProcessDataTask.call(value: "abc", type: [:integer, :float])
+# → "value could not coerce into one of: integer, float"
 ```
 
 ## Custom Coercion Options
 
-### Date/Time Format Options
+### Date/Time Formats
 
 ```ruby
-class ProcessCustomDateTask < CMDx::Task
-
+class ImportDataTask < CMDx::Task
   # US date format
   required :birth_date, type: :date, format: "%m/%d/%Y"
 
-  # ISO datetime with timezone
-  required :event_timestamp, type: :datetime, format: "%Y-%m-%d %H:%M:%S %Z"
+  # European datetime
+  required :timestamp, type: :datetime, format: "%d.%m.%Y %H:%M"
 
-  # 24-hour time format
-  optional :meeting_time, type: :time, format: "%H:%M"
+  # 12-hour time
+  optional :appointment, type: :time, format: "%I:%M %p"
 
   def call
-    birth_date      #=> Date parsed with MM/DD/YYYY format
-    event_timestamp #=> DateTime with timezone
-    meeting_time    #=> Time with hour:minute format
+    # Dates parsed according to specified formats
   end
-
 end
-
-ProcessCustomDateTask.call(
-  birth_date: "12/25/1990",
-  event_timestamp: "2023-12-25 10:30:00 UTC",
-  meeting_time: "14:30"
-)
 ```
 
-### BigDecimal Precision Options
+### BigDecimal Precision
 
 ```ruby
-class CalculatePricingTask < CMDx::Task
-
+class CalculatePriceTask < CMDx::Task
   required :base_price, type: :big_decimal
-  required :tax_rate, type: :big_decimal, precision: 6
+  required :tax_rate, type: :big_decimal, precision: 8
 
   def call
-    base_price #=> BigDecimal with default precision
-    tax_rate   #=> BigDecimal with 6-digit precision
+    tax_amount = base_price * tax_rate  # High-precision calculation
   end
-
 end
 ```
 
 ## Custom Coercions
 
 > [!NOTE]
-> CMDx allows you to register custom coercions for domain-specific types that aren't covered by the built-in coercions. Custom coercions can be registered globally or per-task basis.
+> Register custom coercions for domain-specific types not covered by built-in coercions.
 
 ```ruby
-module MoneyCoercion
+# Custom coercion for currency handling
+module CurrencyCoercion
   module_function
 
   def call(value, options = {})
     return value if value.is_a?(BigDecimal)
 
-    # Handle string amounts like "$123.45"
-    if value.is_a?(String)
-      clean_value = value.gsub(/[$,]/, '')
-      BigDecimal(clean_value)
-    else
-      BigDecimal(value.to_s)
-    end
+    # Remove currency symbols and formatting
+    clean_value = value.to_s.gsub(/[$,£€¥]/, '')
+    BigDecimal(clean_value)
+  rescue ArgumentError
+    raise CMDx::Coercion::Error, "Invalid currency format: #{value}"
   end
 end
 
-CMDx.configure do |config|
-  config.coercions.register(:money, MoneyCoercion)
-  config.coercions.register(:slug, proc do |value|
-    value.to_s.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+/, '-').strip('-')
-  end)
+# URL slug coercion
+SlugCoercion = proc do |value|
+  value.to_s.downcase
+       .gsub(/[^a-z0-9\s-]/, '')
+       .gsub(/\s+/, '-')
+       .gsub(/-+/, '-')
+       .strip('-')
 end
 
-# Now use in any task
+# Register coercions globally
+CMDx.configure do |config|
+  config.coercions.register(:currency, CurrencyCoercion)
+  config.coercions.register(:slug, SlugCoercion)
+end
+
+# Use in tasks
 class ProcessProductTask < CMDx::Task
-  required :cost, type: :money
-  required :slug, type: :slug
+  required :price, type: :currency
+  required :url_slug, type: :slug
 
   def call
-    cost #=> 123.45
-    slug #=> "my-blog-post-title" (URL-friendly)
+    price    # → BigDecimal from "$99.99"
+    url_slug # → "my-product-name" from "My Product Name!"
   end
 end
+
+ProcessProductTask.call(
+  price: "$149.99",
+  url_slug: "My Amazing Product!"
+)
 ```
 
 > [!TIP]
-> Custom coercions should be idempotent - calling them multiple times with the same input should produce the same result. This ensures predictable behavior when coercions are applied during parameter processing.
+> Custom coercions should be idempotent and handle edge cases gracefully. Include proper error handling for invalid inputs.
 
 ---
 

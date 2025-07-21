@@ -1,8 +1,6 @@
 # Interruptions - Halt
 
-Halting stops execution of a task with explicit intent signaling. Tasks provide
-two primary halt methods that control execution flow and result in different
-outcomes, each serving specific use cases in business logic.
+Halting stops execution of a task with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes, each serving specific use cases in business logic.
 
 ## Table of Contents
 
@@ -12,147 +10,175 @@ outcomes, each serving specific use cases in business logic.
 - [Metadata Enrichment](#metadata-enrichment)
 - [State Transitions](#state-transitions)
 - [Exception Behavior](#exception-behavior)
+- [Error Handling](#error-handling)
 - [The Reason Key](#the-reason-key)
 
 ## TLDR
 
-- **`skip!`** - Controlled interruption when task shouldn't execute (not an error)
-- **`fail!`** - Controlled interruption when task encounters an error condition
-- **Metadata** - Both methods accept metadata hash: `skip!(reason: "...", error_code: "...")`
-- **State changes** - Both transition to `interrupted` state, `skipped` or `failed` status
-- **Exception behavior** - `call` returns results, `call!` raises `CMDx::Skipped/Failed` based on task_halt config
+```ruby
+# Skip when task shouldn't execute (not an error)
+skip!(reason: "Order already processed")
+
+# Fail when task encounters error condition
+fail!(reason: "Insufficient funds", error_code: "PAYMENT_DECLINED")
+
+# With structured metadata
+skip!(
+  reason: "User inactive",
+  user_id: 123,
+  last_active: "2023-01-01"
+)
+
+# Exception behavior with call vs call!
+result = Task.call(params)    # Returns result object
+Task.call!(params)            # Raises CMDx::Skipped/Failed on halt
+```
 
 ## Skip (`skip!`)
-
-The `skip!` method indicates that a task did not meet the criteria to continue
-execution. This represents a controlled, intentional interruption where the
-task determines that execution is not necessary or appropriate under current
-conditions.
-
-### Basic Usage
-
-```ruby
-class ProcessUserOrderTask < CMDx::Task
-
-  def call
-    context.order = Order.find(context.order_id)
-
-    # Skip if order is already processed
-    skip!(reason: "Order already processed") if context.order.processed?
-
-    # Skip if prerequisites aren't met
-    skip!(reason: "Payment method not configured") unless context.order.payment_method
-
-    # Continue with business logic
-    context.order.process!
-  end
-
-end
-```
 
 > [!NOTE]
 > Use `skip!` when a task cannot or should not execute under current conditions, but this is not an error. Skipped tasks are considered successful outcomes.
 
-## Fail (`fail!`)
-
-The `fail!` method indicates that a task encountered an error condition that
-prevents successful completion. This represents controlled failure where the
-task explicitly determines that execution cannot continue successfully.
+The `skip!` method indicates that a task did not meet the criteria to continue execution. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
 
 ### Basic Usage
 
 ```ruby
-class ProcessOrderPaymentTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
+  required :order_id, type: :integer
 
   def call
-    context.payment = Payment.find(context.payment_id)
+    context.order = Order.find(order_id)
+
+    # Skip if order already processed
+    skip!(reason: "Order already processed") if context.order.processed?
+
+    # Skip if prerequisites not met
+    skip!(reason: "Payment method required") unless context.order.payment_method
+
+    # Continue with business logic
+    context.order.process!
+  end
+end
+```
+
+### Common Skip Scenarios
+
+| Scenario | Example |
+|----------|---------|
+| **Already processed** | `skip!(reason: "User already verified")` |
+| **Prerequisites missing** | `skip!(reason: "Required documents not uploaded")` |
+| **Business rules** | `skip!(reason: "Outside business hours")` |
+| **State conditions** | `skip!(reason: "Account suspended")` |
+
+## Fail (`fail!`)
+
+> [!IMPORTANT]
+> Use `fail!` when a task encounters an error that prevents successful completion. Failed tasks represent error conditions that need to be handled or corrected.
+
+The `fail!` method indicates that a task encountered an error condition that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
+
+### Basic Usage
+
+```ruby
+class ProcessPaymentTask < CMDx::Task
+  required :payment_id, type: :integer
+
+  def call
+    context.payment = Payment.find(payment_id)
 
     # Fail on validation errors
     fail!(reason: "Payment amount must be positive") unless context.payment.amount > 0
 
     # Fail on business rule violations
-    fail!(reason: "Insufficient funds") unless sufficient_funds?
+    fail!(reason: "Insufficient funds", code: "INSUFFICIENT_FUNDS") unless sufficient_funds?
 
     # Continue with processing
-    process_payment
+    charge_payment
   end
 
+  private
+
+  def sufficient_funds?
+    context.payment.account.balance >= context.payment.amount
+  end
 end
 ```
 
-> [!IMPORTANT]
-> Use `fail!` when a task encounters an error that prevents successful completion. Failed tasks represent error conditions that need to be handled or corrected.
+### Common Fail Scenarios
+
+| Scenario | Example |
+|----------|---------|
+| **Validation errors** | `fail!(reason: "Invalid email format")` |
+| **Business rule violations** | `fail!(reason: "Credit limit exceeded")` |
+| **External service errors** | `fail!(reason: "Payment gateway unavailable")` |
+| **Data integrity issues** | `fail!(reason: "Duplicate transaction detected")` |
 
 ## Metadata Enrichment
 
-Both halt methods accept metadata to provide context about the interruption.
-Metadata is stored as a hash and becomes available through the result object.
+Both halt methods accept metadata to provide context about the interruption. Metadata is stored as a hash and becomes available through the result object.
 
 ### Structured Metadata
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
+class ProcessSubscriptionTask < CMDx::Task
+  required :user_id, type: :integer
 
   def call
-    context.order = Order.find(context.order_id)
+    context.user = User.find(user_id)
 
-    if context.order.status == "cancelled"
+    if context.user.subscription_expired?
       skip!(
-        reason: "Order was cancelled",
-        order_id: context.order.id,
-        cancelled_at: context.order.cancelled_at,
-        reason_code: context.order.cancellation_reason
+        reason: "Subscription expired",
+        user_id: context.user.id,
+        expired_at: context.user.subscription_expires_at,
+        plan_type: context.user.subscription_plan,
+        grace_period_ends: context.user.subscription_expires_at + 7.days
       )
     end
 
-    unless inventory_available?
+    unless context.user.payment_method_valid?
       fail!(
-        reason: "Insufficient inventory",
-        required_quantity: context.order.quantity,
-        available_quantity: current_inventory,
-        restock_date: estimated_restock_date,
-        error_code: "INVENTORY_DEPLETED"
+        reason: "Invalid payment method",
+        user_id: context.user.id,
+        payment_method_id: context.user.payment_method&.id,
+        error_code: "PAYMENT_METHOD_INVALID",
+        retry_after: Time.current + 1.hour
       )
     end
 
-    process_order
+    process_subscription
   end
-
 end
 ```
 
 ### Accessing Metadata
 
 ```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessSubscriptionTask.call(user_id: 123)
 
 # Check result status
-result.skipped?                #=> true
-result.failed?                 #=> false
+result.skipped?                         #=> true
+result.failed?                          #=> false
 
 # Access metadata
-result.metadata[:reason]       #=> "Order was cancelled"
-result.metadata[:order_id]     #=> 123
-result.metadata[:cancelled_at] #=> 2023-01-01 10:00:00 UTC
-result.metadata[:reason_code]  #=> "customer_request"
+result.metadata[:reason]                #=> "Subscription expired"
+result.metadata[:user_id]               #=> 123
+result.metadata[:expired_at]            #=> 2023-01-01 10:00:00 UTC
+result.metadata[:grace_period_ends]     #=> 2023-01-08 10:00:00 UTC
 ```
 
 ## State Transitions
 
 Halt methods trigger specific state and status transitions:
 
-### Skip Transitions
-- **State**: `initialized` → `executing` → `interrupted`
-- **Status**: `success` → `skipped`
-- **Result**: `good? = true`, `bad? = true`
-
-### Fail Transitions
-- **State**: `initialized` → `executing` → `interrupted`
-- **Status**: `success` → `failed`
-- **Result**: `good? = false`, `bad? = true`
+| Method | State Transition | Status | Outcome |
+|--------|------------------|--------|---------|
+| `skip!` | `executing` → `interrupted` | `skipped` | `good? = true`, `bad? = true` |
+| `fail!` | `executing` → `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessSubscriptionTask.call(user_id: 123)
 
 # State information
 result.state        #=> "interrupted"
@@ -170,41 +196,62 @@ result.bad?         #=> true for both skipped and failed
 Halt methods behave differently depending on the call method used:
 
 ### With `call` (Non-bang)
+
 Returns a result object without raising exceptions:
 
 ```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessPaymentTask.call(payment_id: 123)
 
 case result.status
 when "success"
-  puts "Order processed successfully"
+  puts "Payment processed: $#{result.context.payment.amount}"
 when "skipped"
-  puts "Order skipped: #{result.metadata[:reason]}"
+  puts "Payment skipped: #{result.metadata[:reason]}"
 when "failed"
-  puts "Order failed: #{result.metadata[:reason]}"
+  puts "Payment failed: #{result.metadata[:reason]}"
+  handle_payment_error(result.metadata[:code])
 end
 ```
 
 ### With `call!` (Bang)
-Raises fault exceptions based on `task_halt` configuration:
+
+> [!WARNING]
+> The `call!` method raises exceptions for halt conditions based on the `task_halt` configuration. Handle these exceptions appropriately in your application flow.
 
 ```ruby
 begin
-  result = ProcessUserOrderTask.call!(order_id: 123)
-  puts "Success: #{result.context.order.id}"
+  result = ProcessPaymentTask.call!(payment_id: 123)
+  puts "Success: Payment processed for $#{result.context.payment.amount}"
 rescue CMDx::Skipped => e
   puts "Skipped: #{e.message}"
-  puts "Order ID: #{e.context.order_id}"
+  log_skip_event(e.context.payment_id, e.result.metadata)
 rescue CMDx::Failed => e
   puts "Failed: #{e.message}"
-  puts "Error code: #{e.result.metadata[:error_code]}"
+  handle_payment_failure(e.result.metadata[:code])
+  notify_payment_team(e.context.payment_id)
 end
 ```
 
-> [!WARNING]
-> The `call!` method raises exceptions for halt conditions based on the `task_halt` configuration. The `call` method always returns result objects without raising exceptions.
+## Error Handling
+
+### Invalid Metadata
+
+```ruby
+class ProcessOrderTask < CMDx::Task
+  def call
+    # This works - metadata accepts any hash
+    skip!(reason: "Valid skip", order_id: 123, custom_data: {nested: true})
+
+    # This also works - no metadata required
+    fail!
+  end
+end
+```
 
 ## The Reason Key
+
+> [!TIP]
+> Always include a `:reason` key in metadata when using halt methods. This provides clear context for debugging and creates meaningful exception messages.
 
 The `:reason` key in metadata has special significance:
 
@@ -213,19 +260,26 @@ The `:reason` key in metadata has special significance:
 - Strongly recommended for all halt calls
 
 ```ruby
-# Good: Provides clear reason
-skip!(reason: "User already has an active session")
-fail!(reason: "Credit card expired", code: "EXPIRED_CARD")
+# Good: Clear, specific reason
+skip!(reason: "User account suspended until manual review")
+fail!(reason: "Credit card declined by issuer", code: "CARD_DECLINED")
 
 # Acceptable: Other metadata without reason
-skip!(status: "redundant", timestamp: Time.now)
+skip!(status: "redundant", processed_at: Time.current)
 
 # Fallback: Default message if no reason provided
 skip! # Exception message: "no reason given"
+fail! # Exception message: "no reason given"
 ```
 
-> [!TIP]
-> Always try to include a `:reason` key in metadata when using halt methods. This provides clear context for debugging and creates meaningful exception messages when using `call!`.
+### Reason Best Practices
+
+| Practice | Example |
+|----------|---------|
+| **Be specific** | `"Credit card expired on 2023-12-31"` vs `"Payment error"` |
+| **Include context** | `"Inventory insufficient: need 5, have 2"` |
+| **Use actionable language** | `"Email verification required before login"` |
+| **Avoid technical jargon** | `"Payment declined"` vs `"Gateway returned 402"` |
 
 ---
 

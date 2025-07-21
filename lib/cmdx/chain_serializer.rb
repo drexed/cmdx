@@ -1,33 +1,52 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Serializes Chain objects into hash representations for external consumption.
-  # Provides a consistent interface for converting chain execution data into
-  # structured format suitable for logging, API responses, or persistence.
+  # Serialization module for converting chain objects to hash representation.
+  #
+  # ChainSerializer provides functionality to serialize chain objects into a
+  # standardized hash format that includes essential metadata about the chain
+  # execution including unique identification, execution state, status, outcome,
+  # runtime, and all contained task results. The serialized format is commonly
+  # used for debugging, logging, introspection, and data exchange throughout
+  # the task execution pipeline.
   module ChainSerializer
 
     module_function
 
-    # Converts a chain object into a hash representation containing execution metadata.
-    # Extracts key chain attributes and serializes all contained results for complete
-    # execution state capture.
+    # Serializes a chain object into a hash representation.
     #
-    # @param chain [Chain] the chain instance to serialize
+    # Converts a chain instance into a standardized hash format containing
+    # key metadata about the chain's execution context and all contained results.
+    # The serialization includes information delegated from the first result in
+    # the chain (state, status, outcome, runtime) along with the chain's unique
+    # identifier and complete collection of task results converted to hashes.
     #
-    # @return [Hash] hash containing chain metadata and serialized results
+    # @param chain [CMDx::Chain] the chain object to serialize
     #
-    # @raise [NoMethodError] if chain doesn't respond to required methods
+    # @return [Hash] a hash containing the chain's metadata and execution information
+    # @option return [String] :id the unique identifier of the chain
+    # @option return [String] :state the execution state delegated from first result
+    # @option return [String] :status the execution status delegated from first result
+    # @option return [String] :outcome the execution outcome delegated from first result
+    # @option return [Float] :runtime the execution runtime in seconds delegated from first result
+    # @option return [Array<Hash>] :results array of serialized result hashes from all tasks in the chain
     #
-    # @example Serializing a workflow chain
-    #   chain = UserWorkflow.call(user_id: 123)
-    #   ChainSerializer.call(chain)
-    #   # => {
-    #   #   id: "abc123",
-    #   #   state: :complete,
-    #   #   status: :success,
-    #   #   outcome: :good,
-    #   #   runtime: 0.045,
-    #   #   results: [...]
+    # @raise [NoMethodError] if the chain doesn't respond to required methods (id, state, status, outcome, runtime, results)
+    #
+    # @example Serialize a workflow chain with multiple tasks
+    #   workflow = DataProcessingWorkflow.call(input: "data")
+    #   ChainSerializer.call(workflow.chain)
+    #   #=> {
+    #   #   id: "def456",
+    #   #   state: "complete",
+    #   #   status: "success",
+    #   #   outcome: "success",
+    #   #   runtime: 0.123,
+    #   #   results: [
+    #   #     { index: 0, class: "ValidateDataTask", status: "success", ... },
+    #   #     { index: 1, class: "ProcessDataTask", status: "success", ... },
+    #   #     { index: 2, class: "SaveDataTask", status: "success", ... }
+    #   #   ]
     #   # }
     def call(chain)
       {

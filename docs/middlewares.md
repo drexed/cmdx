@@ -16,32 +16,29 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
   - [Timeout Middleware](#timeout-middleware)
   - [Correlate Middleware](#correlate-middleware)
 - [Writing Custom Middleware](#writing-custom-middleware)
+- [Error Handling](#error-handling)
 
 ## TLDR
 
-- **Purpose** - Rack-style wrappers for cross-cutting concerns (auth, logging, caching)
-- **Declaration** - Use `use` method with classes, instances, or procs
-- **Execution order** - Nested fashion (first declared wraps all others)
-- **Short-circuiting** - Middleware can halt execution by not calling next callable
-- **Inheritance** - Middleware is inherited from parent classes
-- **Built-in** - Includes Timeout and Correlate middleware
+```ruby
+# Declare middleware with use method
+use :middleware, AuthMiddleware, role: :admin      # Class with options
+use :middleware, LoggingMiddleware.new(level: :debug)  # Instance
+use :middleware, proc { |task, callable| ... }    # Proc
+
+# Execution order: first declared wraps all others
+use :middleware, OuterMiddleware    # Runs first/last
+use :middleware, InnerMiddleware    # Runs last/first
+
+# Built-in middleware
+use :middleware, CMDx::Middlewares::Timeout, seconds: 30
+use :middleware, CMDx::Middlewares::Correlate, id: "request-123"
+```
 
 ## Using Middleware
 
-Declare middleware using the `use` method in your task classes:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  use :middleware, AuthenticationMiddleware
-  use :middleware, LoggingMiddleware, level: :info
-  use :middleware, CachingMiddleware, ttl: 300
-
-  def call
-    context.order = Order.find(order_id)
-    context.order.process!
-  end
-end
-```
+> [!NOTE]
+> Middleware executes in nested fashion around task execution. Use the `use` method to declare middleware in your task classes.
 
 ### Class Middleware
 
@@ -62,7 +59,7 @@ class AuditMiddleware < CMDx::Middleware
         action: @action,
         resource_type: @resource_type,
         resource_id: task.context.id,
-        user_id: task.context.current_user.id
+        user_id: task.context.current_user&.id
       )
     end
 
@@ -88,12 +85,13 @@ Pre-configured middleware instances for complex initialization:
 class ProcessOrderTask < CMDx::Task
   use :middleware, LoggingMiddleware.new(
     level: :debug,
-    formatter: JSON::JSONFormatter.new,
+    formatter: CustomFormatter.new,
     tags: ['order', 'payment']
   )
 
   def call
-    # Business logic
+    context.order = Order.find(order_id)
+    context.order.process!
   end
 end
 ```
@@ -109,7 +107,7 @@ class ProcessOrderTask < CMDx::Task
     result = callable.call(task)
     duration = Time.now - start_time
 
-    Rails.logger.info "#{task.class.name} completed in #{duration}s"
+    Rails.logger.info "#{task.class.name} completed in #{duration.round(3)}s"
     result
   }
 
@@ -121,35 +119,34 @@ end
 
 ## Execution Order
 
-Middleware executes in nested fashion - first declared wraps all others:
+> [!IMPORTANT]
+> Middleware executes in nested fashion - first declared wraps all others, creating an onion-like execution pattern.
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  use :middleware, TimingMiddleware         # 1st: outermost
-  use :middleware, AuthenticationMiddleware # 2nd: middle
-  use :middleware, ValidationMiddleware     # 3rd: innermost
+  use :middleware, TimingMiddleware         # 1st: outermost wrapper
+  use :middleware, AuthenticationMiddleware # 2nd: middle wrapper
+  use :middleware, ValidationMiddleware     # 3rd: innermost wrapper
 
   def call
-    # Core logic executes last
+    # Core logic executes here
   end
 end
 
 # Execution flow:
-# 1. TimingMiddleware before
-# 2.   AuthenticationMiddleware before
-# 3.     ValidationMiddleware before
+# 1. TimingMiddleware (before)
+# 2.   AuthenticationMiddleware (before)
+# 3.     ValidationMiddleware (before)
 # 4.       [task execution]
-# 5.     ValidationMiddleware after
-# 6.   AuthenticationMiddleware after
-# 7. TimingMiddleware after
+# 5.     ValidationMiddleware (after)
+# 6.   AuthenticationMiddleware (after)
+# 7. TimingMiddleware (after)
 ```
-
-> [!IMPORTANT]
-> Middleware executes in declaration order for setup and reverse order for cleanup, creating proper nesting.
 
 ## Short-circuiting
 
-Middleware can halt execution by not calling the next callable:
+> [!WARNING]
+> Middleware can halt execution by not calling the next callable. This prevents the task and subsequent middleware from executing.
 
 ```ruby
 class RateLimitMiddleware < CMDx::Middleware
@@ -159,12 +156,12 @@ class RateLimitMiddleware < CMDx::Middleware
   end
 
   def call(task, callable)
-    key = "rate_limit:#{task.context.current_user.id}"
+    key = "rate_limit:#{task.context.current_user&.id}"
     current_count = Rails.cache.read(key) || 0
 
     if current_count >= @limit
       task.fail!(reason: "Rate limit exceeded: #{@limit} requests per hour")
-      return task.result
+      return task.result  # Short-circuit - task never executes
     end
 
     Rails.cache.write(key, current_count + 1, expires_in: @window)
@@ -173,22 +170,19 @@ class RateLimitMiddleware < CMDx::Middleware
 end
 
 class SendEmailTask < CMDx::Task
-  use :middleware, RateLimitMiddleware, limit: 50, window: 1.hour
+  use :middleware, RateLimitMiddleware, limit: 50
 
   def call
     # Only executes if rate limit check passes
-    EmailService.deliver(
-      to: email_address,
-      subject: subject,
-      body: message_body
-    )
+    EmailService.deliver(email_params)
   end
 end
 ```
 
 ## Inheritance
 
-Middleware is inherited from parent classes, enabling application-wide patterns:
+> [!TIP]
+> Middleware is inherited from parent classes, making it ideal for application-wide concerns.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -198,17 +192,16 @@ class ApplicationTask < CMDx::Task
 end
 
 class ProcessOrderTask < ApplicationTask
-  use :middleware, AuthenticationMiddleware  # Specific to order processing
+  use :middleware, AuthenticationMiddleware  # Added to inherited middleware
   use :middleware, OrderValidationMiddleware # Domain-specific validation
 
   def call
     # Inherits all ApplicationTask middleware plus order-specific ones
+    context.order = Order.find(order_id)
+    context.order.process!
   end
 end
 ```
-
-> [!TIP]
-> Middleware is inherited by subclasses, making it ideal for setting up global concerns across all tasks in your application.
 
 ## Built-in Middleware
 
@@ -220,34 +213,36 @@ Enforces execution time limits with support for static and dynamic timeout value
 
 ```ruby
 class ProcessLargeReportTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: 300 # 5 minutes
+  use :middleware, CMDx::Middlewares::Timeout, seconds: 300
 
   def call
-    # Long-running report generation
+    # Long-running report generation with 5-minute timeout
+    ReportGenerator.create(report_params)
   end
 end
 
-# Default timeout (3 seconds when no value specified)
+# Default timeout (3 seconds)
 class QuickValidationTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout # Uses 3 seconds default
+  use :middleware, CMDx::Middlewares::Timeout
 
   def call
-    # Fast validation logic
+    # Fast validation with default 3-second timeout
+    ValidationService.validate(data)
   end
 end
 ```
 
-#### Dynamic Timeout Generation
+#### Dynamic Timeout Calculation
 
-The middleware supports dynamic timeout calculation using method names, procs, and lambdas:
+> [!NOTE]
+> Timeout supports method names, procs, and lambdas for dynamic calculation based on task context.
 
 ```ruby
-# Method-based timeout calculation
+# Method-based timeout
 class ProcessOrderTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: :calculate_timeout
 
   def call
-    # Task execution with dynamic timeout
     context.order = Order.find(order_id)
     context.order.process!
   end
@@ -255,111 +250,69 @@ class ProcessOrderTask < CMDx::Task
   private
 
   def calculate_timeout
-    # Dynamic timeout based on order complexity
     base_timeout = 30
-    base_timeout += (context.order_items.count * 2) # 2 seconds per item
-    base_timeout += 60 if context.payment_method == "bank_transfer" # Extra time for bank transfers
+    base_timeout += (context.order_items.count * 2)  # 2 seconds per item
+    base_timeout += 60 if context.payment_method == "bank_transfer"
     base_timeout
   end
 end
 
-# Proc-based timeout for inline calculation
+# Proc-based timeout
 class ProcessWorkflowTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: -> {
     context.workflow_size > 100 ? 120 : 60
   }
 
   def call
-    # Processes workflow with timeout based on size
     context.workflow_items.each { |item| process_item(item) }
-  end
-end
-
-# Context-aware timeout calculation
-class GenerateReportTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: :report_timeout
-
-  def call
-    context.report = ReportGenerator.create(report_params)
-  end
-
-  private
-
-  def report_timeout
-    case context.report_type
-    when "summary" then 30
-    when "detailed" then 120
-    when "comprehensive" then 300
-    else 60
-    end
   end
 end
 ```
 
 #### Timeout Precedence
 
-The middleware follows this precedence for determining timeout values:
+The middleware determines timeout values using this precedence:
 
-1. **Explicit timeout value** (provided during middleware initialization)
-   - Integer/Float: Used as-is for static timeout
-   - Symbol: Called as method on task if it exists
-   - Proc/Lambda: Executed in task context for dynamic calculation
-2. **Default value** of 3 seconds if no timeout is specified or resolved value is nil
+1. **Explicit timeout value** (Integer/Float, Symbol, Proc/Lambda)
+2. **Default value** of 3 seconds when no timeout resolves
 
 ```ruby
-# Static timeout - highest precedence when specified
+# Static timeout - always 45 seconds
 class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: 45 # Always 45 seconds
+  use :middleware, CMDx::Middlewares::Timeout, seconds: 45
 end
 
-# Method-based timeout - calls task method
-class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: :dynamic_timeout
-
-  private
-  def dynamic_timeout
-    context.priority == "high" ? 120 : 60
-  end
-end
-
-# Default fallback when method returns nil
+# Method returns nil - falls back to 3 seconds
 class ProcessOrderTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: :might_return_nil
 
   private
   def might_return_nil
-    nil # Falls back to 3 seconds default
+    nil  # Uses 3-second default
   end
 end
 ```
 
 #### Conditional Timeout
 
-Apply timeout middleware conditionally based on environment or task state:
-
 ```ruby
-# Environment-based conditional timeout
+# Environment-based timeout
 class ProcessOrderTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout,
       seconds: 60,
       unless: -> { Rails.env.development? }
 
   def call
-    # No timeout in development, 60 seconds in other environments
     context.order = Order.find(order_id)
     context.order.process!
   end
 end
 
-# Context-based conditional timeout
+# Context-based timeout
 class SendEmailTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout,
       seconds: 30,
       if: :timeout_enabled?
-
-  def call
-    EmailService.deliver(email_params)
-  end
 
   private
 
@@ -367,81 +320,19 @@ class SendEmailTask < CMDx::Task
     !context.background_job?
   end
 end
-
-# Combined dynamic timeout with conditions
-class ProcessComplexOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout,
-      seconds: :calculate_timeout,
-      unless: :skip_timeout?
-
-  def call
-    # Complex order processing
-    ValidateOrderTask.call(context)
-    ProcessPaymentTask.call(context)
-    UpdateInventoryTask.call(context)
-  end
-
-  private
-
-  def calculate_timeout
-    context.order_complexity == "high" ? 180 : 90
-  end
-
-  def skip_timeout?
-    Rails.env.test? || context.disable_timeouts?
-  end
-end
 ```
-
-#### Global Timeout Configuration
-
-Apply timeout middleware globally with inheritance:
-
-```ruby
-class ApplicationTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: 60 # Default 60 seconds for all tasks
-end
-
-class QuickTask < ApplicationTask
-  use :middleware, CMDx::Middlewares::Timeout, seconds: 15 # Override with 15 seconds
-
-  def call
-    # Fast operation with shorter timeout
-  end
-end
-
-class LongRunningTask < ApplicationTask
-  use :middleware, CMDx::Middlewares::Timeout, seconds: :dynamic_timeout
-
-  def call
-    # Long operation with dynamic timeout
-  end
-
-  private
-
-  def dynamic_timeout
-    context.data_size > 1000 ? 300 : 120
-  end
-end
-```
-
-> [!WARNING]
-> Tasks that exceed their timeout will be interrupted with a `CMDx::TimeoutError` and automatically marked as failed.
-
-> [!TIP]
-> Use dynamic timeout calculation to adjust execution limits based on actual task complexity, data size, or business requirements. This provides better resource utilization while maintaining appropriate safety limits.
 
 ### Correlate Middleware
 
-Manages correlation IDs for request tracing across task boundaries. This middleware automatically establishes correlation contexts during task execution, enabling you to trace related operations through distributed systems and complex business workflows.
+> [!NOTE]
+> Manages correlation IDs for request tracing across task boundaries, enabling distributed system observability.
 
 ```ruby
 class ProcessApiRequestTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate
 
   def call
-    # Correlation ID is automatically managed
-    # Chain ID reflects the established correlation context
+    # Correlation ID automatically managed and propagated
     context.api_response = ExternalService.call(request_data)
   end
 end
@@ -449,84 +340,27 @@ end
 
 #### Correlation Precedence
 
-The middleware follows a hierarchical precedence system for determining correlation IDs:
+The middleware determines correlation IDs using this hierarchy:
+
+1. **Explicit correlation ID** (string, proc, method name)
+2. **Thread-local correlation** (CMDx::Correlator.id)
+3. **Existing chain ID** (inherited from parent task)
+4. **Generated UUID** (when none exist)
 
 ```ruby
-# 1. Explicit correlation ID takes highest precedence
-
-# 1a. Static string ID
+# Explicit correlation ID
 class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: "fixed-correlation-123"
-end
-ProcessOrderTask.call # Always uses "fixed-correlation-123"
-
-# 1b. Dynamic proc/lambda ID
-class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{rand(1000)}" }
-end
-ProcessOrderTask.call(order_id: 456) # Uses "order-456-847" (random number varies)
-
-# 1c. Method-based ID
-class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: :correlation_method
-
-  private
-
-  def correlation_method
-    "custom-#{order_id}"
-  end
-end
-ProcessOrderTask.call(order_id: 789) # Uses "custom-789"
-
-# 2. Thread-local correlation when no explicit ID
-CMDx::Correlator.id = "api-request-456"
-ProcessApiRequestTask.call # Uses "api-request-456"
-
-# 3. Existing chain ID when no explicit or thread correlation
-task_with_run = ProcessOrderTask.call(chain: { id: "order-chain-789" })
-# Uses "order-chain-789"
-
-# 4. Generated UUID when none of the above exist
-CMDx::Correlator.clear
-ProcessOrderTask.call # Uses generated UUID
-```
-
-#### Explicit Correlation IDs
-
-Set fixed or dynamic correlation IDs for specific tasks or workflows using strings, method names, or procs:
-
-```ruby
-# Static string correlation ID
-class ProcessPaymentTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: "payment-processing"
-
-  def call
-    # Always uses "payment-processing" as correlation ID
-    # Useful for grouping all payment operations
-    context.payment = PaymentService.charge(payment_params)
-  end
+  use :middleware, CMDx::Middlewares::Correlate, id: "order-processing"
 end
 
-# Dynamic correlation ID using proc/lambda
+# Dynamic correlation ID
 class ProcessOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}-#{Time.now.to_i}" }
-
-  def call
-    # Dynamic correlation ID based on order and timestamp
-    # Each execution gets a unique correlation ID
-    ValidateOrderTask.call(context)
-    ProcessPaymentTask.call(context)
-  end
+  use :middleware, CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}" }
 end
 
 # Method-based correlation ID
 class ProcessApiRequestTask < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate, id: :generate_correlation_id
-
-  def call
-    # Uses correlation ID from generate_correlation_id method
-    context.api_response = ExternalService.call(request_data)
-  end
 
   private
 
@@ -534,102 +368,16 @@ class ProcessApiRequestTask < CMDx::Task
     "api-#{context.request_id}-#{context.user_id}"
   end
 end
-
-# Symbol fallback when method doesn't exist
-class ProcessWorkflowTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: :workflow_processing
-
-  def call
-    # Uses :workflow_processing as correlation ID (symbol as-is)
-    # since task doesn't respond to workflow_processing method
-    context.workflow_results = process_workflow_items
-  end
-end
-```
-
-#### Conditional Correlation
-
-Apply correlation middleware conditionally based on environment or task state:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  # Only apply correlation in production environments
-  use :middleware, CMDx::Middlewares::Correlate, unless: -> { Rails.env.development? }
-
-  def call
-    context.order = Order.find(order_id)
-    context.order.process!
-  end
-end
-
-class SendEmailTask < CMDx::Task
-  # Apply correlation only when tracing is enabled
-  use :middleware, CMDx::Middlewares::Correlate, if: :tracing_enabled?
-
-  def call
-    EmailService.deliver(email_params)
-  end
-
-  private
-
-  def tracing_enabled?
-    context.enable_tracing == true
-  end
-end
-```
-
-#### Scoped Correlation Context
-
-Use correlation blocks to establish correlation contexts for groups of related tasks:
-
-```ruby
-class ProcessOrderWorkflowTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate
-
-  def call
-    # Establish correlation context for entire workflow
-    CMDx::Correlator.use("order-workflow-#{order_id}") do
-      ValidateOrderTask.call(context)
-      ProcessPaymentTask.call(context)
-      SendConfirmationTask.call(context)
-      UpdateInventoryTask.call(context)
-    end
-  end
-end
-```
-
-#### Global Correlation Setup
-
-Apply correlation middleware globally to all tasks:
-
-```ruby
-class ApplicationTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate # All tasks get correlation management
-end
-
-class ProcessOrderTask < ApplicationTask
-  def call
-    # Automatically inherits correlation management
-    context.order = Order.find(order_id)
-    context.order.process!
-  end
-end
 ```
 
 #### Request Tracing Integration
-
-Combine with request identifiers for comprehensive tracing:
 
 ```ruby
 class ApiController < ApplicationController
   before_action :set_correlation_id
 
   def process_order
-    # Option 1: Use thread-local correlation (inherited by all tasks)
     result = ProcessOrderTask.call(order_params)
-
-    # Option 2: Use explicit correlation ID for this specific request
-    # result = ProcessOrderTask.call(order_params.merge(correlation_id: @correlation_id))
 
     if result.success?
       render json: { order: result.context.order, correlation_id: result.chain.id }
@@ -641,9 +389,9 @@ class ApiController < ApplicationController
   private
 
   def set_correlation_id
-    @correlation_id = request.headers['X-Correlation-ID'] || request.uuid
-    CMDx::Correlator.id = @correlation_id
-    response.headers['X-Correlation-ID'] = @correlation_id
+    correlation_id = request.headers['X-Correlation-ID'] || request.uuid
+    CMDx::Correlator.id = correlation_id
+    response.headers['X-Correlation-ID'] = correlation_id
   end
 end
 
@@ -652,20 +400,6 @@ class ProcessOrderTask < CMDx::Task
 
   def call
     # Inherits correlation ID from controller thread context
-    # All subtasks will share the same correlation ID
-    ValidateOrderDataTask.call(context)
-    ChargePaymentTask.call(context)
-    SendConfirmationEmailTask.call(context)
-  end
-end
-
-# Alternative: Task-specific correlation for API endpoints
-class ProcessApiOrderTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Correlate, id: -> { "api-order-#{context.request_id}" }
-
-  def call
-    # Uses correlation ID specific to this API request
-    # Overrides any thread-local correlation
     ValidateOrderDataTask.call(context)
     ChargePaymentTask.call(context)
     SendConfirmationEmailTask.call(context)
@@ -673,15 +407,10 @@ class ProcessApiOrderTask < CMDx::Task
 end
 ```
 
-> [!TIP]
-> The Correlate middleware integrates seamlessly with the CMDx logging system. All task execution logs automatically include the correlation ID, making it easy to trace related operations across your application.
-
-> [!NOTE]
-> Correlation IDs are thread-safe and automatically propagate through task hierarchies when using shared context. This makes the middleware ideal for distributed tracing and debugging complex business workflows.
-
 ## Writing Custom Middleware
 
-Inherit from `CMDx::Middleware` and implement the `call` method:
+> [!IMPORTANT]
+> Custom middleware must inherit from `CMDx::Middleware` and implement the `call(task, callable)` method.
 
 ```ruby
 class DatabaseTransactionMiddleware < CMDx::Middleware
@@ -697,26 +426,22 @@ class DatabaseTransactionMiddleware < CMDx::Middleware
   end
 end
 
-class CircuitBreakerMiddleware < CMDx::Middleware
-  def initialize(failure_threshold: 5, reset_timeout: 60)
-    @failure_threshold = failure_threshold
-    @reset_timeout = reset_timeout
+class CacheMiddleware < CMDx::Middleware
+  def initialize(ttl: 300, key_prefix: nil)
+    @ttl = ttl
+    @key_prefix = key_prefix
   end
 
   def call(task, callable)
-    circuit_key = "circuit:#{task.class.name}"
+    cache_key = build_cache_key(task)
+    cached_result = Rails.cache.read(cache_key)
 
-    if circuit_open?(circuit_key)
-      task.fail!(reason: "Circuit breaker is open")
-      return task.result
-    end
+    return cached_result if cached_result
 
     result = callable.call(task)
 
-    if result.failed?
-      increment_failures(circuit_key)
-    else
-      reset_circuit(circuit_key)
+    if result.success?
+      Rails.cache.write(cache_key, result, expires_in: @ttl)
     end
 
     result
@@ -724,20 +449,68 @@ class CircuitBreakerMiddleware < CMDx::Middleware
 
   private
 
-  def circuit_open?(key)
-    failures = Rails.cache.read("#{key}:failures") || 0
-    failures >= @failure_threshold
-  end
-
-  def increment_failures(key)
-    Rails.cache.increment("#{key}:failures", 1, expires_in: @reset_timeout)
-  end
-
-  def reset_circuit(key)
-    Rails.cache.delete("#{key}:failures")
+  def build_cache_key(task)
+    base_key = task.class.name.underscore
+    param_hash = Digest::MD5.hexdigest(task.context.to_h.to_json)
+    [@key_prefix, base_key, param_hash].compact.join(':')
   end
 end
 ```
+
+## Error Handling
+
+> [!WARNING]
+> Middleware errors can prevent task execution. Handle exceptions appropriately and consider their impact on the execution chain.
+
+### Common Error Scenarios
+
+```ruby
+class ErrorProneMiddleware < CMDx::Middleware
+  def call(task, callable)
+    # Middleware error prevents task execution
+    raise "Configuration missing" unless configured?
+
+    callable.call(task)
+  rescue StandardError => e
+    # Handle middleware-specific errors
+    task.fail!(reason: "Middleware error: #{e.message}")
+    task.result
+  end
+end
+
+# Timeout errors are automatically handled
+class ProcessOrderTask < CMDx::Task
+  use :middleware, CMDx::Middlewares::Timeout, seconds: 5
+
+  def call
+    sleep(10)  # Exceeds timeout
+  end
+end
+
+result = ProcessOrderTask.call
+result.failed?  # → true
+result.reason   # → "Task timed out after 5 seconds"
+```
+
+### Middleware Error Recovery
+
+```ruby
+class ResilientMiddleware < CMDx::Middleware
+  def call(task, callable)
+    callable.call(task)
+  rescue ExternalServiceError => e
+    # Log error but allow task to complete
+    Rails.logger.error "External service unavailable: #{e.message}"
+
+    # Continue execution with degraded functionality
+    task.context.external_service_available = false
+    callable.call(task)
+  end
+end
+```
+
+> [!TIP]
+> Design middleware to fail gracefully when possible. Consider whether middleware failure should prevent task execution or allow degraded operation.
 
 ---
 

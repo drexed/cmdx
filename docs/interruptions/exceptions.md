@@ -1,156 +1,158 @@
 # Interruptions - Exceptions
 
-CMDx provides robust exception handling that differs between the `call` and `call!`
-methods. Understanding how unhandled exceptions are processed is crucial for
-building reliable task execution flows and implementing proper error handling strategies.
+CMDx provides robust exception handling that differs between the `call` and `call!` methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
-- [Exception Handling Behavior](#exception-handling-behavior)
-- [Bang Call (`call!`)](#bang-call-call)
+- [Exception Handling Methods](#exception-handling-methods)
+- [Exception Metadata](#exception-metadata)
+- [Bang Call Behavior](#bang-call-behavior)
 - [Exception Classification](#exception-classification)
+- [Error Handling Patterns](#error-handling-patterns)
 
 ## TLDR
 
-- **`call`** - Captures ALL exceptions, converts to failed results with metadata
-- **`call!`** - Lets exceptions propagate (except CMDx faults based on task_halt config)
-- **Exception info** - Available in `result.metadata[:original_exception]` and `result.metadata[:reason]`
-- **Guaranteed results** - `call` always returns a result object, never raises
-- **Fault vs Exception** - CMDx faults have special handling, other exceptions propagate in `call!`
+```ruby
+# Non-bang call - captures ALL exceptions
+result = ProcessOrderTask.call     # Never raises, always returns result
+result.failed?                     # true if exception occurred
+result.metadata[:original_exception] # Access original exception
 
-## Exception Handling Behavior
+# Bang call - lets exceptions propagate
+ProcessOrderTask.call!             # Raises exceptions (except configured faults)
+
+# Exception info always available in metadata
+result.metadata[:reason]           # Human-readable error message
+result.metadata[:original_exception] # Original exception object
+```
+
+## Exception Handling Methods
+
+> [!IMPORTANT]
+> The key difference: `call` guarantees a result object, while `call!` allows exceptions to propagate for standard error handling patterns.
 
 ### Non-bang Call (`call`)
 
-The `call` method captures **all** unhandled exceptions and converts them to
-failed results, ensuring that no exceptions escape the task execution boundary.
-This provides consistent, predictable behavior for result processing.
+The `call` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
+
+| Behavior | Description |
+|----------|-------------|
+| **Exception Capture** | All exceptions caught and converted |
+| **Return Value** | Always returns a result object |
+| **State** | `"interrupted"` for exception failures |
+| **Status** | `"failed"` for all captured exceptions |
+| **Metadata** | Exception details preserved |
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
-
+class ProcessPaymentTask < CMDx::Task
   def call
-    # This will raise a NoMethodError
-    undefined_method_call
+    raise ActiveRecord::RecordNotFound, "Payment method not found"
   end
-
 end
 
-result = ProcessUserOrderTask.call
+result = ProcessPaymentTask.call
 result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.failed?  #=> true
-result.metadata #=> {
-                #=>   reason: "[NoMethodError] undefined method `undefined_method_call`",
-                #=>   original_exception: <NoMethodError>
-                #=> }
 ```
+
+### Bang Call (`call!`)
+
+The `call!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
+
+```ruby
+class ProcessPaymentTask < CMDx::Task
+  def call
+    raise StandardError, "Payment gateway unavailable"
+  end
+end
+
+begin
+  ProcessPaymentTask.call!
+rescue StandardError => e
+  puts "Handle exception: #{e.message}"
+end
+```
+
+## Exception Metadata
 
 > [!NOTE]
-> The `call` method ensures no exceptions escape task execution, making it ideal
-> for workflow processing and scenarios where you need guaranteed result objects.
+> Exception information is preserved in result metadata, providing full debugging context while maintaining clean result interfaces.
 
-### Exception Metadata Structure
-
-Captured exceptions populate result metadata with structured information:
+### Metadata Structure
 
 ```ruby
-class ConnectDatabaseTask < CMDx::Task
+result = ProcessPaymentTask.call
 
+# Exception metadata always includes:
+result.metadata[:reason]                  #=> "[StandardError] Payment gateway unavailable"
+result.metadata[:original_exception]      #=> <StandardError instance>
+
+# Access original exception properties
+exception = result.metadata[:original_exception]
+exception.class                          #=> StandardError
+exception.message                        #=> "Payment gateway unavailable"
+exception.backtrace                      #=> ["lib/tasks/payment.rb:15:in `call'", ...]
+```
+
+### Exception Type Checking
+
+```ruby
+class DatabaseTask < CMDx::Task
   def call
-    # Simulate a database connection error
     raise ActiveRecord::ConnectionNotEstablished, "Database unavailable"
   end
-
 end
 
-result = ConnectDatabaseTask.call
-
-# Exception information in metadata
-result.metadata[:reason]                       #=> "[ActiveRecord::ConnectionNotEstablished] Database unavailable"
-result.metadata[:original_exception]           #=> <ActiveRecord::ConnectionNotEstablished>
-result.metadata[:original_exception].class     #=> ActiveRecord::ConnectionNotEstablished
-result.metadata[:original_exception].message   #=> "Database unavailable"
-result.metadata[:original_exception].backtrace #=> ["..."]
-```
-
-### Accessing Original Exception Details
-
-```ruby
-result = ProcessUserOrderTask.call
+result = DatabaseTask.call
 
 if result.failed? && result.metadata[:original_exception]
-  original = result.metadata[:original_exception]
-
-  puts "Exception type: #{original.class}"
-  puts "Exception message: #{original.message}"
-  puts "Exception backtrace:"
-  puts original.backtrace.first(5).join("\n")
-
-  # Check exception type for specific handling
-  case original
-  when ActiveRecord::RecordNotFound
-    handle_missing_record(original)
+  case result.metadata[:original_exception]
+  when ActiveRecord::ConnectionNotEstablished
+    retry_with_fallback_database
   when Net::TimeoutError
-    handle_timeout_error(original)
+    retry_with_increased_timeout
   when StandardError
-    handle_generic_error(original)
+    log_and_alert_administrators
   end
 end
 ```
 
-## Bang Call (`call!`)
+## Bang Call Behavior
 
-The `call!` method allows unhandled exceptions to propagate **unless** they are
-CMDx faults that match the `task_halt` configuration. This enables exception-based
-control flow while still providing structured fault handling.
+> [!WARNING]
+> `call!` propagates exceptions immediately, bypassing result object creation. Only use when you need direct exception handling or integration with exception-based error handling systems.
 
-```ruby
-class ProcessUserOrderTask < CMDx::Task
+### Fault vs Exception Handling
 
-  def call
-    # This will raise a NoMethodError directly
-    undefined_method_call
-  end
-
-end
-
-begin
-  ProcessUserOrderTask.call!
-rescue NoMethodError => e
-  puts "Caught original exception: #{e.message}"
-  # Handle the original exception directly
-end
-```
-
-### Fault vs Exception Behavior
+CMDx faults receive special treatment based on `task_halt` configuration:
 
 ```ruby
-class ProcessOrderPaymentTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
+  cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
-    if context.simulate_fault
-      fail!(reason: "Controlled failure") # Becomes CMDx::Failed
+    if context.payment_invalid
+      fail!(reason: "Invalid payment method")  # CMDx fault
     else
-      raise StandardError, "Uncontrolled error" # Remains StandardError
+      raise StandardError, "System error"     # Regular exception
     end
   end
-
 end
 
-# Fault behavior (controlled)
+# Fault behavior (converted to exception due to task_halt)
 begin
-  ProcessOrderPaymentTask.call!(simulate_fault: true)
+  ProcessOrderTask.call!(payment_invalid: true)
 rescue CMDx::Failed => e
-  puts "Caught CMDx fault: #{e.message}"
+  puts "Controlled fault: #{e.message}"
 end
 
-# Exception behavior (uncontrolled)
+# Exception behavior (propagates normally)
 begin
-  ProcessOrderPaymentTask.call!(simulate_fault: false)
+  ProcessOrderTask.call!(payment_invalid: false)
 rescue StandardError => e
-  puts "Caught standard exception: #{e.message}"
+  puts "System exception: #{e.message}"
 end
 ```
 
@@ -158,57 +160,72 @@ end
 
 ### Protected Exceptions
 
-Certain CMDx-specific exceptions are always allowed to propagate and are never
-converted to failed results:
+> [!IMPORTANT]
+> CMDx framework exceptions always propagate regardless of call method, ensuring framework integrity and proper error reporting.
+
+Certain exceptions are never converted to failed results:
 
 ```ruby
-class ProcessUndefinedOrderTask < CMDx::Task
+class InvalidTask < CMDx::Task
   # Intentionally not implementing call method
 end
 
-# These exceptions always propagate regardless of call method
+# Framework exceptions always propagate
 begin
-  ProcessUndefinedOrderTask.call
+  InvalidTask.call  # Even non-bang call propagates framework exceptions
 rescue CMDx::UndefinedCallError => e
-  puts "This exception is never converted to a failed result"
-end
-
-begin
-  ProcessUndefinedOrderTask.call!
-rescue CMDx::UndefinedCallError => e
-  puts "This exception propagates normally in call! too"
+  puts "Framework exception: #{e.message}"
 end
 ```
 
-### CMDx Fault Handling
+### Exception Hierarchy
 
-CMDx faults have special handling in both call methods:
+| Exception Type | `call` Behavior | `call!` Behavior |
+|----------------|-----------------|------------------|
+| **CMDx Framework** | Propagates | Propagates |
+| **CMDx Faults** | Converts to result | Respects `task_halt` config |
+| **Standard Exceptions** | Converts to result | Propagates |
+| **Custom Exceptions** | Converts to result | Propagates |
+
+## Error Handling Patterns
+
+### Graceful Degradation
 
 ```ruby
-class ProcessOrderWithHaltTask < CMDx::Task
-  # Configure to halt on failures
-  cmd_settings!(task_halt: [CMDx::Result::FAILED])
-
+class ProcessUserDataTask < CMDx::Task
   def call
-    fail!(reason: "This is a controlled failure")
+    user_data = fetch_user_data
+    process_data(user_data)
+  end
+
+  private
+
+  def fetch_user_data
+    # May raise various exceptions
+    external_api.get_user_data(context.user_id)
   end
 end
 
-# With call - fault becomes failed result
-result = ProcessOrderWithHaltTask.call
-result.failed? #=> true
+# Handle with graceful degradation
+result = ProcessUserDataTask.call(user_id: 12345)
 
-# With call! - fault becomes exception (due to task_halt configuration)
-begin
-  ProcessOrderWithHaltTask.call!
-rescue CMDx::Failed => e
-  puts "Fault converted to exception: #{e.message}"
+if result.failed?
+  case result.metadata[:original_exception]
+  when Net::TimeoutError
+    # Retry with cached data
+    fallback_processor.process_cached_data(user_id)
+  when JSON::ParserError
+    # Handle malformed response
+    error_reporter.log_api_format_error
+  else
+    # Generic error handling
+    notify_administrators(result.metadata[:reason])
+  end
 end
 ```
 
-> [!IMPORTANT]
-> Always preserve original exception information in metadata when handling
-> exceptions manually. This maintains debugging capabilities and error traceability.
+> [!TIP]
+> Use `call` for workflow processing where you need guaranteed result objects, and `call!` for direct integration with existing exception-based error handling patterns.
 
 ---
 

@@ -13,24 +13,39 @@ decision making and monitoring.
 - [State Predicates](#state-predicates)
 - [State-Based Callbacks](#state-based-callbacks)
 - [State vs Status Distinction](#state-vs-status-distinction)
-- [State Inspection and Monitoring](#state-inspection-and-monitoring)
 - [State Persistence and Logging](#state-persistence-and-logging)
 
 ## TLDR
 
-- **States** - Track execution lifecycle: `initialized` → `executing` → `complete`/`interrupted`
-- **Automatic** - States are managed automatically by the framework, never modify manually
-- **Predicates** - Check with `result.complete?`, `result.interrupted?`, `result.executed?`
-- **Callbacks** - Use `.on_complete`, `.on_interrupted`, `.on_executed` for lifecycle events
-- **vs Status** - State = where in lifecycle, Status = how execution ended
+```ruby
+# Check execution lifecycle
+result.initialized?  # → false (after execution)
+result.executing?    # → false (after execution)
+result.complete?     # → true (successful completion)
+result.interrupted?  # → false (no interruption)
+result.executed?     # → true (complete OR interrupted)
+
+# State-based callbacks
+result
+  .on_complete { |r| send_confirmation_email(r.context) }
+  .on_interrupted { |r| log_error_and_retry(r) }
+  .on_executed { |r| cleanup_resources(r) }
+
+# States: WHERE in lifecycle, Status: HOW it ended
+result.state   #=> "complete" (finished executing)
+result.status  #=> "success" (executed successfully)
+```
 
 ## State Definitions
 
-| State         | Description |
-| ------------- | ----------- |
+> [!IMPORTANT]
+> States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
+
+| State | Description |
+| ----- | ----------- |
 | `initialized` | Task created but execution not yet started. Default state for new tasks. |
-| `executing`   | Task is actively running its business logic. Transient state during execution. |
-| `complete`    | Task finished execution successfully without any interruption or halt. |
+| `executing` | Task is actively running its business logic. Transient state during execution. |
+| `complete` | Task finished execution successfully without any interruption or halt. |
 | `interrupted` | Task execution was stopped due to a fault, exception, or explicit halt. |
 
 ## State Transitions
@@ -39,53 +54,60 @@ States follow a strict lifecycle with controlled transitions:
 
 ```ruby
 # Valid state transition flow
-initialized -> executing -> complete    (successful execution)
-initialized -> executing -> interrupted (failed/halted execution)
+initialized → executing → complete    (successful execution)
+initialized → executing → interrupted (failed/halted execution)
 ```
-
-> [!IMPORTANT]
-> States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
 
 ### Automatic State Management
 
-States are automatically managed during task execution and should **never** be modified manually:
-
 ```ruby
-task = ProcessUserOrderTask.new
+class ProcessPaymentTask < CMDx::Task
+  def call
+    # State automatically managed:
+    # 1. initialized → executing (when call begins)
+    # 2. executing → complete (successful completion)
+    # 3. executing → interrupted (on failure/halt)
+
+    charge_customer(amount)
+    send_receipt(email)
+  end
+end
+
+task = ProcessPaymentTask.new
 task.result.state #=> "initialized"
 
-# During task execution, states transition automatically:
-# 1. initialized -> executing (when call begins)
-# 2. executing -> complete (successful completion)
-# 3. executing -> interrupted (on failure/halt)
-
-result = ProcessUserOrderTask.call
+result = ProcessPaymentTask.call
 result.state #=> "complete" (if successful)
 ```
 
-### State Transition Methods (Internal Use)
-
-These methods handle state transitions internally and are not intended for direct use:
-
-```ruby
-result = ProcessUserOrderTask.new.result
-
-# Internal state transition methods
-result.executing!   # initialized -> executing
-result.complete!    # executing -> complete
-result.interrupt!   # executing -> interrupted
-result.executed!    # executing -> complete OR interrupted (based on status)
-```
+### Internal State Transition Methods
 
 > [!WARNING]
 > State transition methods (`executing!`, `complete!`, `interrupt!`) are for internal framework use only. Never call these methods directly in your application code.
+
+```ruby
+result = ProcessPaymentTask.new.result
+
+# Internal state transition methods (DO NOT USE)
+result.executing!   # initialized → executing
+result.complete!    # executing → complete
+result.interrupt!   # executing → interrupted
+result.executed!    # executing → complete OR interrupted (based on status)
+```
 
 ## State Predicates
 
 Use state predicates to check the current execution lifecycle:
 
 ```ruby
-result = ProcessUserOrderTask.call
+class OrderFulfillmentTask < CMDx::Task
+  def call
+    process_order
+    ship_items
+  end
+end
+
+result = OrderFulfillmentTask.call
 
 # Check current state
 result.initialized? #=> false (after execution)
@@ -97,51 +119,73 @@ result.interrupted? #=> false (no interruption)
 result.executed?    #=> true (complete OR interrupted)
 ```
 
+### State Checking in Conditional Logic
+
+```ruby
+def handle_task_result(result)
+  if result.complete?
+    notify_success(result.context)
+  elsif result.interrupted?
+    handle_failure(result.metadata)
+  end
+
+  # Always cleanup when execution finished
+  cleanup_resources if result.executed?
+end
+```
+
 ## State-Based Callbacks
-
-Results provide callback methods for state-based conditional execution:
-
-```ruby
-result = ProcessUserOrderTask.call
-
-# Individual state callbacks
-result
-  .on_initialized { |r| log_task_created(r) }
-  .on_executing { |r| show_progress_indicator(r) }
-  .on_complete { |r| celebrate_success(r) }
-  .on_interrupted { |r| handle_interruption(r) }
-
-# Execution completion callback (complete OR interrupted)
-result
-  .on_executed { |r| cleanup_resources(r) }
-```
-
-### Callback Chaining and Combinations
-
-```ruby
-ProcessUserOrderTask
-  .call(order_id: 123)
-  .on_complete { |result|
-    # Only runs if task completed successfully
-    send_confirmation_email(result.context)
-    update_order_status(result.context.order)
-  }
-  .on_interrupted { |result|
-    # Only runs if task was interrupted
-    log_interruption(result.metadata)
-    schedule_retry(result) if result.metadata[:retryable]
-  }
-  .on_executed { |result|
-    # Always runs after execution (complete OR interrupted)
-    update_metrics(result.runtime)
-    cleanup_temporary_files(result.context)
-  }
-```
 
 > [!TIP]
 > Use state-based callbacks for lifecycle event handling. The `on_executed` callback is particularly useful for cleanup operations that should run regardless of success or failure.
 
+```ruby
+class ProcessOrderTask < CMDx::Task
+  def call
+    validate_inventory
+    charge_payment
+    update_stock
+  end
+end
+
+result = ProcessOrderTask.call
+
+# Individual state callbacks
+result
+  .on_complete { |r| send_confirmation_email(r.context.customer_email) }
+  .on_interrupted { |r| log_error(r.metadata) && schedule_retry(r) }
+  .on_executed { |r| update_analytics(r.runtime) }
+```
+
+### Advanced Callback Patterns
+
+```ruby
+ProcessOrderTask
+  .call(order_id: 123)
+  .on_complete { |result|
+    # Only runs if task completed successfully
+    OrderMailer.confirmation(result.context.order).deliver_now
+    Analytics.track("order_processed", order_id: result.context.order_id)
+  }
+  .on_interrupted { |result|
+    # Only runs if task was interrupted
+    ErrorLogger.log(result.metadata[:error])
+
+    if result.metadata[:retryable]
+      RetryWorker.perform_later(result.context.order_id)
+    end
+  }
+  .on_executed { |result|
+    # Always runs after execution (complete OR interrupted)
+    PerformanceTracker.record(result.runtime)
+    TempFileCleanup.perform(result.context.temp_files)
+  }
+```
+
 ## State vs Status Distinction
+
+> [!NOTE]
+> State tracks the execution lifecycle (where the task is), while status tracks the outcome (how the task ended). Both provide valuable but different information about task execution.
 
 Understanding the difference between states and statuses is crucial:
 
@@ -149,80 +193,71 @@ Understanding the difference between states and statuses is crucial:
 - **Status**: Execution outcome (`success`, `skipped`, `failed`)
 
 ```ruby
-result = ProcessUserOrderTask.call
+class ProcessRefundTask < CMDx::Task
+  def call
+    return unless eligible_for_refund?
 
-# State indicates WHERE in the lifecycle
+    process_refund
+    notify_customer
+  end
+end
+
+# Successful execution
+result = ProcessRefundTask.call
 result.state    #=> "complete" (finished executing)
-
-# Status indicates HOW the execution ended
 result.status   #=> "success" (executed successfully)
 
-# Both can be different for interrupted tasks
-failed_result = ProcessFailingOrderTask.call
+# Failed execution
+failed_result = ProcessRefundTask.call(invalid_order_id: "xyz")
 failed_result.state   #=> "interrupted" (execution stopped)
 failed_result.status  #=> "failed" (outcome was failure)
 ```
 
 ### State-Status Combinations
 
-| State         | Status    | Meaning |
-| ------------- | --------- | ------- |
+| State | Status | Meaning |
+| ----- | ------ | ------- |
 | `initialized` | `success` | Task created, not yet executed |
-| `executing`   | `success` | Task currently running |
-| `complete`    | `success` | Task finished successfully |
-| `complete`    | `skipped` | Task finished by skipping execution |
-| `interrupted` | `failed`  | Task stopped due to failure |
+| `executing` | `success` | Task currently running |
+| `complete` | `success` | Task finished successfully |
+| `complete` | `skipped` | Task finished by skipping execution |
+| `interrupted` | `failed` | Task stopped due to failure |
 | `interrupted` | `skipped` | Task stopped by skip condition |
-
-> [!NOTE]
-> State tracks the execution lifecycle (where the task is), while status tracks the outcome (how the task ended). Both provide valuable but different information about task execution.
-
-## State Inspection and Monitoring
-
-States provide valuable information for monitoring and debugging:
-
-```ruby
-result = ProcessUserOrderTask.call
-
-# Basic state information
-puts "Execution state: #{result.state}"
-puts "Task completed: #{result.executed?}"
-
-# State in serialized form
-result.to_h[:state]  #=> "complete"
-
-# Human-readable inspection
-result.to_s
-#=> "ProcessUserOrderTask: type=Task index=0 state=complete status=success outcome=success..."
-```
 
 ## State Persistence and Logging
 
-States are automatically captured in result serialization:
+> [!IMPORTANT]
+> States are automatically captured in result serialization and logging. All state information persists through the complete task execution lifecycle.
 
 ```ruby
-result = ProcessUserOrderTask.call
+result = ProcessOrderTask.call
 
 # Hash representation includes state
 result.to_h
 #=> {
-#     class: "ProcessUserOrderTask",
+#     class: "ProcessOrderTask",
 #     index: 0,
 #     state: "complete",
 #     status: "success",
 #     outcome: "success",
-#     # ... other attributes
+#     runtime: 0.045,
+#     metadata: {},
+#     context: { order_id: 123 }
 #   }
+
+# Human-readable inspection
+result.to_s
+#=> "ProcessOrderTask: type=Task index=0 state=complete status=success outcome=success runtime=0.045s"
 
 # Chain-level state aggregation
 result.chain.to_h
 #=> {
-#     id: "chain-uuid...",
-#     state: "complete",      # Derived from first result
-#     status: "success",      # Derived from first result
+#     id: "chain-550e8400-e29b-41d4-a716-446655440000",
+#     state: "complete",      # Derived from overall chain state
+#     status: "success",      # Derived from overall chain status
 #     results: [
 #       { state: "complete", status: "success", ... },
-#       # ... other results
+#       { state: "complete", status: "success", ... }
 #     ]
 #   }
 ```

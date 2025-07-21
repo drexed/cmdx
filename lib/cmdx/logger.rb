@@ -1,33 +1,38 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Logger configuration and retrieval utilities for task execution.
+  # Logger management module for configuring and retrieving task-specific loggers.
   #
-  # This module provides functionality to configure and retrieve logger instances
-  # for task execution, applying task-specific settings such as formatter, level,
-  # and program name when available.
+  # This module provides functionality to extract and configure logger instances
+  # from task settings, applying formatter, level, and progname configurations
+  # when available. It serves as a central point for logger setup during task execution.
   module Logger
 
     module_function
 
     # Configures and returns a logger instance for the given task.
     #
-    # This method retrieves the logger from task settings and applies any
-    # available configuration options including formatter, level, and program name.
-    # The task itself is set as the logger's program name for identification.
+    # Extracts the logger from task settings and applies additional configuration
+    # such as formatter, log level, and progname if they are specified in the
+    # task's command settings. The progname is set to the task instance itself
+    # for better log traceability.
     #
-    # @param task [Task] the task instance to configure logging for
+    # @param task [Task] the task instance containing logger configuration settings
     #
-    # @return [Logger, nil] the configured logger instance or nil if no logger is set
+    # @return [Logger, nil] the configured logger instance, or nil if no logger is set
     #
     # @example Configure logger for a task
-    #   logger = CMDx::Logger.call(task)
-    #   logger.info("Task started")
+    #   class MyTask < CMDx::Task
+    #     cmd setting!(
+    #       logger: Logger.new($stdout),
+    #       log_level: Logger::DEBUG,
+    #       log_formatter: CMDx::LogFormatters::JSON.new
+    #     )
+    #   end
     #
-    # @example Logger with custom formatter
-    #   task.set_cmd_setting(:log_formatter, custom_formatter)
+    #   task = MyTask.call
     #   logger = CMDx::Logger.call(task)
-    #   logger.debug("Debug message")
+    #   #=> Returns configured logger with DEBUG level and JSON formatter
     def call(task)
       logger = task.cmd_setting(:logger)
 

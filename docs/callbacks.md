@@ -1,13 +1,10 @@
 # Callbacks
 
-Callbacks (callbacks) provide precise control over task execution lifecycle, running custom logic at
-specific transition points. Callback callables have access to the same context and result information
-as the `call` method, enabling rich integration patterns.
+Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `call` method, enabling rich integration patterns.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
-- [Overview](#overview)
 - [Callback Declaration](#callback-declaration)
 - [Callback Classes](#callback-classes)
 - [Available Callbacks](#available-callbacks)
@@ -18,81 +15,149 @@ as the `call` method, enabling rich integration patterns.
   - [Outcome Callbacks](#outcome-callbacks)
 - [Execution Order](#execution-order)
 - [Conditional Execution](#conditional-execution)
+- [Error Handling](#error-handling)
 - [Callback Inheritance](#callback-inheritance)
 
 ## TLDR
 
-- **Purpose** - Execute custom logic at specific points in task lifecycle
-- **Declaration** - Use method names, procs, class instances, or blocks
-- **Callback types** - Validation, execution, state, status, and outcome callbacks
-- **Execution order** - Runs in precise lifecycle order (before_execution → validation → call → status → after_execution)
-- **Conditional** - Support `:if` and `:unless` options for conditional execution
-- **Inheritance** - Callbacks are inherited, perfect for global patterns
+```ruby
+# Method name callbacks
+after_validation :verify_order_data
+on_success :send_notification
 
-> [!TIP]
-> Callbacks are inheritable, making them perfect for setting up global logic execution patterns like tracking markers, account plan checks, or logging standards.
+# Proc/lambda callbacks
+on_complete -> { send_telemetry_data }
 
-## Overview
+# Callback class instances
+before_execution LoggingCallback.new(:debug)
 
-Callbacks can be declared in multiple ways: method names, procs/lambdas, Callback class instances, or blocks.
+# Conditional execution
+on_failed :alert_support, if: :critical_order?
+after_execution :cleanup, unless: :preserve_data?
+
+# Multiple callbacks for same event
+on_success :increment_counter, :send_notification
+```
+
+> [!IMPORTANT]
+> Callbacks execute in declaration order (FIFO) and are inherited by subclasses, making them ideal for application-wide patterns.
+
+## Callback Declaration
+
+> [!NOTE]
+> Callbacks can be declared using method names, procs/lambdas, Callback class instances, or blocks. All forms have access to the task's context and result.
+
+### Declaration Methods
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| Method name | References instance method | `on_success :send_email` |
+| Proc/Lambda | Inline callable | `on_failed -> { alert_team }` |
+| Callback class | Reusable class instance | `before_execution LoggerCallback.new` |
+| Block | Inline block | `on_success { increment_counter }` |
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  # Method name declaration
-  after_validation :verify_order_data
+  # Method name
+  before_validation :load_order
+  after_validation :verify_inventory
 
-  # Proc/lambda declaration
-  on_complete -> { send_telemetry_data }
+  # Proc/lambda
+  on_executing -> { context.start_time = Time.current }
+  on_complete lambda { Metrics.increment('orders.processed') }
 
-  # Callback class declaration
-  before_execution LoggingCallback.new(:debug)
-  on_success NotificationCallback.new([:email, :slack])
+  # Callback class
+  before_execution AuditCallback.new(action: :process_order)
+  on_success NotificationCallback.new(channels: [:email, :slack])
 
-  # Multiple callbacks for same event
-  on_success :increment_counter, :send_notification
-
-  # Conditional execution
-  on_failed :alert_support, if: :critical_order?
-  after_execution :cleanup_resources, unless: :preserve_data?
-
-  # Block declaration
-  before_execution do
-    context.processing_start = Time.now
+  # Block
+  on_failed do
+    ErrorReporter.notify(
+      error: result.metadata[:error],
+      order_id: context.order_id,
+      user_id: context.user_id
+    )
   end
 
+  # Multiple callbacks
+  on_success :update_inventory, :send_confirmation, :log_success
+
   def call
-    context.order = Order.find(order_id)
+    context.order = Order.find(context.order_id)
     context.order.process!
   end
 
   private
 
-  def critical_order?
-    context.order.value > 10_000
+  def load_order
+    context.order ||= Order.find(context.order_id)
   end
 
-  def preserve_data?
-    Rails.env.development?
+  def verify_inventory
+    raise "Insufficient inventory" unless context.order.items_available?
   end
 end
 ```
 
 ## Callback Classes
 
-For complex callback logic or reusable patterns, you can create Callback classes similar to Middleware classes. Callback classes inherit from `CMDx::Callback` and implement the `call(task, type)` method.
+> [!TIP]
+> Create reusable Callback classes for complex logic or cross-cutting concerns. Callback classes inherit from `CMDx::Callback` and implement `call(task, type)`.
 
 ```ruby
-class NotificationCallback < CMDx::Callback
-  def initialize(channels)
-    @channels = Array(channels)
+class AuditCallback < CMDx::Callback
+  def initialize(action:, level: :info)
+    @action = action
+    @level = level
   end
 
   def call(task, type)
-    return unless type == :on_success
+    AuditLogger.log(
+      level: @level,
+      action: @action,
+      task: task.class.name,
+      callback_type: type,
+      user_id: task.context.current_user&.id,
+      timestamp: Time.current
+    )
+  end
+end
+
+class NotificationCallback < CMDx::Callback
+  def initialize(channels:, template: nil)
+    @channels = Array(channels)
+    @template = template
+  end
+
+  def call(task, type)
+    return unless should_notify?(type)
 
     @channels.each do |channel|
-      NotificationService.send(channel, "Task #{task.class.name} completed")
+      NotificationService.send(
+        channel: channel,
+        template: @template || default_template(type),
+        data: extract_notification_data(task)
+      )
     end
+  end
+
+  private
+
+  def should_notify?(type)
+    %i[on_success on_failed].include?(type)
+  end
+
+  def default_template(type)
+    type == :on_success ? :task_success : :task_failure
+  end
+
+  def extract_notification_data(task)
+    {
+      task_name: task.class.name,
+      status: task.result.status,
+      runtime: task.result.runtime,
+      context: task.context.to_h.except(:sensitive_data)
+    }
   end
 end
 ```
@@ -103,46 +168,137 @@ end
 
 Execute around parameter validation:
 
-- `before_validation` - Before parameter validation
-- `after_validation` - After successful parameter validation
+| Callback | Timing | Description |
+|----------|--------|-------------|
+| `before_validation` | Before validation | Setup validation context |
+| `after_validation` | After successful validation | Post-validation logic |
+
+```ruby
+class CreateUserTask < CMDx::Task
+  before_validation :normalize_email
+  after_validation :check_user_limits
+
+  required :email, type: :string
+  required :plan, type: :string
+
+  def call
+    User.create!(email: email, plan: plan)
+  end
+
+  private
+
+  def normalize_email
+    context.email = email.downcase.strip
+  end
+
+  def check_user_limits
+    current_users = User.where(plan: plan).count
+    plan_limit = Plan.find_by(name: plan).user_limit
+
+    if current_users >= plan_limit
+      throw(:skip, reason: "Plan user limit reached")
+    end
+  end
+end
+```
 
 ### Execution Callbacks
 
 Execute around task logic:
 
-- `before_execution` - Before task logic begins
-- `after_execution` - After task logic completes (success or failure)
+| Callback | Timing | Description |
+|----------|--------|-------------|
+| `before_execution` | Before `call` method | Setup and preparation |
+| `after_execution` | After `call` completes | Cleanup and finalization |
+
+```ruby
+class ProcessPaymentTask < CMDx::Task
+  before_execution :acquire_payment_lock
+  after_execution :release_payment_lock
+
+  def call
+    Payment.process!(context.payment_data)
+  end
+
+  private
+
+  def acquire_payment_lock
+    context.lock_key = "payment:#{context.payment_id}"
+    Redis.current.set(context.lock_key, "locked", ex: 300)
+  end
+
+  def release_payment_lock
+    Redis.current.del(context.lock_key) if context.lock_key
+  end
+end
+```
 
 ### State Callbacks
 
 Execute based on execution state:
 
-- `on_executing` - Task begins running
-- `on_complete` - Task completes successfully
-- `on_interrupted` - Task is halted (skip/failure)
-- `on_executed` - Task finishes (complete or interrupted)
+| Callback | Condition | Description |
+|----------|-----------|-------------|
+| `on_executing` | Task begins running | Track execution start |
+| `on_complete` | Task completes successfully | Handle successful completion |
+| `on_interrupted` | Task is halted (skip/failure) | Handle interruptions |
+| `on_executed` | Task finishes (any outcome) | Post-execution logic |
 
 ### Status Callbacks
 
 Execute based on execution status:
 
-- `on_success` - Task succeeds
-- `on_skipped` - Task is skipped
-- `on_failed` - Task fails
+| Callback | Status | Description |
+|----------|--------|-------------|
+| `on_success` | Task succeeds | Handle success |
+| `on_skipped` | Task is skipped | Handle skips |
+| `on_failed` | Task fails | Handle failures |
 
 ### Outcome Callbacks
 
 Execute based on outcome classification:
 
-- `on_good` - Positive outcomes (success or skipped)
-- `on_bad` - Negative outcomes (skipped or failed)
+| Callback | Outcomes | Description |
+|----------|----------|-------------|
+| `on_good` | Success or skipped | Positive outcomes |
+| `on_bad` | Failed | Negative outcomes |
+
+```ruby
+class EmailCampaignTask < CMDx::Task
+  on_executing -> { Metrics.increment('campaigns.started') }
+  on_complete :track_completion
+  on_interrupted :handle_interruption
+
+  on_success :schedule_followup
+  on_skipped :log_skip_reason
+  on_failed :alert_marketing_team
+
+  on_good -> { Metrics.increment('campaigns.positive_outcome') }
+  on_bad :create_incident_ticket
+
+  def call
+    EmailService.send_campaign(context.campaign_data)
+  end
+
+  private
+
+  def track_completion
+    Campaign.find(context.campaign_id).update!(
+      sent_at: Time.current,
+      recipient_count: context.recipients.size
+    )
+  end
+
+  def handle_interruption
+    Campaign.find(context.campaign_id).update!(status: :interrupted)
+  end
+end
+```
 
 ## Execution Order
 
-Callbacks execute in precise order during task lifecycle:
-
 > [!IMPORTANT]
-> Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
+> Callbacks execute in precise lifecycle order. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
 ```ruby
 1. before_execution            # Setup and preparation
@@ -157,94 +313,234 @@ Callbacks execute in precise order during task lifecycle:
 10. after_execution            # Cleanup and finalization
 ```
 
-> [!IMPORTANT]
-> Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
-
 ## Conditional Execution
 
-Callbacks support conditional execution through `:if` and `:unless` options:
+> [!TIP]
+> Use `:if` and `:unless` options for conditional callback execution. Conditions can be method names, procs, or strings.
 
-| Option    | Description |
-| --------- | ----------- |
-| `:if`     | Execute callback only if condition is truthy |
-| `:unless` | Execute callback only if condition is falsy |
+| Option | Description | Example |
+|--------|-------------|---------|
+| `:if` | Execute if condition is truthy | `if: :production_env?` |
+| `:unless` | Execute if condition is falsy | `unless: :maintenance_mode?` |
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
-  # Method name condition
+class ProcessOrderTask < CMDx::Task
+  # Method name conditions
   on_success :send_receipt, if: :email_enabled?
+  on_failed :retry_payment, unless: :max_retries_reached?
 
-  # Proc condition
-  on_failure :retry_payment, if: -> { retry_count < 3 }
+  # Proc conditions
+  after_execution :log_metrics, if: -> { Rails.env.production? }
+  on_success :expensive_operation, unless: -> { SystemStatus.overloaded? }
 
-  # String condition (evaluated as method)
-  after_execution :log_metrics, unless: "Rails.env.test?"
+  # String conditions (evaluated as methods)
+  on_complete :update_analytics, if: "tracking_enabled?"
 
   # Multiple conditions
-  on_complete :expensive_operation, if: :production_env?, unless: :maintenance_mode?
+  on_failed :escalate_to_support, if: :critical_order?, unless: :business_hours?
+
+  # Complex conditional logic
+  on_success :trigger_automation, if: :automation_conditions_met?
+
+  def call
+    Order.process!(context.order_data)
+  end
 
   private
 
   def email_enabled?
-    context.user.email_notifications?
+    context.user.email_notifications? && !context.user.email.blank?
   end
 
-  def production_env?
-    Rails.env.production?
+  def max_retries_reached?
+    context.retry_count >= 3
   end
 
-  def maintenance_mode?
-    SystemStatus.maintenance_mode?
+  def critical_order?
+    context.order_value > 10_000 || context.priority == :high
+  end
+
+  def business_hours?
+    Time.current.hour.between?(9, 17) && Time.current.weekday?
+  end
+
+  def automation_conditions_met?
+    context.order_type == :subscription &&
+    context.user.plan.automation_enabled? &&
+    !SystemStatus.maintenance_mode?
+  end
+end
+```
+
+## Error Handling
+
+> [!WARNING]
+> Callback errors can interrupt task execution. Use proper error handling and consider callback isolation for non-critical operations.
+
+### Callback Error Behavior
+
+```ruby
+class ProcessDataTask < CMDx::Task
+  before_execution :critical_setup     # Error stops execution
+  on_success :send_notification       # Error stops callback chain
+  after_execution :cleanup_resources   # Always runs
+
+  def call
+    ProcessingService.handle(context.data)
+  end
+
+  private
+
+  def critical_setup
+    # Critical callback - let errors bubble up
+    context.processor = ProcessorService.initialize_secure_processor
+  end
+
+  def send_notification
+    # Non-critical callback - handle errors gracefully
+    NotificationService.send(context.notification_data)
+  rescue NotificationService::Error => e
+    Rails.logger.warn "Notification failed: #{e.message}"
+    # Don't re-raise - allow other callbacks to continue
+  end
+
+  def cleanup_resources
+    # Cleanup callback - always handle errors
+    context.processor&.cleanup
+  rescue => e
+    Rails.logger.error "Cleanup failed: #{e.message}"
+    # Log but don't re-raise
+  end
+end
+```
+
+### Isolating Non-Critical Callbacks
+
+```ruby
+class ResilientCallback < CMDx::Callback
+  def initialize(callback_proc, isolate: false)
+    @callback_proc = callback_proc
+    @isolate = isolate
+  end
+
+  def call(task, type)
+    if @isolate
+      begin
+        @callback_proc.call(task, type)
+      rescue => e
+        Rails.logger.warn "Isolated callback failed: #{e.message}"
+      end
+    else
+      @callback_proc.call(task, type)
+    end
+  end
+end
+
+class ProcessOrderTask < CMDx::Task
+  # Critical callback
+  before_execution :validate_payment_method
+
+  # Isolated non-critical callback
+  on_success ResilientCallback.new(
+    -> (task, type) { AnalyticsService.track_order(task.context.order_id) },
+    isolate: true
+  )
+
+  def call
+    Order.process!(context.order_data)
   end
 end
 ```
 
 ## Callback Inheritance
 
-Callbacks are inherited from parent classes, enabling application-wide patterns:
+> [!NOTE]
+> Callbacks are inherited from parent classes, enabling application-wide patterns. Child classes can add additional callbacks or override inherited behavior.
 
 ```ruby
 class ApplicationTask < CMDx::Task
-  before_execution :log_task_start  # All tasks get execution logging
-  after_execution :log_task_end     # All tasks get completion logging
-  on_failed :report_failure         # All tasks get error reporting
-  on_success :track_success_metrics # All tasks get success tracking
+  # Global logging
+  before_execution :log_task_start
+  after_execution :log_task_end
+
+  # Global error handling
+  on_failed :report_failure
+
+  # Global metrics
+  on_success :track_success_metrics
+  on_executed :track_execution_metrics
 
   private
 
   def log_task_start
-    Rails.logger.info "Starting #{self.class.name}"
+    Rails.logger.info "Starting #{self.class.name} with context: #{context.to_h.except(:sensitive_data)}"
   end
 
   def log_task_end
-    Rails.logger.info "Finished #{self.class.name} in #{result.runtime}s"
+    Rails.logger.info "Finished #{self.class.name} in #{result.runtime}ms with status: #{result.status}"
   end
 
   def report_failure
-    ErrorReporter.notify(result.metadata)
+    ErrorReporter.notify(
+      task: self.class.name,
+      error: result.metadata[:reason],
+      context: context.to_h.except(:sensitive_data),
+      backtrace: result.metadata[:backtrace]
+    )
   end
 
   def track_success_metrics
     Metrics.increment("task.#{self.class.name.underscore}.success")
   end
+
+  def track_execution_metrics
+    Metrics.histogram("task.#{self.class.name.underscore}.runtime", result.runtime)
+  end
 end
 
-class ProcessOrderTask < ApplicationTask
-  before_validation :load_order                     # Specific to order processing
-  on_success :send_confirmation                     # Domain-specific success action
-  on_failed :refund_payment, if: :payment_captured? # Order-specific failure handling
+class ProcessPaymentTask < ApplicationTask
+  # Inherits all ApplicationTask callbacks
+  # Plus payment-specific callbacks
+
+  before_validation :load_payment_method
+  on_success :send_receipt
+  on_failed :refund_payment, if: :payment_captured?
 
   def call
-    # Inherits all ApplicationTask callbacks plus order-specific ones
-    context.order.process!
+    # Inherits global logging, error handling, and metrics
+    # Plus payment-specific behavior
+    PaymentProcessor.charge(context.payment_data)
+  end
+
+  private
+
+  def load_payment_method
+    context.payment_method = PaymentMethod.find(context.payment_method_id)
+  end
+
+  def send_receipt
+    ReceiptService.send(
+      user: context.user,
+      payment: context.payment,
+      template: :payment_success
+    )
+  end
+
+  def payment_captured?
+    context.payment&.status == :captured
+  end
+
+  def refund_payment
+    RefundService.process(
+      payment: context.payment,
+      reason: :task_failure,
+      amount: context.payment.amount
+    )
   end
 end
 ```
 
-> [!TIP]
-> Callbacks are inherited by subclasses, making them ideal for setting up global lifecycle patterns across all tasks in your application.
-
 ---
 
 - **Prev:** [Parameters - Defaults](parameters/defaults.md)
-- **Prev:** [Middlewares](middlewares.md)
+- **Next:** [Middlewares](middlewares.md)

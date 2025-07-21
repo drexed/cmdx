@@ -8,8 +8,6 @@ module CMDx
   # authentication, and error handling.
   class MiddlewareRegistry
 
-    # The internal hash storing middleware definitions and their configurations.
-    #
     # @return [Hash] hash containing middleware classes/objects and their configurations
     attr_reader :registry
 
@@ -75,10 +73,13 @@ module CMDx
     # Returns a hash representation of the registry.
     #
     # @return [Hash] deep copy of registry with duplicated configuration arrays
+    # @option return [Array] args duplicated positional arguments array
+    # @option return [Hash] kwargs duplicated keyword arguments hash
+    # @option return [Proc, nil] block the original block reference (not duplicated)
     #
     # @example Getting registry hash
     #   registry.to_h
-    #   # => { TimeoutMiddleware => [[30], {}, nil] }
+    #   #=> { TimeoutMiddleware => [[30], {}, nil] }
     def to_h
       registry.transform_values do |config|
         args, kwargs, block = config

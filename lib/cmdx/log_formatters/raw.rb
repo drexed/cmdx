@@ -22,12 +22,12 @@ module CMDx
       # @example Formatting a log entry
       #   formatter = CMDx::LogFormatters::Raw.new
       #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   # => "\"Task completed\"\n"
+      #   #=> "\"Task completed\"\n"
       #
       # @example Formatting a complex object
       #   formatter = CMDx::LogFormatters::Raw.new
       #   result = formatter.call("DEBUG", Time.now, task_object, { status: :success, count: 42 })
-      #   # => "{:status=>:success, :count=>42}\n"
+      #   #=> "{:status=>:success, :count=>42}\n"
       def call(_severity, _time, _task, message)
         message.inspect + "\n" # rubocop:disable Style/StringConcatenation
       end

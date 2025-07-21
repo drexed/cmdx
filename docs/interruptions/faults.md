@@ -1,239 +1,264 @@
 # Interruptions - Faults
 
-Faults are the exception mechanisms by which CMDx halts task execution via the
-`skip!` and `fail!` methods. When tasks are executed with the bang `call!` method,
-fault exceptions matching the task's interruption status are raised, enabling
-sophisticated exception handling and control flow patterns.
+Faults are exception mechanisms that halt task execution via `skip!` and `fail!` methods. When tasks execute with the `call!` method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
 - [Fault Types](#fault-types)
-- [Basic Exception Handling](#basic-exception-handling)
+- [Exception Handling](#exception-handling)
 - [Fault Context Access](#fault-context-access)
-- [Advanced Fault Matching](#advanced-fault-matching)
-- [Fault Propagation (`throw!`)](#fault-propagation-throw)
-- [Fault Chain Analysis](#fault-chain-analysis)
-- [Task Halt Configuration](#task-halt-configuration)
+- [Advanced Matching](#advanced-matching)
+- [Fault Propagation](#fault-propagation)
+- [Chain Analysis](#chain-analysis)
+- [Configuration](#configuration)
 
 ## TLDR
 
-- **Fault types** - `CMDx::Skipped` (from `skip!`) and `CMDx::Failed` (from `fail!`)
-- **Exception handling** - Use `rescue CMDx::Fault` to catch both types
-- **Full context** - Faults provide access to `result`, `task`, `context`, and `chain`
-- **Advanced matching** - Use `for?(TaskClass)` and `matches? { |f| condition }` for specific fault handling
-- **Propagation** - Use `throw!(result)` to bubble up failures while preserving fault context
+```ruby
+# Basic exception handling
+begin
+  PaymentProcessor.call!(amount: 100)
+rescue CMDx::Skipped => e
+  handle_skipped_payment(e.result.metadata[:reason])
+rescue CMDx::Failed => e
+  handle_failed_payment(e.result.metadata[:error])
+rescue CMDx::Fault => e
+  handle_any_interruption(e)
+end
+
+# Advanced matching
+rescue CMDx::Failed.for?(PaymentProcessor, CardValidator) => e
+rescue CMDx::Fault.matches? { |f| f.context.amount > 1000 } => e
+
+# Fault propagation
+throw!(validation_result) if validation_result.failed?
+```
 
 ## Fault Types
 
-CMDx provides two primary fault types that inherit from the base `CMDx::Fault` class:
-
-- **`CMDx::Skipped`** - Raised when a task is skipped via `skip!`
-- **`CMDx::Failed`** - Raised when a task fails via `fail!`
-
-Both fault types provide full access to the task execution context, including
-the result object, task instance, context data, and chain information.
+| Type | Triggered By | Use Case |
+|------|--------------|----------|
+| `CMDx::Skipped` | `skip!` method | Optional processing, early returns |
+| `CMDx::Failed` | `fail!` method | Validation errors, processing failures |
+| `CMDx::Fault` | Base class | Catch-all for any interruption |
 
 > [!NOTE]
-> All fault exceptions (`CMDx::Skipped` and `CMDx::Failed`) inherit from the base `CMDx::Fault` class and provide access to the complete task execution context.
+> All fault exceptions inherit from `CMDx::Fault` and provide access to the complete task execution context including result, task, context, and chain information.
 
-## Basic Exception Handling
+## Exception Handling
 
-Use standard Ruby `rescue` blocks to handle faults with custom logic:
+### Basic Rescue Patterns
 
 ```ruby
 begin
-  ProcessUserOrderTask.call!(order_id: 123)
+  ProcessOrderTask.call!(order_id: 123)
 rescue CMDx::Skipped => e
-  # Handle skipped tasks
-  logger.info "Task skipped: #{e.message}"
-  e.result.metadata[:reason] #=> "Order already processed"
+  logger.info "Order processing skipped: #{e.message}"
+  schedule_retry(e.context.order_id)
 rescue CMDx::Failed => e
-  # Handle failed tasks
-  logger.error "Task failed: #{e.message}"
-  e.result.metadata[:error_code] #=> "PAYMENT_DECLINED"
+  logger.error "Order processing failed: #{e.message}"
+  notify_customer(e.context.customer_email, e.result.metadata[:error])
 rescue CMDx::Fault => e
-  # Handle any fault (skipped or failed)
-  logger.warn "Task interrupted: #{e.message}"
+  logger.warn "Order processing interrupted: #{e.message}"
+  rollback_transaction
+end
+```
+
+### Error-Specific Handling
+
+```ruby
+begin
+  PaymentProcessor.call!(card_token: token, amount: amount)
+rescue CMDx::Failed => e
+  case e.result.metadata[:error_code]
+  when "INSUFFICIENT_FUNDS"
+    suggest_different_payment_method
+  when "CARD_DECLINED"
+    request_card_verification
+  when "NETWORK_ERROR"
+    retry_payment_later
+  else
+    escalate_to_support(e)
+  end
 end
 ```
 
 ## Fault Context Access
 
-Faults provide comprehensive access to task execution context:
+Faults provide comprehensive access to execution context:
 
 ```ruby
 begin
-  ProcessUserOrderTask.call!(order_id: 123)
+  UserRegistration.call!(email: email, password: password)
 rescue CMDx::Fault => e
   # Result information
   e.result.status            #=> "failed" or "skipped"
-  e.result.metadata[:reason] #=> "Insufficient inventory"
+  e.result.metadata[:reason] #=> "Email already exists"
   e.result.runtime           #=> 0.05
 
   # Task information
-  e.task.class.name          #=> "ProcessUserOrderTask"
+  e.task.class.name          #=> "UserRegistration"
   e.task.id                  #=> "abc123..."
 
   # Context data
-  e.context.order_id         #=> 123
-  e.context.customer_email   #=> "user@example.com"
+  e.context.email            #=> "user@example.com"
+  e.context.password         #=> "[FILTERED]"
 
-  # Chain information
-  e.chain.id                 #=> "def456..."
-  e.chain.results.size       #=> 3
+  # Chain information (for workflows)
+  e.chain&.id                #=> "def456..."
+  e.chain&.results&.size     #=> 3
 end
 ```
 
-## Advanced Fault Matching
+## Advanced Matching
 
-### Task-Specific Matching (`for?`)
-
-Match faults only from specific task classes using the `for?` method:
-
-```ruby
-begin
-  WorkflowProcessUserOrdersTask.call!(orders: orders)
-rescue CMDx::Skipped.for?(ProcessUserOrderTask, ValidateUserOrderTask) => e
-  # Handle skips only from specific task types
-  logger.info "Order processing skipped: #{e.task.class.name}"
-  reschedule_order_processing(e.context.order_id)
-rescue CMDx::Failed.for?(ProcessOrderPaymentTask, ProcessCardChargeTask) => e
-  # Handle failures only from payment-related tasks
-  logger.error "Payment processing failed: #{e.message}"
-  retry_with_backup_payment_method(e.context)
-end
-```
-
-### Custom Matching Logic (`matches?`)
-
-Use the `matches?` method with blocks for sophisticated fault matching:
-
-```ruby
-begin
-  ProcessUserOrderTask.call!(order_id: 123)
-rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_code] == "PAYMENT_DECLINED" } => e
-  # Handle specific payment errors
-  retry_with_different_payment_method(e.context)
-rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
-  # Handle high-value order failures differently
-  escalate_to_manager(e)
-rescue CMDx::Failed.matches? { |f| f.result.metadata[:reason]&.include?("timeout") } => e
-  # Handle timeout-specific failures
-  retry_with_longer_timeout(e)
-end
-```
+### Task-Specific Matching
 
 > [!TIP]
-> Use `for?` and `matches?` methods for advanced exception matching. The `for?` method is ideal for task-specific handling, while `matches?` enables custom logic-based fault filtering.
+> Use `for?` to handle faults only from specific task classes, enabling targeted exception handling in complex workflows.
 
-## Fault Propagation (`throw!`)
+```ruby
+begin
+  PaymentWorkflow.call!(payment_data: data)
+rescue CMDx::Failed.for?(CardValidator, PaymentProcessor) => e
+  # Handle only payment-related failures
+  retry_with_backup_method(e.context)
+rescue CMDx::Skipped.for?(FraudCheck, RiskAssessment) => e
+  # Handle security-related skips
+  flag_for_manual_review(e.context.transaction_id)
+end
+```
 
-The `throw!` method enables fault propagation, allowing parent tasks to bubble up
-failures from subtasks while preserving the original fault information:
+### Custom Logic Matching
+
+```ruby
+begin
+  OrderProcessor.call!(order: order_data)
+rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
+  escalate_high_value_failure(e)
+rescue CMDx::Failed.matches? { |f| f.result.metadata[:retry_count] > 3 } => e
+  abandon_processing(e)
+rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_type] == "timeout" } => e
+  increase_timeout_and_retry(e)
+end
+```
+
+## Fault Propagation
+
+> [!IMPORTANT]
+> Use `throw!` to propagate failures while preserving fault context and maintaining the error chain for debugging.
 
 ### Basic Propagation
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
-
+class OrderProcessor < CMDx::Task
   def call
-    # Execute subtask and propagate its failure
-    validation_result = ValidateUserOrderTask.call(context)
+    # Validate order data
+    validation_result = OrderValidator.call(context)
     throw!(validation_result) if validation_result.failed?
 
-    payment_result = ProcessOrderPaymentTask.call(context)
-    throw!(payment_result) # failed or skipped
+    # Process payment
+    payment_result = PaymentProcessor.call(context)
+    throw!(payment_result) if payment_result.failed?
 
-    # Continue with main logic
-    finalize_order
+    # Continue processing
+    complete_order
   end
-
 end
 ```
 
-### Propagation with Additional Context
+### Propagation with Context
 
 ```ruby
-class ProcessOrderWorkflowTask < CMDx::Task
-
+class WorkflowProcessor < CMDx::Task
   def call
-    step1_result = ValidateOrderDataTask.call(context)
+    step_result = DataValidation.call(context)
 
-    if step1_result.failed?
-      # Propagate with additional context
-      throw!(step1_result, {
-        workflow_stage: "initial_validation",
-        attempted_at: Time.now,
-        can_retry: true
+    if step_result.failed?
+      throw!(step_result, {
+        workflow_stage: "validation",
+        can_retry: true,
+        next_step: "data_cleanup"
       })
     end
 
     continue_workflow
   end
-
 end
 ```
 
-> [!IMPORTANT]
-> Use `throw!` to propagate failures while preserving the original fault context. This maintains the fault chain for debugging and provides better error traceability.
+## Chain Analysis
 
-## Fault Chain Analysis
-
-Results provide methods for analyzing fault propagation chains:
+> [!NOTE]
+> Results provide methods to analyze fault propagation and identify original failure sources in complex execution chains.
 
 ```ruby
-result = ProcessOrderWorkflowTask.call(data: invalid_data)
+result = PaymentWorkflow.call(invalid_data)
 
 if result.failed?
-  # Find the original cause of failure
-  original_failure = result.caused_failure
-  puts "Original failure: #{original_failure.task.class.name}"
-  puts "Reason: #{original_failure.metadata[:reason]}"
+  # Trace the original failure
+  original = result.caused_failure
+  if original
+    puts "Original failure: #{original.task.class.name}"
+    puts "Reason: #{original.metadata[:reason]}"
+  end
 
-  # Find what threw the failure to this result
-  throwing_task = result.threw_failure
-  puts "Failure thrown by: #{throwing_task.task.class.name}" if throwing_task
+  # Find what propagated the failure
+  thrower = result.threw_failure
+  puts "Propagated by: #{thrower.task.class.name}" if thrower
 
-  # Check if this result caused or threw the failure
-  if result.caused_failure?
-    puts "This task was the original cause"
-  elsif result.threw_failure?
-    puts "This task threw a failure from another task"
-  elsif result.thrown_failure?
-    puts "This task failed due to a thrown failure"
+  # Analyze failure type
+  case
+  when result.caused_failure?
+    puts "This task was the original source"
+  when result.threw_failure?
+    puts "This task propagated a failure"
+  when result.thrown_failure?
+    puts "This task failed due to propagation"
   end
 end
 ```
 
-## Task Halt Configuration
+## Configuration
 
-Control which statuses raise exceptions using the `task_halt` setting:
+### Task Halt Settings
+
+Control which statuses raise exceptions using `task_halt`:
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
-  # Only failed tasks raise exceptions on call!
+class DataProcessor < CMDx::Task
+  # Only failures raise exceptions
   cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
-    skip!(reason: "Order already processed") if already_processed?
-    # This will NOT raise an exception on call!
+    skip!(reason: "No data to process") if data.empty?
+    # Skip will NOT raise exception on call!
   end
 end
 
-class ValidateUserDataTask < CMDx::Task
-  # Both failed and skipped tasks raise exceptions
+class CriticalValidator < CMDx::Task
+  # Both failures and skips raise exceptions
   cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def call
-    skip!(reason: "Validation not required") if skip_validation?
-    # This WILL raise an exception on call!
+    skip!(reason: "Validation bypassed") if bypass_mode?
+    # Skip WILL raise exception on call!
   end
 end
 ```
 
 > [!WARNING]
-> Task halt configuration only affects the `call!` method. The `call` method always captures all exceptions and converts them to result objects regardless of halt settings.
+> Task halt configuration only affects the `call!` method. The `call` method always captures exceptions and converts them to result objects regardless of halt settings.
+
+### Global Configuration
+
+```ruby
+# Configure default halt behavior
+CMDx.configure do |config|
+  config.task_halt = [CMDx::Result::FAILED]  # Default: only failures halt
+end
+```
 
 ---
 

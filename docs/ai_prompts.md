@@ -1,6 +1,6 @@
 # AI Prompt Templates
 
-This guide provides AI prompt templates for building CMDx Task and Workflow objects, helping you leverage AI assistants to generate well-structured, production-ready command objects.
+AI prompt templates provide structured guidance for generating production-ready CMDx Task and Workflow objects. These templates ensure consistent code quality, proper framework usage, and comprehensive testing coverage when working with AI assistants.
 
 ## Table of Contents
 
@@ -9,196 +9,216 @@ This guide provides AI prompt templates for building CMDx Task and Workflow obje
 - [Task Generation Templates](#task-generation-templates)
 - [Workflow Generation Templates](#workflow-generation-templates)
 - [Testing Templates](#testing-templates)
-- [Best Practices for AI Prompts](#best-practices-for-ai-prompts)
+- [Error Handling and Edge Cases](#error-handling-and-edge-cases)
+- [Best Practices](#best-practices)
 
 ## TLDR
 
-- **Purpose** - Pre-written prompts to help AI assistants generate production-ready CMDx code
-- **Templates** - Framework context, task generation, workflow generation, and testing templates
-- **Framework context** - Essential CMDx concepts and coding standards for AI understanding
-- **Task templates** - Structured prompts for generating tasks with parameters, validations, and tests
-- **Workflow templates** - Prompts for orchestrating multi-step business processes
-- **Testing templates** - Comprehensive RSpec test generation with CMDx matchers
+> [!NOTE]
+> Pre-written prompts help AI assistants generate well-structured CMDx code with proper validations, error handling, and comprehensive tests.
+
+```ruby
+# Task generation pattern
+"Create a CMDx task that [ACTION] with parameters [PARAMS] and validation [RULES]"
+
+# Workflow orchestration pattern
+"Create a CMDx workflow that orchestrates [PROCESS] with steps [TASKS] and error handling [STRATEGY]"
+
+# Testing pattern
+"Generate RSpec tests with CMDx matchers for success, failure, and edge cases"
+```
 
 ## Framework Context Template
 
-Use this context in your AI conversations to ensure proper CMDx code generation:
+> [!IMPORTANT]
+> Always include this context when working with AI assistants to ensure proper CMDx code generation and adherence to framework conventions.
 
 ```
 I'm working with CMDx, a Ruby framework for designing and executing business logic within service/command objects.
 
-KEY FRAMEWORK CONCEPTS:
-- Tasks inherit from CMDx::Task and implement business logic in a `call` method
-- Workflows inherit from CMDx::Workflow and orchestrate multiple tasks
-- Parameters are defined with type coercion, validation, and defaults
-- Results contain status (success/failed/skipped), state, context, and metadata
-- Callbacks execute at specific lifecycle points (before_validation, on_success, etc.)
-- Middlewares wrap task execution (authentication, logging, timeouts)
-- Chains link multiple tasks together with shared context
+CORE CONCEPTS:
+- Tasks inherit from CMDx::Task with business logic in `call` method
+- Workflows inherit from CMDx::Workflow to orchestrate multiple tasks
+- Parameters support type coercion, validation, defaults, and nesting
+- Results contain status (success/failed/skipped), state, context, metadata
+- Callbacks execute at lifecycle points (before_validation, on_success, etc.)
+- Middlewares wrap execution (authentication, logging, timeouts, correlation)
+- Chains link tasks with shared context and failure propagation
 
 CODING STANDARDS:
-- Use Ruby 3.4+ syntax and conventions
-- Follow snake_case for methods/variables, CamelCase for classes
-- Use double quotes for strings
-- Include comprehensive YARD documentation
-- Write RSpec tests with CMDx custom matchers
-- Name tasks as VerbNounTask (e.g., ProcessOrderTask)
-- Name workflows as NounVerbWorkflow (e.g., OrderProcessingWorkflow)
+- Ruby 3.4+ syntax and conventions
+- snake_case methods/variables, CamelCase classes
+- Double quotes for strings, proper indentation
+- YARD documentation with @param, @return, @example
+- RSpec tests using CMDx custom matchers
+- Task naming: VerbNounTask (ProcessOrderTask)
+- Workflow naming: NounVerbWorkflow (OrderProcessingWorkflow)
 
-Generate code that is production-ready with proper error handling, validation, and testing.
+REQUIREMENTS:
+- Production-ready code with comprehensive error handling
+- Parameter validation with meaningful error messages
+- Proper context management and metadata usage
+- Full test coverage including edge cases and failure scenarios
 ```
 
 ## Task Generation Templates
 
+### Standard Task Template
+
 ```
-Create a CMDx task that [SPECIFIC_ACTION] with the following requirements:
+Create a CMDx task that [SPECIFIC_ACTION] with these requirements:
 
 PARAMETERS:
-- [parameter_name]: [type] - [description] - [required/optional]
-- [parameter_name]: [type] - [description] - [validation_rules]
+- [name]: [type] - [description] - [required/optional] - [validation_rules]
+- [name]: [type] - [description] - [default_value] - [constraints]
 
 BUSINESS LOGIC:
-- [Step 1 description]
-- [Step 2 description]
-- [Error conditions to handle]
+1. [Validation step with error conditions]
+2. [Core processing with success criteria]
+3. [Side effects and external calls]
+4. [Context updates and metadata]
+
+ERROR HANDLING:
+- [Specific error condition] → [failure response with metadata]
+- [Edge case] → [appropriate handling strategy]
 
 CONTEXT UPDATES:
-- [What data should be added to context]
-- [What side effects should occur]
+- [key]: [description of data added]
+- [key]: [metadata or tracking information]
 
-TESTING:
-- Generate comprehensive RSpec tests using CMDx matchers
-- Include success, failure, and edge case scenarios
-- Test parameter validation and context updates
-
-Please include:
-- Proper parameter definitions with validations
-- Error handling and metadata
-- YARD documentation
-- RSpec test file
+OUTPUT:
+- Complete task implementation with YARD docs
+- RSpec test file with success/failure/edge cases
+- Parameter validation tests
+- Integration tests for external dependencies
 ```
 
-**Example Usage:**
+### Practical Example
+
 ```
-Create a CMDx task that processes user email preferences with the following requirements:
+Create a CMDx task that processes user profile updates with these requirements:
 
 PARAMETERS:
-- user_id: integer - ID of the user - required, positive
-- email_types: array - Types of emails to enable - required, inclusion in ['marketing', 'notifications', 'alerts']
-- enabled: boolean - Whether to enable or disable - optional, defaults to true
+- user_id: integer - User identifier - required - positive, exists in database
+- profile_data: hash - Profile information - required - non-empty hash
+- send_notification: boolean - Email update notification - optional - defaults to true
+- audit_reason: string - Reason for update - optional - 3-255 characters when provided
 
 BUSINESS LOGIC:
-- Validate user exists and is active
-- Update user's email preferences in database
-- Send confirmation email if preferences changed
-- Log preference changes for audit trail
+1. Validate user exists and is active (error if not found or inactive)
+2. Sanitize and validate profile data fields (reject invalid formats)
+3. Update user profile in database (handle transaction failures)
+4. Send notification email if enabled (log failures, don't fail task)
+5. Create audit log entry with before/after values
+
+ERROR HANDLING:
+- User not found → failed with metadata {error_code: 'USER_NOT_FOUND'}
+- Invalid profile data → failed with metadata {invalid_fields: [...]}
+- Database failure → failed with metadata {error_code: 'DB_ERROR', retryable: true}
 
 CONTEXT UPDATES:
-- Add updated user object to context
-- Add preference_changes hash with before/after values
-- Add confirmation_sent boolean
-
-TESTING:
-- Generate comprehensive RSpec tests using CMDx matchers
-- Include success, failure, and edge case scenarios
-- Test parameter validation and context updates
+- updated_user: User object with new profile data
+- profile_changes: Hash with {field: [old_value, new_value]}
+- notification_sent: Boolean indicating email delivery status
 ```
 
 ## Workflow Generation Templates
 
+### Standard Workflow Template
+
 ```
-Create a CMDx workflow that orchestrates [BUSINESS_PROCESS] with the following requirements:
+Create a CMDx workflow that orchestrates [BUSINESS_PROCESS] with these requirements:
 
 WORKFLOW STEPS:
-1. [Task 1]: [Description and purpose]
-2. [Task 2]: [Description and purpose]
-3. [Task 3]: [Description and purpose]
+1. [TaskName]: [Purpose and responsibilities]
+2. [TaskName]: [Dependencies and data requirements]
+3. [TaskName]: [Conditional execution criteria]
 
-TASK DEPENDENCIES:
-- [How tasks share data through context]
-- [Which tasks can run in parallel]
-- [Sequential requirements]
+DATA FLOW:
+- [Context key]: Flows from [Task A] to [Task B] for [purpose]
+- [Shared state]: Available to [tasks] for [coordination]
 
-ERROR HANDLING:
-- [How to handle individual task failures]
-- [Rollback requirements]
-- [Compensation logic]
+ERROR STRATEGY:
+- [Task failure] → [recovery action or compensation]
+- [Critical failure] → [rollback requirements]
+- [Partial failure] → [continuation strategy]
 
 CONDITIONAL LOGIC:
-- [When to skip certain tasks]
-- [Branching based on context]
+- Skip [task] when [condition] is [value]
+- Execute [alternative_task] if [criteria] met
+- Branch execution based on [context_data]
 
-TESTING:
-- Generate workflow integration tests
-- Test success path and various failure scenarios
-- Include individual task unit tests
+OUTPUT:
+- Complete workflow with task orchestration
+- Individual task implementations
+- Integration tests covering success/failure paths
+- Error handling and rollback mechanisms
 ```
 
-**Example Usage:**
+### Practical Example
+
 ```
-Create a CMDx workflow that orchestrates user onboarding with the following requirements:
+Create a CMDx workflow that orchestrates user account deactivation with these requirements:
 
 WORKFLOW STEPS:
-1. ValidateUserDataTask: Validate and sanitize user registration data
-2. CreateUserAccountTask: Create user account in database
-3. SendWelcomeEmailTask: Send personalized welcome email
-4. SetupDefaultPreferencesTask: Configure default user preferences
-5. TrackOnboardingEventTask: Log onboarding completion for analytics
+1. ValidateDeactivationRequestTask: Verify user permissions and business rules
+2. BackupUserDataTask: Archive user data before deactivation
+3. DeactivateAccountTask: Update account status and revoke access
+4. NotifyStakeholdersTask: Send notifications to relevant parties
+5. UpdateAnalyticsTask: Record deactivation metrics
 
-TASK DEPENDENCIES:
-- All tasks run sequentially
-- User data flows through context from validation to account creation
-- Welcome email uses created user object
-- Preferences setup requires user ID
-- Analytics tracking happens last with full context
+DATA FLOW:
+- user_id: Required input, flows through all tasks
+- deactivation_reason: Used by validation, backup, and analytics
+- backup_reference: Created by backup, used by analytics
+- stakeholder_list: Determined by validation, used by notification
 
-ERROR HANDLING:
-- If account creation fails, don't send email or setup preferences
-- If email fails, continue with preferences but log the failure
-- If preferences fail, still complete onboarding but flag for followup
+ERROR STRATEGY:
+- Validation failure → halt workflow, return validation errors
+- Backup failure → critical error, do not proceed with deactivation
+- Account deactivation failure → rollback backup, restore previous state
+- Notification failure → log error, continue workflow (non-critical)
+- Analytics failure → log error, workflow succeeds (tracking only)
 
 CONDITIONAL LOGIC:
-- Skip welcome email if user opted out during registration
-- Skip analytics if user has privacy settings enabled
-
-TESTING:
-- Generate workflow integration tests
-- Test success path and various failure scenarios
-- Include individual task unit tests
+- Skip stakeholder notification if user is internal test account
+- Execute priority backup for premium users
+- Send different notifications based on deactivation reason
 ```
 
 ## Testing Templates
 
 ### Task Testing Template
 
+> [!TIP]
+> Use CMDx custom matchers for cleaner, more expressive tests that follow framework conventions.
+
 ```
 Generate comprehensive RSpec tests for [TASK_NAME] including:
 
-PARAMETER VALIDATION TESTS:
-- Test all required parameters
-- Test type coercion and validation rules
-- Test default values
-- Test invalid parameter combinations
+PARAMETER VALIDATION:
+- Required parameters missing → proper error messages
+- Type coercion edge cases → successful conversion or clear failures
+- Validation rules → boundary conditions and invalid inputs
+- Default values → proper application and override behavior
 
-EXECUTION TESTS:
-- Test successful execution with various inputs
-- Test all error conditions and edge cases
-- Test context updates and side effects
-- Test metadata and timing information
+EXECUTION SCENARIOS:
+- Happy path → successful execution with expected context updates
+- Business rule violations → appropriate failure states with metadata
+- External service failures → error handling and retry logic
+- Edge cases → boundary conditions and unusual inputs
 
-INTEGRATION TESTS:
-- Test external service interactions
-- Test database operations
-- Test file system operations (if applicable)
+INTEGRATION POINTS:
+- Database operations → transaction handling and rollback
+- External APIs → network failures and response validation
+- File system → permissions and storage errors
+- Email/messaging → delivery failures and formatting
 
-CALLBACK TESTS:
-- Test lifecycle callbacks execute correctly
-- Test callback order and context
-
-Use CMDx custom matchers like:
+Use CMDx matchers:
 - expect(result).to be_successful_task
-- expect(result).to be_failed_task
-- expect(TaskClass).to handle_exceptions_gracefully
+- expect(result).to be_failed_task.with_metadata(hash_including(...))
+- expect(result).to have_context(key: value)
+- expect(TaskClass).to have_parameter(:name).with_type(:integer)
 ```
 
 ### Workflow Testing Template
@@ -206,114 +226,168 @@ Use CMDx custom matchers like:
 ```
 Generate comprehensive RSpec tests for [WORKFLOW_NAME] including:
 
-INTEGRATION TESTS:
-- Test complete workflow execution
-- Test various success scenarios
-- Test different failure points
-- Test context flow between tasks
+INTEGRATION SCENARIOS:
+- Complete success path → all tasks execute with proper data flow
+- Early failure → workflow halts at appropriate point
+- Mid-workflow failure → proper error propagation and cleanup
+- Recovery scenarios → compensation and rollback behavior
 
-INDIVIDUAL TASK TESTS:
-- Test each task in isolation
-- Test task parameter validation
-- Test task-specific logic
+TASK COORDINATION:
+- Context passing → data flows correctly between tasks
+- Conditional execution → tasks skip/execute based on conditions
+- Parallel execution → concurrent tasks complete properly
+- Sequential dependencies → tasks wait for predecessors
 
-CONDITIONAL LOGIC TESTS:
-- Test all branching paths
-- Test edge cases in decision logic
-- Test context preservation across branches
+ERROR PROPAGATION:
+- Individual task failures → workflow response and metadata
+- Critical vs non-critical failures → appropriate handling
+- Rollback mechanisms → state restoration and cleanup
+- Error aggregation → multiple failure consolidation
 
-ERROR HANDLING TESTS:
-- Test failure propagation
-- Test recovery mechanisms
-- Test compensation logic
-```
-
-## Best Practices for AI Prompts
-
-### 1. Be Specific About Requirements
-
-**Good:**
-```
-Create a task that validates credit card information, including:
-- Card number validation with Luhn algorithm
-- Expiry date validation (not expired, reasonable future date)
-- CVV validation (3-4 digits depending on card type)
-- Cardholder name validation (2-50 characters, letters and spaces only)
+EDGE CASES:
+- Empty context → proper initialization and defaults
+- Malformed inputs → validation and sanitization
+- Resource constraints → timeout and resource management
+- Concurrent execution → race conditions and locking
 ```
 
-**Avoid:**
-```
-Create a task that validates credit cards
+## Error Handling and Edge Cases
+
+> [!WARNING]
+> Always include comprehensive error handling in your prompts to ensure robust, production-ready code generation.
+
+### Common Error Scenarios
+
+```ruby
+# Parameter validation failures
+expect(result).to be_failed_task
+  .with_metadata(
+    reason: "user_id is required",
+    messages: { user_id: ["can't be blank"] }
+  )
+
+# Business rule violations
+expect(result).to be_failed_task
+  .with_metadata(
+    error_code: "INSUFFICIENT_BALANCE",
+    retryable: false,
+    balance: current_balance,
+    required: requested_amount
+  )
+
+# External service failures
+expect(result).to be_failed_task
+  .with_metadata(
+    error_code: "SERVICE_UNAVAILABLE",
+    retryable: true,
+    retry_after: 30,
+    service: "payment_processor"
+  )
 ```
 
-### 2. Include Context About Data Flow
+### Edge Case Coverage
 
-**Good:**
-```
-The task should receive user_id and payment_amount, validate the payment method,
-charge the card, and update the context with:
-- transaction_id
-- charged_amount
-- payment_method_last_four
-- charge_timestamp
-```
+Include these scenarios in your prompts:
 
-**Avoid:**
-```
-Process a payment
-```
+| Scenario | Test Coverage | Expected Behavior |
+|----------|---------------|-------------------|
+| Empty inputs | Nil, empty strings, empty arrays | Validation errors or defaults |
+| Boundary values | Min/max limits, zero, negative | Proper validation and coercion |
+| Malformed data | Invalid JSON, corrupt files | Clear error messages |
+| Resource limits | Memory, timeout, rate limits | Graceful degradation |
+| Concurrent access | Race conditions, locks | Proper synchronization |
 
-### 3. Specify Error Conditions
+## Best Practices
 
-**Good:**
-```
-Handle these error conditions:
-- Invalid card number → failed result with metadata { error_code: 'INVALID_CARD' }
-- Expired card → failed result with metadata { error_code: 'EXPIRED_CARD' }
-- Insufficient funds → failed result with metadata { error_code: 'DECLINED', retryable: false }
-- Network timeout → failed result with metadata { error_code: 'TIMEOUT', retryable: true }
-```
+### 1. Specific Requirements
 
-**Avoid:**
+> [!NOTE]
+> Provide detailed, actionable requirements rather than vague descriptions to get better code generation.
+
+**Effective:**
 ```
-Handle payment errors
+Create a task that validates payment information including:
+- Credit card number validation using Luhn algorithm
+- Expiry date validation (not expired, within 10 years)
+- CVV validation (3 digits for Visa/MC, 4 for Amex)
+- Amount validation (positive, max $10,000, 2 decimal places)
+- Return structured validation errors with field-specific messages
 ```
 
-### 4. Request Complete Examples
-
-**Good:**
+**Ineffective:**
 ```
-Generate a complete working example including:
-- Task class with full implementation
-- Parameter definitions with validations
-- RSpec test file with success/failure scenarios
-- YARD documentation
-- Usage examples in comments
+Create a payment validation task
 ```
 
-**Avoid:**
+### 2. Complete Context Flow
+
+**Effective:**
 ```
-Show me the basic structure
+Task receives user_id and order_data, validates inventory, processes payment,
+updates order status, and adds to context:
+- order: Order object with updated status
+- payment_reference: Payment processor transaction ID
+- inventory_reserved: Array of reserved item IDs
+- processing_time: Duration in milliseconds
 ```
 
-### 5. Specify Framework Patterns
-
-**Good:**
+**Ineffective:**
 ```
-Follow CMDx patterns:
-- Use present tense verbs in task names (ProcessPaymentTask, not ProcessingPaymentTask)
-- Include proper error handling with metadata
-- Use callbacks for audit logging
-- Return detailed context updates
-- Include comprehensive parameter validation
+Process an order and update context
 ```
 
-**Avoid:**
+### 3. Explicit Error Conditions
+
+**Effective:**
 ```
-Use best practices
+Handle these specific errors:
+- Invalid card → failed with {error_code: 'INVALID_CARD', field: 'number'}
+- Expired card → failed with {error_code: 'EXPIRED', retry_date: Date}
+- Declined → failed with {error_code: 'DECLINED', retryable: false}
+- Timeout → failed with {error_code: 'TIMEOUT', retryable: true, delay: 30}
+```
+
+**Ineffective:**
+```
+Handle payment errors appropriately
+```
+
+### 4. Framework-Specific Patterns
+
+**Effective:**
+```
+Follow CMDx conventions:
+- Use present tense task names (ProcessPaymentTask, not PaymentProcessor)
+- Include detailed metadata for failures
+- Use callbacks for cross-cutting concerns (audit, logging)
+- Leverage parameter coercion for input flexibility
+- Return rich context updates for downstream tasks
+```
+
+**Ineffective:**
+```
+Use good Ruby practices
+```
+
+### 5. Comprehensive Test Coverage
+
+**Effective:**
+```
+Generate tests including:
+- All parameter combinations and edge cases
+- Success scenarios with various input types
+- Each failure mode with proper error metadata
+- Integration with external services (mocked)
+- Performance characteristics and timeouts
+- Callback execution and order
+```
+
+**Ineffective:**
+```
+Include basic tests
 ```
 
 ---
 
-- **Prev:** [Testing](testing.md)
+- **Prev:** [Deprecation](deprecation.md)
 - **Next:** [Tips and Tricks](tips_and_tricks.md)

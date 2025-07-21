@@ -18,14 +18,14 @@ module CMDx
       # @return [Object, nil] the result of the method call, proc evaluation, or hash access; nil if not found
       #
       # @example Try calling a method
-      #   "hello".cmdx_try(:upcase) # => "HELLO"
-      #   "hello".cmdx_try(:missing) # => nil
+      #   "hello".cmdx_try(:upcase) #=> "HELLO"
+      #   "hello".cmdx_try(:missing) #=> nil
       #
       # @example Try evaluating a proc
-      #   obj.cmdx_try(-> { self.class.name }) # => "String"
+      #   obj.cmdx_try(-> { self.class.name }) #=> "String"
       #
       # @example Try accessing a hash key
-      #   {name: "John"}.cmdx_try(:name) # => "John"
+      #   {name: "John"}.cmdx_try(:name) #=> "John"
       def cmdx_try(key, *args, **kwargs, &)
         if key.is_a?(Proc)
           return instance_eval(&key) unless is_a?(Module) || key.inspect.include?("(lambda)")
@@ -53,13 +53,13 @@ module CMDx
       # @return [Boolean] true if conditions are met, false otherwise
       #
       # @example Evaluate with if condition
-      #   user.cmdx_eval(if: :active?) # => true if user.active? is truthy
+      #   user.cmdx_eval(if: :active?) #=> true if user.active? is truthy
       #
       # @example Evaluate with unless condition
-      #   user.cmdx_eval(unless: :banned?) # => true if user.banned? is falsy
+      #   user.cmdx_eval(unless: :banned?) #=> true if user.banned? is falsy
       #
       # @example Evaluate with both conditions
-      #   user.cmdx_eval(if: :active?, unless: :banned?) # => true if active and not banned
+      #   user.cmdx_eval(if: :active?, unless: :banned?) #=> true if active and not banned
       def cmdx_eval(options = {})
         if options[:if] && options[:unless]
           cmdx_try(options[:if]) && !cmdx_try(options[:unless])
@@ -81,13 +81,13 @@ module CMDx
       # @return [Object] the result of method call, proc evaluation, or the value itself
       #
       # @example Yield a method call
-      #   "hello".cmdx_yield(:upcase) # => "HELLO"
+      #   "hello".cmdx_yield(:upcase) #=> "HELLO"
       #
       # @example Yield a static value
-      #   obj.cmdx_yield("static") # => "static"
+      #   obj.cmdx_yield("static") #=> "static"
       #
       # @example Yield a proc
-      #   obj.cmdx_yield(-> { Time.now }) # => 2023-01-01 12:00:00 UTC
+      #   obj.cmdx_yield(-> { Time.now }) #=> 2023-01-01 12:00:00 UTC
       def cmdx_yield(key, ...)
         if key.is_a?(Symbol) || key.is_a?(String)
           return key unless respond_to?(key, true)
@@ -108,10 +108,10 @@ module CMDx
       # @return [Object] the result of calling the object, or the object itself if not callable
       #
       # @example Invoke a proc
-      #   proc { "hello" }.cmdx_call # => "hello"
+      #   proc { "hello" }.cmdx_call #=> "hello"
       #
       # @example Invoke a non-callable object
-      #   "hello".cmdx_call # => "hello"
+      #   "hello".cmdx_call #=> "hello"
       def cmdx_call(...)
         return self unless respond_to?(:call)
 

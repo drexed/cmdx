@@ -1,32 +1,39 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Parameter serialization module for converting parameter objects to hash format.
+  # Parameter serialization utilities for converting parameter objects to hash representations.
   #
-  # This module provides functionality to serialize parameter objects into a
-  # standardized hash representation that includes essential metadata about
-  # the parameter such as its source, name, type, required status, options,
-  # and child parameters. The serialized format is commonly used for debugging,
-  # logging, and introspection purposes.
+  # ParameterSerializer provides functionality to convert parameter definition objects
+  # into structured hash format for serialization, introspection, and data exchange.
+  # It extracts essential parameter metadata including source context, method names,
+  # type information, requirement status, options, and nested child parameters.
   module ParameterSerializer
 
     module_function
 
-    # Serializes a parameter object into a hash representation.
+    # Converts a parameter object into a hash representation for serialization.
     #
-    # @param parameter [Parameter] the parameter object to serialize
+    # This method extracts key metadata from a parameter definition and structures
+    # it into a hash format suitable for serialization, storage, or transmission.
+    # Child parameters are recursively serialized to maintain nested structure.
     #
-    # @return [Hash] a hash containing the parameter's metadata
+    # @param parameter [CMDx::Parameter] the parameter object to serialize
     #
-    # @raise [NoMethodError] if the parameter doesn't respond to required methods
+    # @return [Hash] a hash containing the parameter's metadata and configuration
+    # @option return [Symbol] :source the source context for parameter resolution
+    # @option return [Symbol] :name the method name generated for this parameter
+    # @option return [Symbol, Array<Symbol>] :type the parameter type(s) for coercion
+    # @option return [Boolean] :required whether the parameter is required for execution
+    # @option return [Hash] :options the parameter configuration options
+    # @option return [Array<Hash>] :children serialized child parameters for nested structures
     #
-    # @example Serialize a parameter with nested children
-    #   param = Parameter.new(:user, klass: MyTask, type: :hash) do
+    # @example Serialize a nested parameter with children
+    #   user_param = Parameter.new(:user, klass: MyTask, type: :hash) do
     #     required :name, type: :string
     #     optional :age, type: :integer
     #   end
-    #   ParameterSerializer.call(param)
-    #   # => {
+    #   ParameterSerializer.call(user_param)
+    #   #=> {
     #   #   source: :context,
     #   #   name: :user,
     #   #   type: :hash,

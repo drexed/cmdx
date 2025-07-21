@@ -26,11 +26,11 @@ module Cmdx
     #
     # @example Generate a user workflow
     #   rails generate cmdx:workflow user
-    #   # => Creates app/cmds/user_workflow.rb
+    #   #=> Creates app/cmds/user_workflow.rb
     #
     # @example Generate a nested workflow
     #   rails generate cmdx:workflow admin/users
-    #   # => Creates app/cmds/admin/users_workflow.rb
+    #   #=> Creates app/cmds/admin/users_workflow.rb
     def copy_files
       name = file_name.sub(/_?workflow$/i, "")
       path = File.join("app/cmds", class_path, "#{name}_workflow.rb")
@@ -49,11 +49,11 @@ module Cmdx
     #
     # @example Class name without suffix
     #   # Given name: "User"
-    #   class_name # => "UserWorkflow"
+    #   class_name #=> "UserWorkflow"
     #
     # @example Class name with suffix
     #   # Given name: "UserWorkflow"
-    #   class_name # => "UserWorkflow"
+    #   class_name #=> "UserWorkflow"
     def class_name
       @class_name ||= super.end_with?("Workflow") ? super : "#{super}Workflow"
     end
@@ -70,10 +70,10 @@ module Cmdx
     # @raise [StandardError] if neither ApplicationWorkflow nor CMDx::Workflow are available
     #
     # @example With ApplicationWorkflow defined
-    #   parent_class_name # => ApplicationWorkflow
+    #   parent_class_name #=> ApplicationWorkflow
     #
     # @example Without ApplicationWorkflow
-    #   parent_class_name # => CMDx::Workflow
+    #   parent_class_name #=> CMDx::Workflow
     def parent_class_name
       ApplicationWorkflow
     rescue StandardError

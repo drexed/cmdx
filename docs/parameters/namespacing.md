@@ -1,9 +1,6 @@
 # Parameters - Namespacing
 
-Parameter namespacing provides method name customization to prevent conflicts
-and enable flexible parameter access patterns. When parameters share names with
-existing methods or when multiple parameters from different sources have the
-same name, namespacing ensures clean method resolution within tasks.
+Parameter namespacing provides method name customization to prevent conflicts and enable flexible parameter access patterns. When parameters share names with existing methods or when multiple parameters from different sources have the same name, namespacing ensures clean method resolution within tasks.
 
 ## Table of Contents
 
@@ -12,158 +9,162 @@ same name, namespacing ensures clean method resolution within tasks.
 - [Fixed Value Namespacing](#fixed-value-namespacing)
 - [Dynamic Source-Based Namespacing](#dynamic-source-based-namespacing)
 - [Conflict Resolution](#conflict-resolution)
-- [Advanced Namespacing Patterns](#advanced-namespacing-patterns)
-- [Error Handling with Namespacing](#error-handling-with-namespacing)
+- [Advanced Patterns](#advanced-patterns)
+- [Error Handling](#error-handling)
 
 ## TLDR
 
-- **Method naming** - Use `prefix:` and `suffix:` to customize parameter method names
-- **Fixed prefixes** - `prefix: "user_"` creates `user_name` method for `name` parameter
-- **Dynamic prefixes** - `prefix: true` uses source name (e.g., `context_name`)
-- **Conflict resolution** - Avoid conflicts with Ruby methods or multiple same-named parameters
-- **Call arguments** - Always use original parameter names, namespacing only affects method names
+```ruby
+# Fixed prefixes/suffixes
+required :name, prefix: "user_"        # → user_name method
+required :email, suffix: "_address"    # → email_address method
+
+# Dynamic source-based namespacing
+required :id, prefix: true             # → context_id method (from context source)
+required :name, source: :profile, suffix: true  # → name_profile method
+
+# Conflict resolution
+required :context, suffix: "_data"     # Avoids CMDx::Task#context method
+required :name, prefix: "customer_"    # Avoids Ruby's Object#name method
+
+# Call arguments always use original parameter names
+TaskClass.call(name: "John", email: "john@example.com", context: {...})
+```
 
 ## Namespacing Fundamentals
 
 > [!IMPORTANT]
-> The `:prefix` and `:suffix` options modify only the generated accessor method names while preserving the original parameter names for call arguments.
+> Namespacing modifies only the generated accessor method names within tasks. Parameter names in call arguments remain unchanged, ensuring a clean external interface.
 
-This separation allows for flexible method naming without affecting the task interface.
+### Namespacing Options
 
-### Fixed Value Namespacing
+| Option | Type | Description | Example |
+|--------|------|-------------|---------|
+| `prefix:` | String/Symbol | Fixed prefix | `prefix: "user_"` → `user_name` |
+| `prefix:` | Boolean | Dynamic prefix from source | `prefix: true` → `context_name` |
+| `suffix:` | String/Symbol | Fixed suffix | `suffix: "_data"` → `name_data` |
+| `suffix:` | Boolean | Dynamic suffix from source | `suffix: true` → `name_context` |
 
-Use string or symbol values to add consistent prefixes or suffixes to parameter
-method names:
+## Fixed Value Namespacing
+
+Use string or symbol values for consistent prefixes or suffixes:
 
 ```ruby
-class CreateOrderTask < CMDx::Task
-
-  # Fixed prefix for shipping dimensions
-  required :width, prefix: "shipping_"
-  required :height, prefix: "shipping_"
-
-  # Fixed suffix for user contact info
-  required :email, suffix: "_contact"
-  required :phone, suffix: "_contact"
-
-  # Combined prefix and suffix
-  required :weight, prefix: "item_", suffix: "_kg"
+class UpdateCustomerTask < CMDx::Task
+  required :id, prefix: "customer_"
+  required :name, prefix: "customer_"
+  required :email, suffix: "_address"
+  required :phone, suffix: "_number"
 
   def call
-    # Generated method names with namespacing
-    shipping_width  #=> accesses width parameter
-    shipping_height #=> accesses height parameter
-    email_contact   #=> accesses email parameter
-    phone_contact   #=> accesses phone parameter
-    item_weight_kg  #=> accesses weight parameter
+    customer = Customer.find(customer_id)
+    customer.update!(
+      name: customer_name,
+      email: email_address,
+      phone: phone_number
+    )
   end
-
 end
 
-# Call arguments use original parameter names
-CreateOrderTask.call(
-  width: 10,
-  height: 20,
-  email: "customer@example.com",
-  phone: "555-1234",
-  weight: 2.5
+# Call uses original parameter names
+UpdateCustomerTask.call(
+  id: 123,
+  name: "Jane Smith",
+  email: "jane@example.com",
+  phone: "555-0123"
 )
 ```
 
-### Dynamic Source-Based Namespacing
+## Dynamic Source-Based Namespacing
 
-Use `true` value to automatically generate prefixes or suffixes based on the
-parameter source name:
-
-```ruby
-class ProcessUserRegistrationTask < CMDx::Task
-
-  # Automatic prefix from default source (:context)
-  required :user_id, prefix: true # Generates: context_user_id
-
-  # Automatic suffix from custom source
-  required :name, source: :profile, suffix: true # Generates: name_profile
-
-  # Combined automatic namespacing
-  required :email, source: :account, prefix: true, suffix: true # Generates: account_email_account
-
-  def call
-    context_user_id       #=> accesses context.user_id
-    name_profile          #=> accesses profile.name
-    account_email_account #=> accesses account.email
-  end
-
-  private
-
-  def profile
-    @profile ||= User.find(context.user_id).profile
-  end
-
-  def account
-    @account ||= User.find(context.user_id).account
-  end
-
-end
-```
-
-> [!NOTE]
-> Call arguments always use original parameter names regardless of namespacing configuration.
-
-## Conflict Resolution
-
-Namespacing is essential when dealing with method name conflicts or when
-accessing multiple objects with similar attribute names:
-
-### Method Name Conflicts
-
-```ruby
-class UpdateUserProfileTask < CMDx::Task
-
-  # Avoid conflict with Ruby's built-in 'name' method
-  required :name, prefix: "user_"
-
-  # Avoid conflict with custom private methods
-  required :status, suffix: "_param"
-
-  def call
-    user_name    #=> parameter value, not Ruby's Object#name
-    status_param #=> parameter value, not custom status method
-  end
-
-  private
-
-  def status
-    "processing" # Custom method that would conflict without suffix
-  end
-
-end
-```
-
-### Multiple Source Disambiguation
+> [!TIP]
+> Use `true` with `prefix:` or `suffix:` to automatically generate method names based on parameter sources, creating self-documenting code.
 
 ```ruby
 class GenerateInvoiceTask < CMDx::Task
+  required :id, prefix: true                          # → context_id
+  required :amount, source: :order, prefix: true      # → order_amount
+  required :tax_rate, source: :settings, suffix: true # → tax_rate_settings
 
-  # Customer information
+  def call
+    customer = Customer.find(context_id)
+    total = order_amount * (1 + tax_rate_settings)
+
+    Invoice.create!(
+      customer: customer,
+      amount: order_amount,
+      tax_rate: tax_rate_settings,
+      total: total
+    )
+  end
+
+  private
+
+  def order
+    @order ||= Order.find(context.order_id)
+  end
+
+  def settings
+    @settings ||= TaxSettings.for_region(context.region)
+  end
+end
+```
+
+## Conflict Resolution
+
+> [!WARNING]
+> Parameter names that conflict with existing Ruby or CMDx methods can cause unexpected behavior. Always use namespacing to avoid method collisions.
+
+### Ruby Method Conflicts
+
+```ruby
+class ProcessAccountTask < CMDx::Task
+  # Avoid conflicts with Ruby's built-in methods
+  required :name, prefix: "account_"      # Not Object#name
+  required :class, suffix: "_type"        # Not Object#class
+  required :method, prefix: "http_"       # Not Object#method
+
+  def call
+    Account.create!(
+      name: account_name,
+      classification: class_type,
+      request_method: http_method
+    )
+  end
+end
+```
+
+### CMDx Method Conflicts
+
+```ruby
+class DataProcessingTask < CMDx::Task
+  # Avoid conflicts with CMDx::Task methods
+  required :context, suffix: "_payload"   # Not CMDx::Task#context
+  required :result, prefix: "api_"        # Not CMDx::Task#result
+  required :logger, suffix: "_config"     # Not CMDx::Task#logger
+
+  def call
+    process_data(context_payload, api_result, logger_config)
+  end
+end
+```
+
+### Multi-Source Disambiguation
+
+```ruby
+class SyncDataTask < CMDx::Task
+  # Customer and vendor both have overlapping attributes
+  required :id, source: :customer, prefix: "customer_"
   required :name, source: :customer, prefix: "customer_"
   required :email, source: :customer, prefix: "customer_"
 
-  # Company information
-  required :name, source: :company, prefix: "company_"
-  required :email, source: :company, prefix: "company_"
-
-  # Order information
-  required :total, source: :order, suffix: "_amount"
-  required :status, source: :order, suffix: "_state"
+  required :id, source: :vendor, prefix: "vendor_"
+  required :name, source: :vendor, prefix: "vendor_"
+  required :email, source: :vendor, prefix: "vendor_"
 
   def call
-    # Clear disambiguation of same-named attributes
-    customer_name  #=> customer.name
-    company_name   #=> company.name
-    customer_email #=> customer.email
-    company_email  #=> company.email
-    total_amount   #=> order.total
-    status_state   #=> order.status
+    sync_customer_data(customer_id, customer_name, customer_email)
+    sync_vendor_data(vendor_id, vendor_name, vendor_email)
   end
 
   private
@@ -172,116 +173,204 @@ class GenerateInvoiceTask < CMDx::Task
     @customer ||= Customer.find(context.customer_id)
   end
 
-  def company
-    @company ||= Company.find(context.company_id)
+  def vendor
+    @vendor ||= Vendor.find(context.vendor_id)
   end
-
-  def order
-    @order ||= Order.find(context.order_id)
-  end
-
 end
 ```
 
-## Advanced Namespacing Patterns
+## Advanced Patterns
 
-### Hierarchical Namespacing
-
-Combine namespacing with nested parameters for complex data structures:
+### Hierarchical Parameter Organization
 
 ```ruby
 class CreateShipmentTask < CMDx::Task
-
-  # Origin address with prefix
-  required :origin_address, source: :shipment, prefix: "from_" do
-    required :street, :city, :state, :zip
+  required :address, source: :origin, prefix: "origin_" do
+    required :street, :city, :state, :zip_code
   end
 
-  # Destination address with suffix
-  required :destination_address, source: :shipment, suffix: "_to" do
-    required :street, :city, :state, :zip
+  required :address, source: :destination, prefix: "destination_" do
+    required :street, :city, :state, :zip_code
+  end
+
+  optional :preferences, suffix: "_config" do
+    required :priority, type: :string
+    optional :signature_required, type: :boolean, default: false
   end
 
   def call
-    from_origin_address    #=> shipment.origin_address
-    destination_address_to #=> shipment.destination_address
-
-    # Nested parameters access depends on current context
-    street #=> current address context street
-    city   #=> current address context city
+    shipment = Shipment.create!(
+      origin_address: origin_address,
+      destination_address: destination_address,
+      priority: preferences_config[:priority],
+      signature_required: preferences_config[:signature_required]
+    )
   end
 
   private
 
-  def shipment
-    @shipment ||= Shipment.find(context.shipment_id)
+  def origin
+    @origin ||= Address.find(context.origin_address_id)
   end
 
+  def destination
+    @destination ||= Address.find(context.destination_address_id)
+  end
 end
 ```
 
-### Conditional Namespacing
-
-Apply namespacing based on runtime conditions:
+### Domain-Specific Grouping
 
 ```ruby
 class ProcessPaymentTask < CMDx::Task
+  # Payment-related parameters
+  required :amount, prefix: "payment_", type: :big_decimal
+  required :currency, prefix: "payment_", type: :string
+  required :method, prefix: "payment_", type: :string
 
-  # Different namespacing based on payment type
-  required :reference_id,
-    prefix: -> { context.payment_type == "credit_card" ? "card_" : "bank_" }
-
-  def call
-    # Method names determined at runtime
-    if context.payment_type == "credit_card"
-      card_reference_id #=> accesses reference_id parameter
-    else
-      bank_reference_id #=> accesses reference_id parameter
-    end
+  # Customer billing parameters
+  required :address, source: :billing, prefix: "billing_" do
+    required :street, :city, :country
   end
 
+  # Merchant processing parameters
+  required :fee_rate, source: :processor, prefix: "processor_", type: :float
+  required :timeout, source: :processor, prefix: "processor_", type: :integer
+
+  def call
+    charge = PaymentProcessor.charge(
+      amount: payment_amount,
+      currency: payment_currency,
+      method: payment_method,
+      billing_address: billing_address,
+      processor_fee: payment_amount * processor_fee_rate,
+      timeout: processor_timeout
+    )
+  end
+
+  private
+
+  def billing
+    @billing ||= BillingAddress.find(context.billing_address_id)
+  end
+
+  def processor
+    @processor ||= PaymentProcessor.for_method(payment_method)
+  end
 end
 ```
 
-## Error Handling with Namespacing
+## Error Handling
+
+> [!WARNING]
+> Validation errors reference namespaced method names, not original parameter names. This affects error message interpretation and debugging.
+
+### Validation Error Messages
 
 ```ruby
-class ValidateUserDataTask < CMDx::Task
-
-  required :email,
-    prefix: "user_",
-    type: :string,
-    format: { with: /@/ }
-
-  required :age,
-    suffix: "_years",
-    type: :integer,
-    numeric: { min: 18 }
+class CreateUserTask < CMDx::Task
+  required :email, prefix: "user_", format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
+  required :age, suffix: "_value", type: :integer, numeric: { min: 18, max: 120 }
+  required :role, source: :account, prefix: "account_", inclusion: { in: %w[admin user guest] }
 
   def call
-    # Access via namespaced methods
-    user_email  #=> validated email
-    age_years   #=> validated age
+    User.create!(
+      email: user_email,
+      age: age_value,
+      role: account_role
+    )
   end
 
+  private
+
+  def account
+    @account ||= Account.find(context.account_id)
+  end
 end
 
-# Invalid parameters
-result = ValidateUserDataTask.call(
+# Invalid input produces namespaced error messages
+result = CreateUserTask.call(
   email: "invalid-email",
-  age: "not-a-number"
+  age: "fifteen",
+  account: OpenStruct.new(role: "superuser")
 )
 
-result.failed?  #=> true
+result.failed? # → true
 result.metadata
-#=> {
-#     reason: "email format is not valid. age could not coerce into an integer.",
-#     messages: {
-#       user_email: ["format is not valid"],
-#       age_years: ["could not coerce into an integer"]
-#     }
+# {
+#   reason: "user_email format is not valid. age_value could not coerce into an integer. account_role inclusion is not valid.",
+#   messages: {
+#     user_email: ["format is not valid"],
+#     age_value: ["could not coerce into an integer"],
+#     account_role: ["inclusion is not valid"]
 #   }
+# }
 ```
+
+### Common Namespacing Mistakes
+
+```ruby
+class ProblematicTask < CMDx::Task
+  required :data, prefix: "user_"
+  required :config, source: :settings, suffix: "_data"
+
+  def call
+    # ❌ WRONG: Using original parameter names in task methods
+    process(data)         # NoMethodError: undefined method `data`
+    apply(config)         # NoMethodError: undefined method `config`
+
+    # ✅ CORRECT: Using namespaced method names
+    process(user_data)    # Works correctly
+    apply(config_data)    # Works correctly
+  end
+
+  private
+
+  def settings
+    @settings ||= AppSettings.current
+  end
+end
+
+# ❌ WRONG: Using namespaced names in call arguments
+ProblematicTask.call(
+  user_data: { name: "John" },    # ArgumentError: unknown parameter
+  config_data: { theme: "dark" }  # ArgumentError: unknown parameter
+)
+
+# ✅ CORRECT: Using original parameter names in call arguments
+ProblematicTask.call(
+  data: { name: "John" },         # Correct
+  config: { theme: "dark" }       # Correct
+)
+```
+
+### Debugging Namespaced Parameters
+
+```ruby
+class DebuggingTask < CMDx::Task
+  required :id, prefix: "user_"
+  required :data, source: :profile, suffix: "_payload"
+
+  def call
+    # Use introspection to understand parameter mapping
+    puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
+    # → ["user_id", "data_payload"]
+
+    # Access parameters using correct namespaced names
+    user = User.find(user_id)
+    user.update!(data_payload)
+  end
+
+  private
+
+  def profile
+    @profile ||= UserProfile.find(context.profile_id)
+  end
+end
+```
+
+> [!NOTE]
+> When debugging namespaced parameters, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original parameter names used in task calls.
 
 ---
 

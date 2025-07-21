@@ -23,7 +23,7 @@ module CMDx
       #
       # @example Validating a non-empty string
       #   Validators::Presence.call("hello", presence: {})
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Validating an empty string
       #   Validators::Presence.call("", presence: {})
@@ -35,7 +35,7 @@ module CMDx
       #
       # @example Validating a non-empty array
       #   Validators::Presence.call([1, 2, 3], presence: {})
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Validating an empty array
       #   Validators::Presence.call([], presence: {})

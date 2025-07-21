@@ -20,8 +20,6 @@ module CMDx
       *Result::STATES.map { |s| :"on_#{s}" }
     ].freeze
 
-    # The internal hash storing callback definitions.
-    #
     # @return [Hash] hash containing callback type keys and callback definition arrays
     attr_reader :registry
 
@@ -106,7 +104,7 @@ module CMDx
     #
     # @example Getting registry contents
     #   registry.to_h
-    #   # => { before_execution: [[:setup, {}]], on_good: [[:notify, { if: -> { true } }]] }
+    #   #=> { before_execution: [[:setup, {}]], on_good: [[:notify, { if: -> { true } }]] }
     def to_h
       registry.transform_values(&:dup)
     end

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Base class for implementing type coercion functionality in parameter processing.
+  # Base class for implementing parameter coercion functionality in task processing.
   #
-  # Coercions are used to convert parameter values from one type to another,
-  # supporting both built-in types and custom coercion logic. All coercion
+  # Coercions are used to convert parameter values from one type to another during
+  # task execution, enabling automatic type conversion and normalization. All coercion
   # implementations must inherit from this class and implement the abstract call method.
   class Coercion
 
@@ -16,10 +16,13 @@ module CMDx
     # @return [Object] the coerced value
     #
     # @raise [UndefinedCallError] when the coercion subclass doesn't implement call
+    # @raise [CoercionError] when coercion fails in subclass implementations
     #
     # @example Execute a coercion on a value
-    #   IntegerCoercion.call("42")
-    #   # => 42
+    #   StringCoercion.call(123) #=> "123"
+    #
+    # @example Execute with options
+    #   CustomCoercion.call("value", strict: true) #=> processed_value
     def self.call(value, options = {})
       new.call(value, options)
     end
@@ -27,21 +30,26 @@ module CMDx
     # Abstract method that must be implemented by coercion subclasses.
     #
     # This method contains the actual coercion logic to convert the input
-    # value to the desired type. Subclasses must override this method to
-    # provide their specific coercion implementation.
+    # value to the desired type. Subclasses must override this method
+    # to provide their specific coercion implementation.
     #
-    # @param _value [Object] the value to be coerced
-    # @param _options [Hash] additional options for the coercion
+    # @param value [Object] the value to be coerced (unused in base class)
+    # @param options [Hash] additional options for the coercion (unused in base class)
     #
     # @return [Object] the coerced value
     #
     # @raise [UndefinedCallError] always raised in the base class
+    # @raise [CoercionError] when coercion fails in subclass implementations
     #
     # @example Implement in a subclass
-    #   def call(value, options = {})
-    #     Integer(value)
+    #   class StringCoercion < CMDx::Coercion
+    #     def call(value, _options = {})
+    #       String(value)
+    #     rescue ArgumentError, TypeError
+    #       raise CoercionError, "could not coerce into a string"
+    #     end
     #   end
-    def call(_value, _options = {})
+    def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 

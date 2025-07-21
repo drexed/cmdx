@@ -23,7 +23,7 @@ module CMDx
       # @example Formatting a log entry
       #   formatter = CMDx::LogFormatters::Line.new
       #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   # => "I, [2024-01-01T12:00:00.000Z #12345] INFO -- TaskClass: Task completed\n"
+      #   #=> "I, [2024-01-01T12:00:00.000Z #12345] INFO -- TaskClass: Task completed\n"
       def call(severity, time, task, message)
         t = Utils::LogTimestamp.call(time.utc)
         m = LoggerSerializer.call(severity, time, task, message)

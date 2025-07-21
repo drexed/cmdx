@@ -10,29 +10,38 @@ CMDx provides a comprehensive suite of custom RSpec matchers designed for expres
 - [Result Matchers](#result-matchers)
   - [Primary Outcome Matchers](#primary-outcome-matchers)
   - [State and Status Matchers](#state-and-status-matchers)
+  - [Execution and Outcome Matchers](#execution-and-outcome-matchers)
   - [Metadata and Context Matchers](#metadata-and-context-matchers)
   - [Failure Chain Matchers](#failure-chain-matchers)
 - [Task Matchers](#task-matchers)
-  - [Parameter Validation Matchers](#parameter-validation-matchers)
-  - [Lifecycle and Structure Matchers](#lifecycle-and-structure-matchers)
-  - [Exception Handling Matchers](#exception-handling-matchers)
+  - [Structure and Lifecycle Matchers](#structure-and-lifecycle-matchers)
+  - [Parameter Testing Matchers](#parameter-testing-matchers)
   - [Callback and Middleware Matchers](#callback-and-middleware-matchers)
   - [Configuration Matchers](#configuration-matchers)
 - [Composable Testing](#composable-testing)
+- [Error Handling](#error-handling)
 - [Best Practices](#best-practices)
 
 ## TLDR
 
-- **Custom matchers** - 40+ specialized RSpec matchers for testing CMDx tasks and results
-- **Setup** - Require `cmdx/rspec/matchers`
-- **Result matchers** - `be_successful_task`, `be_failed_task`, `be_skipped_task` with chainable metadata
-- **Task matchers** - Parameter validation, lifecycle, exception handling, and configuration testing
-- **Composable** - Chain matchers for complex validation scenarios
-- **YARD documented** - Complete documentation with examples for all matchers
+```ruby
+# Setup - require in spec helper
+require "cmdx/rspec/matchers"
+
+# Result outcome matchers
+expect(result).to be_successful_task(user_id: 123)
+expect(result).to be_failed_task("validation_error").with_metadata(field: "email")
+expect(result).to be_skipped_task.with_reason("already_processed")
+
+# Task structure matchers
+expect(MyTask).to be_well_formed_task
+expect(MyTask).to have_parameter(:email).that_is_required.with_type(:string)
+expect(MyTask).to have_callback(:before_execution)
+```
 
 ## External Project Setup
 
-To use CMDx's custom matchers in an external RSpec-based project update your `spec/spec_helper.rb` or `spec/rails_helper.rb`:
+To use CMDx's custom matchers in an external RSpec-based project, update your `spec/spec_helper.rb` or `spec/rails_helper.rb`:
 
 ```ruby
 require "cmdx/rspec/matchers"
@@ -40,19 +49,15 @@ require "cmdx/rspec/matchers"
 
 ## Matcher Organization
 
-CMDx matchers are organized into two primary files with comprehensive YARD documentation:
+CMDx matchers are organized into two primary categories with comprehensive YARD documentation:
 
-| Purpose | Matcher Count |
-|---------|---------------|
-| Task execution outcomes and side effects | 15+ matchers |
-| Task behavior, validation, and lifecycle | 5+ matchers |
+| Category | Purpose | Matcher Count |
+|----------|---------|---------------|
+| **Result Matchers** | Task execution outcomes and side effects | 17 matchers |
+| **Task Matchers** | Task behavior, validation, and lifecycle | 6 matchers |
 
-All matchers include:
-- Complete parameter descriptions
-- Multiple usage examples
-- Return value specifications
-- Negation examples
-- Version information
+> [!NOTE]
+> All matchers include complete parameter descriptions, multiple usage examples, return value specifications, negation examples, and version information.
 
 ## Result Matchers
 
@@ -69,15 +74,19 @@ expect(result).to be_successful_task
 # Successful task with context validation
 expect(result).to be_successful_task(user_id: 123, processed: true)
 
-# Negated usage
-expect(result).not_to be_successful_task
+# With RSpec matchers for flexible context validation
+expect(result).to be_successful_task(
+  user_id: be_a(Integer),
+  processed_at: be_a(Time),
+  email: match(/@/)
+)
 ```
 
 **What it validates:**
 - Result has success status
 - Result is in complete state
 - Result was executed
-- Optional context attributes match
+- Optional context attributes match expected values
 
 #### Failed Task Validation
 
@@ -86,15 +95,14 @@ expect(result).not_to be_successful_task
 expect(result).to be_failed_task
 
 # Failed task with specific reason
-expect(result).to be_failed_task("Validation failed")
+expect(result).to be_failed_task("validation_failed")
 
-# Chainable reason and metadata validation
-expect(result).to be_failed_task
-  .with_reason("Invalid data")
-  .with_metadata(error_code: "ERR001", retryable: false)
+# Using with_reason chain
+expect(result).to be_failed_task.with_reason("invalid_data")
 
-# Negated usage
-expect(result).not_to be_failed_task
+# Combined reason and metadata validation
+expect(result).to be_failed_task("validation_error")
+  .with_metadata(field: "email", rule: "format", retryable: false)
 ```
 
 **What it validates:**
@@ -110,15 +118,14 @@ expect(result).not_to be_failed_task
 expect(result).to be_skipped_task
 
 # Skipped task with specific reason
-expect(result).to be_skipped_task("Already processed")
+expect(result).to be_skipped_task("already_processed")
 
-# Chainable reason and metadata validation
-expect(result).to be_skipped_task
-  .with_reason("Order already processed")
-  .with_metadata(processed_at: be_a(Time), skip_code: "DUPLICATE")
+# Using with_reason chain
+expect(result).to be_skipped_task.with_reason("order_already_processed")
 
-# Negated usage
-expect(result).not_to be_skipped_task
+# Combined reason and metadata validation
+expect(result).to be_skipped_task("data_unchanged")
+  .with_metadata(last_sync: be_a(Time), changes: 0)
 ```
 
 **What it validates:**
@@ -134,29 +141,26 @@ Individual validation matchers for granular testing:
 #### Execution State Matchers
 
 ```ruby
-# Individual state checks (auto-generated from CMDx::Result::STATES)
+# Auto-generated from CMDx::Result::STATES
 expect(result).to be_initialized
 expect(result).to be_executing
 expect(result).to be_complete
 expect(result).to be_interrupted
-
-# Negated usage
-expect(result).not_to be_initialized
 ```
+
+> [!IMPORTANT]
+> State matchers are dynamically generated from the CMDx framework's state definitions, ensuring they stay in sync with framework updates.
 
 #### Execution Status Matchers
 
 ```ruby
-# Individual status checks (auto-generated from CMDx::Result::STATUSES)
+# Auto-generated from CMDx::Result::STATUSES
 expect(result).to be_success
 expect(result).to be_skipped
 expect(result).to be_failed
-
-# Negated usage
-expect(result).not_to be_success
 ```
 
-#### Execution and Outcome Matchers
+### Execution and Outcome Matchers
 
 ```ruby
 # Execution validation
@@ -164,11 +168,7 @@ expect(result).to be_executed
 
 # Outcome classification
 expect(result).to have_good_outcome  # success OR skipped
-expect(result).to have_bad_outcome   # not success (includes skipped and failed)
-
-# Negated usage
-expect(result).not_to be_executed
-expect(result).not_to have_good_outcome
+expect(result).to have_bad_outcome   # failed (not success)
 ```
 
 ### Metadata and Context Matchers
@@ -176,25 +176,23 @@ expect(result).not_to have_good_outcome
 #### Metadata Validation
 
 ```ruby
-# Basic metadata validation with RSpec matcher support
-expect(result).to have_metadata(reason: "Error", code: "001")
+# Basic metadata validation
+expect(result).to have_metadata(reason: "validation_failed", code: 422)
+
+# With RSpec matchers for flexible assertions
 expect(result).to have_metadata(
-  reason: "Invalid email format",
-  errors: ["Email must contain @"],
-  error_code: "VALIDATION_FAILED",
-  retryable: false,
-  failed_at: be_a(Time)
+  reason: "validation_failed",
+  started_at: be_a(Time),
+  duration: be > 0,
+  error_code: match(/^ERR/)
 )
 
 # Chainable metadata inclusion
-expect(result).to have_metadata(reason: "Error")
-  .including(code: "001", retryable: false)
+expect(result).to have_metadata(reason: "error")
+  .including(retry_count: 3, retryable: false)
 
 # Empty metadata validation
 expect(result).to have_empty_metadata
-
-# Negated usage
-expect(result).not_to have_metadata(reason: "Different error")
 ```
 
 #### Runtime Validation
@@ -209,51 +207,43 @@ expect(result).to have_runtime(0.5)
 # Runtime with RSpec matchers
 expect(result).to have_runtime(be > 0)
 expect(result).to have_runtime(be_within(0.1).of(0.5))
-
-# Negated usage
-expect(result).not_to have_runtime
+expect(result).to have_runtime(be < 2.0)  # Performance constraint
 ```
 
 #### Context Side Effects
 
 ```ruby
-# Context validation with RSpec matcher support
+# Context validation with direct values
 expect(result).to have_context(processed: true, user_id: 123)
-expect(result).to have_context(
-  processed_at: be_a(Time),
-  errors: be_empty,
-  count: be > 0
-)
 
-# Complex side effects validation
+# With RSpec matchers for flexible validation
 expect(result).to have_context(
   user: have_attributes(id: 123, name: "John"),
+  processed_at: be_a(Time),
   notifications: contain_exactly("email", "sms")
 )
 
-# Context preservation
-expect(result).to preserve_context(original_data)
-
-# Negated usage
-expect(result).not_to have_context(deleted: true)
+# Context preservation testing
+expect(result).to have_preserved_context(
+  user_id: 123,
+  original_data: "important"
+)
 ```
+
+> [!TIP]
+> Use `have_context` for testing side effects and new values, and `have_preserved_context` for verifying that certain values remained unchanged throughout execution.
 
 #### Chain Validation
 
 ```ruby
-# Basic chain membership validation
-expect(result).to belong_to_chain
-
-# Specific chain validation
-expect(result).to belong_to_chain(my_chain)
-
 # Chain position validation
 expect(result).to have_chain_index(0)  # First task in chain
 expect(result).to have_chain_index(2)  # Third task in chain
 
-# Negated usage
-expect(result).not_to belong_to_chain
-expect(result).not_to have_chain_index(1)
+# Workflow structure testing
+workflow_result = MyWorkflow.call(data: "test")
+first_task = workflow_result.chain.first
+expect(first_task).to have_chain_index(0)
 ```
 
 ### Failure Chain Matchers
@@ -266,8 +256,10 @@ Test CMDx's failure propagation patterns:
 # Test that result represents an original failure (not propagated)
 expect(result).to have_caused_failure
 
-# Negated usage (for thrown failures)
-expect(result).not_to have_caused_failure
+# Distinguished from thrown failures
+result = ValidateDataTask.call(data: "invalid")
+expect(result).to have_caused_failure
+expect(result).not_to have_thrown_failure
 ```
 
 #### Failure Propagation Validation
@@ -277,10 +269,10 @@ expect(result).not_to have_caused_failure
 expect(result).to have_thrown_failure
 
 # Thrown failure with specific original result
-expect(result).to have_thrown_failure(original_failed_result)
-
-# Negated usage (for caused failures)
-expect(result).not_to have_thrown_failure
+workflow_result = MultiStepWorkflow.call(data: "problematic")
+original_failure = workflow_result.chain.find(&:caused_failure?)
+throwing_task = workflow_result.chain.find(&:threw_failure?)
+expect(throwing_task).to have_thrown_failure(original_failure)
 ```
 
 #### Received Failure Validation
@@ -289,68 +281,25 @@ expect(result).not_to have_thrown_failure
 # Test that result received a thrown failure
 expect(result).to have_received_thrown_failure
 
-# Negated usage
-expect(result).not_to have_received_thrown_failure
+# Testing downstream task failure handling
+workflow_result = ProcessingWorkflow.call(data: "invalid")
+receiving_task = workflow_result.chain.find { |r| r.thrown_failure? }
+expect(receiving_task).to have_received_thrown_failure
 ```
 
 ## Task Matchers
 
-### Parameter Validation Matchers
-
-Test task parameter validation behavior:
-
-#### Required Parameter Validation
-
-```ruby
-# Test that task validates required parameters
-expect(CreateUserTask).to validate_required_parameter(:email)
-expect(ProcessOrderTask).to validate_required_parameter(:order_id)
-
-# Negated usage
-expect(OptionalTask).not_to validate_required_parameter(:optional_field)
-```
-
-**How it works:** Calls the task without the parameter and ensures it fails with appropriate validation message.
-
-#### Type Validation
-
-```ruby
-# Test parameter type coercion validation
-expect(CreateUserTask).to validate_parameter_type(:age, :integer)
-expect(UpdateSettingsTask).to validate_parameter_type(:enabled, :boolean)
-expect(SearchTask).to validate_parameter_type(:filters, :hash)
-
-# Negated usage
-expect(FlexibleTask).not_to validate_parameter_type(:flexible_param, :string)
-```
-
-**How it works:** Passes invalid type values and ensures task fails with type validation message.
-
-#### Default Value Testing
-
-```ruby
-# Test parameter default values
-expect(ProcessTask).to use_default_value(:timeout, 30)
-expect(EmailTask).to use_default_value(:priority, "normal")
-expect(ConfigTask).to use_default_value(:enabled, true)
-
-# Negated usage
-expect(RequiredParamTask).not_to use_default_value(:required_field, nil)
-```
-
-**How it works:** Calls task without the parameter and verifies the expected default value appears in context.
-
-### Lifecycle and Structure Matchers
+### Structure and Lifecycle Matchers
 
 #### Well-Formed Task Validation
 
 ```ruby
 # Test task meets all structural requirements
 expect(MyTask).to be_well_formed_task
-expect(UserCreationTask).to be_well_formed_task
 
-# Negated usage (for malformed tasks)
-expect(BrokenTask).not_to be_well_formed_task
+# For dynamically created tasks
+task_class = Class.new(CMDx::Task) { def call; end }
+expect(task_class).to be_well_formed_task
 ```
 
 **What it validates:**
@@ -358,65 +307,60 @@ expect(BrokenTask).not_to be_well_formed_task
 - Implements required call method
 - Has properly initialized parameter, callback, and middleware registries
 
-### Exception Handling Matchers
+### Parameter Testing Matchers
 
-#### Graceful Exception Handling
-
-```ruby
-# Test task converts exceptions to failed results
-expect(RobustTask).to handle_exceptions_gracefully
-
-# Negated usage (for exception-propagating tasks)
-expect(StrictTask).not_to handle_exceptions_gracefully
-```
-
-**How it works:** Injects exception-raising logic and verifies exceptions are caught and converted to failed results.
-
-#### Bang Method Exception Propagation
+#### Parameter Presence and Configuration
 
 ```ruby
-# Test task propagates exceptions with call!
-expect(MyTask).to propagate_exceptions_with_bang
+# Basic parameter presence
+expect(CreateUserTask).to have_parameter(:email)
 
-# Negated usage (for always-graceful tasks)
-expect(AlwaysGracefulTask).not_to propagate_exceptions_with_bang
+# Parameter requirement validation
+expect(ProcessOrderTask).to have_parameter(:order_id).that_is_required
+expect(ConfigTask).to have_parameter(:timeout).that_is_optional
+
+# Type coercion validation
+expect(CreateUserTask).to have_parameter(:age).with_type(:integer)
+expect(UpdateSettingsTask).to have_parameter(:enabled).with_coercion(:boolean)
+
+# Default value testing
+expect(ProcessTask).to have_parameter(:timeout).with_default(30)
+expect(EmailTask).to have_parameter(:priority).with_default("normal")
+
+# Validation rules testing
+expect(UserTask).to have_parameter(:email)
+  .with_validations(:format, :presence)
+  .that_is_required
+  .with_type(:string)
 ```
 
-**How it works:** Tests that `call!` method propagates exceptions instead of handling them gracefully.
+> [!WARNING]
+> Parameter validation matchers test the configuration of parameters, not their runtime behavior. Use result matchers to test parameter validation failures during execution.
 
 ### Callback and Middleware Matchers
 
 #### Callback Registration Testing
 
 ```ruby
-# Test basic callback registration
+# Basic callback registration
 expect(ValidatedTask).to have_callback(:before_validation)
 expect(NotifiedTask).to have_callback(:on_success)
 expect(CleanupTask).to have_callback(:after_execution)
 
-# Test callback with specific callable
+# Callback with specific callable (if supported by implementation)
 expect(CustomTask).to have_callback(:on_failure).with_callable(my_proc)
-
-# Negated usage
-expect(SimpleTask).not_to have_callback(:complex_callback)
 ```
 
 #### Callback Execution Testing
 
 ```ruby
 # Test callbacks execute during task lifecycle
-expect(task).to execute_callbacks(:before_validation, :after_validation)
-expect(failed_task).to execute_callbacks(:before_execution, :on_failure)
-
-# Single callback execution
-expect(simple_task).to execute_callbacks(:on_success)
-
-# Negated usage
-expect(task).not_to execute_callbacks(:unused_callback)
+expect(task_instance).to have_executed_callbacks(:before_validation, :after_validation)
+expect(failed_task_instance).to have_executed_callbacks(:before_execution, :on_failure)
 ```
 
 > [!NOTE]
-> Callback execution testing may require mocking internal callback mechanisms for comprehensive validation.
+> Callback execution testing requires task instances rather than task classes and may require mocking internal callback mechanisms for comprehensive validation.
 
 #### Middleware Registration Testing
 
@@ -425,9 +369,6 @@ expect(task).not_to execute_callbacks(:unused_callback)
 expect(AuthenticatedTask).to have_middleware(AuthenticationMiddleware)
 expect(LoggedTask).to have_middleware(LoggingMiddleware)
 expect(TimedTask).to have_middleware(TimeoutMiddleware)
-
-# Negated usage
-expect(SimpleTask).not_to have_middleware(ComplexMiddleware)
 ```
 
 ### Configuration Matchers
@@ -442,9 +383,6 @@ expect(CustomTask).to have_cmd_setting(:priority)
 # Test setting with specific value
 expect(TimedTask).to have_cmd_setting(:timeout, 30)
 expect(PriorityTask).to have_cmd_setting(:priority, "high")
-
-# Negated usage
-expect(SimpleTask).not_to have_cmd_setting(:complex_setting)
 ```
 
 ## Composable Testing
@@ -458,13 +396,12 @@ Following RSpec best practices, CMDx matchers are designed for composition:
 expect(result).to be_successful_task(user_id: 123)
   .and have_context(processed_at: be_a(Time))
   .and have_runtime(be > 0)
-  .and belong_to_chain
+  .and have_chain_index(0)
 
 # Chain task validation expectations
 expect(TaskClass).to be_well_formed_task
-  .and validate_required_parameter(:user_id)
+  .and have_parameter(:user_id).that_is_required
   .and have_callback(:before_execution)
-  .and handle_exceptions_gracefully
 ```
 
 ### Integration with Built-in RSpec Matchers
@@ -472,16 +409,51 @@ expect(TaskClass).to be_well_formed_task
 ```ruby
 # Combine with built-in matchers
 expect(result).to be_failed_task
-  .with_metadata(error_code: "ERR001", retryable: be_falsy)
+  .with_metadata(error_code: match(/^ERR/), retryable: be_falsy)
   .and have_caused_failure
 
-# Use in complex scenarios
+# Complex context validation
 expect(result).to be_successful_task
   .and have_context(
     user: have_attributes(id: be_a(Integer), email: match(/@/)),
     timestamps: all(be_a(Time)),
     notifications: contain_exactly("email", "sms")
   )
+```
+
+## Error Handling
+
+### Invalid Matcher Usage
+
+Common error scenarios and their resolution:
+
+```ruby
+# Parameter not found
+expect(SimpleTask).to have_parameter(:nonexistent)
+# → "expected task to have parameter nonexistent, but had parameters: []"
+
+# Middleware not registered
+expect(SimpleTask).to have_middleware(ComplexMiddleware)
+# → "expected task to have middleware ComplexMiddleware, but had []"
+
+# Context mismatch
+expect(result).to have_context(user_id: 999)
+# → "expected context to include {user_id: 999}, but user_id: expected 999, got 123"
+```
+
+### Test Failures and Debugging
+
+```ruby
+# Use descriptive failure messages for debugging
+result = ProcessDataTask.call(data: "invalid")
+expect(result).to be_successful_task
+# → "expected result to be successful, but was failed,
+#    expected result to be complete, but was interrupted"
+
+# Combine matchers for comprehensive validation
+expect(result).to be_failed_task("validation_error")
+  .with_metadata(field: "email", rule: "format")
+# → Clear indication of what specifically failed
 ```
 
 ## Best Practices
@@ -495,7 +467,6 @@ expect(result).to be_successful_task(user_id: 123)
 
 **Instead of:**
 ```ruby
-expect(result).to be_a(CMDx::Result)
 expect(result).to be_success
 expect(result).to be_complete
 expect(result).to be_executed
@@ -510,7 +481,7 @@ Use composite matchers for primary assertions, granular matchers for specific ed
 # Primary assertion
 expect(result).to be_successful_task
 
-# Specific edge case validation
+# Specific validations
 expect(result).to have_runtime(be < 1.0)  # Performance requirement
 expect(result).to have_chain_index(0)     # Position validation
 ```
@@ -533,12 +504,12 @@ Matcher names are designed to read naturally in test descriptions:
 
 ```ruby
 describe ProcessOrderTask do
-  it "validates required parameters" do
-    expect(described_class).to validate_required_parameter(:order_id)
+  it "has required parameters configured" do
+    expect(described_class).to have_parameter(:order_id).that_is_required
   end
 
-  it "handles exceptions gracefully" do
-    expect(described_class).to handle_exceptions_gracefully
+  it "registers necessary callbacks" do
+    expect(described_class).to have_callback(:before_execution)
   end
 
   context "when processing succeeds" do
@@ -550,10 +521,33 @@ describe ProcessOrderTask do
         .and have_runtime(be_positive)
     end
   end
+
+  context "when validation fails" do
+    it "returns failed result with error details" do
+      result = described_class.call(order_id: nil)
+
+      expect(result).to be_failed_task("validation_failed")
+        .with_metadata(field: "order_id", rule: "presence")
+    end
+  end
 end
+```
+
+### 5. Test Both Happy and Error Paths
+
+```ruby
+# Happy path
+expect(result).to be_successful_task
+  .and have_good_outcome
+  .and have_empty_metadata
+
+# Error path
+expect(error_result).to be_failed_task
+  .and have_bad_outcome
+  .and have_metadata(error_code: be_present)
 ```
 
 ---
 
 - **Prev:** [Internationalization (i18n)](internationalization.md)
-- **Next:** [AI Prompts](ai_prompts.md)
+- **Next:** [Deprecation](deprecation.md)

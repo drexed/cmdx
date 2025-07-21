@@ -1,278 +1,333 @@
 # Parameters - Defaults
 
-Parameter defaults provide fallback values when arguments are not provided or
-resolve to `nil`. Defaults ensure tasks have sensible values for optional
-parameters while maintaining flexibility for callers to override when needed.
-Defaults work seamlessly with coercion, validation, and nested parameters.
+Parameter defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional parameters while maintaining flexibility for callers to override when needed.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
-- [Default Value Fundamentals](#default-value-fundamentals)
-  - [Fixed Value Defaults](#fixed-value-defaults)
-  - [Callable Defaults](#callable-defaults)
-- [Defaults with Type Coercion](#defaults-with-type-coercion)
-- [Defaults with Validation](#defaults-with-validation)
+- [Default Fundamentals](#default-fundamentals)
+- [Dynamic Defaults](#dynamic-defaults)
+- [Defaults with Coercion and Validation](#defaults-with-coercion-and-validation)
 - [Nested Parameter Defaults](#nested-parameter-defaults)
+- [Error Handling](#error-handling)
 
 ## TLDR
 
-- **Defaults** - Provide fallback values when parameters not provided or are `nil`
-- **Fixed values** - `default: "normal"`, `default: true`, `default: []`
-- **Dynamic values** - `default: -> { Time.now }`, `default: :method_name` for callable defaults
-- **With coercion** - Defaults are subject to same type coercion as provided values
-- **With validation** - Defaults must pass same validation rules as provided values
+```ruby
+# Fixed defaults
+optional :priority, default: "normal"
+optional :retries, type: :integer, default: 3
+optional :tags, type: :array, default: []
 
-## Default Value Fundamentals
+# Dynamic defaults
+optional :created_at, default: -> { Time.now }
+optional :template, default: :determine_template
+
+# With coercion - defaults are coerced too
+optional :max_items, type: :integer, default: "50"  # → 50
+
+# Nested defaults
+optional :config, type: :hash, default: {} do
+  optional :timeout, default: 30
+end
+```
+
+## Default Fundamentals
 
 > [!NOTE]
-> Defaults are specified using the `:default` option and are applied when a parameter value resolves to `nil`. This includes cases where optional parameters are not provided in call arguments or when source objects return `nil` values.
-
-### Fixed Value Defaults
-
-The simplest defaults use fixed values that are applied consistently:
+> Defaults apply when parameters are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested parameters.
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
+  required :order_id, type: :integer
 
-  required :user_id, type: :integer
-  optional :priority, type: :string, default: "normal"
-  optional :send_confirmation, type: :boolean, default: true
+  # Fixed value defaults
+  optional :priority, default: "standard"
+  optional :send_email, type: :boolean, default: true
   optional :max_retries, type: :integer, default: 3
-
-  optional :notification_tags, type: :array, default: []
-  optional :order_metadata, type: :hash, default: {}
-  optional :created_at, type: :datetime, default: -> { Time.now }
+  optional :tags, type: :array, default: []
+  optional :metadata, type: :hash, default: {}
 
   def call
-    user_id            #=> provided value (required)
-    priority           #=> "normal" if not provided
-    send_confirmation  #=> true if not provided
-    max_retries        #=> 3 if not provided
-    notification_tags  #=> [] if not provided
-    order_metadata     #=> {} if not provided
-    created_at         #=> current time if not provided
+    # Defaults used when parameters not provided
+    process_order_with_priority(priority)     # "standard"
+    send_notification if send_email           # true
+    retry_failed_steps(max_retries)          # 3
   end
-
 end
 
-# Defaults applied for missing parameters
-ProcessUserOrderTask.call(user_id: 12345)
-# priority: "normal", send_confirmation: true, max_retries: 3, etc.
+# Using defaults
+ProcessOrderTask.call(order_id: 123)
+# priority: "standard", send_email: true, max_retries: 3
 
-# Explicit values override defaults
-ProcessUserOrderTask.call(
-  user_id: 12345,
+# Overriding defaults
+ProcessOrderTask.call(
+  order_id: 123,
   priority: "urgent",
-  send_confirmation: false,
-  notification_tags: ["rush_order"]
+  send_email: false,
+  tags: ["rush"]
 )
 ```
 
-### Callable Defaults
+## Dynamic Defaults
 
 > [!TIP]
-> Use procs, lambdas, or method symbols for dynamic defaults that are evaluated at parameter resolution time. This is especially useful for timestamps, UUIDs, and context-dependent values.
+> Use procs, lambdas, or method symbols for dynamic defaults evaluated at runtime. Essential for timestamps, UUIDs, and context-dependent values.
 
 ```ruby
-class SendOrderNotificationTask < CMDx::Task
+class SendNotificationTask < CMDx::Task
+  required :user_id, type: :integer
+  required :message, type: :string
 
-  required :order_id, type: :integer
-
-  # Dynamic defaults using procs
+  # Proc defaults - evaluated when accessed
   optional :sent_at, type: :datetime, default: -> { Time.now }
-  optional :tracking_id, type: :string, default: -> { SecureRandom.uuid }
+  optional :tracking_id, default: -> { SecureRandom.uuid }
 
   # Environment-aware defaults
-  optional :notification_service, type: :string, default: -> { Rails.env.production? ? "sendgrid" : "mock" }
-  optional :sender_email, type: :string, default: -> { Rails.application.credentials.sender_email }
+  optional :service, default: -> { Rails.env.production? ? "sendgrid" : "test" }
 
   # Method symbol defaults
-  optional :template_name, type: :string, default: :determine_template
-  optional :delivery_time, type: :datetime, default: :calculate_delivery_window
+  optional :template, default: :default_template
+  optional :priority, default: :calculate_priority
 
   def call
-    sent_at              #=> current time when accessed
-    tracking_id          #=> unique UUID when accessed
-    notification_service #=> production or test service
-    sender_email         #=> configured sender email
-    template_name        #=> result of determine_template method
-    delivery_time        #=> result of calculate_delivery_window method
+    notification = {
+      message: message,
+      sent_at: sent_at,          # Current time when accessed
+      tracking_id: tracking_id,  # Unique UUID when accessed
+      template: template,        # Result of default_template method
+      priority: priority         # Result of calculate_priority method
+    }
+
+    NotificationService.send(notification, service: service)
   end
 
   private
 
-  def determine_template
-    order.priority == "urgent" ? "urgent_order" : "standard_order"
+  def default_template
+    user.premium? ? "premium_notification" : "standard_notification"
   end
 
-  def calculate_delivery_window
-    order.priority == "urgent" ? 15.minutes.from_now : 1.hour.from_now
+  def calculate_priority
+    user.vip? ? "high" : "normal"
   end
 
-  def order
-    @order ||= Order.find(order_id)
+  def user
+    @user ||= User.find(user_id)
   end
-
 end
 ```
 
-## Defaults with Type Coercion
+## Defaults with Coercion and Validation
 
 > [!IMPORTANT]
-> Defaults work seamlessly with type coercion, with the default value being subject to the same coercion rules as provided values.
+> Defaults are subject to the same coercion and validation rules as provided values, ensuring consistency and catching configuration errors early.
+
+### Coercion with Defaults
 
 ```ruby
-class ConfigureOrderSettingsTask < CMDx::Task
-
-  # String defaults coerced to integers
-  optional :max_items, type: :integer, default: "50"
-
-  # JSON string defaults coerced to hash
-  optional :shipping_config, type: :hash, default: '{"carrier": "ups", "speed": "standard"}'
-
-  # String defaults coerced to arrays
-  optional :allowed_countries, type: :array, default: '["US", "CA", "UK"]'
-
-  # String defaults coerced to booleans
-  optional :require_signature, type: :boolean, default: "true"
-
-  # String defaults coerced to dates
-  optional :embargo_date, type: :date, default: "2024-01-01"
+class ConfigureServiceTask < CMDx::Task
+  # String defaults coerced to target types
+  optional :max_connections, type: :integer, default: "100"
+  optional :config, type: :hash, default: '{"timeout": 30}'
+  optional :allowed_hosts, type: :array, default: '["localhost"]'
+  optional :debug_mode, type: :boolean, default: "false"
 
   # Dynamic defaults with coercion
-  optional :order_number, type: :string, default: -> { Time.now.to_i }
+  optional :session_id, type: :string, default: -> { Time.now.to_i }
 
   def call
-    max_items         #=> 50 (integer)
-    shipping_config   #=> {"carrier" => "ups", "speed" => "standard"} (hash)
-    allowed_countries #=> ["US", "CA", "UK"] (array)
-    require_signature #=> true (boolean)
-    embargo_date      #=> Date object
-    order_number      #=> "1640995200" (string from integer)
+    max_connections  # → 100 (Integer from "100")
+    config          # → {"timeout" => 30} (Hash from JSON)
+    allowed_hosts   # → ["localhost"] (Array from JSON)
+    debug_mode      # → false (Boolean from "false")
+    session_id      # → "1640995200" (String from Integer)
   end
-
 end
 ```
 
-## Defaults with Validation
-
-> [!WARNING]
-> Default values are subject to the same validation rules as provided values, ensuring consistency and catching configuration errors early.
+### Validation with Defaults
 
 ```ruby
-class ValidateOrderPriorityTask < CMDx::Task
+class ScheduleTaskTask < CMDx::Task
+  required :task_name, type: :string
 
-  required :order_id, type: :integer
+  # Default must pass validation rules
+  optional :priority, default: "medium",
+    inclusion: { in: %w[low medium high urgent] }
 
-  # Default must pass inclusion validation
-  optional :priority, type: :string, default: "standard",
-    inclusion: { in: %w[low standard high urgent] }
-
-  # Numeric default with range validation
-  optional :processing_timeout, type: :integer, default: 300,
+  optional :timeout, type: :integer, default: 300,
     numeric: { min: 60, max: 3600 }
 
-  # Email default with format validation
-  optional :escalation_email, type: :string,
-    default: -> { "support@#{Rails.application.config.domain}" },
-    format: { with: /@/ }
-
-  # Custom validation with default
-  optional :approval_code, type: :string, default: :generate_approval_code,
-    presence: true
+  optional :retry_count, type: :integer, default: 3,
+    numeric: { min: 0, max: 10 }
 
   def call
-    priority           #=> "standard" (validated against inclusion list)
-    processing_timeout #=> 300 (validated within range)
-    escalation_email   #=> support email (validated format)
-    approval_code      #=> generated code (custom validated)
+    # All defaults validated against their rules
+    schedule_task(task_name, priority: priority, timeout: timeout)
   end
-
-  private
-
-  def generate_approval_code
-    "APV_#{SecureRandom.hex(8).upcase}"
-  end
-
 end
+
+# Invalid default would cause validation error
+# optional :priority, default: "invalid", inclusion: { in: %w[low medium high] }
+# → CMDx::ValidationError: priority invalid is not included in the list
 ```
 
 ## Nested Parameter Defaults
 
 ```ruby
-class ProcessOrderShippingTask < CMDx::Task
+class ProcessPaymentTask < CMDx::Task
+  required :amount, type: :float
+  required :user_id, type: :integer
 
-  required :order_id, type: :integer
+  # Nested structure with defaults at multiple levels
+  optional :payment_config, type: :hash, default: {} do
+    optional :method, default: "credit_card"
+    optional :currency, default: "USD"
+    optional :require_cvv, type: :boolean, default: true
 
-  # Parent parameter with default
-  optional :shipping_details, type: :hash, default: {} do
-    optional :carrier, type: :string, default: "fedex"
-    optional :expedited, type: :boolean, default: false
-    optional :insurance_required, type: :boolean, default: -> { order_value > 500 }
-
-    optional :delivery_address, type: :hash, default: -> { customer_default_address } do
-      optional :country, type: :string, default: "US"
-      optional :state, type: :string, default: -> { determine_default_state }
-      optional :requires_appointment, type: :boolean, default: false
+    optional :billing_address, type: :hash, default: -> { user_default_address } do
+      optional :country, default: "US"
+      optional :state, default: -> { user_default_state }
     end
-  end
 
-  # Complex nested defaults
-  optional :notification_preferences, type: :hash, default: -> { customer_notification_defaults } do
-    optional :email_updates, type: :boolean, default: true
-    optional :sms_updates, type: :boolean, default: false
-
-    optional :delivery_window, type: :hash, default: {} do
-      optional :preferred_time, type: :string, default: "anytime"
-      optional :weekend_delivery, type: :boolean, default: false
+    optional :notification_settings, type: :hash, default: {} do
+      optional :send_receipt, type: :boolean, default: true
+      optional :send_sms, type: :boolean, default: false
     end
   end
 
   def call
-    # Parent defaults applied when not provided
-    shipping_details         #=> {} if not provided
-    notification_preferences #=> customer defaults if not provided
-
-    # Child defaults (when parent exists)
-    carrier                  #=> "fedex"
-    expedited                #=> false
-    insurance_required       #=> true if order > $500
-    country                  #=> "US"
-    state                    #=> determined by logic
-    email_updates            #=> true
-    preferred_time           #=> "anytime"
-    weekend_delivery         #=> false
+    # Process payment with defaults applied at each level
+    PaymentProcessor.charge(
+      amount: amount,
+      method: payment_config[:method],          # "credit_card"
+      currency: payment_config[:currency],      # "USD"
+      billing_address: payment_config[:billing_address],
+      notifications: payment_config[:notification_settings]
+    )
   end
 
   private
 
-  def order
-    @order ||= Order.find(order_id)
+  def user
+    @user ||= User.find(user_id)
   end
 
-  def order_value
-    order.total_amount
+  def user_default_address
+    user.billing_address&.to_hash || {}
   end
 
-  def customer_default_address
-    order.customer.default_shipping_address&.to_hash || {}
+  def user_default_state
+    user.billing_address&.state || "CA"
+  end
+end
+
+# Usage with nested defaults
+ProcessPaymentTask.call(amount: 99.99, user_id: 123)
+# payment_config automatically gets:
+# {
+#   method: "credit_card",
+#   currency: "USD",
+#   require_cvv: true,
+#   billing_address: { country: "US", state: "CA" },
+#   notification_settings: { send_receipt: true, send_sms: false }
+# }
+```
+
+## Error Handling
+
+> [!WARNING]
+> Default values that fail coercion or validation will cause task execution to fail with detailed error information.
+
+### Validation Errors with Defaults
+
+```ruby
+class BadDefaultsTask < CMDx::Task
+  # This default will fail validation
+  optional :priority, default: "invalid",
+    inclusion: { in: %w[low medium high] }
+
+  # This default will fail coercion
+  optional :count, type: :integer, default: "not-a-number"
+
+  def call
+    # Won't reach here due to validation/coercion failures
+  end
+end
+
+result = BadDefaultsTask.call
+result.failed?  # → true
+result.metadata
+# {
+#   reason: "priority invalid is not included in the list. count could not coerce into an integer.",
+#   messages: {
+#     priority: ["invalid is not included in the list"],
+#     count: ["could not coerce into an integer"]
+#   }
+# }
+```
+
+### Dynamic Default Errors
+
+```ruby
+class ProblematicDefaultsTask < CMDx::Task
+  # Method that might raise an error
+  optional :config, default: :load_external_config
+
+  # Proc that might fail
+  optional :api_key, default: -> { fetch_api_key_from_vault }
+
+  def call
+    # Task logic
   end
 
-  def determine_default_state
-    order.customer.billing_address&.state || "CA"
+  private
+
+  def load_external_config
+    # This might raise if external service is down
+    ExternalConfigService.fetch_config
+  rescue => e
+    raise CMDx::Error, "Failed to load default config: #{e.message}"
   end
 
-  def customer_notification_defaults
-    prefs = order.customer.notification_preferences
-    {
-      email_updates: prefs.email_enabled?,
-      sms_updates: prefs.sms_enabled?
-    }
+  def fetch_api_key_from_vault
+    # This might raise if vault is unavailable
+    VaultService.get_secret("api_key")
+  rescue => e
+    raise CMDx::Error, "Failed to fetch default API key: #{e.message}"
   end
-
 end
 ```
+
+### Nil vs Missing Parameters
+
+```ruby
+class NilHandlingTask < CMDx::Task
+  optional :status, default: "active"
+  optional :tags, type: :array, default: []
+
+  def call
+    status  # Default applied based on input
+    tags    # Default applied based on input
+  end
+end
+
+# Missing parameters use defaults
+NilHandlingTask.call
+# status: "active", tags: []
+
+# Explicitly nil parameters also use defaults
+NilHandlingTask.call(status: nil, tags: nil)
+# status: "active", tags: []
+
+# Empty string is NOT nil - no default applied
+NilHandlingTask.call(status: "", tags: "")
+# status: "", tags: "" (string, not array - may cause coercion error)
+```
+
+> [!TIP]
+> Defaults only apply to `nil` values. Empty strings, empty arrays, or false values are considered valid inputs and won't trigger defaults.
 
 ---
 

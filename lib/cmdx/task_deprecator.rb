@@ -1,52 +1,49 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Handles deprecation checking for CMDx tasks.
+  # Task deprecation system for CMDx tasks.
   #
-  # This module provides functionality to check if a task is marked as deprecated
-  # and raise appropriate errors when deprecated tasks are instantiated. It integrates
-  # with the task lifecycle to prevent usage of deprecated functionality.
+  # This module provides a centralized system for handling task deprecation
+  # warnings and errors. It supports multiple deprecation modes including
+  # raising exceptions, logging warnings, or issuing Ruby warnings based
+  # on task configuration settings.
   module TaskDeprecator
 
     module_function
 
-    # Checks deprecation status of a task and handles it according to the configured behavior.
+    # Processes task deprecation based on the task's deprecated setting.
     #
-    # This method examines the task's deprecation setting and takes appropriate action:
-    # - :raise - raises DeprecationError to prevent task execution
-    # - :warn - issues Ruby deprecation warning
-    # - :log or true - logs deprecation warning
-    # - nil or false - allows task execution without warnings
-    #
-    # @param task [Task] the task instance to check for deprecation
-    #
+    # @param task [CMDx::Task] the task instance to check for deprecation
     # @return [void]
+    # @raise [DeprecationError] when task's deprecated setting is :error
     #
-    # @raise [DeprecationError] when task is marked with deprecated: :raise
-    #
-    # @example Task with raise deprecation setting
+    # @example Handle task with raise deprecation
     #   class MyTask < CMDx::Task
-    #     cmd_settings! deprecated: :raise
+    #     cmd_setting!(deprecated: :error)
     #   end
-    #   CMDx::TaskDeprecator.call(MyTask.new) # raises DeprecationError
+    #   task = MyTask.new
+    #   TaskDeprecator.call(task) # raises DeprecationError
     #
-    # @example Task with a proc deprecation setting
+    # @example Handle task with log deprecation
     #   class MyTask < CMDx::Task
-    #     cmd_settings! deprecated: -> { Time.now.year > 2025 ? :raise : :log }
+    #     cmd_setting!(deprecated: :log)
     #   end
-    #   CMDx::TaskDeprecator.call(MyTask.new) # issues warnings
+    #   task = MyTask.new
+    #   TaskDeprecator.call(task) # logs warning via task.logger
     #
-    # @example Task with no deprecation setting
+    # @example Handle task with warn deprecation
     #   class MyTask < CMDx::Task
+    #     cmd_setting!(deprecated: :warning)
     #   end
-    #   CMDx::TaskDeprecator.call(MyTask.new) # no action taken
+    #   task = MyTask.new
+    #   TaskDeprecator.call(task) # issues Ruby warning
     def call(task)
       case task.cmd_setting(:deprecated)
-      when :raise
+      when :error
         raise(DeprecationError, "#{task.class.name} usage prohibited")
       when :log, true
         task.logger.warn { "DEPRECATED: migrate to replacement or discontinue use" }
-      when :warn
+      when :warning
         warn("[#{task.class.name}] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
       end
     end

@@ -35,7 +35,7 @@ module CMDx
       #
       # @example Valid exclusion
       #   Validators::Exclusion.call("user", exclusion: { in: ["admin", "root"] })
-      #   # => nil (no error raised)
+      #   #=> nil (no error raised)
       #
       # @example Using a custom message
       #   Validators::Exclusion.call("admin", exclusion: { in: ["admin", "root"], message: "Reserved username not allowed" })

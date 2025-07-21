@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Error collection and validation system for CMDx tasks.
-  #
-  # This class manages error messages associated with specific attributes,
-  # providing a flexible API for adding, querying, and formatting validation
-  # errors. It supports both individual error messages and collections of
-  # errors per attribute, with various convenience methods for error handling
-  # and display.
+  # Container for collecting and managing validation and execution errors by attribute.
+  # Provides a comprehensive API for adding, querying, and formatting error messages
+  # with support for multiple errors per attribute and various output formats.
   class Errors
 
     cmdx_attr_delegator :clear, :delete, :empty?, :key?, :keys, :size, :values,
@@ -31,42 +27,34 @@ module CMDx
     # Alias for {#key?}. Checks if an attribute has error messages.
     alias include? key?
 
-    # Creates a new error collection with an empty internal hash.
+    # Creates a new empty errors collection.
     #
-    # @return [Errors] the newly created error collection
+    # @return [Errors] a new errors instance with empty internal hash
     #
-    # @example Create a new error collection
+    # @example Create new errors collection
     #   errors = CMDx::Errors.new
     #   errors.empty? # => true
     def initialize
       @errors = {}
     end
 
-    # Adds an error message to the specified attribute.
-    #
-    # If the attribute already has errors, the new message is appended to the
-    # existing array. Duplicate messages are automatically removed to ensure
-    # each error message appears only once per attribute.
+    # Adds an error message to the specified attribute. Automatically handles
+    # array initialization and prevents duplicate messages for the same attribute.
     #
     # @param key [Symbol, String] the attribute name to associate the error with
-    # @param value [String] the error message to add
+    # @param value [String, Object] the error message or error object to add
     #
-    # @return [Array<String>] the array of error messages for the attribute
+    # @return [Array] the updated array of error messages for the attribute
     #
-    # @example Add an error to an attribute
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
-    #   errors[:name] # => ["is required"]
+    # @example Add error to attribute
+    #   errors.add(:name, "can't be blank")
+    #   errors.add(:name, "is too short")
+    #   errors.messages_for(:name) # => ["can't be blank", "is too short"]
     #
-    # @example Add multiple errors to the same attribute
-    #   errors.add(:email, "is required")
-    #   errors.add(:email, "must be valid")
-    #   errors[:email] # => ["is required", "must be valid"]
-    #
-    # @example Duplicate errors are automatically removed
-    #   errors.add(:age, "must be positive")
-    #   errors.add(:age, "must be positive")
-    #   errors[:age] # => ["must be positive"]
+    # @example Prevent duplicate errors
+    #   errors.add(:email, "is invalid")
+    #   errors.add(:email, "is invalid")
+    #   errors.messages_for(:email) # => ["is invalid"]
     def add(key, value)
       errors[key] ||= []
       errors[key] << value
@@ -77,18 +65,17 @@ module CMDx
     # Checks if a specific error message has been added to an attribute.
     #
     # @param key [Symbol, String] the attribute name to check
-    # @param val [String] the error message to look for
+    # @param val [String, Object] the error message to look for
     #
-    # @return [Boolean] true if the specific error message exists for the attribute
+    # @return [Boolean] true if the error exists for the attribute, false otherwise
     #
-    # @example Check if a specific error exists
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
-    #   errors.added?(:name, "is required") # => true
+    # @example Check for specific error
+    #   errors.add(:name, "can't be blank")
+    #   errors.added?(:name, "can't be blank") # => true
     #   errors.added?(:name, "is invalid") # => false
     #
-    # @example Check error on attribute without errors
-    #   errors.added?(:missing, "any error") # => false
+    # @example Check non-existent attribute
+    #   errors.added?(:nonexistent, "error") # => false
     def added?(key, val)
       return false unless key?(key)
 
@@ -96,19 +83,20 @@ module CMDx
     end
     alias of_kind? added?
 
-    # Iterates over all error messages, yielding the attribute and message.
+    # Iterates over each error, yielding the attribute name and error message.
     #
-    # @yield [Symbol, String] the attribute name and error message
+    # @yield [key, value] gives the attribute name and error message for each error
+    # @yieldparam key [Symbol, String] the attribute name
+    # @yieldparam value [String, Object] the error message
     #
-    # @return [void]
+    # @return [Hash] the errors hash when no block given
     #
     # @example Iterate over all errors
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    #   errors.add(:name, "can't be blank")
     #   errors.add(:email, "is invalid")
     #   errors.each { |attr, msg| puts "#{attr}: #{msg}" }
     #   # Output:
-    #   # name: is required
+    #   # name: can't be blank
     #   # email: is invalid
     def each
       errors.each_key do |key|
@@ -116,35 +104,30 @@ module CMDx
       end
     end
 
-    # Formats an attribute and error message into a full error message.
+    # Formats an error message by combining the attribute name and error value.
     #
     # @param key [Symbol, String] the attribute name
-    # @param value [String] the error message
+    # @param value [String, Object] the error message
     #
     # @return [String] the formatted full error message
     #
-    # @example Format a full error message
-    #   errors = CMDx::Errors.new
-    #   errors.full_message(:name, "is required") # => "name is required"
-    #
-    # @example Format with different attribute types
-    #   errors.full_message("email", "must be valid") # => "email must be valid"
+    # @example Format error message
+    #   errors.full_message(:name, "can't be blank") # => "name can't be blank"
+    #   errors.full_message(:email, "is invalid") # => "email is invalid"
     def full_message(key, value)
       "#{key} #{value}"
     end
 
-    # Returns an array of all full error messages across all attributes.
+    # Returns all error messages formatted with their attribute names.
     #
     # @return [Array<String>] array of formatted error messages
     #
-    # @example Get all full error messages
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    # @example Get all formatted messages
+    #   errors.add(:name, "can't be blank")
     #   errors.add(:email, "is invalid")
-    #   errors.full_messages # => ["name is required", "email is invalid"]
+    #   errors.full_messages # => ["name can't be blank", "email is invalid"]
     #
-    # @example Empty errors return empty array
-    #   errors = CMDx::Errors.new
+    # @example Empty errors collection
     #   errors.full_messages # => []
     def full_messages
       errors.each_with_object([]) do |(key, arr), memo|
@@ -153,89 +136,80 @@ module CMDx
     end
     alias to_a full_messages
 
-    # Returns full error messages for a specific attribute.
+    # Returns formatted error messages for a specific attribute.
     #
     # @param key [Symbol, String] the attribute name to get messages for
     #
     # @return [Array<String>] array of formatted error messages for the attribute
     #
-    # @example Get full messages for a specific attribute
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    # @example Get messages for existing attribute
+    #   errors.add(:name, "can't be blank")
     #   errors.add(:name, "is too short")
-    #   errors.full_messages_for(:name) # => ["name is required", "name is too short"]
+    #   errors.full_messages_for(:name) # => ["name can't be blank", "name is too short"]
     #
-    # @example Get messages for attribute without errors
-    #   errors.full_messages_for(:missing) # => []
+    # @example Get messages for non-existent attribute
+    #   errors.full_messages_for(:nonexistent) # => []
     def full_messages_for(key)
       return [] unless key?(key)
 
       errors[key].map { |val| full_message(key, val) }
     end
 
-    # Checks if the error collection contains any errors.
+    # Checks if the errors collection contains any validation errors.
     #
-    # @return [Boolean] true if there are any errors present
+    # @return [Boolean] true if there are any errors present, false otherwise
     #
-    # @example Check if errors are present
-    #   errors = CMDx::Errors.new
-    #   errors.invalid? # => false
-    #   errors.add(:name, "is required")
+    # @example Check invalid state
+    #   errors.add(:name, "can't be blank")
     #   errors.invalid? # => true
+    #
+    # @example Check valid state
+    #   errors.invalid? # => false
     def invalid?
       !valid?
     end
 
-    # Maps over all error messages, yielding the attribute and message to a block.
+    # Transforms each error using the provided block and returns results as an array.
     #
-    # Similar to {#each}, but returns an array of the block's return values
-    # instead of iterating without collecting results.
+    # @yield [key, value] gives the attribute name and error message for transformation
+    # @yieldparam key [Symbol, String] the attribute name
+    # @yieldparam value [String, Object] the error message
+    # @yieldreturn [Object] the transformed value to include in result array
     #
-    # @yield [Symbol, String] the attribute name and error message
-    # @yieldreturn [Object] the transformed value for each error message
+    # @return [Array] array of transformed error values
     #
-    # @return [Array<Object>] array of transformed values from the block
-    #
-    # @example Transform error messages to a custom format
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    # @example Transform errors to uppercase messages
+    #   errors.add(:name, "can't be blank")
     #   errors.add(:email, "is invalid")
-    #   result = errors.map { |attr, msg| "#{attr.upcase}: #{msg}" }
-    #   result # => ["NAME: is required", "EMAIL: is invalid"]
+    #   errors.map { |attr, msg| msg.upcase } # => ["CAN'T BE BLANK", "IS INVALID"]
     #
-    # @example Extract only attribute names with errors
-    #   errors.map { |attr, _msg| attr } # => [:name, :email]
-    #
-    # @example Return empty array for no errors
-    #   empty_errors = CMDx::Errors.new
-    #   empty_errors.map { |attr, msg| [attr, msg] } # => []
+    # @example Create custom error objects
+    #   errors.map { |attr, msg| { attribute: attr, message: msg } }
+    #   # => [{ attribute: :name, message: "can't be blank" }]
     def map
       errors.each_with_object([]) do |(key, _arr), memo|
         memo.concat(errors[key].map { |val| yield(key, val) })
       end
     end
 
-    # Merges another hash of errors into this collection.
+    # Merges another errors hash into this collection, combining arrays for duplicate keys.
     #
-    # When the same attribute exists in both collections, the error arrays
-    # are combined and duplicates are removed.
+    # @param hash [Hash] hash of errors to merge, with attribute keys and message arrays as values
     #
-    # @param hash [Hash] hash of errors to merge, with attribute names as keys
+    # @return [Hash] the updated internal errors hash
     #
-    # @return [Hash] the merged errors hash
-    #
-    # @example Merge errors from another hash
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    # @example Merge additional errors
+    #   errors.add(:name, "can't be blank")
     #   other_errors = { email: ["is invalid"], name: ["is too short"] }
     #   errors.merge!(other_errors)
-    #   errors[:name] # => ["is required", "is too short"]
-    #   errors[:email] # => ["is invalid"]
+    #   errors.messages_for(:name) # => ["can't be blank", "is too short"]
+    #   errors.messages_for(:email) # => ["is invalid"]
     #
-    # @example Merge with duplicate errors
-    #   errors.add(:age, "must be positive")
-    #   errors.merge!(age: ["must be positive", "must be an integer"])
-    #   errors[:age] # => ["must be positive", "must be an integer"]
+    # @example Merge with duplicate prevention
+    #   errors.add(:name, "can't be blank")
+    #   duplicate_errors = { name: ["can't be blank", "is required"] }
+    #   errors.merge!(duplicate_errors)
+    #   errors.messages_for(:name) # => ["can't be blank", "is required"]
     def merge!(hash)
       errors.merge!(hash) do |_, arr1, arr2|
         arr3 = arr1 + arr2
@@ -244,20 +218,19 @@ module CMDx
       end
     end
 
-    # Returns the raw error messages for a specific attribute.
+    # Returns the raw error messages for a specific attribute without formatting.
     #
     # @param key [Symbol, String] the attribute name to get messages for
     #
-    # @return [Array<String>] array of raw error messages for the attribute
+    # @return [Array] array of raw error messages for the attribute
     #
-    # @example Get raw messages for an attribute
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
+    # @example Get raw messages for existing attribute
+    #   errors.add(:name, "can't be blank")
     #   errors.add(:name, "is too short")
-    #   errors.messages_for(:name) # => ["is required", "is too short"]
+    #   errors.messages_for(:name) # => ["can't be blank", "is too short"]
     #
-    # @example Get messages for attribute without errors
-    #   errors.messages_for(:missing) # => []
+    # @example Get messages for non-existent attribute
+    #   errors.messages_for(:nonexistent) # => []
     def messages_for(key)
       return [] unless key?(key)
 
@@ -265,35 +238,36 @@ module CMDx
     end
     alias [] messages_for
 
-    # Checks if the error collection contains any errors.
+    # Checks if the errors collection contains any validation errors.
     #
-    # @return [Boolean] true if there are any errors present
+    # @return [Boolean] true if there are any errors present, false otherwise
     #
-    # @example Check if errors are present
-    #   errors = CMDx::Errors.new
-    #   errors.present? # => false
-    #   errors.add(:name, "is required")
+    # @example Check for errors presence
+    #   errors.add(:name, "can't be blank")
     #   errors.present? # => true
+    #
+    # @example Check empty collection
+    #   errors.present? # => false
     def present?
       !blank?
     end
 
-    # Converts the error collection to a hash representation.
+    # Converts the errors collection to a hash format, optionally with full formatted messages.
     #
-    # @param full_messages [Boolean] whether to include full formatted messages
+    # @param full_messages [Boolean] whether to format messages with attribute names
     #
     # @return [Hash] hash representation of errors
+    # @option return [Array<String>] attribute_name array of error messages (raw or formatted)
     #
-    # @example Get raw error messages hash
-    #   errors = CMDx::Errors.new
-    #   errors.add(:name, "is required")
-    #   errors.to_hash # => { name: ["is required"] }
+    # @example Get raw errors hash
+    #   errors.add(:name, "can't be blank")
+    #   errors.add(:email, "is invalid")
+    #   errors.to_hash # => { :name => ["can't be blank"], :email => ["is invalid"] }
     #
-    # @example Get full formatted messages hash
-    #   errors.to_hash(true) # => { name: ["name is required"] }
+    # @example Get formatted errors hash
+    #   errors.to_hash(true) # => { :name => ["name can't be blank"], :email => ["email is invalid"] }
     #
-    # @example Empty errors return empty hash
-    #   errors = CMDx::Errors.new
+    # @example Empty errors collection
     #   errors.to_hash # => {}
     def to_hash(full_messages = false)
       return errors unless full_messages

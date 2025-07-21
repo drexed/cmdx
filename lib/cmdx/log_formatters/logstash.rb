@@ -24,7 +24,7 @@ module CMDx
       # @example Formatting a log entry
       #   formatter = CMDx::LogFormatters::Logstash.new
       #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   # => "{\"severity\":\"INFO\",\"pid\":12345,\"@version\":\"1\",\"@timestamp\":\"2024-01-01T12:00:00.000Z\",\"message\":\"Task completed\"}\n"
+      #   #=> "{\"severity\":\"INFO\",\"pid\":12345,\"@version\":\"1\",\"@timestamp\":\"2024-01-01T12:00:00.000Z\",\"message\":\"Task completed\"}\n"
       def call(severity, time, task, message)
         m = LoggerSerializer.call(severity, time, task, message).merge!(
           severity:,

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Parameter inspection and formatting utilities for readable parameter representation.
+  # Provides formatted inspection and display functionality for parameter objects.
   #
-  # This module provides functionality to format parameter metadata into human-readable
-  # strings for debugging, logging, and introspection purposes. It handles nested
-  # parameter structures with proper indentation and displays essential parameter
-  # information in a structured format.
+  # This module formats parameter information into human-readable string representations,
+  # including nested parameter structures with proper indentation. It processes parameter
+  # hashes in a consistent order and handles child parameter relationships for complex
+  # parameter hierarchies.
   module ParameterInspector
 
     ORDERED_KEYS = %i[
@@ -15,30 +15,43 @@ module CMDx
 
     module_function
 
-    # Formats a parameter hash into a human-readable string representation.
+    # Formats a parameter hash into a human-readable inspection string.
     #
-    # This method converts parameter metadata into a structured string format
-    # that displays key parameter information in a consistent order. For parameters
-    # with nested children, it recursively formats child parameters with proper
-    # indentation to show the hierarchical structure.
+    # Creates a formatted string representation of parameter information,
+    # displaying attributes in a consistent order with proper indentation
+    # for nested child parameters. The method recursively processes child
+    # parameters with increased indentation depth for visual hierarchy.
     #
     # @param parameter [Hash] the parameter hash to format
-    # @param depth [Integer] the current nesting depth for indentation (default: 1)
+    # @option parameter [Symbol, String] :name the parameter name
+    # @option parameter [Symbol, Array<Symbol>] :type the parameter type(s)
+    # @option parameter [Symbol] :source the parameter source context
+    # @option parameter [Boolean] :required whether the parameter is required
+    # @option parameter [Hash] :options additional parameter configuration options
+    # @option parameter [Array<Hash>] :children nested child parameter definitions
+    # @param depth [Integer] the indentation depth for nested parameters (defaults to 1)
     #
-    # @return [String] a formatted string representation of the parameter
+    # @return [String] formatted multi-line string representation of the parameter
     #
-    # @example Format a parameter with nested children
-    #   param = {
-    #     name: :user, type: :hash, source: :context, required: false, options: {},
+    # @example Format a simple parameter
+    #   parameter = { name: :user_id, type: :integer, required: true }
+    #   ParameterInspector.call(parameter)
+    #   #=> "Parameter: name=user_id type=integer required=true"
+    #
+    # @example Format a parameter with children
+    #   parameter = {
+    #     name: :payment,
+    #     type: :hash,
+    #     required: true,
     #     children: [
-    #       { name: :name, type: :string, source: :user, required: true, options: {}, children: [] },
-    #       { name: :age, type: :integer, source: :user, required: false, options: {}, children: [] }
+    #       { name: :amount, type: :big_decimal, required: true },
+    #       { name: :currency, type: :string, required: true }
     #     ]
     #   }
-    #   ParameterInspector.call(param)
-    #   # => "Parameter: name=user type=hash source=context required=false options={}
-    #   #      ↳ Parameter: name=name type=string source=user required=true options={}
-    #   #      ↳ Parameter: name=age type=integer source=user required=false options={}"
+    #   ParameterInspector.call(parameter)
+    #   #=> "Parameter: name=payment type=hash required=true
+    #   #       ↳ Parameter: name=amount type=big_decimal required=true
+    #   #       ↳ Parameter: name=currency type=string required=true"
     def call(parameter, depth = 1)
       ORDERED_KEYS.filter_map do |key|
         value = parameter[key]

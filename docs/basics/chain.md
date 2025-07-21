@@ -1,6 +1,6 @@
 # Basics - Chain
 
-A chain represents a collection of related task executions that share a common execution context. Chains provide unified tracking, indexing, and reporting for task workflows using thread-local storage to automatically group related tasks without manual coordination.
+Chains automatically group related task executions within a thread, providing unified tracking, correlation, and execution context management. Each thread maintains its own chain through thread-local storage, eliminating the need for manual coordination.
 
 ## Table of Contents
 
@@ -12,266 +12,296 @@ A chain represents a collection of related task executions that share a common e
 - [Correlation ID Integration](#correlation-id-integration)
 - [State Delegation](#state-delegation)
 - [Serialization and Logging](#serialization-and-logging)
+- [Error Handling](#error-handling)
 
 ## TLDR
 
-- **Chains** - Automatically group related task executions within the same thread
-- **Thread-local** - Each thread gets its own chain, no manual coordination needed
-- **Inheritance** - Subtasks automatically join the current thread's chain
-- **Correlation** - Chain IDs serve as correlation identifiers for tracing
-- **Access** - Use `result.chain.id` and `result.chain.results` to inspect execution trails
+```ruby
+# Automatic chain creation per thread
+result = ProcessOrderTask.call(order_id: 123)
+result.chain.id           # Unique chain ID
+result.chain.results.size # All tasks in this chain
+
+# Access current thread's chain
+CMDx::Chain.current  # Current chain or nil
+CMDx::Chain.clear    # Clear thread's chain
+
+# Subtasks automatically inherit chain
+class ProcessOrderTask < CMDx::Task
+  def call
+    # These inherit the same chain automatically
+    ValidateOrderTask.call!(order_id: order_id)
+    ChargePaymentTask.call!(order_id: order_id)
+  end
+end
+```
 
 ## Thread-Local Chain Management
 
-Chains use thread-local storage to automatically group related task executions within the same thread while maintaining isolation across different threads:
+> [!NOTE]
+> Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.
 
 ```ruby
-# Each thread gets its own chain context
+# Thread A
 Thread.new do
   result = ProcessOrderTask.call(order_id: 123)
-  result.chain.id    # => unique ID for this thread
+  result.chain.id    # "018c2b95-b764-7615-a924-cc5b910ed1e5"
 end
 
+# Thread B (completely separate chain)
 Thread.new do
   result = ProcessOrderTask.call(order_id: 456)
-  result.chain.id    # => different unique ID
+  result.chain.id    # "018c2b95-c821-7892-b156-dd7c921fe2a3"
 end
 
-# Access the current thread's chain
-CMDx::Chain.current  # => current chain or nil
-CMDx::Chain.clear    # => clears current thread's chain
+# Access current thread's chain
+CMDx::Chain.current  # Returns current chain or nil
+CMDx::Chain.clear    # Clears current thread's chain
 ```
 
 ## Automatic Chain Creation
 
-Every task execution automatically creates or joins a thread-local chain context:
+Every task execution automatically creates or joins the current thread's chain:
 
 ```ruby
-# Single task creates its own chain
-result = ProcessUserOrderTask.call(order_id: 123)
-result.chain.id           #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
-result.chain.results.size #=> 1
+# First task creates new chain
+result1 = ProcessOrderTask.call(order_id: 123)
+result1.chain.id           # "018c2b95-b764-7615-a924-cc5b910ed1e5"
+result1.chain.results.size # 1
 
-# Subsequent tasks in the same thread join the existing chain
-result2 = AnotherTask.call(data: "test")
-result2.chain.id == result.chain.id  #=> true
-result2.chain.results.size           #=> 2
+# Second task joins existing chain
+result2 = SendEmailTask.call(to: "user@example.com")
+result2.chain.id == result1.chain.id  # true
+result2.chain.results.size            # 2
+
+# Both results reference the same chain
+result1.chain.results == result2.chain.results  # true
 ```
 
 ## Chain Inheritance
 
-When tasks call other tasks within the same thread, they automatically inherit the current chain, creating a cohesive execution trail:
+> [!IMPORTANT]
+> When tasks call subtasks within the same thread, all executions automatically inherit the current chain, creating a unified execution trail.
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
+class ProcessOrderTask < CMDx::Task
   def call
     context.order = Order.find(order_id)
 
-    # Subtasks automatically inherit the current thread's chain
-    SendOrderConfirmationTask.call(order_id: order_id)
-    NotifyWarehousePartnersTask.call(order_id: order_id)
+    # Subtasks automatically inherit current chain
+    ValidateOrderTask.call!(order_id: order_id)
+    ChargePaymentTask.call!(order_id: order_id)
+    SendConfirmationTask.call!(order_id: order_id)
   end
 end
 
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 123)
 chain = result.chain
 
-# All related tasks share the same chain automatically
-chain.results.size #=> 3
+# All tasks share the same chain
+chain.results.size # 4 (main task + 3 subtasks)
 chain.results.map(&:task).map(&:class)
-#=> [ProcessUserOrderTask, SendOrderConfirmationTask, NotifyWarehousePartnersTask]
+# [ProcessOrderTask, ValidateOrderTask, ChargePaymentTask, SendConfirmationTask]
 ```
-
-> [!NOTE]
-> Tasks automatically inherit the current thread's chain, creating a unified execution trail for debugging and monitoring purposes without any manual chain management.
 
 ## Chain Structure and Metadata
 
-Chains provide comprehensive execution information:
+Chains provide comprehensive execution information with state delegation:
 
 ```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 123)
 chain = result.chain
 
 # Chain identification
-chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
-chain.results #=> [<CMDx::Result ...>, <CMDx::Result ...>]
+chain.id      # "018c2b95-b764-7615-a924-cc5b910ed1e5"
+chain.results # Array of all results in execution order
 
-# Execution state (delegates to outer most result)
-chain.state   #=> "complete"
-chain.status  #=> "success"
-chain.outcome #=> "success"
-chain.runtime #=> 0.5
+# State delegation (from first/outer-most result)
+chain.state   # "complete"
+chain.status  # "success"
+chain.outcome # "success"
+chain.runtime # 1.2 (total execution time)
+
+# Access individual results
+chain.results.each_with_index do |result, index|
+  puts "#{index}: #{result.task.class} - #{result.status}"
+end
 ```
 
 ## Correlation ID Integration
 
-Chains automatically integrate with the correlation tracking system through thread-local storage, providing seamless request tracing across task boundaries. The chain ID serves as the correlation identifier, enabling you to trace execution flows through distributed systems and complex business logic.
+> [!TIP]
+> Chain IDs serve as correlation identifiers, enabling request tracing across distributed systems and complex workflows.
 
-### Custom Chain IDs
+### Automatic Correlation
 
-You can specify custom chain IDs for specific correlation contexts:
-
-```ruby
-# Create a chain with custom ID
-chain = CMDx::Chain.new(id: "user-session-123")
-CMDx::Chain.current = chain
-
-result = ProcessUserOrderTask.call(order_id: 123)
-result.chain.id #=> "user-session-123"
-```
-
-### Automatic Correlation Inheritance
-
-Chains inherit correlation IDs using a hierarchical precedence system:
+Chains integrate with the correlation system using hierarchical precedence:
 
 ```ruby
 # 1. Existing chain ID takes precedence
-CMDx::Chain.current = CMDx::Chain.new(id: "custom-correlation-123")
-result = ProcessUserOrderTask.call(order_id: 123)
-result.chain.id #=> "custom-correlation-123"
+CMDx::Chain.current = CMDx::Chain.new(id: "request-123")
+result = ProcessOrderTask.call(order_id: 456)
+result.chain.id # "request-123"
 
-# 2. Thread-local correlation ID is used if no chain exists
+# 2. Thread-local correlation used if no chain exists
 CMDx::Chain.clear
-CMDx::Correlator.id = "thread-correlation-456"
-result = ProcessUserOrderTask.call
-result.chain.id #=> "thread-correlation-456"
+CMDx::Correlator.id = "session-456"
+result = ProcessOrderTask.call(order_id: 789)
+result.chain.id # "session-456"
 
 # 3. Generated UUID when no correlation exists
 CMDx::Correlator.clear
-result = ProcessUserOrderTask.call
-result.chain.id #=> "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated)
+result = ProcessOrderTask.call(order_id: 101)
+result.chain.id # "018c2b95-b764-7615-a924-cc5b910ed1e5" (generated)
 ```
 
-### Cross-Task Correlation Propagation
-
-When tasks call subtasks within the same thread, correlation IDs automatically propagate:
+### Custom Chain IDs
 
 ```ruby
-class ProcessUserOrderTask < CMDx::Task
-  def call
-    context.order = Order.find(order_id)
+# Create chain with specific correlation ID
+chain = CMDx::Chain.new(id: "api-request-789")
+CMDx::Chain.current = chain
 
-    # Subtasks inherit the same correlation ID automatically
-    SendOrderConfirmationTask.call(order_id: order_id)
-    NotifyWarehousePartnersTask.call(order_id: order_id)
-  end
-end
+result = ProcessApiRequestTask.call(data: payload)
+result.chain.id # "api-request-789"
 
-# Set correlation for this execution context
-CMDx::Chain.current = CMDx::Chain.new(id: "user-order-correlation-123")
-
-result = ProcessUserOrderTask.call(order_id: 456)
-chain = result.chain
-
-# All tasks share the same correlation ID
-chain.id #=> "user-order-correlation-123"
-chain.results.all? { |r| r.chain.id == "user-order-correlation-123" } #=> true
+# All subtasks inherit the same correlation ID
+result.chain.results.all? { |r| r.chain.id == "api-request-789" } # true
 ```
 
 ### Correlation Context Management
 
-Use correlation blocks to manage correlation scope:
-
 ```ruby
-# Correlation applies only within the block
-CMDx::Correlator.use("api-request-789") do
-  result = ProcessApiRequestTask.call(request_data: data)
-  result.chain.id #=> "api-request-789"
+# Scoped correlation context
+CMDx::Correlator.use("user-session-123") do
+  result = ProcessUserActionTask.call(action: "purchase")
+  result.chain.id # "user-session-123"
 
-  # Nested task calls inherit the same correlation
-  AuditLogTask.call(audit_data: data)
+  # Nested operations inherit correlation
+  AuditLogTask.call(event: "purchase_completed")
 end
 
-# Outside the block, correlation context is restored
-result = AnotherTask.call
-result.chain.id #=> different correlation ID
+# Outside block, correlation context restored
+result = OtherTask.call
+result.chain.id # Different correlation ID
 ```
-
-### Middleware Integration
-
-The `CMDx::Middlewares::Correlate` middleware automatically manages correlation contexts during task execution:
-
-```ruby
-class ProcessOrderTask < CMDx::Task
-  # Apply correlate middleware globally or per-task
-  use :middleware, CMDx::Middlewares::Correlate
-
-  def call
-    # Correlation is automatically managed
-    # Chain ID reflects the established correlation context
-  end
-end
-```
-
-> [!TIP]
-> Chain IDs serve as correlation identifiers, making it easy to trace related operations across your application. The thread-local storage ensures automatic correlation without manual chain management.
-
-> [!NOTE]
-> Correlation IDs are particularly useful for debugging distributed systems, API request tracing, and understanding complex business workflows. All logs and results automatically include the chain ID for correlation.
 
 ## State Delegation
 
-Chain state information delegates to the first (outer most) result, representing the overall execution outcome:
+> [!WARNING]
+> Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
   def call
-    ValidateOrderDataTask.call!(order_id: order_id)   # Success
-    ProcessOrderPaymentTask.call!(order_id: order_id) # Failed
+    ValidateOrderTask.call!(order_id: order_id)    # Success
+    ChargePaymentTask.call!(order_id: order_id)    # Failure
   end
 end
 
-result = ProcessOrderTask.call
+result = ProcessOrderTask.call(order_id: 123)
 chain = result.chain
 
-# Chain status reflects the main task, not subtasks
-chain.status            #=> "failed" (ProcessOrderPaymentTask failed)
-chain.state             #=> "interrupted"
+# Chain delegates to main task (first result)
+chain.status  # "failed" (ProcessOrderTask failed due to subtask)
+chain.state   # "interrupted"
 
-# Individual task results maintain their own state
-chain.results[0].status #=> "failed"  (ProcessOrderTask)
-chain.results[1].status #=> "success" (ValidateOrderDataTask)
-chain.results[2].status #=> "failed"  (ProcessOrderPaymentTask)
+# Individual results maintain their own state
+chain.results[0].status # "failed"  (ProcessOrderTask - main)
+chain.results[1].status # "success" (ValidateOrderTask)
+chain.results[2].status # "failed"  (ChargePaymentTask)
 ```
-
-> [!IMPORTANT]
-> Chain state always reflects the first (outer most) task outcome, not the subtasks. Individual subtask results maintain their own success/failure states.
 
 ## Serialization and Logging
 
-Chains provide comprehensive serialization capabilities for monitoring and debugging:
+Chains provide comprehensive serialization for monitoring and debugging:
 
 ```ruby
-result = ProcessUserOrderTask.call(order_id: 123)
+result = ProcessOrderTask.call(order_id: 123)
 chain = result.chain
 
-# Hash representation with all execution data
+# Structured data representation
 chain.to_h
-#=> {
-#     id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
-#     state: "complete",
-#     status: "success",
-#     outcome: "success",
-#     runtime: 0.5,
-#     results: [
-#       { class: "ProcessUserOrderTask", state: "complete", status: "success", ... },
-#       { class: "SendOrderConfirmationTask", state: "complete", status: "success", ... },
-#       { class: "NotifyWarehousePartnersTask", state: "complete", status: "success", ... }
-#     ]
-#   }
+# {
+#   id: "018c2b95-b764-7615-a924-cc5b910ed1e5",
+#   state: "complete",
+#   status: "success",
+#   outcome: "success",
+#   runtime: 0.8,
+#   results: [
+#     { class: "ProcessOrderTask", state: "complete", status: "success", ... },
+#     { class: "ValidateOrderTask", state: "complete", status: "success", ... },
+#     { class: "ChargePaymentTask", state: "complete", status: "success", ... }
+#   ]
+# }
 
-# Human-readable summary
+# Human-readable execution summary
 puts chain.to_s
-#   chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
-#   ================================================
+# chain: 018c2b95-b764-7615-a924-cc5b910ed1e5
+# ================================================
 #
-#   ProcessUserOrderTask: index=0 state=complete status=success ...
-#   SendOrderConfirmationTask: index=1 state=complete status=success ...
-#   NotifyWarehousePartnersTask: index=2 state=complete status=success ...
+# ProcessOrderTask: index=0 state=complete status=success runtime=0.8
+# ValidateOrderTask: index=1 state=complete status=success runtime=0.1
+# ChargePaymentTask: index=2 state=complete status=success runtime=0.5
 #
-#   ================================================
-#   state: complete | status: success | outcome: success | runtime: 0.5
+# ================================================
+# state: complete | status: success | outcome: success | runtime: 0.8
+```
+
+## Error Handling
+
+### Chain Access Patterns
+
+```ruby
+# Safe chain access
+result = ProcessOrderTask.call(order_id: 123)
+
+if result.chain
+  correlation_id = result.chain.id
+  execution_count = result.chain.results.size
+else
+  # Handle missing chain (shouldn't happen in normal execution)
+  correlation_id = "unknown"
+end
+```
+
+### Thread Safety
+
+> [!IMPORTANT]
+> Chain operations are thread-safe within individual threads but chains should not be shared across threads. Each thread maintains its own isolated chain context.
+
+```ruby
+# Safe: Each thread has its own chain
+threads = 3.times.map do |i|
+  Thread.new do
+    result = ProcessOrderTask.call(order_id: 100 + i)
+    result.chain.id  # Unique per thread
+  end
+end
+
+# Collect results safely
+chain_ids = threads.map(&:value)
+chain_ids.uniq.size # 3 (all different)
+```
+
+### Chain State Validation
+
+```ruby
+result = ProcessOrderTask.call(order_id: 123)
+chain = result.chain
+
+# Validate chain integrity
+case chain.state
+when "complete"
+  # All tasks finished normally
+  process_successful_chain(chain)
+when "interrupted"
+  # Task was halted or failed
+  handle_chain_interruption(chain)
+else
+  # Unexpected state
+  log_chain_anomaly(chain)
+end
 ```
 
 ---

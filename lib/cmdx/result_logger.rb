@@ -3,9 +3,11 @@
 module CMDx
   # Logger utilities for task execution results.
   #
-  # This module provides functionality to log task execution results with appropriate
-  # severity levels based on the result status. It automatically maps result statuses
-  # to corresponding log levels and delegates to the task's configured logger.
+  # This module provides functionality to log task execution results with
+  # appropriate severity levels based on the result status. It automatically
+  # determines the correct log level (info, warn, error) based on whether
+  # the task succeeded, was skipped, or failed, and delegates to the task's
+  # configured logger instance.
   module ResultLogger
 
     STATUS_TO_SEVERITY = {
@@ -16,25 +18,32 @@ module CMDx
 
     module_function
 
-    # Logs the task execution result with appropriate severity level.
+    # Logs a task execution result with the appropriate severity level.
     #
-    # This method retrieves the logger from the task and logs the result using
-    # the severity level mapped from the result's status. If no logger is configured
-    # for the task, the method returns early without logging.
+    # Retrieves the logger from the task instance and logs the result object
+    # using the severity level determined by the result's status. If no logger
+    # is configured for the task, the method returns early without logging.
+    # The logger level is temporarily set to match the severity to ensure
+    # the message is captured regardless of current log level configuration.
     #
-    # @param result [Result] the task execution result to log
+    # @param result [CMDx::Result] the task execution result to log
     #
     # @return [void]
     #
     # @example Log a successful task result
-    #   result = task.process
-    #   CMDx::ResultLogger.call(result)
-    #   # => logs at info level: "Task completed successfully"
+    #   task = ProcessDataTask.call(data: "input")
+    #   ResultLogger.call(task.result)
+    #   # Logs at :info level: "Result: ProcessDataTask completed successfully"
     #
     # @example Log a failed task result
-    #   result = failing_task.process
-    #   CMDx::ResultLogger.call(result)
-    #   # => logs at error level: "Task failed with error"
+    #   task = ValidateDataTask.call(data: "invalid")
+    #   ResultLogger.call(task.result)
+    #   # Logs at :error level: "Result: ValidateDataTask failed with error"
+    #
+    # @example Log a skipped task result
+    #   task = ConditionalTask.call(condition: false)
+    #   ResultLogger.call(task.result)
+    #   # Logs at :warn level: "Result: ConditionalTask was skipped"
     def call(result)
       logger = result.task.send(:logger)
       return if logger.nil?

@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Serializes log messages for structured logging output.
+  # Logger serialization module for converting messages and task data into structured log format.
   #
-  # This module provides functionality to convert log messages into a structured
-  # hash format suitable for various logging formatters. It handles special
-  # processing for Result objects, including optional ANSI colorization of
-  # specific keys and merging of task serialization data.
+  # LoggerSerializer provides functionality to serialize task execution messages into a
+  # standardized hash representation suitable for logging systems. It handles both result
+  # objects and arbitrary messages, applying consistent formatting with optional ANSI
+  # colorization for terminal output. The serializer intelligently processes different
+  # message types and enriches log data with task metadata and origin information.
   module LoggerSerializer
 
     COLORED_KEYS = %i[
@@ -15,30 +16,90 @@ module CMDx
 
     module_function
 
-    # Converts a log message into a structured hash format.
+    # Serializes a log message with task context into structured hash format.
     #
-    # Processes the message based on its type - if it's a Result object,
-    # optionally colorizes specific keys. For non-Result messages, merges
-    # task serialization data and the original message.
+    # Converts log messages into a standardized hash representation suitable for
+    # various logging systems and output formats. When the message is a Result object,
+    # it extracts the result's hash representation and optionally applies ANSI colors
+    # to specific keys for enhanced terminal visibility. For non-result messages,
+    # it enriches the log entry with task metadata from TaskSerializer. All log
+    # entries are tagged with CMDx origin for source identification.
     #
-    # @param _severity [String] The log severity level (unused but kept for compatibility)
-    # @param _time [Time] The log timestamp (unused but kept for compatibility)
-    # @param task [CMDx::Task] The task instance associated with the log message
-    # @param message [Object] The message to be serialized (can be a Result or any object)
-    # @param options [Hash] Additional options for serialization
-    # @option options [Boolean] :ansi_colorize Whether to apply ANSI colorization to Result objects
+    # @param severity [Symbol] the log severity level (not used in current implementation)
+    # @param time [Time] the timestamp of the log entry (not used in current implementation)
+    # @param task [CMDx::Task, CMDx::Workflow] the task or workflow instance providing context
+    # @param message [CMDx::Result, Object] the primary message content to serialize
+    # @param options [Hash] additional options for serialization behavior
+    # @option options [Boolean] :ansi_colorize whether to apply ANSI colors to result keys
     #
-    # @return [Hash] A structured hash representation of the log message with origin set to "CMDx"
+    # @return [Hash] a structured hash containing the serialized log message and metadata
+    # @option return [String] :origin always set to "CMDx" for source identification
+    # @option return [Integer] :index the task's position index in the execution chain (when message is not Result)
+    # @option return [String] :chain_id the unique identifier of the task's execution chain (when message is not Result)
+    # @option return [String] :type the task type, either "Task" or "Workflow" (when message is not Result)
+    # @option return [String] :class the full class name of the task (when message is not Result)
+    # @option return [String] :id the unique identifier of the task instance (when message is not Result)
+    # @option return [Array] :tags the tags associated with the task from cmd settings (when message is not Result)
+    # @option return [Object] :message the original message content (when message is not Result)
+    # @option return [Symbol] :state the execution state with optional ANSI colors (when message is Result)
+    # @option return [Symbol] :status the execution status with optional ANSI colors (when message is Result)
+    # @option return [Symbol] :outcome the execution outcome with optional ANSI colors (when message is Result)
+    # @option return [Hash] :metadata additional metadata from result (when message is Result)
+    # @option return [Float] :runtime execution runtime in seconds (when message is Result)
     #
-    # @example Serializing a Result object with colorization
-    #   result = CMDx::Result.new(task)
-    #   LoggerSerializer.call("info", Time.now, task, result, ansi_colorize: true)
-    #   # => { state: "\e[32msuccess\e[0m", status: "complete", origin: "CMDx", ... }
+    # @raise [NoMethodError] if task doesn't respond to required methods for TaskSerializer
+    # @raise [NoMethodError] if result message doesn't respond to to_h method
     #
-    # @example Serializing a plain message
-    #   LoggerSerializer.call("info", Time.now, task, "Processing user data")
-    #   # => { index: 1, chain_id: "abc123", type: "Task", message: "Processing user data", origin: "CMDx", ... }
-    def call(_severity, _time, task, message, **options)
+    # @example Serialize a result message with ANSI colors
+    #   task = ProcessDataTask.call(data: "test")
+    #   LoggerSerializer.call(:info, Time.now, task, task.result, ansi_colorize: true)
+    #   #=> {
+    #   #   origin: "CMDx",
+    #   #   index: 0,
+    #   #   chain_id: "abc123",
+    #   #   type: "Task",
+    #   #   class: "ProcessDataTask",
+    #   #   id: "def456",
+    #   #   tags: [],
+    #   #   state: "\e[0;32;49mcomplete\e[0m",
+    #   #   status: "\e[0;32;49msuccess\e[0m",
+    #   #   outcome: "\e[0;32;49mgood\e[0m",
+    #   #   metadata: {},
+    #   #   runtime: 0.045
+    #   # }
+    #
+    # @example Serialize a string message with task context
+    #   task = MyTask.new(context: {data: "test"})
+    #   LoggerSerializer.call(:warn, Time.now, task, "Processing started")
+    #   #=> {
+    #   #   origin: "CMDx",
+    #   #   index: 0,
+    #   #   chain_id: "abc123",
+    #   #   type: "Task",
+    #   #   class: "MyTask",
+    #   #   id: "def456",
+    #   #   tags: [],
+    #   #   message: "Processing started"
+    #   # }
+    #
+    # @example Serialize a result message without colors
+    #   task = ValidationTask.call(email: "invalid")
+    #   LoggerSerializer.call(:error, Time.now, task, task.result)
+    #   #=> {
+    #   #   origin: "CMDx",
+    #   #   index: 1,
+    #   #   chain_id: "xyz789",
+    #   #   type: "Task",
+    #   #   class: "ValidationTask",
+    #   #   id: "ghi012",
+    #   #   tags: [],
+    #   #   state: :interrupted,
+    #   #   status: :failed,
+    #   #   outcome: :bad,
+    #   #   metadata: { reason: "Invalid email format" },
+    #   #   runtime: 0.012
+    #   # }
+    def call(severity, time, task, message, **options) # rubocop:disable Lint/UnusedMethodArgument
       m = message.is_a?(Result) ? message.to_h : {}
 
       if options.delete(:ansi_colorize) && message.is_a?(Result)

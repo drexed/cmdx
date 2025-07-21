@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module CMDx
-  # ANSI color formatting for result states and statuses.
+  # ANSI color formatting utilities for result states and statuses.
   #
-  # This module provides functionality to apply appropriate ANSI color codes
-  # to result states and statuses for enhanced console output readability.
-  # It maps execution states and completion statuses to corresponding colors
-  # and provides methods to format strings with these colors.
+  # This module provides functionality to apply appropriate ANSI colors to
+  # result states and statuses for enhanced terminal output visibility.
+  # It maps different execution states and statuses to their corresponding
+  # colors and delegates the actual color application to the AnsiColor utility.
   module ResultAnsi
 
     STATE_COLORS = {
@@ -23,32 +23,46 @@ module CMDx
 
     module_function
 
-    # Applies ANSI color formatting to a string based on its state or status.
+    # Applies ANSI color formatting to a result state or status string.
     #
-    # @param s [String] the string to format with ANSI color codes
+    # Takes a result state or status string and applies the appropriate ANSI
+    # color formatting using the predefined color mappings. This provides
+    # visual distinction for different execution outcomes in terminal output.
     #
-    # @return [String] the formatted string with appropriate ANSI color codes
+    # @param s [String] the result state or status string to colorize
     #
-    # @example Format a result state
-    #   ResultAnsi.call(Result::EXECUTING) #=> "\e[0;33;49mexecuting\e[0m"
+    # @return [String] the input string with ANSI color codes applied
     #
-    # @example Format a result status
-    #   ResultAnsi.call(Result::SUCCESS) #=> "\e[0;32;49msuccess\e[0m"
+    # @example Colorize a success status
+    #   ResultAnsi.call("success") #=> "\e[0;32;49msuccess\e[0m" (green)
+    #
+    # @example Colorize a failed status
+    #   ResultAnsi.call("failed") #=> "\e[0;31;49mfailed\e[0m" (red)
+    #
+    # @example Colorize an executing state
+    #   ResultAnsi.call("executing") #=> "\e[0;33;49mexecuting\e[0m" (yellow)
     def call(s)
       Utils::AnsiColor.call(s, color: color(s))
     end
 
-    # Determines the appropriate ANSI color for a given state or status.
+    # Determines the appropriate color for a result state or status.
     #
-    # @param s [String] the state or status string to determine color for
+    # Looks up the color mapping for the given state or status string,
+    # returning the corresponding color symbol or :default if no specific
+    # mapping is found.
     #
-    # @return [Symbol] the color symbol corresponding to the state/status, or :default if not found
+    # @param s [String] the result state or status string to find color for
     #
-    # @example Get color for a state
-    #   ResultAnsi.color(Result::COMPLETE) #=> :green
+    # @return [Symbol] the color symbol (:blue, :yellow, :green, :red, or :default)
+    #
+    # @example Get color for success status
+    #   ResultAnsi.color("success") #=> :green
     #
     # @example Get color for unknown value
     #   ResultAnsi.color("unknown") #=> :default
+    #
+    # @example Get color for executing state
+    #   ResultAnsi.color("executing") #=> :yellow
     def color(s)
       STATE_COLORS[s] || STATUS_COLORS[s] || :default
     end
