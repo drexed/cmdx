@@ -17,7 +17,7 @@ module CMDx; end
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cmdx" => "CMDx")
 # loader.ignore("#{__dir__}/cmdx/core_ext")
-# loader.ignore("#{__dir__}/cmdx/configuration")
+loader.ignore("#{__dir__}/cmdx/configuration")
 loader.ignore("#{__dir__}/cmdx/exceptions")
 # loader.ignore("#{__dir__}/cmdx/faults")
 # loader.ignore("#{__dir__}/cmdx/railtie")
