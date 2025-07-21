@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validators to add errors directly instead of raising errors
 - Coercions to add errors directly instead of raising errors
 - Update procs to call with object as first item
+- Move I18n to own ruby gem
 
 ## [Unreleased]
 
