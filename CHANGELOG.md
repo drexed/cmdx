@@ -14,12 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[1.1.1]
+## [1.1.1] - 2025-07-20
+
 ### Changed
 - Updated all docs and specs
 - Update deprecation key words
 
-## [1.1.0]
+## [1.1.0] - 2025-07-17
 
 ### Added
 - Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
