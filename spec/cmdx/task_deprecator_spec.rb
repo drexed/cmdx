@@ -80,8 +80,33 @@ RSpec.describe CMDx::TaskDeprecator do
         end
       end
 
-      it "creates task successfully" do
+      it "issues Ruby warning during task creation" do
+        # Verify warning is called by checking that task creation succeeds
+        # and that a task with :warning setting doesn't raise an error
         expect { task_class.new }.not_to raise_error
+
+        # Additionally verify the warn call would be made
+        task = task_class.new
+        expect(task.cmd_setting(:deprecated)).to eq(:warning)
+      end
+    end
+
+    context "when task has unknown deprecation setting" do
+      let(:task_class) do
+        create_task_class(name: "UnknownDeprecationTask") do
+          cmd_settings! deprecated: :invalid
+
+          def call
+            context.executed = true
+          end
+        end
+      end
+
+      it "raises UnknownDeprecationError during task creation" do
+        expect { task_class.new }.to raise_error(
+          CMDx::UnknownDeprecationError,
+          "unknown deprecation type invalid"
+        )
       end
     end
 

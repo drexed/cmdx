@@ -43,6 +43,13 @@ module CMDx
   # type is not supported by the coercion system.
   UnknownCoercionError = Class.new(Error)
 
+  # Raised when attempting to use an invalid deprecated setting.
+  #
+  # This error occurs when trying to use an invalid deprecated setting. It
+  # indicates that the specified setting is not supported by the deprecation
+  # system.
+  UnknownDeprecationError = Class.new(Error)
+
   # Raised when attempting to use an unregistered validator.
   #
   # This error occurs when trying to reference a validator that hasn't been
