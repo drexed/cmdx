@@ -16,6 +16,13 @@ module CMDx
   # value is incompatible with the parameter's defined type.
   CoercionError = Class.new(Error)
 
+  # Raised when attempting to delegate a method to a missing object.
+  #
+  # This error occurs when trying to delegate a method to an object that does not
+  # respond to the method. It indicates that the target object is not available
+  # or does not support the requested method.
+  DelegationError = Class.new(Error)
+
   # Raised when a deprecated task is used.
   #
   # This error occurs when a deprecated task is called. It indicates that the

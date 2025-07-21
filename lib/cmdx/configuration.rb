@@ -31,6 +31,10 @@ module CMDx
       }
     end
 
+    def to_hash
+      to_h.transform_values(&:dup)
+    end
+
   end
 
   module_function

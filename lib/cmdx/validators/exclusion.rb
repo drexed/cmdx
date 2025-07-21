@@ -1,0 +1,47 @@
+# frozen_string_literal: true
+
+module CMDx
+  module Validators
+    class Exclusion < Base
+
+      def call
+        values = options[:in] || options[:within]
+
+        if values.is_a?(Range)
+          raise_within_validation_error!(values.begin, values.end, options) if values.cover?(value)
+        elsif Array(values).any? { |v| v === value }
+          raise_of_validation_error!(values, options)
+        end
+      end
+
+      private
+
+      def raise_of_validation_error!(values, options)
+        values  = values.map(&:inspect).join(", ") unless values.nil?
+        message = options[:of_message] || options[:message]
+        message %= { values: } unless message.nil?
+
+        task.errors.add(options[:attribute], message)
+
+        raise ValidationError, message || I18n.t(
+          "cmdx.validators.exclusion.of",
+          values:,
+          default: "must not be one of: #{values}"
+        )
+      end
+
+      def raise_within_validation_error!(min, max, options)
+        message = options[:in_message] || options[:within_message] || options[:message]
+        message %= { min:, max: } unless message.nil?
+
+        raise ValidationError, message || I18n.t(
+          "cmdx.validators.exclusion.within",
+          min:,
+          max:,
+          default: "must not be within #{min} and #{max}"
+        )
+      end
+
+    end
+  end
+end
