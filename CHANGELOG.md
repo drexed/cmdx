@@ -8,11 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [TODO]
 
 - Rebuild parameters to use a less magical approach
+- Revert deprecator to use old options
 - Validators to add errors directly instead of raising errors
 - Coercions to add errors directly instead of raising errors
 - Update procs to call with object as first item
 
 ## [Unreleased]
+
+## [1.1.2] - 2025-07-20
+
+### Added
+- Add `UnknownDeprecationError` for unknown deprecation type
 
 ## [1.1.1] - 2025-07-20
 
