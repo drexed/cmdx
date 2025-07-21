@@ -245,6 +245,10 @@ result.to_h
 #     context: { order_id: 123 }
 #   }
 
+# Human-readable inspection
+result.to_s
+#=> "ProcessOrderTask: type=Task index=0 state=complete status=success outcome=success runtime=0.045s"
+
 # Chain-level state aggregation
 result.chain.to_h
 #=> {
