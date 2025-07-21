@@ -42,14 +42,14 @@ RSpec.configure do |config|
   config.before do
     CMDx.reset_configuration!
     CMDx.configuration.logger = Logger.new(nil)
-    # CMDx::Correlator.clear
-    # CMDx::Chain.clear
+    CMDx::Correlator.clear
+    CMDx::Chain.clear
   end
 
   config.after do
     CMDx.reset_configuration!
-    # CMDx::Correlator.clear
-    # CMDx::Chain.clear
+    CMDx::Correlator.clear
+    CMDx::Chain.clear
   end
 
   config.after(:all) do
