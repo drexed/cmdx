@@ -4,25 +4,29 @@ module CMDx
   module Validators
     class Registry
 
-      attr_reader :registry
+      extend Forwardable
 
-      def initialize
-        @registry = {
-          # exclusion: Exclusion,
-          # format: Format,
-          # inclusion: Inclusion,
-          # length: Length,
-          # numeric: Numeric,
-          # presence: Presence
+      def_delegators :validators, :each, :[]
+
+      attr_accessor :validators
+
+      def initialize(validators = nil)
+        @validators = validators || {
+          exclusion: Validators::Exclusion,
+          format: Validators::Format,
+          inclusion: Validators::Inclusion,
+          length: Validators::Length,
+          numeric: Validators::Numeric,
+          presence: Validators::Presence
         }
       end
 
-      def register(name, validator)
-        registry[name.to_sym] = validator
+      def dup
+        self.class.new(validators.dup)
       end
 
-      def [](name)
-        registry[name.to_sym]
+      def register(name, validator)
+        validators[name.to_sym] = validator
       end
 
     end

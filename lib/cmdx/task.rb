@@ -77,5 +77,9 @@ module CMDx
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 
+    def logger
+      Logger.call(self)
+    end
+
   end
 end

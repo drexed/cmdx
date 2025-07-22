@@ -12,11 +12,15 @@ module CMDx
       end
 
       def required?
-        options[:required]
+        !!options[:required]
       end
 
-      def optional?
-        !required?
+      def source
+        @_source ||= options[:source] || parent&.signature || :context
+      end
+
+      def signature
+        @_signature ||= Utils::Signature.call(source, name, options)
       end
 
     end
