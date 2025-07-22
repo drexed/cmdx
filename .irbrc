@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-require "cmdx"
+require_relative "lib/cmdx"

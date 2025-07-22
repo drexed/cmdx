@@ -2,6 +2,7 @@
 
 require "bigdecimal"
 require "date"
+require "forwardable"
 require "i18n"
 require "json"
 require "logger"

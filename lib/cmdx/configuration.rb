@@ -6,28 +6,25 @@ module CMDx
 
     DEFAULT_HALT = "failed"
 
-    attr_accessor :logger, :middlewares, :callbacks, :coercions,
-                  :validators, :task_halt, :workflow_halt
+    attr_accessor :logger, :callbacks, :coercions, :validators, :halt_task_on, :halt_workflow_on
 
     def initialize
-      @logger        = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-      @middlewares   = Middlewares::Registry.new
-      @callbacks     = Callbacks::Registry.new
-      @coercions     = Coercions::Registry.new
-      @validators    = Validators::Registry.new
-      @task_halt     = DEFAULT_HALT
-      @workflow_halt = DEFAULT_HALT
+      @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+      @callbacks = Callbacks::Registry.new
+      @coercions = Coercions::Registry.new
+      @validators = Validators::Registry.new
+      @halt_task_on = DEFAULT_HALT
+      @halt_workflow_on = DEFAULT_HALT
     end
 
     def to_h
       {
         logger: @logger,
-        middlewares: @middlewares,
         callbacks: @callbacks,
         coercions: @coercions,
         validators: @validators,
-        task_halt: @task_halt,
-        workflow_halt: @workflow_halt
+        halt_task_on: @halt_task_on,
+        halt_workflow_on: @halt_workflow_on
       }
     end
 
@@ -40,9 +37,9 @@ module CMDx
   module_function
 
   def configuration
-    return @configuration if @configuration
+    return @_configuration if @_configuration
 
-    @configuration ||= Configuration.new
+    @_configuration ||= Configuration.new
   end
 
   def configure
@@ -54,7 +51,7 @@ module CMDx
   end
 
   def reset_configuration!
-    @configuration = Configuration.new
+    @_configuration = Configuration.new
   end
 
 end

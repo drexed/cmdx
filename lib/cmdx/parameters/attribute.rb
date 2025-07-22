@@ -11,6 +11,14 @@ module CMDx
         @options = options
       end
 
+      def required?
+        options[:required]
+      end
+
+      def optional?
+        !required?
+      end
+
     end
   end
 end

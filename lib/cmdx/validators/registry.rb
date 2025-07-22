@@ -8,12 +8,12 @@ module CMDx
 
       def initialize
         @registry = {
-          exclusion: Exclusion,
-          format: Format,
-          inclusion: Inclusion,
-          length: Length,
-          numeric: Numeric,
-          presence: Presence
+          # exclusion: Exclusion,
+          # format: Format,
+          # inclusion: Inclusion,
+          # length: Length,
+          # numeric: Numeric,
+          # presence: Presence
         }
       end
 

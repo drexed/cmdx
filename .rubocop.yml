@@ -42,6 +42,8 @@ Metrics/PerceivedComplexity:
   Enabled: false
 Naming/MethodParameterName:
   Enabled: false
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: required
 RSpec/AnyInstance:
   Enabled: false
 RSpec/DescribeClass:

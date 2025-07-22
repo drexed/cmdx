@@ -4,7 +4,7 @@ module CMDx
   module Validators
     class Base
 
-      Utils::Delegate.call(self, :task, to: :parameter)
+      # Utils::Delegate.call(self, :task, to: :parameter)
 
       attr_reader :parameter, :options
 
