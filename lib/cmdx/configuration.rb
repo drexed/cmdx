@@ -10,9 +10,9 @@ module CMDx
 
     def initialize
       @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-      @callbacks = Callbacks::Registry.new
-      @coercions = Coercions::Registry.new
-      @validators = Validators::Registry.new
+      @callbacks = CallbackRegistry.new
+      @coercions = CoercionRegistry.new
+      @validators = ValidatorRegistry.new
       @halt_task_on = DEFAULT_HALT
       @halt_workflow_on = DEFAULT_HALT
     end

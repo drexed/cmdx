@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class BigDecimal < Base
+    class BigDecimal < Coercion
 
       def call
         # Do nothing

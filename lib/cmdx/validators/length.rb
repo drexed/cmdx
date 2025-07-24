@@ -2,7 +2,7 @@
 
 module CMDx
   module Validators
-    class Length < Base
+    class Length < Validator
 
       def call
         # Do nothing

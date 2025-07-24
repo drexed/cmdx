@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Rational < Base
+    class Rational < Coercion
 
       def call
         # Do nothing

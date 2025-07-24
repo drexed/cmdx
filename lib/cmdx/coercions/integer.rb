@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Integer < Base
+    class Integer < Coercion
 
       def call
         # Do nothing

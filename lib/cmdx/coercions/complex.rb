@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Complex < Base
+    class Complex < Coercion
 
       def call
         # Do nothing

@@ -2,7 +2,7 @@
 
 module CMDx
   module Validators
-    class Exclusion < Base
+    class Exclusion < Validator
 
       def call
         # Do nothing

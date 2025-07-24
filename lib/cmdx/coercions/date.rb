@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Date < Base
+    class Date < Coercion
 
       def call
         # Do nothing

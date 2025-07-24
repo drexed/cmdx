@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Float < Base
+    class Float < Coercion
 
       def call
         # Do nothing

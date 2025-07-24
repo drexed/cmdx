@@ -2,7 +2,7 @@
 
 module CMDx
   module Validators
-    class Presence < Base
+    class Presence < Validator
 
       def call
         # Do nothing

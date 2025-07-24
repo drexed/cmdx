@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Hash < Base
+    class Hash < Coercion
 
       def call
         # Do nothing

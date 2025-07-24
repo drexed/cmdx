@@ -2,7 +2,7 @@
 
 module CMDx
   module Validators
-    class Numeric < Base
+    class Numeric < Validator
 
       def call
         # Do nothing

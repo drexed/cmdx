@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class String < Base
+    class String < Coercion
 
       def call
         # Do nothing

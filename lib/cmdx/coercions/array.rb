@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Array < Base
+    class Array < Coercion
 
       def call
         # Do nothing

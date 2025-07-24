@@ -2,7 +2,7 @@
 
 module CMDx
   module Coercions
-    class Time < Base
+    class Time < Coercion
 
       def call
         # Do nothing
