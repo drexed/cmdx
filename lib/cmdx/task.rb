@@ -35,7 +35,7 @@ module CMDx
       end
 
       def settings
-        @_settings ||= CMDx.configuration.to_hash.merge(
+        @settings ||= CMDx.configuration.to_hash.merge(
           parameters: ParameterRegistry.new,
           tags: []
         )
@@ -47,48 +47,42 @@ module CMDx
 
       def register(type, object, ...)
         case type
-        when /callback/ then settings[:callbacks].register(type, object, ...)
-        when /coercion/ then settings[:coercions].register(type, object, ...)
-        when /validator/ then settings[:validators].register(type, object, ...)
+        when /middleware/ then settings[:middlewares].register(object, ...)
+        when /callback/ then settings[:callbacks].register(object, ...)
+        when /coercion/ then settings[:coercions].register(object, ...)
+        when /validator/ then settings[:validators].register(object, ...)
         end
       end
 
       def parameter(name, **options, &)
-        options[:klass] = self
-        param = Parameter.parameter(name, **options, &)
+        param = Parameter.parameter(name, **options.merge(klass: self), &)
         settings[:parameters].register(param)
       end
 
-      # rubocop:disable Style/ArgumentsForwarding
       def parameters(*names, **options, &)
-        names.each { |name| parameter(name, **options, &) }
+        parameters = Parameter.parameters(*names, **options.merge(klass: self), &)
+        settings[:parameters].registry.concat(parameters)
       end
-      # rubocop:enable Style/ArgumentsForwarding
 
       def optional(*names, **options, &)
-        options[:required] = false
-        parameters(*names, **options, &)
+        parameters = Parameter.optional(*names, **options.merge(klass: self), &)
+        settings[:parameters].registry.concat(parameters)
       end
 
       def required(*names, **options, &)
-        options[:required] = true
-        parameters(*names, **options, &)
-      end
-
-      def optional(*attributes, **options, &)
-        parameters = Parameter.optional(*attributes, **options.merge(klass: self), &)
-        cmd_parameters.registry.concat(parameters)
+        parameters = Parameter.required(*names, **options.merge(klass: self), &)
+        settings[:parameters].registry.concat(parameters)
       end
 
       def call(...)
         task = new(...)
-        TaskProcessor.call(task)
+        task.call_with_middlewares
         task.result
       end
 
       def call!(...)
         task = new(...)
-        TaskProcessor.call!(task)
+        task.call_with_middlewares!
         task.result
       end
 
@@ -96,6 +90,14 @@ module CMDx
 
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
+    end
+
+    def call_with_middlewares
+      self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
+    end
+
+    def call_with_middlewares!
+      self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call!(task) }
     end
 
     def logger

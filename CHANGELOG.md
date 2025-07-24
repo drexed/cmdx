@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
+- Update all locales
 - Revert deprecator to use old options
 - Validators to add errors directly instead of raising errors
 - Coercions to add errors directly instead of raising errors

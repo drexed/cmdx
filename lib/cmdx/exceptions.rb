@@ -36,6 +36,13 @@ module CMDx
   # incomplete implementation of required functionality.
   UndefinedCallError = Class.new(Error)
 
+  # Raised when attempting to delegate a method to a missing object.
+  #
+  # This error occurs when trying to delegate a method to an object that does not
+  # respond to the method. It indicates that the target object is not available
+  # or does not support the requested method.
+  UndefinedSourceError = Class.new(Error)
+
   # Raised when attempting to use an unregistered callback.
   #
   # This error occurs when trying to reference a callback that hasn't been

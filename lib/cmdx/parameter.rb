@@ -40,13 +40,19 @@ module CMDx
 
     end
 
+    def call
+      attribute.call
+      @block&.call(self)
+      # TODO: freeze once called
+    end
+
     def parameter(name, **options, &)
-      param = self.class.parameter(name, **options.merge(klass: klass, parent: self), &)
+      param = self.class.parameter(name, **options.merge(klass:, parent: self), &)
       children.concat(param)
     end
 
     def parameters(*names, **options, &)
-      params = self.class.parameters(*names, **options.merge(klass: klass, parent: self), &)
+      params = self.class.parameters(*names, **options.merge(klass:, parent: self), &)
       children.concat(params)
     end
 
@@ -67,17 +73,20 @@ module CMDx
     end
 
     def source
-      @_source ||= options[:source]&.to_sym || parent&.signature || :context
+      @source ||= options[:source]&.to_sym || parent&.signature || :context
     end
 
     def signature
-      @_signature ||= Utils::Signature.call(source, name, options)
+      @signature ||= Utils::Signature.call(source, name, options)
     end
 
-    def call
-      attribute.call
-      @block&.call(self)
-    end
+    # def to_h
+    #   ParameterSerializer.call(self)
+    # end
+
+    # def to_s
+    #   ParameterInspector.call(to_h)
+    # end
 
   end
 end

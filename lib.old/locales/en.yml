@@ -9,7 +9,7 @@ en:
       unspecified: "no reason given"
     parameters:
       required: "is a required parameter"
-      undefined: "delegates to undefined method %{source}"
+      undefined: "delegates to undefined source %{source}"
     validators:
       exclusion:
         of: "must not be one of: %{values}"
