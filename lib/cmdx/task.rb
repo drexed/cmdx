@@ -2,8 +2,18 @@
 
 # class SampleTask < CMDx::Task
 
-#   required :name, type: String
-#   optional :age
+#   required :name
+#   optional :age, :sex
+#   required :billing_address do
+#     required :city
+#     required :state
+#     optional :zip
+#   end
+#   optional :skipping_address do
+#     required :city
+#     required :state
+#     optional :zip
+#   end
 
 #   def call
 #     pp self.class.settings[:parameters]

@@ -5,21 +5,21 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :parameters, :each
+    def_delegators :registry, :each
 
-    attr_reader :parameters, :errors
+    attr_reader :registry, :errors
 
     def initialize
-      @parameters = []
+      @registry = []
       @errors = Set.new
     end
 
     def register(parameter)
-      @parameters << parameter
+      @registry << parameter
     end
 
     def call
-      parameters.each do |parameter|
+      registry.each do |parameter|
         parameter.call
         errors.merge!(parameter.errors)
       end

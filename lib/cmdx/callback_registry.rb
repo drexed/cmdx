@@ -3,22 +3,26 @@
 module CMDx
   class CallbackRegistry
 
-    # TYPES = [
-    #   :before_validation,
-    #   :after_validation,
-    #   :before_execution,
-    #   :after_execution,
-    #   :on_executed,
-    #   :on_good,
-    #   :on_bad,
-    #   *Result::STATUSES.map { |s| :"on_#{s}" },
-    #   *Result::STATES.map { |s| :"on_#{s}" }
-    # ].freeze
+    TYPES = [
+      :before_validation,
+      :after_validation,
+      :before_execution,
+      :after_execution,
+      :on_executed,
+      :on_good,
+      :on_bad,
+      *Result::STATUSES.map { |s| :"on_#{s}" },
+      *Result::STATES.map { |s| :"on_#{s}" }
+    ].freeze
 
     attr_reader :registry
 
     def initialize(registry = {})
       @registry = registry
+    end
+
+    def dup
+      self.class.new(registry.transform_values(&:dup))
     end
 
     def register(type, *callables, **options, &block)
@@ -43,10 +47,6 @@ module CMDx
     #     end
     #   end
     # end
-
-    def to_h
-      registry.transform_values(&:dup)
-    end
 
   end
 end
