@@ -28,6 +28,12 @@ module CMDx
 
     class << self
 
+      CallbackRegistry::TYPES.each do |callback|
+        define_method(callback) do |*callables, **options, &block|
+          register(:callback, callback, *callables, **options, &block)
+        end
+      end
+
       def settings
         @_settings ||= CMDx.configuration.to_hash.merge(
           parameters: ParameterRegistry.new,

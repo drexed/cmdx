@@ -12,9 +12,7 @@ module CMDx
       @name     = name
       @options  = options
       @children = []
-
-      @value  = nil
-      @errors = Set.new
+      @errors   = Set.new
 
       # define_attribute(self)
       # instance_eval(&) if block_given?
@@ -28,8 +26,6 @@ module CMDx
       end
     end
 
-    private
-
     def required?
       !!options[:required]
     end
@@ -40,6 +36,24 @@ module CMDx
 
     def signature
       @_signature ||= Utils::Signature.call(source, name, options)
+    end
+
+    private
+
+    def generate!
+      # return @value if defined?(@value)
+
+      # if source_value_required?
+      #   raise ValidationError, I18n.t(
+      #     "cmdx.parameters.required",
+      #     default: "is a required parameter"
+      #   )
+      # end
+
+      # @value = source.cmdx_try(name)
+      # return @value unless @value.nil? && options.key?(:default)
+
+      # @value = task.cmdx_yield(options[:default])
     end
 
     def coerce!
