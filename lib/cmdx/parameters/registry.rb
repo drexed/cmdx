@@ -8,9 +8,10 @@ module CMDx
 
       def_delegators :attributes, :each
 
-      attr_reader :attributes, :errors
+      attr_reader :task, :attributes, :errors
 
-      def initialize
+      def initialize(task)
+        @task = task
         @attributes = []
         @errors = Errors.new
       end

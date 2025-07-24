@@ -8,7 +8,7 @@ module CMDx
 
       def_delegators :coercions, :each, :[]
 
-      attr_accessor :coercions
+      attr_reader :coercions
 
       def initialize(coercions = nil)
         @coercions = coercions || {
@@ -23,8 +23,7 @@ module CMDx
           integer: Coercions::Integer,
           rational: Coercions::Rational,
           string: Coercions::String,
-          time: Coercions::Time,
-          virtual: Coercions::Virtual
+          time: Coercions::Time
         }
       end
 

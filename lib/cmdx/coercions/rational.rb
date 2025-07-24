@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Validators
-    class Exclusion < Base
+  module Coercions
+    class Rational < Base
 
       def call
         # Do nothing

@@ -8,7 +8,7 @@ module CMDx
 
       def_delegators :validators, :each, :[]
 
-      attr_accessor :validators
+      attr_reader :validators
 
       def initialize(validators = nil)
         @validators = validators || {

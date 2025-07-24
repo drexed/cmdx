@@ -28,7 +28,7 @@ module CMDx
 
       def cmdx_settings
         @_cmdx_settings ||= CMDx.configuration.to_hash.merge(
-          parameters: Parameters::Registry.new,
+          parameters: Parameters::Registry.new(self),
           tags: []
         )
       end
@@ -45,18 +45,25 @@ module CMDx
         end
       end
 
-      def required(*names, **options)
-        names.each do |name|
-          attribute = Parameters::Attribute.new(name, options, required: true)
-          cmdx_settings[:parameters].register(attribute)
-        end
+      def parameter(name, **options, &)
+        attribute = Parameters::Attribute.new(name, options, &)
+        cmdx_settings[:parameters].register(attribute)
       end
 
-      def optional(*names, **options)
-        names.each do |name|
-          attribute = Parameters::Attribute.new(name, options, required: false)
-          cmdx_settings[:parameters].register(attribute)
-        end
+      # rubocop:disable Style/ArgumentsForwarding
+      def parameters(*names, **options, &)
+        names.each { |name| parameter(name, **options, &) }
+      end
+      # rubocop:enable Style/ArgumentsForwarding
+
+      def optional(*names, **options, &)
+        options[:required] = false
+        parameters(*names, **options, &)
+      end
+
+      def required(*names, **options, &)
+        options[:required] = true
+        parameters(*names, **options, &)
       end
 
       def call(...)
