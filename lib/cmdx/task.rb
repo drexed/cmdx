@@ -55,8 +55,8 @@ module CMDx
 
       def parameter(name, **options, &)
         options[:klass] = self
-        attribute = Parameter.new(name, options, &)
-        settings[:parameters].register(attribute)
+        param = Parameter.parameter(name, **options, &)
+        settings[:parameters].register(param)
       end
 
       # rubocop:disable Style/ArgumentsForwarding
@@ -73,6 +73,11 @@ module CMDx
       def required(*names, **options, &)
         options[:required] = true
         parameters(*names, **options, &)
+      end
+
+      def optional(*attributes, **options, &)
+        parameters = Parameter.optional(*attributes, **options.merge(klass: self), &)
+        cmd_parameters.registry.concat(parameters)
       end
 
       def call(...)
