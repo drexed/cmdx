@@ -79,18 +79,18 @@ module CMDx
       @signature ||= Utils::Signature.derive!(source, name, options)
     end
 
-    def process!
-      attribute!
-      instance_eval(&@block) unless @block.nil?
-      children.each(&:process!)
-    end
-
     def value
       return @value if defined?(@value)
 
       raise RuntimeError, "a Task or Workflow is required" unless task.is_a?(Task)
 
       @value ||= ParameterValue.new(task, self)
+    end
+
+    def process!
+      define_task_attribute
+      instance_eval(&@block) unless @block.nil?
+      children.each(&:process!)
     end
 
     def to_h
@@ -103,7 +103,7 @@ module CMDx
 
     private
 
-    def attribute!
+    def define_task_attribute
       param = self
 
       klass.define_method(signature) do
