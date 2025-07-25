@@ -17,13 +17,16 @@
 
 #   def call
 #     pp self.class.settings[:parameters]
-#     pp name
-#     pp age
+#     pp "-> name: #{name}"
+#     pp "-> age: #{age}"
+#     pp "-> sex: #{sex}"
+#     pp "-> billing_address: #{billing_address}"
+#     pp "-> skipping_address: #{skipping_address}"
 #   end
 
 # end
 
-# SampleTask.new.call; nil
+# SampleTask.call(name: "John", age: 30); nil
 
 module CMDx
   class Task

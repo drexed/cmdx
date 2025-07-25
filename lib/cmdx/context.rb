@@ -5,7 +5,7 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :table, :each_pair, :to_h
+    def_delegators :table, :each, :map, :to_h
 
     def initialize(args = {})
       unless args.respond_to?(:to_h)
@@ -20,9 +20,10 @@ module CMDx
       table[key.to_sym]
     end
 
-    def []=(key, value)
+    def store(key, value)
       table[key.to_sym] = value
     end
+    alias []= store
 
     def fetch(key, ...)
       table.fetch(key.to_sym, ...)
@@ -42,6 +43,10 @@ module CMDx
     end
     alias == eql?
 
+    def key?(key)
+      table.key?(key.to_sym)
+    end
+
     def dig(key, *keys)
       table.dig(key.to_sym, *keys)
     end
@@ -54,17 +59,17 @@ module CMDx
     private
 
     def table
-      @_table ||= {}
+      @table ||= {}
     end
 
     def method_missing(method_name, *args, **_kwargs, &)
       fetch(method_name) do
-        self[method_name[0..-2]] = args.first if method_name.end_with?("=")
+        store!(method_name[0..-2], args.first) if method_name.end_with?("=")
       end
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      table.key?(method_name.to_sym) || super
+      key?(method_name) || super
     end
 
   end

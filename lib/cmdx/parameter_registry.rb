@@ -3,10 +3,6 @@
 module CMDx
   class ParameterRegistry
 
-    extend Forwardable
-
-    def_delegators :registry, :each
-
     attr_reader :registry, :errors
 
     def initialize

@@ -37,13 +37,14 @@ module CMDx
           )
         end
 
-      return unless @source_value.nil?
-      return if parameter.parent&.optional? || parameter.optional?
-
-      raise ValidationError, I18n.t(
-        "cmdx.parameters.required",
-        default: "is a required parameter"
-      )
+      if !@source_value.nil? || parameter.parent&.optional? || parameter.optional?
+        @source_value
+      else
+        raise ValidationError, I18n.t(
+          "cmdx.parameters.required",
+          default: "is a required parameter"
+        )
+      end
     end
 
     def default_value
@@ -60,15 +61,19 @@ module CMDx
 
       @derived_value =
         case source_value
-        when Symbol, String
-          source_value.send(parameter.name)
-        when Hash
-          source_value[parameter.name]
         when Proc
           source_value.call(task)
+        when Context, Hash
+          source_value[parameter.name]
+        else
+          source_value.send(parameter.name)
         end
 
-      @value = default_value if @derived_value.nil?
+      if @derived_value.nil?
+        @derived_value = default_value
+      else
+        @derived_value
+      end
     end
 
     # def coerce_value
