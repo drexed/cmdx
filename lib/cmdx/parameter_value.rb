@@ -3,21 +3,37 @@
 module CMDx
   class ParameterValue
 
-    attr_reader :task, :parameter, :errors
+    attr_reader :parameter, :errors
 
-    def initialize(task, parameter)
-      @task      = task
+    def initialize(parameter)
       @parameter = parameter
       @errors    = Set.new
     end
 
-    def source
-      return @source if defined?(@source)
+    def self.generate!(parameter)
+      new(parameter).value
+    end
 
-      @source =
+    def value
+      return @value if defined?(@value)
+
+      @value =
+        if errors.empty?
+          derived_value
+        else
+          nil
+        end
+    end
+
+    private
+
+    def source_value
+      return @source_value if defined?(@source_value)
+
+      @source_value =
         case parameter.source
-        when Symbol, String then task.send(parameter.source)
-        when Proc then parameter.source.call(task)
+        when Symbol, String then parameter.task.send(parameter.source)
+        when Proc then parameter.source.call(parameter.task)
         else
           errors << I18n.t(
             "cmdx.parameters.undefined",
@@ -26,8 +42,8 @@ module CMDx
           )
         end
 
-      if !@source.nil? || parameter.parent&.optional? || parameter.optional?
-        @source
+      if !@source_value.nil? || parameter.parent&.optional? || parameter.optional?
+        @source_value
       else
         errors << I18n.t(
           "cmdx.parameters.required",
@@ -36,24 +52,24 @@ module CMDx
       end
     end
 
-    def derived
-      return @derived if defined?(@derived)
+    def derived_value
+      return @derived_value if defined?(@derived_value)
 
-      @derived =
-        case source
-        when Context, Hash then source[parameter.name]
-        when Proc then source.call(task)
-        else source.send(parameter.name)
+      @derived_value =
+        case source_value
+        when Context, Hash then source_value[parameter.name]
+        when Proc then source_value.call(parameter.task)
+        else source_value.send(parameter.name)
         end
 
-      if @derived.nil?
-        @derived =
+      if @derived_value.nil?
+        @derived_value =
           case default = parameter.options[:default]
-          when Proc then default.call(task)
+          when Proc then default.call(parameter.task)
           else default
           end
       else
-        @derived
+        @derived_value
       end
     end
 

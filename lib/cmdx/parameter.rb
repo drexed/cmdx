@@ -84,7 +84,7 @@ module CMDx
 
       raise RuntimeError, "a Task or Workflow is required" unless task.is_a?(Task)
 
-      @value ||= ParameterValue.new(task, self)
+      @value = ParameterValue.generate!(self)
     end
 
     def define_attributes!
@@ -112,7 +112,7 @@ module CMDx
 
       klass.define_method(signature) do
         param.task = self
-        param.value.derived
+        param.value
       end
 
       klass.send(:private, signature)
