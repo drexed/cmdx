@@ -90,24 +90,26 @@ module CMDx
     private
 
     def define_task_method(parameter)
-      parameter.klass.send(:define_method, parameter.signature) do
-        @cmd_parameter_value_cache ||= {}
+      parameter.klass.tap do |k|
+        k.define_method(parameter.signature) do
+          @parameter_value_cache ||= {}
 
-        unless @cmd_parameter_value_cache.key?(parameter.signature)
-          begin
-            parameter_value = ParameterAttribute.call(self, parameter)
-          rescue CoercionError, ValidationError => e
-            parameter.errors.add(parameter.signature, e.message)
-            errors.merge!(parameter.errors.to_hash)
-          ensure
-            @cmd_parameter_value_cache[parameter.signature] = parameter_value
+          unless @parameter_value_cache.key?(parameter.signature)
+            begin
+              parameter_value = ParameterAttribute.call(self, parameter)
+            rescue CoercionError, ValidationError => e
+              parameter.errors.add(parameter.signature, e.message)
+              errors.merge!(parameter.errors.to_hash)
+            ensure
+              @parameter_value_cache[parameter.signature] = parameter_value
+            end
           end
+
+          @parameter_value_cache[parameter.signature]
         end
 
-        @cmd_parameter_value_cache[parameter.signature]
+        k.send(:private, parameter.signature)
       end
-
-      parameter.klass.send(:private, parameter.signature)
     end
 
   end
