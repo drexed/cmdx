@@ -21,5 +21,13 @@ module CMDx
       end
     end
 
+    def to_h
+      registry.map(&:to_h)
+    end
+
+    def to_s
+      registry.map(&:to_s).join("\n")
+    end
+
   end
 end

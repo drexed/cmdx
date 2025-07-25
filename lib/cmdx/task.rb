@@ -5,26 +5,30 @@
 #   required :name, :sex
 #   optional :age, type: :integer
 #   required :billing_address do
-#     required :city, :state
+#     optional :locality do
+#       required :city, :state
+#     end
 #     optional :zip
 #   end
 #   optional :skipping_address do
-#     required :city, :state
+#     required :locality do
+#       required :city, :state
+#     end
 #     optional :zip
 #   end
 
 #   def call
-#     pp self.class.settings[:parameters]
-#     pp "-> name: #{name}"
-#     pp "-> age: #{age}"
-#     pp "-> sex: #{sex}"
-#     pp "-> billing_address: #{billing_address}"
-#     pp "-> skipping_address: #{skipping_address}"
+#     puts self.class.settings[:parameters]
+#     puts "-> name: #{name}"
+#     puts "-> age: #{age}"
+#     puts "-> sex: #{sex}"
+#     puts "-> billing_address: #{billing_address}"
+#     puts "-> skipping_address: #{skipping_address}"
 #   end
 
 # end
 
-# SampleTask.call(name: "John", sex: "M", age: "30"); nil
+# SampleTask.call(name: "John", sex: "M", age: "30")
 
 module CMDx
   class Task

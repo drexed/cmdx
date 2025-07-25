@@ -3,10 +3,14 @@
 module CMDx
   class Parameter
 
-    attr_reader :klass, :name, :options, :children
+    attr_reader :klass, :parent, :type, :name, :options, :children
 
     def initialize(name, options = {}, &block)
       @klass     = options.delete(:klass) || raise(KeyError, "klass option required")
+      @parent    = options.delete(:parent)
+      @required  = options.delete(:required) || false
+      @type      = Array(options.delete(:type))
+
       @name      = name
       @options   = options
       @block     = block if block_given?
@@ -42,6 +46,7 @@ module CMDx
     def process!
       TaskAttribute.define!(self)
       instance_eval(&@block) unless @block.nil?
+      children.each(&:process!)
       freeze
     end
 
@@ -64,7 +69,7 @@ module CMDx
     end
 
     def optional?
-      !options[:required]
+      !@required
     end
 
     def required?
@@ -72,20 +77,20 @@ module CMDx
     end
 
     def source
-      @source ||= options[:source]&.to_sym || options[:parent]&.signature || :context
+      @source ||= options[:source]&.to_sym || parent&.signature || :context
     end
 
     def signature
       @signature ||= Utils::Signature.derive!(source, name, options)
     end
 
-    # def to_h
-    #   ParameterSerializer.call(self)
-    # end
+    def to_h
+      ParameterTransformer.to_h(self)
+    end
 
-    # def to_s
-    #   ParameterInspector.call(to_h)
-    # end
+    def to_s
+      ParameterTransformer.to_s(to_h)
+    end
 
   end
 end
