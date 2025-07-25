@@ -26,7 +26,7 @@ module CMDx
       validate_value
       return unless errors.empty?
 
-      @derived_value
+      derived_value
     end
 
     private
@@ -56,7 +56,7 @@ module CMDx
       end
     end
 
-    def derive_value
+    def derived_value
       return @derived_value if defined?(@derived_value)
 
       @derived_value =
@@ -76,6 +76,7 @@ module CMDx
         @derived_value
       end
     end
+    alias derive_value derived_value
 
     def coerce_value
       #   types = Array(parameter.type)
@@ -97,18 +98,26 @@ module CMDx
       #   end
     end
 
+    def validator_allows_nil?(options)
+      return false unless options.is_a?(Hash) || derived_value.nil?
+
+      case o = options[:allow_nil]
+      when Symbol, String then task.send(o)
+      when Proc then o.call(task)
+      else o
+      end || false
+    end
+
     def validate_value
-      #   return if skip_validations_due_to_optional_missing_argument?
+      types = parameter.klass.settings[:validators].keys
 
-      #   types = CMDx.configuration.validators.registry.keys
+      parameter.options.slice(*types).each_key do |type|
+        options = parameter.options[type]
+        next if validator_allows_nil?(options)
+        next unless Utils::Condition.call(task, options)
 
-      #   options.slice(*types).each_key do |key|
-      #     opts = options[key]
-      #     next if skip_validator_due_to_allow_nil?(opts)
-      #     next if skip_validator_due_to_conditional?(opts)
-
-      #     CMDx.configuration.validators.call(task, key, value, opts)
-      #   end
+        parameter.klass.settings[:validators].call(type, self, options)
+      end
     end
 
   end

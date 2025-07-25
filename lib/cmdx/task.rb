@@ -2,16 +2,14 @@
 
 # class SampleTask < CMDx::Task
 
-#   required :name
-#   optional :age, :sex
+#   required :name, :sex
+#   optional :age, type: :integer
 #   required :billing_address do
-#     required :city
-#     required :state
+#     required :city, :state
 #     optional :zip
 #   end
 #   optional :skipping_address do
-#     required :city
-#     required :state
+#     required :city, :state
 #     optional :zip
 #   end
 
@@ -26,7 +24,7 @@
 
 # end
 
-# SampleTask.call(name: "John", age: 30); nil
+# SampleTask.call(name: "John", sex: "M", age: "30"); nil
 
 module CMDx
   class Task

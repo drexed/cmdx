@@ -4,8 +4,7 @@ module CMDx
   module Utils
     module Signature
 
-      SIGNATURE = proc do |value, &block|
-        # Affix target name if true
+      AFFIXER = proc do |value, &block|
         value.is_a?(TrueClass) ? block.call : value
       end.freeze
 
@@ -13,8 +12,8 @@ module CMDx
 
       def call(target, method, options = {})
         options[:as] || begin
-          prefix = SIGNATURE.call(options[:prefix]) { "#{target}_" }
-          suffix = SIGNATURE.call(options[:suffix]) { "_#{target}" }
+          prefix = AFFIXER.call(options[:prefix]) { "#{target}_" }
+          suffix = AFFIXER.call(options[:suffix]) { "_#{target}" }
 
           "#{prefix}#{method}#{suffix}".strip.to_sym
         end

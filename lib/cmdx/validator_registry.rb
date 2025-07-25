@@ -5,12 +5,12 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :validators, :each, :[]
+    def_delegators :registry, :keys
 
-    attr_reader :validators
+    attr_reader :registry
 
-    def initialize(validators = nil)
-      @validators = validators || {
+    def initialize(registry = nil)
+      @registry = registry || {
         exclusion: Validators::Exclusion,
         format: Validators::Format,
         inclusion: Validators::Inclusion,
@@ -21,11 +21,22 @@ module CMDx
     end
 
     def dup
-      self.class.new(validators.dup)
+      self.class.new(registry.dup)
     end
 
     def register(name, validator)
-      validators[name.to_sym] = validator
+      registry[name.to_sym] = validator
+    end
+
+    def call(type, attribute, options)
+      case validator = registry[type]
+      when Symbol, String
+        attribute.task.send(validator, attribute, options)
+      when Validator, Proc
+        validator.call(attribute, options)
+      else
+        raise UnknownValidatorError, "unknown validator #{type}"
+      end
     end
 
   end
