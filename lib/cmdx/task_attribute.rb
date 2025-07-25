@@ -8,20 +8,20 @@ module CMDx
     def define!(parameter)
       parameter.klass.tap do |klass|
         klass.define_method(parameter.signature) do
-          @parameter_value_cache ||= {}
+          @_attributes ||= {}
 
-          unless @parameter_value_cache.key?(parameter.signature)
+          unless @_attributes.key?(parameter.signature)
             begin
               parameter_value = ParameterValue.call(self, parameter)
             rescue CoercionError, ValidationError => e
               parameter.errors.add(parameter.signature, e.message)
               errors.merge!(parameter.errors.to_hash)
             ensure
-              @parameter_value_cache[parameter.signature] = parameter_value
+              @_attributes[parameter.signature] = parameter_value
             end
           end
 
-          @parameter_value_cache[parameter.signature]
+          @_attributes[parameter.signature]
         end
 
         klass.send(:private, parameter.signature)
