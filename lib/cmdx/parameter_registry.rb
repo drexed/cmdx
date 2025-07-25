@@ -16,7 +16,7 @@ module CMDx
 
     def call
       registry.each do |parameter|
-        parameter.call
+        parameter.process!
         # errors.merge!(parameter.errors)
       end
     end

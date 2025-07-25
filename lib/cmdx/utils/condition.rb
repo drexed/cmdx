@@ -14,7 +14,7 @@ module CMDx
 
       module_function
 
-      def call(target, options = {})
+      def evaluate!(target, options = {})
         case options
         in { if: xif, unless: xunless }
           EVALUATOR.call(target, xif) && !EVALUATOR.call(target, xunless)

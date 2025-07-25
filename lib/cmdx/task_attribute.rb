@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module CMDx
-  module ParameterAttribute
+  module TaskAttribute
 
     module_function
 
-    def call(parameter)
+    def define!(parameter)
       parameter.klass.tap do |klass|
         klass.define_method(parameter.signature) do
           @parameter_value_cache ||= {}

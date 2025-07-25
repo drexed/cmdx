@@ -10,7 +10,7 @@ module CMDx
 
       module_function
 
-      def call(target, method, options = {})
+      def derive!(target, method, options = {})
         options[:as] || begin
           prefix = AFFIXER.call(options[:prefix]) { "#{target}_" }
           suffix = AFFIXER.call(options[:suffix]) { "_#{target}" }

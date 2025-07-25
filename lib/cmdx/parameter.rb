@@ -39,10 +39,10 @@ module CMDx
 
     end
 
-    def call
-      ParameterAttribute.call(self)
+    def process!
+      TaskAttribute.define!(self)
       instance_eval(&@block) unless @block.nil?
-      # TODO: freeze once called
+      freeze
     end
 
     def parameter(name, **options, &)
@@ -76,7 +76,7 @@ module CMDx
     end
 
     def signature
-      @signature ||= Utils::Signature.call(source, name, options)
+      @signature ||= Utils::Signature.derive!(source, name, options)
     end
 
     # def to_h

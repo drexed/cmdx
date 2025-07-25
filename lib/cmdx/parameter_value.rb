@@ -114,7 +114,7 @@ module CMDx
       parameter.options.slice(*types).each_key do |type|
         options = parameter.options[type]
         next if validator_allows_nil?(options)
-        next unless Utils::Condition.call(task, options)
+        next unless Utils::Condition.evaluate!(task, options)
 
         parameter.klass.settings[:validators].call(type, self, options)
       end
