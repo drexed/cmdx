@@ -28,7 +28,7 @@
 module CMDx
   class Task
 
-    attr_reader :context
+    attr_reader :context, :result
 
     def initialize(context = {})
       context = context.context if context.respond_to?(:context)
@@ -103,7 +103,8 @@ module CMDx
     end
 
     def call_with_middlewares
-      self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
+      TaskProcessor.call(self)
+      # self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
     end
 
     def call_with_middlewares!

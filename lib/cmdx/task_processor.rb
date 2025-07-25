@@ -3,15 +3,10 @@
 module CMDx
   class TaskProcessor
 
-    extend Forwardable
-
-    def_delegators :klass, :settings
-
-    attr_reader :task, :klass
+    attr_reader :task
 
     def initialize(task)
-      @task  = task
-      @klass = task.class
+      @task = task
     end
 
     class << self
@@ -27,10 +22,9 @@ module CMDx
     end
 
     def call
-      settings[:parameters].tap do |parameters|
-        parameters.call
-        # task.result.fail!
-      end
+      task.class.settings[:parameters].call
+
+      task.call
     end
 
     def call!

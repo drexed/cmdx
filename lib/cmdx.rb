@@ -15,6 +15,8 @@ require "zeitwerk"
 
 module CMDx; end
 
+# TODO: remove zeitwerk and just use require_relative
+
 # Set up Zeitwerk loader for the CMDx gem
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cmdx" => "CMDx")

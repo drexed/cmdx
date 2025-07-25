@@ -3,7 +3,7 @@
 module CMDx
   class Parameter
 
-    attr_reader :klass, :name, :options, :children, :attribute
+    attr_reader :klass, :name, :options, :children
 
     def initialize(name, options = {}, &block)
       @klass     = options.delete(:klass) || raise(KeyError, "klass option required")
@@ -11,7 +11,6 @@ module CMDx
       @options   = options
       @block     = block if block_given?
       @children  = []
-      @attribute = ParameterAttribute.new(self)
     end
 
     class << self
@@ -41,8 +40,8 @@ module CMDx
     end
 
     def call
-      attribute.call
-      @block&.call(self)
+      define_task_method(self)
+      instance_eval(&@block) unless @block.nil?
       # TODO: freeze once called
     end
 
@@ -73,7 +72,7 @@ module CMDx
     end
 
     def source
-      @source ||= options[:source]&.to_sym || parent&.signature || :context
+      @source ||= options[:source]&.to_sym || options[:parent]&.signature || :context
     end
 
     def signature
@@ -87,6 +86,29 @@ module CMDx
     # def to_s
     #   ParameterInspector.call(to_h)
     # end
+
+    private
+
+    def define_task_method(parameter)
+      parameter.klass.send(:define_method, parameter.signature) do
+        @cmd_parameter_value_cache ||= {}
+
+        unless @cmd_parameter_value_cache.key?(parameter.signature)
+          begin
+            parameter_value = ParameterAttribute.call(self, parameter)
+          rescue CoercionError, ValidationError => e
+            parameter.errors.add(parameter.signature, e.message)
+            errors.merge!(parameter.errors.to_hash)
+          ensure
+            @cmd_parameter_value_cache[parameter.signature] = parameter_value
+          end
+        end
+
+        @cmd_parameter_value_cache[parameter.signature]
+      end
+
+      parameter.klass.send(:private, parameter.signature)
+    end
 
   end
 end
