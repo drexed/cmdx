@@ -22,7 +22,7 @@ module CMDx
     end
 
     def call
-      task.class.settings[:parameters].call
+      task.class.settings[:parameters].process!
 
       task.call
     end

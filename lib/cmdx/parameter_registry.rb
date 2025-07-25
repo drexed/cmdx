@@ -3,22 +3,18 @@
 module CMDx
   class ParameterRegistry
 
-    attr_reader :registry, :errors
+    attr_reader :registry
 
     def initialize
       @registry = []
-      @errors = Set.new
     end
 
     def register(parameter)
       @registry << parameter
     end
 
-    def call
-      registry.each do |parameter|
-        parameter.process!
-        # errors.merge!(parameter.errors)
-      end
+    def process!
+      registry.each(&:process!)
     end
 
     def to_h

@@ -52,7 +52,7 @@ module CMDx
 
     def parameter(name, **options, &)
       param = self.class.parameter(name, **options.merge(klass:, parent: self), &)
-      children.concat(param)
+      children.push(param)
     end
 
     def parameters(*names, **options, &)
