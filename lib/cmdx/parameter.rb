@@ -40,7 +40,7 @@ module CMDx
     end
 
     def call
-      define_task_method(self)
+      ParameterAttribute.call(self)
       instance_eval(&@block) unless @block.nil?
       # TODO: freeze once called
     end
@@ -86,31 +86,6 @@ module CMDx
     # def to_s
     #   ParameterInspector.call(to_h)
     # end
-
-    private
-
-    def define_task_method(parameter)
-      parameter.klass.tap do |k|
-        k.define_method(parameter.signature) do
-          @parameter_value_cache ||= {}
-
-          unless @parameter_value_cache.key?(parameter.signature)
-            begin
-              parameter_value = ParameterAttribute.call(self, parameter)
-            rescue CoercionError, ValidationError => e
-              parameter.errors.add(parameter.signature, e.message)
-              errors.merge!(parameter.errors.to_hash)
-            ensure
-              @parameter_value_cache[parameter.signature] = parameter_value
-            end
-          end
-
-          @parameter_value_cache[parameter.signature]
-        end
-
-        k.send(:private, parameter.signature)
-      end
-    end
 
   end
 end
