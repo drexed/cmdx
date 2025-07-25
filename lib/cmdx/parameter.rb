@@ -3,6 +3,8 @@
 module CMDx
   class Parameter
 
+    attr_accessor :task
+
     attr_reader :klass, :parent, :type, :name, :options, :children
 
     def initialize(name, options = {}, &block)
@@ -43,13 +45,6 @@ module CMDx
 
     end
 
-    def process!
-      TaskAttribute.define!(self)
-      instance_eval(&@block) unless @block.nil?
-      children.each(&:process!)
-      freeze
-    end
-
     def parameter(name, **options, &)
       param = self.class.parameter(name, **options.merge(klass:, parent: self), &)
       children.push(param)
@@ -84,12 +79,39 @@ module CMDx
       @signature ||= Utils::Signature.derive!(source, name, options)
     end
 
+    def process!
+      attribute!
+      instance_eval(&@block) unless @block.nil?
+      children.each(&:process!)
+    end
+
+    def value
+      return @value if defined?(@value)
+
+      raise RuntimeError, "a Task or Workflow is required" unless task.is_a?(Task)
+
+      @value ||= ParameterValue.new(task, self)
+    end
+
     def to_h
       ParameterTransformer.to_h(self)
     end
 
     def to_s
       ParameterTransformer.to_s(to_h)
+    end
+
+    private
+
+    def attribute!
+      param = self
+
+      klass.define_method(signature) do
+        param.task = self
+        param.value.derived
+      end
+
+      klass.send(:private, signature)
     end
 
   end
