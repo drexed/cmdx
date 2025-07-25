@@ -87,10 +87,14 @@ module CMDx
       @value ||= ParameterValue.new(task, self)
     end
 
-    def process!
-      define_task_attribute
+    def define_attributes!
+      define_attribute
       instance_eval(&@block) unless @block.nil?
-      children.each(&:process!)
+      children.each(&:define_attributes!)
+    end
+
+    def validate_attributes!
+      # TODO
     end
 
     def to_h
@@ -103,7 +107,7 @@ module CMDx
 
     private
 
-    def define_task_attribute
+    def define_attribute
       param = self
 
       klass.define_method(signature) do
@@ -113,6 +117,28 @@ module CMDx
 
       klass.send(:private, signature)
     end
+
+    # def validator_allows_nil?(options)
+    #   return false unless options.is_a?(Hash) || derived.nil?
+
+    #   case o = options[:allow_nil]
+    #   when Symbol, String then task.send(o)
+    #   when Proc then o.call(task)
+    #   else o
+    #   end || false
+    # end
+
+    # def validate_value
+    #   types = parameter.klass.settings[:validators].keys
+
+    #   parameter.options.slice(*types).each_key do |type|
+    #     options = parameter.options[type]
+    #     next if validator_allows_nil?(options)
+    #     next unless Utils::Condition.evaluate!(task, options)
+
+    #     parameter.klass.settings[:validators].call(type, self, options)
+    #   end
+    # end
 
   end
 end

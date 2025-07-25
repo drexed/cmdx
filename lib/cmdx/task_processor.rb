@@ -22,13 +22,24 @@ module CMDx
     end
 
     def call
-      task.class.settings[:parameters].process!
+      define_parameter_attributes
+      validate_parameter_attributes
 
       task.call
     end
 
     def call!
       # Do nothing
+    end
+
+    private
+
+    def define_parameter_attributes
+      task.class.settings[:parameters].define_attributes!
+    end
+
+    def validate_parameter_attributes
+      task.class.settings[:parameters].validate_attributes!
     end
 
   end

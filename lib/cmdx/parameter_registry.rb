@@ -13,8 +13,12 @@ module CMDx
       @registry << parameter
     end
 
-    def process!
-      registry.each(&:process!)
+    def define_attributes!
+      registry.each(&:define_attributes!)
+    end
+
+    def validate_attributes!
+      registry.each(&:validate_attributes!)
     end
 
     def to_h
