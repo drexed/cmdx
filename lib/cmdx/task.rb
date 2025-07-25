@@ -76,18 +76,18 @@ module CMDx
       end
 
       def parameters(*names, **options, &)
-        parameters = Parameter.parameters(*names, **options.merge(klass: self), &)
-        settings[:parameters].registry.concat(parameters)
+        params = Parameter.parameters(*names, **options.merge(klass: self), &)
+        settings[:parameters].register(params)
       end
 
       def optional(*names, **options, &)
-        parameters = Parameter.optional(*names, **options.merge(klass: self), &)
-        settings[:parameters].registry.concat(parameters)
+        params = Parameter.optional(*names, **options.merge(klass: self), &)
+        settings[:parameters].register(params)
       end
 
       def required(*names, **options, &)
-        parameters = Parameter.required(*names, **options.merge(klass: self), &)
-        settings[:parameters].registry.concat(parameters)
+        params = Parameter.required(*names, **options.merge(klass: self), &)
+        settings[:parameters].register(params)
       end
 
       def call(...)

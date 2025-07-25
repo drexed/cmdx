@@ -3,11 +3,10 @@
 module CMDx
   class ParameterValue
 
-    attr_reader :parameter, :errors
+    attr_reader :parameter
 
     def initialize(parameter)
       @parameter = parameter
-      @errors    = Set.new
     end
 
     def self.generate!(parameter)

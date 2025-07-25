@@ -9,24 +9,26 @@ module CMDx
       @registry = []
     end
 
-    def register(parameter)
-      @registry << parameter
+    class << self
+
+      def define_attributes_for(task)
+        task.class.settings[:parameters].registry.each do |parameter|
+          parameter.schema.task = task
+          parameter.attribute.define_attribute!
+        end
+      end
+
+      def validate_attributes_for(task)
+        task.class.settings[:parameters].registry.each do |parameter|
+          parameter.schema.task = task
+          parameter.attribute.validate_attribute!
+        end
+      end
+
     end
 
-    def define_attributes!
-      registry.each(&:define_attributes!)
-    end
-
-    def validate_attributes!
-      registry.each(&:validate_attributes!)
-    end
-
-    def to_h
-      registry.map(&:to_h)
-    end
-
-    def to_s
-      registry.map(&:to_s).join("\n")
+    def register(parameters)
+      @registry.concat(Array(parameters))
     end
 
   end
