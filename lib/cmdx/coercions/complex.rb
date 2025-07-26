@@ -2,10 +2,18 @@
 
 module CMDx
   module Coercions
-    class Complex < Coercion
+    module Complex
 
-      def call
-        # Do nothing
+      module_function
+
+      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+        Complex(value)
+      rescue ArgumentError, TypeError
+        raise CoercionError, I18n.t(
+          "cmdx.coercions.into_a",
+          type: "complex",
+          default: "could not coerce into a complex"
+        )
       end
 
     end

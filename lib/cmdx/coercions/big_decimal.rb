@@ -2,10 +2,20 @@
 
 module CMDx
   module Coercions
-    class BigDecimal < Coercion
+    module BigDecimal
 
-      def call
-        # Do nothing
+      DEFAULT_PRECISION = 14
+
+      module_function
+
+      def call(value, options = {})
+        BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
+      rescue ArgumentError, TypeError
+        raise CoercionError, I18n.t(
+          "cmdx.coercions.into_a",
+          type: "big decimal",
+          default: "could not coerce into a big decimal"
+        )
       end
 
     end

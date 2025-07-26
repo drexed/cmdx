@@ -3,14 +3,10 @@
 module CMDx
   class CoercionRegistry
 
-    extend Forwardable
+    attr_reader :registry
 
-    def_delegators :coercions, :each, :[]
-
-    attr_reader :coercions
-
-    def initialize(coercions = nil)
-      @coercions = coercions || {
+    def initialize(registry = nil)
+      @registry = registry || {
         array: Coercions::Array,
         big_decimal: Coercions::BigDecimal,
         boolean: Coercions::Boolean,
@@ -27,11 +23,22 @@ module CMDx
     end
 
     def dup
-      self.class.new(coercions.dup)
+      self.class.new(registry.dup)
     end
 
     def register(name, coercion)
-      coercions[name.to_sym] = coercion
+      registry[name.to_sym] = coercion
+    end
+
+    def coerce!(type, value, options = {})
+      raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
+
+      case coercion = registry[type]
+      when Symbol, String
+        attribute.schema.task.send(coercion, value, options)
+      else
+        coercion.call(value, options)
+      end
     end
 
   end

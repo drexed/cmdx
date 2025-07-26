@@ -2,10 +2,18 @@
 
 module CMDx
   module Coercions
-    class Integer < Coercion
+    module Integer
 
-      def call
-        # Do nothing
+      module_function
+
+      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+        Integer(value)
+      rescue ArgumentError, FloatDomainError, RangeError, TypeError # rubocop:disable Lint/ShadowedException
+        raise CoercionError, I18n.t(
+          "cmdx.coercions.into_an",
+          type: "integer",
+          default: "could not coerce into an integer"
+        )
       end
 
     end

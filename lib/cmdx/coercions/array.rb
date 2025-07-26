@@ -2,10 +2,16 @@
 
 module CMDx
   module Coercions
-    class Array < Coercion
+    module Array
 
-      def call
-        # Do nothing
+      module_function
+
+      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+        if value.is_a?(::String) && value.start_with?("[")
+          JSON.parse(value)
+        else
+          Array(value)
+        end
       end
 
     end

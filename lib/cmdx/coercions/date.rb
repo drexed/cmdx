@@ -2,10 +2,23 @@
 
 module CMDx
   module Coercions
-    class Date < Coercion
+    module Date
 
-      def call
-        # Do nothing
+      ANALOG_TYPES = %w[Date DateTime Time].freeze
+
+      module_function
+
+      def call(value, options = {})
+        return value if ANALOG_TYPES.include?(value.class.name)
+        return ::Date.strptime(value, options[:strptime]) if options[:strptime]
+
+        ::Date.parse(value)
+      rescue TypeError, ::Date::Error
+        raise CoercionError, I18n.t(
+          "cmdx.coercions.into_a",
+          type: "date",
+          default: "could not coerce into a date"
+        )
       end
 
     end

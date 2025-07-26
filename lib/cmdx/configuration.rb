@@ -37,9 +37,9 @@ module CMDx
   module_function
 
   def configuration
-    return @_configuration if @_configuration
+    return @configuration if @configuration
 
-    @_configuration ||= Configuration.new
+    @configuration ||= Configuration.new
   end
 
   def configure
@@ -51,7 +51,7 @@ module CMDx
   end
 
   def reset_configuration!
-    @_configuration = Configuration.new
+    @configuration = Configuration.new
   end
 
 end

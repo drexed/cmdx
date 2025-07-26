@@ -2,10 +2,12 @@
 
 module CMDx
   module Coercions
-    class String < Coercion
+    module String
 
-      def call
-        # Do nothing
+      module_function
+
+      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+        String(value)
       end
 
     end
