@@ -7,9 +7,7 @@ module CMDx
 
     def initialize(schema)
       @schema = schema
-    end
-
-    def value
+      @errors = Errors.new
     end
 
     def define_attribute!
@@ -33,19 +31,25 @@ module CMDx
         when Symbol, String then parameter.task.send(parameter.source)
         when Proc then parameter.source.call(parameter.task)
         else
-          errors << I18n.t(
-            "cmdx.parameters.undefined",
-            default: "delegates to undefined source #{parameter.source}",
-            source: parameter.source
+          errors.add(
+            schema.signature,
+            I18n.t(
+              "cmdx.parameters.undefined",
+              default: "delegates to undefined source #{parameter.source}",
+              source: parameter.source
+            )
           )
         end
 
       if !@source_value.nil? || parameter.parent&.optional? || parameter.optional?
         @source_value
       else
-        errors << I18n.t(
-          "cmdx.parameters.required",
-          default: "is a required parameter"
+        errors.add(
+          schema.signature,
+          I18n.t(
+            "cmdx.parameters.required",
+            default: "is a required parameter"
+          )
         )
       end
     end
