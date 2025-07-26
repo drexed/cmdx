@@ -9,15 +9,13 @@ module CMDx
       @schema = schema
     end
 
+    def value
+    end
+
     def define_attribute!
-      # param = self
+      attribute = self
 
-      schema.task.class.define_method(schema.signature) do
-        rand(100)
-        # param.task = self
-        # param.value
-      end
-
+      schema.task.class.define_method(schema.signature) { attribute.value }
       schema.task.class.send(:private, schema.signature)
     end
 
@@ -25,12 +23,37 @@ module CMDx
       # TODO
     end
 
+    private
+
+    def source_value
+      return @source_value if defined?(@source_value)
+
+      @source_value =
+        case parameter.source
+        when Symbol, String then parameter.task.send(parameter.source)
+        when Proc then parameter.source.call(parameter.task)
+        else
+          errors << I18n.t(
+            "cmdx.parameters.undefined",
+            default: "delegates to undefined source #{parameter.source}",
+            source: parameter.source
+          )
+        end
+
+      if !@source_value.nil? || parameter.parent&.optional? || parameter.optional?
+        @source_value
+      else
+        errors << I18n.t(
+          "cmdx.parameters.required",
+          default: "is a required parameter"
+        )
+      end
+    end
+
     # private
 
     # def value
     #   return @value if defined?(@value)
-
-    #   raise RuntimeError, "a Task or Workflow is required" unless task.is_a?(Task)
 
     #   @value = ParameterValue.generate!(self)
     # end
