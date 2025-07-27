@@ -3,7 +3,7 @@
 module CMDx
   class ParameterAttribute
 
-    attr_reader :schema
+    attr_reader :schema, :errors
 
     def initialize(schema)
       @schema = schema
@@ -82,14 +82,12 @@ module CMDx
       return @coerced_value = derived_value if schema.type.empty?
 
       registry = schema.task.class.settings[:coercions]
-      tsize    = schema.type.size - 1
+      last_idx = schema.type.size - 1
 
       schema.type.each_with_index do |type, i|
         break @coerced_value = registry.coerce!(type, derived_value, schema.options)
-      rescue CoercionError => e
-        next if tsize != i
-
-        raise(e) if tsize.zero?
+      rescue CoercionError
+        next if i != last_idx
 
         values = schema.type.map(&:to_s).join(", ")
         errors.add(
@@ -101,6 +99,8 @@ module CMDx
           )
         )
       end
+
+      @coerced_value
     end
 
     # private

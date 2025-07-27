@@ -5,29 +5,30 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :errors, :empty?
+    def_delegators :messages, :empty?
 
-    attr_reader :errors
+    attr_reader :messages
 
-    alias to_h errors
+    alias to_h messages
 
     def initialize
-      @errors = {}
+      @messages = {}
     end
 
     def add(attribute, message)
-      errors[attribute] ||= Set.new
-      errors[attribute] << message
+      messages[attribute] ||= []
+      messages[attribute] << message
+      messages[attribute].uniq!
     end
 
     def merge!(hash)
-      errors.merge!(hash) do |_attribute, messages1, messages2|
+      messages.merge!(hash) do |_attribute, messages1, messages2|
         messages1 + messages2
       end
     end
 
     def to_s
-      errors.each_with_object([]) do |(attribute, messages), memo|
+      messages.each_with_object([]) do |(attribute, messages), memo|
         messages.each { |message| memo << "#{attribute} #{message}" }
       end.join(". ")
     end
