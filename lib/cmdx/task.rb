@@ -51,10 +51,15 @@ module CMDx
       end
 
       def settings
-        @settings ||= CMDx.configuration.to_hash.merge(
-          parameters: ParameterRegistry.new,
-          tags: []
-        )
+        @settings ||=
+          if superclass.respond_to?(:configuration)
+            superclass.configuration
+          else
+            CMDx.configuration.to_h
+          end.transform_values(&:dup).merge!(
+            parameters: ParameterRegistry.new,
+            tags: []
+          )
       end
 
       def settings!(**options)
