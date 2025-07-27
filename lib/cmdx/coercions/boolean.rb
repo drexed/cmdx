@@ -9,16 +9,13 @@ module CMDx
 
       module_function
 
-      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+      def call(value, options = {})
         case value.to_s.downcase
         when FALSEY then false
         when TRUTHY then true
         else
-          raise CoercionError, I18n.t(
-            "cmdx.coercions.into_a",
-            type: "boolean",
-            default: "could not coerce into a boolean"
-          )
+          type = Utils::Locale.t("cmdx.types.boolean")
+          raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
         end
       end
 

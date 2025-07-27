@@ -14,11 +14,8 @@ module CMDx
 
         ::Date.parse(value)
       rescue TypeError, ::Date::Error
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "date",
-          default: "could not coerce into a date"
-        )
+        type = Utils::Locale.t("cmdx.types.date")
+        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

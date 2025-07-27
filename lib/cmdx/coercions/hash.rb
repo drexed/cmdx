@@ -6,7 +6,7 @@ module CMDx
 
       module_function
 
-      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+      def call(value, options = {})
         case value.class.name
         when "Hash", "ActionController::Parameters"
           value
@@ -24,11 +24,8 @@ module CMDx
       private
 
       def raise_coercion_error!
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "hash",
-          default: "could not coerce into a hash"
-        )
+        type = Utils::Locale.t("cmdx.types.hash")
+        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

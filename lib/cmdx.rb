@@ -11,6 +11,7 @@ require "securerandom"
 require "set"
 require "time"
 require "timeout"
+require "yaml"
 require "zeitwerk"
 
 module CMDx

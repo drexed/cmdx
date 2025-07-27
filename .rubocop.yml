@@ -21,8 +21,10 @@ Layout/LineLength:
   Enabled: false
 Lint/MissingSuper:
   Exclude:
-    - 'lib/cmdx/middlewares/**/*'
     - 'spec/**/**/*'
+Lint/UnusedMethodArgument:
+  Exclude:
+    - 'lib/cmdx/coercions/**/*'
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:

@@ -2,14 +2,14 @@
 
 module CMDx
   module Coercions
-    module Complex
+    module Symbol
 
       module_function
 
       def call(value, options = {})
-        Complex(value)
-      rescue ArgumentError, TypeError
-        type = Utils::Locale.t("cmdx.types.complex")
+        value.to_sym
+      rescue NoMethodError
+        type = Utils::Locale.t("cmdx.types.symbol")
         raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 

@@ -6,14 +6,11 @@ module CMDx
 
       module_function
 
-      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+      def call(value, options = {})
         Float(value)
       rescue ArgumentError, RangeError, TypeError
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "float",
-          default: "could not coerce into a float"
-        )
+        type = Utils::Locale.t("cmdx.types.float")
+        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

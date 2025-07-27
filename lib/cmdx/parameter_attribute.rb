@@ -37,11 +37,7 @@ module CMDx
         else
           errors.add(
             schema.signature,
-            I18n.t(
-              "cmdx.parameters.undefined",
-              default: "delegates to undefined source #{schema.source}",
-              source: schema.source
-            )
+            Utils::Locale.t("cmdx.parameters.undefined", source: schema.source)
           )
         end
 
@@ -50,10 +46,7 @@ module CMDx
       else
         errors.add(
           schema.signature,
-          I18n.t(
-            "cmdx.parameters.required",
-            default: "is a required parameter"
-          )
+          Utils::Locale.t("cmdx.parameters.required")
         )
       end
     end
@@ -89,14 +82,10 @@ module CMDx
       rescue CoercionError
         next if i != last_idx
 
-        values = schema.type.map(&:to_s).join(", ")
+        values = schema.type.map { |t| Utils::Locale.t("cmdx.types.#{t}") }.join(", ")
         errors.add(
           schema.signature,
-          I18n.t(
-            "cmdx.coercions.into_any",
-            default: "could not coerce into one of: #{values}",
-            values:
-          )
+          Utils::Locale.t("cmdx.coercions.into_any", values:)
         )
       end
 

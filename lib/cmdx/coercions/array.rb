@@ -6,7 +6,7 @@ module CMDx
 
       module_function
 
-      def call(value, options = {}) # rubocop:disable Lint/UnusedMethodArgument
+      def call(value, options = {})
         if value.is_a?(::String) && value.start_with?("[")
           JSON.parse(value)
         else

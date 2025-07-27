@@ -10,6 +10,20 @@ en:
     parameters:
       required: "is a required parameter"
       undefined: "delegates to undefined source %{source}"
+    types:
+      array: "array"
+      big_decimal: "big decimal"
+      boolean: "boolean"
+      complex: "complex"
+      date_time: "date time"
+      date: "date"
+      float: "float"
+      hash: "hash"
+      integer: "integer"
+      rational: "rational"
+      string: "string"
+      symbol: "symbol"
+      time: "time"
     validators:
       exclusion:
         of: "must not be one of: %{values}"
