@@ -2,7 +2,7 @@
 
 # class SampleTask < CMDx::Task
 
-#   required :name, :sex
+#   required :name, :sex, source: :fake
 #   optional :age, type: [:float, :integer]
 #   required :billing_address do
 #     optional :locality do

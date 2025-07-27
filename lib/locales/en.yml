@@ -9,7 +9,7 @@ en:
       unspecified: "no reason given"
     parameters:
       required: "is a required parameter"
-      undefined: "delegates to undefined source %{source}"
+      undefined: "delegates to undefined method %{method}"
     types:
       array: "array"
       big_decimal: "big decimal"

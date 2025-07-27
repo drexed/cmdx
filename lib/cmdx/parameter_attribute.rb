@@ -27,14 +27,16 @@ module CMDx
     def source_value!
       sourced_value =
         case schema.source
-        when Symbol, String then schema.task.send(schema.source)
         when Proc then schema.source.call(schema.task)
-        else errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", source: schema.source))
+        else schema.task.send(schema.source)
         end
 
       return sourced_value if !sourced_value.nil? || schema.parent&.optional? || schema.optional?
 
       errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.required"))
+    rescue NoMethodError
+      errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.source))
+      nil
     end
 
     def derive_value!(source_value)
@@ -51,6 +53,9 @@ module CMDx
       when Proc then default.call(schema.task)
       else default
       end
+    rescue NoMethodError
+      errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.name))
+      nil
     end
 
     def coerce_value!(derived_value)
@@ -64,7 +69,6 @@ module CMDx
 
         types = schema.type.map { |t| Utils::Locale.t("cmdx.types.#{t}") }.join(", ")
         errors.add(schema.signature, Utils::Locale.t("cmdx.coercions.into_any", types:))
-
         nil
       end
     end
