@@ -3,7 +3,7 @@ en:
     coercions:
       into_a: "could not coerce into a %{type}"
       into_an: "could not coerce into an %{type}"
-      into_any: "could not coerce into one of: %{values}"
+      into_any: "could not coerce into one of: %{types}"
       unknown: "unknown %{type} coercion type"
     faults:
       unspecified: "no reason given"

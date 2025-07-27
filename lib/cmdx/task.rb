@@ -3,7 +3,7 @@
 # class SampleTask < CMDx::Task
 
 #   required :name, :sex
-#   optional :age, type: :integer
+#   optional :age, type: [:float, :integer]
 #   required :billing_address do
 #     optional :locality do
 #       required :city, :state
@@ -28,7 +28,7 @@
 
 # end
 
-# SampleTask.call(name: "John", sex: "M", age: "30")
+# SampleTask.call(name: "John", sex: "M", age: "30x")
 
 module CMDx
   class Task

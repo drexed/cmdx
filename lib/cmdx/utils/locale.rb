@@ -17,7 +17,7 @@ module CMDx
 
         subs = options.transform_keys { |key| "%{#{key}}" }
         regx = Regexp.union(subs.keys)
-        String(text).gsub!(regx, subs)
+        text.gsub!(regx, subs) || text
       end
 
     end
