@@ -3,24 +3,14 @@
 require "bigdecimal"
 require "date"
 require "forwardable"
-require "i18n"
 require "json"
 require "logger"
-require "pp"
 require "securerandom"
-require "set"
+require "set" # TODO: remove
 require "time"
-require "timeout"
+require "timeout" # TODO: remove
 require "yaml"
 require "zeitwerk"
-
-module CMDx
-
-  I18n.load_path += Dir[File.expand_path("lib/locales/*.{rb,yml}", __dir__)]
-  I18n.available_locales = %i[en de]
-  I18n.default_locale = :en
-
-end
 
 # TODO: remove zeitwerk and just use require_relative
 

@@ -16,7 +16,7 @@ module CMDx
     end
 
     def add(attribute, message)
-      messages[attribute] ||= []
+      messages[attribute] ||= [] # TODO: use Set instead
       messages[attribute] << message
       messages[attribute].uniq!
     end

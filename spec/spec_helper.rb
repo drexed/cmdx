@@ -4,7 +4,6 @@ ENV["SKIP_CMDX_FREEZING"] = "1"
 ENV["TZ"] = "UTC"
 
 require "bundler/setup"
-require "ostruct"
 require "rspec"
 
 require "cmdx"
