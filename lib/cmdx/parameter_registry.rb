@@ -14,14 +14,14 @@ module CMDx
       def define_attributes_for(task)
         task.class.settings[:parameters].registry.each do |parameter|
           parameter.schema.task = task
-          parameter.attribute.define_attribute!
+          parameter.schema.define_attribute!
         end
       end
 
       def validate_attributes_for(task)
         task.class.settings[:parameters].registry.each do |parameter|
           parameter.schema.task = task
-          parameter.attribute.validate_attribute!
+          parameter.schema.validate_attribute!
         end
       end
 

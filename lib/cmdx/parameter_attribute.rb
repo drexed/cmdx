@@ -11,26 +11,21 @@ module CMDx
     end
 
     def value
-      coerced_value
-    end
+      return @value if defined?(@value)
 
-    def define_attribute!
-      attribute = self
+      value = source_value!
+      return @value = nil unless errors.empty?
 
-      schema.task.class.define_method(schema.signature) { attribute.value }
-      schema.task.class.send(:private, schema.signature)
-    end
+      value = derive_value!(value)
+      return @value = value if schema.type.empty?
 
-    def validate_attribute!
-      # TODO
+      @value = coerce_value!(value)
     end
 
     private
 
-    def source_value
-      return @source_value if defined?(@source_value)
-
-      @source_value =
+    def source_value!
+      sourced_value =
         case schema.source
         when Symbol, String then schema.task.send(schema.source)
         when Proc then schema.source.call(schema.task)
@@ -41,44 +36,36 @@ module CMDx
           )
         end
 
-      if !@source_value.nil? || schema.parent&.optional? || schema.optional?
-        @source_value
-      else
-        errors.add(
-          schema.signature,
-          Utils::Locale.t("cmdx.parameters.required")
-        )
-      end
+      return sourced_value if !sourced_value.nil? || schema.parent&.optional? || schema.optional?
+
+      errors.add(
+        schema.signature,
+        Utils::Locale.t("cmdx.parameters.required")
+      )
     end
 
-    def derived_value
-      return @derived_value if defined?(@derived_value)
-
-      @derived_value =
+    def derive_value!(source_value)
+      derived_value =
         case source_value
         when Context, Hash then source_value[schema.name]
         when Proc then source_value.call(schema.task)
         else source_value.send(schema.name)
         end
 
-      return @derived_value unless @derived_value.nil?
+      return derived_value unless derived_value.nil?
 
-      @derived_value =
-        case default = schema.options[:default]
-        when Proc then default.call(schema.task)
-        else default
-        end
+      case default = schema.options[:default]
+      when Proc then default.call(schema.task)
+      else default
+      end
     end
 
-    def coerced_value
-      return @coerced_value if defined?(@coerced_value)
-      return @coerced_value = derived_value if schema.type.empty?
-
+    def coerce_value!(derived_value)
       registry = schema.task.class.settings[:coercions]
       last_idx = schema.type.size - 1
 
-      schema.type.each_with_index do |type, i|
-        break @coerced_value = registry.coerce!(type, derived_value, schema.options)
+      schema.type.find.with_index do |type, i|
+        break registry.coerce!(type, derived_value, schema.options)
       rescue CoercionError
         next if i != last_idx
 
@@ -87,9 +74,9 @@ module CMDx
           schema.signature,
           Utils::Locale.t("cmdx.coercions.into_any", values:)
         )
-      end
 
-      @coerced_value
+        nil
+      end
     end
 
     # private

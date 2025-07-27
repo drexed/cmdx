@@ -3,12 +3,11 @@
 module CMDx
   class Parameter
 
-    attr_reader :schema, :attribute, :children
+    attr_reader :schema, :children
 
     def initialize(name, options = {}, &)
-      @schema    = ParameterSchema.new(name, options)
-      @attribute = ParameterAttribute.new(@schema)
-      @children  = []
+      @schema   = ParameterSchema.new(name, options)
+      @children = []
 
       instance_eval(&) if block_given?
     end
