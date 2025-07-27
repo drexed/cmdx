@@ -14,7 +14,7 @@ module CMDx
 
       module_function
 
-      def evaluate!(target, options = {})
+      def evaluate!(target, options = {}, default: true)
         case options
         in { if: xif, unless: xunless }
           EVALUATOR.call(target, xif) && !EVALUATOR.call(target, xunless)
@@ -23,7 +23,7 @@ module CMDx
         in { unless: xunless }
           !EVALUATOR.call(target, xunless)
         else
-          options.fetch(:default, true)
+          default
         end
       end
 
