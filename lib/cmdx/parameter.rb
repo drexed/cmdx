@@ -106,6 +106,8 @@ module CMDx
     end
 
     def define_and_verify_attribute
+      raise RuntimeError, "attribute #{signature} already defined" if task.respond_to?(signature)
+
       param = self # HACK: creates a pointer to the parameter object within the task instance
 
       task.class.define_method(signature) do
