@@ -12,6 +12,9 @@ require "timeout" # TODO: remove
 require "yaml"
 require "zeitwerk"
 
+module CMDx; end
+# TODO: ServX = CMDx
+
 # TODO: remove zeitwerk and just use require_relative
 
 # Set up Zeitwerk loader for the CMDx gem
