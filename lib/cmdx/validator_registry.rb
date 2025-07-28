@@ -24,5 +24,16 @@ module CMDx
       registry[name.to_sym] = validator
     end
 
+    def validate!(type, value, options = {})
+      raise UnknownValidationError, "unknown validator #{type}" unless registry.key?(type)
+
+      case validator = registry[type]
+      when Symbol, String
+        attribute.schema.task.send(validator, value, options)
+      else
+        validator.call(value, options)
+      end
+    end
+
   end
 end

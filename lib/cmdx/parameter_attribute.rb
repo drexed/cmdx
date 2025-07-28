@@ -22,6 +22,10 @@ module CMDx
       @value = coerce_value!(value)
     end
 
+    def validate!
+      # nil unless errors.empty?
+    end
+
     private
 
     def source_value!
@@ -31,6 +35,7 @@ module CMDx
         else schema.task.send(schema.source)
         end
 
+      # TODO: make sure this is correct
       return sourced_value if !sourced_value.nil? || schema.parent&.optional? || schema.optional?
 
       errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.required"))
@@ -73,14 +78,6 @@ module CMDx
       end
     end
 
-    # private
-
-    # def value
-    #   return @value if defined?(@value)
-
-    #   @value = ParameterValue.generate!(self)
-    # end
-
     # def validator_allows_nil?(options)
     #   return false unless options.is_a?(Hash) || derived.nil?
 
@@ -91,17 +88,17 @@ module CMDx
     #   end || false
     # end
 
-    # def validate_value
-    #   types = parameter.klass.settings[:validators].keys
+    def validate_value!
+      registry = schema.task.class.settings[:validators]
 
-    #   parameter.options.slice(*types).each_key do |type|
-    #     options = parameter.options[type]
-    #     next if validator_allows_nil?(options)
-    #     next unless Utils::Condition.evaluate!(task, options)
+      schema.options.slice(*registry.keys).each_key do |type|
+        options = schema.options[type]
+        next if validator_allows_nil?(options)
+        next unless Utils::Condition.evaluate!(task, options)
 
-    #     parameter.klass.settings[:validators].call(type, self, options)
-    #   end
-    # end
+        schema.klass.settings[:validators].call(type, self, options)
+      end
+    end
 
   end
 end
