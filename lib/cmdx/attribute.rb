@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CMDx
-  class ParameterAttribute
+  class Attribute
 
     attr_reader :schema, :errors
 

@@ -6,7 +6,7 @@ module CMDx
     attr_reader :schema, :children
 
     def initialize(name, options = {}, &)
-      @schema   = ParameterSchema.new(name, options)
+      @schema   = Schema.new(name, options)
       @children = []
 
       instance_eval(&) if block_given?

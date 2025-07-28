@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CMDx
-  class ParameterSchema
+  class Schema
 
     AFFIX = proc do |value, &block|
       value == true ? block.call : value
@@ -50,7 +50,7 @@ module CMDx
 
       task.class.define_method(signature) do
         @attributes ||= {}
-        @attributes[schema.signature] ||= ParameterAttribute.new(schema)
+        @attributes[schema.signature] ||= Attribute.new(schema)
         @attributes[schema.signature].value
       end
       task.class.send(:private, signature)
