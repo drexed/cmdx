@@ -11,10 +11,10 @@ module CMDx
 
     class << self
 
-      def define_and_certify_attributes_for(task)
+      def define_and_verify_attributes_for(task)
         task.class.settings[:parameters].registry.each do |parameter|
           parameter.task = task
-          parameter.define_and_certify_attribute!
+          parameter.define_and_verify_attribute!
         end
       end
 

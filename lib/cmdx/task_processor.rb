@@ -22,7 +22,7 @@ module CMDx
     end
 
     def call
-      ParameterRegistry.define_and_certify_attributes_for(task)
+      ParameterRegistry.define_and_verify_attributes_for(task)
 
       task.call
     end

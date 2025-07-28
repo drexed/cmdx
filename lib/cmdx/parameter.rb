@@ -76,12 +76,12 @@ module CMDx
       end
     end
 
-    def define_and_certify_attribute!
-      define_and_certify_attribute
+    def define_and_verify_attribute!
+      define_and_verify_attribute
 
       children.each do |child|
         child.task = task
-        child.define_and_certify_attribute!
+        child.define_and_verify_attribute!
       end
     end
 
@@ -105,10 +105,9 @@ module CMDx
       parameters(*names, **options.merge(required: true), &)
     end
 
-    def define_and_certify_attribute
+    def define_and_verify_attribute
       param = self # HACK: creates a pointer to the parameter object within the task instance
 
-      pp signature
       task.class.define_method(signature) do
         @attributes ||= {}
         @attributes[param.signature] ||= Attribute.new(param)
