@@ -12,12 +12,10 @@ module CMDx
         options[:default] ||= EN.dig("en", *key.to_s.split("."))
         return I18n.t(key, **options) if defined?(I18n)
 
-        text = options.delete(:default)
-        return "Translation missing: #{key}" if text.nil?
+        message = options.delete(:default)
+        return "Translation missing: #{key}" if message.nil?
 
-        subs = options.transform_keys { |key| "%{#{key}}" }
-        regx = Regexp.union(subs.keys)
-        text.gsub!(regx, subs) || text
+        message % options
       end
 
     end
