@@ -59,10 +59,11 @@ module CMDx
 
     def source
       @source ||=
-        case source = options[:source]
+        parent&.signature ||
+        case value = options[:source]
         when Symbol, String then source.to_sym
-        when Proc then source.call(task) # || task.instance_eval(&source) TODO:
-        else source || parent&.signature || :context
+        when Proc then source.call(task) # TODO: task.instance_eval(&source)
+        else value || :context
         end
     end
 
@@ -76,14 +77,12 @@ module CMDx
     end
 
     def define_and_certify_attribute!
-      parameter = self # HACK: creates a pointer to the parameter object within the task instance
+      define_and_certify_attribute
 
-      task.class.define_method(signature) do
-        @attributes ||= {}
-        @attributes[parameter.signature] ||= Attribute.new(parameter)
-        @attributes[parameter.signature].value
+      children.each do |child|
+        child.task = task
+        child.define_and_certify_attribute!
       end
-      task.class.send(:private, signature)
     end
 
     private
@@ -104,6 +103,18 @@ module CMDx
 
     def required(*names, **options, &)
       parameters(*names, **options.merge(required: true), &)
+    end
+
+    def define_and_certify_attribute
+      param = self # HACK: creates a pointer to the parameter object within the task instance
+
+      pp signature
+      task.class.define_method(signature) do
+        @attributes ||= {}
+        @attributes[param.signature] ||= Attribute.new(param)
+        @attributes[param.signature].value
+      end
+      task.class.send(:private, signature)
     end
 
   end

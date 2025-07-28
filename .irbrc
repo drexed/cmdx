@@ -12,17 +12,18 @@ class SampleTask < CMDx::Task
   required :name, :sex
   optional :age, type: %i[float integer]
   optional :height, numeric: { within: 1..5 }
+  required :weight, prefix: :empirical_, suffix: :_lbs
   required :billing_address do
-    optional :locality, prefix: :billing do
-      required :city, :state, prefix: :billing
+    optional :locality, prefix: :billing_ do
+      required :city, :state, prefix: :billing_
     end
-    optional :zip, prefix: :billing
+    optional :zip, prefix: :billing_
   end
   optional :shipping_address do
-    required :locality, prefix: :shipping do
-      required :city, :state, prefix: :shipping
+    required :locality, prefix: true do
+      required :city, :state, prefix: true
     end
-    optional :zip, prefix: :shipping
+    optional :zip, prefix: true
   end
 
   def call
@@ -31,12 +32,15 @@ class SampleTask < CMDx::Task
     puts "-> age: #{age}"
     puts "-> sex: #{sex}"
     puts "-> height: #{height}"
+    puts "-> weight: #{empirical_weight_lbs}"
     puts "-> billing_address: #{billing_address}"
+    puts "-> billing_locality: #{billing_locality}"
+    puts "-> billing_zip: #{billing_zip}"
     puts "-> billing_city: #{billing_city}"
-    puts "-> billing_zip: #{billing_city}"
+    puts "-> billing_zip: #{billing_zip}"
     puts "-> shipping_address: #{shipping_address}"
-    puts "-> shipping_city: #{shipping_city}"
-    puts "-> shipping_zip: #{shipping_zip}"
+    puts "-> shipping_address_locality_city: #{shipping_address_locality_city}"
+    puts "-> shipping_address_zip: #{shipping_address_zip}"
   end
 
 end
@@ -47,6 +51,7 @@ def sample
     sex: "M",
     age: "30x",
     height: 6,
+    weight: 150,
     billing_address: {
       locality: {
         city: "New York",
