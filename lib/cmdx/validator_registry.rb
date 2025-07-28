@@ -32,7 +32,7 @@ module CMDx
       raise UnknownValidationError, "unknown validator #{type}" unless registry.key?(type)
 
       case validator = registry[type]
-      when Symbol, String then attribute.schema.task.send(validator, value, options)
+      when Symbol, String then attribute.task.send(validator, value, options)
       else validator.call(value, options)
       end
     end

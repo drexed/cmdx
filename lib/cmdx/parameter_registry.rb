@@ -13,8 +13,8 @@ module CMDx
 
       def define_and_certify_attributes_for(task)
         task.class.settings[:parameters].registry.each do |parameter|
-          parameter.schema.task = task
-          parameter.schema.define_and_certify_attribute!
+          parameter.task = task
+          parameter.define_and_certify_attribute!
         end
       end
 

@@ -3,10 +3,14 @@
 module CMDx
   class Attribute
 
-    attr_reader :schema, :errors
+    extend Forwardable
 
-    def initialize(schema)
-      @schema = schema
+    def_delegators :parameter, :task
+
+    attr_reader :parameter, :errors
+
+    def initialize(parameter)
+      @parameter = parameter
       @errors = Errors.new
     end
 
@@ -30,50 +34,50 @@ module CMDx
 
     def source_value!
       sourced_value =
-        case schema.source
-        when Proc then schema.source.call(schema.task)
-        else schema.task.send(schema.source)
+        case parameter.source
+        when Proc then parameter.source.call(task)
+        else task.send(parameter.source)
         end
 
       # TODO: make sure this is correct
-      return sourced_value if !sourced_value.nil? || schema.parent&.optional? || schema.optional?
+      return sourced_value if !sourced_value.nil? || parameter.parent&.optional? || parameter.optional?
 
-      errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.required"))
+      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.required"))
     rescue NoMethodError
-      errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.source))
+      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.undefined", method: parameter.source))
     end
 
     def derive_value!(source_value)
       derived_value =
         case source_value
-        when Context, Hash then source_value[schema.name]
-        when Proc then source_value.call(schema.task)
-        else source_value.send(schema.name)
+        when Context, Hash then source_value[parameter.name]
+        when Proc then source_value.call(task)
+        else source_value.send(parameter.name)
         end
 
       return derived_value unless derived_value.nil?
 
-      case default = schema.options[:default]
-      when Proc then default.call(schema.task)
+      case default = parameter.options[:default]
+      when Proc then default.call(task)
       else default
       end
     rescue NoMethodError
-      errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.name))
+      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.undefined", method: parameter.name))
     end
 
     def coerce_value!(derived_value)
-      return derived_value if schema.type.empty?
+      return derived_value if parameter.type.empty?
 
-      registry = schema.task.class.settings[:coercions]
-      last_idx = schema.type.size - 1
+      registry = task.class.settings[:coercions]
+      last_idx = parameter.type.size - 1
 
-      schema.type.find.with_index do |type, i|
-        break registry.coerce!(type, derived_value, schema.options)
+      parameter.type.find.with_index do |type, i|
+        break registry.coerce!(type, derived_value, parameter.options)
       rescue CoercionError
         next if i != last_idx
 
-        types = schema.type.map { |t| Utils::Locale.t("cmdx.types.#{t}") }.join(", ")
-        errors.add(schema.signature, Utils::Locale.t("cmdx.coercions.into_any", types:))
+        types = parameter.type.map { |t| Utils::Locale.t("cmdx.types.#{t}") }.join(", ")
+        errors.add(parameter.signature, Utils::Locale.t("cmdx.coercions.into_any", types:))
         nil
       end
     end
@@ -89,16 +93,16 @@ module CMDx
     # end
 
     def validate_value!(coerced_value)
-      registry = schema.task.class.settings[:validators]
+      registry = task.class.settings[:validators]
 
-      schema.options.slice(*registry.keys).each_key do |type|
-        options = schema.options[type]
+      parameter.options.slice(*registry.keys).each_key do |type|
+        options = parameter.options[type]
         # next if validator_allows_nil?(options)
         # next unless Utils::Condition.evaluate!(task, options)
 
         registry.validate!(type, coerced_value, options)
       rescue ValidationError => e
-        errors.add(schema.signature, e.message)
+        errors.add(parameter.signature, e.message)
       end
     end
 

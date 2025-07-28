@@ -3,10 +3,21 @@
 module CMDx
   class Parameter
 
-    attr_reader :schema, :children
+    AFFIX = proc do |value, &block|
+      value == true ? block.call : value
+    end.freeze
+
+    attr_accessor :task
+
+    attr_reader :name, :options, :children, :parent, :type
 
     def initialize(name, options = {}, &)
-      @schema   = Schema.new(name, options)
+      @parent   = options.delete(:parent)
+      @required = options.delete(:required) || false
+      @type     = Array(options.delete(:type))
+
+      @name     = name
+      @options  = options
       @children = []
 
       instance_eval(&) if block_given?
@@ -37,6 +48,45 @@ module CMDx
       end
 
     end
+
+    def optional?
+      !required?
+    end
+
+    def required?
+      !!@required
+    end
+
+    def source
+      @source ||=
+        case source = options[:source]
+        when Symbol, String then source.to_sym
+        when Proc then source.call(task) # || task.instance_eval(&source) TODO:
+        else source || parent&.signature || :context
+        end
+    end
+
+    def signature
+      @signature ||= options[:as] || begin
+        prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
+        suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
+
+        "#{prefix}#{name}#{suffix}".strip.to_sym
+      end
+    end
+
+    def define_and_certify_attribute!
+      parameter = self # HACK: creates a pointer to the parameter object within the task instance
+
+      task.class.define_method(signature) do
+        @attributes ||= {}
+        @attributes[parameter.signature] ||= Attribute.new(parameter)
+        @attributes[parameter.signature].value
+      end
+      task.class.send(:private, signature)
+    end
+
+    private
 
     def parameter(name, **options, &)
       param = self.class.parameter(name, **options.merge(parent: self), &)
