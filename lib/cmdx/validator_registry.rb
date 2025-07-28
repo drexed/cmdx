@@ -3,6 +3,10 @@
 module CMDx
   class ValidatorRegistry
 
+    extend Forwardable
+
+    def_delegators :registry, :keys
+
     attr_reader :registry
 
     def initialize(registry = nil)
@@ -28,10 +32,8 @@ module CMDx
       raise UnknownValidationError, "unknown validator #{type}" unless registry.key?(type)
 
       case validator = registry[type]
-      when Symbol, String
-        attribute.schema.task.send(validator, value, options)
-      else
-        validator.call(value, options)
+      when Symbol, String then attribute.schema.task.send(validator, value, options)
+      else validator.call(value, options)
       end
     end
 

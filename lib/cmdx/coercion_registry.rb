@@ -34,10 +34,8 @@ module CMDx
       raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
 
       case coercion = registry[type]
-      when Symbol, String
-        attribute.schema.task.send(coercion, value, options)
-      else
-        coercion.call(value, options)
+      when Symbol, String then attribute.schema.task.send(coercion, value, options)
+      else coercion.call(value, options)
       end
     end
 

@@ -4,7 +4,7 @@ module CMDx
   module Validators
     module Inclusion
 
-      module_function
+      extend self
 
       def call(value, options = {})
         values = options[:in] || options[:within]
@@ -23,14 +23,14 @@ module CMDx
         message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.inclusion.of", values:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.inclusion.of", values:)
       end
 
       def raise_within_validation_error!(min, max, options)
         message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.inclusion.within", min:, max:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.inclusion.within", min:, max:)
       end
 
     end

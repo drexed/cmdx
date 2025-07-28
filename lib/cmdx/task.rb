@@ -3,7 +3,8 @@
 # class SampleTask < CMDx::Task
 
 #   required :name, :sex, source: :fake
-#   optional :age, type: [:float, :integer]
+#   optional :age, type: %i[float integer]
+#   optional :height, numeric: { within: 1..5 }
 #   required :billing_address do
 #     optional :locality do
 #       required :city, :state
@@ -22,13 +23,14 @@
 #     puts "-> name: #{name}"
 #     puts "-> age: #{age}"
 #     puts "-> sex: #{sex}"
+#     puts "-> height: #{height}"
 #     puts "-> billing_address: #{billing_address}"
 #     puts "-> skipping_address: #{skipping_address}"
 #   end
 
 # end
 
-# SampleTask.call(name: "John", sex: "M", age: "30x")
+# SampleTask.call(name: "John", sex: "M", age: "30x", height: 6)
 
 module CMDx
   class Task

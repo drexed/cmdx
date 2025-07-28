@@ -45,7 +45,7 @@ module CMDx
       end
     end
 
-    def define_attribute!
+    def define_and_certify_attribute!
       schema = self # HACK: creates a pointer to the schema object within the task instance
 
       task.class.define_method(signature) do
@@ -54,10 +54,6 @@ module CMDx
         @attributes[schema.signature].value
       end
       task.class.send(:private, signature)
-    end
-
-    def validate_attribute!
-      # TODO
     end
 
   end

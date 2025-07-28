@@ -13,17 +13,17 @@ module CMDx
     def value
       return @value if defined?(@value)
 
-      value = source_value!
+      sourced_value = source_value!
       return @value = nil unless errors.empty?
 
-      value = derive_value!(value)
-      return @value = value if schema.type.empty?
+      derived_value = derive_value!(sourced_value)
+      return @value = nil unless errors.empty?
 
-      @value = coerce_value!(value)
-    end
+      coerced_value = coerce_value!(derived_value)
+      return @value = nil unless errors.empty?
 
-    def validate!
-      # nil unless errors.empty?
+      validate_value!(coerced_value)
+      @value = coerced_value
     end
 
     private
@@ -41,7 +41,6 @@ module CMDx
       errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.required"))
     rescue NoMethodError
       errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.source))
-      nil
     end
 
     def derive_value!(source_value)
@@ -60,10 +59,11 @@ module CMDx
       end
     rescue NoMethodError
       errors.add(schema.signature, Utils::Locale.t("cmdx.parameters.undefined", method: schema.name))
-      nil
     end
 
     def coerce_value!(derived_value)
+      return derived_value if schema.type.empty?
+
       registry = schema.task.class.settings[:coercions]
       last_idx = schema.type.size - 1
 
@@ -88,15 +88,17 @@ module CMDx
     #   end || false
     # end
 
-    def validate_value!
+    def validate_value!(coerced_value)
       registry = schema.task.class.settings[:validators]
 
       schema.options.slice(*registry.keys).each_key do |type|
         options = schema.options[type]
-        next if validator_allows_nil?(options)
-        next unless Utils::Condition.evaluate!(task, options)
+        # next if validator_allows_nil?(options)
+        # next unless Utils::Condition.evaluate!(task, options)
 
-        schema.klass.settings[:validators].call(type, self, options)
+        registry.validate!(type, coerced_value, options)
+      rescue ValidationError => e
+        errors.add(schema.signature, e.message)
       end
     end
 

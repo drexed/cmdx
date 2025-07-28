@@ -21,7 +21,7 @@ module CMDx
 
         return if match
 
-        raise ValidationError, options[:message] || I18n.t("cmdx.validators.format")
+        raise ValidationError, options[:message] || Utils::Locale.t("cmdx.validators.format")
       end
 
     end

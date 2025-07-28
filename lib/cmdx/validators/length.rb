@@ -4,7 +4,7 @@ module CMDx
   module Validators
     module Length
 
-      module_function
+      extend self
 
       def call(value, options = {})
         case options
@@ -37,42 +37,42 @@ module CMDx
         message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.within", min:, max:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.within", min:, max:)
       end
 
       def raise_not_within_validation_error!(min, max, options)
         message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.not_within", min:, max:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.not_within", min:, max:)
       end
 
       def raise_min_validation_error!(min, options)
         message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.min", min:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.min", min:)
       end
 
       def raise_max_validation_error!(max, options)
         message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.max", max:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.max", max:)
       end
 
       def raise_is_validation_error!(is, options)
         message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.is", is:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.is", is:)
       end
 
       def raise_is_not_validation_error!(is_not, options)
         message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?
 
-        raise ValidationError, message || I18n.t("cmdx.validators.length.is_not", is_not:)
+        raise ValidationError, message || Utils::Locale.t("cmdx.validators.length.is_not", is_not:)
       end
 
     end
