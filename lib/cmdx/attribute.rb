@@ -3,6 +3,14 @@
 module CMDx
   class Attribute
 
+    EVALUATOR = proc do |task, value, option|
+      case option
+      when Symbol, String then task.send(option, value)
+      when Proc then option.call(value)
+      else option
+      end
+    end.freeze
+
     extend Forwardable
 
     def_delegators :parameter, :task
@@ -82,23 +90,32 @@ module CMDx
       end
     end
 
-    # def validator_allows_nil?(options)
-    #   return false unless options.is_a?(Hash) || derived.nil?
-
-    #   case o = options[:allow_nil]
-    #   when Symbol, String then task.send(o)
-    #   when Proc then o.call(task)
-    #   else o
-    #   end || false
-    # end
-
     def validate_value!(coerced_value)
       registry = task.class.settings[:validators]
 
       parameter.options.slice(*registry.keys).each_key do |type|
         options = parameter.options[type]
-        # next if validator_allows_nil?(options)
-        # next unless Utils::Condition.evaluate!(task, options)
+
+        match =
+          if options.is_a?(Hash)
+            case options
+            in { allow_nil: }
+              allow_nil && coerced_value.nil?
+            in { if: if_condition, unless: unless_condition }
+              EVALUATOR.call(task, coerced_value, if_condition) &&
+                !EVALUATOR.call(task, coerced_value, unless_condition)
+            in { if: if_condition }
+              EVALUATOR.call(task, coerced_value, if_condition)
+            in { unless: unless_condition }
+              !EVALUATOR.call(task, coerced_value, unless_condition)
+            else
+              true
+            end
+          else
+            options
+          end
+
+        next unless match
 
         registry.validate!(type, coerced_value, options)
       rescue ValidationError => e
