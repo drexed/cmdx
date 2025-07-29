@@ -6,6 +6,7 @@ module CMDx
     AFFIX = proc do |value, &block|
       value == true ? block.call : value
     end.freeze
+    private_constant :AFFIX
 
     attr_accessor :task
 

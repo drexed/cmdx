@@ -9,7 +9,7 @@ module CMDx
       context = context.context if context.respond_to?(:context)
 
       @context = Context.new(context)
-      @result  = Result.new(self)
+      @result = Result.new(self)
     end
 
     class << self

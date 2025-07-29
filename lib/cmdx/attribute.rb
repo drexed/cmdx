@@ -10,6 +10,7 @@ module CMDx
       else option
       end
     end.freeze
+    private_constant :EVALUATOR
 
     extend Forwardable
 
