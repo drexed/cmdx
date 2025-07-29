@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module Hash
 
-      module_function
+      extend self
 
       def call(value, options = {})
         case value.class.name

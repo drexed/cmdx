@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module String
 
-      module_function
+      extend self
 
       def call(value, options = {})
         String(value)

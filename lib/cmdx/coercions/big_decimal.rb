@@ -6,7 +6,7 @@ module CMDx
 
       DEFAULT_PRECISION = 14
 
-      module_function
+      extend self
 
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)

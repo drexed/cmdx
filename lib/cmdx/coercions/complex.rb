@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module Complex
 
-      module_function
+      extend self
 
       def call(value, options = {})
         Complex(value)

@@ -4,7 +4,7 @@ module CMDx
   module Validators
     module Presence
 
-      module_function
+      extend self
 
       def call(value, options = {})
         match =

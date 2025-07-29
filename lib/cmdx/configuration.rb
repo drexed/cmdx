@@ -30,7 +30,7 @@ module CMDx
 
   end
 
-  module_function
+  extend self
 
   def configuration
     return @configuration if @configuration

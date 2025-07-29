@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module Array
 
-      module_function
+      extend self
 
       def call(value, options = {})
         if value.is_a?(::String) && value.start_with?("[")

@@ -6,7 +6,7 @@ module CMDx
 
       EN = YAML.load_file(File.expand_path("../../../lib/locales/en.yml", __dir__)).freeze
 
-      module_function
+      extend self
 
       def t(key, **options)
         options[:default] ||= EN.dig("en", *key.to_s.split("."))

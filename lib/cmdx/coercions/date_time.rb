@@ -6,7 +6,7 @@ module CMDx
 
       ANALOG_TYPES = %w[Date DateTime Time].freeze
 
-      module_function
+      extend self
 
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)

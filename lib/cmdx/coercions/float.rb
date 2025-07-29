@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module Float
 
-      module_function
+      extend self
 
       def call(value, options = {})
         Float(value)

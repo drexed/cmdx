@@ -7,7 +7,7 @@ module CMDx
       FALSEY = /^(false|f|no|n|0)$/i
       TRUTHY = /^(true|t|yes|y|1)$/i
 
-      module_function
+      extend self
 
       def call(value, options = {})
         case value.to_s.downcase

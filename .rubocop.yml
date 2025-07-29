@@ -25,6 +25,7 @@ Lint/MissingSuper:
 Lint/UnusedMethodArgument:
   Exclude:
     - 'lib/cmdx/coercions/**/*'
+    - 'lib/cmdx/validators/**/*'
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
@@ -78,6 +79,8 @@ Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always_true
   SafeAutoCorrect: true
+Style/ModuleFunction:
+  EnforcedStyle: extend_self
 Style/OpenStructUse:
   Enabled: false
 Style/OptionalBooleanParameter:

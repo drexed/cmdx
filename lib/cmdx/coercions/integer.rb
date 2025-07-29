@@ -4,7 +4,7 @@ module CMDx
   module Coercions
     module Integer
 
-      module_function
+      extend self
 
       def call(value, options = {})
         Integer(value)
