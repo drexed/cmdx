@@ -6,15 +6,15 @@ module CMDx
 
     DEFAULT_HALT = "failed"
 
-    attr_accessor :logger, :callbacks, :coercions, :validators, :halt_task_on, :halt_workflow_on
+    attr_accessor :logger, :callbacks, :coercions, :validators, :task_halts, :workflow_halts
 
     def initialize
       @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
       @callbacks = CallbackRegistry.new
       @coercions = CoercionRegistry.new
       @validators = ValidatorRegistry.new
-      @halt_task_on = DEFAULT_HALT
-      @halt_workflow_on = DEFAULT_HALT
+      @task_halts = DEFAULT_HALT
+      @workflow_halts = DEFAULT_HALT
     end
 
     def to_h
@@ -23,8 +23,8 @@ module CMDx
         callbacks: @callbacks,
         coercions: @coercions,
         validators: @validators,
-        halt_task_on: @halt_task_on,
-        halt_workflow_on: @halt_workflow_on
+        task_halts: @task_halts,
+        workflow_halts: @workflow_halts
       }
     end
 
