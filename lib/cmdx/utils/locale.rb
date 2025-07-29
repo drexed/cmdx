@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TODO: rename to CMDx::Translation
 module CMDx
   module Utils
     module Locale
