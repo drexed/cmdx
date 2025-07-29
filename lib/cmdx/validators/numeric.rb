@@ -8,23 +8,23 @@ module CMDx
 
       def call(value, options = {})
         case options
-        in { within: within }
+        in within:
           raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value)
-        in { not_within: not_within }
+        in not_within:
           raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within.cover?(value)
-        in { in: yn }
-          raise_within_validation_error!(yn.begin, yn.end, options) unless yn.cover?(value)
-        in { not_in: not_in }
+        in in: xin
+          raise_within_validation_error!(xin.begin, xin.end, options) unless xin.cover?(value)
+        in not_in:
           raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in.cover?(value)
-        in { min: min, max: max }
+        in min:, max:
           raise_within_validation_error!(min, max, options) unless value.between?(min, max)
-        in { min: min }
+        in min:
           raise_min_validation_error!(min, options) unless min <= value
-        in { max: max }
+        in max:
           raise_max_validation_error!(max, options) unless value <= max
-        in { is: is }
+        in is:
           raise_is_validation_error!(is, options) unless value == is
-        in { is_not: is_not }
+        in is_not:
           raise_is_not_validation_error!(is_not, options) if value == is_not
         else
           raise ArgumentError, "unknown numeric validator options given"

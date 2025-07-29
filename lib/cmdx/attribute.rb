@@ -100,15 +100,15 @@ module CMDx
         match =
           if options.is_a?(Hash)
             case options
-            in { allow_nil: }
+            in allow_nil:
               allow_nil && coerced_value.nil?
-            in { if: if_condition, unless: unless_condition }
-              EVALUATOR.call(task, coerced_value, if_condition) &&
-                !EVALUATOR.call(task, coerced_value, unless_condition)
-            in { if: if_condition }
-              EVALUATOR.call(task, coerced_value, if_condition)
-            in { unless: unless_condition }
-              !EVALUATOR.call(task, coerced_value, unless_condition)
+            in if: xif, unless: xunless
+              EVALUATOR.call(task, coerced_value, xif) &&
+                !EVALUATOR.call(task, coerced_value, xunless)
+            in if: xif
+              EVALUATOR.call(task, coerced_value, xif)
+            in unless: xunless
+              !EVALUATOR.call(task, coerced_value, xunless)
             else
               true
             end

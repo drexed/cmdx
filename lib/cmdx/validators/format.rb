@@ -9,11 +9,11 @@ module CMDx
       def call(value, options = {})
         match =
           case options
-          in { with: with, without: without }
+          in with:, without:
             value.match?(with) && !value.match?(without)
-          in { with: with }
+          in with:
             value.match?(with)
-          in { without: without }
+          in without:
             !value.match?(without)
           else
             false
