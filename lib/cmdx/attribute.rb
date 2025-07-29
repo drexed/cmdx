@@ -51,9 +51,9 @@ module CMDx
       # TODO: make sure this is correct
       return sourced_value if !sourced_value.nil? || parameter.parent&.optional? || parameter.optional?
 
-      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.required"))
+      errors.add(parameter.signature, Locale.t("cmdx.parameters.required"))
     rescue NoMethodError
-      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.undefined", method: parameter.source))
+      errors.add(parameter.signature, Locale.t("cmdx.parameters.undefined", method: parameter.source))
     end
 
     def derive_value!(source_value)
@@ -71,7 +71,7 @@ module CMDx
       else default
       end
     rescue NoMethodError
-      errors.add(parameter.signature, Utils::Locale.t("cmdx.parameters.undefined", method: parameter.name))
+      errors.add(parameter.signature, Locale.t("cmdx.parameters.undefined", method: parameter.name))
     end
 
     def coerce_value!(derived_value)
@@ -85,8 +85,8 @@ module CMDx
       rescue CoercionError
         next if i != last_idx
 
-        types = parameter.type.map { |t| Utils::Locale.t("cmdx.types.#{t}") }.join(", ")
-        errors.add(parameter.signature, Utils::Locale.t("cmdx.coercions.into_any", types:))
+        types = parameter.type.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
+        errors.add(parameter.signature, Locale.t("cmdx.coercions.into_any", types:))
         nil
       end
     end
