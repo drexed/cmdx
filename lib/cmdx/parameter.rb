@@ -13,12 +13,12 @@ module CMDx
     attr_reader :name, :options, :children, :parent, :type
 
     def initialize(name, options = {}, &)
-      @parent   = options.delete(:parent)
+      @parent = options.delete(:parent)
       @required = options.delete(:required) || false
-      @type     = Array(options.delete(:type))
+      @type = Array(options.delete(:type))
 
-      @name     = name
-      @options  = options
+      @name = name
+      @options = options
       @children = []
 
       instance_eval(&) if block_given?
