@@ -54,6 +54,9 @@ module CMDx
         settings[:parameters].register(param)
       end
 
+      # TODO: alias parameter parameters
+      # TODO: alias param parameters
+      # TODO: alias params parameters
       def parameters(...)
         params = Parameter.parameters(...)
         settings[:parameters].register(params)
