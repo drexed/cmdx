@@ -23,9 +23,7 @@ module CMDx
       private
 
       def deep_flat_map_errors_for(parameter, errors)
-        parameter.attribute.value # HACK: hydrate the attribute value and verify the attribute
         errors.add(parameter.signature, parameter.attribute.errors)
-
         parameter.children.each { |param| deep_flat_map_errors_for(param, errors) }
       end
 
