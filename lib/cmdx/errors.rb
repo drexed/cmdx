@@ -9,8 +9,6 @@ module CMDx
 
     attr_reader :messages
 
-    alias to_h messages
-
     def initialize
       @messages = {}
     end
