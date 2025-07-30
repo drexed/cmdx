@@ -26,6 +26,7 @@ module CMDx
 
     def register(name, validator)
       registry[name.to_sym] = validator
+      self
     end
 
     def validate!(type, value, options = {})

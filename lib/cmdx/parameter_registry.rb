@@ -31,6 +31,7 @@ module CMDx
 
     def register(parameters)
       @registry.concat(Array(parameters))
+      self
     end
 
   end

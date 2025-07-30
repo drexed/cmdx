@@ -26,6 +26,8 @@ class SampleTask < CMDx::Task
     optional :zip, prefix: true
   end
 
+  before_validation { puts "before_validation" }
+
   def call
     puts self.class.settings[:parameters]
     puts "-> name: #{name}"

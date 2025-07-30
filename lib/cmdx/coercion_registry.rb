@@ -28,6 +28,7 @@ module CMDx
 
     def register(name, coercion)
       registry[name.to_sym] = coercion
+      self
     end
 
     def coerce!(type, value, options = {})

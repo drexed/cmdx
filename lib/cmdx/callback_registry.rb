@@ -27,22 +27,22 @@ module CMDx
 
     def register(type, *callables, **options, &block)
       callables << block if block_given?
-      (registry[type] ||= []).push([callables, options]).uniq!
+
+      registry[type] ||= Set.new
+      registry[type] << [callables, options]
       self
     end
 
-    def call(task, type)
+    def call(type, task)
       raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
-        next unless task.cmdx_eval(options)
+        # next unless task.cmdx_eval(options)
 
         Array(callables).each do |callable|
           case callable
-          when Symbol, String, Proc
-            task.cmdx_try(callable)
-          else
-            callable.call(task)
+          when Symbol, String then task.send(callable, options)
+          else callable.call(task, options)
           end
         end
       end
