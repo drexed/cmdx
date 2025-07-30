@@ -9,8 +9,8 @@ module CMDx
       def call(value, options = {})
         Rational(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError, ZeroDivisionError # rubocop:disable Lint/ShadowedException
-        type = Locale.t("cmdx.types.rational")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        type = Utils::Locale.t("cmdx.types.rational")
+        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

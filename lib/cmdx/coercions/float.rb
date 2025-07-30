@@ -9,8 +9,8 @@ module CMDx
       def call(value, options = {})
         Float(value)
       rescue ArgumentError, RangeError, TypeError
-        type = Locale.t("cmdx.types.float")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        type = Utils::Locale.t("cmdx.types.float")
+        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

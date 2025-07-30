@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+module CMDx
+  module Utils
+    module Locale
+
+      extend self
+
+      EN = YAML.load_file(File.expand_path("../../../lib/locales/en.yml", __dir__)).freeze
+      private_constant :EN
+
+      def t(key, **options)
+        options[:default] ||= EN.dig("en", *key.to_s.split("."))
+        return I18n.t(key, **options) if defined?(I18n)
+
+        message = options.delete(:default)
+        return "Translation missing: #{key}" if message.nil?
+
+        message % options
+      end
+
+    end
+  end
+end
