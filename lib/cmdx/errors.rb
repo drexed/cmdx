@@ -16,9 +16,8 @@ module CMDx
     end
 
     def add(attribute, message)
-      messages[attribute] ||= [] # TODO: use Set instead
-      messages[attribute] << message
-      messages[attribute].uniq!
+      messages[attribute] ||= Set.new
+      messages[attribute].add(message)
     end
 
     def merge!(hash)

@@ -6,7 +6,7 @@ require "forwardable"
 require "json"
 require "logger"
 require "securerandom"
-require "set" # TODO: remove
+require "set"
 require "time"
 require "timeout" # TODO: remove
 require "yaml"

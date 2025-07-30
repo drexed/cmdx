@@ -3,6 +3,10 @@
 module CMDx
   class Task
 
+    extend Forwardable
+
+    def_delegators :result, :skip!, :fail!, :throw!
+
     attr_reader :context, :result
 
     def initialize(context = {})
