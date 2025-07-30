@@ -12,6 +12,7 @@ require "timeout" # TODO: remove
 require "yaml"
 require "zeitwerk"
 
+# TODO: add a root method and add to locale util
 module CMDx; end
 # TODO: ServX = CMDx
 
@@ -22,7 +23,7 @@ loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cmdx" => "CMDx")
 loader.ignore("#{__dir__}/cmdx/configuration")
 loader.ignore("#{__dir__}/cmdx/exceptions")
-# loader.ignore("#{__dir__}/cmdx/faults")
+loader.ignore("#{__dir__}/cmdx/faults")
 loader.ignore("#{__dir__}/cmdx/railtie")
 # loader.ignore("#{__dir__}/cmdx/rspec")
 # loader.ignore("#{__dir__}/generators")
@@ -39,7 +40,7 @@ require_relative "cmdx/exceptions"
 
 # Pre-load fault classes to make them available at the top level
 # This ensures CMDx::Failed and CMDx::Skipped are always available
-# require_relative "cmdx/faults"
+require_relative "cmdx/faults"
 
 # Conditionally load Rails components if Rails is available
 # if defined?(Rails::Generators)
