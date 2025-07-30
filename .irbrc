@@ -17,7 +17,7 @@ class SampleTask < CMDx::Task
     optional :locality, prefix: :billing_ do
       required :city, :state, prefix: :billing_
     end
-    optional :zip, prefix: :billing_
+    optional :zip, type: :integer, numeric: { within: 10_000..99_999 }, prefix: :billing_
   end
   optional :shipping_address do
     required :locality, prefix: true do

@@ -62,8 +62,8 @@ module CMDx
       @source ||=
         parent&.signature ||
         case value = options[:source]
-        when Symbol, String then source.to_sym
-        when Proc then source.call(task) # TODO: task.instance_eval(&source)
+        when Symbol, String then value.to_sym
+        when Proc then value.call(task) # TODO: task.instance_eval(&value)
         else value || :context
         end
     end
@@ -114,12 +114,7 @@ module CMDx
       raise RuntimeError, "attribute #{signature} already defined" if task.respond_to?(signature)
 
       param = self # HACK: creates a pointer to the parameter object within the task instance
-
-      task.class.define_method(signature) do
-        @attributes ||= {}
-        @attributes[param.signature] ||= param.attribute
-        @attributes[param.signature].value
-      end
+      task.class.define_method(signature) { param.attribute.value }
       task.class.send(:private, signature)
     end
 

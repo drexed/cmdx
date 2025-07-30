@@ -88,12 +88,12 @@ module CMDx
     end
 
     def call_with_middlewares
-      TaskProcessor.call(self)
+      Processor.call(self)
       # self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
     end
 
     def call_with_middlewares!
-      self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call!(task) }
+      self.class.settings[:middlewares].call(self) { |task| Processor.call!(task) }
     end
 
     def logger

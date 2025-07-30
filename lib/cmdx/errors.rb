@@ -16,14 +16,9 @@ module CMDx
     end
 
     def add(attribute, message)
-      messages[attribute] ||= Set.new
-      messages[attribute].add(message)
-    end
+      return if message.empty?
 
-    def merge!(hash)
-      messages.merge!(hash) do |_attribute, messages1, messages2|
-        messages1 + messages2
-      end
+      messages[attribute] = message
     end
 
     def to_s
