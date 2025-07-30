@@ -31,22 +31,22 @@ module CMDx
       self
     end
 
-    # def call(task, type)
-    #   raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
+    def call(task, type)
+      raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
-    #   Array(registry[type]).each do |callables, options|
-    #     next unless task.cmdx_eval(options)
+      Array(registry[type]).each do |callables, options|
+        next unless task.cmdx_eval(options)
 
-    #     Array(callables).each do |callable|
-    #       case callable
-    #       when Symbol, String, Proc
-    #         task.cmdx_try(callable)
-    #       else
-    #         callable.call(task)
-    #       end
-    #     end
-    #   end
-    # end
+        Array(callables).each do |callable|
+          case callable
+          when Symbol, String, Proc
+            task.cmdx_try(callable)
+          else
+            callable.call(task)
+          end
+        end
+      end
+    end
 
   end
 end

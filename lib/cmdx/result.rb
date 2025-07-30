@@ -33,7 +33,7 @@ module CMDx
     STATES.each do |s|
       define_method(:"#{s}?") { state == s }
 
-      define_method(:"on_#{s}") do |&block|
+      define_method(:"handle_#{s}") do |&block|
         raise ArgumentError, "block required" unless block
 
         block.call(self) if send(:"#{s}?")
@@ -49,7 +49,7 @@ module CMDx
       complete? || interrupted?
     end
 
-    def on_executed(&)
+    def handle_executed(&)
       raise ArgumentError, "block required" unless block_given?
 
       yield(self) if executed?
@@ -83,7 +83,7 @@ module CMDx
     STATUSES.each do |s|
       define_method(:"#{s}?") { status == s }
 
-      define_method(:"on_#{s}") do |&block|
+      define_method(:"handle_#{s}") do |&block|
         raise ArgumentError, "block required" unless block
 
         block.call(self) if send(:"#{s}?")
@@ -95,7 +95,7 @@ module CMDx
       !failed?
     end
 
-    def on_good(&)
+    def handle_good(&)
       raise ArgumentError, "block required" unless block_given?
 
       yield(self) if good?
@@ -106,7 +106,7 @@ module CMDx
       !success?
     end
 
-    def on_bad(&)
+    def handle_bad(&)
       raise ArgumentError, "block required" unless block_given?
 
       yield(self) if bad?
