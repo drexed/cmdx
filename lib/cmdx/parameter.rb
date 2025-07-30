@@ -77,6 +77,10 @@ module CMDx
       end
     end
 
+    def attribute
+      @attribute ||= Attribute.new(self)
+    end
+
     def define_and_verify_attribute!
       define_and_verify_attribute
 
@@ -113,7 +117,7 @@ module CMDx
 
       task.class.define_method(signature) do
         @attributes ||= {}
-        @attributes[param.signature] ||= Attribute.new(param)
+        @attributes[param.signature] ||= param.attribute
         @attributes[param.signature].value
       end
       task.class.send(:private, signature)

@@ -48,12 +48,17 @@ module CMDx
         else task.send(parameter.source)
         end
 
-      # TODO: make sure this is correct
-      return sourced_value if !sourced_value.nil? || parameter.parent&.optional? || parameter.optional?
+      if parameter.required? && (parameter.parent.nil? || parameter.parent&.required?)
+        case sourced_value
+        when Context, Hash then sourced_value.key?(parameter.name)
+        else sourced_value.respond_to?(parameter.name, true)
+        end || errors.add(parameter.signature, Locale.t("cmdx.parameters.required"))
+      end
 
-      errors.add(parameter.signature, Locale.t("cmdx.parameters.required"))
+      sourced_value
     rescue NoMethodError
       errors.add(parameter.signature, Locale.t("cmdx.parameters.undefined", method: parameter.source))
+      nil
     end
 
     def derive_value!(source_value)
@@ -72,6 +77,7 @@ module CMDx
       end
     rescue NoMethodError
       errors.add(parameter.signature, Locale.t("cmdx.parameters.undefined", method: parameter.name))
+      nil
     end
 
     def coerce_value!(derived_value)

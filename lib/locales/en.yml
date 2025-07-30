@@ -8,7 +8,7 @@ en:
     faults:
       unspecified: "no reason given"
     parameters:
-      required: "is a required parameter"
+      required: "must be accessible via the source"
       undefined: "delegates to undefined method %{method}"
     types:
       array: "array"
