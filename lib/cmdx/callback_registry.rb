@@ -43,7 +43,7 @@ module CMDx
       self
     end
 
-    def call(type, task)
+    def invoke!(type, task)
       raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
