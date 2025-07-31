@@ -101,7 +101,7 @@ module CMDx
             in allow_nil:
               allow_nil && coerced_value.nil?
             else
-              Utils::Condition.invoke!(task, options, coerced_value)
+              Utils::Condition.evaluate!(task, options, coerced_value)
             end
           else
             options

@@ -47,7 +47,7 @@ module CMDx
       raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
-        next unless Utils::Condition.invoke!(task, options, task)
+        next unless Utils::Condition.evaluate!(task, options, task)
 
         Array(callables).each do |callable|
           case callable

@@ -19,7 +19,7 @@ module CMDx
       end.freeze
       private_constant :EVAL
 
-      def invoke!(target, options, ...)
+      def evaluate!(target, options, ...)
         case options
         in if: if_cond, unless: unless_cond
           EVAL.call(target, if_cond, ...) && !EVAL.call(target, unless_cond, ...)
