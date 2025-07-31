@@ -78,6 +78,7 @@ module CMDx
     end
 
     def attribute
+      # TODO: this needs to go back into the define_and_verify_attribute method
       @attribute ||= Attribute.new(self)
     end
 
