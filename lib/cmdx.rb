@@ -12,8 +12,15 @@ require "timeout" # TODO: remove
 require "yaml"
 require "zeitwerk"
 
-# TODO: add a root method and add to locale util
-module CMDx; end
+module CMDx
+
+  extend self
+
+  def gem_path
+    @gem_path ||= Pathname.new(__dir__).parent
+  end
+
+end
 # TODO: ServX = CMDx
 
 # TODO: remove zeitwerk and just use require_relative
