@@ -33,7 +33,7 @@ module CMDx
     private
 
     def source_value!
-      sourced_value =
+      sourced_value = # TODO: make it similar to Utils::Call.invoke!
         case parameter.source
         when String, Symbol then task.send(parameter.source)
         when Proc then parameter.source.call(task)
@@ -54,7 +54,7 @@ module CMDx
     end
 
     def derive_value!(source_value)
-      derived_value =
+      derived_value = # TODO: make it similar to Utils::Call.invoke!
         case source_value
         when String, Symbol then source_value.send(parameter.name)
         when Context, Hash then source_value[parameter.name]

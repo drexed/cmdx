@@ -42,7 +42,7 @@ module CMDx
 
     def process_parameters!
       task.class.settings[:callbacks].call(:before_validation, task)
-      errors = ParameterRegistry.define_and_verify_attributes_for(task)
+      errors = task.class.settings[:parameters].define_and_verify_attributes_for(task)
       task.result.fail!(reason: errors.to_s, messages: errors.messages) unless errors.empty?
       task.class.settings[:callbacks].call(:after_validation, task)
     end
