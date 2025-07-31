@@ -74,13 +74,13 @@ module CMDx
 
       def call(...)
         task = new(...)
-        task.call_with_middlewares
+        Processor.call(task)
         task.result
       end
 
       def call!(...)
         task = new(...)
-        task.call_with_middlewares!
+        Processor.call!(task)
         task.result
       end
 

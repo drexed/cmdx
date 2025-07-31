@@ -22,6 +22,14 @@ module CMDx
     end
 
     def call
+      task.class.settings[:middlewares].call!(task) { execute }
+    end
+
+    def call!
+      task.class.settings[:middlewares].call!(task) { execute! }
+    end
+
+    def execute
       # NOTE: No need to clear the Chain since exception is not being re-raised
 
       # task.result.runtime do
@@ -42,7 +50,7 @@ module CMDx
       finalize_execution!
     end
 
-    def call!
+    def execute!
       # task.result.runtime do
       begin
         before_execution!
