@@ -3,6 +3,7 @@
 module CMDx
   class ParameterRegistry
 
+    # TODO: allow inheriting of parameters??
     attr_reader :registry
 
     def initialize
