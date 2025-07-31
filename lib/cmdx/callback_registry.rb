@@ -49,12 +49,7 @@ module CMDx
       Array(registry[type]).each do |callables, options|
         next unless Utils::Condition.evaluate!(task, options, task)
 
-        Array(callables).each do |callable|
-          case callable
-          when Symbol, String then task.send(callable, options)
-          else callable.call(task, options)
-          end
-        end
+        Array(callables).each { |callable| Utils::Call.invoke!(task, callable) }
       end
     end
 

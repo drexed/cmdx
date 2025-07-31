@@ -32,10 +32,7 @@ module CMDx
     def validate!(type, task, value, options = {})
       raise UnknownValidationError, "unknown validator #{type}" unless registry.key?(type)
 
-      case validator = registry[type]
-      when Symbol, String then task.send(validator, value, options)
-      else validator.call(value, options)
-      end
+      Utils::Call.invoke!(task, registry[type], value, options)
     end
 
   end

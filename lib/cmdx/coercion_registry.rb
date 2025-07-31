@@ -34,10 +34,7 @@ module CMDx
     def coerce!(type, task, value, options = {})
       raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
 
-      case coercion = registry[type]
-      when Symbol, String then task.send(coercion, value, options)
-      else coercion.call(value, options)
-      end
+      Utils::Call.invoke!(task, registry[type], value, options)
     end
 
   end
