@@ -15,6 +15,16 @@ module CMDx
       *Result::STATES.map { |s| :"on_#{s}" }
     ].freeze
 
+    EVAL = proc do |task, callable, value|
+      case callable
+      when NilClass, FalseClass, TrueClass then !!callable
+      when String, Symbol then task.send(callable, value)
+      when Proc then callable.call(value)
+      else raise "cannot evaluate #{callable}"
+      end
+    end.freeze
+    private_constant :EVAL
+
     attr_reader :registry
 
     def initialize(registry = {})
@@ -37,7 +47,7 @@ module CMDx
       raise UnknownCallbackError, "unknown callback #{type}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
-        # next unless task.cmdx_eval(options)
+        next unless Utils::Condition.invoke!(task, options, task)
 
         Array(callables).each do |callable|
           case callable

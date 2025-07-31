@@ -3,16 +3,6 @@
 module CMDx
   class Attribute
 
-    EVAL = proc do |task, callable, value|
-      case callable
-      when NilClass, FalseClass, TrueClass then !!callable
-      when String, Symbol then task.send(callable, value)
-      when Proc then callable.call(value)
-      else raise "cannot evaluate #{callable}"
-      end
-    end.freeze
-    private_constant :EVAL
-
     extend Forwardable
 
     def_delegators :parameter, :task
@@ -110,14 +100,8 @@ module CMDx
             case options
             in allow_nil:
               allow_nil && coerced_value.nil?
-            in if: if_cond, unless: unless_cond
-              EVAL.call(task, if_cond, coerced_value) && !EVAL.call(task, unless_cond, coerced_value)
-            in if: if_cond
-              EVAL.call(task, if_cond, coerced_value)
-            in unless: unless_cond
-              !EVAL.call(task, unless_cond, coerced_value)
             else
-              true
+              Utils::Condition.invoke!(task, options, coerced_value)
             end
           else
             options
