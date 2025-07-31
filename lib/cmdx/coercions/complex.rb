@@ -9,8 +9,8 @@ module CMDx
       def call(value, options = {})
         Complex(value)
       rescue ArgumentError, TypeError
-        type = Utils::Locale.t("cmdx.types.complex")
-        raise CoercionError, Utils::Locale.t("cmdx.coercions.into_a", type:)
+        type = Locale.translate!("cmdx.types.complex")
+        raise CoercionError, Locale.translate!("cmdx.coercions.into_a", type:)
       end
 
     end
