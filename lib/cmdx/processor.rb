@@ -35,15 +35,19 @@ module CMDx
     private
 
     def before_execution!
-      # task.class.settings[:callbacks].invoke!(:before_execution, task)
-      # task.result.executing!
-      # task.class.settings[:callbacks].invoke!(:on_executing, task)
+      task.class.settings[:callbacks].invoke!(:before_execution, task)
+
+      task.result.executing!
+
+      task.class.settings[:callbacks].invoke!(:on_executing, task)
     end
 
     def process_parameters!
       task.class.settings[:callbacks].invoke!(:before_validation, task)
+
       errors = task.class.settings[:parameters].define_and_verify_attributes_for(task)
       task.result.fail!(reason: errors.to_s, messages: errors.to_h) unless errors.empty?
+
       task.class.settings[:callbacks].invoke!(:after_validation, task)
     end
 

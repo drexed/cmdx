@@ -8,6 +8,8 @@ module CMDx
 
     attr_accessor :logger, :callbacks, :coercions, :validators, :task_halts, :workflow_halts
 
+    # TODO: Change logger to a registry setup to allow loggers, statsd, etc.
+    # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
     def initialize
       @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
       @callbacks = CallbackRegistry.new
