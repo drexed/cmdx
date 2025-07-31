@@ -90,6 +90,7 @@ module CMDx
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
     end
 
+    # TODO: move this to the processor
     def call_with_middlewares
       Processor.call(self)
       # self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
@@ -97,10 +98,6 @@ module CMDx
 
     def call_with_middlewares!
       self.class.settings[:middlewares].call(self) { |task| Processor.call!(task) }
-    end
-
-    def logger
-      Logger.call(self)
     end
 
   end

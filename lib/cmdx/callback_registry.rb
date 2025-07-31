@@ -3,27 +3,18 @@
 module CMDx
   class CallbackRegistry
 
-    TYPES = [
-      :before_validation,
-      :after_validation,
-      :before_execution,
-      :after_execution,
-      :on_executed,
-      :on_good,
-      :on_bad,
-      *Result::STATUSES.map { |s| :"on_#{s}" },
-      *Result::STATES.map { |s| :"on_#{s}" }
+    TYPES = %i[
+      before_validation
+      before_execution
+      on_complete
+      on_interrupted
+      on_executed
+      on_success
+      on_skipped
+      on_failed
+      on_good
+      on_bad
     ].freeze
-
-    EVAL = proc do |task, callable, value|
-      case callable
-      when NilClass, FalseClass, TrueClass then !!callable
-      when String, Symbol then task.send(callable, value)
-      when Proc then callable.call(value)
-      else raise "cannot evaluate #{callable}"
-      end
-    end.freeze
-    private_constant :EVAL
 
     attr_reader :registry
 

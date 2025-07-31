@@ -15,7 +15,7 @@ module CMDx
       self
     end
 
-    def define_and_verify_attributes_for(task)
+    def define_and_verify_attribute!(task)
       registry.each_with_object(Errors.new) do |parameter, errors|
         parameter.task = task
         parameter.define_and_verify_attribute!
