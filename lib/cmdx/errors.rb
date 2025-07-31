@@ -5,7 +5,7 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :messages, :empty?
+    def_delegators :messages, :empty?, :to_h
 
     attr_reader :messages
 
