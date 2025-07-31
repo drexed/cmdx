@@ -7,6 +7,8 @@ require_relative "lib/cmdx"
 # TODO: remove
 class SampleTask < CMDx::Task
 
+  register :middleware, CMDx::Middlewares::Runtime
+
   required :id_number, source: :fake
   optional :id_type, source: :fake
   required :name, :sex
