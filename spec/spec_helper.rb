@@ -8,7 +8,7 @@ require "rspec"
 
 require "cmdx"
 
-require "cmdx/rspec/matchers"
+# require "cmdx/rspec/matchers" # TODO: Move rspec matchers from lib.old
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 

@@ -31,11 +31,11 @@ module CMDx
       self
     end
 
-    def coerce!(type, value, options = {})
+    def coerce!(type, task, value, options = {})
       raise UnknownCoercionError, "unknown coercion #{type}" unless registry.key?(type)
 
       case coercion = registry[type]
-      when Symbol, String then attribute.task.send(coercion, value, options)
+      when Symbol, String then task.send(coercion, value, options)
       else coercion.call(value, options)
       end
     end

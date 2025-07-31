@@ -3,14 +3,15 @@
 module CMDx
   class Attribute
 
-    EVALUATOR = proc do |task, value, option|
-      case option
-      when Symbol, String then task.send(option, value)
-      when Proc then option.call(value)
-      else option
+    EVAL = proc do |task, callable, value|
+      case callable
+      when NilClass, FalseClass, TrueClass then !!callable
+      when String, Symbol then task.send(callable, value)
+      when Proc then callable.call(value)
+      else raise "cannot evaluate #{callable}"
       end
     end.freeze
-    private_constant :EVALUATOR
+    private_constant :EVAL
 
     extend Forwardable
 
@@ -44,8 +45,9 @@ module CMDx
     def source_value!
       sourced_value =
         case parameter.source
+        when String, Symbol then task.send(parameter.source)
         when Proc then parameter.source.call(task)
-        else task.send(parameter.source)
+        else parameter.source
         end
 
       if parameter.required? && (parameter.parent.nil? || parameter.parent&.required?)
@@ -64,16 +66,16 @@ module CMDx
     def derive_value!(source_value)
       derived_value =
         case source_value
+        when String, Symbol then source_value.send(parameter.name)
         when Context, Hash then source_value[parameter.name]
         when Proc then source_value.call(task)
-        else source_value.send(parameter.name)
         end
 
       return derived_value unless derived_value.nil?
 
-      case default = parameter.options[:default]
-      when Proc then default.call(task)
-      else default
+      case default_value = parameter.options[:default]
+      when Proc then default_value.call(task)
+      else default_value
       end
     rescue NoMethodError
       errors.add(Utils::Locale.t("cmdx.parameters.undefined", method: parameter.name))
@@ -87,7 +89,7 @@ module CMDx
       last_idx = parameter.type.size - 1
 
       parameter.type.find.with_index do |type, i|
-        break registry.coerce!(type, derived_value, parameter.options)
+        break registry.coerce!(type, task, derived_value, parameter.options)
       rescue CoercionError
         next if i != last_idx
 
@@ -108,13 +110,12 @@ module CMDx
             case options
             in allow_nil:
               allow_nil && coerced_value.nil?
-            in if: xif, unless: xunless
-              EVALUATOR.call(task, coerced_value, xif) &&
-                !EVALUATOR.call(task, coerced_value, xunless)
-            in if: xif
-              EVALUATOR.call(task, coerced_value, xif)
-            in unless: xunless
-              !EVALUATOR.call(task, coerced_value, xunless)
+            in if: if_cond, unless: unless_cond
+              EVAL.call(task, if_cond, coerced_value) && !EVAL.call(task, unless_cond, coerced_value)
+            in if: if_cond
+              EVAL.call(task, if_cond, coerced_value)
+            in unless: unless_cond
+              !EVAL.call(task, unless_cond, coerced_value)
             else
               true
             end
@@ -124,7 +125,7 @@ module CMDx
 
         next unless match
 
-        registry.validate!(type, coerced_value, options)
+        registry.validate!(type, task, coerced_value, options)
       rescue ValidationError => e
         errors.add(e.message)
       end
