@@ -8,7 +8,7 @@ module CMDx
     EN = YAML.load_file(CMDx.gem_path.join("locales/en.yml")).freeze
     private_constant :EN
 
-    def t(key, **options)
+    def translate!(key, **options)
       options[:default] ||= EN.dig("en", *key.to_s.split("."))
       return I18n.t(key, **options) if defined?(I18n)
 
