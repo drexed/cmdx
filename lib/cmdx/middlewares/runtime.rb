@@ -7,6 +7,7 @@ module CMDx
       extend self
 
       def call(task, callable)
+        # TODO: make a real middleware
         puts "~~~ [BEGIN] Runtime Middleware ~~~"
         result = callable.call(task)
         puts "~~~ [END] Runtime Middleware ~~~"
