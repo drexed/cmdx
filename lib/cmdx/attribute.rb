@@ -33,11 +33,16 @@ module CMDx
     private
 
     def source_value!
-      sourced_value = # TODO: make it similar to Utils::Call.invoke!
+      sourced_value =
         case parameter.source
         when String, Symbol then task.send(parameter.source)
-        when Proc then parameter.source.call(task)
-        else parameter.source
+        when Proc then task.instance_exec(&parameter.source)
+        else
+          if parameter.source.respond_to?(:call)
+            parameter.source.call(task, parameter.source)
+          else
+            parameter.source
+          end
         end
 
       if parameter.required? && (parameter.parent.nil? || parameter.parent&.required?)
@@ -61,11 +66,12 @@ module CMDx
     end
 
     def derive_value!(source_value)
-      derived_value = # TODO: make it similar to Utils::Call.invoke!
+      derived_value =
         case source_value
         when String, Symbol then source_value.send(parameter.name)
         when Context, Hash then source_value[parameter.name]
-        when Proc then source_value.call(task)
+        when Proc then task.instance_exec(&source_value)
+        else source_value.call(task, source_value) if source_value.respond_to?(:call)
         end
 
       derived_value.nil? ? default_value : derived_value
