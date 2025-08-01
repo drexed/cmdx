@@ -44,7 +44,7 @@ module CMDx
           options
         end
 
-      return if match
+      return unless match
 
       Utils::Call.invoke!(task, registry[type], value, options)
     end
