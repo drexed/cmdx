@@ -16,10 +16,10 @@ module CMDx
 
       @attributes = {}
 
-      @id = Utils::Id.generate!
+      @id      = Utils::Id.generate!
       @context = Context.build!(context)
-      @result = Result.new(self)
-      @chain = Chain.build!(@result)
+      @result  = Result.new(self)
+      @chain   = Chain.build!(@result)
     end
 
     class << self
@@ -30,7 +30,7 @@ module CMDx
         end
       end
 
-      def settings
+      def settings(**options)
         @settings ||=
           if superclass.respond_to?(:configuration)
             superclass.configuration
@@ -39,12 +39,9 @@ module CMDx
           end.transform_values(&:dup).merge!(
             parameters: ParameterRegistry.new,
             deprecate: false,
-            tags: []
+            tags: [],
+            **options
           )
-      end
-
-      def settings!(**options)
-        settings.merge!(options)
       end
 
       def register(type, object, ...)
