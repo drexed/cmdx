@@ -7,13 +7,12 @@ module CMDx
 
     def_delegators :result, :skip!, :fail!, :throw!
 
-    attr_accessor :_attributes
-
-    attr_reader :context, :result
+    attr_reader :attributes, :context, :result
 
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
+      @attributes = {}
       @id = Utils::Id.generate!
       @context = Context.build!(context)
       @result = Result.new(self)

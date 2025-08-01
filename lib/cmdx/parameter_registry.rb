@@ -27,8 +27,6 @@ module CMDx
     private
 
     def recursively_add_attribute_errors_for(parameter, errors)
-      parameter.task.send(parameter.signature) # HACK: hydrate the attribute
-
       errors.add(parameter.signature, parameter.attribute.errors)
       parameter.children.each { |param| recursively_add_attribute_errors_for(param, errors) }
     end
