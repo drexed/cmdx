@@ -75,22 +75,22 @@ module CMDx
         settings[:parameters].register(params)
       end
 
-      def call(...)
+      def execute(...)
         task = new(...)
-        Processor.call(task)
+        Processor.execute(task)
         task.result
       end
 
-      def call!(...)
+      def execute!(...)
         task = new(...)
-        Processor.call!(task)
+        Processor.execute!(task)
         task.result
       end
 
     end
 
-    def call
-      raise UndefinedCallError, "call method not defined in #{self.class.name}"
+    def execute
+      raise UndefinedMethodError, "execute method not defined in #{self.class.name}"
     end
 
   end

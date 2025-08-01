@@ -11,23 +11,23 @@ module CMDx
 
     class << self
 
-      def call(task)
-        new(task).call
+      def execute(task)
+        new(task).execute
       end
 
-      def call!(task)
-        new(task).call!
+      def execute!(task)
+        new(task).execute!
       end
 
     end
 
-    def call
+    def execute
       # NOTE: No need to clear the Chain since exception is not being re-raised
 
       task.class.settings[:middlewares].call!(task) do
         pre_execution!
         execution!
-      rescue UndefinedCallError => e
+      rescue UndefinedMethodError => e
         raise(e)
       rescue Fault => e
         task.result.throw!(e.result, original_exception: e) if halt_execution?(e)
@@ -41,11 +41,11 @@ module CMDx
       finalize_execution!
     end
 
-    def call!
+    def execute!
       task.class.settings[:middlewares].call!(task) do
         before_execution!
         execution!
-      rescue UndefinedCallError => e
+      rescue UndefinedMethodError => e
         raise_exception!(e)
       rescue Fault => e
         task.result.executed!

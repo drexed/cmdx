@@ -33,8 +33,6 @@ class SampleTask < CMDx::Task
 
   def call
     puts "call"
-    puts result
-    pp result
     # puts self.class.settings[:parameters]
     # puts "-> name: #{name}"
     # puts "-> age: #{age}"
@@ -54,7 +52,7 @@ class SampleTask < CMDx::Task
 end
 
 def sample
-  SampleTask.call(
+  SampleTask.execute(
     name: "John",
     sex: "M",
     age: "30x",
