@@ -86,17 +86,17 @@ module CMDx
     end
 
     def coerce_value!(derived_value)
-      return derived_value if parameter.type.empty?
+      return derived_value if parameter.types.empty?
 
       registry = task.class.settings[:coercions]
-      last_idx = parameter.type.size - 1
+      last_idx = parameter.types.size - 1
 
-      parameter.type.find.with_index do |type, i|
+      parameter.types.find.with_index do |type, i|
         break registry.coerce!(type, task, derived_value, parameter.options)
       rescue CoercionError
         next if i != last_idx
 
-        types = parameter.type.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
+        types = parameter.types.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
         errors.add(Utils::Locale.translate!("cmdx.coercions.into_any", types:))
         nil
       end

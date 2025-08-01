@@ -10,12 +10,12 @@ module CMDx
 
     attr_accessor :task
 
-    attr_reader :name, :options, :children, :parent, :type
+    attr_reader :name, :options, :children, :parent, :types
 
     def initialize(name, options = {}, &)
       @parent = options.delete(:parent)
       @required = options.delete(:required) || false
-      @type = Array(options.delete(:type))
+      @types = Array(options.delete(:types) || options.delete(:type))
 
       @name = name
       @options = options
