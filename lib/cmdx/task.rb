@@ -3,11 +3,11 @@
 module CMDx
   class Task
 
-    CMDX_TASK_METHODS = %i[
+    CMDX_CORE_METHODS = %i[
       attributes id context result chain
       execute execute! skip! fail! throw!
     ].freeze
-    private_constant :CMDX_TASK_METHODS
+    private_constant :CMDX_CORE_METHODS
 
     extend Forwardable
 
@@ -33,9 +33,9 @@ module CMDx
     class << self
 
       def method_added(method_name)
-        if CMDX_TASK_METHODS.include?(method_name)
-          # Protect the few methods that are used internally by CMDx
-          raise "#{name}##{method_name} cannot be redefined"
+        if CMDX_CORE_METHODS.include?(method_name)
+          msg = "#{name}##{method_name} redefined, take special care"
+          ENV.fetch("RAISE_CMDX_WARNINGS", false) ? raise(msg) : warn(msg)
         end
 
         super
