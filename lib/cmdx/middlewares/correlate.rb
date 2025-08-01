@@ -28,10 +28,10 @@ module CMDx
         self.id = old_id
       end
 
-      def call(task, callable, **options)
+      def call(task, **options)
         # TODO: make a real middleware
         puts "~~~ [BEGIN] Correlate Middleware #{options} ~~~"
-        result = callable.call(task)
+        result = yield
         puts "~~~ [END] Correlate Middleware ~~~"
         result
       end

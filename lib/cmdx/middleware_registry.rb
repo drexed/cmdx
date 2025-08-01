@@ -18,14 +18,19 @@ module CMDx
       self
     end
 
-    def call!(task, &block)
+    def call!(task, &)
       raise ArgumentError, "block required" unless block_given?
 
-      return yield(task) if registry.empty?
+      recursively_call_middleware_for(0, task, &)
+    end
 
-      registry.reverse_each.reduce(block) do |callable, (middleware, options)|
-        ->(task) { middleware.call(task, callable, **options) }
-      end.call(task)
+    private
+
+    def recursively_call_middleware_for(index, task, &block)
+      return yield(task) if index >= registry.size
+
+      middleware, options = registry[index]
+      middleware.call(task, **options) { recursively_call_middleware_for(index + 1, task, &block) }
     end
 
   end
