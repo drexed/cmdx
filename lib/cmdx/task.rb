@@ -33,7 +33,7 @@ module CMDx
             CMDx.configuration.to_h
           end.transform_values(&:dup).merge!(
             parameters: ParameterRegistry.new,
-            deprecated: false,
+            deprecate: false,
             tags: []
           )
       end

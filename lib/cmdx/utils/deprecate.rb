@@ -21,7 +21,7 @@ module CMDx
       private_constant :EVAL
 
       def invoke!(task)
-        type = EVAL.call(task, task.class.settings[:deprecated])
+        type = EVAL.call(task, task.class.settings[:deprecate])
 
         case type
         when FalseClass # Do nothing
