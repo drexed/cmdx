@@ -93,25 +93,10 @@ module CMDx
       registry = task.class.settings[:validators]
 
       parameter.options.slice(*registry.keys).each_key do |type|
-        options = parameter.options[type]
-
-        match =
-          if options.is_a?(Hash)
-            case options
-            in allow_nil:
-              allow_nil && coerced_value.nil?
-            else
-              Utils::Condition.evaluate!(task, options, coerced_value)
-            end
-          else
-            options
-          end
-
-        next unless match
-
-        registry.validate!(type, task, coerced_value, options)
+        registry.validate!(type, task, coerced_value, parameter.options[type])
       rescue ValidationError => e
         errors.add(e.message)
+        nil
       end
     end
 
