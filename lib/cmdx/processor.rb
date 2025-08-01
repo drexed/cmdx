@@ -32,7 +32,6 @@ module CMDx
     def execute
       # NOTE: No need to clear the Chain since exception is not being re-raised
 
-      # task.result.runtime do
       begin
         pre_execution!
         execution!
@@ -51,7 +50,6 @@ module CMDx
     end
 
     def execute!
-      # task.result.runtime do
       begin
         before_execution!
         execution!
@@ -108,8 +106,8 @@ module CMDx
     end
 
     def finalize_execution!
-      # Immutator.call(task)
-      # ResultLogger.call(task.result)
+      # TODO: Immutator.call(task) # need this anymore?
+      # TODO: ResultLogger.call(task.result) # Do we use emitters?
     end
 
   end
