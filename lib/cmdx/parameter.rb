@@ -63,8 +63,13 @@ module CMDx
         parent&.signature ||
         case value = options[:source]
         when Symbol, String then value.to_sym
-        when Proc then value.call(task) # TODO: task.instance_eval(&value)
-        else value || :context
+        when Proc then task.instance_eval(&value)
+        else
+          if value.respond_to?(:call)
+            value.call(task)
+          else
+            value || :context
+          end
         end
     end
 
