@@ -13,6 +13,7 @@ module CMDx
       Utils::Deprecate.invoke!(self)
 
       @attributes = {}
+
       @id = Utils::Id.generate!
       @context = Context.build!(context)
       @result = Result.new(self)
