@@ -59,9 +59,14 @@ module CMDx
     end
 
     def default_value
-      case opt = parameter.options[:default]
-      when Proc then opt.call(task)
-      else opt
+      opt = parameter.options[:default]
+
+      if opt.is_a?(Proc)
+        task.instance_exec(&opt)
+      elsif opt.respond_to?(:call)
+        opt.call(task)
+      else
+        opt
       end
     end
 
