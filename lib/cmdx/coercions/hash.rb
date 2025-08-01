@@ -7,13 +7,12 @@ module CMDx
       extend self
 
       def call(value, options = {})
-        case value.class.name
-        when "Hash", "ActionController::Parameters"
+        if value.is_a?(Hash)
           value
-        when "Array"
+        elsif value.is_a?(Array)
           ::Hash[*value]
-        when "String"
-          value.start_with?("{") ? JSON.parse(value) : raise_coercion_error!
+        elsif value.is_a?(String) && value.start_with?("{")
+          JSON.parse(value)
         else
           raise_coercion_error!
         end
