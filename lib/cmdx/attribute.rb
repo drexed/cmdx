@@ -75,7 +75,7 @@ module CMDx
         case source_value
         when String, Symbol then source_value.send(parameter.name)
         when Context, Hash then source_value[parameter.name]
-        when Proc then task.instance_exec(&source_value)
+        when Proc then task.instance_exec(source_value, &source_value)
         else source_value.call(task, source_value) if source_value.respond_to?(:call)
         end
 
