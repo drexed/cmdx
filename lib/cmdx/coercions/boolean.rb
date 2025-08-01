@@ -14,8 +14,8 @@ module CMDx
         when FALSEY then false
         when TRUTHY then true
         else
-          type = Locale.translate!("cmdx.types.boolean")
-          raise CoercionError, Locale.translate!("cmdx.coercions.into_a", type:)
+          type = Utils::Locale.translate!("cmdx.types.boolean")
+          raise CoercionError, Utils::Locale.translate!("cmdx.coercions.into_a", type:)
         end
       end
 

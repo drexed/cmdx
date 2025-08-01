@@ -19,7 +19,7 @@ module CMDx
         return if match
 
         message = options[:message] if options.is_a?(Hash)
-        raise ValidationError, message || Locale.translate!("cmdx.validators.presence")
+        raise ValidationError, message || Utils::Locale.translate!("cmdx.validators.presence")
       end
 
     end

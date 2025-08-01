@@ -96,7 +96,7 @@ module CMDx
       rescue CoercionError
         next if i != last_idx
 
-        types = parameter.type.map { |t| Locale.translate!("cmdx.types.#{t}") }.join(", ")
+        types = parameter.type.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
         errors.add(Locale.translate!("cmdx.coercions.into_any", types:))
         nil
       end

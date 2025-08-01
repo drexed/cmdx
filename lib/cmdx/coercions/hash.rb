@@ -24,8 +24,8 @@ module CMDx
       private
 
       def raise_coercion_error!
-        type = Locale.translate!("cmdx.types.hash")
-        raise CoercionError, Locale.translate!("cmdx.coercions.into_a", type:)
+        type = Utils::Locale.translate!("cmdx.types.hash")
+        raise CoercionError, Utils::Locale.translate!("cmdx.coercions.into_a", type:)
       end
 
     end

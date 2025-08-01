@@ -11,8 +11,8 @@ module CMDx
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError
-        type = Locale.translate!("cmdx.types.big_decimal")
-        raise CoercionError, Locale.translate!("cmdx.coercions.into_a", type:)
+        type = Utils::Locale.translate!("cmdx.types.big_decimal")
+        raise CoercionError, Utils::Locale.translate!("cmdx.coercions.into_a", type:)
       end
 
     end
