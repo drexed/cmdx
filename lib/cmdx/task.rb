@@ -4,8 +4,10 @@ module CMDx
   class Task
 
     CMDX_CORE_METHODS = %i[
-      attributes id context result chain
-      execute execute! skip! fail! throw!
+      attributes processor
+      id context result chain
+      execute execute!
+      skip! fail! throw!
     ].freeze
     private_constant :CMDX_CORE_METHODS
 
