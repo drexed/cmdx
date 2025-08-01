@@ -85,7 +85,7 @@ module CMDx
       task.class.settings[:callbacks].invoke!(:before_execution, task)
 
       task.result.executing!
-      task.call
+      task.command
     end
 
     def post_execution!

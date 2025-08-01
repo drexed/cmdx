@@ -3,18 +3,26 @@
 module CMDx
   class Task
 
+    CMDX_TASK_METHODS = %i[
+      attributes id context result chain
+      execute execute! skip! fail! throw!
+    ].freeze
+    private_constant :CMDX_TASK_METHODS
+
     extend Forwardable
 
-    def_delegators :result, :skip!, :fail!, :throw!
-
-    attr_reader :attributes, :id, :context, :result, :chain
+    attr_reader :attributes, :processor, :id, :context, :result, :chain
     alias ctx context
     alias res result
+
+    def_delegators :processor, :execute, :execute!
+    def_delegators :result, :skip!, :fail!, :throw!
 
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
       @attributes = {}
+      @processor  = Processor.new(self)
 
       @id      = Utils::Id.generate!
       @context = Context.build!(context)
@@ -24,10 +32,13 @@ module CMDx
 
     class << self
 
-      CallbackRegistry::TYPES.each do |callback|
-        define_method(callback) do |*callables, **options, &block|
-          register(:callback, callback, *callables, **options, &block)
+      def method_added(method_name)
+        if CMDX_TASK_METHODS.include?(method_name)
+          # Protect the few methods that are used internally by CMDx
+          raise "#{name}##{method_name} cannot be redefined"
         end
+
+        super
       end
 
       def settings(**options)
@@ -77,20 +88,26 @@ module CMDx
 
       def execute(...)
         task = new(...)
-        Processor.execute(task)
+        task.execute
         task.result
       end
 
       def execute!(...)
         task = new(...)
-        Processor.execute!(task)
+        task.execute!
         task.result
+      end
+
+      CallbackRegistry::TYPES.each do |callback|
+        define_method(callback) do |*callables, **options, &block|
+          register(:callback, callback, *callables, **options, &block)
+        end
       end
 
     end
 
-    def execute
-      raise UndefinedMethodError, "execute method not defined in #{self.class.name}"
+    def command
+      raise UndefinedMethodError, "undefined method #{self.class.name}#command"
     end
 
   end
