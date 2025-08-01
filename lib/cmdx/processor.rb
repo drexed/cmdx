@@ -22,17 +22,9 @@ module CMDx
     end
 
     def call
-      task.class.settings[:middlewares].call!(task) { execute }
-    end
-
-    def call!
-      task.class.settings[:middlewares].call!(task) { execute! }
-    end
-
-    def execute
       # NOTE: No need to clear the Chain since exception is not being re-raised
 
-      begin
+      task.class.settings[:middlewares].call!(task) do
         pre_execution!
         execution!
       rescue UndefinedCallError => e
@@ -49,8 +41,8 @@ module CMDx
       finalize_execution!
     end
 
-    def execute!
-      begin
+    def call!
+      task.class.settings[:middlewares].call!(task) do
         before_execution!
         execution!
       rescue UndefinedCallError => e

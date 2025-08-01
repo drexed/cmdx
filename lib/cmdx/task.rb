@@ -12,7 +12,7 @@ module CMDx
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
-      @id = Utils::ID.generate!
+      @id = Utils::Id.generate!
       @context = Context.build!(context)
       @result = Result.new(self)
     end
@@ -90,16 +90,6 @@ module CMDx
 
     def call
       raise UndefinedCallError, "call method not defined in #{self.class.name}"
-    end
-
-    # TODO: move this to the processor
-    def call_with_middlewares
-      Processor.call(self)
-      # self.class.settings[:middlewares].call(self) { |task| TaskProcessor.call(task) }
-    end
-
-    def call_with_middlewares!
-      self.class.settings[:middlewares].call(self) { |task| Processor.call!(task) }
     end
 
   end

@@ -2,7 +2,7 @@
 
 module CMDx
   module Utils
-    module ID
+    module Id
 
       extend self
 
