@@ -193,13 +193,21 @@ module CMDx
       @runtime = Utils::MonotonicRuntime.call(&)
     end
 
-    def to_h
-      # TODO
-    end
+    # def to_h
+    #   # TODO
+    # end
 
-    def to_s
-      # TODO
-    end
+    # def to_s
+    #   # TODO
+    # end
+
+    # def inspect
+    #   "#<#{self.class.name} state=#{state} status=#{status}>"
+    # end
+
+    # def pretty_print(pp)
+    #   pp.text("#<#{self.class.name} PRETTY state=#{state} status=#{status}>")
+    # end
 
     def deconstruct(*)
       [state, status]
