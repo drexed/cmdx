@@ -83,8 +83,8 @@ module CMDx
     end
 
     def attribute
-      # TODO: this needs to go back into the define_and_verify_attribute method
-      @attribute ||= Attribute.new(self)
+      attrs = task._attributes ||= {}
+      attrs[signature] ||= Attribute.new(self)
     end
 
     def define_and_verify_attribute!
@@ -119,8 +119,8 @@ module CMDx
     def define_and_verify_attribute
       raise "attribute #{signature} already defined" if task.respond_to?(signature)
 
-      value = attribute.value # HACK: hydrate and verify the attribute value
-      task.class.define_method(signature) { value }
+      param = self # HACK: Create a pointer to the parameter
+      task.class.define_method(signature) { param.attribute.value }
       task.class.send(:private, signature)
     end
 

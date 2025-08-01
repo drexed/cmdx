@@ -7,6 +7,8 @@ module CMDx
 
     def_delegators :result, :skip!, :fail!, :throw!
 
+    attr_accessor :_attributes
+
     attr_reader :context, :result
 
     def initialize(context = {})

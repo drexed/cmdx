@@ -49,12 +49,12 @@ module CMDx
         case sourced_value
         when Context, Hash then sourced_value.key?(parameter.name)
         else sourced_value.respond_to?(parameter.name, true)
-        end || errors.add(Locale.translate!("cmdx.parameters.required"))
+        end || errors.add(Utils::Locale.translate!("cmdx.parameters.required"))
       end
 
       sourced_value
     rescue NoMethodError
-      errors.add(Locale.translate!("cmdx.parameters.undefined", method: parameter.source))
+      errors.add(Utils::Locale.translate!("cmdx.parameters.undefined", method: parameter.source))
       nil
     end
 
@@ -81,7 +81,7 @@ module CMDx
 
       derived_value.nil? ? default_value : derived_value
     rescue NoMethodError
-      errors.add(Locale.translate!("cmdx.parameters.undefined", method: parameter.name))
+      errors.add(Utils::Locale.translate!("cmdx.parameters.undefined", method: parameter.name))
       nil
     end
 
@@ -97,7 +97,7 @@ module CMDx
         next if i != last_idx
 
         types = parameter.type.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
-        errors.add(Locale.translate!("cmdx.coercions.into_any", types:))
+        errors.add(Utils::Locale.translate!("cmdx.coercions.into_any", types:))
         nil
       end
     end

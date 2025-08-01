@@ -19,6 +19,7 @@ module CMDx
       registry.each_with_object(Errors.new) do |parameter, errors|
         parameter.task = task
         parameter.define_and_verify_attribute!
+
         recursively_add_attribute_errors_for(parameter, errors)
       end
     end
@@ -26,6 +27,8 @@ module CMDx
     private
 
     def recursively_add_attribute_errors_for(parameter, errors)
+      parameter.task.send(parameter.signature) # HACK: hydrate the attribute
+
       errors.add(parameter.signature, parameter.attribute.errors)
       parameter.children.each { |param| recursively_add_attribute_errors_for(param, errors) }
     end
