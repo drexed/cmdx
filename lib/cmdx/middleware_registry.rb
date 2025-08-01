@@ -13,8 +13,8 @@ module CMDx
       self.class.new(registry.map(&:dup))
     end
 
-    def register(middleware, **options)
-      registry << [middleware, options]
+    def register(middleware, at: -1, **options)
+      registry.insert(at, [middleware, options])
       self
     end
 
