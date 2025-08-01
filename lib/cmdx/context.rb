@@ -16,6 +16,16 @@ module CMDx
       @table = args.to_h.transform_keys(&:to_sym)
     end
 
+    def self.build!(context = {})
+      if context.is_a?(self) && !context.frozen?
+        context
+      elsif context.respond_to?(:context)
+        build!(context.context)
+      else
+        new(context)
+      end
+    end
+
     def [](key)
       table[key.to_sym]
     end

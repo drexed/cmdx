@@ -10,9 +10,10 @@ module CMDx
     attr_reader :context, :result
 
     def initialize(context = {})
-      context = context.context if context.respond_to?(:context)
+      Utils::Deprecate.invoke!(self)
 
-      @context = Context.new(context)
+      @id = Utils::ID.generate!
+      @context = Context.build!(context)
       @result = Result.new(self)
     end
 
@@ -32,6 +33,7 @@ module CMDx
             CMDx.configuration.to_h
           end.transform_values(&:dup).merge!(
             parameters: ParameterRegistry.new,
+            deprecated: false,
             tags: []
           )
       end
