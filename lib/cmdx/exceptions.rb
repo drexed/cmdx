@@ -2,6 +2,8 @@
 
 module CMDx
 
+  # TODO: see what exceptions to keep and what to remove
+
   # Base exception class for all CMDx-related errors.
   #
   # This serves as the root exception class for all errors raised by the CMDx

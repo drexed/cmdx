@@ -117,7 +117,7 @@ module CMDx
     end
 
     def define_and_verify_attribute
-      raise RuntimeError, "attribute #{signature} already defined" if task.respond_to?(signature)
+      raise "attribute #{signature} already defined" if task.respond_to?(signature)
 
       value = attribute.value # HACK: hydrate and verify the attribute value
       task.class.define_method(signature) { value }
