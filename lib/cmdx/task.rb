@@ -7,7 +7,9 @@ module CMDx
 
     def_delegators :result, :skip!, :fail!, :throw!
 
-    attr_reader :attributes, :context, :result
+    attr_reader :attributes, :id, :context, :result, :chain
+    alias ctx context
+    alias res result
 
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
@@ -17,6 +19,7 @@ module CMDx
       @id = Utils::Id.generate!
       @context = Context.build!(context)
       @result = Result.new(self)
+      @chain = Chain.build!(@result)
     end
 
     class << self

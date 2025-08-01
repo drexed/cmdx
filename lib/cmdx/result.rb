@@ -135,6 +135,7 @@ module CMDx
       halt! unless metadata[:original_exception]
     end
 
+    # TODO: can we get the trace of where the fault happened
     def halt!
       return if success?
 
@@ -185,12 +186,6 @@ module CMDx
 
     def outcome
       initialized? || thrown_failure? ? state : status
-    end
-
-    def runtime(&)
-      return @runtime unless block_given?
-
-      @runtime = Utils::MonotonicRuntime.call(&)
     end
 
     # def to_h

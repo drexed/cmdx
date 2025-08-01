@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
+- Qualify module and classes with `CMDx` prefix
 - Exclude rubocop  stuff via https://docs.rubocop.org/rubocop/configuration.html#common-configuration-parameters
 - Update all locales, add coercion types to list
 - Revert deprecator to use old options

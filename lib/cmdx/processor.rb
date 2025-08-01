@@ -68,7 +68,7 @@ module CMDx
     end
 
     def raise_exception!(exception)
-      # TODO: Chain.clear
+      Chain.clear
       raise(exception)
     end
 
@@ -98,7 +98,7 @@ module CMDx
     end
 
     def finalize_execution!
-      # TODO: Immutator.call(task) # need this anymore?
+      Immutator.freeze!(task)
       # TODO: ResultLogger.call(task.result) # Do we use emitters?
     end
 
