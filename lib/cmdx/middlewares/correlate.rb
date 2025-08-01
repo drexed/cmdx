@@ -6,9 +6,31 @@ module CMDx
 
       extend self
 
-      def call(task, callable)
+      THREAD_KEY = :cmdx_correlate
+
+      def id
+        Thread.current[THREAD_KEY]
+      end
+
+      def id=(id)
+        Thread.current[THREAD_KEY] = id
+      end
+
+      def clear
+        Thread.current[THREAD_KEY] = nil
+      end
+
+      def use(new_id)
+        old_id  = id
+        self.id = new_id
+        yield
+      ensure
+        self.id = old_id
+      end
+
+      def call(task, callable, **options)
         # TODO: make a real middleware
-        puts "~~~ [BEGIN] Correlate Middleware ~~~"
+        puts "~~~ [BEGIN] Correlate Middleware #{options} ~~~"
         result = callable.call(task)
         puts "~~~ [END] Correlate Middleware ~~~"
         result

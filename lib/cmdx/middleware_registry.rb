@@ -13,8 +13,8 @@ module CMDx
       self.class.new(registry.map(&:dup))
     end
 
-    def register(middleware)
-      registry << middleware
+    def register(middleware, **options)
+      registry << [middleware, options]
       self
     end
 
@@ -23,8 +23,8 @@ module CMDx
 
       return yield(task) if registry.empty?
 
-      registry.reverse_each.reduce(block) do |next_callable, middleware|
-        proc { |task| middleware.call(task, next_callable) }
+      registry.reverse_each.reduce(block) do |callable, (middleware, options)|
+        ->(task) { middleware.call(task, callable, **options) }
       end.call(task)
     end
 
