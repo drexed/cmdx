@@ -53,6 +53,13 @@ module CMDx
       nil
     end
 
+    def default_value
+      case opt = parameter.options[:default]
+      when Proc then opt.call(task)
+      else opt
+      end
+    end
+
     def derive_value!(source_value)
       derived_value = # TODO: make it similar to Utils::Call.invoke!
         case source_value
@@ -61,12 +68,7 @@ module CMDx
         when Proc then source_value.call(task)
         end
 
-      return derived_value unless derived_value.nil?
-
-      case default_value = parameter.options[:default]
-      when Proc then default_value.call(task)
-      else default_value
-      end
+      derived_value.nil? ? default_value : derived_value
     rescue NoMethodError
       errors.add(Locale.translate!("cmdx.parameters.undefined", method: parameter.name))
       nil
