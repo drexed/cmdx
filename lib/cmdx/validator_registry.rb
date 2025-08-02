@@ -29,7 +29,7 @@ module CMDx
       self
     end
 
-    def validate!(type, task, value, options = {})
+    def validate!(type, task, value, options = {}) # TODO: rename with out the bang
       raise UnknownValidationError, "unknown validator #{type}" unless registry.key?(type)
 
       match =

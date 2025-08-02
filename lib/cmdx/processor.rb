@@ -96,7 +96,7 @@ module CMDx
 
     def finalize_execution!
       Immutator.freeze!(task)
-      # TODO: ResultLogger.call(task.result) # Do we use emitters?
+      # TODO: ResultLogger.call(task.result) # Do we use emitters? Do we move it a middleware?
     end
 
   end
