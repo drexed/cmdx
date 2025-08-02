@@ -5,13 +5,13 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :parameter, :task
-
     attr_reader :parameter, :errors
+
+    def_delegators :parameter, :task
 
     def initialize(parameter)
       @parameter = parameter
-      @errors = Set.new
+      @errors    = Set.new
     end
 
     def value

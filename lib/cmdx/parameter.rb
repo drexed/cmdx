@@ -3,6 +3,8 @@
 module CMDx
   class Parameter
 
+    # TODO: merge this with Attribute
+
     AFFIX = proc do |value, &block|
       value == true ? block.call : value
     end.freeze
@@ -13,12 +15,12 @@ module CMDx
     attr_reader :name, :options, :children, :parent, :types
 
     def initialize(name, options = {}, &)
-      @parent = options.delete(:parent)
+      @parent   = options.delete(:parent)
       @required = options.delete(:required) || false
-      @types = Array(options.delete(:types) || options.delete(:type))
+      @types    = Array(options.delete(:types) || options.delete(:type))
 
-      @name = name
-      @options = options
+      @name     = name
+      @options  = options
       @children = []
 
       instance_eval(&) if block_given?
