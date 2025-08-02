@@ -16,7 +16,14 @@ module CMDx
     def add(attribute, message)
       return if message.empty?
 
-      messages[attribute] = message
+      messages[attribute] ||= Set.new
+      messages[attribute] << message
+    end
+
+    def for?(attribute)
+      return false unless messages.key?(attribute)
+
+      !messages[attribute].empty?
     end
 
     def to_s

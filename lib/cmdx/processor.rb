@@ -19,13 +19,11 @@ module CMDx
     end
 
     def execute
-      # NOTE: No need to clear the Chain since exception is not being re-raised
-
       task.class.settings[:middlewares].call!(task) do
         pre_execution!
         execution!
       rescue UndefinedMethodError => e
-        raise(e)
+        raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
         task.result.throw!(e.result, original_exception: e) if halt_execution?(e)
       rescue StandardError => e
@@ -74,8 +72,10 @@ module CMDx
     def pre_execution!
       task.class.settings[:callbacks].invoke!(:before_validation, task)
 
-      errors = task.class.settings[:attributes].define_and_verify!(task)
-      task.result.fail!(reason: errors.to_s, messages: errors.to_h) unless errors.empty?
+      task.class.settings[:attributes].define_and_verify!(task)
+      return if task.errors.empty?
+
+      task.result.fail!(reason: task.errors.to_s, messages: task.errors.to_h)
     end
 
     def execution!

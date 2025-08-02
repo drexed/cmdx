@@ -5,7 +5,7 @@ module CMDx
 
     extend Forwardable
 
-    attr_reader :attributes, :id, :context, :result, :chain
+    attr_reader :attributes, :errors, :id, :context, :result, :chain
     alias ctx context
     alias res result
 
@@ -14,7 +14,8 @@ module CMDx
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
-      @attributes = {} # TODO: change this to hold values and errors
+      @attributes = {}
+      @errors     = Errors.new
 
       @id      = Utils::Id.generate!
       @context = Context.build!(context)

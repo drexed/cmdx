@@ -10,7 +10,7 @@ module CMDx
 
     attr_accessor :task
 
-    attr_reader :name, :options, :children, :parent, :types, :errors
+    attr_reader :name, :options, :children, :parent, :types
 
     def initialize(name, options = {}, &)
       @parent   = options.delete(:parent)
@@ -20,9 +20,6 @@ module CMDx
       @name     = name
       @options  = options
       @children = []
-
-      @value  = nil
-      @errors = Set.new
 
       instance_eval(&) if block_given?
     end
@@ -83,22 +80,6 @@ module CMDx
 
         "#{prefix}#{name}#{suffix}".strip.to_sym
       end
-    end
-
-    def value
-      return task.attributes[method_name] if task.attributes.key?(method_name)
-
-      sourced_value = source_value!
-      return task.attributes[method_name] unless errors.empty?
-
-      derived_value = derive_value!(sourced_value)
-      return task.attributes[method_name] unless errors.empty?
-
-      coerced_value = coerce_value!(derived_value)
-      return task.attributes[method_name] unless errors.empty?
-
-      validate_value!(coerced_value)
-      task.attributes[method_name] = coerced_value
     end
 
     def define_and_verify!
@@ -162,12 +143,12 @@ module CMDx
         case sourced_value
         when Context, Hash then sourced_value.key?(name)
         else sourced_value.respond_to?(name, true)
-        end || errors.add(Utils::Locale.translate!("cmdx.attributes.required"))
+        end || task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.required"))
       end
 
       sourced_value
     rescue NoMethodError
-      errors.add(Utils::Locale.translate!("cmdx.attributes.undefined", method: source))
+      task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: source))
       nil
     end
 
@@ -194,7 +175,7 @@ module CMDx
 
       derived_value.nil? ? default_value : derived_value
     rescue NoMethodError
-      errors.add(Utils::Locale.translate!("cmdx.attributes.undefined", method: name))
+      task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: name))
       nil
     end
 
@@ -210,7 +191,7 @@ module CMDx
         next if i != last_idx
 
         tl = types.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
-        errors.add(Utils::Locale.translate!("cmdx.coercions.into_any", types: tl))
+        task.errors.add(method_name, Utils::Locale.translate!("cmdx.coercions.into_any", types: tl))
         nil
       end
     end
@@ -221,9 +202,25 @@ module CMDx
       options.slice(*registry.keys).each_key do |type|
         registry.validate!(type, task, coerced_value, options[type])
       rescue ValidationError => e
-        errors.add(e.message)
+        task.errors.add(method_name, e.message)
         nil
       end
+    end
+
+    def value
+      return task.attributes[method_name] if task.attributes.key?(method_name)
+
+      sourced_value = source_value!
+      return task.attributes[method_name] unless task.errors.for?(method_name)
+
+      derived_value = derive_value!(sourced_value)
+      return task.attributes[method_name] unless task.errors.for?(method_name)
+
+      coerced_value = coerce_value!(derived_value)
+      return task.attributes[method_name] unless task.errors.for?(method_name)
+
+      validate_value!(coerced_value)
+      task.attributes[method_name] = coerced_value
     end
 
   end

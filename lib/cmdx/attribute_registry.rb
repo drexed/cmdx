@@ -19,19 +19,10 @@ module CMDx
     end
 
     def define_and_verify!(task)
-      registry.each_with_object(Errors.new) do |attribute, errors|
+      registry.each do |attribute|
         attribute.task = task
         attribute.define_and_verify!
-
-        recursively_attach_errors_for(attribute, errors)
       end
-    end
-
-    private
-
-    def recursively_attach_errors_for(attribute, errors)
-      errors.add(attribute.method_name, attribute.errors)
-      attribute.children.each { |attr| recursively_attach_errors_for(attr, errors) }
     end
 
   end
