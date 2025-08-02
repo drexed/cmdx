@@ -8,12 +8,14 @@ module CMDx
     def_delegators :table, :each, :map, :to_h
 
     def initialize(args = {})
-      unless args.respond_to?(:to_h)
-        raise ArgumentError,
-              "must be respond to `to_h`"
-      end
-
-      @table = args.to_h.transform_keys(&:to_sym)
+      @table =
+        if args.respond_to?(:to_hash)
+          args.to_hash
+        elsif args.respond_to?(:to_h)
+          args.to_h
+        else
+          raise ArgumentError, "must be respond to `to_h` or `to_hash`"
+        end.transform_keys(&:to_sym)
     end
 
     def self.build!(context = {})
