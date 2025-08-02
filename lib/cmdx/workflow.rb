@@ -7,12 +7,11 @@ module CMDx
 
     # module ClassMethods
 
-    #   def method_added(method_name)
-    #     # TODO: make sure this is correct
-    #     raise "#{self} is a Workflow task and must not define #call" if method_name == :call
+    # def method_added(method_name)
+    #   raise "cannot redefine #{name}##{method_name}" if method_name == :command
 
-    #     super
-    #   end
+    #   super
+    # end
 
     #   def task_groups
     #     @task_groups ||= []

@@ -11,12 +11,9 @@ module CMDx
 
     class << self
 
-      def execute(task)
-        new(task).execute
-      end
-
-      def execute!(task)
-        new(task).execute!
+      def execute(task, halt: false)
+        instance = new(task)
+        halt ? instance.execute! : instance.execute
       end
 
     end

@@ -3,28 +3,18 @@
 module CMDx
   class Task
 
-    CMDX_CORE_METHODS = %i[
-      attributes processor
-      id context result chain
-      execute execute!
-      skip! fail! throw!
-    ].freeze
-    private_constant :CMDX_CORE_METHODS
-
     extend Forwardable
 
-    attr_reader :attributes, :processor, :id, :context, :result, :chain
+    attr_reader :attributes, :id, :context, :result, :chain
     alias ctx context
     alias res result
 
-    def_delegators :processor, :execute, :execute!
     def_delegators :result, :skip!, :fail!, :throw!
 
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
       @attributes = {}
-      @processor  = Processor.new(self)
 
       @id      = Utils::Id.generate!
       @context = Context.build!(context)
@@ -33,15 +23,6 @@ module CMDx
     end
 
     class << self
-
-      def method_added(method_name)
-        if CMDX_CORE_METHODS.include?(method_name)
-          msg = "#{name}##{method_name} redefined, take special care"
-          ENV.fetch("RAISE_CMDX_WARNINGS", false) ? raise(msg) : warn(msg)
-        end
-
-        super
-      end
 
       def settings(**options)
         @settings ||=
@@ -90,13 +71,13 @@ module CMDx
 
       def execute(...)
         task = new(...)
-        task.execute
+        task.execute(halt: false)
         task.result
       end
 
       def execute!(...)
         task = new(...)
-        task.execute!
+        task.execute(halt: true)
         task.result
       end
 
@@ -110,6 +91,10 @@ module CMDx
 
     def command
       raise UndefinedMethodError, "undefined method #{self.class.name}#command"
+    end
+
+    def execute(halt: false)
+      Processor.execute(self, halt:)
     end
 
   end
