@@ -114,16 +114,9 @@ module CMDx
     def define_and_verify
       raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name)
 
-      v = value # HACK: hydrate and verify the attribute value
+      v = value # HACK: hydrates and caches the value
       task.class.define_method(method_name) { v }
       task.class.send(:private, method_name)
-
-      # task.instance_eval(<<-RUBY, __FILE__, __LINE__ + 1)
-      #   def #{method_name}
-      #     attributes[:#{method_name}]
-      #   end
-      #   private :#{method_name}
-      # RUBY
     end
 
     def source_value!
