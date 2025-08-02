@@ -3,8 +3,6 @@
 module CMDx
   class Parameter
 
-    # TODO: merge this with Attribute
-
     AFFIX = proc do |value, &block|
       value == true ? block.call : value
     end.freeze
