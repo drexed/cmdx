@@ -119,6 +119,8 @@ module CMDx
       task.class.send(:private, method_name)
     end
 
+    # Move back to an AttributeValue class
+
     def source_value!
       sourced_value =
         case source

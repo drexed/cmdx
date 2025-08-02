@@ -4,6 +4,8 @@ module CMDx
   module Utils
     module Deprecate
 
+      # TODO: move out of utils dir
+
       extend self
 
       EVAL = proc do |target, callable|
