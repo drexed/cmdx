@@ -14,7 +14,7 @@ module CMDx
     def initialize(context = {})
       Utils::Deprecate.invoke!(self)
 
-      @attributes = {}
+      @attributes = {} # TODO: change this to hold values and errors
 
       @id      = Utils::Id.generate!
       @context = Context.build!(context)
@@ -89,12 +89,12 @@ module CMDx
 
     end
 
-    def command
-      raise UndefinedMethodError, "undefined method #{self.class.name}#command"
-    end
-
     def execute(halt: false)
       Processor.execute(self, halt:)
+    end
+
+    def command
+      raise UndefinedMethodError, "undefined method #{self.class.name}#command"
     end
 
   end
