@@ -31,7 +31,7 @@ module CMDx
           else
             CMDx.configuration.to_h
           end.transform_values(&:dup).merge!(
-            parameters: ParameterRegistry.new,
+            attributes: AttributeRegistry.new,
             deprecate: false,
             tags: [],
             **options
@@ -47,26 +47,24 @@ module CMDx
         end
       end
 
-      def parameter(name, ...)
-        param = Parameter.parameter(name, ...)
-        settings[:parameters].register(param)
+      def attribute(name, ...)
+        attr = Attribute.define(name, ...)
+        settings[:attributes].register(attr)
       end
-      alias param parameter
 
-      def parameters(...)
-        params = Parameter.parameters(...)
-        settings[:parameters].register(params)
+      def attributes(...)
+        attrs = Attribute.defines(...)
+        settings[:attributes].register(attrs)
       end
-      alias params parameters
 
       def optional(...)
-        params = Parameter.optional(...)
-        settings[:parameters].register(params)
+        attrs = Attribute.optional(...)
+        settings[:attributes].register(attrs)
       end
 
       def required(...)
-        params = Parameter.required(...)
-        settings[:parameters].register(params)
+        attrs = Attribute.required(...)
+        settings[:attributes].register(attrs)
       end
 
       def execute(...)

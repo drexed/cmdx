@@ -9,11 +9,11 @@ module CMDx
   # handling CMDx-specific exceptions.
   Error = Class.new(StandardError)
 
-  # Raised when parameter coercion fails during task execution.
+  # Raised when attribute coercion fails during task execution.
   #
-  # This error occurs when a parameter value cannot be converted to the expected
+  # This error occurs when a attribute value cannot be converted to the expected
   # type using the registered coercion handlers. It indicates that the provided
-  # value is incompatible with the parameter's defined type.
+  # value is incompatible with the attribute's defined type.
   CoercionError = Class.new(Error)
 
   # Raised when a deprecated task is used.
@@ -29,9 +29,9 @@ module CMDx
   # of required functionality.
   UndefinedMethodError = Class.new(Error)
 
-  # Raised when parameter validation fails during task execution.
+  # Raised when attribute validation fails during task execution.
   #
-  # This error occurs when a parameter value doesn't meet the validation criteria
+  # This error occurs when a attribute value doesn't meet the validation criteria
   # defined by the validator. It indicates that the provided value violates
   # business rules or data integrity constraints.
   ValidationError = Class.new(Error)

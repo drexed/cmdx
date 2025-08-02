@@ -1,5 +1,8 @@
 en:
   cmdx:
+    attributes:
+      required: "must be accessible via the source"
+      undefined: "delegates to undefined method %{method}"
     coercions:
       into_a: "could not coerce into a %{type}"
       into_an: "could not coerce into an %{type}"
@@ -7,9 +10,6 @@ en:
       unknown: "unknown %{type} coercion type"
     faults:
       unspecified: "no reason given"
-    parameters:
-      required: "must be accessible via the source"
-      undefined: "delegates to undefined method %{method}"
     types:
       array: "array"
       big_decimal: "big decimal"
