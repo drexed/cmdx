@@ -5,9 +5,9 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :registry, :keys
-
     attr_reader :registry
+
+    def_delegators :registry, :keys
 
     def initialize(registry = nil)
       @registry = registry || {

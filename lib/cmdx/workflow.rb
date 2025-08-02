@@ -3,54 +3,54 @@
 module CMDx
   module Workflow
 
-    # Group = Struct.new(:tasks, :options)
+    module ClassMethods
 
-    # module ClassMethods
+      def method_added(method_name)
+        raise "cannot redefine #{name}##{method_name} method" if method_name == :command
 
-    # def method_added(method_name)
-    #   raise "cannot redefine #{name}##{method_name}" if method_name == :command
+        super
+      end
 
-    #   super
-    # end
+      def task_groups
+        @task_groups ||= []
+      end
 
-    #   def task_groups
-    #     @task_groups ||= []
-    #   end
+      def tasks(*tasks, **options)
+        task_groups << TaskGroup.new(
+          tasks.flatten.map do |task|
+            next task if task.is_a?(Class) && (task <= Task)
 
-    #   def process(*tasks, **options)
-    #     task_groups << Group.new(
-    #       tasks.flatten.map do |task|
-    #         next task if task.is_a?(Class) && (task <= Task)
+            raise TypeError, "must be a Task or Workflow"
+          end,
+          options
+        )
+      end
 
-    #         raise TypeError, "must be a Task or Workflow"
-    #       end,
-    #       options
-    #     )
-    #   end
+    end
 
-    # end
+    TaskGroup = Struct.new(:tasks, :options)
 
-    # def self.included(base)
-    #   base.extend(ClassMethods)
-    # end
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
 
-    # def call
-    #   self.class.task_groups.each do |group|
-    #     next unless cmdx_eval(group.options)
+    def command
+      self.class.task_groups.each do |group|
+        next unless Utils::Condition.evaluate!(self, group.options)
 
-    #     workflow_halt = Array(
-    #       group.options[:workflow_halts] ||
-    #       cmd_setting(:workflow_halts)
-    #     ).map(&:to_s)
+        workflow_halts = Array(
+          group.options[:workflow_halts] ||
+          self.class.settings[:workflow_halts]
+        ).map(&:to_s)
 
-    #     group.tasks.each do |task|
-    #       task_result = task.call(context)
-    #       next unless workflow_halt.include?(task_result.status)
+        group.tasks.each do |task|
+          task_result = task.execute(context)
+          next unless workflow_halts.include?(task_result.status)
 
-    #       throw!(task_result)
-    #     end
-    #   end
-    # end
+          throw!(task_result)
+        end
+      end
+    end
 
   end
 end

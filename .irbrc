@@ -55,7 +55,20 @@ class SampleTask < CMDx::Task
 
 end
 
-def sample
+class SampleWorkflow < CMDx::Task
+
+  include CMDx::Workflow
+
+  tasks SampleTask, SampleTask
+  tasks SampleTask
+
+  def command
+    puts "command"
+  end
+
+end
+
+def task
   SampleTask.execute(
     name: "John",
     sex: "M",
@@ -76,5 +89,15 @@ def sample
       },
       zip: "90001"
     }
+  )
+end
+
+def workflow
+  SampleWorkflow.execute(
+    name: "John",
+    sex: "M",
+    age: "30x",
+    height: 6,
+    weight: 150
   )
 end
