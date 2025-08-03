@@ -19,7 +19,7 @@ module CMDx
       private
 
       def raise_of_validation_error!(values, options)
-        values  = values.map(&:inspect).join(", ") unless values.nil?
+        values = values.map(&:inspect).join(", ") unless values.nil?
         message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 

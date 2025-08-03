@@ -7,14 +7,14 @@ module CMDx
 
     STATES = [
       INITIALIZED = "initialized",  # Initial state before execution
-      EXECUTING   = "executing",    # Currently executing task logic
-      COMPLETE    = "complete",     # Successfully completed execution
+      EXECUTING = "executing",      # Currently executing task logic
+      COMPLETE = "complete",        # Successfully completed execution
       INTERRUPTED = "interrupted"   # Execution was halted due to failure
     ].freeze
     STATUSES = [
       SUCCESS = "success",  # Task completed successfully
       SKIPPED = "skipped",  # Task was skipped intentionally
-      FAILED  = "failed"    # Task failed due to error or validation
+      FAILED = "failed"     # Task failed due to error or validation
     ].freeze
 
     attr_reader :task, :state, :status, :metadata
@@ -24,9 +24,9 @@ module CMDx
     def initialize(task)
       raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)
 
-      @task     = task
-      @state    = INITIALIZED
-      @status   = SUCCESS
+      @task = task
+      @state = INITIALIZED
+      @status = SUCCESS
       @metadata = {}
     end
 
@@ -118,7 +118,7 @@ module CMDx
 
       raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
 
-      @status   = SKIPPED
+      @status = SKIPPED
       @metadata = metadata
 
       halt! unless metadata[:original_exception]
@@ -129,7 +129,7 @@ module CMDx
 
       raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
 
-      @status   = FAILED
+      @status = FAILED
       @metadata = metadata
 
       halt! unless metadata[:original_exception]

@@ -15,12 +15,12 @@ module CMDx
       Deprecator.condemn(self)
 
       @attributes = {}
-      @errors     = Errors.new
+      @errors = Errors.new
 
-      @id      = Identifier.generate
+      @id = Identifier.generate
       @context = Context.build(context)
-      @result  = Result.new(self)
-      @chain   = Chain.build(@result)
+      @result = Result.new(self)
+      @chain = Chain.build(@result)
     end
 
     class << self

@@ -21,7 +21,7 @@ module CMDx
       end
 
       def use(new_id)
-        old_id  = id
+        old_id = id
         self.id = new_id
         yield
       ensure

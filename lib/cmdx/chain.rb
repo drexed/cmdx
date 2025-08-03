@@ -13,6 +13,7 @@ module CMDx
     def_delegators :first, :state, :status, :outcome, :runtime
 
     def initialize
+      @id = Identifier.generate
       @results = []
     end
 

@@ -15,11 +15,11 @@ module CMDx
       @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
 
       @middlewares = MiddlewareRegistry.new
-      @callbacks   = CallbackRegistry.new
-      @coercions   = CoercionRegistry.new
-      @validators  = ValidatorRegistry.new
+      @callbacks = CallbackRegistry.new
+      @coercions = CoercionRegistry.new
+      @validators = ValidatorRegistry.new
 
-      @task_halts     = DEFAULT_HALT
+      @task_halts = DEFAULT_HALT
       @workflow_halts = DEFAULT_HALT
     end
 
