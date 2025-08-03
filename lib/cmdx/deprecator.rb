@@ -23,7 +23,7 @@ module CMDx
       type = EVAL.call(task, task.class.settings[:deprecate])
 
       case type
-      when FalseClass # Do nothing
+      when NilClass, FalseClass # Do nothing
       when TrueClass, /error/ then raise DeprecationError, "#{task.class.name} usage prohibited"
       when /log/ then task.logger.warn { "DEPRECATED: migrate to replacement or discontinue use" }
       when /warn/ then warn("[#{task.class.name}] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
