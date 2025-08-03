@@ -16,6 +16,13 @@ module CMDx
       SKIPPED = "skipped",  # Task was skipped intentionally
       FAILED = "failed"     # Task failed due to error or validation
     ].freeze
+    STRIP_FAILURE = proc do |hash, result, key|
+      unless result.send(:"#{key}?")
+        # Strip caused/threw failures since its the same info as the log line
+        hash[key] = result.send(key).to_h.except(:caused_failure, :threw_failure)
+      end
+    end.freeze
+    private_constant :STRIP_FAILURE
 
     attr_reader :task, :state, :status, :metadata, :reason, :cause
 
@@ -178,8 +185,9 @@ module CMDx
     def threw_failure
       return unless failed?
 
+      current = index
       results = chain.results.select(&:failed?)
-      results.find { |r| r.index > index } || results.last
+      results.find { |r| r.index > current } || results.last
     end
 
     def threw_failure?
@@ -200,9 +208,30 @@ module CMDx
       initialized? || thrown_failure? ? state : status
     end
 
-    # def to_h
-    #   # TODO
-    # end
+    def to_h
+      {
+        index: index,
+        chain_id: chain.id,
+        type: task.class.include?(Workflow) ? "Workflow" : "Task",
+        class: task.class.name,
+        id: task.id,
+        tags: task.class.settings[:tags],
+        state: state,
+        status: status,
+        outcome: outcome,
+        metadata: metadata
+      }.tap do |hash|
+        if interrupted?
+          hash[:reason] = reason
+          hash[:cause] = cause
+        end
+
+        if failed?
+          STRIP_FAILURE.call(hash, self, :caused_failure)
+          STRIP_FAILURE.call(hash, self, :threw_failure)
+        end
+      end
+    end
 
     # def to_s
     #   # TODO

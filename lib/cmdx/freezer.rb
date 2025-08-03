@@ -12,6 +12,9 @@ module CMDx
 
       task.freeze
       task.result.freeze
+
+      # Freezing the context and chain can only be done
+      # once the outer-most task has completed.
       return unless task.result.index.zero?
 
       task.context.freeze
