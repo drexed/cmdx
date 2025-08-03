@@ -6,7 +6,7 @@ module CMDx
     module ClassMethods
 
       def method_added(method_name)
-        raise "cannot redefine #{name}##{method_name} method" if method_name == :command
+        raise "cannot redefine #{name}##{method_name} method" if method_name == :task
 
         super
       end
@@ -34,7 +34,7 @@ module CMDx
       base.extend(ClassMethods)
     end
 
-    def command
+    def task
       self.class.task_groups.each do |group|
         next unless Utils::Condition.evaluate!(self, group.options)
 

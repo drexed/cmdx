@@ -31,8 +31,8 @@ class SampleTask < CMDx::Task
 
   before_validation { puts "before_validation" }
 
-  def command
-    puts "command"
+  def task
+    puts "task"
     # puts self.class.settings[:parameters]
     # puts "-> name: #{name}"
     # puts "-> age: #{age}"

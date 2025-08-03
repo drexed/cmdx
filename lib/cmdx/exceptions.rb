@@ -25,7 +25,7 @@ module CMDx
   # Raised when an abstract method is called without being implemented.
   #
   # This error occurs when a subclass fails to implement required abstract
-  # methods such as 'command' in tasks. It indicates incomplete implementation
+  # methods such as 'task' in tasks. It indicates incomplete implementation
   # of required functionality.
   UndefinedMethodError = Class.new(Error)
 

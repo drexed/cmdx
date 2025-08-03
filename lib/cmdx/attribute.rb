@@ -111,7 +111,7 @@ module CMDx
     end
 
     def define_and_verify
-      raise "#{method_name.inspect} already defined" if task.respond_to?(method_name, true)
+      raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
 
       attribute_value = AttributeValue.new(self)
       attribute_value.generate
