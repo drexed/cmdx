@@ -11,12 +11,12 @@ module CMDx
         super
       end
 
-      def task_groups
-        @task_groups ||= []
+      def execution_groups
+        @execution_groups ||= []
       end
 
       def tasks(*tasks, **options)
-        task_groups << TaskGroup.new(
+        execution_groups << ExecutionGroup.new(
           tasks.flatten.map do |task|
             next task if task.is_a?(Class) && (task <= Task)
 
@@ -28,14 +28,14 @@ module CMDx
 
     end
 
-    TaskGroup = Struct.new(:tasks, :options)
+    ExecutionGroup = Struct.new(:tasks, :options)
 
     def self.included(base)
       base.extend(ClassMethods)
     end
 
     def task
-      self.class.task_groups.each do |group|
+      self.class.execution_groups.each do |group|
         next unless Utils::Condition.evaluate(self, group.options)
 
         workflow_breakpoints = Array(
