@@ -9,8 +9,8 @@ module CMDx
       def call(value, options = {})
         value.to_sym
       rescue NoMethodError
-        type = Locale.translate("cmdx.types.symbol")
-        raise CoercionError, Locale.translate("cmdx.coercions.into_a", type:)
+        type = Locale.t("cmdx.types.symbol")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

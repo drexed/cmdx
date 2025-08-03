@@ -18,6 +18,7 @@ module CMDx
       else message
       end
     end
+    alias t translate
 
   end
 end

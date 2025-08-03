@@ -23,8 +23,8 @@ module CMDx
       private
 
       def raise_coercion_error!
-        type = Locale.translate("cmdx.types.hash")
-        raise CoercionError, Locale.translate("cmdx.coercions.into_a", type:)
+        type = Locale.t("cmdx.types.hash")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end
