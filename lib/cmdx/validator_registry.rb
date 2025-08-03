@@ -30,7 +30,7 @@ module CMDx
     end
 
     def validate(type, task, value, options = {})
-      raise UnknownValidationError, "unknown validator type #{type.inspect}" unless registry.key?(type)
+      raise TypeError, "unknown validator type #{type.inspect}" unless registry.key?(type)
 
       match =
         if options.is_a?(Hash)

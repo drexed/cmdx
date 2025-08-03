@@ -139,7 +139,6 @@ module CMDx
       halt! unless cause
     end
 
-    # TODO: can we get the trace of where the fault happened
     def halt!
       return if success?
 

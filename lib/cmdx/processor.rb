@@ -34,7 +34,7 @@ module CMDx
 
     def execute!
       task.class.settings[:middlewares].call!(task) do
-        before_execution!
+        pre_execution!
         execution!
       rescue UndefinedMethodError => e
         raise_exception!(e)
