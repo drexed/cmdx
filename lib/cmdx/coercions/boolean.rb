@@ -4,10 +4,10 @@ module CMDx
   module Coercions
     module Boolean
 
+      extend self
+
       FALSEY = /^(false|f|no|n|0)$/i
       TRUTHY = /^(true|t|yes|y|1)$/i
-
-      extend self
 
       def call(value, options = {})
         case value.to_s.downcase

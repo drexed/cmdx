@@ -4,9 +4,9 @@ module CMDx
   module Coercions
     module Time
 
-      ANALOG_TYPES = %w[DateTime Time].freeze
-
       extend self
+
+      ANALOG_TYPES = %w[DateTime Time].freeze
 
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)

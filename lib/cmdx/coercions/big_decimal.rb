@@ -4,9 +4,9 @@ module CMDx
   module Coercions
     module BigDecimal
 
-      DEFAULT_PRECISION = 14
-
       extend self
+
+      DEFAULT_PRECISION = 14
 
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)

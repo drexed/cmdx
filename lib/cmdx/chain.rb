@@ -7,7 +7,7 @@ module CMDx
 
     THREAD_KEY = :cmdx_chain
 
-    attr_reader :results
+    attr_reader :id, :results
 
     def_delegators :results, :index, :first, :last, :size
     def_delegators :first, :state, :status, :outcome, :runtime
