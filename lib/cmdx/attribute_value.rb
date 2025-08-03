@@ -57,7 +57,7 @@ module CMDx
       if required? && (parent.nil? || parent&.required?)
         case sourced_value
         when Context, Hash then sourced_value.key?(name)
-        when Proc then true # Cannot determine until value is derived
+        when Proc then true # Cannot be determined
         else sourced_value.respond_to?(name, true)
         end || errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.required"))
       end
