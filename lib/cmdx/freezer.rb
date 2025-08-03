@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Immutator
+  module Freezer
 
     extend self
 
-    def freeze!(task)
+    def immute(task)
       # Stubbing on frozen objects is not allowed
       skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)
       return if Coercions::Boolean.call(skip_freezing)
