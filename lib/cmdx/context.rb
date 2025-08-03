@@ -63,10 +63,9 @@ module CMDx
       table.dig(key.to_sym, *keys)
     end
 
-    def inspect
-      "#<#{self.class.name}#{table.map { |key, value| ":#{key}=#{value.inspect}" }.join(' ')}>"
+    def to_s
+      Utils::Inspect.dump(to_h)
     end
-    alias to_s inspect
 
     private
 

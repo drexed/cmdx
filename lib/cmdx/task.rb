@@ -96,5 +96,20 @@ module CMDx
       raise UndefinedMethodError, "undefined method #{self.class.name}#task"
     end
 
+    def to_h
+      {
+        index: result.index,
+        chain_id: chain.id,
+        type: self.class.include?(Workflow) ? "Workflow" : "Task",
+        class: self.class.name,
+        id:,
+        tags: self.class.settings[:tags]
+      }
+    end
+
+    def to_s
+      Utils::Inspect.dump(to_h)
+    end
+
   end
 end

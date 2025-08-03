@@ -209,18 +209,12 @@ module CMDx
     end
 
     def to_h
-      {
-        index: index,
-        chain_id: chain.id,
-        type: task.class.include?(Workflow) ? "Workflow" : "Task",
-        class: task.class.name,
-        id: task.id,
-        tags: task.class.settings[:tags],
-        state: state,
-        status: status,
-        outcome: outcome,
-        metadata: metadata
-      }.tap do |hash|
+      task.to_h.merge!(
+        state:,
+        status:,
+        outcome:,
+        metadata:
+      ).tap do |hash|
         if interrupted?
           hash[:reason] = reason
           hash[:cause] = cause
@@ -233,17 +227,14 @@ module CMDx
       end
     end
 
-    # def to_s
-    #   # TODO
-    # end
-
-    # def inspect
-    #   "#<#{self.class.name} state=#{state} status=#{status}>"
-    # end
-
-    # def pretty_print(pp)
-    #   pp.text("#<#{self.class.name} PRETTY state=#{state} status=#{status}>")
-    # end
+    def to_s
+      Utils::Inspect.dump(to_h) do |key, value|
+        case key
+        when /failure/ then "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
+        else "#{key}=#{value.inspect}"
+        end
+      end
+    end
 
     def deconstruct(*)
       [state, status]

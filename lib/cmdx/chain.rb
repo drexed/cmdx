@@ -41,5 +41,16 @@ module CMDx
 
     end
 
+    def to_h
+      {
+        id: id,
+        results: results.map(&:to_h)
+      }
+    end
+
+    def to_s
+      Utils::Inspect.dump(to_h)
+    end
+
   end
 end
