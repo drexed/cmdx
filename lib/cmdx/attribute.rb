@@ -112,110 +112,11 @@ module CMDx
     end
 
     def define_and_verify
-      raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name)
+      raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
 
-      v = value # HACK: hydrates and caches the value
+      v = AttributeValue.value(self)
       task.class.define_method(method_name) { v }
       task.class.send(:private, method_name)
-    end
-
-    # Move back to an AttributeValue class
-
-    def source_value!
-      sourced_value =
-        case source
-        when String, Symbol then task.send(source)
-        when Proc then task.instance_exec(&source)
-        else
-          if source.respond_to?(:call)
-            source.call(task, source)
-          else
-            source
-          end
-        end
-
-      if required? && (parent.nil? || parent&.required?)
-        case sourced_value
-        when Context, Hash then sourced_value.key?(name)
-        else sourced_value.respond_to?(name, true)
-        end || task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.required"))
-      end
-
-      sourced_value
-    rescue NoMethodError
-      task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: source))
-      nil
-    end
-
-    def default_value
-      opt = options[:default]
-
-      if opt.is_a?(Proc)
-        task.instance_exec(&opt)
-      elsif opt.respond_to?(:call)
-        opt.call(task)
-      else
-        opt
-      end
-    end
-
-    def derive_value!(source_value)
-      derived_value =
-        case source_value
-        when String, Symbol then source_value.send(name)
-        when Context, Hash then source_value[name]
-        when Proc then task.instance_exec(source_value, &source_value)
-        else source_value.call(task, source_value) if source_value.respond_to?(:call)
-        end
-
-      derived_value.nil? ? default_value : derived_value
-    rescue NoMethodError
-      task.errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: name))
-      nil
-    end
-
-    def coerce_value!(derived_value)
-      return derived_value if types.empty?
-
-      registry = task.class.settings[:coercions]
-      last_idx = types.size - 1
-
-      types.find.with_index do |type, i|
-        break registry.coerce!(type, task, derived_value, options)
-      rescue CoercionError
-        next if i != last_idx
-
-        tl = types.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
-        task.errors.add(method_name, Utils::Locale.translate!("cmdx.coercions.into_any", types: tl))
-        nil
-      end
-    end
-
-    def validate_value!(coerced_value)
-      registry = task.class.settings[:validators]
-
-      options.slice(*registry.keys).each_key do |type|
-        registry.validate!(type, task, coerced_value, options[type])
-      rescue ValidationError => e
-        task.errors.add(method_name, e.message)
-        nil
-      end
-    end
-
-    def value
-      return task.attributes[method_name] if task.attributes.key?(method_name)
-
-      sourced_value = source_value!
-      return task.attributes[method_name] unless task.errors.for?(method_name)
-
-      derived_value = derive_value!(sourced_value)
-      return task.attributes[method_name] unless task.errors.for?(method_name)
-
-      coerced_value = coerce_value!(derived_value)
-      return task.attributes[method_name] unless task.errors.for?(method_name)
-
-      validate_value!(coerced_value)
-      task.attributes[method_name] = coerced_value
     end
 
   end
