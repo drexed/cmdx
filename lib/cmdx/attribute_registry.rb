@@ -18,10 +18,10 @@ module CMDx
       self
     end
 
-    def define_and_verify!(task)
+    def define_and_verify(task)
       registry.each do |attribute|
         attribute.task = task
-        attribute.define_and_verify!
+        attribute.define_and_verify_tree
       end
     end
 

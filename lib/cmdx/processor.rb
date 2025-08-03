@@ -72,7 +72,7 @@ module CMDx
     def pre_execution!
       task.class.settings[:callbacks].invoke!(:before_validation, task)
 
-      task.class.settings[:attributes].define_and_verify!(task)
+      task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
 
       task.result.fail!(reason: task.errors.to_s, messages: task.errors.to_h)

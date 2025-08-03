@@ -50,10 +50,6 @@ module CMDx
 
     end
 
-    def optional?
-      !required?
-    end
-
     def required?
       !!@required
     end
@@ -77,16 +73,16 @@ module CMDx
         prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
         suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
 
-        "#{prefix}#{name}#{suffix}".strip.to_sym
+        :"#{prefix}#{name}#{suffix}"
       end
     end
 
-    def define_and_verify!
+    def define_and_verify_tree
       define_and_verify
 
       children.each do |child|
         child.task = task
-        child.define_and_verify!
+        child.define_and_verify_tree
       end
     end
 
