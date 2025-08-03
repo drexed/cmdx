@@ -37,7 +37,7 @@ module CMDx
       registry = task.class.settings[:validators]
 
       options.slice(*registry.keys).each do |type, opts|
-        registry.validate!(type, task, value, opts)
+        registry.validate(type, task, value, opts)
       rescue ValidationError => e
         errors.add(method_name, e.message)
         nil
@@ -59,12 +59,12 @@ module CMDx
         when Context, Hash then sourced_value.key?(name)
         when Proc then true # Cannot be determined
         else sourced_value.respond_to?(name, true)
-        end || errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.required"))
+        end || errors.add(method_name, Utils::Locale.translate("cmdx.attributes.required"))
       end
 
       sourced_value
     rescue NoMethodError
-      errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: source))
+      errors.add(method_name, Utils::Locale.translate("cmdx.attributes.undefined", method: source))
       nil
     end
 
@@ -93,7 +93,7 @@ module CMDx
 
       derived_value.nil? ? default_value : derived_value
     rescue NoMethodError
-      errors.add(method_name, Utils::Locale.translate!("cmdx.attributes.undefined", method: name))
+      errors.add(method_name, Utils::Locale.translate("cmdx.attributes.undefined", method: name))
       nil
     end
 
@@ -104,12 +104,12 @@ module CMDx
       last_idx = attribute.types.size - 1
 
       attribute.types.find.with_index do |type, i|
-        break registry.coerce!(type, task, derived_value, options)
+        break registry.coerce(type, task, derived_value, options)
       rescue CoercionError
         next if i != last_idx
 
-        tl = attribute.types.map { |t| Utils::Locale.translate!("cmdx.types.#{t}") }.join(", ")
-        errors.add(method_name, Utils::Locale.translate!("cmdx.coercions.into_any", types: tl))
+        tl = attribute.types.map { |t| Utils::Locale.translate("cmdx.types.#{t}") }.join(", ")
+        errors.add(method_name, Utils::Locale.translate("cmdx.coercions.into_any", types: tl))
         nil
       end
     end

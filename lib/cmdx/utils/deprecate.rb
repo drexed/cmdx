@@ -22,7 +22,7 @@ module CMDx
       end.freeze
       private_constant :EVAL
 
-      def invoke!(task)
+      def invoke(task)
         type = EVAL.call(task, task.class.settings[:deprecate])
 
         case type

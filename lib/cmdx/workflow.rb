@@ -36,7 +36,7 @@ module CMDx
 
     def task
       self.class.task_groups.each do |group|
-        next unless Utils::Condition.evaluate!(self, group.options)
+        next unless Utils::Condition.evaluate(self, group.options)
 
         workflow_halts = Array(
           group.options[:workflow_halts] ||

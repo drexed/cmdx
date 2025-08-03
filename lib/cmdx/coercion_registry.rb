@@ -31,10 +31,10 @@ module CMDx
       self
     end
 
-    def coerce!(type, task, value, options = {})
+    def coerce(type, task, value, options = {})
       raise "unknown coercion type #{type.inspect}" unless registry.key?(type)
 
-      Utils::Call.invoke!(task, registry[type], value, options)
+      Utils::Call.invoke(task, registry[type], value, options)
     end
 
   end

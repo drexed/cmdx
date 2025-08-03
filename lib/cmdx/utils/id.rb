@@ -6,7 +6,7 @@ module CMDx
 
       extend self
 
-      def generate!
+      def generate
         if SecureRandom.respond_to?(:uuid_v7)
           SecureRandom.uuid_v7
         else

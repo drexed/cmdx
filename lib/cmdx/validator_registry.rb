@@ -29,16 +29,14 @@ module CMDx
       self
     end
 
-    def validate!(type, task, value, options = {}) # TODO: rename with out the bang
+    def validate(type, task, value, options = {})
       raise UnknownValidationError, "unknown validator type #{type.inspect}" unless registry.key?(type)
 
       match =
         if options.is_a?(Hash)
           case options
-          in allow_nil:
-            allow_nil && value.nil?
-          else
-            Utils::Condition.evaluate!(task, options, value)
+          in allow_nil: then allow_nil && value.nil?
+          else Utils::Condition.evaluate(task, options, value)
           end
         else
           options
@@ -46,7 +44,7 @@ module CMDx
 
       return unless match
 
-      Utils::Call.invoke!(task, registry[type], value, options)
+      Utils::Call.invoke(task, registry[type], value, options)
     end
 
   end

@@ -9,13 +9,9 @@ module CMDx
       @task = task
     end
 
-    class << self
-
-      def execute(task, halt: false)
-        instance = new(task)
-        halt ? instance.execute! : instance.execute
-      end
-
+    def self.execute(task, halt: false)
+      instance = new(task)
+      halt ? instance.execute! : instance.execute
     end
 
     def execute
@@ -70,7 +66,7 @@ module CMDx
     private
 
     def pre_execution!
-      task.class.settings[:callbacks].invoke!(:before_validation, task)
+      task.class.settings[:callbacks].invoke(:before_validation, task)
 
       task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
@@ -79,19 +75,19 @@ module CMDx
     end
 
     def execution!
-      task.class.settings[:callbacks].invoke!(:before_execution, task)
+      task.class.settings[:callbacks].invoke(:before_execution, task)
 
       task.result.executing!
       task.task
     end
 
     def post_execution!
-      task.class.settings[:callbacks].invoke!(:"on_#{task.result.state}", task)
-      task.class.settings[:callbacks].invoke!(:on_executed, task) if task.result.executed?
+      task.class.settings[:callbacks].invoke(:"on_#{task.result.state}", task)
+      task.class.settings[:callbacks].invoke(:on_executed, task) if task.result.executed?
 
-      task.class.settings[:callbacks].invoke!(:"on_#{task.result.status}", task)
-      task.class.settings[:callbacks].invoke!(:on_good, task) if task.result.good?
-      task.class.settings[:callbacks].invoke!(:on_bad, task) if task.result.bad?
+      task.class.settings[:callbacks].invoke(:"on_#{task.result.status}", task)
+      task.class.settings[:callbacks].invoke(:on_good, task) if task.result.good?
+      task.class.settings[:callbacks].invoke(:on_bad, task) if task.result.bad?
     end
 
     def finalize_execution!

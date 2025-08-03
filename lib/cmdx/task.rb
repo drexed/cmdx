@@ -12,15 +12,15 @@ module CMDx
     def_delegators :result, :skip!, :fail!, :throw!
 
     def initialize(context = {})
-      Utils::Deprecate.invoke!(self)
+      Utils::Deprecate.invoke(self)
 
       @attributes = {}
       @errors     = Errors.new
 
-      @id      = Utils::Id.generate!
-      @context = Context.build!(context)
+      @id      = Utils::Id.generate
+      @context = Context.build(context)
       @result  = Result.new(self)
-      @chain   = Chain.build!(@result)
+      @chain   = Chain.build(@result)
     end
 
     class << self
