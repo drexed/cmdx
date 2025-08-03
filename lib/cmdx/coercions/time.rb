@@ -15,8 +15,8 @@ module CMDx
 
         ::Time.parse(value)
       rescue ArgumentError, TypeError
-        type = Utils::Locale.translate("cmdx.types.time")
-        raise CoercionError, Utils::Locale.translate("cmdx.coercions.into_a", type:)
+        type = Locale.translate("cmdx.types.time")
+        raise CoercionError, Locale.translate("cmdx.coercions.into_a", type:)
       end
 
     end

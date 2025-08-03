@@ -9,7 +9,7 @@ module CMDx
     def initialize(result)
       @result = result
       # TODO: make reason a method on the result object
-      super(result.metadata[:reason] || Utils::Locale.translate("cmdx.faults.unspecified"))
+      super(result.metadata[:reason] || Locale.translate("cmdx.faults.unspecified"))
     end
 
     class << self
