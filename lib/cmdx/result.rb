@@ -17,9 +17,9 @@ module CMDx
       FAILED  = "failed"    # Task failed due to error or validation
     ].freeze
 
-    def_delegators :task, :context, :chain
-
     attr_reader :task, :state, :status, :metadata
+
+    def_delegators :task, :context, :chain
 
     def initialize(task)
       raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)

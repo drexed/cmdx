@@ -5,10 +5,10 @@ module CMDx
 
     extend Forwardable
 
+    attr_reader :attribute
+
     def_delegators :attribute, :task, :parent, :name, :options, :types, :source, :method_name, :required?
     def_delegators :task, :attributes, :errors
-
-    attr_reader :attribute
 
     def initialize(attribute)
       @attribute = attribute
