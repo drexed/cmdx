@@ -21,9 +21,9 @@ module CMDx
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
-        task.result.throw!(e.result, original_exception: e) if halt_execution?(e)
+        task.result.throw!(e.result, cause: e) if halt_execution?(e)
       rescue StandardError => e
-        task.result.fail!(reason: "[#{e.class}] #{e.message}", original_exception: e)
+        task.result.fail!("[#{e.class}] #{e.message}", cause: e)
       ensure
         task.result.executed!
         post_execution!
@@ -71,7 +71,7 @@ module CMDx
       task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
 
-      task.result.fail!(reason: task.errors.to_s, messages: task.errors.to_h)
+      task.result.fail!(task.errors.to_s, messages: task.errors.to_h)
     end
 
     def execution!

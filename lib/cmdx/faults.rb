@@ -8,8 +8,8 @@ module CMDx
 
     def initialize(result)
       @result = result
-      # TODO: make reason a method on the result object
-      super(result.metadata[:reason] || Locale.t("cmdx.faults.unspecified"))
+
+      super(result.reason)
     end
 
     class << self

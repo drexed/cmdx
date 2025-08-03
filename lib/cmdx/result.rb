@@ -17,7 +17,7 @@ module CMDx
       FAILED = "failed"     # Task failed due to error or validation
     ].freeze
 
-    attr_reader :task, :state, :status, :metadata
+    attr_reader :task, :state, :status, :metadata, :reason, :cause
 
     def_delegators :task, :context, :chain
 
@@ -28,6 +28,8 @@ module CMDx
       @state = INITIALIZED
       @status = SUCCESS
       @metadata = {}
+      @reason = nil
+      @cause = nil
     end
 
     STATES.each do |s|
@@ -113,26 +115,28 @@ module CMDx
       self
     end
 
-    def skip!(**metadata)
+    def skip!(reason = nil, cause: nil, **metadata)
       return if skipped?
 
       raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
 
       @status = SKIPPED
+      @reason = reason || Locale.t("cmdx.faults.unspecified")
       @metadata = metadata
 
-      halt! unless metadata[:original_exception]
+      halt! unless cause
     end
 
-    def fail!(**metadata)
+    def fail!(reason = nil, cause: nil, **metadata)
       return if failed?
 
       raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
 
       @status = FAILED
+      @reason = reason || Locale.t("cmdx.faults.unspecified")
       @metadata = metadata
 
-      halt! unless metadata[:original_exception]
+      halt! unless cause
     end
 
     # TODO: can we get the trace of where the fault happened
@@ -142,13 +146,16 @@ module CMDx
       raise Fault.build(self)
     end
 
-    def throw!(result, local_metadata = {})
+    def throw!(result, **metadata)
       raise TypeError, "must be a Result" unless result.is_a?(Result)
 
-      md = result.metadata.merge(local_metadata)
+      metadatum = result.metadata.merge(metadata)
 
-      skip!(**md) if result.skipped?
-      fail!(**md) if result.failed?
+      if result.skipped?
+        skip!(result.reason, cause: result.cause, **metadatum)
+      elsif result.failed?
+        fail!(result.reason, cause: result.cause, **metadatum)
+      end
     end
 
     def caused_failure
