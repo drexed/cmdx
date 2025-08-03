@@ -114,8 +114,11 @@ module CMDx
     def define_and_verify
       raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
 
-      v = AttributeValue.value(self)
-      task.class.define_method(method_name) { v }
+      attribute_value = AttributeValue.new(self)
+      attribute_value.generate
+      attribute_value.validate
+
+      task.class.define_method(method_name) { attribute_value.value }
       task.class.send(:private, method_name)
     end
 
