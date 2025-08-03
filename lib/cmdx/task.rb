@@ -68,6 +68,12 @@ module CMDx
         settings[:attributes].register(attrs)
       end
 
+      CallbackRegistry::TYPES.each do |callback|
+        define_method(callback) do |*callables, **options, &block|
+          register(:callback, callback, *callables, **options, &block)
+        end
+      end
+
       def execute(...)
         task = new(...)
         task.execute(halt: false)
@@ -78,12 +84,6 @@ module CMDx
         task = new(...)
         task.execute(halt: true)
         task.result
-      end
-
-      CallbackRegistry::TYPES.each do |callback|
-        define_method(callback) do |*callables, **options, &block|
-          register(:callback, callback, *callables, **options, &block)
-        end
       end
 
     end
