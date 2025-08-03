@@ -122,6 +122,7 @@ module CMDx
 
       @status = SKIPPED
       @reason = reason || Locale.t("cmdx.faults.unspecified")
+      @cause = cause
       @metadata = metadata
 
       halt! unless cause
@@ -134,6 +135,7 @@ module CMDx
 
       @status = FAILED
       @reason = reason || Locale.t("cmdx.faults.unspecified")
+      @cause = cause
       @metadata = metadata
 
       halt! unless cause
@@ -142,7 +144,11 @@ module CMDx
     def halt!
       return if success?
 
-      raise Fault.build(self)
+      fault = Fault.build(self)
+      # Strip the first two frames (this method and the delegator)
+      fault.set_backtrace(caller_locations(3..-1))
+
+      raise(fault)
     end
 
     def throw!(result, **metadata)
