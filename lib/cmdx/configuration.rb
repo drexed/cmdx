@@ -4,34 +4,34 @@ module CMDx
 
   class Configuration
 
-    DEFAULT_HALT = "failed"
+    DEFAULT_BREAKPOINTS = %w[failed].freeze
 
-    attr_accessor :logger, :middlewares, :callbacks, :coercions,
-                  :validators, :task_halts, :workflow_halts
+    attr_accessor :middlewares, :callbacks, :coercions, :validators,
+                  :task_breakpoints, :workflow_breakpoints, :logger
 
     # TODO: Change logger to a registry setup to allow loggers, statsd, etc.
     # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
     def initialize
-      @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
-
       @middlewares = MiddlewareRegistry.new
       @callbacks = CallbackRegistry.new
       @coercions = CoercionRegistry.new
       @validators = ValidatorRegistry.new
 
-      @task_halts = DEFAULT_HALT
-      @workflow_halts = DEFAULT_HALT
+      @task_breakpoints = DEFAULT_BREAKPOINTS
+      @workflow_breakpoints = DEFAULT_BREAKPOINTS
+
+      @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
     end
 
     def to_h
       {
-        logger: @logger,
         middlewares: @middlewares,
         callbacks: @callbacks,
         coercions: @coercions,
         validators: @validators,
-        task_halts: @task_halts,
-        workflow_halts: @workflow_halts
+        task_breakpoints: @task_breakpoints,
+        workflow_breakpoints: @workflow_breakpoints,
+        logger: @logger
       }
     end
 
