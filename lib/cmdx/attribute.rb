@@ -59,18 +59,17 @@ module CMDx
     end
 
     def source
-      @source ||=
-        parent&.method_name ||
-        case value = options[:source]
-        when Symbol, String then value.to_sym
-        when Proc then task.instance_eval(&value)
+      @source ||= parent&.method_name || begin
+        value = options[:source]
+
+        if value.is_a?(Proc)
+          task.instance_eval(&value)
+        elsif value.respond_to?(:call)
+          value.call(task)
         else
-          if value.respond_to?(:call)
-            value.call(task)
-          else
-            value || :context
-          end
+          value || :context
         end
+      end
     end
 
     def method_name
@@ -112,7 +111,7 @@ module CMDx
     end
 
     def define_and_verify
-      raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
+      raise "#{method_name.inspect} already defined" if task.respond_to?(method_name, true)
 
       attribute_value = AttributeValue.new(self)
       attribute_value.generate

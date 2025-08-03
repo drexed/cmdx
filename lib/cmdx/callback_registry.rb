@@ -35,7 +35,7 @@ module CMDx
     end
 
     def invoke!(type, task)
-      raise "unknown callback #{type}" unless TYPES.include?(type)
+      raise "unknown callback #{type.inspect}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
         next unless Utils::Condition.evaluate!(task, options, task)

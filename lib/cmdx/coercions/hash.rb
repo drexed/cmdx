@@ -7,11 +7,11 @@ module CMDx
       extend self
 
       def call(value, options = {})
-        if value.is_a?(Hash)
+        if value.is_a?(::Hash)
           value
-        elsif value.is_a?(Array)
+        elsif value.is_a?(::Array)
           ::Hash[*value]
-        elsif value.is_a?(String) && value.start_with?("{")
+        elsif value.is_a?(::String) && value.start_with?("{")
           JSON.parse(value)
         else
           raise_coercion_error!

@@ -49,7 +49,7 @@ module CMDx
     def source_value
       sourced_value =
         case source
-        when String, Symbol then task.send(source)
+        when Symbol then task.send(source)
         when Proc then task.instance_exec(&source)
         else source.respond_to?(:call) ? source.call(task) : source
         end
@@ -71,7 +71,7 @@ module CMDx
     def default_value
       default = options[:default]
 
-      if (default.is_a?(Symbol) || default.is_a?(String)) && task.respond_to?(default, true)
+      if default.is_a?(Symbol) && task.respond_to?(default, true)
         task.send(default)
       elsif default.is_a?(Proc)
         task.instance_exec(&default)
@@ -86,7 +86,7 @@ module CMDx
       derived_value =
         case source_value
         when Context, Hash then source_value[name]
-        when String, Symbol then source_value.send(name)
+        when Symbol then source_value.send(name)
         when Proc then task.instance_exec(name, &source_value)
         else source_value.call(task, name) if source_value.respond_to?(:call)
         end

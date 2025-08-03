@@ -7,7 +7,7 @@ module CMDx
       extend self
 
       def invoke!(target, callable, *args, **kwargs, &)
-        if callable.is_a?(Symbol) || callable.is_a?(String)
+        if callable.is_a?(Symbol)
           target.send(callable, *args, **kwargs, &)
         elsif callable.is_a?(Proc)
           target.instance_exec(*args, **kwargs, &callable)

@@ -9,10 +9,10 @@ module CMDx
       EVAL = proc do |target, callable, *args, **kwargs, &block|
         case callable
         when NilClass, FalseClass, TrueClass then !!callable
-        when String, Symbol then target.send(callable, *args, **kwargs, &block)
+        when Symbol then target.send(callable, *args, **kwargs, &block)
         when Proc then target.instance_exec(*args, **kwargs, &callable)
         else
-          raise "cannot evaluate #{callable}" unless callable.respond_to?(:call)
+          raise "cannot evaluate #{callable.inspect}" unless callable.respond_to?(:call)
 
           callable.call(*args, **kwargs, &block)
         end
