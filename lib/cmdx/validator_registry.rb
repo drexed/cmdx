@@ -7,6 +7,7 @@ module CMDx
 
     attr_reader :registry
 
+    # TODO: add to_h and to_s methods to registries
     def_delegators :registry, :keys
 
     def initialize(registry = nil)

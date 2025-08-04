@@ -33,7 +33,7 @@ loader.ignore("#{__dir__}/cmdx/exceptions")
 loader.ignore("#{__dir__}/cmdx/faults")
 loader.ignore("#{__dir__}/cmdx/railtie")
 # loader.ignore("#{__dir__}/cmdx/rspec")
-# loader.ignore("#{__dir__}/generators")
+# loader.ignore("#{__dir__}/generators") # TODO: remove appending "Task" to the generated names
 loader.ignore("#{__dir__}/locales")
 loader.setup
 

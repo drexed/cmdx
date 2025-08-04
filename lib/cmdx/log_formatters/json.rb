@@ -4,6 +4,9 @@ module CMDx
   module LogFormatters
     class JSON
 
+      # TODO: Add program name to the log
+      # TODO: https://rubyapi.org/3.4/o/logger/formatter
+      # https://rubyapi.org/o/logger
       def call(severity, time, progname, message)
         hash =
           Utils::Format
