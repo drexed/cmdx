@@ -50,7 +50,7 @@ module CMDx
       sourced_value =
         case source
         when Symbol then task.send(source)
-        when Proc then task.instance_exec(&source)
+        when Proc then task.instance_eval(&source)
         else source.respond_to?(:call) ? source.call(task) : source
         end
 
@@ -74,7 +74,7 @@ module CMDx
       if default.is_a?(Symbol) && task.respond_to?(default, true)
         task.send(default)
       elsif default.is_a?(Proc)
-        task.instance_exec(&default)
+        task.instance_eval(&default)
       elsif default.respond_to?(:call)
         default.call(task)
       else

@@ -10,7 +10,7 @@ module CMDx
       when /error|log|warn/ then callable
       when NilClass, FalseClass, TrueClass then !!callable
       when Symbol then target.send(callable)
-      when Proc then target.instance_exec(&callable)
+      when Proc then target.instance_eval(&callable)
       else
         raise "cannot evaluate #{callable.inspect}" unless callable.respond_to?(:call)
 
