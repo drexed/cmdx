@@ -113,8 +113,11 @@ module CMDx
       attribute_value.generate
       attribute_value.validate
 
-      task.class.define_method(method_name) { attribute_value.value }
-      task.class.send(:private, method_name)
+      task.instance_eval(<<~RUBY, __FILE__, __LINE__ + 1)
+        def #{method_name}
+          attributes[:#{method_name}]
+        end
+      RUBY
     end
 
   end
