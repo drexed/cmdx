@@ -3,12 +3,6 @@
 module CMDx
   class Processor
 
-    STATUS_TO_SEVERITY = {
-      Result::SUCCESS => :info,
-      Result::SKIPPED => :warn,
-      Result::FAILED => :error
-    }.freeze
-
     attr_reader :task
 
     def initialize(task)
@@ -98,12 +92,7 @@ module CMDx
 
     def finalize_execution!
       Freezer.immute(task)
-
-      # TODO: move to ResultLogger module???
-      severity = STATUS_TO_SEVERITY[task.result.status]
-      task.logger&.with_level(severity) do
-        task.logger.send(severity) { task.result }
-      end
+      Logger.emit(task)
     end
 
   end
