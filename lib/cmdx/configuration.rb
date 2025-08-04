@@ -11,6 +11,8 @@ module CMDx
 
     # TODO: Change logger to a registry setup to allow loggers, statsd, etc.
     # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
+    # https://boringrails.com/articles/event-sourcing-for-smooth-brains/
+    # https://kopilov-vlad.medium.com/use-event-emitter-in-ruby-6b289fe2e7b4
     def initialize
       @middlewares = MiddlewareRegistry.new
       @callbacks = CallbackRegistry.new
@@ -20,7 +22,12 @@ module CMDx
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
 
-      @logger = ::Logger.new($stdout) # TODO: ::Logger.new($stdout, formatter: CMDx::LogFormatters::Line.new)
+      @logger = Logger.new(
+        $stdout,
+        progname: "CMDx",
+        formatter: LogFormatters::JSON.new,
+        level: Logger::INFO
+      )
     end
 
     def to_h

@@ -96,6 +96,10 @@ module CMDx
       raise UndefinedMethodError, "undefined method #{self.class.name}#task"
     end
 
+    def logger
+      self.class.settings[:logger]
+    end
+
     def to_h
       {
         index: result.index,
