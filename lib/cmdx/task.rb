@@ -101,14 +101,14 @@ module CMDx
         index: result.index,
         chain_id: chain.id,
         type: self.class.include?(Workflow) ? "Workflow" : "Task",
+        tags: self.class.settings[:tags],
         class: self.class.name,
-        id:,
-        tags: self.class.settings[:tags]
+        id:
       }
     end
 
     def to_s
-      Utils::Inspect.format(to_h)
+      Utils::Format.stringify(to_h)
     end
 
   end

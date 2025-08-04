@@ -11,7 +11,7 @@ module CMDx
       end.freeze
       private_constant :FORMATTER
 
-      def format(hash, &block)
+      def stringify(hash, &block)
         block ||= FORMATTER
         hash.map(&block).join(" ")
       end

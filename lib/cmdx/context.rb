@@ -64,7 +64,7 @@ module CMDx
     end
 
     def to_s
-      Utils::Inspect.format(to_h)
+      Utils::Format.stringify(to_h)
     end
 
     private

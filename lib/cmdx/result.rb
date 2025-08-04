@@ -233,7 +233,7 @@ module CMDx
     end
 
     def to_s
-      Utils::Inspect.format(to_h) do |key, value|
+      Utils::Format.stringify(to_h) do |key, value|
         case key
         when /failure/ then "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
         else "#{key}=#{value.inspect}"
