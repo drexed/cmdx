@@ -2,7 +2,7 @@
 
 module CMDx
   module LogFormatters
-    class JSON
+    class KeyValue
 
       def call(severity, time, progname, message)
         hash = Utils::Format.to_log(message).merge!(
@@ -12,7 +12,7 @@ module CMDx
           pid: Process.pid
         )
 
-        ::JSON.dump(hash) << "\n"
+        Utils::Format.to_str(hash) << "\n"
       end
 
     end

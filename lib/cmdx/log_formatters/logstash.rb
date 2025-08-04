@@ -2,14 +2,15 @@
 
 module CMDx
   module LogFormatters
-    class JSON
+    class Logstash
 
       def call(severity, time, progname, message)
         hash = Utils::Format.to_log(message).merge!(
           severity:,
-          timestamp: time.utc.iso8601(6),
           progname:,
-          pid: Process.pid
+          pid: Process.pid,
+          "@version" => "1",
+          "@timestamp" => time.utc.iso8601(6)
         )
 
         ::JSON.dump(hash) << "\n"

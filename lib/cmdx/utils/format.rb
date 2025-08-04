@@ -12,17 +12,13 @@ module CMDx
       private_constant :FORMATTER
 
       def to_log(message)
-        hash =
-          if message.respond_to?(:to_hash)
-            message.to_hash
-          elsif message.respond_to?(:to_h)
-            message.to_h
-          else
-            { message: message }
-          end
-
-        hash[:origin] ||= "CMDx"
-        hash
+        if message.respond_to?(:to_hash)
+          message.to_hash
+        elsif message.respond_to?(:to_h)
+          message.to_h
+        else
+          { message: message }
+        end
       end
 
       def to_str(hash, &block)
