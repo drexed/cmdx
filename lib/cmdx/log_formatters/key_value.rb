@@ -5,14 +5,18 @@ module CMDx
     class KeyValue
 
       def call(severity, time, progname, message)
-        hash = Utils::Format.to_log(message).merge!(
+        hash = data(severity, time, progname, message)
+
+        Utils::Format.to_str(hash) << "\n"
+      end
+
+      def data(severity, time, progname, message)
+        Utils::Format.to_log(message).merge!(
           severity:,
           timestamp: time.utc.iso8601(6),
           progname:,
           pid: Process.pid
         )
-
-        Utils::Format.to_str(hash) << "\n"
       end
 
     end

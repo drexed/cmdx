@@ -27,7 +27,13 @@ end
 
 # Set up Zeitwerk loader for the CMDx gem
 loader = Zeitwerk::Loader.for_gem
-loader.inflector.inflect("cmdx" => "CMDx", "json" => "JSON")
+loader.inflector.inflect(
+  "cmdx" => "CMDx",
+  "json" => "JSON",
+  "pretty_json" => "PrettyJSON",
+  "pretty_key_value" => "PrettyKeyValue",
+  "pretty_line" => "PrettyLine"
+)
 loader.ignore("#{__dir__}/cmdx/configuration")
 loader.ignore("#{__dir__}/cmdx/exceptions")
 loader.ignore("#{__dir__}/cmdx/faults")

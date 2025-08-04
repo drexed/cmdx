@@ -27,7 +27,7 @@ module CMDx
       @logger = Logger.new(
         $stdout,
         progname: "cmdx",
-        formatter: LogFormatters::Line.new,
+        formatter: LogFormatters::PrettyKeyValue.new,
         level: Logger::INFO
       )
     end

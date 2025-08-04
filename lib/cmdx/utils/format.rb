@@ -6,13 +6,19 @@ module CMDx
 
       extend self
 
-      FORMATTER = proc do |key, value|
+      RAW_FORMATTER = proc do |key, value|
+        "#{key}=#{value}"
+      end.freeze
+      private_constant :RAW_FORMATTER
+      STR_FORMATTER = proc do |key, value|
         "#{key}=#{value.inspect}"
       end.freeze
-      private_constant :FORMATTER
+      private_constant :STR_FORMATTER
 
       def to_log(message)
-        if message.respond_to?(:to_hash)
+        if message.is_a?(Hash)
+          message
+        elsif message.respond_to?(:to_hash)
           message.to_hash
         elsif message.respond_to?(:to_h)
           message.to_h
@@ -21,8 +27,13 @@ module CMDx
         end
       end
 
+      def to_raw(hash, &block)
+        block ||= RAW_FORMATTER
+        hash.map(&block).join(" ")
+      end
+
       def to_str(hash, &block)
-        block ||= FORMATTER
+        block ||= STR_FORMATTER
         hash.map(&block).join(" ")
       end
 
