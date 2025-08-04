@@ -49,7 +49,7 @@ module CMDx
     end
 
     def to_s
-      Utils::Inspect.dump(to_h)
+      Utils::Inspect.format(to_h)
     end
 
   end

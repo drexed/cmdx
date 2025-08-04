@@ -6,10 +6,13 @@ module CMDx
 
       extend self
 
-      DEFAULT_PRINTER = proc { |key, value| "#{key}=#{value.inspect}" }.freeze
+      FORMATTER = proc do |key, value|
+        "#{key}=#{value.inspect}"
+      end.freeze
+      private_constant :FORMATTER
 
-      def dump(hash, &block)
-        block ||= DEFAULT_PRINTER
+      def format(hash, &block)
+        block ||= FORMATTER
         hash.map(&block).join(" ")
       end
 
