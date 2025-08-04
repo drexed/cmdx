@@ -7,7 +7,7 @@ module CMDx
 
     attr_reader :messages
 
-    def_delegators :messages, :empty?, :to_h
+    def_delegators :messages, :empty?
 
     def initialize
       @messages = {}
@@ -24,6 +24,10 @@ module CMDx
       return false unless messages.key?(attribute)
 
       !messages[attribute].empty?
+    end
+
+    def to_h
+      messages.transform_values(&:to_a)
     end
 
     def to_s
