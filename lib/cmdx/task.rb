@@ -41,31 +41,29 @@ module CMDx
 
       def register(type, object, ...)
         case type
-        when /middleware/ then settings[:middlewares].register(object, ...)
-        when /callback/ then settings[:callbacks].register(object, ...)
-        when /coercion/ then settings[:coercions].register(object, ...)
-        when /validator/ then settings[:validators].register(object, ...)
+        when :attribute then settings[:attributes].register(object, ...)
+        when :callback then settings[:callbacks].register(object, ...)
+        when :coercion then settings[:coercions].register(object, ...)
+        when :middleware then settings[:middlewares].register(object, ...)
+        when :validator then settings[:validators].register(object, ...)
+        else raise "unknown register type #{type.inspect}"
         end
       end
 
       def attribute(name, ...)
-        attr = Attribute.define(name, ...)
-        settings[:attributes].register(attr)
+        register(:attribute, Attribute.define(name, ...))
       end
 
       def attributes(...)
-        attrs = Attribute.defines(...)
-        settings[:attributes].register(attrs)
+        register(:attribute, Attribute.defines(...))
       end
 
       def optional(...)
-        attrs = Attribute.optional(...)
-        settings[:attributes].register(attrs)
+        register(:attribute, Attribute.optional(...))
       end
 
       def required(...)
-        attrs = Attribute.required(...)
-        settings[:attributes].register(attrs)
+        register(:attribute, Attribute.required(...))
       end
 
       CallbackRegistry::TYPES.each do |callback|
