@@ -2,7 +2,7 @@
 
 module CMDx
   module Utils
-    module Inspect
+    module Format
 
       extend self
 
