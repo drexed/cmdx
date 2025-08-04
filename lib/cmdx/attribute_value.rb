@@ -14,8 +14,12 @@ module CMDx
       @attribute = attribute
     end
 
+    def value
+      attributes[method_name]
+    end
+
     def generate
-      return attributes[method_name] if attributes.key?(method_name)
+      return value if attributes.key?(method_name)
 
       sourced_value = source_value
       return if errors.for?(method_name)
@@ -33,7 +37,7 @@ module CMDx
       registry = task.class.settings[:validators]
 
       options.slice(*registry.keys).each do |type, opts|
-        registry.validate(type, task, attributes[method_name], opts)
+        registry.validate(type, task, value, opts)
       rescue ValidationError => e
         errors.add(method_name, e.message)
         nil
