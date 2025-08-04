@@ -4,6 +4,7 @@ module CMDx
   class CoercionRegistry
 
     attr_reader :registry
+    alias to_h registry
 
     def initialize(registry = nil)
       @registry = registry || {

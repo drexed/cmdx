@@ -5,7 +5,10 @@ module CMDx
 
     extend Forwardable
 
-    def_delegators :table, :each, :map, :to_h
+    attr_reader :table
+    alias to_h table
+
+    def_delegators :table, :each, :map
 
     def initialize(args = {})
       @table =
@@ -68,10 +71,6 @@ module CMDx
     end
 
     private
-
-    def table
-      @table ||= {}
-    end
 
     def method_missing(method_name, *args, **_kwargs, &)
       fetch(method_name) do

@@ -4,6 +4,7 @@ module CMDx
   class MiddlewareRegistry
 
     attr_reader :registry
+    alias to_a registry
 
     def initialize(registry = [])
       @registry = registry

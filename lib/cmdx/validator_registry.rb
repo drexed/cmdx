@@ -6,8 +6,8 @@ module CMDx
     extend Forwardable
 
     attr_reader :registry
+    alias to_h registry
 
-    # TODO: add to_h and to_s methods to registries
     def_delegators :registry, :keys
 
     def initialize(registry = nil)

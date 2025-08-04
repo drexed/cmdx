@@ -17,6 +17,7 @@ module CMDx
     ].freeze
 
     attr_reader :registry
+    alias to_h registry
 
     def initialize(registry = {})
       @registry = registry
