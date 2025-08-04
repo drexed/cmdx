@@ -26,6 +26,7 @@ Lint/UnusedMethodArgument:
   Exclude:
     - 'lib/cmdx/coercions/**/*'
     - 'lib/cmdx/middlewares/**/*'
+    - 'lib/cmdx/log_formatters/**/*'
     - 'lib/cmdx/validators/**/*'
 Metrics/AbcSize:
   Enabled: false
