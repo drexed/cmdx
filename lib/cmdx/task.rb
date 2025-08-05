@@ -30,7 +30,7 @@ module CMDx
           if superclass.respond_to?(:configuration)
             superclass.configuration
           else
-            CMDx.configuration.to_h
+            CMDx.configuration.to_h.except(:logger)
           end.transform_values(&:dup).merge!(
             attributes: AttributeRegistry.new,
             deprecate: false,
@@ -95,7 +95,7 @@ module CMDx
     end
 
     def logger
-      self.class.settings[:logger]
+      self.class.settings[:logger] || CMDx.configuration.logger
     end
 
     def to_h

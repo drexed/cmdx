@@ -24,11 +24,11 @@ module CMDx
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
 
-      @logger = ::Logger.new(
+      @logger = Logger.new(
         $stdout,
         progname: "cmdx",
         formatter: LogFormatters::Line.new,
-        level: ::Logger::INFO
+        level: Logger::INFO
       )
     end
 

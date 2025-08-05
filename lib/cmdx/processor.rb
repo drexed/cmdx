@@ -92,7 +92,12 @@ module CMDx
 
     def finalize_execution!
       Freezer.immute(task)
-      Logger.emit(task)
+
+      task.logger.tap do |logger|
+        logger.with_level(:info) do
+          logger.info { task.result.to_h }
+        end
+      end
     end
 
   end
