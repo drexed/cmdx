@@ -5,7 +5,7 @@ module CMDx
 
     extend self
 
-    EN = YAML.load_file(CMDx.gem_path.join("locales/en.yml")).freeze
+    EN = YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml")).freeze
     private_constant :EN
 
     def translate(key, **options)

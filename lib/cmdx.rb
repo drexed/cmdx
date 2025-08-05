@@ -29,7 +29,6 @@ loader.ignore("#{__dir__}/cmdx/configuration")
 loader.ignore("#{__dir__}/cmdx/exceptions")
 loader.ignore("#{__dir__}/cmdx/faults")
 loader.ignore("#{__dir__}/cmdx/railtie")
-# loader.ignore("#{__dir__}/cmdx/rspec")
 loader.ignore("#{__dir__}/generators")
 loader.ignore("#{__dir__}/locales")
 loader.setup

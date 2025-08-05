@@ -32,24 +32,24 @@ class SampleTask < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: "123"
   register :middleware, CMDx::Middlewares::Runtime
 
-  # required :id_number, source: :fake
-  # optional :id_type, source: :fake
-  # required :name, :sex
-  # optional :age, type: %i[float integer]
-  # optional :height, numeric: { within: 1..5 }
-  # required :weight, prefix: :empirical_, suffix: :_lbs
-  # required :billing_address do
-  #   optional :locality, prefix: :billing_ do
-  #     required :city, :state, prefix: :billing_
-  #   end
-  #   optional :zip, type: :integer, numeric: { within: 10_000..99_999 }, prefix: :billing_
-  # end
-  # optional :shipping_address do
-  #   required :locality, prefix: true do
-  #     required :city, :state, prefix: true
-  #   end
-  #   optional :zip, prefix: true
-  # end
+  required :id_number, source: :fake
+  optional :id_type, source: :fake
+  required :name, :sex
+  optional :age, type: %i[float integer]
+  optional :height, numeric: { within: 1..5 }
+  required :weight, prefix: :empirical_, suffix: :_lbs
+  required :billing_address do
+    optional :locality, prefix: :billing_ do
+      required :city, :state, prefix: :billing_
+    end
+    optional :zip, type: :integer, numeric: { within: 10_000..99_999 }, prefix: :billing_
+  end
+  optional :shipping_address do
+    required :locality, prefix: true do
+      required :city, :state, prefix: true
+    end
+    optional :zip, prefix: true
+  end
 
   before_validation { puts "before_validation" }
 
