@@ -7,6 +7,8 @@ require_relative "lib/cmdx"
 # TODO: remove
 class OtherTask < CMDx::Task
 
+  register :middleware, CMDx::Middlewares::Correlate
+
   def task
     fail!("test")
     # raise(StandardError, "test")
@@ -42,6 +44,7 @@ class SampleTask < CMDx::Task
 
   def task
     puts "task"
+    OtherTask.execute
     # puts self.class.settings[:parameters]
     # puts "-> name: #{name}"
     # puts "-> age: #{age}"

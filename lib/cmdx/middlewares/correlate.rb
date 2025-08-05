@@ -28,11 +28,21 @@ module CMDx
         self.id = old_id
       end
 
-      def call(task, **options)
-        # TODO: make a real middleware
-        puts "~~~ [BEGIN] Correlate Middleware #{options} ~~~"
-        result = yield
-        puts "~~~ [END] Correlate Middleware ~~~"
+      def call(task, **options, &)
+        correlation_id =
+          case callable = options[:id]
+          when Symbol then task.send(callable)
+          when Proc then task.instance_eval(&callable)
+          else
+            if callable.respond_to?(:call)
+              callable.call(task)
+            else
+              callable || id || Identifier.generate
+            end
+          end
+
+        result = use(correlation_id, &)
+        task.result.metadata[:correlation_id] = correlation_id
         result
       end
 
