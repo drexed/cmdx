@@ -74,20 +74,20 @@ module CMDx
 
       def execute(...)
         task = new(...)
-        task.execute(halt: false)
+        task.execute(raise: false)
         task.result
       end
 
       def execute!(...)
         task = new(...)
-        task.execute(halt: true)
+        task.execute(raise: true)
         task.result
       end
 
     end
 
-    def execute(halt: false)
-      Processor.execute(self, halt:)
+    def execute(raise: false)
+      Processor.execute(self, raise:)
     end
 
     def task

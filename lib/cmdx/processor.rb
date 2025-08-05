@@ -9,9 +9,9 @@ module CMDx
       @task = task
     end
 
-    def self.execute(task, halt: false)
+    def self.execute(task, raise: false)
       instance = new(task)
-      halt ? instance.execute! : instance.execute
+      raise ? instance.execute! : instance.execute
     end
 
     def execute
