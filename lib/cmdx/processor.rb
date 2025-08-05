@@ -37,13 +37,13 @@ module CMDx
         pre_execution!
         execution!
       rescue UndefinedMethodError => e
-        raise_exception!(e)
+        raise_exception(e)
       rescue Fault => e
         task.result.fail!(e.result.reason, cause: e)
-        halt_execution?(e) ? raise_exception!(e) : post_execution!
+        halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
         task.result.fail!("[#{e.class}] #{e.message}", cause: e)
-        raise_exception!(e)
+        raise_exception(e)
       else
         task.result.executed!
         post_execution!
@@ -58,15 +58,19 @@ module CMDx
       Array(task.class.settings[:task_breakpoints]).include?(exception.result.status)
     end
 
-    def raise_exception!(exception)
+    def raise_exception(exception)
       Chain.clear
       raise(exception)
+    end
+
+    def invoke_callbacks(type)
+      task.class.settings[:callbacks].invoke(type, task)
     end
 
     private
 
     def pre_execution!
-      task.class.settings[:callbacks].invoke(:before_validation, task)
+      invoke_callbacks(:before_validation)
 
       task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
@@ -75,19 +79,19 @@ module CMDx
     end
 
     def execution!
-      task.class.settings[:callbacks].invoke(:before_execution, task)
+      invoke_callbacks(:before_execution)
 
       task.result.executing!
       task.task
     end
 
     def post_execution!
-      task.class.settings[:callbacks].invoke(:"on_#{task.result.state}", task)
-      task.class.settings[:callbacks].invoke(:on_executed, task) if task.result.executed?
+      invoke_callbacks(:"on_#{task.result.state}")
+      invoke_callbacks(:on_executed) if task.result.executed?
 
-      task.class.settings[:callbacks].invoke(:"on_#{task.result.status}", task)
-      task.class.settings[:callbacks].invoke(:on_good, task) if task.result.good?
-      task.class.settings[:callbacks].invoke(:on_bad, task) if task.result.bad?
+      invoke_callbacks(:"on_#{task.result.status}")
+      invoke_callbacks(:on_good) if task.result.good?
+      invoke_callbacks(:on_bad) if task.result.bad?
     end
 
     def finalize_execution!
