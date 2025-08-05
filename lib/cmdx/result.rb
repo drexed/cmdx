@@ -190,11 +190,6 @@ module CMDx
       current = index
       results = chain.results.select(&:failed?)
       results.find { |r| r.index > current } || results.last
-
-      # TODO: can we use cause as the check instead?
-      # results = chain.results.reverse.select(&:failed?)
-      # results.find { |r| r.cause.nil? } || results.first
-      # TODO: remove result index
     end
 
     def threw_failure?

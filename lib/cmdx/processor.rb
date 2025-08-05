@@ -39,10 +39,8 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception!(e)
       rescue Fault => e
-        task.result.executed!
-
+        task.result.fail!(e.result.reason, cause: e)
         raise_exception!(e) if halt_execution?(e)
-
         post_execution!
       else
         task.result.executed!
