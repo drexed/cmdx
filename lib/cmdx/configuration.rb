@@ -9,7 +9,6 @@ module CMDx
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
                   :task_breakpoints, :workflow_breakpoints, :logger
 
-    # TODO: Change logger to a registry setup to allow loggers, statsd, etc.
     # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
     # https://boringrails.com/articles/event-sourcing-for-smooth-brains/
     # https://kopilov-vlad.medium.com/use-event-emitter-in-ruby-6b289fe2e7b4
