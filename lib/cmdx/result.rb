@@ -127,6 +127,7 @@ module CMDx
 
       raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
 
+      @state = INTERRUPTED
       @status = SKIPPED
       @reason = reason || Locale.t("cmdx.faults.unspecified")
       @cause = cause
@@ -140,6 +141,7 @@ module CMDx
 
       raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
 
+      @state = INTERRUPTED
       @status = FAILED
       @reason = reason || Locale.t("cmdx.faults.unspecified")
       @cause = cause

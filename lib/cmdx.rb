@@ -8,7 +8,7 @@ require "logger"
 require "securerandom"
 require "set"
 require "time"
-require "timeout" # TODO: remove
+require "timeout"
 require "yaml"
 require "zeitwerk"
 
