@@ -6,7 +6,7 @@ module CMDx
 
     DEFAULT_BREAKPOINTS = %w[failed].freeze
 
-    attr_accessor :middlewares, :callbacks, :coercions, :validators,
+    attr_accessor :middlewares, :callbacks, :coercions, :validators, :events,
                   :task_breakpoints, :workflow_breakpoints, :logger
 
     # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
@@ -19,6 +19,7 @@ module CMDx
       @callbacks = CallbackRegistry.new
       @coercions = CoercionRegistry.new
       @validators = ValidatorRegistry.new
+      @events = EventRegistry.new
 
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
@@ -37,6 +38,7 @@ module CMDx
         callbacks: @callbacks,
         coercions: @coercions,
         validators: @validators,
+        events: @events,
         task_breakpoints: @task_breakpoints,
         workflow_breakpoints: @workflow_breakpoints,
         logger: @logger

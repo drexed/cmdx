@@ -67,6 +67,13 @@ module CMDx
       task.class.settings[:callbacks].invoke(type, task)
     end
 
+    def publish_event(name)
+      data = task.result.to_h
+      name = "#{data[:type]}.#{data[:class]}.#{name}"
+
+      CMDx.configuration.events.publish(name, data)
+    end
+
     private
 
     def pre_execution!
@@ -87,11 +94,25 @@ module CMDx
 
     def post_execution!
       invoke_callbacks(:"on_#{task.result.state}")
-      invoke_callbacks(:on_executed) if task.result.executed?
+      publish_event(task.result.state)
+
+      if task.result.executed?
+        invoke_callbacks(:on_executed)
+        publish_event("executed")
+      end
 
       invoke_callbacks(:"on_#{task.result.status}")
-      invoke_callbacks(:on_good) if task.result.good?
-      invoke_callbacks(:on_bad) if task.result.bad?
+      publish_event(task.result.status)
+
+      if task.result.good?
+        invoke_callbacks(:on_good)
+        publish_event("good")
+      end
+
+      if task.result.bad? # rubocop:disable Style/GuardClause
+        invoke_callbacks(:on_bad)
+        publish_event("bad")
+      end
     end
 
     def finalize_execution!
