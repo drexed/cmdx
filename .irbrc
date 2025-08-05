@@ -41,9 +41,7 @@ class SampleTask < CMDx::Task
   before_validation { puts "before_validation" }
 
   def task
-    puts "before sleep"
-    skip!("test")
-    puts "after sleep"
+    puts "task"
     # puts self.class.settings[:parameters]
     # puts "-> name: #{name}"
     # puts "-> age: #{age}"
