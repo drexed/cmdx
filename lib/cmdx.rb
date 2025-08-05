@@ -30,7 +30,7 @@ loader.ignore("#{__dir__}/cmdx/exceptions")
 loader.ignore("#{__dir__}/cmdx/faults")
 loader.ignore("#{__dir__}/cmdx/railtie")
 # loader.ignore("#{__dir__}/cmdx/rspec")
-# loader.ignore("#{__dir__}/generators") # TODO: remove appending "Task" to the generated names
+loader.ignore("#{__dir__}/generators")
 loader.ignore("#{__dir__}/locales")
 loader.setup
 
@@ -47,11 +47,10 @@ require_relative "cmdx/exceptions"
 require_relative "cmdx/faults"
 
 # Conditionally load Rails components if Rails is available
-# if defined?(Rails::Generators)
-#   require_relative "generators/cmdx/install_generator"
-#   require_relative "generators/cmdx/task_generator"
-#   require_relative "generators/cmdx/workflow_generator"
-# end
+if defined?(Rails::Generators)
+  require_relative "generators/cmdx/install_generator"
+  require_relative "generators/cmdx/task_generator"
+end
 
 # Load the Railtie last after everything else is required so we don't
 # need to load any CMDx components when we use this Railtie.
