@@ -40,8 +40,10 @@ module CMDx
         raise_exception!(e)
       rescue Fault => e
         task.result.fail!(e.result.reason, cause: e)
-        raise_exception!(e) if halt_execution?(e)
-        post_execution!
+        halt_execution?(e) ? raise_exception!(e) : post_execution!
+      rescue StandardError => e
+        task.result.fail!("[#{e.class}] #{e.message}", cause: e)
+        raise_exception!(e)
       else
         task.result.executed!
         post_execution!
