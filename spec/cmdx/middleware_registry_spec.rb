@@ -211,9 +211,11 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "calls the middleware with empty options by default" do
-        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
+        allow(mock_middleware1).to receive(:call).and_yield
 
         registry.call!(mock_task, &test_block)
+
+        expect(mock_middleware1).to have_received(:call).with(mock_task)
       end
 
       it "yields the result when middleware calls the block" do
@@ -233,9 +235,11 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes options to the middleware" do
-        expect(mock_middleware1).to receive(:call).with(mock_task, **options).and_yield
+        allow(mock_middleware1).to receive(:call).and_yield
 
         registry.call!(mock_task, &test_block)
+
+        expect(mock_middleware1).to have_received(:call).with(mock_task, **options)
       end
     end
 
@@ -247,6 +251,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
       it "calls middlewares in order" do
         call_order = []
+
         allow(mock_middleware1).to receive(:call) do |_task, &block|
           call_order << :middleware1
           block.call
@@ -262,10 +267,13 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes the task through the middleware chain" do
-        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
-        expect(mock_middleware2).to receive(:call).with(mock_task).and_yield
+        allow(mock_middleware1).to receive(:call).with(mock_task).and_yield
+        allow(mock_middleware2).to receive(:call).with(mock_task).and_yield
 
         registry.call!(mock_task, &test_block)
+
+        expect(mock_middleware1).to have_received(:call).with(mock_task)
+        expect(mock_middleware2).to have_received(:call).with(mock_task)
       end
 
       it "returns the final result from the block" do
@@ -283,6 +291,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
       before do
         registry.register(mock_middleware1)
+
         allow(mock_middleware1).to receive(:call) do |_task, &block|
           block.call
           middleware_result
@@ -299,6 +308,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
     context "when middleware doesn't yield" do
       before do
         registry.register(mock_middleware1)
+
         allow(mock_middleware1).to receive(:call).and_return("middleware_stopped")
       end
 
@@ -314,6 +324,7 @@ RSpec.describe CMDx::MiddlewareRegistry do
     context "when middleware raises an error" do
       before do
         registry.register(mock_middleware1)
+
         allow(mock_middleware1).to receive(:call).and_raise(StandardError, "middleware error")
       end
 
