@@ -17,7 +17,7 @@ module CMDx
         elsif args.respond_to?(:to_h)
           args.to_h
         else
-          raise ArgumentError, "must be respond to `to_h` or `to_hash`"
+          raise ArgumentError, "must respond to `to_h` or `to_hash`"
         end.transform_keys(&:to_sym)
     end
 

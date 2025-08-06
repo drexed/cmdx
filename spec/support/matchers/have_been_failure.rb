@@ -4,7 +4,7 @@ RSpec::Matchers.define :have_been_failure do |**data|
   description { "have been failure" }
 
   match(notify_expectation_failures: true) do |result|
-    raise ArgumentError, "must be a Result" unless result.is_a?(CMDx::Result)
+    raise ArgumentError, "must be a CMDx::Result" unless result.is_a?(CMDx::Result)
 
     expect(result.to_h).to include(
       state: CMDx::Result::INTERRUPTED,
