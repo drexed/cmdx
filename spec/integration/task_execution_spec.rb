@@ -103,7 +103,15 @@ RSpec.describe "Task execution", type: :feature do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
             reason: "failing issue",
-            cause: be_a(StandardError) # This should be filled
+            cause: be_a(StandardError), # This should be filled
+            threw_failure: hash_including(
+              index: 1,
+              class: start_with("MiddleTask")
+            ),
+            caused_failure: hash_including(
+              index: 2,
+              class: start_with("InnerTask")
+            )
           )
         end
       end
