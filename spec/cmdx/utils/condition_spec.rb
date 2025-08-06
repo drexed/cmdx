@@ -7,25 +7,11 @@ RSpec.describe CMDx::Utils::Condition do
 
   let(:target_object) do
     Class.new do
-      def true_method?
-        true
-      end
-
-      def false_method?
-        false
-      end
-
-      def method_with_args(arg)
-        arg
-      end
-
-      def method_with_kwargs(value:)
-        value
-      end
-
-      def method_with_block(&)
-        yield
-      end
+      def true_method? = true
+      def false_method? = false
+      def method_with_args(arg) = arg
+      def method_with_kwargs(value:) = value
+      def method_with_block(&) = yield
     end.new
   end
 
