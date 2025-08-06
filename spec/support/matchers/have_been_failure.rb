@@ -3,9 +3,7 @@
 RSpec::Matchers.define :have_been_failure do |**data|
   description { "have been failure" }
 
-  # chain :with_context do |context|
-  #   @host = host
-  # end
+  chain(:with_context) { |context| @context = context }
 
   match(notify_expectation_failures: true) do |result|
     raise ArgumentError, "must be a Result" unless result.is_a?(CMDx::Result)
@@ -19,5 +17,7 @@ RSpec::Matchers.define :have_been_failure do |**data|
       cause: nil,
       **data
     )
+
+    expect(result.context.to_h).to include(**@context) unless @context.nil?
   end
 end

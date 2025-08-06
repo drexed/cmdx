@@ -20,4 +20,5 @@ Add tests for the active tab using the following guidelines:
 - Keep test code concise; avoid unnecessary complexity or duplication
 - Tests must cover both typical cases and edge cases, including invalid inputs and error conditions
 - Consider all possible scenarios for each method or behavior and ensure they are tested
+- Do NOT include integration or real world examples
 - Verify all specs are passing
