@@ -4,6 +4,8 @@ module CMDx
   module Testing
     module WorkflowBuilders
 
+      # Base
+
       def create_workflow_class(name: "AnonymousWorkflow", &block)
         workflow_class = Class.new(CMDx::Task)
         workflow_class.include(CMDx::Workflow)
@@ -11,6 +13,8 @@ module CMDx
         workflow_class.class_eval(&block) if block_given?
         workflow_class
       end
+
+      # Simple
 
       def create_successful_workflow(name: "SuccessfulWorkflow", &block)
         task1 = create_successful_task(name: "SuccessfulTask1")
