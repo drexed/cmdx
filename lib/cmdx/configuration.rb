@@ -9,11 +9,6 @@ module CMDx
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
                   :task_breakpoints, :workflow_breakpoints, :logger
 
-    # https://www.prateekcodes.dev/rails-structured-event-reporting-system/#making-events-actually-useful-subscribers
-    # https://boringrails.com/articles/event-sourcing-for-smooth-brains/
-    # https://kopilov-vlad.medium.com/use-event-emitter-in-ruby-6b289fe2e7b4
-    # https://github.com/sidekiq/sidekiq/blob/3f5cb77f954e91a1bf9306499725b22733c24298/lib/sidekiq/config.rb#L269
-    # https://github.com/integrallis/stripe_event/blob/master/lib/stripe_event.rb
     def initialize
       @middlewares = MiddlewareRegistry.new
       @callbacks = CallbackRegistry.new
