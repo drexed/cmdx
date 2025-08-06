@@ -87,22 +87,19 @@ RSpec.describe "Task execution", type: :feature do
       end
 
       context "when skipping" do
-        let(:task) { create_nested_task(strategy: :throw, status: :skipped, reason: "skipping issue") }
+        let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
 
         it "returns success" do
-          expect(result).to have_been_skipped(
-            reason: "skipping issue"
-          )
+          expect(result).to have_been_skipped
         end
       end
 
       context "when failing" do
-        let(:task) { create_nested_task(strategy: :throw, status: :failure, reason: "failing issue") }
+        let(:task) { create_nested_task(strategy: :throw, status: :failure) }
 
         it "returns failure" do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
-            reason: "failing issue",
             cause: be_a(StandardError), # This should be filled
             threw_failure: hash_including(
               index: 1,
@@ -118,6 +115,63 @@ RSpec.describe "Task execution", type: :feature do
 
       context "when erroring" do
         let(:task) { create_nested_task(strategy: :throw, status: :error) }
+
+        it "returns failure" do
+          expect(result).to have_been_failure(
+            outcome: CMDx::Result::INTERRUPTED,
+            reason: "[StandardError] system error",
+            cause: be_a(StandardError),
+            threw_failure: hash_including(
+              index: 1,
+              class: start_with("MiddleTask")
+            ),
+            caused_failure: hash_including(
+              index: 2,
+              class: start_with("InnerTask")
+            )
+          )
+        end
+      end
+    end
+
+    context "when raising" do
+      context "when successful" do
+        let(:task) { create_nested_task(strategy: :raise) }
+
+        it "returns success" do
+          expect(result).to have_been_success
+        end
+      end
+
+      context "when skipping" do
+        let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
+
+        it "returns success" do
+          expect(result).to have_been_skipped
+        end
+      end
+
+      context "when failing" do
+        let(:task) { create_nested_task(strategy: :raise, status: :failure) }
+
+        it "returns failure" do
+          expect(result).to have_been_failure(
+            outcome: CMDx::Result::INTERRUPTED,
+            cause: be_a(StandardError), # This should be filled
+            threw_failure: hash_including(
+              index: 1,
+              class: start_with("MiddleTask")
+            ),
+            caused_failure: hash_including(
+              index: 2,
+              class: start_with("InnerTask")
+            )
+          )
+        end
+      end
+
+      context "when erroring" do
+        let(:task) { create_nested_task(strategy: :raise, status: :error) }
 
         it "returns failure" do
           expect(result).to have_been_failure(
