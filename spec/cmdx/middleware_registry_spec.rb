@@ -118,19 +118,34 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "inserts at the beginning when at: 0" do
         registry.register(mock_middleware2, at: 0)
 
-        expect(registry.registry).to eq([[mock_middleware2, {}], [mock_middleware1, {}]])
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware2, {}],
+            [mock_middleware1, {}]
+          ]
+        )
       end
 
       it "inserts at a specific index" do
         registry.register(mock_middleware2, at: 1)
 
-        expect(registry.registry).to eq([[mock_middleware1, {}], [mock_middleware2, {}]])
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
+        )
       end
 
       it "inserts at the end when at: -1 (default)" do
         registry.register(mock_middleware2, at: -1)
 
-        expect(registry.registry).to eq([[mock_middleware1, {}], [mock_middleware2, {}]])
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
+        )
       end
     end
 
@@ -139,10 +154,12 @@ RSpec.describe CMDx::MiddlewareRegistry do
         registry.register(mock_middleware1)
         registry.register(mock_middleware2)
 
-        expect(registry.registry).to eq([
-                                          [mock_middleware1, {}],
-                                          [mock_middleware2, {}]
-                                        ])
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
+        )
       end
     end
 
@@ -153,10 +170,12 @@ RSpec.describe CMDx::MiddlewareRegistry do
       it "inserts at specified position with options" do
         registry.register(mock_middleware2, at: 0, **options)
 
-        expect(registry.registry).to eq([
-                                          [mock_middleware2, options],
-                                          [mock_middleware1, {}]
-                                        ])
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware2, options],
+            [mock_middleware1, {}]
+          ]
+        )
       end
     end
   end
@@ -192,11 +211,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "calls the middleware with empty options by default" do
-        allow(mock_middleware1).to receive(:call).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task)
       end
 
       it "yields the result when middleware calls the block" do
@@ -216,11 +233,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes options to the middleware" do
-        allow(mock_middleware1).to receive(:call).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task, **options).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task, **options)
       end
     end
 
@@ -247,13 +262,10 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes the task through the middleware chain" do
-        allow(mock_middleware1).to receive(:call).with(mock_task).and_yield
-        allow(mock_middleware2).to receive(:call).with(mock_task).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
+        expect(mock_middleware2).to receive(:call).with(mock_task).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task)
-        expect(mock_middleware2).to have_received(:call).with(mock_task)
       end
 
       it "returns the final result from the block" do
