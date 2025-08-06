@@ -8,11 +8,9 @@ require "rspec"
 
 require "cmdx"
 
-# require "cmdx/rspec/matchers" # TODO: Move rspec matchers from lib.old
-
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[config helpers].each do |dir|
+%w[config helpers matchers].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
@@ -41,14 +39,14 @@ RSpec.configure do |config|
   config.before do
     CMDx.reset_configuration!
     CMDx.configuration.logger = Logger.new(nil)
-    # TODO: CMDx::Correlator.clear
-    # TODO: CMDx::Chain.clear
+    CMDx::Chain.clear
+    CMDx::Middlewares::Correlate.clear
   end
 
   config.after do
     CMDx.reset_configuration!
-    # TODO: CMDx::Correlator.clear
-    # TODO: CMDx::Chain.clear
+    CMDx::Chain.clear
+    CMDx::Middlewares::Correlate.clear
   end
 
   config.after(:all) do

@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
-- Move I18n to own ruby gem
+### Required
+- Create `cmdx-i18n` gem with all locales
+- Create `cmdx-rspec` gem with RSpec matchers
+- Create `cmdx-minitest` gem with Minitest matchers
+
+### Optional
+- Create `cmdx-jobs` gem with background job integration
+- Create `cmdx-parallel` gem with parallel workflow task execution
 
 ## [1.5.0]
 

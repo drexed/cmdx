@@ -13,39 +13,48 @@ module CMDx
       end
 
       def create_successful_workflow(base: nil, name: "SuccessfulWorkflow", &block)
+        task1 = create_successful_task(name: "SuccessfulTask1")
+        task2 = create_successful_task(name: "SuccessfulTask2")
+        task3 = create_successful_task(name: "SuccessfulTask3")
+
         create_workflow_class(name:, base:) do
-          task create_successful_task(name: "SuccessfulTask1")
-          tasks create_successful_task(name: "SuccessfulTask2"), create_successful_task(name: "SuccessfulTask3")
+          tasks task1, task2, task3
 
           class_eval(&block) if block_given?
         end
       end
 
       def create_skipping_workflow(base: nil, name: "SkippingWorkflow", &block)
+        pre_skip_task = create_successful_task(name: "PreSkipTask")
+        skipping_task = create_skipping_task(name: "SkippingTask")
+        post_skip_task = create_successful_task(name: "PostSkipTask")
+
         create_workflow_class(name:, base:) do
-          task create_successful_task(name: "PreSkipTask")
-          task create_skipping_task(name: "SkippingTask")
-          task create_successful_task(name: "PostSkipTask")
+          tasks pre_skip_task, skipping_task, post_skip_task
 
           class_eval(&block) if block_given?
         end
       end
 
       def create_failing_workflow(base: nil, name: "FailingWorkflow", &block)
+        pre_fail_task = create_successful_task(name: "PreFailTask")
+        failing_task = create_failing_task(name: "FailingTask")
+        post_fail_task = create_successful_task(name: "PostFailTask")
+
         create_workflow_class(name:, base:) do
-          task create_successful_task(name: "PreFailTask")
-          task create_failing_task(name: "FailingTask")
-          task create_successful_task(name: "PostFailTask")
+          tasks pre_fail_task, failing_task, post_fail_task
 
           class_eval(&block) if block_given?
         end
       end
 
       def create_erroring_workflow(base: nil, name: "ErroringWorkflow", &block)
+        pre_error_task = create_successful_task(name: "PreErrorTask")
+        erroring_task = create_erroring_task(name: "ErroringTask")
+        post_error_task = create_successful_task(name: "PostErrorTask")
+
         create_workflow_class(name:, base:) do
-          task create_successful_task(name: "PreErrorTask")
-          task create_erroring_task(name: "ErroringTask")
-          task create_successful_task(name: "PostErrorTask")
+          tasks pre_error_task, erroring_task, post_error_task
 
           class_eval(&block) if block_given?
         end
