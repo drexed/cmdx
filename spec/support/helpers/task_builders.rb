@@ -4,36 +4,36 @@ module CMDx
   module Testing
     module TaskBuilders
 
-      def create_task_class(base: nil, name: "AnonymousTask", &block)
-        task_class = Class.new(base || CMDx::Task)
+      def create_task_class(name: "AnonymousTask", &block)
+        task_class = Class.new(CMDx::Task)
         task_class.define_singleton_method(:name) { name.to_s + rand(9999).to_s.rjust(4, "0") }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
-      def create_successful_task(base: nil, name: "SuccessfulTask", &block)
-        task_class = create_task_class(base:, name:)
+      def create_successful_task(name: "SuccessfulTask", &block)
+        task_class = create_task_class(name:)
         task_class.define_method(:work) { context.executed = true }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
-      def create_failing_task(base: nil, name: "FailingTask", reason: nil, **metadata, &block)
-        task_class = create_task_class(base:, name:)
+      def create_failing_task(name: "FailingTask", reason: nil, **metadata, &block)
+        task_class = create_task_class(name:)
         task_class.define_method(:work) { fail!(reason, **metadata) }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
-      def create_skipping_task(base: nil, name: "SkippingTask", reason: nil, **metadata, &block)
-        task_class = create_task_class(base:, name:)
+      def create_skipping_task(name: "SkippingTask", reason: nil, **metadata, &block)
+        task_class = create_task_class(name:)
         task_class.define_method(:work) { skip!(reason, **metadata) }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
-      def create_erroring_task(base: nil, name: "ErroringTask", reason: nil, **_metadata, &block)
-        task_class = create_task_class(base:, name:)
+      def create_erroring_task(name: "ErroringTask", reason: nil, **_metadata, &block)
+        task_class = create_task_class(name:)
         task_class.define_method(:work) { raise StandardError, reason || "system error" }
         task_class.class_eval(&block) if block_given?
         task_class

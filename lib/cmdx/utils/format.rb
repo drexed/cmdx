@@ -12,9 +12,11 @@ module CMDx
       private_constant :FORMATTER
 
       def to_log(message)
-        if message.respond_to?(:to_hash)
+        if message.is_a?(Hash)
+          message
+        elsif message.respond_to?(:to_hash)
           message.to_hash
-        elsif message.respond_to?(:to_h)
+        elsif !message.is_a?(Array) && message.respond_to?(:to_h)
           message.to_h
         else
           { message: message }

@@ -3,12 +3,14 @@
 require "spec_helper"
 
 RSpec.describe "Task execution", type: :feature do
+  subject(:result) { task.execute }
+
   context "when simple task" do
     context "when successful" do
       let(:task) { create_successful_task }
 
       it "executes the task with matching attributes" do
-        expect(task.execute).to have_been_success
+        expect(result).to have_been_success
       end
     end
 
@@ -16,7 +18,7 @@ RSpec.describe "Task execution", type: :feature do
       let(:task) { create_skipping_task }
 
       it "executes the task with matching attributes" do
-        expect(task.execute).to have_been_skipped
+        expect(result).to have_been_skipped
       end
     end
 
@@ -24,7 +26,7 @@ RSpec.describe "Task execution", type: :feature do
       let(:task) { create_failing_task }
 
       it "executes the task with matching attributes" do
-        expect(task.execute).to have_been_failure
+        expect(result).to have_been_failure
       end
     end
 
@@ -32,11 +34,20 @@ RSpec.describe "Task execution", type: :feature do
       let(:task) { create_erroring_task }
 
       it "executes the task with matching attributes" do
-        expect(task.execute).to have_been_failure(
+        expect(result).to have_been_failure(
           reason: "[StandardError] system error",
           cause: be_a(StandardError)
         )
       end
     end
   end
+
+  # context "with nested tasks" do
+  #   let(:task) do
+  #   end
+
+  #   it "executes the task with matching attributes" do
+  #     expect(result).to have_been_success
+  #   end
+  # end
 end

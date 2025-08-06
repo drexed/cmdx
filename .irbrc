@@ -3,4 +3,4 @@
 require "pp"
 
 # To reload the gem, you must exit and restart the IRB session
-require_relative "lib/cmdx"
+require_relative "lib/cmdx" unless defined?(CMDx)
