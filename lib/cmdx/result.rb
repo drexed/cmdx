@@ -29,7 +29,7 @@ module CMDx
     def_delegators :task, :context, :chain
 
     def initialize(task)
-      raise TypeError, "must be a Task or Workflow" unless task.is_a?(Task)
+      raise TypeError, "must be a CMDx::Task" unless task.is_a?(CMDx::Task)
 
       @task = task
       @state = INITIALIZED
@@ -161,7 +161,7 @@ module CMDx
     end
 
     def throw!(result, **metadata)
-      raise TypeError, "must be a Result" unless result.is_a?(Result)
+      raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
       metadatum = result.metadata.merge(metadata)
 

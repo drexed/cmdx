@@ -14,19 +14,20 @@ RSpec.describe CMDx::CoercionRegistry do
       subject(:registry) { described_class.new }
 
       it "initializes with default coercions" do
-        expect(registry.registry).to be_a(Hash)
-        expect(registry.registry).to have_key(:string)
-        expect(registry.registry).to have_key(:integer)
-        expect(registry.registry).to have_key(:boolean)
-      end
-
-      it "includes all expected default coercion types" do
-        expected_keys = %i[
-          array big_decimal boolean complex date datetime
-          float hash integer rational string time
-        ]
-
-        expect(registry.registry.keys).to match_array(expected_keys)
+        expect(registry.registry).to include(
+          array: CMDx::Coercions::Array,
+          big_decimal: CMDx::Coercions::BigDecimal,
+          boolean: CMDx::Coercions::Boolean,
+          complex: CMDx::Coercions::Complex,
+          date: CMDx::Coercions::Date,
+          datetime: CMDx::Coercions::DateTime,
+          float: CMDx::Coercions::Float,
+          hash: CMDx::Coercions::Hash,
+          integer: CMDx::Coercions::Integer,
+          rational: CMDx::Coercions::Rational,
+          string: CMDx::Coercions::String,
+          time: CMDx::Coercions::Time
+        )
       end
     end
 

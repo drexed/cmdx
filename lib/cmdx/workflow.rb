@@ -24,7 +24,7 @@ module CMDx
           tasks.map do |task|
             next task if task.is_a?(Class) && (task <= Task)
 
-            raise TypeError, "must be a Task or Workflow"
+            raise TypeError, "must be a CMDx::Task"
           end,
           options
         )
