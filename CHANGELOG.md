@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
-- Exclude rubocop  stuff via https://docs.rubocop.org/rubocop/configuration.html#common-configuration-parameters
 - Move I18n to own ruby gem
 
 ## [1.5.0]
 
 ### Changes
-- Rebuild CMDx to be simpler and less magical
+- Rebuild CMDx to be simpler, less magical, and more performant
 
 ## [1.1.2] - 2025-07-20
 

@@ -19,6 +19,8 @@ Layout/LineLength:
 Lint/MissingSuper:
   Exclude:
     - 'spec/**/**/*'
+Lint/ShadowedException:
+  Enabled: false
 Lint/UnusedMethodArgument:
   Exclude:
     - 'lib/cmdx/coercions/**/*'
@@ -49,6 +51,8 @@ RSpec/ExampleLength:
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
+Style/CaseEquality:
+  Enabled: false
 Style/DocumentDynamicEvalDefinition:
   Enabled: false
 Style/Documentation:

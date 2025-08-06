@@ -8,7 +8,7 @@ module CMDx
 
       def call(value, options = {})
         Integer(value)
-      rescue ArgumentError, FloatDomainError, RangeError, TypeError # rubocop:disable Lint/ShadowedException
+      rescue ArgumentError, FloatDomainError, RangeError, TypeError
         type = Locale.t("cmdx.types.integer")
         raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
       end
