@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CMDx
-  class Processor
+  class Worker
 
     attr_reader :task
 

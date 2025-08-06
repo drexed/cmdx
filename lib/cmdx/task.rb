@@ -87,7 +87,7 @@ module CMDx
     end
 
     def execute(raise: false)
-      Processor.execute(self, raise:)
+      Worker.execute(self, raise:)
     end
 
     def work
