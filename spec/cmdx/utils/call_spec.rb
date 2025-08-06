@@ -120,7 +120,7 @@ RSpec.describe CMDx::Utils::Call do
     end
 
     context "when callable responds to call" do
-      let(:callable) { double("callable", call: "callable_result") }
+      let(:callable) { instance_double("Callable", call: "callable_result") }
 
       before do
         allow(callable).to receive(:respond_to?).with(:call).and_return(true)
