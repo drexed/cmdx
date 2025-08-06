@@ -90,6 +90,7 @@ module CMDx
       Processor.execute(self, raise:)
     end
 
+    # TODO: rename this to process
     def task
       raise UndefinedMethodError, "undefined method #{self.class.name}#task"
     end

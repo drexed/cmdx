@@ -14,44 +14,54 @@ RSpec.describe CMDx::Utils::Call do
       let(:callable) { :test_method }
 
       it "calls the method on the target object" do
-        expect(target_object).to receive(:test_method).with(no_args)
+        allow(target_object).to receive(:test_method)
 
         call_module.invoke(target_object, callable)
+
+        expect(target_object).to have_received(:test_method).with(no_args)
       end
 
       it "passes arguments to the method" do
         args = %w[arg1 arg2]
 
-        expect(target_object).to receive(:test_method).with(*args)
+        allow(target_object).to receive(:test_method)
 
         call_module.invoke(target_object, callable, *args)
+
+        expect(target_object).to have_received(:test_method).with(*args)
       end
 
       it "passes keyword arguments to the method" do
         kwargs = { key1: "value1", key2: "value2" }
 
-        expect(target_object).to receive(:test_method).with(**kwargs)
+        allow(target_object).to receive(:test_method)
 
         call_module.invoke(target_object, callable, **kwargs)
+
+        expect(target_object).to have_received(:test_method).with(**kwargs)
       end
 
       it "passes both arguments and keyword arguments to the method" do
         args = ["arg1"]
         kwargs = { key1: "value1" }
 
-        expect(target_object).to receive(:test_method).with(*args, **kwargs)
+        allow(target_object).to receive(:test_method)
 
         call_module.invoke(target_object, callable, *args, **kwargs)
+
+        expect(target_object).to have_received(:test_method).with(*args, **kwargs)
       end
 
       it "passes blocks to the method" do
         block = proc { "block_result" }
 
-        expect(target_object).to receive(:test_method) do |&passed_block|
+        allow(target_object).to receive(:test_method) do |&passed_block|
           expect(passed_block).to eq(block)
         end
 
         call_module.invoke(target_object, callable, &block)
+
+        expect(target_object).to have_received(:test_method)
       end
 
       it "returns the result of the method call" do
@@ -67,47 +77,57 @@ RSpec.describe CMDx::Utils::Call do
       let(:callable) { proc { |*args, **kwargs| "proc_result_#{args.join('_')}_#{kwargs.values.join('_')}" } }
 
       it "executes the proc in the context of the target object" do
-        expect(target_object).to receive(:instance_exec).with(no_args) do |&block|
+        allow(target_object).to receive(:instance_exec).with(no_args) do |&block|
           expect(block).to eq(callable)
           "instance_exec_result"
         end
 
         call_module.invoke(target_object, callable)
+
+        expect(target_object).to have_received(:instance_exec).with(no_args)
       end
 
       it "passes arguments to instance_exec" do
         args = %w[arg1 arg2]
 
-        expect(target_object).to receive(:instance_exec).with(*args, &callable)
+        allow(target_object).to receive(:instance_exec).with(*args, &callable)
 
         call_module.invoke(target_object, callable, *args)
+
+        expect(target_object).to have_received(:instance_exec).with(*args, &callable)
       end
 
       it "passes keyword arguments to instance_exec" do
         kwargs = { key1: "value1", key2: "value2" }
 
-        expect(target_object).to receive(:instance_exec).with(**kwargs, &callable)
+        allow(target_object).to receive(:instance_exec).with(**kwargs, &callable)
 
         call_module.invoke(target_object, callable, **kwargs)
+
+        expect(target_object).to have_received(:instance_exec).with(**kwargs, &callable)
       end
 
       it "passes both arguments and keyword arguments to instance_exec" do
         args = ["arg1"]
         kwargs = { key1: "value1" }
 
-        expect(target_object).to receive(:instance_exec).with(*args, **kwargs, &callable)
+        allow(target_object).to receive(:instance_exec).with(*args, **kwargs, &callable)
 
         call_module.invoke(target_object, callable, *args, **kwargs)
+
+        expect(target_object).to have_received(:instance_exec).with(*args, **kwargs, &callable)
       end
 
       it "passes blocks to instance_exec" do
         block = proc { "block_result" }
 
-        expect(target_object).to receive(:instance_exec) do |&passed_block|
+        allow(target_object).to receive(:instance_exec) do |&passed_block|
           expect(passed_block).to eq(callable)
         end
 
         call_module.invoke(target_object, callable, &block)
+
+        expect(target_object).to have_received(:instance_exec)
       end
 
       it "returns the result of the proc execution" do
@@ -127,44 +147,54 @@ RSpec.describe CMDx::Utils::Call do
       end
 
       it "calls the call method on the callable object" do
-        expect(callable).to receive(:call).with(no_args)
+        allow(callable).to receive(:call)
 
         call_module.invoke(target_object, callable)
+
+        expect(callable).to have_received(:call).with(no_args)
       end
 
       it "passes arguments to the callable object" do
         args = %w[arg1 arg2]
 
-        expect(callable).to receive(:call).with(*args)
+        allow(callable).to receive(:call)
 
         call_module.invoke(target_object, callable, *args)
+
+        expect(callable).to have_received(:call).with(*args)
       end
 
       it "passes keyword arguments to the callable object" do
         kwargs = { key1: "value1", key2: "value2" }
 
-        expect(callable).to receive(:call).with(**kwargs)
+        allow(callable).to receive(:call)
 
         call_module.invoke(target_object, callable, **kwargs)
+
+        expect(callable).to have_received(:call).with(**kwargs)
       end
 
       it "passes both arguments and keyword arguments to the callable object" do
         args = ["arg1"]
         kwargs = { key1: "value1" }
 
-        expect(callable).to receive(:call).with(*args, **kwargs)
+        allow(callable).to receive(:call)
 
         call_module.invoke(target_object, callable, *args, **kwargs)
+
+        expect(callable).to have_received(:call).with(*args, **kwargs)
       end
 
       it "passes blocks to the callable object" do
         block = proc { "block_result" }
 
-        expect(callable).to receive(:call) do |&passed_block|
+        allow(callable).to receive(:call) do |&passed_block|
           expect(passed_block).to eq(block)
         end
 
         call_module.invoke(target_object, callable, &block)
+
+        expect(callable).to have_received(:call)
       end
 
       it "returns the result of the callable object call" do
