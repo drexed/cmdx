@@ -7,7 +7,7 @@ module CMDx
       def create_workflow_class(base: nil, name: "AnonymousWorkflow", &block)
         workflow_class = Class.new(base || CMDx::Task)
         workflow_class.include(CMDx::Workflow)
-        workflow_class.define_singleton_method(:name) { name.to_s << rand(9999).to_s.rjust(4, "0") }
+        workflow_class.define_singleton_method(:name) { name.to_s + rand(9999).to_s.rjust(4, "0") }
         workflow_class.class_eval(&block) if block_given?
         workflow_class
       end

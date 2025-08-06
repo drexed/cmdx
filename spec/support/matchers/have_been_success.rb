@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+RSpec::Matchers.define :have_been_success do |**data|
+  description { "have been success" }
+
+  # chain :with_context do |context|
+  #   @host = host
+  # end
+
+  match(notify_expectation_failures: true) do |result|
+    raise ArgumentError, "must be a Result" unless result.is_a?(CMDx::Result)
+
+    expect(result.to_h).to include(
+      state: CMDx::Result::COMPLETE,
+      status: CMDx::Result::SUCCESS,
+      outcome: CMDx::Result::SUCCESS,
+      metadata: {},
+      **data
+    )
+  end
+end
