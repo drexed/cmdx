@@ -48,6 +48,8 @@ RSpec/DescribeClass:
     - 'spec/integrations/**/*'
 RSpec/ExampleLength:
   Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
