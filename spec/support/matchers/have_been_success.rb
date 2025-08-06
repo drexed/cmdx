@@ -3,8 +3,6 @@
 RSpec::Matchers.define :have_been_success do |**data|
   description { "have been success" }
 
-  chain(:with_context) { |context| @context = context }
-
   match(notify_expectation_failures: true) do |result|
     raise ArgumentError, "must be a Result" unless result.is_a?(CMDx::Result)
 
@@ -15,7 +13,5 @@ RSpec::Matchers.define :have_been_success do |**data|
       metadata: {},
       **data
     )
-
-    expect(result.context.to_h).to include(**@context) unless @context.nil?
   end
 end
