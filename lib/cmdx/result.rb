@@ -223,8 +223,8 @@ module CMDx
         end
 
         if failed?
-          STRIP_FAILURE.call(hash, self, :caused_failure)
           STRIP_FAILURE.call(hash, self, :threw_failure)
+          STRIP_FAILURE.call(hash, self, :caused_failure)
         end
       end
     end

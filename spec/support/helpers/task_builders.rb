@@ -45,7 +45,7 @@ module CMDx
 
       # Nested
 
-      def create_nested_task(status: :success, reason: nil, **metadata, &block)
+      def create_nested_task(strategy: :swallow, status: :success, reason: nil, **metadata, &block)
         inner_task = create_task_class(name: "InnerTask")
         inner_task.class_eval(&block) if block_given?
         inner_task.define_method(:work) do
@@ -61,14 +61,26 @@ module CMDx
         middle_task = create_task_class(name: "MiddleTask")
         middle_task.class_eval(&block) if block_given?
         middle_task.define_method(:work) do
-          inner_task.execute
+          case strategy
+          when :swallow then inner_task.execute
+          when :throw then throw!(inner_task.execute)
+          when :raise then inner_task.execute!
+          else raise "unknown strategy #{strategy}"
+          end
+
           (context.executed ||= []) << :middle
         end
 
         outer_task = create_task_class(name: "OuterTask")
         outer_task.class_eval(&block) if block_given?
         outer_task.define_method(:work) do
-          middle_task.execute
+          case strategy
+          when :swallow then middle_task.execute
+          when :throw then throw!(middle_task.execute)
+          when :raise then middle_task.execute!
+          else raise "unknown strategy #{strategy}"
+          end
+
           (context.executed ||= []) << :outer
         end
         outer_task
