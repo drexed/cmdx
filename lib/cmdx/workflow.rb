@@ -15,9 +15,13 @@ module CMDx
         @execution_groups ||= []
       end
 
+      def task(task, **options)
+        tasks(task, **options)
+      end
+
       def tasks(*tasks, **options)
         execution_groups << ExecutionGroup.new(
-          tasks.flatten.map do |task|
+          tasks.map do |task|
             next task if task.is_a?(Class) && (task <= Task)
 
             raise TypeError, "must be a Task or Workflow"

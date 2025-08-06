@@ -13,28 +13,28 @@ module CMDx
 
       def create_successful_task(base: nil, name: "SuccessfulTask", &block)
         task_class = create_task_class(base:, name:)
-        task_class.define_method(:call) { context.executed = true }
+        task_class.define_method(:task) { context.executed = true }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
       def create_failing_task(base: nil, name: "FailingTask", reason: "Task failed", **metadata, &block)
         task_class = create_task_class(base:, name:)
-        task_class.define_method(:call) { fail!(reason, **metadata) }
+        task_class.define_method(:task) { fail!(reason, **metadata) }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
       def create_skipping_task(base: nil, name: "SkippingTask", reason: "Task skipped", **metadata, &block)
         task_class = create_task_class(base:, name:)
-        task_class.define_method(:call) { skip!(reason, **metadata) }
+        task_class.define_method(:task) { skip!(reason, **metadata) }
         task_class.class_eval(&block) if block_given?
         task_class
       end
 
       def create_erroring_task(base: nil, name: "ErroringTask", reason: "Task errored", **_metadata, &block)
         task_class = create_task_class(base:, name:)
-        task_class.define_method(:call) { raise StandardError, reason }
+        task_class.define_method(:task) { raise StandardError, reason }
         task_class.class_eval(&block) if block_given?
         task_class
       end
