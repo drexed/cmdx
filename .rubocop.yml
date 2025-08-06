@@ -14,9 +14,6 @@ Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
-Layout/ExtraSpacing:
-  Exclude:
-    - 'lib/generators/cmdx/templates/install.rb'
 Layout/LineLength:
   Enabled: false
 Lint/MissingSuper:
@@ -31,10 +28,7 @@ Lint/UnusedMethodArgument:
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
-  Exclude:
-    - 'lib/cmdx/rspec/**/*'
-    - 'spec/**/**/*'
-    - '*.gemspec'
+  Enabled: false
 Metrics/ClassLength:
   Enabled: false
 Metrics/CyclomaticComplexity:
@@ -47,37 +41,19 @@ Metrics/PerceivedComplexity:
   Enabled: false
 Naming/MethodParameterName:
   Enabled: false
-RSpec/AnyInstance:
-  Enabled: false
 RSpec/DescribeClass:
   Exclude:
     - 'spec/integrations/**/*'
 RSpec/ExampleLength:
   Enabled: false
-RSpec/MessageSpies:
-  Enabled: false
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-RSpec/MultipleExpectations:
-  Enabled: false
-RSpec/NestedGroups:
-  Enabled: false
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
-RSpec/StubbedMock:
-  Enabled: false
-RSpec/SubjectStub:
-  Enabled: false
-RSpec/VerifiedDoubles:
-  Enabled: false
-RSpec/VerifiedDoubleReference:
+Style/DocumentDynamicEvalDefinition:
   Enabled: false
 Style/Documentation:
   Enabled: false
 Style/DoubleNegation:
-  Enabled: false
-Style/FormatStringToken:
   Enabled: false
 Style/FrozenStringLiteralComment:
   Enabled: true
@@ -85,11 +61,7 @@ Style/FrozenStringLiteralComment:
   SafeAutoCorrect: true
 Style/ModuleFunction:
   EnforcedStyle: extend_self
-Style/OpenStructUse:
-  Enabled: false
 Style/OptionalBooleanParameter:
-  Enabled: false
-Style/RedundantException:
   Enabled: false
 Style/StringLiterals:
   EnforcedStyle: double_quotes
