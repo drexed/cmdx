@@ -147,7 +147,18 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
 
         it "returns success" do
-          expect(result).to have_been_skipped
+          expect(result).to have_been_skipped(
+            outcome: CMDx::Result::INTERRUPTED,
+            cause: be_a(StandardError), # This should be filled
+            threw_failure: hash_including(
+              index: 1,
+              class: start_with("MiddleTask")
+            ),
+            caused_failure: hash_including(
+              index: 2,
+              class: start_with("InnerTask")
+            )
+          )
         end
       end
 
