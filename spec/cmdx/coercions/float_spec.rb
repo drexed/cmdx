@@ -201,7 +201,7 @@ RSpec.describe CMDx::Coercions::Float do
 
     context "when value is out of range" do
       it "converts extremely large numbers to Infinity" do
-        large_number = "1" + ("0" * 400) # rubocop:disable Style/StringConcatenation
+        large_number = "1" + ("0" * 400)
         result = coercion.call(large_number)
 
         expect(result).to be_a(Float)

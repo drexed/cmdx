@@ -57,15 +57,6 @@ RSpec.describe CMDx::Coercions::Date do
         expect(result.day).to eq(25)
       end
 
-      it "parses date with dashes" do
-        result = coercion.call("2023-12-25")
-
-        expect(result).to be_a(Date)
-        expect(result.year).to eq(2023)
-        expect(result.month).to eq(12)
-        expect(result.day).to eq(25)
-      end
-
       it "parses DD.MM.YYYY format date string" do
         result = coercion.call("25.12.2023")
 

@@ -38,12 +38,12 @@ RSpec.describe CMDx::Coercions::Symbol do
       end
 
       it "returns symbol with unicode characters unchanged" do
-        symbol = :"h\u00E9llo_w\u00F6rld_\u{1F30D}"
+        symbol = :héllo_wörld_🌍
 
         result = coercion.call(symbol)
 
         expect(result).to be_a(Symbol)
-        expect(result).to eq(:"h\u00E9llo_w\u00F6rld_\u{1F30D}")
+        expect(result).to eq(:héllo_wörld_🌍)
         expect(result).to be(symbol)
       end
     end
@@ -81,7 +81,7 @@ RSpec.describe CMDx::Coercions::Symbol do
         result = coercion.call("héllo wörld 🌍")
 
         expect(result).to be_a(Symbol)
-        expect(result).to eq(:"h\u00E9llo w\u00F6rld \u{1F30D}")
+        expect(result).to eq(:"héllo wörld 🌍")
       end
 
       it "converts string with newlines and tabs to symbol" do

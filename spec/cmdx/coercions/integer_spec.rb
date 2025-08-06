@@ -186,7 +186,7 @@ RSpec.describe CMDx::Coercions::Integer do
 
       it "raises CoercionError for value that triggers RangeError" do
         # Test using a value that would trigger RangeError in Integer conversion
-        very_large_number = ("9" * 1000) + ".0" # rubocop:disable Style/StringConcatenation
+        very_large_number = ("9" * 1000) + ".0"
 
         expect { coercion.call(very_large_number) }.to raise_error(CMDx::CoercionError)
       end
