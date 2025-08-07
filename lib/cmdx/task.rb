@@ -12,7 +12,7 @@ module CMDx
     def_delegators :result, :skip!, :fail!, :throw!
 
     def initialize(context = {})
-      Deprecator.condemn(self)
+      Deprecator.restrict(self)
 
       @attributes = {}
       @errors = Errors.new

@@ -19,7 +19,7 @@ module CMDx
     end.freeze
     private_constant :EVAL
 
-    def condemn(task)
+    def restrict(task)
       type = EVAL.call(task, task.class.settings[:deprecate])
 
       case type
