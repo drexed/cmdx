@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Middlewares::Correlate do
   subject(:correlate) { described_class }
 
-  let(:task) { instance_double(CMDx::Task, id: "task-123", result: result) }
+  let(:task) { double("CMDx::Task", id: "task-123", result: result) } # rubocop:disable RSpec/VerifiedDoubles
   let(:result) { instance_double(CMDx::Result, metadata: metadata) }
   let(:metadata) { {} }
 
@@ -311,6 +311,48 @@ RSpec.describe CMDx::Middlewares::Correlate do
         end
       rescue StandardError
         expect(metadata[:correlation_id]).to eq("error-id")
+      end
+    end
+
+    context "with conditional execution using 'if'" do
+      before do
+        allow(task).to receive(:should_correlate?).and_return(true)
+      end
+
+      it "applies correlation when 'if' condition is true" do
+        correlate.call(task, id: "test-id", if: :should_correlate?, &test_block)
+
+        expect(metadata[:correlation_id]).to eq("test-id")
+      end
+
+      it "skips correlation when 'if' condition is false" do
+        allow(task).to receive(:should_correlate?).and_return(false)
+
+        result = correlate.call(task, id: "test-id", if: :should_correlate?, &test_block)
+
+        expect(metadata[:correlation_id]).to be_nil
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "with conditional execution using 'unless'" do
+      before do
+        allow(task).to receive(:skip_correlation?).and_return(false)
+      end
+
+      it "applies correlation when 'unless' condition is false" do
+        correlate.call(task, id: "test-id", unless: :skip_correlation?, &test_block)
+
+        expect(metadata[:correlation_id]).to eq("test-id")
+      end
+
+      it "skips correlation when 'unless' condition is true" do
+        allow(task).to receive(:skip_correlation?).and_return(true)
+
+        result = correlate.call(task, id: "test-id", unless: :skip_correlation?, &test_block)
+
+        expect(metadata[:correlation_id]).to be_nil
+        expect(result).to eq(block_result)
       end
     end
 

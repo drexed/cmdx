@@ -29,6 +29,8 @@ module CMDx
       end
 
       def call(task, **options, &)
+        return yield unless Utils::Condition.evaluate(task, options)
+
         correlation_id =
           case callable = options[:id]
           when Symbol then task.send(callable)

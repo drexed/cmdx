@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Middlewares::Timeout do
   subject(:timeout_middleware) { described_class }
 
-  let(:task) { instance_double(CMDx::Task, result: result) }
+  let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles
   let(:result) { instance_double(CMDx::Result) }
   let(:block_result) { "block executed" }
   let(:test_block) { proc { block_result } }
@@ -205,6 +205,56 @@ RSpec.describe CMDx::Middlewares::Timeout do
         end.to raise_error(StandardError, "unexpected error")
 
         expect(result).not_to have_received(:fail!)
+      end
+    end
+
+    context "with conditional execution using 'if'" do
+      before do
+        allow(task).to receive(:should_timeout?).and_return(true)
+        allow(Timeout).to receive(:timeout)
+      end
+
+      it "executes timeout when 'if' condition is true" do
+        allow(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, if: :should_timeout?, &test_block)
+
+        expect(Timeout).to have_received(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds")
+        expect(result).to eq(block_result)
+      end
+
+      it "skips timeout when 'if' condition is false" do
+        allow(task).to receive(:should_timeout?).and_return(false)
+
+        result = timeout_middleware.call(task, seconds: 5, if: :should_timeout?, &test_block)
+
+        expect(Timeout).not_to have_received(:timeout)
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "with conditional execution using 'unless'" do
+      before do
+        allow(task).to receive(:skip_timeout?).and_return(false)
+        allow(Timeout).to receive(:timeout)
+      end
+
+      it "executes timeout when 'unless' condition is false" do
+        allow(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, unless: :skip_timeout?, &test_block)
+
+        expect(Timeout).to have_received(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds")
+        expect(result).to eq(block_result)
+      end
+
+      it "skips timeout when 'unless' condition is true" do
+        allow(task).to receive(:skip_timeout?).and_return(true)
+
+        result = timeout_middleware.call(task, seconds: 5, unless: :skip_timeout?, &test_block)
+
+        expect(Timeout).not_to have_received(:timeout)
+        expect(result).to eq(block_result)
       end
     end
 

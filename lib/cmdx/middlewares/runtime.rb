@@ -7,6 +7,8 @@ module CMDx
       extend self
 
       def call(task, **options)
+        return yield unless Utils::Condition.evaluate(task, options)
+
         now = monotonic_time
         result = yield
         task.result.metadata[:runtime] = monotonic_time - now

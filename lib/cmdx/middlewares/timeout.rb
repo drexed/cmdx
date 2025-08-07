@@ -12,6 +12,8 @@ module CMDx
       DEFAULT_LIMIT = 3
 
       def call(task, **options, &)
+        return yield unless Utils::Condition.evaluate(task, options)
+
         limit =
           case callable = options[:seconds]
           when Numeric then callable

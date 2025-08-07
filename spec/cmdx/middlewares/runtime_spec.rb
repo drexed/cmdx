@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Middlewares::Runtime do
   subject(:runtime) { described_class }
 
-  let(:task) { instance_double(CMDx::Task, result: result) }
+  let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles
   let(:result) { instance_double(CMDx::Result, metadata: metadata) }
   let(:metadata) { {} }
   let(:block_result) { "task executed" }
@@ -78,6 +78,50 @@ RSpec.describe CMDx::Middlewares::Runtime do
 
         expect(Process).to have_received(:clock_gettime)
           .with(Process::CLOCK_MONOTONIC, :millisecond).once
+      end
+    end
+
+    context "with conditional execution using 'if'" do
+      before do
+        allow(task).to receive(:should_measure_runtime?).and_return(true)
+      end
+
+      it "measures runtime when 'if' condition is true" do
+        result = runtime.call(task, if: :should_measure_runtime?, &test_block)
+
+        expect(metadata[:runtime]).to eq(50)
+        expect(result).to eq(block_result)
+      end
+
+      it "skips runtime measurement when 'if' condition is false" do
+        allow(task).to receive(:should_measure_runtime?).and_return(false)
+
+        result = runtime.call(task, if: :should_measure_runtime?, &test_block)
+
+        expect(metadata[:runtime]).to be_nil
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "with conditional execution using 'unless'" do
+      before do
+        allow(task).to receive(:skip_runtime_measurement?).and_return(false)
+      end
+
+      it "measures runtime when 'unless' condition is false" do
+        result = runtime.call(task, unless: :skip_runtime_measurement?, &test_block)
+
+        expect(metadata[:runtime]).to eq(50)
+        expect(result).to eq(block_result)
+      end
+
+      it "skips runtime measurement when 'unless' condition is true" do
+        allow(task).to receive(:skip_runtime_measurement?).and_return(true)
+
+        result = runtime.call(task, unless: :skip_runtime_measurement?, &test_block)
+
+        expect(metadata[:runtime]).to be_nil
+        expect(result).to eq(block_result)
       end
     end
 
