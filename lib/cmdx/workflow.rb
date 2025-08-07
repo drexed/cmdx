@@ -42,14 +42,12 @@ module CMDx
       self.class.execution_groups.each do |group|
         next unless Utils::Condition.evaluate(self, group.options)
 
-        workflow_breakpoints = Array(
-          group.options[:workflow_breakpoints] ||
-          self.class.settings[:workflow_breakpoints]
-        ).map(&:to_s)
+        breakpoints = group.options[:breakpoints] || self.class.settings[:workflow_breakpoints]
+        breakpoints = Array(breakpoints).map(&:to_s).uniq
 
         group.tasks.each do |task|
           task_result = task.execute(context)
-          next unless workflow_breakpoints.include?(task_result.status)
+          next unless breakpoints.include?(task_result.status)
 
           throw!(task_result)
         end

@@ -55,7 +55,10 @@ module CMDx
     protected
 
     def halt_execution?(exception)
-      Array(task.class.settings[:task_breakpoints]).map(&:to_s).include?(exception.result.status)
+      breakpoints = task.class.settings[:breakpoints] || task.class.settings[:task_breakpoints]
+      breakpoints = Array(breakpoints).map(&:to_s).uniq
+
+      breakpoints.include?(exception.result.status)
     end
 
     def raise_exception(exception)
