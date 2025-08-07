@@ -5,7 +5,7 @@ module CMDx
     class Raw
 
       def call(severity, time, progname, message)
-        message.inspect << "\n"
+        "#{message}\n"
       end
 
     end
