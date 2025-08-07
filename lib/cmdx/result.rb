@@ -160,16 +160,16 @@ module CMDx
       raise(fault)
     end
 
-    def throw!(result, **metadata)
+    def throw!(result, cause: nil, **metadata)
       raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
-      metadatum = result.metadata.merge(metadata)
+      @state = result.state
+      @status = result.status
+      @reason = result.reason
+      @cause = cause || result.cause
+      @metadata = result.metadata.merge(metadata)
 
-      if result.skipped?
-        skip!(result.reason, cause: result.cause, **metadatum)
-      elsif result.failed?
-        fail!(result.reason, cause: result.cause, **metadatum)
-      end
+      halt! unless cause
     end
 
     def caused_failure
