@@ -5,9 +5,7 @@ module CMDx
     class Line
 
       def call(severity, time, progname, message)
-        text = Utils::Format.to_str(message)
-
-        "#{severity[0]}, [#{time.utc.iso8601(6)} ##{Process.pid}] #{severity} -- #{progname}: #{text}\n"
+        "#{severity[0]}, [#{time.utc.iso8601(6)} ##{Process.pid}] #{severity} -- #{progname}: #{message}\n"
       end
 
     end
