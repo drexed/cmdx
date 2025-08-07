@@ -20,18 +20,18 @@ RSpec.describe CMDx::Utils::Condition do
       context "when if condition is true" do
         it "returns true for true boolean" do
           result = condition_module.evaluate(target_object, { if: true })
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "returns true for truthy symbol method" do
           result = condition_module.evaluate(target_object, { if: :true_method? })
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "returns true for truthy proc" do
           proc = -> { true }
           result = condition_module.evaluate(target_object, { if: proc })
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "passes arguments to symbol method" do
@@ -63,23 +63,23 @@ RSpec.describe CMDx::Utils::Condition do
       context "when if condition is false" do
         it "returns false for false boolean" do
           result = condition_module.evaluate(target_object, { if: false })
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "returns false for nil" do
           result = condition_module.evaluate(target_object, { if: nil })
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "returns false for falsy symbol method" do
           result = condition_module.evaluate(target_object, { if: :false_method? })
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "returns false for falsy proc" do
           proc = -> { false }
           result = condition_module.evaluate(target_object, { if: proc })
-          expect(result).to be false
+          expect(result).to be(false)
         end
       end
 
@@ -103,7 +103,7 @@ RSpec.describe CMDx::Utils::Condition do
 
           result = condition_module.evaluate(target_object, { if: callable })
 
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "passes arguments to callable" do
@@ -134,26 +134,26 @@ RSpec.describe CMDx::Utils::Condition do
         it "returns true for false boolean" do
           result = condition_module.evaluate(target_object, { unless: false })
 
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "returns true for nil" do
           result = condition_module.evaluate(target_object, { unless: nil })
 
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "returns true for falsy symbol method" do
           result = condition_module.evaluate(target_object, { unless: :false_method? })
 
-          expect(result).to be true
+          expect(result).to be(true)
         end
 
         it "returns true for falsy proc" do
           proc = -> { false }
           result = condition_module.evaluate(target_object, { unless: proc })
 
-          expect(result).to be true
+          expect(result).to be(true)
         end
       end
 
@@ -161,20 +161,20 @@ RSpec.describe CMDx::Utils::Condition do
         it "returns false for true boolean" do
           result = condition_module.evaluate(target_object, { unless: true })
 
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "returns false for truthy symbol method" do
           result = condition_module.evaluate(target_object, { unless: :true_method? })
 
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "returns false for truthy proc" do
           proc = -> { true }
           result = condition_module.evaluate(target_object, { unless: proc })
 
-          expect(result).to be false
+          expect(result).to be(false)
         end
       end
 
@@ -187,7 +187,7 @@ RSpec.describe CMDx::Utils::Condition do
 
           result = condition_module.evaluate(target_object, { unless: callable })
 
-          expect(result).to be false
+          expect(result).to be(false)
         end
 
         it "passes arguments to callable" do
@@ -207,31 +207,31 @@ RSpec.describe CMDx::Utils::Condition do
       it "returns true when if is true and unless is false" do
         result = condition_module.evaluate(target_object, { if: true, unless: false })
 
-        expect(result).to be true
+        expect(result).to be(true)
       end
 
       it "returns false when if is true and unless is true" do
         result = condition_module.evaluate(target_object, { if: true, unless: true })
 
-        expect(result).to be false
+        expect(result).to be(false)
       end
 
       it "returns false when if is false and unless is false" do
         result = condition_module.evaluate(target_object, { if: false, unless: false })
 
-        expect(result).to be false
+        expect(result).to be(false)
       end
 
       it "returns false when if is false and unless is true" do
         result = condition_module.evaluate(target_object, { if: false, unless: true })
 
-        expect(result).to be false
+        expect(result).to be(false)
       end
 
       it "evaluates both conditions with method calls" do
         result = condition_module.evaluate(target_object, { if: :true_method?, unless: :false_method? })
 
-        expect(result).to be true
+        expect(result).to be(true)
       end
 
       it "passes arguments to both conditions" do
@@ -247,13 +247,13 @@ RSpec.describe CMDx::Utils::Condition do
       it "returns true for empty hash" do
         result = condition_module.evaluate(target_object, {})
 
-        expect(result).to be true
+        expect(result).to be(true)
       end
 
       it "returns true for hash with unrecognized keys" do
         result = condition_module.evaluate(target_object, { other_key: "value" })
 
-        expect(result).to be true
+        expect(result).to be(true)
       end
     end
 
@@ -297,7 +297,7 @@ RSpec.describe CMDx::Utils::Condition do
 
         result = condition_module.evaluate(target_object, { if: proc_that_uses_self })
 
-        expect(result).to be true
+        expect(result).to be(true)
       end
     end
   end
