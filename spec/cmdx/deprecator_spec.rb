@@ -3,8 +3,6 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Deprecator do
-  subject(:deprecator) { described_class }
-
   let(:mock_task) { double("Task") }
   let(:mock_task_class) { double("TaskClass", name: "TestTask") }
   let(:mock_logger) { double("Logger") }
@@ -22,14 +20,14 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { nil }
 
       it "does nothing for nil" do
-        expect { deprecator.restrict(mock_task) }.not_to raise_error
+        expect { described_class.restrict(mock_task) }.not_to raise_error
       end
 
       context "when deprecate setting is false" do
         let(:deprecate_value) { false }
 
         it "does nothing for false" do
-          expect { deprecator.restrict(mock_task) }.not_to raise_error
+          expect { described_class.restrict(mock_task) }.not_to raise_error
         end
       end
     end
@@ -38,7 +36,7 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { true }
 
       it "raises DeprecationError" do
-        expect { deprecator.restrict(mock_task) }.to raise_error(
+        expect { described_class.restrict(mock_task) }.to raise_error(
           CMDx::DeprecationError, "TestTask usage prohibited"
         )
       end
@@ -48,7 +46,7 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "error" }
 
       it "raises DeprecationError" do
-        expect { deprecator.restrict(mock_task) }.to raise_error(
+        expect { described_class.restrict(mock_task) }.to raise_error(
           CMDx::DeprecationError, "TestTask usage prohibited"
         )
       end
@@ -57,7 +55,7 @@ RSpec.describe CMDx::Deprecator do
         let(:deprecate_value) { "custom_error" }
 
         it "raises DeprecationError" do
-          expect { deprecator.restrict(mock_task) }.to raise_error(
+          expect { described_class.restrict(mock_task) }.to raise_error(
             CMDx::DeprecationError, "TestTask usage prohibited"
           )
         end
@@ -68,7 +66,7 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "log" }
 
       it "logs a warning message" do
-        deprecator.restrict(mock_task)
+        described_class.restrict(mock_task)
 
         expect(mock_logger).to have_received(:warn)
       end
@@ -77,7 +75,7 @@ RSpec.describe CMDx::Deprecator do
         let(:deprecate_value) { "custom_log" }
 
         it "logs a warning message" do
-          deprecator.restrict(mock_task)
+          described_class.restrict(mock_task)
 
           expect(mock_logger).to have_received(:warn)
         end
@@ -88,11 +86,11 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "warn" }
 
       it "calls warn with deprecation message" do
-        allow(deprecator).to receive(:warn)
+        allow(described_class).to receive(:warn)
 
-        deprecator.restrict(mock_task)
+        described_class.restrict(mock_task)
 
-        expect(deprecator).to have_received(:warn).with(
+        expect(described_class).to have_received(:warn).with(
           "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
           category: :deprecated
         )
@@ -102,11 +100,11 @@ RSpec.describe CMDx::Deprecator do
         let(:deprecate_value) { "custom_warn" }
 
         it "calls warn with deprecation message" do
-          allow(deprecator).to receive(:warn)
+          allow(described_class).to receive(:warn)
 
-          deprecator.restrict(mock_task)
+          described_class.restrict(mock_task)
 
-          expect(deprecator).to have_received(:warn).with(
+          expect(described_class).to have_received(:warn).with(
             "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
             category: :deprecated
           )
@@ -118,7 +116,7 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "unknown" }
 
       it "raises an error for unknown deprecation type" do
-        expect { deprecator.restrict(mock_task) }.to raise_error(
+        expect { described_class.restrict(mock_task) }.to raise_error(
           RuntimeError, 'cannot evaluate "unknown"'
         )
       end
@@ -132,7 +130,7 @@ RSpec.describe CMDx::Deprecator do
       end
 
       it "evaluates the symbol and processes the result" do
-        expect { deprecator.restrict(mock_task) }.to raise_error(
+        expect { described_class.restrict(mock_task) }.to raise_error(
           RuntimeError, 'unknown deprecation type "symbol_result"'
         )
 
@@ -144,23 +142,26 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { proc { "log" } }
 
       it "evaluates the proc and processes the result" do
-        deprecator.restrict(mock_task)
+        described_class.restrict(mock_task)
 
         expect(mock_logger).to have_received(:warn)
       end
     end
 
     context "when deprecate setting is a callable object" do
-      let(:callable_object) { double("callable", call: "warn") }
+      let(:callable_object) { double("Callable", call: "warn") }
       let(:deprecate_value) { callable_object }
 
       it "calls the object and processes the result" do
-        allow(deprecator).to receive(:warn)
+        allow(described_class).to receive(:warn)
 
-        deprecator.restrict(mock_task)
+        described_class.restrict(mock_task)
 
         expect(callable_object).to have_received(:call).with(mock_task)
-        expect(deprecator).to have_received(:warn)
+        expect(described_class).to have_received(:warn).with(
+          "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
+          category: :deprecated
+        )
       end
     end
 
@@ -172,7 +173,7 @@ RSpec.describe CMDx::Deprecator do
       end
 
       it "evaluates symbol and handles boolean result" do
-        expect { deprecator.restrict(mock_task) }.not_to raise_error
+        expect { described_class.restrict(mock_task) }.not_to raise_error
 
         expect(mock_task).to have_received(:check_deprecated)
       end
@@ -186,7 +187,7 @@ RSpec.describe CMDx::Deprecator do
       end
 
       it "evaluates symbol and raises error for true result" do
-        expect { deprecator.restrict(mock_task) }.to raise_error(
+        expect { described_class.restrict(mock_task) }.to raise_error(
           CMDx::DeprecationError, "TestTask usage prohibited"
         )
 
