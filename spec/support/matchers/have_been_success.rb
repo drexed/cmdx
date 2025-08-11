@@ -11,7 +11,6 @@ RSpec::Matchers.define :have_been_success do |**data|
       status: CMDx::Result::SUCCESS,
       outcome: CMDx::Result::SUCCESS,
       metadata: {},
-      # cause: nil, TODO: this needs to be clear
       **data
     )
   end

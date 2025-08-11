@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec::Matchers.define :have_been_skipped do |**data|
-  description { "have been a skipped" }
+  description { "have been skipped" }
 
   match(notify_expectation_failures: true) do |result|
     raise ArgumentError, "must be a CMDx::Result" unless result.is_a?(CMDx::Result)
