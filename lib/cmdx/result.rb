@@ -122,7 +122,7 @@ module CMDx
       self
     end
 
-    def skip!(reason = nil, cause: nil, **metadata)
+    def skip!(reason = nil, halt: true, cause: nil, **metadata)
       return if skipped?
 
       raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
@@ -133,10 +133,10 @@ module CMDx
       @cause = cause
       @metadata = metadata
 
-      halt! unless cause
+      halt! if halt
     end
 
-    def fail!(reason = nil, cause: nil, **metadata)
+    def fail!(reason = nil, halt: true, cause: nil, **metadata)
       return if failed?
 
       raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
@@ -147,7 +147,7 @@ module CMDx
       @cause = cause
       @metadata = metadata
 
-      halt! unless cause
+      halt! if halt
     end
 
     def halt!
@@ -160,7 +160,7 @@ module CMDx
       raise(fault)
     end
 
-    def throw!(result, cause: nil, **metadata)
+    def throw!(result, halt: true, cause: nil, **metadata)
       raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
       @state = result.state
@@ -169,7 +169,7 @@ module CMDx
       @cause = cause || result.cause
       @metadata = result.metadata.merge(metadata)
 
-      halt! unless cause
+      halt! if halt
     end
 
     def caused_failure

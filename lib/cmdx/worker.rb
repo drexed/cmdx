@@ -21,9 +21,9 @@ module CMDx
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
-        task.result.throw!(e.result, cause: e) if halt_execution?(e)
+        task.result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
-        task.result.fail!("[#{e.class}] #{e.message}", cause: e)
+        task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
       ensure
         task.result.executed!
         post_execution!
@@ -39,10 +39,10 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
-        task.result.fail!(e.result.reason, cause: e) if e.result.failed?
+        task.result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
-        task.result.fail!("[#{e.class}] #{e.message}", cause: e)
+        task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
         task.result.executed!

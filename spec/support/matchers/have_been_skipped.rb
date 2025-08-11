@@ -12,7 +12,7 @@ RSpec::Matchers.define :have_been_skipped do |**data|
       outcome: CMDx::Result::SKIPPED,
       metadata: {},
       reason: CMDx::Locale.t("cmdx.faults.unspecified"),
-      cause: nil,
+      cause: be_a(CMDx::Skipped),
       **data
     )
   end
