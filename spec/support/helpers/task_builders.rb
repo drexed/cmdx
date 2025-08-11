@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module CMDx
+
+  TestError = Class.new(StandardError)
+
   module Testing
     module TaskBuilders
 
@@ -39,7 +42,7 @@ module CMDx
       def create_erroring_task(name: "ErroringTask", reason: nil, **_metadata, &block)
         task_class = create_task_class(name:)
         task_class.class_eval(&block) if block_given?
-        task_class.define_method(:work) { raise StandardError, reason || "system error" }
+        task_class.define_method(:work) { raise TestError, reason || "borked error" }
         task_class
       end
 
@@ -53,7 +56,7 @@ module CMDx
           when :success then (context.executed ||= []) << :inner
           when :skipped then skip!(reason, **metadata)
           when :failure then fail!(reason, **metadata)
-          when :error then raise StandardError, reason || "system error"
+          when :error then raise TestError, reason || "borked error"
           else raise "unknown status #{status}"
           end
         end
@@ -88,4 +91,5 @@ module CMDx
 
     end
   end
+
 end

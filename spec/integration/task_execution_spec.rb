@@ -35,8 +35,8 @@ RSpec.describe "Task execution", type: :feature do
 
       it "executes the task with matching attributes" do
         expect(result).to have_been_failure(
-          reason: "[StandardError] system error",
-          cause: be_a(StandardError)
+          reason: "[CMDx::TestError] borked error",
+          cause: be_a(CMDx::TestError)
         )
       end
     end
@@ -100,7 +100,6 @@ RSpec.describe "Task execution", type: :feature do
         it "returns failure" do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
-            cause: be_a(StandardError), # This should be filled
             threw_failure: hash_including(
               index: 1,
               class: start_with("MiddleTask")
@@ -119,8 +118,7 @@ RSpec.describe "Task execution", type: :feature do
         it "returns failure" do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
-            reason: "[StandardError] system error",
-            cause: be_a(StandardError),
+            reason: "[CMDx::TestError] borked error",
             threw_failure: hash_including(
               index: 1,
               class: start_with("MiddleTask")
@@ -157,7 +155,6 @@ RSpec.describe "Task execution", type: :feature do
         it "returns failure" do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
-            cause: be_a(StandardError), # This should be filled
             threw_failure: hash_including(
               index: 1,
               class: start_with("MiddleTask")
@@ -176,8 +173,8 @@ RSpec.describe "Task execution", type: :feature do
         it "returns failure" do
           expect(result).to have_been_failure(
             outcome: CMDx::Result::INTERRUPTED,
-            reason: "[StandardError] system error",
-            cause: be_a(StandardError),
+            reason: "[CMDx::TestError] borked error",
+            cause: be_a(CMDx::TestError),
             threw_failure: hash_including(
               index: 1,
               class: start_with("MiddleTask")
