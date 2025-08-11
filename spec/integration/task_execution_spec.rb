@@ -12,6 +12,7 @@ RSpec.describe "Task execution", type: :feature do
 
         it "executes the task with matching attributes" do
           expect(result).to have_been_success
+          expect(result).to have_matching_context(executed: true)
         end
       end
 
@@ -20,6 +21,7 @@ RSpec.describe "Task execution", type: :feature do
 
         it "executes the task with matching attributes" do
           expect(result).to have_been_skipped
+          expect(result).to have_empty_context
         end
       end
 
@@ -28,6 +30,7 @@ RSpec.describe "Task execution", type: :feature do
 
         it "executes the task with matching attributes" do
           expect(result).to have_been_failure
+          expect(result).to have_empty_context
         end
       end
 
@@ -39,6 +42,7 @@ RSpec.describe "Task execution", type: :feature do
             reason: "[CMDx::TestError] borked error",
             cause: be_a(CMDx::TestError)
           )
+          expect(result).to have_empty_context
         end
       end
     end
@@ -50,6 +54,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -58,6 +63,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 
@@ -66,6 +72,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns failure" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 
@@ -74,6 +81,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
       end
@@ -84,6 +92,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -92,6 +101,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns skipped" do
             expect(result).to have_been_skipped
+            expect(result).to have_empty_context
           end
         end
 
@@ -110,6 +120,7 @@ RSpec.describe "Task execution", type: :feature do
                 class: start_with("InnerTask")
               )
             )
+            expect(result).to have_empty_context
           end
         end
 
@@ -129,6 +140,7 @@ RSpec.describe "Task execution", type: :feature do
                 class: start_with("InnerTask")
               )
             )
+            expect(result).to have_empty_context
           end
         end
       end
@@ -139,6 +151,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -147,6 +160,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns skipped" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 
@@ -165,6 +179,7 @@ RSpec.describe "Task execution", type: :feature do
                 class: start_with("InnerTask")
               )
             )
+            expect(result).to have_empty_context
           end
         end
 
@@ -185,6 +200,7 @@ RSpec.describe "Task execution", type: :feature do
                 class: start_with("InnerTask")
               )
             )
+            expect(result).to have_empty_context
           end
         end
       end
@@ -200,6 +216,7 @@ RSpec.describe "Task execution", type: :feature do
 
         it "executes the task with matching attributes" do
           expect(result).to have_been_success
+          expect(result).to have_matching_context(executed: true)
         end
       end
 
@@ -208,6 +225,7 @@ RSpec.describe "Task execution", type: :feature do
 
         it "executes the task with matching attributes" do
           expect(result).to have_been_skipped
+          expect(result).to have_empty_context
         end
       end
 
@@ -235,6 +253,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -243,6 +262,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 
@@ -251,6 +271,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns failure" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 
@@ -259,6 +280,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
       end
@@ -269,6 +291,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -277,6 +300,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns skipped" do
             expect(result).to have_been_skipped
+            expect(result).to have_empty_context
           end
         end
 
@@ -303,6 +327,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns success" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
           end
         end
 
@@ -311,6 +336,7 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns skipped" do
             expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
           end
         end
 

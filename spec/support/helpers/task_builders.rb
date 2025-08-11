@@ -53,7 +53,7 @@ module CMDx
         inner_task.class_eval(&block) if block_given?
         inner_task.define_method(:work) do
           case status
-          when :success then (context.executed ||= []) << :inner
+          when :success then (context.executed_list ||= []) << :inner
           when :skipped then skip!(reason, **metadata)
           when :failure then fail!(reason, **metadata)
           when :error then raise TestError, reason || "borked error"
@@ -65,26 +65,26 @@ module CMDx
         middle_task.class_eval(&block) if block_given?
         middle_task.define_method(:work) do
           case strategy
-          when :swallow then inner_task.execute
-          when :throw then throw!(inner_task.execute)
-          when :raise then inner_task.execute!
+          when :swallow then inner_task.execute(context)
+          when :throw then throw!(inner_task.execute(context))
+          when :raise then inner_task.execute!(context)
           else raise "unknown strategy #{strategy}"
           end
 
-          (context.executed ||= []) << :middle
+          (context.executed_list ||= []) << :middle
         end
 
         outer_task = create_task_class(name: "OuterTask")
         outer_task.class_eval(&block) if block_given?
         outer_task.define_method(:work) do
           case strategy
-          when :swallow then middle_task.execute
-          when :throw then throw!(middle_task.execute)
-          when :raise then middle_task.execute!
+          when :swallow then middle_task.execute(context)
+          when :throw then throw!(middle_task.execute(context))
+          when :raise then middle_task.execute!(context)
           else raise "unknown strategy #{strategy}"
           end
 
-          (context.executed ||= []) << :outer
+          (context.executed_list ||= []) << :outer
         end
         outer_task
       end
