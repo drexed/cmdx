@@ -3,187 +3,331 @@
 require "spec_helper"
 
 RSpec.describe "Task execution", type: :feature do
-  subject(:result) { task.execute }
+  context "when non-blocking" do
+    subject(:result) { task.execute }
 
-  context "when simple task" do
-    context "when successful" do
-      let(:task) { create_successful_task }
-
-      it "executes the task with matching attributes" do
-        expect(result).to have_been_success
-      end
-    end
-
-    context "when skipping" do
-      let(:task) { create_skipping_task }
-
-      it "executes the task with matching attributes" do
-        expect(result).to have_been_skipped
-      end
-    end
-
-    context "when failing" do
-      let(:task) { create_failing_task }
-
-      it "executes the task with matching attributes" do
-        expect(result).to have_been_failure
-      end
-    end
-
-    context "when erroring" do
-      let(:task) { create_erroring_task }
-
-      it "executes the task with matching attributes" do
-        expect(result).to have_been_failure(
-          reason: "[CMDx::TestError] borked error",
-          cause: be_a(CMDx::TestError)
-        )
-      end
-    end
-  end
-
-  context "with nested tasks" do
-    context "when swallowing" do
+    context "when simple task" do
       context "when successful" do
-        let(:task) { create_nested_task }
+        let(:task) { create_successful_task }
 
-        it "returns success" do
+        it "executes the task with matching attributes" do
           expect(result).to have_been_success
         end
       end
 
       context "when skipping" do
-        let(:task) { create_nested_task(status: :skipped) }
+        let(:task) { create_skipping_task }
 
-        it "returns success" do
-          expect(result).to have_been_success
-        end
-      end
-
-      context "when failing" do
-        let(:task) { create_nested_task(status: :failure) }
-
-        it "returns failure" do
-          expect(result).to have_been_success
-        end
-      end
-
-      context "when erroring" do
-        let(:task) { create_nested_task(status: :error) }
-
-        it "returns success" do
-          expect(result).to have_been_success
-        end
-      end
-    end
-
-    context "when throwing" do
-      context "when successful" do
-        let(:task) { create_nested_task(strategy: :throw) }
-
-        it "returns success" do
-          expect(result).to have_been_success
-        end
-      end
-
-      context "when skipping" do
-        let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
-
-        it "returns skipped" do
+        it "executes the task with matching attributes" do
           expect(result).to have_been_skipped
         end
       end
 
       context "when failing" do
-        let(:task) { create_nested_task(strategy: :throw, status: :failure) }
+        let(:task) { create_failing_task }
 
-        it "returns failure" do
-          expect(result).to have_been_failure(
-            outcome: CMDx::Result::INTERRUPTED,
-            threw_failure: hash_including(
-              index: 1,
-              class: start_with("MiddleTask")
-            ),
-            caused_failure: hash_including(
-              index: 2,
-              class: start_with("InnerTask")
-            )
-          )
+        it "executes the task with matching attributes" do
+          expect(result).to have_been_failure
         end
       end
 
       context "when erroring" do
-        let(:task) { create_nested_task(strategy: :throw, status: :error) }
+        let(:task) { create_erroring_task }
 
-        it "returns failure" do
+        it "executes the task with matching attributes" do
           expect(result).to have_been_failure(
-            outcome: CMDx::Result::INTERRUPTED,
             reason: "[CMDx::TestError] borked error",
-            threw_failure: hash_including(
-              index: 1,
-              class: start_with("MiddleTask")
-            ),
-            caused_failure: hash_including(
-              index: 2,
-              class: start_with("InnerTask")
-            )
+            cause: be_a(CMDx::TestError)
           )
         end
       end
     end
 
-    context "when raising" do
-      context "when successful" do
-        let(:task) { create_nested_task(strategy: :raise) }
+    context "with nested tasks" do
+      context "when swallowing" do
+        context "when successful" do
+          let(:task) { create_nested_task }
 
-        it "returns success" do
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(status: :skipped) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(status: :error) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+      end
+
+      context "when throwing" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :throw) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_skipped
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :throw, status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :throw, status: :error) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              reason: "[CMDx::TestError] borked error",
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+          end
+        end
+      end
+
+      context "when raising" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :raise) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :raise, status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :raise, status: :error) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              reason: "[CMDx::TestError] borked error",
+              cause: be_a(CMDx::TestError),
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+          end
+        end
+      end
+    end
+  end
+
+  context "when blocking" do
+    subject(:result) { task.execute! }
+
+    context "when simple task" do
+      context "when successful" do
+        let(:task) { create_successful_task }
+
+        it "executes the task with matching attributes" do
           expect(result).to have_been_success
         end
       end
 
       context "when skipping" do
-        let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
+        let(:task) { create_skipping_task }
 
-        it "returns skipped" do
-          expect(result).to have_been_success
+        it "executes the task with matching attributes" do
+          expect(result).to have_been_skipped
         end
       end
 
       context "when failing" do
-        let(:task) { create_nested_task(strategy: :raise, status: :failure) }
+        let(:task) { create_failing_task }
 
-        it "returns failure" do
-          expect(result).to have_been_failure(
-            outcome: CMDx::Result::INTERRUPTED,
-            threw_failure: hash_including(
-              index: 1,
-              class: start_with("MiddleTask")
-            ),
-            caused_failure: hash_including(
-              index: 2,
-              class: start_with("InnerTask")
-            )
-          )
+        it "executes the task with matching attributes" do
+          expect { result }.to raise_error(CMDx::FailFault, "no reason given")
         end
       end
 
       context "when erroring" do
-        let(:task) { create_nested_task(strategy: :raise, status: :error) }
+        let(:task) { create_erroring_task }
 
-        it "returns failure" do
-          expect(result).to have_been_failure(
-            outcome: CMDx::Result::INTERRUPTED,
-            reason: "[CMDx::TestError] borked error",
-            cause: be_a(CMDx::TestError),
-            threw_failure: hash_including(
-              index: 1,
-              class: start_with("MiddleTask")
-            ),
-            caused_failure: hash_including(
-              index: 2,
-              class: start_with("InnerTask")
-            )
-          )
+        it "executes the task with matching attributes" do
+          expect { result }.to raise_error(CMDx::TestError, "borked error")
+        end
+      end
+    end
+
+    context "with nested tasks" do
+      context "when swallowing" do
+        context "when successful" do
+          let(:task) { create_nested_task }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(status: :skipped) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(status: :error) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+      end
+
+      context "when throwing" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :throw) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_skipped
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :throw, status: :failure) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "no reason given")
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :throw, status: :error) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "[CMDx::TestError] borked error")
+          end
+        end
+      end
+
+      context "when raising" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :raise) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :raise, status: :failure) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "no reason given")
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :raise, status: :error) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::TestError, "borked error")
+          end
         end
       end
     end
