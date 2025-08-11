@@ -42,7 +42,7 @@ require_relative "cmdx/configuration"
 require_relative "cmdx/exceptions"
 
 # Pre-load fault classes to make them available at the top level
-# This ensures CMDx::Failed and CMDx::Skipped are always available
+# This ensures CMDx::FailFault and CMDx::SkipFault are always available
 require_relative "cmdx/faults"
 
 # Conditionally load Rails components if Rails is available

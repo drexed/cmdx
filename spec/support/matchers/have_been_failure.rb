@@ -12,7 +12,7 @@ RSpec::Matchers.define :have_been_failure do |**data|
       outcome: CMDx::Result::FAILED,
       metadata: {},
       reason: CMDx::Locale.t("cmdx.faults.unspecified"),
-      cause: be_a(CMDx::Failed),
+      cause: be_a(CMDx::FailFault),
       **data
     )
   end

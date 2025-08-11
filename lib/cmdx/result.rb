@@ -153,7 +153,8 @@ module CMDx
     def halt!
       return if success?
 
-      fault = Fault.build(self)
+      klass = skipped? ? SkipFault : FailFault
+      fault = klass.new(self)
       # Strip the first two frames (this method and the delegator)
       fault.set_backtrace(caller_locations(3..-1))
 

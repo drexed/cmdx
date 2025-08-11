@@ -14,13 +14,6 @@ module CMDx
 
     class << self
 
-      def build(result)
-        raise "cannot build a #{Result::SUCCESS} fault" if result.success?
-
-        klass = CMDx.const_get(result.status.capitalize)
-        klass.new(result)
-      end
-
       def for?(*tasks)
         temp_fault = Class.new(self) do
           def self.===(other)
@@ -52,13 +45,13 @@ module CMDx
   # This fault occurs when a task determines it should not execute based on
   # its current context or conditions. Skipped tasks are not considered failures
   # but rather intentional bypasses of task execution logic.
-  Skipped = Class.new(Fault)
+  SkipFault = Class.new(Fault)
 
   # Fault raised when a task execution fails due to errors or validation failures.
   #
   # This fault occurs when a task encounters an error condition, validation failure,
   # or any other condition that prevents successful completion. Failed tasks indicate
   # that the intended operation could not be completed successfully.
-  Failed = Class.new(Fault)
+  FailFault = Class.new(Fault)
 
 end

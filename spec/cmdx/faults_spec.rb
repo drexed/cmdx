@@ -51,49 +51,6 @@ RSpec.describe CMDx::Fault do
     end
   end
 
-  describe ".build" do
-    context "when result is failed" do
-      let(:failed_result) do
-        result.instance_variable_set(:@status, CMDx::Result::FAILED)
-        result.instance_variable_set(:@state, CMDx::Result::INTERRUPTED)
-        result.instance_variable_set(:@reason, "Failure message")
-        result
-      end
-
-      it "creates a CMDx::Failed fault" do
-        fault = described_class.build(failed_result)
-
-        expect(fault).to be_a(CMDx::Failed)
-        expect(fault.result).to eq(failed_result)
-        expect(fault.message).to eq("Failure message")
-      end
-    end
-
-    context "when result is skipped" do
-      let(:skipped_result) do
-        result.instance_variable_set(:@status, CMDx::Result::SKIPPED)
-        result.instance_variable_set(:@state, CMDx::Result::INTERRUPTED)
-        result.instance_variable_set(:@reason, "Skip message")
-        result
-      end
-
-      it "creates a CMDx::Skipped fault" do
-        fault = described_class.build(skipped_result)
-
-        expect(fault).to be_a(CMDx::Skipped)
-        expect(fault.result).to eq(skipped_result)
-        expect(fault.message).to eq("Skip message")
-      end
-    end
-
-    context "when result is successful" do
-      it "raises an error" do
-        expect { described_class.build(result) }
-          .to raise_error("cannot build a success fault")
-      end
-    end
-  end
-
   describe ".for?" do
     let(:specific_task_class) { create_task_class(name: "SpecificTask") }
     let(:other_task_class) { create_task_class(name: "OtherTask") }
