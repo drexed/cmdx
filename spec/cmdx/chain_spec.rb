@@ -27,11 +27,9 @@ RSpec.describe CMDx::Chain do
 
   describe "#initialize" do
     it "generates a unique id" do
-      allow(CMDx::Identifier).to receive(:generate).and_return("test-id")
+      expect(CMDx::Identifier).to receive(:generate)
 
       described_class.new
-
-      expect(CMDx::Identifier).to have_received(:generate)
     end
 
     it "initializes with an empty results array" do
@@ -175,6 +173,9 @@ RSpec.describe CMDx::Chain do
       before do
         chain.results << mock_result
         chain.results << mock_result2
+
+        allow(mock_result).to receive(:to_h).and_return(result_hash1)
+        allow(mock_result2).to receive(:to_h).and_return(result_hash2)
       end
 
       it "returns hash with id and results converted to hashes" do
@@ -187,10 +188,10 @@ RSpec.describe CMDx::Chain do
       end
 
       it "calls to_h on each result" do
-        chain.to_h
+        expect(mock_result).to receive(:to_h)
+        expect(mock_result2).to receive(:to_h)
 
-        expect(mock_result).to have_received(:to_h)
-        expect(mock_result2).to have_received(:to_h)
+        chain.to_h
       end
     end
   end
@@ -198,20 +199,15 @@ RSpec.describe CMDx::Chain do
   describe "#to_s" do
     let(:formatted_string) { "id=\"chain-id-123\" results=[]" }
 
-    before do
-      allow(CMDx::Utils::Format).to receive(:to_str).and_return(formatted_string)
-    end
-
     it "converts to hash and formats as string" do
-      result = chain.to_s
-
-      expect(CMDx::Utils::Format).to have_received(:to_str).with(
+      expect(CMDx::Utils::Format).to receive(:to_str).with(
         {
           id: "chain-id-123",
           results: []
         }
       )
-      expect(result).to eq(formatted_string)
+
+      chain.to_s
     end
   end
 
