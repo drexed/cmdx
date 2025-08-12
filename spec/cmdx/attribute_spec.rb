@@ -69,7 +69,7 @@ RSpec.describe CMDx::Attribute do
     context "with block" do
       it "executes block in instance context" do
         executed_block = []
-        attribute = described_class.new(attribute_name, options) do
+        described_class.new(attribute_name, options) do
           executed_block << :executed
         end
         expect(executed_block).to contain_exactly(:executed)
@@ -306,7 +306,7 @@ RSpec.describe CMDx::Attribute do
 
     before do
       attribute.task = task
-      attribute.children.concat([child1, child2])
+      attribute.children.push(child1, child2)
 
       allow(CMDx::AttributeValue).to receive(:new).and_return(attribute_value_double)
       allow(attribute_value_double).to receive(:generate)
