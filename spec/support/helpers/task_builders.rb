@@ -21,28 +21,37 @@ module CMDx
       def create_successful_task(name: "SuccessfulTask", &block)
         task_class = create_task_class(name:)
         task_class.class_eval(&block) if block_given?
-        task_class.define_method(:work) { context.executed = true }
-        task_class
-      end
-
-      def create_failing_task(name: "FailingTask", reason: nil, **metadata, &block)
-        task_class = create_task_class(name:)
-        task_class.class_eval(&block) if block_given?
-        task_class.define_method(:work) { fail!(reason, **metadata) }
+        task_class.define_method(:work) { (context.executed ||= []) << :success }
         task_class
       end
 
       def create_skipping_task(name: "SkippingTask", reason: nil, **metadata, &block)
         task_class = create_task_class(name:)
         task_class.class_eval(&block) if block_given?
-        task_class.define_method(:work) { skip!(reason, **metadata) }
+        task_class.define_method(:work) do
+          skip!(reason, **metadata)
+          (context.executed ||= []) << :skipped
+        end
+        task_class
+      end
+
+      def create_failing_task(name: "FailingTask", reason: nil, **metadata, &block)
+        task_class = create_task_class(name:)
+        task_class.class_eval(&block) if block_given?
+        task_class.define_method(:work) do
+          fail!(reason, **metadata)
+          (context.executed ||= []) << :failed
+        end
         task_class
       end
 
       def create_erroring_task(name: "ErroringTask", reason: nil, **_metadata, &block)
         task_class = create_task_class(name:)
         task_class.class_eval(&block) if block_given?
-        task_class.define_method(:work) { raise TestError, reason || "borked error" }
+        task_class.define_method(:work) do
+          raise TestError, reason || "borked error"
+          (context.executed ||= []) << :errored # rubocop:disable Lint/UnreachableCode
+        end
         task_class
       end
 
@@ -53,7 +62,7 @@ module CMDx
         inner_task.class_eval(&block) if block_given?
         inner_task.define_method(:work) do
           case status
-          when :success then (context.executed_list ||= []) << :inner
+          when :success then (context.executed ||= []) << :inner
           when :skipped then skip!(reason, **metadata)
           when :failure then fail!(reason, **metadata)
           when :error then raise TestError, reason || "borked error"
@@ -71,7 +80,7 @@ module CMDx
           else raise "unknown strategy #{strategy}"
           end
 
-          (context.executed_list ||= []) << :middle
+          (context.executed ||= []) << :middle
         end
 
         outer_task = create_task_class(name: "OuterTask")
@@ -84,7 +93,7 @@ module CMDx
           else raise "unknown strategy #{strategy}"
           end
 
-          (context.executed_list ||= []) << :outer
+          (context.executed ||= []) << :outer
         end
         outer_task
       end
