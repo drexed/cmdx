@@ -14,6 +14,8 @@ Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
 Layout/LineLength:
   Enabled: false
 Lint/MissingSuper:

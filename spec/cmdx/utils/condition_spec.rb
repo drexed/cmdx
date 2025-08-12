@@ -34,7 +34,7 @@ RSpec.describe CMDx::Utils::Condition do
       end
 
       def instance_variable_check
-        @check_value ||= "instance_value"
+        @instance_variable_check ||= "instance_value"
       end
 
       attr_accessor :accessible_value
@@ -117,7 +117,7 @@ RSpec.describe CMDx::Utils::Condition do
       context "with callable object if condition" do
         let(:callable_object) do
           Class.new do
-            def call(*args, **kwargs, &)
+            def call(*_args, **_kwargs, &)
               true
             end
           end.new
@@ -125,7 +125,7 @@ RSpec.describe CMDx::Utils::Condition do
 
         let(:falsy_callable_object) do
           Class.new do
-            def call(*args, **kwargs, &)
+            def call(*_args, **_kwargs, &)
               false
             end
           end.new

@@ -43,52 +43,48 @@ RSpec.describe CMDx::Utils::Call do
       it "calls the method on target with positional arguments" do
         result = call_module.invoke(target_object, :test_method, "arg1", "arg2")
 
-        expect(result).to eq(
-          {
-            args: %w[arg1 arg2],
-            kwargs: {}
-          }
-        )
+        expect(result).to eq({
+          args: %w[arg1 arg2],
+          kwargs: {}
+        })
       end
 
       it "calls the method on target with keyword arguments" do
         result = call_module.invoke(target_object, :test_method, key1: "value1", key2: "value2")
 
-        expect(result).to eq(
-          {
-            args: [],
-            kwargs: { key1: "value1", key2: "value2" }
-          }
-        )
+        expect(result).to eq({
+          args: [],
+          kwargs: { key1: "value1", key2: "value2" }
+        })
       end
 
       it "calls the method on target with both positional and keyword arguments" do
         result = call_module.invoke(target_object, :test_method, "arg1", key: "value")
 
         expect(result).to eq({
-                               args: ["arg1"],
-                               kwargs: { key: "value" }
-                             })
+          args: ["arg1"],
+          kwargs: { key: "value" }
+        })
       end
 
       it "calls the method on target with a block" do
         result = call_module.invoke(target_object, :test_method) { "block_result" }
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: {},
-                               block_result: "block_result"
-                             })
+          args: [],
+          kwargs: {},
+          block_result: "block_result"
+        })
       end
 
       it "calls the method on target with arguments and block" do
         result = call_module.invoke(target_object, :test_method, "arg1", key: "value") { "block_result" }
 
         expect(result).to eq({
-                               args: ["arg1"],
-                               kwargs: { key: "value" },
-                               block_result: "block_result"
-                             })
+          args: ["arg1"],
+          kwargs: { key: "value" },
+          block_result: "block_result"
+        })
       end
 
       it "returns the method's return value" do
@@ -121,9 +117,9 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, proc_callable, "arg1", "arg2")
 
         expect(result).to eq({
-                               args: %w[arg1 arg2],
-                               kwargs: {}
-                             })
+          args: %w[arg1 arg2],
+          kwargs: {}
+        })
       end
 
       it "executes proc in target context with keyword arguments" do
@@ -132,9 +128,9 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, proc_callable, key1: "value1", key2: "value2")
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: { key1: "value1", key2: "value2" }
-                             })
+          args: [],
+          kwargs: { key1: "value1", key2: "value2" }
+        })
       end
 
       it "executes proc in target context with mixed arguments" do
@@ -143,9 +139,9 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, proc_callable, "arg1", key: "value")
 
         expect(result).to eq({
-                               args: ["arg1"],
-                               kwargs: { key: "value" }
-                             })
+          args: ["arg1"],
+          kwargs: { key: "value" }
+        })
       end
 
       it "executes proc with access to target instance variables" do
@@ -174,10 +170,10 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, proc_callable)
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: {},
-                               block_result: "block_result"
-                             })
+          args: [],
+          kwargs: {},
+          block_result: "block_result"
+        })
       end
 
       it "executes proc that modifies target state" do
@@ -222,46 +218,46 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, callable_object)
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: {}
-                             })
+          args: [],
+          kwargs: {}
+        })
       end
 
       it "calls the callable object with positional arguments" do
         result = call_module.invoke(target_object, callable_object, "arg1", "arg2")
 
         expect(result).to eq({
-                               args: %w[arg1 arg2],
-                               kwargs: {}
-                             })
+          args: %w[arg1 arg2],
+          kwargs: {}
+        })
       end
 
       it "calls the callable object with keyword arguments" do
         result = call_module.invoke(target_object, callable_object, key1: "value1", key2: "value2")
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: { key1: "value1", key2: "value2" }
-                             })
+          args: [],
+          kwargs: { key1: "value1", key2: "value2" }
+        })
       end
 
       it "calls the callable object with mixed arguments" do
         result = call_module.invoke(target_object, callable_object, "arg1", key: "value")
 
         expect(result).to eq({
-                               args: ["arg1"],
-                               kwargs: { key: "value" }
-                             })
+          args: ["arg1"],
+          kwargs: { key: "value" }
+        })
       end
 
       it "calls the callable object with a block" do
         result = call_module.invoke(target_object, callable_object) { "block_result" }
 
         expect(result).to eq({
-                               args: [],
-                               kwargs: {},
-                               block_result: "block_result"
-                             })
+          args: [],
+          kwargs: {},
+          block_result: "block_result"
+        })
       end
 
       it "returns the callable object's return value" do
@@ -398,9 +394,9 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, proc_with_splat, "arg1", "arg2", "arg3")
 
         expect(result).to eq({
-                               args: %w[arg1 arg2 arg3],
-                               kwargs: {}
-                             })
+          args: %w[arg1 arg2 arg3],
+          kwargs: {}
+        })
       end
 
       it "handles callable with variable arguments" do
@@ -413,9 +409,9 @@ RSpec.describe CMDx::Utils::Call do
         result = call_module.invoke(target_object, splat_callable, "a", "b", x: 1, y: 2)
 
         expect(result).to eq({
-                               received_args: %w[a b],
-                               received_kwargs: { x: 1, y: 2 }
-                             })
+          received_args: %w[a b],
+          received_kwargs: { x: 1, y: 2 }
+        })
       end
     end
   end
