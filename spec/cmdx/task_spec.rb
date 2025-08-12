@@ -364,7 +364,7 @@ RSpec.describe CMDx::Task do
 
   describe "#logger" do
     context "when class settings has logger" do
-      let(:class_logger) { instance_double("Logger") }
+      let(:class_logger) { instance_double(Logger) }
 
       before do
         allow(task.class).to receive(:settings).and_return({ logger: class_logger })
@@ -376,7 +376,7 @@ RSpec.describe CMDx::Task do
     end
 
     context "when class settings has no logger" do
-      let(:config_logger) { instance_double("Logger") }
+      let(:config_logger) { instance_double(Logger) }
 
       before do
         allow(task.class).to receive(:settings).and_return({})
