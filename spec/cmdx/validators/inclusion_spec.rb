@@ -335,28 +335,24 @@ RSpec.describe CMDx::Validators::Inclusion do
 
     context "with internationalization" do
       it "calls Locale.t for default array inclusion message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.inclusion.of",
+          values: '"valid"'
+        ).and_return("localized message")
 
         expect { validator.call("invalid", { in: %w[valid] }) }
           .to raise_error(CMDx::ValidationError, "localized message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.inclusion.of",
-          values: '"valid"'
-        )
       end
 
       it "calls Locale.t for default range inclusion message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized range message")
-
-        expect { validator.call(15, { in: (1..10) }) }
-          .to raise_error(CMDx::ValidationError, "localized range message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
+        expect(CMDx::Locale).to receive(:t).with(
           "cmdx.validators.inclusion.within",
           min: 1,
           max: 10
-        )
+        ).and_return("localized range message")
+
+        expect { validator.call(15, { in: (1..10) }) }
+          .to raise_error(CMDx::ValidationError, "localized range message")
       end
     end
   end

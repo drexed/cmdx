@@ -326,28 +326,24 @@ RSpec.describe CMDx::Validators::Exclusion do
 
     context "with internationalization" do
       it "calls Locale.t for default array exclusion message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.exclusion.of",
+          values: '"admin"'
+        ).and_return("localized message")
 
         expect { validator.call("admin", { in: %w[admin] }) }
           .to raise_error(CMDx::ValidationError, "localized message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.exclusion.of",
-          values: '"admin"'
-        )
       end
 
       it "calls Locale.t for default range exclusion message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized range message")
-
-        expect { validator.call(5, { in: (1..10) }) }
-          .to raise_error(CMDx::ValidationError, "localized range message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
+        expect(CMDx::Locale).to receive(:t).with(
           "cmdx.validators.exclusion.within",
           min: 1,
           max: 10
-        )
+        ).and_return("localized range message")
+
+        expect { validator.call(5, { in: (1..10) }) }
+          .to raise_error(CMDx::ValidationError, "localized range message")
       end
     end
   end
