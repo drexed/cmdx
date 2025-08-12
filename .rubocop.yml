@@ -59,6 +59,8 @@ RSpec/NestedGroups:
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
+RSpec/SubjectStub:
+  Enabled: false
 RSpec/VerifiedDoubleReference:
   Enabled: false
 Style/CaseEquality:

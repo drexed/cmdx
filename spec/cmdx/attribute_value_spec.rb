@@ -409,9 +409,8 @@ RSpec.describe CMDx::AttributeValue do
       let(:attribute_options) { { default: :default_method } }
 
       before do
-        allow(task).to receive(:respond_to?).and_return(false)
         allow(task).to receive(:respond_to?).with(:default_method, true).and_return(true)
-        allow(task).to receive(:default_method).and_return("method_result")
+        allow(task).to receive_messages(respond_to?: false, default_method: "method_result")
       end
 
       it "calls the method on task" do
