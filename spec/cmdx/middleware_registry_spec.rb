@@ -211,11 +211,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "calls the middleware with empty options by default" do
-        allow(mock_middleware1).to receive(:call).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task)
       end
 
       it "yields the result when middleware calls the block" do
@@ -235,11 +233,9 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes options to the middleware" do
-        allow(mock_middleware1).to receive(:call).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task, **options).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task, **options)
       end
     end
 
@@ -267,13 +263,10 @@ RSpec.describe CMDx::MiddlewareRegistry do
       end
 
       it "passes the task through the middleware chain" do
-        allow(mock_middleware1).to receive(:call).with(mock_task).and_yield
-        allow(mock_middleware2).to receive(:call).with(mock_task).and_yield
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
+        expect(mock_middleware2).to receive(:call).with(mock_task).and_yield
 
         registry.call!(mock_task, &test_block)
-
-        expect(mock_middleware1).to have_received(:call).with(mock_task)
-        expect(mock_middleware2).to have_received(:call).with(mock_task)
       end
 
       it "returns the final result from the block" do
