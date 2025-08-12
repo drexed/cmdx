@@ -69,11 +69,9 @@ RSpec.describe CMDx::Utils::Condition do
         end
 
         it "passes block to the if condition method" do
-          allow(target_object).to receive(:test_method).and_return(true)
+          expect(target_object).to receive(:test_method).and_return(true)
 
           condition_module.evaluate(target_object, { if: :test_method }) { "block_value" }
-
-          expect(target_object).to have_received(:test_method)
         end
       end
 
