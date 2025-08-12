@@ -10,21 +10,17 @@ RSpec.describe CMDx::Result do
   describe "#initialize" do
     context "with valid task" do
       it "initializes with correct defaults" do
-        aggregate_failures do
-          expect(result.task).to eq(task)
-          expect(result.state).to eq(CMDx::Result::INITIALIZED)
-          expect(result.status).to eq(CMDx::Result::SUCCESS)
-          expect(result.metadata).to eq({})
-          expect(result.reason).to be_nil
-          expect(result.cause).to be_nil
-        end
+        expect(result.task).to eq(task)
+        expect(result.state).to eq(CMDx::Result::INITIALIZED)
+        expect(result.status).to eq(CMDx::Result::SUCCESS)
+        expect(result.metadata).to eq({})
+        expect(result.reason).to be_nil
+        expect(result.cause).to be_nil
       end
 
       it "delegates context and chain to task" do
-        aggregate_failures do
-          expect(result.context).to eq(task.context)
-          expect(result.chain).to eq(task.chain)
-        end
+        expect(result.context).to eq(task.context)
+        expect(result.chain).to eq(task.chain)
       end
     end
 
@@ -341,13 +337,11 @@ RSpec.describe CMDx::Result do
       it "transitions to skipped status" do
         result.skip!("test reason", halt: false)
 
-        aggregate_failures do
-          expect(result.status).to eq(CMDx::Result::SKIPPED)
-          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
-          expect(result.reason).to eq("test reason")
-          expect(result.cause).to be_nil
-          expect(result.metadata).to eq({})
-        end
+        expect(result.status).to eq(CMDx::Result::SKIPPED)
+        expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+        expect(result.reason).to eq("test reason")
+        expect(result.cause).to be_nil
+        expect(result.metadata).to eq({})
       end
 
       it "accepts metadata" do
@@ -404,13 +398,11 @@ RSpec.describe CMDx::Result do
       it "transitions to failed status" do
         result.fail!("test reason", halt: false)
 
-        aggregate_failures do
-          expect(result.status).to eq(CMDx::Result::FAILED)
-          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
-          expect(result.reason).to eq("test reason")
-          expect(result.cause).to be_nil
-          expect(result.metadata).to eq({})
-        end
+        expect(result.status).to eq(CMDx::Result::FAILED)
+        expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+        expect(result.reason).to eq("test reason")
+        expect(result.cause).to be_nil
+        expect(result.metadata).to eq({})
       end
 
       it "accepts metadata" do
@@ -515,11 +507,9 @@ RSpec.describe CMDx::Result do
       it "copies state and status from other result" do
         result.throw!(other_result, halt: false)
 
-        aggregate_failures do
-          expect(result.state).to eq(other_result.state)
-          expect(result.status).to eq(other_result.status)
-          expect(result.reason).to eq(other_result.reason)
-        end
+        expect(result.state).to eq(other_result.state)
+        expect(result.status).to eq(other_result.status)
+        expect(result.reason).to eq(other_result.reason)
       end
 
       it "merges metadata" do
@@ -692,32 +682,28 @@ RSpec.describe CMDx::Result do
       hash = result.to_h
       task_hash = task.to_h
 
-      aggregate_failures do
-        expect(hash).to include(
-          state: result.state,
-          status: result.status,
-          outcome: result.outcome,
-          metadata: result.metadata
-        )
-        expect(hash[:index]).to eq(task_hash[:index])
-        expect(hash[:chain_id]).to eq(task_hash[:chain_id])
-        expect(hash[:type]).to eq(task_hash[:type])
-        expect(hash[:tags]).to eq(task_hash[:tags])
-        expect(hash[:id]).to eq(task_hash[:id])
-        expect(hash[:class]).to be_a(String)
-        expect(hash[:class]).to start_with("TestTask")
-      end
+      expect(hash).to include(
+        state: result.state,
+        status: result.status,
+        outcome: result.outcome,
+        metadata: result.metadata,
+        index: task_hash[:index],
+        chain_id: task_hash[:chain_id],
+        type: task_hash[:type],
+        tags: task_hash[:tags],
+        id: task_hash[:id],
+        class: start_with("TestTask")
+      )
     end
 
     context "when interrupted" do
       it "includes reason and cause" do
         result.skip!("test reason", halt: false, cause: StandardError.new("test"))
+
         hash = result.to_h
 
-        aggregate_failures do
-          expect(hash).to include(:reason, :cause)
-          expect(hash[:reason]).to eq("test reason")
-        end
+        expect(hash).to include(:reason, :cause)
+        expect(hash[:reason]).to eq("test reason")
       end
     end
 
@@ -733,11 +719,9 @@ RSpec.describe CMDx::Result do
 
         hash = result.to_h
 
-        aggregate_failures do
-          expect(hash).to include(:threw_failure, :caused_failure)
-          expect(hash[:threw_failure]).to eq({ index: 1, class: "Test", id: "123" })
-          expect(hash[:caused_failure]).to eq({ index: 0, class: "Test", id: "456" })
-        end
+        expect(hash).to include(:threw_failure, :caused_failure)
+        expect(hash[:threw_failure]).to eq({ index: 1, class: "Test", id: "123" })
+        expect(hash[:caused_failure]).to eq({ index: 0, class: "Test", id: "456" })
       end
     end
   end

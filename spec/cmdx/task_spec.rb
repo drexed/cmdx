@@ -10,17 +10,15 @@ RSpec.describe CMDx::Task do
   describe "#initialize" do
     context "with no arguments" do
       it "initializes with default values" do
-        aggregate_failures do
-          expect(task.attributes).to eq({})
-          expect(task.errors).to be_a(CMDx::Errors)
-          expect(task.errors).to be_empty
-          expect(task.id).to be_a(String)
-          expect(task.context).to be_a(CMDx::Context)
-          expect(task.context.to_h).to eq({})
-          expect(task.result).to be_a(CMDx::Result)
-          expect(task.result.task).to eq(task)
-          expect(task.chain).to be_a(CMDx::Chain)
-        end
+        expect(task.attributes).to eq({})
+        expect(task.errors).to be_a(CMDx::Errors)
+        expect(task.errors).to be_empty
+        expect(task.id).to be_a(String)
+        expect(task.context).to be_a(CMDx::Context)
+        expect(task.context.to_h).to eq({})
+        expect(task.result).to be_a(CMDx::Result)
+        expect(task.result.task).to eq(task)
+        expect(task.chain).to be_a(CMDx::Chain)
       end
 
       it "generates unique IDs for different instances" do
@@ -100,15 +98,13 @@ RSpec.describe CMDx::Task do
       it "returns default settings with required keys" do
         settings = task_class.settings
 
-        aggregate_failures do
-          expect(settings).to be_a(Hash)
-          expect(settings).to have_key(:attributes)
-          expect(settings[:attributes]).to be_a(CMDx::AttributeRegistry)
-          expect(settings).to have_key(:deprecate)
-          expect(settings[:deprecate]).to be false
-          expect(settings).to have_key(:tags)
-          expect(settings[:tags]).to eq([])
-        end
+        expect(settings).to be_a(Hash)
+        expect(settings).to have_key(:attributes)
+        expect(settings[:attributes]).to be_a(CMDx::AttributeRegistry)
+        expect(settings).to have_key(:deprecate)
+        expect(settings[:deprecate]).to be false
+        expect(settings).to have_key(:tags)
+        expect(settings[:tags]).to eq([])
       end
 
       it "excludes logger from CMDx configuration" do
@@ -149,11 +145,9 @@ RSpec.describe CMDx::Task do
       it "merges custom options with defaults" do
         settings = task_class.settings(custom_key: "custom_value", tags: ["tag1"])
 
-        aggregate_failures do
-          expect(settings[:custom_key]).to eq("custom_value")
-          expect(settings[:tags]).to eq(["tag1"])
-          expect(settings[:deprecate]).to be false
-        end
+        expect(settings[:custom_key]).to eq("custom_value")
+        expect(settings[:tags]).to eq(["tag1"])
+        expect(settings[:deprecate]).to be false
       end
     end
 
@@ -403,15 +397,13 @@ RSpec.describe CMDx::Task do
       it "returns hash representation" do
         result_hash = task.to_h
 
-        aggregate_failures do
-          expect(result_hash[:index]).to eq(5)
-          expect(result_hash[:chain_id]).to eq("chain-123")
-          expect(result_hash[:type]).to eq("Task")
-          expect(result_hash[:tags]).to eq(%w[tag1 tag2])
-          expect(result_hash[:class]).to be_a(String)
-          expect(result_hash[:class]).to match(/TestTask\d+/)
-          expect(result_hash[:id]).to eq(task.id)
-        end
+        expect(result_hash[:index]).to eq(5)
+        expect(result_hash[:chain_id]).to eq("chain-123")
+        expect(result_hash[:type]).to eq("Task")
+        expect(result_hash[:tags]).to eq(%w[tag1 tag2])
+        expect(result_hash[:class]).to be_a(String)
+        expect(result_hash[:class]).to match(/TestTask\d+/)
+        expect(result_hash[:id]).to eq(task.id)
       end
     end
 
@@ -425,15 +417,13 @@ RSpec.describe CMDx::Task do
       it "returns hash with type 'Workflow'" do
         result_hash = workflow_task.to_h
 
-        aggregate_failures do
-          expect(result_hash[:index]).to eq(3)
-          expect(result_hash[:chain_id]).to eq("workflow-chain-456")
-          expect(result_hash[:type]).to eq("Workflow")
-          expect(result_hash[:tags]).to eq(["workflow"])
-          expect(result_hash[:class]).to be_a(String)
-          expect(result_hash[:class]).to match(/TestTask\d+/)
-          expect(result_hash[:id]).to eq(workflow_task.id)
-        end
+        expect(result_hash[:index]).to eq(3)
+        expect(result_hash[:chain_id]).to eq("workflow-chain-456")
+        expect(result_hash[:type]).to eq("Workflow")
+        expect(result_hash[:tags]).to eq(["workflow"])
+        expect(result_hash[:class]).to be_a(String)
+        expect(result_hash[:class]).to match(/TestTask\d+/)
+        expect(result_hash[:id]).to eq(workflow_task.id)
       end
     end
   end

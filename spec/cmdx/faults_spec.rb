@@ -15,10 +15,8 @@ RSpec.describe CMDx::Fault do
     subject(:fault) { described_class.new(result) }
 
     it "initializes with result and sets reason from result" do
-      aggregate_failures do
-        expect(fault.result).to eq(result)
-        expect(fault.message).to eq("test failure reason")
-      end
+      expect(fault.result).to eq(result)
+      expect(fault.message).to eq("test failure reason")
     end
 
     it "inherits from CMDx::Error" do
@@ -83,10 +81,9 @@ RSpec.describe CMDx::Fault do
       it "matches faults from any specified task class" do
         allow(fault_a).to receive(:task).and_return(fault_a.result.task)
         allow(fault_b).to receive(:task).and_return(fault_b.result.task)
-        aggregate_failures do
-          expect(custom_fault_class === fault_a).to be true
-          expect(custom_fault_class === fault_b).to be true
-        end
+
+        expect(custom_fault_class === fault_a).to be true
+        expect(custom_fault_class === fault_b).to be true
       end
 
       it "stores all task classes in instance variable" do
@@ -100,10 +97,9 @@ RSpec.describe CMDx::Fault do
       it "returns fault class that matches no faults" do
         allow(fault_a).to receive(:task).and_return(fault_a.result.task)
         allow(fault_b).to receive(:task).and_return(fault_b.result.task)
-        aggregate_failures do
-          expect(custom_fault_class === fault_a).to be false
-          expect(custom_fault_class === fault_b).to be false
-        end
+
+        expect(custom_fault_class === fault_a).to be false
+        expect(custom_fault_class === fault_b).to be false
       end
 
       it "stores empty array in instance variable" do
