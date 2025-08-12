@@ -75,6 +75,7 @@ RSpec.describe CMDx::Context do
 
       it "returns the same instance" do
         result = described_class.build(existing_context)
+
         expect(result).to be(existing_context)
       end
     end
@@ -84,6 +85,7 @@ RSpec.describe CMDx::Context do
 
       it "creates a new Context instance" do
         result = described_class.build(frozen_context)
+
         expect(result).not_to be(frozen_context)
         expect(result.table).to eq(name: "test")
       end
@@ -100,6 +102,7 @@ RSpec.describe CMDx::Context do
 
       it "recursively builds from the context method result" do
         result = described_class.build(object_with_context)
+
         expect(result).to be_a(described_class)
         expect(result.table).to eq(user_id: 123)
       end
@@ -110,6 +113,7 @@ RSpec.describe CMDx::Context do
 
       it "creates new Context instance" do
         result = described_class.build(hash_data)
+
         expect(result).to be_a(described_class)
         expect(result.table).to eq(role: "admin", permissions: %w[read write])
       end
@@ -118,6 +122,7 @@ RSpec.describe CMDx::Context do
     context "when given nil" do
       it "creates empty Context instance" do
         result = described_class.build(nil)
+
         expect(result).to be_a(described_class)
         expect(result.table).to eq({})
       end
@@ -141,16 +146,19 @@ RSpec.describe CMDx::Context do
   describe "#store and #[]=" do
     it "stores value with symbol key" do
       context.store(:email, "john@example.com")
+
       expect(context[:email]).to eq("john@example.com")
     end
 
     it "stores value with string key converted to symbol" do
       context["phone"] = "555-1234"
+
       expect(context[:phone]).to eq("555-1234")
     end
 
     it "overwrites existing value" do
       context[:age] = 35
+
       expect(context[:age]).to eq(35)
     end
   end
@@ -170,6 +178,7 @@ RSpec.describe CMDx::Context do
 
     it "executes block for missing key" do
       result = context.fetch(:missing) { 1 + 1 }
+
       expect(result).to eq(2)
     end
 
@@ -204,6 +213,7 @@ RSpec.describe CMDx::Context do
 
       it "converts to hash and merges with symbol keys" do
         context.merge!(mergeable)
+
         expect(context.table).to include(status: "active", role: "user")
       end
     end
@@ -220,6 +230,7 @@ RSpec.describe CMDx::Context do
 
     it "overwrites existing keys" do
       context.merge!(name: "Jane", age: 25)
+
       expect(context.table).to eq(name: "Jane", age: 25)
     end
   end
@@ -227,23 +238,27 @@ RSpec.describe CMDx::Context do
   describe "#delete!" do
     it "deletes existing key and returns value" do
       result = context.delete!(:name)
+
       expect(result).to eq("John")
       expect(context.table).not_to have_key(:name)
     end
 
     it "deletes key with string converted to symbol" do
       result = context.delete!("age")
+
       expect(result).to eq(30)
       expect(context.table).not_to have_key(:age)
     end
 
     it "returns nil for non-existent key" do
       result = context.delete!(:missing)
+
       expect(result).to be_nil
     end
 
     it "executes block for non-existent key" do
       result = context.delete!(:missing) { "not found" }
+
       expect(result).to eq("not found")
     end
   end
@@ -319,13 +334,10 @@ RSpec.describe CMDx::Context do
   end
 
   describe "#to_s" do
-    before do
-      allow(CMDx::Utils::Format).to receive(:to_str).with(context.table).and_return("formatted string")
-    end
-
     it "delegates to Utils::Format.to_str" do
+      allow(CMDx::Utils::Format).to receive(:to_str).with(context.table).and_return("formatted string")
+
       expect(context.to_s).to eq("formatted string")
-      expect(CMDx::Utils::Format).to have_received(:to_str).with(context.table)
     end
   end
 

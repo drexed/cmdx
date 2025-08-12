@@ -67,6 +67,7 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting middlewares" do
         configuration.middlewares = custom_registry
+
         expect(configuration.middlewares).to eq(custom_registry)
       end
 
@@ -83,6 +84,7 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting callbacks" do
         configuration.callbacks = custom_registry
+
         expect(configuration.callbacks).to eq(custom_registry)
       end
 
@@ -99,6 +101,7 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting coercions" do
         configuration.coercions = custom_registry
+
         expect(configuration.coercions).to eq(custom_registry)
       end
 
@@ -115,6 +118,7 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting validators" do
         configuration.validators = custom_registry
+
         expect(configuration.validators).to eq(custom_registry)
       end
 
@@ -131,12 +135,14 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting task_breakpoints" do
         configuration.task_breakpoints = custom_breakpoints
+
         expect(configuration.task_breakpoints).to eq(custom_breakpoints)
       end
 
       context "with empty array" do
         it "accepts empty array assignment" do
           configuration.task_breakpoints = []
+
           expect(configuration.task_breakpoints).to eq([])
         end
       end
@@ -144,6 +150,7 @@ RSpec.describe CMDx::Configuration do
       context "with nil value" do
         it "accepts nil assignment" do
           configuration.task_breakpoints = nil
+
           expect(configuration.task_breakpoints).to be_nil
         end
       end
@@ -154,12 +161,14 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting workflow_breakpoints" do
         configuration.workflow_breakpoints = custom_breakpoints
+
         expect(configuration.workflow_breakpoints).to eq(custom_breakpoints)
       end
 
       context "with empty array" do
         it "accepts empty array assignment" do
           configuration.workflow_breakpoints = []
+
           expect(configuration.workflow_breakpoints).to eq([])
         end
       end
@@ -167,6 +176,7 @@ RSpec.describe CMDx::Configuration do
       context "with nil value" do
         it "accepts nil assignment" do
           configuration.workflow_breakpoints = nil
+
           expect(configuration.workflow_breakpoints).to be_nil
         end
       end
@@ -177,6 +187,7 @@ RSpec.describe CMDx::Configuration do
 
       it "allows setting and getting logger" do
         configuration.logger = custom_logger
+
         expect(configuration.logger).to eq(custom_logger)
       end
 
