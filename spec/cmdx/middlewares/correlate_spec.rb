@@ -147,9 +147,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
     context "when no id option is provided" do
       context "with no existing correlation ID" do
         it "generates a new correlation ID using Identifier.generate" do
-          correlate.call(task, &test_block)
+          expect(CMDx::Identifier).to receive(:generate)
 
-          expect(CMDx::Identifier).to have_received(:generate)
+          correlate.call(task, &test_block)
         end
 
         it "sets the generated ID in metadata" do
@@ -163,10 +163,11 @@ RSpec.describe CMDx::Middlewares::Correlate do
         before { correlate.id = "existing-id" }
 
         it "uses the existing correlation ID" do
+          expect(CMDx::Identifier).not_to receive(:generate)
+
           correlate.call(task, &test_block)
 
           expect(metadata[:correlation_id]).to eq("existing-id")
-          expect(CMDx::Identifier).not_to have_received(:generate)
         end
       end
     end
@@ -175,9 +176,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
       let(:method_name) { :id }
 
       it "calls the method on the task" do
-        correlate.call(task, id: method_name, &test_block)
+        expect(task).to receive(method_name)
 
-        expect(task).to have_received(method_name)
+        correlate.call(task, id: method_name, &test_block)
       end
 
       it "uses the method result as correlation ID" do
@@ -195,9 +196,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
       end
 
       it "evaluates the proc in task context" do
-        correlate.call(task, id: id_proc, &test_block)
+        expect(task).to receive(:instance_eval).and_yield.and_return("proc-result-id")
 
-        expect(task).to have_received(:instance_eval)
+        correlate.call(task, id: id_proc, &test_block)
       end
 
       it "uses the proc result as correlation ID" do
@@ -211,9 +212,9 @@ RSpec.describe CMDx::Middlewares::Correlate do
       let(:callable) { instance_double("Callable", call: "callable-id") }
 
       it "calls the callable with the task" do
-        correlate.call(task, id: callable, &test_block)
+        expect(callable).to receive(:call).with(task)
 
-        expect(callable).to have_received(:call).with(task)
+        correlate.call(task, id: callable, &test_block)
       end
 
       it "uses the callable result as correlation ID" do
@@ -227,19 +228,21 @@ RSpec.describe CMDx::Middlewares::Correlate do
       let(:static_id) { "static-correlation-id" }
 
       it "uses the static value as correlation ID" do
+        expect(CMDx::Identifier).not_to receive(:generate)
+
         correlate.call(task, id: static_id, &test_block)
 
         expect(metadata[:correlation_id]).to eq(static_id)
-        expect(CMDx::Identifier).not_to have_received(:generate)
       end
     end
 
     context "when id option is nil" do
       context "with no existing correlation ID" do
         it "generates a new correlation ID" do
+          expect(CMDx::Identifier).to receive(:generate)
+
           correlate.call(task, id: nil, &test_block)
 
-          expect(CMDx::Identifier).to have_received(:generate)
           expect(metadata[:correlation_id]).to eq("generated-uuid")
         end
       end
@@ -248,20 +251,22 @@ RSpec.describe CMDx::Middlewares::Correlate do
         before { correlate.id = "existing-id" }
 
         it "uses the existing correlation ID" do
+          expect(CMDx::Identifier).not_to receive(:generate)
+
           correlate.call(task, id: nil, &test_block)
 
           expect(metadata[:correlation_id]).to eq("existing-id")
-          expect(CMDx::Identifier).not_to have_received(:generate)
         end
       end
     end
 
     context "when id option is false" do
       it "generates a new correlation ID when falsy value provided" do
+        expect(CMDx::Identifier).to receive(:generate)
+
         correlate.call(task, id: false, &test_block)
 
         expect(metadata[:correlation_id]).to eq("generated-uuid")
-        expect(CMDx::Identifier).to have_received(:generate)
       end
     end
 
@@ -331,6 +336,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         result = correlate.call(task, id: "test-id", if: :should_correlate?, &test_block)
 
         expect(metadata[:correlation_id]).to be_nil
+
         expect(result).to eq(block_result)
       end
     end
@@ -352,6 +358,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
         result = correlate.call(task, id: "test-id", unless: :skip_correlation?, &test_block)
 
         expect(metadata[:correlation_id]).to be_nil
+
         expect(result).to eq(block_result)
       end
     end

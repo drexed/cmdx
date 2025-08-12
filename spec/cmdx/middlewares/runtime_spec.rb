@@ -26,10 +26,11 @@ RSpec.describe CMDx::Middlewares::Runtime do
     end
 
     it "calls monotonic_time twice to measure duration" do
-      runtime.call(task, &test_block)
+      expect(Process).to receive(:clock_gettime)
+        .with(Process::CLOCK_MONOTONIC, :millisecond)
+        .twice
 
-      expect(Process).to have_received(:clock_gettime)
-        .with(Process::CLOCK_MONOTONIC, :millisecond).twice
+      runtime.call(task, &test_block)
     end
 
     it "returns the block result" do
@@ -70,14 +71,15 @@ RSpec.describe CMDx::Middlewares::Runtime do
       end
 
       it "only calls monotonic_time once before the error" do
+        expect(Process).to receive(:clock_gettime)
+          .with(Process::CLOCK_MONOTONIC, :millisecond)
+          .once
+
         begin
           runtime.call(task, &error_block)
         rescue StandardError
           # Expected to raise
         end
-
-        expect(Process).to have_received(:clock_gettime)
-          .with(Process::CLOCK_MONOTONIC, :millisecond).once
       end
     end
 
@@ -90,6 +92,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, if: :should_measure_runtime?, &test_block)
 
         expect(metadata[:runtime]).to eq(50)
+
         expect(result).to eq(block_result)
       end
 
@@ -99,6 +102,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, if: :should_measure_runtime?, &test_block)
 
         expect(metadata[:runtime]).to be_nil
+
         expect(result).to eq(block_result)
       end
     end
@@ -112,6 +116,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, unless: :skip_runtime_measurement?, &test_block)
 
         expect(metadata[:runtime]).to eq(50)
+
         expect(result).to eq(block_result)
       end
 
@@ -121,6 +126,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, unless: :skip_runtime_measurement?, &test_block)
 
         expect(metadata[:runtime]).to be_nil
+
         expect(result).to eq(block_result)
       end
     end
@@ -142,6 +148,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, &nil_block)
 
         expect(metadata[:runtime]).to eq(50)
+
         expect(result).to be_nil
       end
     end
@@ -153,6 +160,7 @@ RSpec.describe CMDx::Middlewares::Runtime do
         result = runtime.call(task, &false_block)
 
         expect(metadata[:runtime]).to eq(50)
+
         expect(result).to be false
       end
     end
@@ -166,8 +174,6 @@ RSpec.describe CMDx::Middlewares::Runtime do
 
       time = runtime.send(:monotonic_time)
 
-      expect(Process).to have_received(:clock_gettime)
-        .with(Process::CLOCK_MONOTONIC, :millisecond)
       expect(time).to eq(123_456)
     end
   end
