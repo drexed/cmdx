@@ -7,285 +7,279 @@ RSpec.describe CMDx::Utils::Format do
 
   describe ".to_log" do
     context "when message is a CMDx object with to_h method" do
-      let(:cmdx_object) { instance_double("CMDx::Context", to_h: { key: "value" }) }
+      let(:cmdx_context) { CMDx::Context.new(user_id: 123, name: "test") }
+      let(:task_class) do
+        Class.new(CMDx::Task) do
+          def work
+            # no-op
+          end
+        end
+      end
+      let(:task) { task_class.new }
 
-      before do
-        klass = instance_double(
-          "Class", ancestors: [
-            instance_double("Class", to_s: "CMDx::Context")
-          ]
-        )
+      it "returns the hash representation of CMDx::Context" do
+        result = format_module.to_log(cmdx_context)
 
-        allow(cmdx_object).to receive(:class).and_return(klass)
+        expect(result).to eq({ user_id: 123, name: "test" })
       end
 
-      it "returns the hash representation" do
-        result = format_module.to_log(cmdx_object)
+      it "returns the hash representation of CMDx::Task" do
+        result = format_module.to_log(task)
 
-        expect(result).to eq({ key: "value" })
+        expect(result).to be_a(Hash)
+        expect(result).to include(:class, :index, :chain_id, :type, :tags, :id)
       end
 
-      it "calls to_h on the object" do
-        allow(cmdx_object).to receive(:to_h)
+      it "returns the hash representation of CMDx::Chain" do
+        chain = CMDx::Chain.new
 
-        format_module.to_log(cmdx_object)
+        result = format_module.to_log(chain)
 
-        expect(cmdx_object).to have_received(:to_h)
-      end
-    end
-
-    context "when message is a CMDx::Result object" do
-      let(:result_object) { instance_double("CMDx::Result", to_h: { state: "complete", status: "success" }) }
-
-      before do
-        klass = instance_double(
-          "Class", ancestors: [
-            instance_double("Class", to_s: "CMDx::Result"),
-            instance_double("Class", to_s: "Object")
-          ]
-        )
-
-        allow(result_object).to receive(:class).and_return(klass)
+        expect(result).to be_a(Hash)
+        expect(result).to include(:id, :results)
       end
 
-      it "returns the hash representation" do
-        result = format_module.to_log(result_object)
+      it "returns the hash representation of CMDx::Result" do
+        task = task_class.new
+        result_obj = CMDx::Result.new(task)
 
-        expect(result).to eq({ state: "complete", status: "success" })
-      end
-    end
+        result = format_module.to_log(result_obj)
 
-    context "when message is a CMDx::Task object" do
-      let(:task_object) { instance_double("CMDx::Task", to_h: { type: "Task", class: "TestTask" }) }
-
-      before do
-        klass = instance_double(
-          "Class", ancestors: [
-            instance_double("Class", to_s: "CMDx::Task"),
-            instance_double("Class", to_s: "Object")
-          ]
-        )
-
-        allow(task_object).to receive(:class).and_return(klass)
+        expect(result).to be_a(Hash)
+        expect(result).to include(:state, :status, :outcome, :metadata)
       end
 
-      it "returns the hash representation" do
-        result = format_module.to_log(task_object)
+      it "returns the hash representation of CMDx::Errors" do
+        errors = CMDx::Errors.new
+        errors.add(:name, "can't be blank")
 
-        expect(result).to eq({ type: "Task", class: "TestTask" })
+        result = format_module.to_log(errors)
+
+        expect(result).to eq({ name: ["can't be blank"] })
       end
     end
 
-    context "when message responds to to_h but is not a CMDx class" do
-      let(:non_cmdx_object) { instance_double("SomeClass", to_h: { data: "test" }) }
+    context "when message responds to to_h but is not a CMDx object" do
+      let(:non_cmdx_object) do
+        Class.new do
+          def to_h
+            { key: "value" }
+          end
 
-      before do
-        klass = instance_double(
-          "Class", ancestors: [
-            instance_double("Class", to_s: "SomeClass"),
-            instance_double("Class", to_s: "Object")
-          ]
-        )
-        allow(non_cmdx_object).to receive(:class).and_return(klass)
+          def class
+            Class.new do
+              def ancestors
+                [Object, BasicObject]
+              end
+            end.new
+          end
+        end.new
       end
 
-      it "returns the original message" do
+      it "returns the original message unchanged" do
         result = format_module.to_log(non_cmdx_object)
 
         expect(result).to eq(non_cmdx_object)
       end
-
-      it "does not call to_h" do
-        allow(non_cmdx_object).to receive(:to_h)
-
-        format_module.to_log(non_cmdx_object)
-
-        expect(non_cmdx_object).not_to have_received(:to_h)
-      end
     end
 
     context "when message does not respond to to_h" do
-      let(:simple_message) { "simple string message" }
+      it "returns string message unchanged" do
+        message = "Simple log message"
 
-      it "returns the original message" do
-        result = format_module.to_log(simple_message)
+        result = format_module.to_log(message)
 
-        expect(result).to eq("simple string message")
+        expect(result).to eq("Simple log message")
       end
-    end
 
-    context "when message is nil" do
-      it "returns nil" do
+      it "returns integer message unchanged" do
+        message = 42
+
+        result = format_module.to_log(message)
+
+        expect(result).to eq(42)
+      end
+
+      it "returns array message unchanged" do
+        message = [1, 2, 3]
+
+        result = format_module.to_log(message)
+
+        expect(result).to eq([1, 2, 3])
+      end
+
+      it "returns hash message unchanged" do
+        message = { key: "value" }
+
+        result = format_module.to_log(message)
+
+        expect(result).to eq({ key: "value" })
+      end
+
+      it "returns nil message unchanged" do
         result = format_module.to_log(nil)
 
         expect(result).to be_nil
       end
     end
 
-    context "when message is a number" do
-      it "returns the number" do
-        result = format_module.to_log(42)
-
-        expect(result).to eq(42)
-      end
-    end
-
-    context "when message is an array" do
-      let(:array_message) { [1, 2, 3] }
-
-      it "returns the array" do
-        result = format_module.to_log(array_message)
-
-        expect(result).to eq([1, 2, 3])
-      end
-    end
-
-    context "when message is a plain hash" do
-      let(:hash_message) { { key: "value" } }
-
-      before do
-        klass = instance_double(
-          "Class", ancestors: [
-            instance_double("Class", to_s: "Hash"),
-            instance_double("Class", to_s: "Object")
-          ]
-        )
-
-        allow(hash_message).to receive(:class).and_return(klass)
+    context "when message responds to to_h but ancestors check returns false" do
+      let(:object_with_to_h) do
+        obj = Object.new
+        def obj.to_h
+          { custom: "hash" }
+        end
+        obj
       end
 
-      it "returns the hash" do
-        result = format_module.to_log(hash_message)
+      it "returns the original message unchanged" do
+        result = format_module.to_log(object_with_to_h)
 
-        expect(result).to eq({ key: "value" })
+        expect(result).to eq(object_with_to_h)
       end
     end
   end
 
   describe ".to_str" do
-    let(:hash) { { name: "test", value: 42, flag: true } }
+    context "when using default formatter" do
+      let(:hash) { { name: "John", age: 30, active: true } }
 
-    context "without a custom block" do
-      it "uses the default formatter" do
+      it "formats hash using default key=value.inspect format" do
         result = format_module.to_str(hash)
 
-        expect(result).to eq('name="test" value=42 flag=true')
+        expect(result).to eq('name="John" age=30 active=true')
       end
 
-      it "formats values using inspect" do
-        hash_with_string = { message: "hello world", count: 0 }
+      it "handles empty hash" do
+        result = format_module.to_str({})
 
-        result = format_module.to_str(hash_with_string)
-
-        expect(result).to eq('message="hello world" count=0')
+        expect(result).to eq("")
       end
 
-      it "handles nil values" do
-        hash_with_nil = { result: nil, status: "ok" }
+      it "handles hash with symbol keys" do
+        hash = { user_id: 123, email: "test@example.com" }
 
-        result = format_module.to_str(hash_with_nil)
+        result = format_module.to_str(hash)
 
-        expect(result).to eq('result=nil status="ok"')
+        expect(result).to eq('user_id=123 email="test@example.com"')
       end
 
-      it "handles symbol values" do
-        hash_with_symbol = { type: :test, state: :active }
+      it "handles hash with string keys" do
+        hash = { "name" => "Alice", "role" => "admin" }
 
-        result = format_module.to_str(hash_with_symbol)
+        result = format_module.to_str(hash)
 
-        expect(result).to eq("type=:test state=:active")
+        expect(result).to eq('name="Alice" role="admin"')
       end
 
-      it "handles array values" do
-        hash_with_array = { tags: %w[ruby testing], count: 2 }
+      it "handles hash with mixed value types" do
+        hash = { id: 1, name: "Test", data: [1, 2, 3], meta: { nested: true } }
 
-        result = format_module.to_str(hash_with_array)
+        result = format_module.to_str(hash)
 
-        expect(result).to eq('tags=["ruby", "testing"] count=2')
+        expect(result).to eq('id=1 name="Test" data=[1, 2, 3] meta={nested: true}')
+      end
+
+      it "handles hash with nil values" do
+        hash = { name: "John", email: nil, age: 25 }
+
+        result = format_module.to_str(hash)
+
+        expect(result).to eq('name="John" email=nil age=25')
       end
     end
 
-    context "with a custom block" do
-      it "uses the custom formatter" do
-        result = format_module.to_str(hash) { |k, v| "#{k.upcase}:#{v}" }
+    context "when using custom formatter block" do
+      let(:hash) { { name: "John", age: 30, city: "NYC" } }
 
-        expect(result).to eq("NAME:test VALUE:42 FLAG:true")
+      it "uses the provided block for formatting" do
+        result = format_module.to_str(hash) { |key, value| "#{key}: #{value}" }
+
+        expect(result).to eq("name: John age: 30 city: NYC")
       end
 
-      it "allows complex custom formatting" do
+      it "allows custom separator in block" do
+        result = format_module.to_str(hash) { |key, value| "#{key}=#{value}" }
+
+        expect(result).to eq("name=John age=30 city=NYC")
+      end
+
+      it "handles complex formatting logic in block" do
         result = format_module.to_str(hash) do |key, value|
-          case value
-          when String
-            "[STR] #{key}=#{value}"
-          when Integer
-            "[INT] #{key}=#{value}"
-          when TrueClass, FalseClass
-            "[BOOL] #{key}=#{value}"
-          else
-            "[OTHER] #{key}=#{value}"
+          case key
+          when :name then "USER: #{value.upcase}"
+          when :age then "AGE: #{value} years"
+          else "#{key.upcase}: #{value}"
           end
         end
 
-        expect(result).to eq("[STR] name=test [INT] value=42 [BOOL] flag=true")
+        expect(result).to eq("USER: JOHN AGE: 30 years CITY: NYC")
       end
 
-      it "handles blocks that return nil" do
-        result = format_module.to_str(hash) { |_k, _v| nil }
+      it "handles block that returns nil" do
+        result = format_module.to_str(hash) { |_key, _value| nil }
 
         expect(result).to eq("  ")
       end
 
-      it "handles blocks that return empty string" do
-        result = format_module.to_str(hash) { |_k, _v| "" }
+      it "handles block that returns empty string" do
+        result = format_module.to_str(hash) { |_key, _value| "" }
 
         expect(result).to eq("  ")
       end
     end
 
-    context "when hash is empty" do
-      let(:empty_hash) { {} }
+    context "with edge cases" do
+      it "handles hash with special characters in values" do
+        hash = { message: "Hello\nWorld", path: "/tmp/test file.txt" }
 
-      it "returns empty string" do
-        result = format_module.to_str(empty_hash)
+        result = format_module.to_str(hash)
 
-        expect(result).to eq("")
+        expect(result).to eq('message="Hello\nWorld" path="/tmp/test file.txt"')
       end
 
-      it "returns empty string with custom block" do
-        result = format_module.to_str(empty_hash) { |k, v| "#{k}:#{v}" }
+      it "handles hash with unicode characters" do
+        hash = { name: "José", emoji: "🚀", chinese: "测试" }
 
-        expect(result).to eq("")
+        result = format_module.to_str(hash)
+
+        expect(result).to eq('name="José" emoji="🚀" chinese="测试"')
       end
-    end
 
-    context "when hash has one element" do
-      let(:single_hash) { { key: "value" } }
+      it "handles large hash efficiently" do
+        large_hash = (1..100).to_h { |i| ["key#{i}", "value#{i}"] }
 
-      it "formats single element without spaces" do
-        result = format_module.to_str(single_hash)
-
-        expect(result).to eq('key="value"')
+        expect { format_module.to_str(large_hash) }.not_to raise_error
       end
     end
+  end
 
-    context "when hash values contain special characters" do
-      let(:special_hash) { { path: "/tmp/file name.txt", regex: /\w+/ } }
-
-      it "handles special characters correctly" do
-        result = format_module.to_str(special_hash)
-
-        expect(result).to eq('path="/tmp/file name.txt" regex=/\w+/')
-      end
+  describe "FORMATTER constant" do
+    it "is private" do
+      expect { described_class::FORMATTER }.to raise_error(NameError)
     end
 
-    context "when hash has nested structures" do
-      let(:nested_hash) { { config: { timeout: 30, retries: 3 }, enabled: true } }
+    it "is frozen" do
+      formatter = described_class.send(:const_get, :FORMATTER)
 
-      it "formats nested structures" do
-        result = format_module.to_str(nested_hash)
+      expect(formatter).to be_frozen
+    end
 
-        expect(result).to eq("config={timeout: 30, retries: 3} enabled=true")
-      end
+    it "formats key-value pairs correctly" do
+      formatter = described_class.send(:const_get, :FORMATTER)
+
+      result = formatter.call(:name, "John")
+
+      expect(result).to eq('name="John"')
+    end
+
+    it "handles different value types" do
+      formatter = described_class.send(:const_get, :FORMATTER)
+
+      expect(formatter.call(:id, 123)).to eq("id=123")
+      expect(formatter.call(:active, true)).to eq("active=true")
+      expect(formatter.call(:data, nil)).to eq("data=nil")
+      expect(formatter.call(:items, [1, 2])).to eq("items=[1, 2]")
     end
   end
 end
