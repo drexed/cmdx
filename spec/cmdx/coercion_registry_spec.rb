@@ -134,20 +134,18 @@ RSpec.describe CMDx::CoercionRegistry do
     let(:value) { "test_value" }
     let(:options) { { option1: "value1" } }
 
-    before do
-      allow(CMDx::Utils::Call).to receive(:invoke).and_return("coerced_value")
-    end
-
     context "when coercion type exists" do
       it "calls Utils::Call.invoke with correct parameters" do
-        registry.coerce(:custom, mock_task, value, options)
-
-        expect(CMDx::Utils::Call).to have_received(:invoke).with(
+        expect(CMDx::Utils::Call).to receive(:invoke).with(
           mock_task, mock_coercion, value, options
         )
+
+        registry.coerce(:custom, mock_task, value, options)
       end
 
       it "returns the result from Utils::Call.invoke" do
+        allow(CMDx::Utils::Call).to receive(:invoke).and_return("coerced_value")
+
         result = registry.coerce(:custom, mock_task, value, options)
 
         expect(result).to eq("coerced_value")
@@ -157,22 +155,22 @@ RSpec.describe CMDx::CoercionRegistry do
         let(:initial_registry) { { "custom" => mock_coercion } }
 
         it "works with string type names" do
-          registry.coerce("custom", mock_task, value, options)
-
-          expect(CMDx::Utils::Call).to have_received(:invoke).with(
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
             mock_task, mock_coercion, value, options
           )
+
+          registry.coerce("custom", mock_task, value, options)
         end
       end
     end
 
     context "when options are not provided" do
       it "passes empty hash as options" do
-        registry.coerce(:custom, mock_task, value)
-
-        expect(CMDx::Utils::Call).to have_received(:invoke).with(
+        expect(CMDx::Utils::Call).to receive(:invoke).with(
           mock_task, mock_coercion, value, {}
         )
+
+        registry.coerce(:custom, mock_task, value)
       end
     end
 
