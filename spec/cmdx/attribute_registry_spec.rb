@@ -6,7 +6,7 @@ RSpec.describe CMDx::AttributeRegistry do
   let(:attribute1) { instance_double(CMDx::Attribute) }
   let(:attribute2) { instance_double(CMDx::Attribute) }
   let(:initial_registry) { [attribute1] }
-  let(:task) { instance_double("Task") }
+  let(:task) { instance_double(CMDx::Task) }
 
   describe "#initialize" do
     context "without arguments" do
