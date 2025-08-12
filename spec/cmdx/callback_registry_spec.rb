@@ -9,7 +9,7 @@ RSpec.describe CMDx::CallbackRegistry do
   let(:mock_task) { instance_double(CMDx::Task) }
   let(:callable_proc) { proc { |task| } }
   let(:callable_symbol) { :some_method }
-  let(:callable_object) { instance_double("Callable", call: nil) }
+  let(:callable_object) { instance_double("MockCallable", call: nil) }
 
   describe "#initialize" do
     context "when no registry is provided" do

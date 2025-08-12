@@ -50,7 +50,7 @@ RSpec.describe CMDx::Task do
     end
 
     context "with object that responds to context" do
-      let(:context_wrapper) { instance_double("ContextWrapper", context: context_hash) }
+      let(:context_wrapper) { instance_double("MockContextWrapper", context: context_hash) }
       let(:task) { task_class.new(context_wrapper) }
 
       it "extracts context from the wrapper object" do
@@ -176,7 +176,7 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".register" do
-    let(:mock_registry) { instance_double("Registry") }
+    let(:mock_registry) { instance_double("MockRegistry") }
 
     before do
       allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)

@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Deprecator do
-  let(:mock_task) { instance_double("Task") }
+  let(:mock_task) { instance_double("MockTask") }
   let(:mock_task_class) { class_double(CMDx::Task, name: "TestTask") }
   let(:mock_logger) { instance_double(Logger) }
   let(:mock_settings) { { deprecate: deprecate_value } }
@@ -141,7 +141,7 @@ RSpec.describe CMDx::Deprecator do
     end
 
     context "when deprecate setting is a callable object" do
-      let(:callable_object) { instance_double("Callable", call: "warn") }
+      let(:callable_object) { instance_double("MockCallable", call: "warn") }
       let(:deprecate_value) { callable_object }
 
       it "calls the object and processes the result" do

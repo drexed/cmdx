@@ -38,7 +38,7 @@ RSpec.describe CMDx::Coercions::Time do
 
       it "returns the to_time result" do
         time_result = Time.new(2023, 1, 1)
-        value = instance_double("Time", to_time: time_result)
+        value = instance_double("MockTime", to_time: time_result)
 
         result = coercion.call(value)
 

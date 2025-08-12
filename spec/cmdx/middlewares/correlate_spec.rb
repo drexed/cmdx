@@ -209,7 +209,7 @@ RSpec.describe CMDx::Middlewares::Correlate do
     end
 
     context "when id option responds to call" do
-      let(:callable) { instance_double("Callable", call: "callable-id") }
+      let(:callable) { instance_double("MockCallable", call: "callable-id") }
 
       it "calls the callable with the task" do
         expect(callable).to receive(:call).with(task)

@@ -87,7 +87,7 @@ RSpec.describe CMDx::Middlewares::Timeout do
     end
 
     context "when seconds option responds to call" do
-      let(:callable) { instance_double("Callable", call: 20) }
+      let(:callable) { instance_double("MockCallable", call: 20) }
 
       it "calls the callable with the task and uses the result" do
         allow(callable).to receive(:call).with(task).and_return(20)

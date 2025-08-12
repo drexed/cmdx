@@ -123,7 +123,7 @@ RSpec.describe CMDx::AttributeValue do
 
   describe "#validate" do
     let(:method_name) { :test_method }
-    let(:validator_registry) { instance_double("ValidatorRegistry") }
+    let(:validator_registry) { instance_double("MockValidatorRegistry") }
     let(:task_settings) { { validators: validator_registry } }
     let(:attribute_options) { { format: /\d+/, presence: true } }
 
@@ -204,7 +204,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source is callable" do
-        let(:callable) { instance_double("Callable", call: "callable_result") }
+        let(:callable) { instance_double("MockCallable", call: "callable_result") }
         let(:source) { callable }
 
         before { allow(source).to receive(:respond_to?).with(:call).and_return(true) }
@@ -296,7 +296,7 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         context "with object that responds to method" do
-          let(:source_object) { instance_double("source", test_name: "value") }
+          let(:source_object) { instance_double("MockSource", test_name: "value") }
           let(:source) { source_object }
 
           before do
@@ -315,7 +315,7 @@ RSpec.describe CMDx::AttributeValue do
           before { allow(attribute_value).to receive(:parent).and_return(parent) }
 
           context "when source doesn't provide value" do
-            let(:source_object) { instance_double("source") }
+            let(:source_object) { instance_double("MockSource") }
             let(:source) { source_object }
 
             before do
@@ -383,7 +383,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when default is callable" do
-        let(:callable) { instance_double("Callable", call: "callable_default") }
+        let(:callable) { instance_double("MockCallable", call: "callable_default") }
         let(:default_option) { callable }
 
         before { allow(default_option).to receive(:respond_to?).with(:call).and_return(true) }
@@ -441,7 +441,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source_value is not Context, Hash, or Proc" do
-        let(:source_object) { instance_double("source_obj", test_name: "object_value") }
+        let(:source_object) { instance_double("MockSource", test_name: "object_value") }
 
         before { allow(source_object).to receive(:respond_to?).with(:call).and_return(false) }
 
@@ -450,7 +450,7 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         context "when method raises NoMethodError" do
-          let(:source_object) { instance_double("source_obj") }
+          let(:source_object) { instance_double("MockSource") }
 
           before do
             allow(source_object).to receive(:respond_to?).with(:call).and_return(false)
@@ -476,7 +476,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source_value is callable" do
-        let(:callable) { instance_double("Callable", call: "callable_value") }
+        let(:callable) { instance_double("MockCallable", call: "callable_value") }
 
         before { allow(callable).to receive(:respond_to?).with(:call).and_return(true) }
 
@@ -504,7 +504,7 @@ RSpec.describe CMDx::AttributeValue do
 
     describe "#coerce_value" do
       let(:method_name) { :test_method }
-      let(:coercion_registry) { instance_double("CoercionRegistry") }
+      let(:coercion_registry) { instance_double("MockCoercionRegistry") }
       let(:task_settings) { { coercions: coercion_registry } }
       let(:types) { %i[string integer] }
 

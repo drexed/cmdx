@@ -7,8 +7,8 @@ RSpec.describe CMDx::MiddlewareRegistry do
 
   let(:initial_registry) { [] }
   let(:mock_task) { instance_double(CMDx::Task) }
-  let(:mock_middleware1) { instance_double("Middleware1", call: nil) }
-  let(:mock_middleware2) { instance_double("Middleware2", call: nil) }
+  let(:mock_middleware1) { instance_double("MockMiddleware1", call: nil) }
+  let(:mock_middleware2) { instance_double("MockMiddleware2", call: nil) }
 
   describe "#initialize" do
     context "when no registry is provided" do
