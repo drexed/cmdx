@@ -25,11 +25,11 @@ RSpec.describe CMDx::Utils::Condition do
         "#{name}: #{value}"
       end
 
-      def truthy_method
+      def truthy_method?
         true
       end
 
-      def falsy_method
+      def falsy_method?
         false
       end
 
@@ -45,13 +45,13 @@ RSpec.describe CMDx::Utils::Condition do
     context "when options contain if condition" do
       context "with Symbol if condition" do
         it "returns true when if condition evaluates to truthy" do
-          result = condition_module.evaluate(target_object, { if: :truthy_method })
+          result = condition_module.evaluate(target_object, { if: :truthy_method? })
 
           expect(result).to be(true)
         end
 
         it "returns false when if condition evaluates to falsy" do
-          result = condition_module.evaluate(target_object, { if: :falsy_method })
+          result = condition_module.evaluate(target_object, { if: :falsy_method? })
 
           expect(result).to be(false)
         end
@@ -180,13 +180,13 @@ RSpec.describe CMDx::Utils::Condition do
     context "when options contain unless condition" do
       context "with Symbol unless condition" do
         it "returns false when unless condition evaluates to truthy" do
-          result = condition_module.evaluate(target_object, { unless: :truthy_method })
+          result = condition_module.evaluate(target_object, { unless: :truthy_method? })
 
           expect(result).to be(false)
         end
 
         it "returns true when unless condition evaluates to falsy" do
-          result = condition_module.evaluate(target_object, { unless: :falsy_method })
+          result = condition_module.evaluate(target_object, { unless: :falsy_method? })
 
           expect(result).to be(true)
         end
@@ -237,25 +237,25 @@ RSpec.describe CMDx::Utils::Condition do
 
     context "when options contain both if and unless conditions" do
       it "returns true when if is truthy and unless is falsy" do
-        result = condition_module.evaluate(target_object, { if: :truthy_method, unless: :falsy_method })
+        result = condition_module.evaluate(target_object, { if: :truthy_method?, unless: :falsy_method? })
 
         expect(result).to be(true)
       end
 
       it "returns false when if is truthy and unless is truthy" do
-        result = condition_module.evaluate(target_object, { if: :truthy_method, unless: :truthy_method })
+        result = condition_module.evaluate(target_object, { if: :truthy_method?, unless: :truthy_method? })
 
         expect(result).to be(false)
       end
 
       it "returns false when if is falsy and unless is falsy" do
-        result = condition_module.evaluate(target_object, { if: :falsy_method, unless: :falsy_method })
+        result = condition_module.evaluate(target_object, { if: :falsy_method?, unless: :falsy_method? })
 
         expect(result).to be(false)
       end
 
       it "returns false when if is falsy and unless is truthy" do
-        result = condition_module.evaluate(target_object, { if: :falsy_method, unless: :truthy_method })
+        result = condition_module.evaluate(target_object, { if: :falsy_method?, unless: :truthy_method? })
 
         expect(result).to be(false)
       end

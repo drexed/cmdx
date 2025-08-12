@@ -206,20 +206,17 @@ RSpec.describe CMDx::Coercions::Time do
         time_string = "2023-12-25T14:30:00"
         parsed_time = Time.new(2023, 12, 25, 14, 30, 0)
 
-        allow(Time).to receive(:parse).with(time_string).and_return(parsed_time)
+        expect(Time).to receive(:parse).with(time_string).and_return(parsed_time)
 
         result = coercion.call(time_string)
 
-        expect(Time).to have_received(:parse).with(time_string)
         expect(result).to eq(parsed_time)
       end
 
       it "does not call Time.strptime when no strptime option" do
-        allow(Time).to receive(:strptime)
+        expect(Time).not_to receive(:strptime)
 
         coercion.call("2023-12-25")
-
-        expect(Time).not_to have_received(:strptime)
       end
     end
   end

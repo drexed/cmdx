@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Workflow do
-  let(:workflow_class) { Class.new(CMDx::Task).include(described_class) }
+  let(:workflow_class) { create_workflow_class(name: "TestWorkflow") }
   let(:workflow) { workflow_class.new }
   let(:context_hash) { { executed: [] } }
   let(:workflow_with_context) { workflow_class.new(context_hash) }
@@ -42,7 +42,7 @@ RSpec.describe CMDx::Workflow do
                 "custom work"
               end
             end
-          end.to raise_error(RuntimeError, "cannot redefine #work method")
+          end.to raise_error(RuntimeError, /cannot redefine.*#work method/)
         end
       end
 
