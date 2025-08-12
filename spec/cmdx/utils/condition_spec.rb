@@ -7,297 +7,439 @@ RSpec.describe CMDx::Utils::Condition do
 
   let(:target_object) do
     Class.new do
-      def true_method? = true
-      def false_method? = false
-      def method_with_args(arg) = arg
-      def method_with_kwargs(value:) = value
-      def method_with_block(&) = yield
+      def test_method(*args, **kwargs, &block)
+        result = { args: args, kwargs: kwargs }
+        result[:block_result] = yield if block
+        result
+      end
+
+      def no_args_method
+        "no_args_result"
+      end
+
+      def method_with_args(arg1, arg2)
+        "#{arg1}_#{arg2}"
+      end
+
+      def method_with_kwargs(name:, value:)
+        "#{name}: #{value}"
+      end
+
+      def truthy_method
+        true
+      end
+
+      def falsy_method
+        false
+      end
+
+      def instance_variable_check
+        @check_value ||= "instance_value"
+      end
+
+      attr_accessor :accessible_value
     end.new
   end
 
   describe ".evaluate" do
-    context "when options contain if: condition" do
-      context "when if condition is true" do
-        it "returns true for true boolean" do
+    context "when options contain if condition" do
+      context "with Symbol if condition" do
+        it "returns true when if condition evaluates to truthy" do
+          result = condition_module.evaluate(target_object, { if: :truthy_method })
+
+          expect(result).to be(true)
+        end
+
+        it "returns false when if condition evaluates to falsy" do
+          result = condition_module.evaluate(target_object, { if: :falsy_method })
+
+          expect(result).to be(false)
+        end
+
+        it "passes arguments to the if condition method" do
+          result = condition_module.evaluate(target_object, { if: :method_with_args }, "hello", "world")
+
+          expect(result).to be_truthy
+        end
+
+        it "passes keyword arguments to the if condition method" do
+          result = condition_module.evaluate(target_object, { if: :method_with_kwargs }, name: "test", value: "data")
+
+          expect(result).to be_truthy
+        end
+
+        it "passes block to the if condition method" do
+          allow(target_object).to receive(:test_method).and_return(true)
+
+          condition_module.evaluate(target_object, { if: :test_method }) { "block_value" }
+
+          expect(target_object).to have_received(:test_method)
+        end
+      end
+
+      context "with Proc if condition" do
+        it "returns true when Proc evaluates to truthy" do
+          truthy_proc = proc { true }
+          result = condition_module.evaluate(target_object, { if: truthy_proc })
+
+          expect(result).to be(true)
+        end
+
+        it "returns false when Proc evaluates to falsy" do
+          falsy_proc = proc { false }
+          result = condition_module.evaluate(target_object, { if: falsy_proc })
+
+          expect(result).to be(false)
+        end
+
+        it "executes Proc in the context of target object" do
+          context_proc = proc { instance_variable_check }
+          result = condition_module.evaluate(target_object, { if: context_proc })
+
+          expect(result).to be_truthy
+        end
+
+        it "passes arguments to the Proc" do
+          arg_proc = proc { |arg1, arg2| arg1 == "hello" && arg2 == "world" }
+          result = condition_module.evaluate(target_object, { if: arg_proc }, "hello", "world")
+
+          expect(result).to be(true)
+        end
+
+        it "passes keyword arguments to the Proc" do
+          kwarg_proc = proc { |name:, value:| name == "test" && value == "data" }
+          result = condition_module.evaluate(target_object, { if: kwarg_proc }, name: "test", value: "data")
+
+          expect(result).to be(true)
+        end
+      end
+
+      context "with callable object if condition" do
+        let(:callable_object) do
+          Class.new do
+            def call(*args, **kwargs, &)
+              true
+            end
+          end.new
+        end
+
+        let(:falsy_callable_object) do
+          Class.new do
+            def call(*args, **kwargs, &)
+              false
+            end
+          end.new
+        end
+
+        it "returns true when callable returns truthy" do
+          result = condition_module.evaluate(target_object, { if: callable_object })
+
+          expect(result).to be(true)
+        end
+
+        it "returns false when callable returns falsy" do
+          result = condition_module.evaluate(target_object, { if: falsy_callable_object })
+
+          expect(result).to be(false)
+        end
+
+        it "passes arguments to the callable" do
+          arg_callable = Class.new do
+            def call(arg1, arg2)
+              arg1 == "hello" && arg2 == "world"
+            end
+          end.new
+
+          result = condition_module.evaluate(target_object, { if: arg_callable }, "hello", "world")
+
+          expect(result).to be(true)
+        end
+      end
+
+      context "with boolean if condition" do
+        it "returns true when if condition is true" do
           result = condition_module.evaluate(target_object, { if: true })
+
           expect(result).to be(true)
         end
 
-        it "returns true for truthy symbol method" do
-          result = condition_module.evaluate(target_object, { if: :true_method? })
-          expect(result).to be(true)
-        end
-
-        it "returns true for truthy proc" do
-          proc = -> { true }
-          result = condition_module.evaluate(target_object, { if: proc })
-          expect(result).to be(true)
-        end
-
-        it "passes arguments to symbol method" do
-          allow(target_object).to receive(:method_with_args).and_return(true)
-
-          condition_module.evaluate(target_object, { if: :method_with_args }, "arg1")
-
-          expect(target_object).to have_received(:method_with_args).with("arg1")
-        end
-
-        it "passes keyword arguments to symbol method" do
-          allow(target_object).to receive(:method_with_kwargs).and_return(true)
-
-          condition_module.evaluate(target_object, { if: :method_with_kwargs }, value: "test")
-
-          expect(target_object).to have_received(:method_with_kwargs).with(value: "test")
-        end
-
-        it "passes block to symbol method" do
-          allow(target_object).to receive(:method_with_block).and_return(true)
-          test_block = -> { "block_result" }
-
-          condition_module.evaluate(target_object, { if: :method_with_block }, &test_block)
-
-          expect(target_object).to have_received(:method_with_block)
-        end
-      end
-
-      context "when if condition is false" do
-        it "returns false for false boolean" do
+        it "returns false when if condition is false" do
           result = condition_module.evaluate(target_object, { if: false })
+
           expect(result).to be(false)
         end
 
-        it "returns false for nil" do
+        it "returns false when if condition is nil" do
           result = condition_module.evaluate(target_object, { if: nil })
-          expect(result).to be(false)
-        end
-
-        it "returns false for falsy symbol method" do
-          result = condition_module.evaluate(target_object, { if: :false_method? })
-          expect(result).to be(false)
-        end
-
-        it "returns false for falsy proc" do
-          proc = -> { false }
-          result = condition_module.evaluate(target_object, { if: proc })
-          expect(result).to be(false)
-        end
-      end
-
-      context "with callable object" do
-        it "returns truthy value when callable returns truthy value" do
-          callable = instance_double("Callable")
-
-          allow(callable).to receive(:respond_to?).with(:call).and_return(true)
-          allow(callable).to receive(:call).and_return("truthy")
-
-          result = condition_module.evaluate(target_object, { if: callable })
-
-          expect(result).to eq("truthy")
-        end
-
-        it "returns falsy value when callable returns falsy value" do
-          callable = instance_double("Callable")
-
-          allow(callable).to receive(:respond_to?).with(:call).and_return(true)
-          allow(callable).to receive(:call).and_return(false)
-
-          result = condition_module.evaluate(target_object, { if: callable })
 
           expect(result).to be(false)
-        end
-
-        it "passes arguments to callable" do
-          callable = instance_double("Callable")
-
-          allow(callable).to receive(:respond_to?).with(:call).and_return(true)
-          allow(callable).to receive(:call).and_return(true)
-
-          condition_module.evaluate(target_object, { if: callable }, "arg1", key: "value")
-
-          expect(callable).to have_received(:call).with("arg1", key: "value")
-        end
-      end
-
-      context "with invalid callable" do
-        it "raises error for non-callable object" do
-          invalid_callable = "string"
-
-          expect do
-            condition_module.evaluate(target_object, { if: invalid_callable })
-          end.to raise_error(/cannot evaluate "string"/)
         end
       end
     end
 
-    context "when options contain unless: condition" do
-      context "when unless condition is false" do
-        it "returns true for false boolean" do
-          result = condition_module.evaluate(target_object, { unless: false })
+    context "when options contain unless condition" do
+      context "with Symbol unless condition" do
+        it "returns false when unless condition evaluates to truthy" do
+          result = condition_module.evaluate(target_object, { unless: :truthy_method })
+
+          expect(result).to be(false)
+        end
+
+        it "returns true when unless condition evaluates to falsy" do
+          result = condition_module.evaluate(target_object, { unless: :falsy_method })
 
           expect(result).to be(true)
         end
 
-        it "returns true for nil" do
-          result = condition_module.evaluate(target_object, { unless: nil })
+        it "passes arguments to the unless condition method" do
+          result = condition_module.evaluate(target_object, { unless: :method_with_args }, "hello", "world")
 
-          expect(result).to be(true)
+          expect(result).to be_falsy
+        end
+      end
+
+      context "with Proc unless condition" do
+        it "returns false when Proc evaluates to truthy" do
+          truthy_proc = proc { true }
+          result = condition_module.evaluate(target_object, { unless: truthy_proc })
+
+          expect(result).to be(false)
         end
 
-        it "returns true for falsy symbol method" do
-          result = condition_module.evaluate(target_object, { unless: :false_method? })
-
-          expect(result).to be(true)
-        end
-
-        it "returns true for falsy proc" do
-          proc = -> { false }
-          result = condition_module.evaluate(target_object, { unless: proc })
+        it "returns true when Proc evaluates to falsy" do
+          falsy_proc = proc { false }
+          result = condition_module.evaluate(target_object, { unless: falsy_proc })
 
           expect(result).to be(true)
         end
       end
 
-      context "when unless condition is true" do
-        it "returns false for true boolean" do
+      context "with boolean unless condition" do
+        it "returns false when unless condition is true" do
           result = condition_module.evaluate(target_object, { unless: true })
 
           expect(result).to be(false)
         end
 
-        it "returns false for truthy symbol method" do
-          result = condition_module.evaluate(target_object, { unless: :true_method? })
+        it "returns true when unless condition is false" do
+          result = condition_module.evaluate(target_object, { unless: false })
 
-          expect(result).to be(false)
+          expect(result).to be(true)
         end
 
-        it "returns false for truthy proc" do
-          proc = -> { true }
-          result = condition_module.evaluate(target_object, { unless: proc })
+        it "returns true when unless condition is nil" do
+          result = condition_module.evaluate(target_object, { unless: nil })
 
-          expect(result).to be(false)
-        end
-      end
-
-      context "with callable object" do
-        it "returns negated truthy value when callable returns truthy value" do
-          callable = instance_double("Callable")
-
-          allow(callable).to receive(:respond_to?).with(:call).and_return(true)
-          allow(callable).to receive(:call).and_return("truthy")
-
-          result = condition_module.evaluate(target_object, { unless: callable })
-
-          expect(result).to be(false)
-        end
-
-        it "passes arguments to callable" do
-          callable = instance_double("Callable")
-
-          allow(callable).to receive(:respond_to?).with(:call).and_return(true)
-          allow(callable).to receive(:call).and_return(false)
-
-          condition_module.evaluate(target_object, { unless: callable }, "arg1", key: "value")
-
-          expect(callable).to have_received(:call).with("arg1", key: "value")
+          expect(result).to be(true)
         end
       end
     end
 
-    context "when options contain both if: and unless: conditions" do
-      it "returns true when if is true and unless is false" do
-        result = condition_module.evaluate(target_object, { if: true, unless: false })
+    context "when options contain both if and unless conditions" do
+      it "returns true when if is truthy and unless is falsy" do
+        result = condition_module.evaluate(target_object, { if: :truthy_method, unless: :falsy_method })
 
         expect(result).to be(true)
       end
 
-      it "returns false when if is true and unless is true" do
-        result = condition_module.evaluate(target_object, { if: true, unless: true })
+      it "returns false when if is truthy and unless is truthy" do
+        result = condition_module.evaluate(target_object, { if: :truthy_method, unless: :truthy_method })
 
         expect(result).to be(false)
       end
 
-      it "returns false when if is false and unless is false" do
-        result = condition_module.evaluate(target_object, { if: false, unless: false })
+      it "returns false when if is falsy and unless is falsy" do
+        result = condition_module.evaluate(target_object, { if: :falsy_method, unless: :falsy_method })
 
         expect(result).to be(false)
       end
 
-      it "returns false when if is false and unless is true" do
-        result = condition_module.evaluate(target_object, { if: false, unless: true })
+      it "returns false when if is falsy and unless is truthy" do
+        result = condition_module.evaluate(target_object, { if: :falsy_method, unless: :truthy_method })
 
         expect(result).to be(false)
-      end
-
-      it "evaluates both conditions with method calls" do
-        result = condition_module.evaluate(target_object, { if: :true_method?, unless: :false_method? })
-
-        expect(result).to be(true)
       end
 
       it "passes arguments to both conditions" do
-        allow(target_object).to receive(:method_with_args).and_return(true, false)
+        if_proc = proc { |arg| arg == "test" }
+        unless_proc = proc { |arg| arg == "fail" }
 
-        condition_module.evaluate(target_object, { if: :method_with_args, unless: :method_with_args }, "test")
+        result = condition_module.evaluate(target_object, { if: if_proc, unless: unless_proc }, "test")
 
-        expect(target_object).to have_received(:method_with_args).with("test").twice
+        expect(result).to be(true)
       end
     end
 
-    context "when options are empty" do
-      it "returns true for empty hash" do
+    context "when options contain neither if nor unless" do
+      it "returns true for empty options" do
         result = condition_module.evaluate(target_object, {})
 
         expect(result).to be(true)
       end
 
-      it "returns true for hash with unrecognized keys" do
+      it "returns true for options with other keys" do
         result = condition_module.evaluate(target_object, { other_key: "value" })
 
         expect(result).to be(true)
       end
     end
 
-    context "with proc conditions" do
-      it "executes proc in target object context" do
-        instance_var_proc = proc {
-          @test_var = "set"
-          true
-        }
-
-        condition_module.evaluate(target_object, { if: instance_var_proc })
-
-        expect(target_object.instance_variable_get(:@test_var)).to eq("set")
+    context "with invalid callable objects" do
+      let(:invalid_callable) do
+        Object.new
       end
 
-      it "passes arguments to proc in instance_exec context" do
-        arg_capturing_proc = proc { |arg|
-          @captured_arg = arg
-          true
-        }
-
-        condition_module.evaluate(target_object, { if: arg_capturing_proc }, "test_arg")
-
-        expect(target_object.instance_variable_get(:@captured_arg)).to eq("test_arg")
+      it "raises an error when if condition is not callable" do
+        expect do
+          condition_module.evaluate(target_object, { if: invalid_callable })
+        end.to raise_error(RuntimeError, /cannot evaluate/)
       end
 
-      it "passes keyword arguments to proc" do
-        kwarg_capturing_proc = proc { |value:|
-          @captured_kwarg = value
-          true
-        }
-
-        condition_module.evaluate(target_object, { if: kwarg_capturing_proc }, value: "test_value")
-
-        expect(target_object.instance_variable_get(:@captured_kwarg)).to eq("test_value")
+      it "raises an error when unless condition is not callable" do
+        expect do
+          condition_module.evaluate(target_object, { unless: invalid_callable })
+        end.to raise_error(RuntimeError, /cannot evaluate/)
       end
 
-      it "executes proc block method in target object context" do
-        # Test that proc is executed in the context of the target object
-        proc_that_uses_self = proc { respond_to?(:true_method?) }
+      it "includes the invalid object in the error message" do
+        expect do
+          condition_module.evaluate(target_object, { if: invalid_callable })
+        end.to raise_error(RuntimeError, /#{Regexp.escape(invalid_callable.inspect)}/)
+      end
+    end
 
-        result = condition_module.evaluate(target_object, { if: proc_that_uses_self })
+    context "when target object doesn't respond to method" do
+      it "raises NoMethodError for Symbol condition" do
+        expect do
+          condition_module.evaluate(target_object, { if: :nonexistent_method })
+        end.to raise_error(NoMethodError)
+      end
+    end
+  end
+
+  describe "EVAL constant" do
+    let(:eval_proc) { described_class.const_get(:EVAL) }
+
+    context "when callable is NilClass" do
+      it "returns false" do
+        result = eval_proc.call(target_object, nil)
+
+        expect(result).to be(false)
+      end
+    end
+
+    context "when callable is FalseClass" do
+      it "returns false" do
+        result = eval_proc.call(target_object, false)
+
+        expect(result).to be(false)
+      end
+    end
+
+    context "when callable is TrueClass" do
+      it "returns true" do
+        result = eval_proc.call(target_object, true)
 
         expect(result).to be(true)
+      end
+    end
+
+    context "when callable is Symbol" do
+      it "calls the method on target" do
+        result = eval_proc.call(target_object, :no_args_method)
+
+        expect(result).to eq("no_args_result")
+      end
+
+      it "passes arguments to the method" do
+        result = eval_proc.call(target_object, :method_with_args, "hello", "world")
+
+        expect(result).to eq("hello_world")
+      end
+
+      it "passes keyword arguments to the method" do
+        result = eval_proc.call(target_object, :method_with_kwargs, name: "test", value: "data")
+
+        expect(result).to eq("test: data")
+      end
+
+      it "passes block to the method" do
+        result = eval_proc.call(target_object, :test_method) { "block_value" }
+
+        expect(result[:block_result]).to eq("block_value")
+      end
+    end
+
+    context "when callable is Proc" do
+      it "executes the Proc in target context" do
+        test_proc = proc { instance_variable_check }
+        result = eval_proc.call(target_object, test_proc)
+
+        expect(result).to eq("instance_value")
+      end
+
+      it "passes arguments to the Proc" do
+        arg_proc = proc { |arg1, arg2| "#{arg1}_#{arg2}" }
+        result = eval_proc.call(target_object, arg_proc, "hello", "world")
+
+        expect(result).to eq("hello_world")
+      end
+
+      it "passes keyword arguments to the Proc" do
+        kwarg_proc = proc { |name:, value:| "#{name}: #{value}" }
+        result = eval_proc.call(target_object, kwarg_proc, name: "test", value: "data")
+
+        expect(result).to eq("test: data")
+      end
+    end
+
+    context "when callable has call method" do
+      let(:callable_object) do
+        Class.new do
+          def call(*args, **kwargs, &block)
+            { args: args, kwargs: kwargs, block_called: block&.call }
+          end
+        end.new
+      end
+
+      it "calls the call method" do
+        result = eval_proc.call(target_object, callable_object)
+
+        expect(result).to eq({ args: [], kwargs: {}, block_called: nil })
+      end
+
+      it "passes arguments to the call method" do
+        result = eval_proc.call(target_object, callable_object, "arg1", "arg2")
+
+        expect(result).to eq({ args: %w[arg1 arg2], kwargs: {}, block_called: nil })
+      end
+
+      it "passes keyword arguments to the call method" do
+        result = eval_proc.call(target_object, callable_object, name: "test", value: "data")
+
+        expect(result).to eq({ args: [], kwargs: { name: "test", value: "data" }, block_called: nil })
+      end
+
+      it "passes block to the call method" do
+        result = eval_proc.call(target_object, callable_object) { "block_value" }
+
+        expect(result).to eq({ args: [], kwargs: {}, block_called: "block_value" })
+      end
+    end
+
+    context "when callable doesn't respond to call" do
+      let(:invalid_object) { Object.new }
+
+      it "raises an error" do
+        expect do
+          eval_proc.call(target_object, invalid_object)
+        end.to raise_error(RuntimeError, /cannot evaluate/)
+      end
+
+      it "includes the object in the error message" do
+        expect do
+          eval_proc.call(target_object, invalid_object)
+        end.to raise_error(RuntimeError, /#{Regexp.escape(invalid_object.inspect)}/)
       end
     end
   end

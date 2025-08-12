@@ -43,19 +43,23 @@ RSpec.describe CMDx::Utils::Call do
       it "calls the method on target with positional arguments" do
         result = call_module.invoke(target_object, :test_method, "arg1", "arg2")
 
-        expect(result).to eq({
-                               args: %w[arg1 arg2],
-                               kwargs: {}
-                             })
+        expect(result).to eq(
+          {
+            args: %w[arg1 arg2],
+            kwargs: {}
+          }
+        )
       end
 
       it "calls the method on target with keyword arguments" do
         result = call_module.invoke(target_object, :test_method, key1: "value1", key2: "value2")
 
-        expect(result).to eq({
-                               args: [],
-                               kwargs: { key1: "value1", key2: "value2" }
-                             })
+        expect(result).to eq(
+          {
+            args: [],
+            kwargs: { key1: "value1", key2: "value2" }
+          }
+        )
       end
 
       it "calls the method on target with both positional and keyword arguments" do
