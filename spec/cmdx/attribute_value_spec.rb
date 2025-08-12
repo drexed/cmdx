@@ -249,7 +249,7 @@ RSpec.describe CMDx::AttributeValue do
     end
 
     context "when source responds to call" do
-      let(:callable_source) { double("callable", call: "callable_result") }
+      let(:callable_source) { instance_double("callable", call: "callable_result") }
       let(:attribute_options) { { source: callable_source } }
 
       it "calls the object with task as argument" do
@@ -312,7 +312,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source object responds to attribute name" do
-        let(:source_object) { double("source") }
+        let(:source_object) { instance_double("source") }
 
         before do
           allow(attribute_value).to receive(:source).and_return(source_object)
@@ -327,7 +327,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source object does not respond to attribute name" do
-        let(:source_object) { double("source") }
+        let(:source_object) { instance_double("source") }
 
         before do
           allow(attribute_value).to receive(:source).and_return(source_object)
@@ -434,7 +434,7 @@ RSpec.describe CMDx::AttributeValue do
     end
 
     context "when default responds to call" do
-      let(:callable_default) { double("callable", call: "callable_default") }
+      let(:callable_default) { instance_double("callable", call: "callable_default") }
       let(:attribute_options) { { default: callable_default } }
 
       it "calls the object with task as argument" do
@@ -514,7 +514,7 @@ RSpec.describe CMDx::AttributeValue do
     end
 
     context "when source_value responds to call" do
-      let(:source_value) { double("callable", call: "callable_value") }
+      let(:source_value) { instance_double("callable", call: "callable_value") }
 
       it "calls object with task and attribute name" do
         expect(source_value).to receive(:call).with(task, :test_attr).and_return("callable_value")

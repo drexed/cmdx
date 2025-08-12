@@ -213,7 +213,7 @@ RSpec.describe CMDx::Attribute do
     end
 
     context "with source option as callable object" do
-      let(:callable) { double("callable", call: :callable_result) }
+      let(:callable) { instance_double("callable", call: :callable_result) }
       let(:options) { { source: callable } }
 
       it "calls object with task" do
