@@ -66,18 +66,18 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "log" }
 
       it "logs a warning message" do
-        described_class.restrict(mock_task)
+        expect(mock_logger).to receive(:warn)
 
-        expect(mock_logger).to have_received(:warn)
+        described_class.restrict(mock_task)
       end
 
       context "when deprecate setting is 'custom_log'" do
         let(:deprecate_value) { "custom_log" }
 
         it "logs a warning message" do
-          described_class.restrict(mock_task)
+          expect(mock_logger).to receive(:warn)
 
-          expect(mock_logger).to have_received(:warn)
+          described_class.restrict(mock_task)
         end
       end
     end
@@ -86,28 +86,24 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { "warn" }
 
       it "calls warn with deprecation message" do
-        allow(described_class).to receive(:warn)
-
-        described_class.restrict(mock_task)
-
-        expect(described_class).to have_received(:warn).with(
+        expect(described_class).to receive(:warn).with(
           "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
           category: :deprecated
         )
+
+        described_class.restrict(mock_task)
       end
 
       context "when deprecate setting is 'custom_warn'" do
         let(:deprecate_value) { "custom_warn" }
 
         it "calls warn with deprecation message" do
-          allow(described_class).to receive(:warn)
-
-          described_class.restrict(mock_task)
-
-          expect(described_class).to have_received(:warn).with(
+          expect(described_class).to receive(:warn).with(
             "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
             category: :deprecated
           )
+
+          described_class.restrict(mock_task)
         end
       end
     end
@@ -125,16 +121,12 @@ RSpec.describe CMDx::Deprecator do
     context "when deprecate setting is a symbol" do
       let(:deprecate_value) { :test_method }
 
-      before do
-        allow(mock_task).to receive(:test_method).and_return("symbol_result")
-      end
-
       it "evaluates the symbol and processes the result" do
+        allow(mock_task).to receive(:test_method).and_return("symbol_result")
+
         expect { described_class.restrict(mock_task) }.to raise_error(
           RuntimeError, 'unknown deprecation type "symbol_result"'
         )
-
-        expect(mock_task).to have_received(:test_method)
       end
     end
 
@@ -142,9 +134,9 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { proc { "log" } }
 
       it "evaluates the proc and processes the result" do
-        described_class.restrict(mock_task)
+        expect(mock_logger).to receive(:warn)
 
-        expect(mock_logger).to have_received(:warn)
+        described_class.restrict(mock_task)
       end
     end
 
@@ -153,45 +145,35 @@ RSpec.describe CMDx::Deprecator do
       let(:deprecate_value) { callable_object }
 
       it "calls the object and processes the result" do
-        allow(described_class).to receive(:warn)
-
-        described_class.restrict(mock_task)
-
-        expect(callable_object).to have_received(:call).with(mock_task)
-        expect(described_class).to have_received(:warn).with(
+        allow(callable_object).to receive(:call).with(mock_task).and_return("warn")
+        expect(described_class).to receive(:warn).with(
           "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
           category: :deprecated
         )
+
+        described_class.restrict(mock_task)
       end
     end
 
     context "when deprecate setting returns a boolean from symbol" do
       let(:deprecate_value) { :check_deprecated }
 
-      before do
-        allow(mock_task).to receive(:check_deprecated).and_return(false)
-      end
-
       it "evaluates symbol and handles boolean result" do
-        expect { described_class.restrict(mock_task) }.not_to raise_error
+        allow(mock_task).to receive(:check_deprecated).and_return(false)
 
-        expect(mock_task).to have_received(:check_deprecated)
+        expect { described_class.restrict(mock_task) }.not_to raise_error
       end
     end
 
     context "when deprecate setting returns true from symbol" do
       let(:deprecate_value) { :check_deprecated }
 
-      before do
-        allow(mock_task).to receive(:check_deprecated).and_return(true)
-      end
-
       it "evaluates symbol and raises error for true result" do
+        allow(mock_task).to receive(:check_deprecated).and_return(true)
+
         expect { described_class.restrict(mock_task) }.to raise_error(
           CMDx::DeprecationError, "TestTask usage prohibited"
         )
-
-        expect(mock_task).to have_received(:check_deprecated)
       end
     end
   end
