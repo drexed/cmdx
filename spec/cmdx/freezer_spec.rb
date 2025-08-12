@@ -3,12 +3,12 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Freezer do
-  describe "#immute" do
-    let(:task) { instance_double(CMDx::Task) }
-    let(:result) { instance_double(CMDx::Result) }
-    let(:context) { instance_double(CMDx::Context) }
-    let(:chain) { instance_double(CMDx::Chain) }
+  let(:task) { instance_double(CMDx::Task) }
+  let(:result) { instance_double(CMDx::Result) }
+  let(:context) { instance_double(CMDx::Context) }
+  let(:chain) { instance_double(CMDx::Chain) }
 
+  describe "#immute" do
     before do
       allow(task).to receive_messages(result: result, context: context, chain: chain)
       allow(task).to receive(:freeze)
