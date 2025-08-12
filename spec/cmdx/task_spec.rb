@@ -295,7 +295,7 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".execute" do
-    let(:mock_task) { instance_double("CMDx::Task", result: "result") }
+    let(:mock_task) { instance_double(described_class, result: "result") }
 
     it "creates new task instance and executes with raise: false" do
       expect(task_class).to receive(:new).with("arg1", "arg2").and_return(mock_task)
@@ -308,7 +308,7 @@ RSpec.describe CMDx::Task do
   end
 
   describe ".execute!" do
-    let(:mock_task) { instance_double("CMDx::Task", result: "result") }
+    let(:mock_task) { instance_double(described_class, result: "result") }
 
     it "creates new task instance and executes with raise: true" do
       expect(task_class).to receive(:new).with("arg1", "arg2").and_return(mock_task)
