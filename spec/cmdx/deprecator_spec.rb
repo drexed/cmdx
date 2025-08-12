@@ -4,8 +4,8 @@ require "spec_helper"
 
 RSpec.describe CMDx::Deprecator do
   let(:mock_task) { instance_double("Task") }
-  let(:mock_task_class) { class_double("TaskClass", name: "TestTask") }
-  let(:mock_logger) { instance_double("Logger") }
+  let(:mock_task_class) { class_double(CMDx::Task, name: "TestTask") }
+  let(:mock_logger) { instance_double(Logger) }
   let(:mock_settings) { { deprecate: deprecate_value } }
   let(:deprecate_value) { false }
 
