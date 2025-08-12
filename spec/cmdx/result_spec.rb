@@ -8,807 +8,1016 @@ RSpec.describe CMDx::Result do
   let(:result) { task.result }
 
   describe "#initialize" do
-    it "initializes with valid task" do
-      aggregate_failures do
-        expect(result.task).to eq(task)
-        expect(result.state).to eq(CMDx::Result::INITIALIZED)
-        expect(result.status).to eq(CMDx::Result::SUCCESS)
-        expect(result.metadata).to eq({})
-        expect(result.reason).to be_nil
-        expect(result.cause).to be_nil
+    context "with valid task" do
+      it "initializes with correct defaults" do
+        aggregate_failures do
+          expect(result.task).to eq(task)
+          expect(result.state).to eq(CMDx::Result::INITIALIZED)
+          expect(result.status).to eq(CMDx::Result::SUCCESS)
+          expect(result.metadata).to eq({})
+          expect(result.reason).to be_nil
+          expect(result.cause).to be_nil
+        end
+      end
+
+      it "delegates context and chain to task" do
+        aggregate_failures do
+          expect(result.context).to eq(task.context)
+          expect(result.chain).to eq(task.chain)
+        end
       end
     end
 
-    it "raises TypeError with invalid task" do
-      expect { described_class.new("not a task") }.to raise_error(TypeError, "must be a CMDx::Task")
+    context "with invalid task" do
+      it "raises TypeError when task is not a CMDx::Task" do
+        expect { described_class.new("not a task") }.to raise_error(TypeError, "must be a CMDx::Task")
+      end
     end
   end
 
-  describe "delegation" do
-    it "delegates context to task" do
-      expect(result.context).to eq(task.context)
-    end
-
-    it "delegates chain to task" do
-      expect(result.chain).to eq(task.chain)
-    end
-  end
-
-  describe "state predicate methods" do
-    context "when initialized" do
-      it "returns true for initialized?" do
+  describe "state predicates" do
+    describe "#initialized?" do
+      it "returns true when state is initialized" do
         expect(result.initialized?).to be true
       end
 
-      it "returns false for other state predicates" do
-        aggregate_failures do
-          expect(result.executing?).to be false
-          expect(result.complete?).to be false
-          expect(result.interrupted?).to be false
-        end
+      it "returns false when state is not initialized" do
+        result.executing!
+
+        expect(result.initialized?).to be false
       end
     end
 
-    context "when executing" do
-      before { result.executing! }
+    describe "#executing?" do
+      it "returns false when state is initialized" do
+        expect(result.executing?).to be false
+      end
 
-      it "returns true for executing?" do
+      it "returns true when state is executing" do
+        result.executing!
+
         expect(result.executing?).to be true
       end
-
-      it "returns false for other state predicates" do
-        aggregate_failures do
-          expect(result.initialized?).to be false
-          expect(result.complete?).to be false
-          expect(result.interrupted?).to be false
-        end
-      end
     end
 
-    context "when complete" do
-      before do
+    describe "#complete?" do
+      it "returns false when state is not complete" do
+        expect(result.complete?).to be false
+      end
+
+      it "returns true when state is complete" do
         result.executing!
         result.complete!
-      end
 
-      it "returns true for complete?" do
-        expect(result.complete?).to be true
-      end
-
-      it "returns false for other state predicates" do
-        aggregate_failures do
-          expect(result.initialized?).to be false
-          expect(result.executing?).to be false
-          expect(result.interrupted?).to be false
-        end
-      end
-    end
-
-    context "when interrupted" do
-      before { result.interrupt! }
-
-      it "returns true for interrupted?" do
-        expect(result.interrupted?).to be true
-      end
-
-      it "returns false for other state predicates" do
-        aggregate_failures do
-          expect(result.initialized?).to be false
-          expect(result.executing?).to be false
-          expect(result.complete?).to be false
-        end
-      end
-    end
-  end
-
-  describe "handle_state methods" do
-    let(:callback_result) { [] }
-
-    CMDx::Result::STATES.each do |state|
-      describe "#handle_#{state}" do
-        it "executes block when in #{state} state" do
-          result.instance_variable_set(:@state, state)
-
-          result.send(:"handle_#{state}") { |r| callback_result << r }
-
-          expect(callback_result).to contain_exactly(result)
-        end
-
-        it "does not execute block when not in #{state} state" do
-          other_states = CMDx::Result::STATES - [state]
-          result.instance_variable_set(:@state, other_states.first)
-
-          result.send(:"handle_#{state}") { |r| callback_result << r }
-
-          expect(callback_result).to be_empty
-        end
-
-        it "returns self" do
-          expect(result.send(:"handle_#{state}") { |r| r }).to eq(result)
-        end
-
-        it "raises ArgumentError without block" do
-          expect { result.send(:"handle_#{state}") }.to raise_error(ArgumentError, "block required")
-        end
-      end
-    end
-  end
-
-  describe "#executed!" do
-    context "when status is success" do
-      before { result.executing! }
-
-      it "transitions to complete state" do
-        result.executed!
         expect(result.complete?).to be true
       end
     end
 
-    context "when status is not success" do
-      before do
-        result.instance_variable_set(:@status, CMDx::Result::FAILED)
+    describe "#interrupted?" do
+      it "returns false when state is not interrupted" do
+        expect(result.interrupted?).to be false
       end
 
-      it "transitions to interrupted state" do
-        result.executed!
-        expect(result.interrupted?).to be true
-      end
-    end
-  end
-
-  describe "#executed?" do
-    it "returns true when complete" do
-      result.executing!
-      result.complete!
-      expect(result.executed?).to be true
-    end
-
-    it "returns true when interrupted" do
-      result.interrupt!
-      expect(result.executed?).to be true
-    end
-
-    it "returns false when not executed" do
-      expect(result.executed?).to be false
-    end
-  end
-
-  describe "#handle_executed" do
-    let(:callback_result) { [] }
-
-    it "executes block when executed" do
-      result.interrupt!
-
-      result.handle_executed { |r| callback_result << r }
-
-      expect(callback_result).to contain_exactly(result)
-    end
-
-    it "does not execute block when not executed" do
-      result.handle_executed { |r| callback_result << r }
-
-      expect(callback_result).to be_empty
-    end
-
-    it "returns self" do
-      expect(result.handle_executed { |r| r }).to eq(result)
-    end
-
-    it "raises ArgumentError without block" do
-      expect { result.handle_executed }.to raise_error(ArgumentError, "block required")
-    end
-  end
-
-  describe "state transition methods" do
-    describe "#executing!" do
-      it "transitions from initialized to executing" do
+      it "returns true when state is interrupted" do
         result.executing!
-        expect(result.executing?).to be true
-      end
-
-      it "is idempotent when already executing" do
-        result.executing!
-        expect { result.executing! }.not_to(change(result, :state))
-      end
-
-      it "raises error when not initialized" do
         result.interrupt!
-        expect { result.executing! }.to raise_error("can only transition to executing from initialized")
+
+        expect(result.interrupted?).to be true
+      end
+    end
+  end
+
+  describe "state transitions" do
+    describe "#executing!" do
+      context "when initialized" do
+        it "transitions to executing state" do
+          result.executing!
+
+          expect(result.state).to eq(CMDx::Result::EXECUTING)
+        end
+
+        it "returns early if already executing" do
+          result.executing!
+          initial_state = result.state
+          result.executing!
+
+          expect(result.state).to eq(initial_state)
+        end
+      end
+
+      context "when not initialized" do
+        it "raises error when trying to transition from complete" do
+          result.executing!
+          result.complete!
+
+          expect { result.executing! }.to raise_error(/can only transition to executing from initialized/)
+        end
+
+        it "raises error when trying to transition from interrupted" do
+          result.executing!
+          result.interrupt!
+
+          expect { result.executing! }.to raise_error(/can only transition to executing from initialized/)
+        end
       end
     end
 
     describe "#complete!" do
-      before { result.executing! }
+      context "when executing" do
+        before { result.executing! }
 
-      it "transitions from executing to complete" do
-        result.complete!
-        expect(result.complete?).to be true
+        it "transitions to complete state" do
+          result.complete!
+
+          expect(result.state).to eq(CMDx::Result::COMPLETE)
+        end
+
+        it "returns early if already complete" do
+          result.complete!
+          initial_state = result.state
+          result.complete!
+
+          expect(result.state).to eq(initial_state)
+        end
       end
 
-      it "is idempotent when already complete" do
-        result.complete!
-        expect { result.complete! }.not_to(change(result, :state))
-      end
-
-      it "raises error when not executing" do
-        result.interrupt!
-        expect { result.complete! }.to raise_error("can only transition to complete from executing")
+      context "when not executing" do
+        it "raises error when trying to transition from initialized" do
+          expect { result.complete! }.to raise_error(/can only transition to complete from executing/)
+        end
       end
     end
 
     describe "#interrupt!" do
-      it "transitions from initialized to interrupted" do
-        result.interrupt!
-        expect(result.interrupted?).to be true
+      context "when not complete" do
+        it "transitions to interrupted from initialized" do
+          result.interrupt!
+
+          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+        end
+
+        it "transitions to interrupted from executing" do
+          result.executing!
+          result.interrupt!
+
+          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+        end
+
+        it "returns early if already interrupted" do
+          result.interrupt!
+          initial_state = result.state
+          result.interrupt!
+
+          expect(result.state).to eq(initial_state)
+        end
       end
 
-      it "transitions from executing to interrupted" do
-        result.executing!
-        result.interrupt!
-        expect(result.interrupted?).to be true
+      context "when complete" do
+        it "raises error when trying to transition from complete" do
+          result.executing!
+          result.complete!
+
+          expect { result.interrupt! }.to raise_error(/cannot transition to interrupted from complete/)
+        end
+      end
+    end
+  end
+
+  describe "status predicates" do
+    describe "#success?" do
+      it "returns true by default" do
+        expect(result.success?).to be true
       end
 
-      it "is idempotent when already interrupted" do
-        result.interrupt!
-        expect { result.interrupt! }.not_to(change(result, :state))
+      it "returns false after skip!" do
+        result.skip!("test reason", halt: false)
+
+        expect(result.success?).to be false
       end
 
-      it "raises error when complete" do
+      it "returns false after fail!" do
+        result.fail!("test reason", halt: false)
+
+        expect(result.success?).to be false
+      end
+    end
+
+    describe "#skipped?" do
+      it "returns false by default" do
+        expect(result.skipped?).to be false
+      end
+
+      it "returns true after skip!" do
+        result.skip!("test reason", halt: false)
+
+        expect(result.skipped?).to be true
+      end
+    end
+
+    describe "#failed?" do
+      it "returns false by default" do
+        expect(result.failed?).to be false
+      end
+
+      it "returns true after fail!" do
+        result.fail!("test reason", halt: false)
+
+        expect(result.failed?).to be true
+      end
+    end
+
+    describe "#good?" do
+      it "returns true when not failed" do
+        expect(result.good?).to be true
+      end
+
+      it "returns true when skipped" do
+        result.skip!("test reason", halt: false)
+
+        expect(result.good?).to be true
+      end
+
+      it "returns false when failed" do
+        result.fail!("test reason", halt: false)
+
+        expect(result.good?).to be false
+      end
+    end
+
+    describe "#bad?" do
+      it "returns false when successful" do
+        expect(result.bad?).to be false
+      end
+
+      it "returns true when skipped" do
+        result.skip!("test reason", halt: false)
+
+        expect(result.bad?).to be true
+      end
+
+      it "returns true when failed" do
+        result.fail!("test reason", halt: false)
+
+        expect(result.bad?).to be true
+      end
+    end
+  end
+
+  describe "execution methods" do
+    describe "#executed!" do
+      context "when successful" do
+        it "calls complete!" do
+          result.executing!
+          result.executed!
+
+          expect(result.complete?).to be true
+        end
+      end
+
+      context "when not successful" do
+        it "calls interrupt! when skipped" do
+          result.skip!("test reason", halt: false)
+          result.executed!
+
+          expect(result.interrupted?).to be true
+        end
+
+        it "calls interrupt! when failed" do
+          result.fail!("test reason", halt: false)
+          result.executed!
+
+          expect(result.interrupted?).to be true
+        end
+      end
+    end
+
+    describe "#executed?" do
+      it "returns false when not executed" do
+        expect(result.executed?).to be false
+      end
+
+      it "returns true when complete" do
         result.executing!
         result.complete!
-        expect { result.interrupt! }.to raise_error("cannot transition to interrupted from complete")
+
+        expect(result.executed?).to be true
+      end
+
+      it "returns true when interrupted" do
+        result.interrupt!
+
+        expect(result.executed?).to be true
       end
     end
-  end
 
-  describe "status predicate methods" do
-    CMDx::Result::STATUSES.each do |status|
-      describe "##{status}?" do
-        it "returns true when status matches" do
-          result.instance_variable_set(:@status, status)
-          expect(result.send(:"#{status}?")).to be true
-        end
-
-        it "returns false when status does not match" do
-          other_statuses = CMDx::Result::STATUSES - [status]
-          result.instance_variable_set(:@status, other_statuses.first)
-          expect(result.send(:"#{status}?")).to be false
-        end
+    describe "#handle_executed" do
+      it "raises ArgumentError without block" do
+        expect { result.handle_executed }.to raise_error(ArgumentError, "block required")
       end
-    end
-  end
 
-  describe "handle_status methods" do
-    let(:callback_result) { [] }
+      it "calls block when executed" do
+        result.interrupt!
+        called = false
+        result.handle_executed { |_r| called = true }
 
-    CMDx::Result::STATUSES.each do |status|
-      describe "#handle_#{status}" do
-        it "executes block when in #{status} status" do
-          result.instance_variable_set(:@status, status)
-
-          result.send(:"handle_#{status}") { |r| callback_result << r }
-
-          expect(callback_result).to contain_exactly(result)
-        end
-
-        it "does not execute block when not in #{status} status" do
-          other_statuses = CMDx::Result::STATUSES - [status]
-          result.instance_variable_set(:@status, other_statuses.first)
-
-          result.send(:"handle_#{status}") { |r| callback_result << r }
-
-          expect(callback_result).to be_empty
-        end
-
-        it "returns self" do
-          expect(result.send(:"handle_#{status}") { |r| r }).to eq(result)
-        end
-
-        it "raises ArgumentError without block" do
-          expect { result.send(:"handle_#{status}") }.to raise_error(ArgumentError, "block required")
-        end
+        expect(called).to be true
       end
-    end
-  end
 
-  describe "#good?" do
-    it "returns true when not failed" do
-      expect(result.good?).to be true
-    end
+      it "does not call block when not executed" do
+        called = false
+        result.handle_executed { |_r| called = true }
 
-    it "returns false when failed" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      expect(result.good?).to be false
-    end
-  end
+        expect(called).to be false
+      end
 
-  describe "#handle_good" do
-    let(:callback_result) { [] }
-
-    it "executes block when good" do
-      result.handle_good { |r| callback_result << r }
-      expect(callback_result).to contain_exactly(result)
-    end
-
-    it "does not execute block when not good" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      result.handle_good { |r| callback_result << r }
-      expect(callback_result).to be_empty
-    end
-
-    it "returns self" do
-      expect(result.handle_good { |r| r }).to eq(result)
-    end
-
-    it "raises ArgumentError without block" do
-      expect { result.handle_good }.to raise_error(ArgumentError, "block required")
-    end
-  end
-
-  describe "#bad?" do
-    it "returns false when success" do
-      expect(result.bad?).to be false
-    end
-
-    it "returns true when not success" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      expect(result.bad?).to be true
-    end
-  end
-
-  describe "#handle_bad" do
-    let(:callback_result) { [] }
-
-    it "executes block when bad" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      result.handle_bad { |r| callback_result << r }
-      expect(callback_result).to contain_exactly(result)
-    end
-
-    it "does not execute block when not bad" do
-      result.handle_bad { |r| callback_result << r }
-      expect(callback_result).to be_empty
-    end
-
-    it "returns self" do
-      expect(result.handle_bad { |r| r }).to eq(result)
-    end
-
-    it "raises ArgumentError without block" do
-      expect { result.handle_bad }.to raise_error(ArgumentError, "block required")
+      it "returns self" do
+        expect(result.handle_executed { "test" }).to eq(result)
+      end
     end
   end
 
   describe "#skip!" do
-    let(:reason) { "test reason" }
-    let(:metadata) { { key: "value" } }
-    let(:cause) { StandardError.new("test cause") }
+    context "when successful" do
+      it "transitions to skipped status" do
+        result.skip!("test reason", halt: false)
 
-    it "transitions to skipped status" do
-      result.skip!(reason, halt: false, **metadata, cause: cause)
+        aggregate_failures do
+          expect(result.status).to eq(CMDx::Result::SKIPPED)
+          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+          expect(result.reason).to eq("test reason")
+          expect(result.cause).to be_nil
+          expect(result.metadata).to eq({})
+        end
+      end
 
-      aggregate_failures do
-        expect(result.interrupted?).to be true
-        expect(result.skipped?).to be true
-        expect(result.reason).to eq(reason)
+      it "accepts metadata" do
+        result.skip!("test reason", halt: false, foo: "bar")
+
+        expect(result.metadata).to eq({ foo: "bar" })
+      end
+
+      it "accepts cause" do
+        cause = StandardError.new("cause")
+        result.skip!("test reason", halt: false, cause: cause)
+
         expect(result.cause).to eq(cause)
-        expect(result.metadata).to eq(metadata)
       end
-    end
 
-    it "uses default reason when none provided" do
-      allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("default reason")
+      it "uses default reason when none provided" do
+        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("no reason given")
 
-      result.skip!(halt: false)
-
-      expect(result.reason).to eq("default reason")
-    end
-
-    it "is idempotent when already skipped" do
-      result.skip!(reason, halt: false)
-      expect { result.skip!("new reason", halt: false) }.not_to(change { [result.state, result.status, result.reason] })
-    end
-
-    it "raises error when not success status" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      expect { result.skip!(halt: false) }.to raise_error("can only transition to skipped from success")
-    end
-
-    context "with halt: false" do
-      it "does not call halt!" do
-        allow(result).to receive(:halt!)
         result.skip!(halt: false)
-        expect(result).not_to have_received(:halt!)
+
+        expect(result.reason).to eq("no reason given")
+      end
+
+      it "calls halt! by default" do
+        expect { result.skip!("test reason") }.to raise_error(CMDx::SkipFault)
+      end
+
+      it "does not call halt! when halt: false" do
+        expect { result.skip!("test reason", halt: false) }.not_to raise_error
       end
     end
 
-    context "with halt: true" do
-      it "raises SkipFault" do
-        expect { result.skip! }.to raise_error(CMDx::SkipFault)
+    context "when already skipped" do
+      it "returns early without changes" do
+        result.skip!("first reason", halt: false)
+        original_reason = result.reason
+        result.skip!("second reason", halt: false)
+
+        expect(result.reason).to eq(original_reason)
+      end
+    end
+
+    context "when not successful" do
+      it "raises error when trying to skip from failed" do
+        result.fail!("test reason", halt: false)
+
+        expect { result.skip!("another reason", halt: false) }.to raise_error(/can only transition to skipped from success/)
       end
     end
   end
 
   describe "#fail!" do
-    let(:reason) { "test reason" }
-    let(:metadata) { { key: "value" } }
-    let(:cause) { StandardError.new("test cause") }
+    context "when successful" do
+      it "transitions to failed status" do
+        result.fail!("test reason", halt: false)
 
-    it "transitions to failed status" do
-      result.fail!(reason, halt: false, **metadata, cause: cause)
+        aggregate_failures do
+          expect(result.status).to eq(CMDx::Result::FAILED)
+          expect(result.state).to eq(CMDx::Result::INTERRUPTED)
+          expect(result.reason).to eq("test reason")
+          expect(result.cause).to be_nil
+          expect(result.metadata).to eq({})
+        end
+      end
 
-      aggregate_failures do
-        expect(result.interrupted?).to be true
-        expect(result.failed?).to be true
-        expect(result.reason).to eq(reason)
+      it "accepts metadata" do
+        result.fail!("test reason", halt: false, foo: "bar")
+
+        expect(result.metadata).to eq({ foo: "bar" })
+      end
+
+      it "accepts cause" do
+        cause = StandardError.new("cause")
+        result.fail!("test reason", halt: false, cause: cause)
+
         expect(result.cause).to eq(cause)
-        expect(result.metadata).to eq(metadata)
       end
-    end
 
-    it "uses default reason when none provided" do
-      allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("default reason")
+      it "uses default reason when none provided" do
+        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("no reason given")
 
-      result.fail!(halt: false)
-
-      expect(result.reason).to eq("default reason")
-    end
-
-    it "is idempotent when already failed" do
-      result.fail!(reason, halt: false)
-      expect { result.fail!("new reason", halt: false) }.not_to(change { [result.state, result.status, result.reason] })
-    end
-
-    it "raises error when not success status" do
-      result.instance_variable_set(:@status, CMDx::Result::SKIPPED)
-      expect { result.fail!(halt: false) }.to raise_error("can only transition to failed from success")
-    end
-
-    context "with halt: false" do
-      it "does not call halt!" do
-        allow(result).to receive(:halt!)
         result.fail!(halt: false)
-        expect(result).not_to have_received(:halt!)
+
+        expect(result.reason).to eq("no reason given")
+      end
+
+      it "calls halt! by default" do
+        expect { result.fail!("test reason") }.to raise_error(CMDx::FailFault)
+      end
+
+      it "does not call halt! when halt: false" do
+        expect { result.fail!("test reason", halt: false) }.not_to raise_error
       end
     end
 
-    context "with halt: true" do
-      it "raises FailFault" do
-        expect { result.fail! }.to raise_error(CMDx::FailFault)
+    context "when already failed" do
+      it "returns early without changes" do
+        result.fail!("first reason", halt: false)
+        original_reason = result.reason
+        result.fail!("second reason", halt: false)
+
+        expect(result.reason).to eq(original_reason)
+      end
+    end
+
+    context "when not successful" do
+      it "raises error when trying to fail from skipped" do
+        result.skip!("test reason", halt: false)
+
+        expect { result.fail!("another reason", halt: false) }.to raise_error(/can only transition to failed from success/)
       end
     end
   end
 
   describe "#halt!" do
-    context "when success" do
-      it "returns without raising" do
+    context "when successful" do
+      it "returns early without raising" do
         expect { result.halt! }.not_to raise_error
       end
     end
 
     context "when skipped" do
-      before { result.skip!(halt: false) }
-
       it "raises SkipFault" do
-        expect { result.halt! }.to raise_error(CMDx::SkipFault)
+        result.skip!("test reason", halt: false)
+
+        expect { result.halt! }.to raise_error(CMDx::SkipFault) do |fault|
+          expect(fault.result).to eq(result)
+          expect(fault.message).to eq("test reason")
+        end
       end
 
-      it "sets backtrace on fault" do
-        result.halt!
-      rescue CMDx::SkipFault => e
-        expect(e.backtrace).not_to be_empty
+      it "sets proper backtrace" do
+        result.skip!("test reason", halt: false)
+
+        begin
+          result.halt!
+        rescue CMDx::SkipFault => e
+          expect(e.backtrace).to be_an(Array)
+          expect(e.backtrace).not_to be_empty
+        end
       end
     end
 
     context "when failed" do
-      before { result.fail!(halt: false) }
-
       it "raises FailFault" do
-        expect { result.halt! }.to raise_error(CMDx::FailFault)
-      end
+        result.fail!("test reason", halt: false)
 
-      it "sets backtrace on fault" do
-        result.halt!
-      rescue CMDx::FailFault => e
-        expect(e.backtrace).not_to be_empty
+        expect { result.halt! }.to raise_error(CMDx::FailFault) do |fault|
+          expect(fault.result).to eq(result)
+          expect(fault.message).to eq("test reason")
+        end
       end
     end
   end
 
   describe "#throw!" do
-    let(:other_task) { task_class.new }
+    let(:other_task) { create_failing_task.new }
     let(:other_result) { other_task.result }
-    let(:metadata) { { key: "value" } }
-    let(:cause) { StandardError.new("test cause") }
 
     before do
-      other_result.fail!("other reason", halt: false, **metadata)
+      other_result.fail!("source failure", halt: false, foo: "bar")
     end
 
-    it "copies state from other result" do
-      result.throw!(other_result, halt: false)
-
-      aggregate_failures do
-        expect(result.state).to eq(other_result.state)
-        expect(result.status).to eq(other_result.status)
-        expect(result.reason).to eq(other_result.reason)
-      end
-    end
-
-    it "merges metadata" do
-      result.throw!(other_result, halt: false, extra: "data")
-
-      expect(result.metadata).to include(metadata.merge(extra: "data"))
-    end
-
-    it "uses provided cause or copies from other result" do
-      result.throw!(other_result, halt: false, cause: cause)
-      expect(result.cause).to eq(cause)
-    end
-
-    it "copies cause from other result when none provided" do
-      result.throw!(other_result, halt: false)
-      expect(result.cause).to eq(other_result.cause)
-    end
-
-    it "raises TypeError with invalid result" do
-      expect { result.throw!("not a result") }.to raise_error(TypeError, "must be a CMDx::Result")
-    end
-
-    context "with halt: false" do
-      it "does not call halt!" do
-        allow(result).to receive(:halt!)
+    context "with valid result" do
+      it "copies state and status from other result" do
         result.throw!(other_result, halt: false)
-        expect(result).not_to have_received(:halt!)
+
+        aggregate_failures do
+          expect(result.state).to eq(other_result.state)
+          expect(result.status).to eq(other_result.status)
+          expect(result.reason).to eq(other_result.reason)
+        end
+      end
+
+      it "merges metadata" do
+        result.throw!(other_result, halt: false, baz: "qux")
+
+        expect(result.metadata).to eq({ foo: "bar", baz: "qux" })
+      end
+
+      it "uses provided cause over other result's cause" do
+        custom_cause = StandardError.new("custom")
+
+        result.throw!(other_result, halt: false, cause: custom_cause)
+        expect(result.cause).to eq(custom_cause)
+      end
+
+      it "uses other result's cause when none provided" do
+        other_cause = StandardError.new("other")
+        other_result.instance_variable_set(:@cause, other_cause)
+        result.throw!(other_result, halt: false)
+
+        expect(result.cause).to eq(other_cause)
+      end
+
+      it "calls halt! by default" do
+        expect { result.throw!(other_result) }.to raise_error(CMDx::FailFault)
+      end
+
+      it "does not call halt! when halt: false" do
+        expect { result.throw!(other_result, halt: false) }.not_to raise_error
       end
     end
 
-    context "with halt: true" do
-      it "calls halt!" do
-        allow(result).to receive(:halt!)
-        result.throw!(other_result)
-        expect(result).to have_received(:halt!)
+    context "with invalid result" do
+      it "raises TypeError when not a CMDx::Result" do
+        expect { result.throw!("not a result", halt: false) }.to raise_error(TypeError, "must be a CMDx::Result")
       end
     end
   end
 
-  describe "failure detection methods" do
-    let(:chain) { instance_double(CMDx::Chain) }
-    let(:failed_result1) { instance_double(described_class, failed?: true, index: 1) }
-    let(:failed_result2) { instance_double(described_class, failed?: true, index: 3) }
-    let(:success_result) { instance_double(described_class, failed?: false) }
+  describe "failure tracking methods" do
+    let(:chain) { CMDx::Chain.new }
+    let(:first_task) { create_successful_task.new }
+    let(:second_task) { create_failing_task.new }
+    let(:third_task) { create_successful_task.new }
+    let(:first_result) { first_task.result }
+    let(:second_result) { second_task.result }
+    let(:third_result) { third_task.result }
 
     before do
-      allow(result).to receive_messages(chain: chain, index: 2)
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
+      chain.results.push(first_result, second_result, third_result)
+
+      [first_result, second_result, third_result].each do |r|
+        r.instance_variable_set(:@chain, chain)
+      end
+
+      second_result.fail!("test failure", halt: false)
     end
 
     describe "#caused_failure" do
-      it "returns first failed result in reverse order when failed" do
-        chain_results = [success_result, failed_result1, result, failed_result2]
-        allow(chain).to receive(:results).and_return(chain_results)
-
-        expect(result.caused_failure).to be_a(RSpec::Mocks::InstanceVerifyingDouble)
-        expect(result.caused_failure.failed?).to be true
+      context "when failed" do
+        it "returns the first failed result in chain" do
+          expect(second_result.caused_failure).to eq(second_result)
+        end
       end
 
-      it "returns nil when not failed" do
-        result.instance_variable_set(:@status, CMDx::Result::SUCCESS)
-
-        expect(result.caused_failure).to be_nil
+      context "when not failed" do
+        it "returns nil" do
+          expect(first_result.caused_failure).to be_nil
+        end
       end
     end
 
     describe "#caused_failure?" do
-      it "returns true when this result is the caused failure" do
-        allow(result).to receive(:caused_failure).and_return(result)
-
-        expect(result.caused_failure?).to be true
+      it "returns true for the causing failure" do
+        expect(second_result.caused_failure?).to be true
       end
 
-      it "returns false when this result is not the caused failure" do
-        allow(result).to receive(:caused_failure).and_return(failed_result1)
-
-        expect(result.caused_failure?).to be false
+      it "returns false for non-failing results" do
+        expect(first_result.caused_failure?).to be false
       end
 
-      it "returns false when not failed" do
-        result.instance_variable_set(:@status, CMDx::Result::SUCCESS)
-
-        expect(result.caused_failure?).to be false
+      it "returns false for non-failed results" do
+        expect(third_result.caused_failure?).to be false
       end
     end
 
     describe "#threw_failure" do
-      it "returns next failed result with higher index" do
-        failed_results = [failed_result1, result, failed_result2]
-        allow(chain).to receive(:results).and_return([success_result] + failed_results)
-        allow(chain.results).to receive(:select).and_return(failed_results)
+      context "when failed" do
+        let(:fourth_task) { create_failing_task.new }
+        let(:fourth_result) { fourth_task.result }
 
-        expect(result.threw_failure).to eq(failed_result2)
+        before do
+          chain.results << fourth_result
+
+          fourth_result.instance_variable_set(:@chain, chain)
+          fourth_result.fail!("another failure", halt: false)
+        end
+
+        it "returns the next failed result after current" do
+          expect(second_result.threw_failure).to eq(fourth_result)
+        end
+
+        it "returns the last failed result when no failures after current" do
+          expect(fourth_result.threw_failure).to eq(fourth_result)
+        end
       end
 
-      it "returns last failed result when no higher index found" do
-        failed_results = [failed_result1, result]
-        allow(chain).to receive(:results).and_return([success_result] + failed_results)
-        allow(chain.results).to receive(:select).and_return(failed_results)
-
-        expect(result.threw_failure).to eq(result)
-      end
-
-      it "returns nil when not failed" do
-        result.instance_variable_set(:@status, CMDx::Result::SUCCESS)
-
-        expect(result.threw_failure).to be_nil
+      context "when not failed" do
+        it "returns nil" do
+          expect(first_result.threw_failure).to be_nil
+        end
       end
     end
 
     describe "#threw_failure?" do
-      it "returns true when this result is the threw failure" do
-        allow(result).to receive(:threw_failure).and_return(result)
-
-        expect(result.threw_failure?).to be true
+      it "returns true when the result is the last failure" do
+        expect(second_result.threw_failure?).to be true
       end
 
-      it "returns false when this result is not the threw failure" do
-        allow(result).to receive(:threw_failure).and_return(failed_result2)
-
-        expect(result.threw_failure?).to be false
-      end
-
-      it "returns false when not failed" do
-        result.instance_variable_set(:@status, CMDx::Result::SUCCESS)
-
-        expect(result.threw_failure?).to be false
+      it "returns false for non-failing results" do
+        expect(first_result.threw_failure?).to be false
       end
     end
 
     describe "#thrown_failure?" do
-      it "returns true when failed and not caused failure" do
-        allow(result).to receive(:caused_failure?).and_return(false)
-
-        expect(result.thrown_failure?).to be true
+      it "returns false when result caused the failure" do
+        expect(second_result.thrown_failure?).to be false
       end
 
-      it "returns false when not failed" do
-        result.instance_variable_set(:@status, CMDx::Result::SUCCESS)
-
-        expect(result.thrown_failure?).to be false
-      end
-
-      it "returns false when failed but is caused failure" do
-        allow(result).to receive(:caused_failure?).and_return(true)
-
-        expect(result.thrown_failure?).to be false
+      it "returns false for non-failed results" do
+        expect(first_result.thrown_failure?).to be false
       end
     end
   end
 
   describe "#index" do
     it "delegates to chain.index" do
-      chain = instance_double(CMDx::Chain)
-      allow(result).to receive(:chain).and_return(chain)
-      allow(chain).to receive(:index).with(result).and_return(42)
+      allow(result.chain).to receive(:index).with(result).and_return(42)
 
       expect(result.index).to eq(42)
     end
   end
 
   describe "#outcome" do
-    it "returns state when initialized" do
-      expect(result.outcome).to eq(CMDx::Result::INITIALIZED)
+    context "when initialized" do
+      it "returns state" do
+        expect(result.outcome).to eq(result.state)
+      end
     end
 
-    it "returns state when thrown failure" do
-      result.instance_variable_set(:@status, CMDx::Result::FAILED)
-      allow(result).to receive(:thrown_failure?).and_return(true)
+    context "when thrown failure" do
+      it "returns state" do
+        allow(result).to receive(:thrown_failure?).and_return(true)
 
-      expect(result.outcome).to eq(CMDx::Result::INITIALIZED)
+        expect(result.outcome).to eq(result.state)
+      end
     end
 
-    it "returns status when not initialized and not thrown failure" do
-      result.executing!
+    context "when not initialized and not thrown failure" do
+      it "returns status" do
+        result.executing!
 
-      expect(result.outcome).to eq(CMDx::Result::SUCCESS)
+        expect(result.outcome).to eq(result.status)
+      end
     end
   end
 
   describe "#to_h" do
-    let(:task_hash) { { type: "Task", class: "TestTask", id: "test-id" } }
-
-    before do
-      allow(task).to receive(:to_h).and_return(task_hash)
-    end
-
-    it "includes basic result data" do
+    it "includes basic task and result information" do
       hash = result.to_h
+      task_hash = task.to_h
 
-      expect(hash).to include(
-        state: CMDx::Result::INITIALIZED,
-        status: CMDx::Result::SUCCESS,
-        outcome: CMDx::Result::INITIALIZED,
-        metadata: {}
-      )
-    end
-
-    it "merges task data" do
-      hash = result.to_h
-
-      expect(hash).to include(task_hash)
+      aggregate_failures do
+        expect(hash).to include(
+          state: result.state,
+          status: result.status,
+          outcome: result.outcome,
+          metadata: result.metadata
+        )
+        expect(hash[:index]).to eq(task_hash[:index])
+        expect(hash[:chain_id]).to eq(task_hash[:chain_id])
+        expect(hash[:type]).to eq(task_hash[:type])
+        expect(hash[:tags]).to eq(task_hash[:tags])
+        expect(hash[:id]).to eq(task_hash[:id])
+        expect(hash[:class]).to be_a(String)
+        expect(hash[:class]).to start_with("TestTask")
+      end
     end
 
     context "when interrupted" do
-      before { result.skip!("test reason", halt: false, cause: "test cause") }
-
       it "includes reason and cause" do
+        result.skip!("test reason", halt: false, cause: StandardError.new("test"))
         hash = result.to_h
 
-        expect(hash).to include(
-          reason: "test reason",
-          cause: "test cause"
-        )
+        aggregate_failures do
+          expect(hash).to include(:reason, :cause)
+          expect(hash[:reason]).to eq("test reason")
+        end
       end
     end
 
     context "when failed" do
-      let(:threw_failure_hash) { { index: 1, class: "FailedTask", id: "failed-id" } }
-      let(:caused_failure_hash) { { index: 0, class: "CausedTask", id: "caused-id" } }
-
-      before do
+      it "includes failure information" do
         result.fail!("test failure", halt: false)
-      end
 
-      it "strips failure data when not threw_failure" do
-        threw_failure = instance_double(described_class)
-        allow(threw_failure).to receive(:to_h).and_return(threw_failure_hash.merge(caused_failure: {}, threw_failure: {}))
-        allow(result).to receive_messages(threw_failure?: false, threw_failure: threw_failure)
+        # Create mock objects that avoid calling to_h to prevent infinite recursion
+        threw_failure_mock = instance_double(described_class, to_h: { index: 1, class: "Test", id: "123" })
+        caused_failure_mock = instance_double(described_class, to_h: { index: 0, class: "Test", id: "456" })
 
-        hash = result.to_h
-
-        expect(hash[:threw_failure]).to eq(threw_failure_hash)
-      end
-
-      it "strips failure data when not caused_failure" do
-        caused_failure = instance_double(described_class)
-        allow(caused_failure).to receive(:to_h).and_return(caused_failure_hash.merge(caused_failure: {}, threw_failure: {}))
-        allow(result).to receive_messages(caused_failure?: false, caused_failure: caused_failure)
+        allow(result).to receive_messages(threw_failure?: false, caused_failure?: false, threw_failure: threw_failure_mock, caused_failure: caused_failure_mock)
 
         hash = result.to_h
 
-        expect(hash[:caused_failure]).to eq(caused_failure_hash)
+        aggregate_failures do
+          expect(hash).to include(:threw_failure, :caused_failure)
+          expect(hash[:threw_failure]).to eq({ index: 1, class: "Test", id: "123" })
+          expect(hash[:caused_failure]).to eq({ index: 0, class: "Test", id: "456" })
+        end
       end
     end
   end
 
   describe "#to_s" do
-    it "formats result as string" do
-      allow(CMDx::Utils::Format).to receive(:to_str).and_return("formatted string")
+    it "formats hash using Utils::Format.to_str" do
+      expect(CMDx::Utils::Format).to receive(:to_str).and_return("formatted string")
 
-      result_string = result.to_s
+      expect(result.to_s).to eq("formatted string")
+    end
 
-      expect(result_string).to eq("formatted string")
-      expect(CMDx::Utils::Format).to have_received(:to_str).with(hash_including(:state, :status))
+    it "handles failure formatting in block" do
+      expect(CMDx::Utils::Format).to receive(:to_str).and_return("formatted string")
+
+      result.to_s
     end
   end
 
   describe "#deconstruct" do
     it "returns state and status as array" do
-      expect(result.deconstruct).to eq([CMDx::Result::INITIALIZED, CMDx::Result::SUCCESS])
+      expect(result.deconstruct).to eq([result.state, result.status])
+    end
+
+    it "ignores arguments" do
+      expect(result.deconstruct(:anything, :here)).to eq([result.state, result.status])
     end
   end
 
   describe "#deconstruct_keys" do
-    it "returns hash with key result data" do
-      expected_keys = {
-        state: CMDx::Result::INITIALIZED,
-        status: CMDx::Result::SUCCESS,
-        metadata: {},
-        executed: false,
-        good: true,
-        bad: false
+    it "returns hash with key attributes" do
+      expected = {
+        state: result.state,
+        status: result.status,
+        metadata: result.metadata,
+        executed: result.executed?,
+        good: result.good?,
+        bad: result.bad?
       }
 
-      expect(result.deconstruct_keys).to eq(expected_keys)
+      expect(result.deconstruct_keys).to eq(expected)
+    end
+
+    it "ignores arguments" do
+      expected = result.deconstruct_keys
+
+      expect(result.deconstruct_keys(:anything)).to eq(expected)
+    end
+  end
+
+  describe "handle methods" do
+    describe "state handle methods" do
+      CMDx::Result::STATES.each do |state|
+        describe "#handle_#{state}" do
+          it "raises ArgumentError without block" do
+            expect { result.send(:"handle_#{state}") }.to raise_error(ArgumentError, "block required")
+          end
+
+          context "when in #{state} state" do
+            before do
+              case state
+              when CMDx::Result::INITIALIZED
+                # Already in initialized state
+              when CMDx::Result::EXECUTING
+                result.executing!
+              when CMDx::Result::COMPLETE
+                result.executing!
+                result.complete!
+              when CMDx::Result::INTERRUPTED
+                result.interrupt!
+              end
+            end
+
+            it "calls the block" do
+              called = false
+              result.send(:"handle_#{state}") { |_r| called = true }
+
+              expect(called).to be true
+            end
+
+            it "passes result to block" do
+              block_result = nil
+              result.send(:"handle_#{state}") { |r| block_result = r }
+
+              expect(block_result).to eq(result)
+            end
+          end
+
+          context "when not in #{state} state" do
+            before do
+              case state
+              when CMDx::Result::INITIALIZED
+                result.executing!
+              when CMDx::Result::EXECUTING
+                # Stay in initialized state
+              when CMDx::Result::COMPLETE
+                # Stay in initialized state
+              when CMDx::Result::INTERRUPTED
+                # Stay in initialized state
+              end
+            end
+
+            it "does not call the block" do
+              called = false
+              result.send(:"handle_#{state}") { |_r| called = true }
+
+              expect(called).to be false
+            end
+          end
+
+          it "returns self" do
+            expect(result.send(:"handle_#{state}") { "test" }).to eq(result)
+          end
+        end
+      end
+    end
+
+    describe "status handle methods" do
+      CMDx::Result::STATUSES.each do |status|
+        describe "#handle_#{status}" do
+          it "raises ArgumentError without block" do
+            expect { result.send(:"handle_#{status}") }.to raise_error(ArgumentError, "block required")
+          end
+
+          context "when in #{status} status" do
+            before do
+              case status
+              when CMDx::Result::SUCCESS
+                # Already in success status
+              when CMDx::Result::SKIPPED
+                result.skip!("test", halt: false)
+              when CMDx::Result::FAILED
+                result.fail!("test", halt: false)
+              end
+            end
+
+            it "calls the block" do
+              called = false
+              result.send(:"handle_#{status}") { |_r| called = true }
+
+              expect(called).to be true
+            end
+
+            it "passes result to block" do
+              block_result = nil
+              result.send(:"handle_#{status}") { |r| block_result = r }
+
+              expect(block_result).to eq(result)
+            end
+          end
+
+          context "when not in #{status} status" do
+            before do
+              case status
+              when CMDx::Result::SUCCESS
+                result.skip!("test", halt: false)
+              when CMDx::Result::SKIPPED
+                # Stay in success status
+              when CMDx::Result::FAILED
+                # Stay in success status
+              end
+            end
+
+            it "does not call the block" do
+              called = false
+              result.send(:"handle_#{status}") { |_r| called = true }
+
+              expect(called).to be false
+            end
+          end
+
+          it "returns self" do
+            expect(result.send(:"handle_#{status}") { "test" }).to eq(result)
+          end
+        end
+      end
+    end
+
+    describe "#handle_good" do
+      it "raises ArgumentError without block" do
+        expect { result.handle_good }.to raise_error(ArgumentError, "block required")
+      end
+
+      context "when good" do
+        it "calls the block for success" do
+          called = false
+          result.handle_good { |_r| called = true }
+
+          expect(called).to be true
+        end
+
+        it "calls the block for skipped" do
+          result.skip!("test", halt: false)
+          called = false
+          result.handle_good { |_r| called = true }
+
+          expect(called).to be true
+        end
+      end
+
+      context "when not good" do
+        it "does not call the block for failed" do
+          result.fail!("test", halt: false)
+          called = false
+          result.handle_good { |_r| called = true }
+
+          expect(called).to be false
+        end
+      end
+
+      it "returns self" do
+        expect(result.handle_good { "test" }).to eq(result)
+      end
+    end
+
+    describe "#handle_bad" do
+      it "raises ArgumentError without block" do
+        expect { result.handle_bad }.to raise_error(ArgumentError, "block required")
+      end
+
+      context "when bad" do
+        it "calls the block for skipped" do
+          result.skip!("test", halt: false)
+          called = false
+          result.handle_bad { |_r| called = true }
+
+          expect(called).to be true
+        end
+
+        it "calls the block for failed" do
+          result.fail!("test", halt: false)
+          called = false
+          result.handle_bad { |_r| called = true }
+
+          expect(called).to be true
+        end
+      end
+
+      context "when not bad" do
+        it "does not call the block for success" do
+          called = false
+          result.handle_bad { |_r| called = true }
+
+          expect(called).to be false
+        end
+      end
+
+      it "returns self" do
+        expect(result.handle_bad { "test" }).to eq(result)
+      end
+    end
+  end
+
+  describe "constants" do
+    describe "STATES" do
+      it "defines all expected states" do
+        expect(CMDx::Result::STATES).to contain_exactly(
+          "initialized",
+          "executing",
+          "complete",
+          "interrupted"
+        )
+      end
+
+      it "freezes the array" do
+        expect(CMDx::Result::STATES).to be_frozen
+      end
+    end
+
+    describe "STATUSES" do
+      it "defines all expected statuses" do
+        expect(CMDx::Result::STATUSES).to contain_exactly(
+          "success",
+          "skipped",
+          "failed"
+        )
+      end
+
+      it "freezes the array" do
+        expect(CMDx::Result::STATUSES).to be_frozen
+      end
     end
   end
 end
