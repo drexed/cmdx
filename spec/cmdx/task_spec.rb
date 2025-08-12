@@ -235,7 +235,7 @@ RSpec.describe CMDx::Task do
 
   describe ".attribute" do
     it "defines and registers an attribute" do
-      mock_attribute = instance_double("CMDx::Attribute")
+      mock_attribute = instance_double(CMDx::Attribute)
       expect(CMDx::Attribute).to receive(:define).with("name", "arg1", "arg2").and_return(mock_attribute)
       expect(task_class).to receive(:register).with(:attribute, mock_attribute)
 
@@ -245,7 +245,7 @@ RSpec.describe CMDx::Task do
 
   describe ".attributes" do
     it "defines and registers multiple attributes" do
-      mock_attributes = instance_double("CMDx::Attribute")
+      mock_attributes = instance_double(CMDx::Attribute)
       expect(CMDx::Attribute).to receive(:defines).with("arg1", "arg2").and_return(mock_attributes)
       expect(task_class).to receive(:register).with(:attribute, mock_attributes)
 
@@ -255,7 +255,7 @@ RSpec.describe CMDx::Task do
 
   describe ".optional" do
     it "defines and registers optional attributes" do
-      mock_attribute = instance_double("CMDx::Attribute")
+      mock_attribute = instance_double(CMDx::Attribute)
       expect(CMDx::Attribute).to receive(:optional).with("arg1", "arg2").and_return(mock_attribute)
       expect(task_class).to receive(:register).with(:attribute, mock_attribute)
 
@@ -265,7 +265,7 @@ RSpec.describe CMDx::Task do
 
   describe ".required" do
     it "defines and registers required attributes" do
-      mock_attribute = instance_double("CMDx::Attribute")
+      mock_attribute = instance_double(CMDx::Attribute)
       expect(CMDx::Attribute).to receive(:required).with("arg1", "arg2").and_return(mock_attribute)
       expect(task_class).to receive(:register).with(:attribute, mock_attribute)
 
