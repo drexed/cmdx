@@ -72,9 +72,10 @@ RSpec.describe CMDx::AttributeValue do
       before { task.attributes[:test_attr] = "existing_value" }
 
       it "returns the existing value without processing" do
-        expect(attribute_value).not_to receive(:source_value)
+        allow(attribute_value).to receive(:source_value)
         result = attribute_value.generate
         expect(result).to eq("existing_value")
+        expect(attribute_value).not_to have_received(:source_value)
       end
     end
 
@@ -96,10 +97,12 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "returns early without further processing" do
-          expect(attribute_value).not_to receive(:derive_value)
-          expect(attribute_value).not_to receive(:coerce_value)
+          allow(attribute_value).to receive(:derive_value)
+          allow(attribute_value).to receive(:coerce_value)
           result = attribute_value.generate
           expect(result).to be_nil
+          expect(attribute_value).not_to have_received(:derive_value)
+          expect(attribute_value).not_to have_received(:coerce_value)
         end
       end
 
@@ -110,9 +113,10 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "returns early without coercion" do
-          expect(attribute_value).not_to receive(:coerce_value)
+          allow(attribute_value).to receive(:coerce_value)
           result = attribute_value.generate
           expect(result).to be_nil
+          expect(attribute_value).not_to have_received(:coerce_value)
         end
       end
 
@@ -163,8 +167,9 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       it "validates without adding errors" do
+        allow(task.errors).to receive(:add)
         attribute_value.validate
-        expect(task.errors).not_to receive(:add)
+        expect(task.errors).not_to have_received(:add)
       end
     end
 
@@ -177,8 +182,9 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       it "adds validation error to errors collection" do
-        expect(task.errors).to receive(:add).with(:test_attr, "too short")
+        allow(task.errors).to receive(:add)
         attribute_value.validate
+        expect(task.errors).to have_received(:add).with(:test_attr, "too short")
       end
     end
 
@@ -192,9 +198,10 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       it "continues validation after first error" do
-        expect(task.errors).to receive(:add).with(:test_attr, "cannot be empty")
-        expect(task.errors).to receive(:add).with(:test_attr, "too short")
+        allow(task.errors).to receive(:add)
         attribute_value.validate
+        expect(task.errors).to have_received(:add).with(:test_attr, "cannot be empty")
+        expect(task.errors).to have_received(:add).with(:test_attr, "too short")
       end
     end
 
@@ -202,8 +209,9 @@ RSpec.describe CMDx::AttributeValue do
       let(:attribute_options) { { custom_option: true } }
 
       it "skips validation" do
-        expect(validator_registry).not_to receive(:validate)
+        allow(validator_registry).to receive(:validate)
         attribute_value.validate
+        expect(validator_registry).not_to have_received(:validate)
       end
     end
   end
@@ -223,9 +231,10 @@ RSpec.describe CMDx::AttributeValue do
         let(:attribute_options) { { source: :nonexistent_method } }
 
         it "adds error and returns nil" do
-          expect(task.errors).to receive(:add).with(:test_attr, "delegates to undefined method nonexistent_method")
+          allow(task.errors).to receive(:add)
           result = attribute_value.send(:source_value)
           expect(result).to be_nil
+          expect(task.errors).to have_received(:add).with(:test_attr, "delegates to undefined method nonexistent_method")
         end
       end
     end
@@ -253,9 +262,10 @@ RSpec.describe CMDx::AttributeValue do
       let(:attribute_options) { { source: callable_source } }
 
       it "calls the object with task as argument" do
-        expect(callable_source).to receive(:call).with(task)
+        allow(callable_source).to receive(:call).with(task).and_return("callable_result")
         result = attribute_value.send(:source_value)
         expect(result).to eq("callable_result")
+        expect(callable_source).to have_received(:call).with(task)
       end
     end
 
@@ -276,8 +286,9 @@ RSpec.describe CMDx::AttributeValue do
         before { allow(attribute_value).to receive(:source).and_return(task.context) }
 
         it "does not add required error" do
-          expect(task.errors).not_to receive(:add)
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).not_to have_received(:add)
         end
       end
 
@@ -287,8 +298,9 @@ RSpec.describe CMDx::AttributeValue do
         before { allow(attribute_value).to receive(:source).and_return(task.context) }
 
         it "adds required error" do
-          expect(task.errors).to receive(:add).with(:test_attr, "must be accessible via the source")
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).to have_received(:add).with(:test_attr, "must be accessible via the source")
         end
       end
 
@@ -296,8 +308,9 @@ RSpec.describe CMDx::AttributeValue do
         before { allow(attribute_value).to receive(:source).and_return({ test_attr: "value" }) }
 
         it "does not add required error" do
-          expect(task.errors).not_to receive(:add)
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).not_to have_received(:add)
         end
       end
 
@@ -306,8 +319,9 @@ RSpec.describe CMDx::AttributeValue do
 
         it "assumes Proc can provide value and does not add error" do
           # Proc scenario returns true for requirement check, but still adds error due to logic
-          expect(task.errors).to receive(:add).with(:test_attr, "must be accessible via the source")
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).to have_received(:add).with(:test_attr, "must be accessible via the source")
         end
       end
 
@@ -321,8 +335,9 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "does not add required error" do
-          expect(task.errors).not_to receive(:add)
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).not_to have_received(:add)
         end
       end
 
@@ -336,8 +351,9 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "adds required error" do
-          expect(task.errors).to receive(:add).with(:test_attr, "must be accessible via the source")
+          allow(task.errors).to receive(:add)
           attribute_value.send(:source_value)
+          expect(task.errors).to have_received(:add).with(:test_attr, "must be accessible via the source")
         end
       end
 
@@ -351,8 +367,9 @@ RSpec.describe CMDx::AttributeValue do
           let(:context_data) { { other_key: "other_value" } }
 
           it "checks requirement validation but catches NoMethodError from parent source" do
-            expect(task.errors).to receive(:add).with(:test_attr, "delegates to undefined method parent")
+            allow(task.errors).to receive(:add)
             attribute_value.send(:source_value)
+            expect(task.errors).to have_received(:add).with(:test_attr, "delegates to undefined method parent")
           end
         end
 
@@ -362,8 +379,9 @@ RSpec.describe CMDx::AttributeValue do
           before { parent_attribute.task = task }
 
           it "still gets NoMethodError for undefined parent method" do
-            expect(task.errors).to receive(:add).with(:test_attr, "delegates to undefined method parent")
+            allow(task.errors).to receive(:add)
             attribute_value.send(:source_value)
+            expect(task.errors).to have_received(:add).with(:test_attr, "delegates to undefined method parent")
           end
         end
       end
@@ -438,9 +456,10 @@ RSpec.describe CMDx::AttributeValue do
       let(:attribute_options) { { default: callable_default } }
 
       it "calls the object with task as argument" do
-        expect(callable_default).to receive(:call).with(task)
+        allow(callable_default).to receive(:call).with(task).and_return("callable_default")
         result = attribute_value.send(:default_value)
         expect(result).to eq("callable_default")
+        expect(callable_default).to have_received(:call).with(task)
       end
     end
   end
@@ -488,18 +507,20 @@ RSpec.describe CMDx::AttributeValue do
       let(:source_value) { :test_symbol }
 
       it "attempts to call send on the symbol but catches NoMethodError" do
-        expect(task.errors).to receive(:add).with(:test_attr, "delegates to undefined method test_attr")
+        allow(task.errors).to receive(:add)
         result = attribute_value.send(:derive_value, source_value)
         expect(result).to be_nil
+        expect(task.errors).to have_received(:add).with(:test_attr, "delegates to undefined method test_attr")
       end
 
       context "when default value is provided" do
         let(:attribute_options) { { default: "default_fallback" } }
 
         it "returns default value when symbol method fails" do
-          expect(task.errors).to receive(:add).with(:test_attr, "delegates to undefined method test_attr")
+          allow(task.errors).to receive(:add)
           result = attribute_value.send(:derive_value, source_value)
           expect(result).to be_nil # Already nil from rescue
+          expect(task.errors).to have_received(:add).with(:test_attr, "delegates to undefined method test_attr")
         end
       end
     end
@@ -517,9 +538,10 @@ RSpec.describe CMDx::AttributeValue do
       let(:source_value) { instance_double("callable", call: "callable_value") }
 
       it "calls object with task and attribute name" do
-        expect(source_value).to receive(:call).with(task, :test_attr).and_return("callable_value")
+        allow(source_value).to receive(:call).with(task, :test_attr).and_return("callable_value")
         result = attribute_value.send(:derive_value, source_value)
         expect(result).to eq("callable_value")
+        expect(source_value).to have_received(:call).with(task, :test_attr)
       end
     end
 
@@ -590,9 +612,10 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "adds error and returns nil" do
-          expect(task.errors).to receive(:add).with(:test_attr, "could not coerce into one of: string")
+          allow(task.errors).to receive(:add)
           result = attribute_value.send(:coerce_value, derived_value)
           expect(result).to be_nil
+          expect(task.errors).to have_received(:add).with(:test_attr, "could not coerce into one of: string")
         end
       end
     end
@@ -607,9 +630,10 @@ RSpec.describe CMDx::AttributeValue do
         end
 
         it "returns coerced value from first successful type" do
-          expect(coercion_registry).not_to receive(:coerce).with(:string, task, "123", attribute_options)
+          allow(coercion_registry).to receive(:coerce).with(:string, task, "123", attribute_options)
           result = attribute_value.send(:coerce_value, derived_value)
           expect(result).to eq(123)
+          expect(coercion_registry).not_to have_received(:coerce).with(:string, task, "123", attribute_options)
         end
       end
 
@@ -636,9 +660,10 @@ RSpec.describe CMDx::AttributeValue do
         let(:derived_value) { [] }
 
         it "adds error with all type names and returns nil" do
-          expect(task.errors).to receive(:add).with(:test_attr, "could not coerce into one of: integer, string")
+          allow(task.errors).to receive(:add)
           result = attribute_value.send(:coerce_value, derived_value)
           expect(result).to be_nil
+          expect(task.errors).to have_received(:add).with(:test_attr, "could not coerce into one of: integer, string")
         end
       end
     end
@@ -652,8 +677,9 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       it "uses localized type name in error message" do
-        expect(task.errors).to receive(:add).with(:test_attr, "could not coerce into one of: big decimal")
+        allow(task.errors).to receive(:add)
         attribute_value.send(:coerce_value, derived_value)
+        expect(task.errors).to have_received(:add).with(:test_attr, "could not coerce into one of: big decimal")
       end
     end
   end
