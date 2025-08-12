@@ -37,10 +37,11 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
       it "uses Utils::Format.to_log for message processing" do
         allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return("processed message")
 
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
         result = formatter.call(severity, time, progname, message)
 
         expect(result).to include('message="processed message"')
-        expect(CMDx::Utils::Format).to have_received(:to_log).with(message)
       end
 
       it "uses Utils::Format.to_str to format the hash" do
@@ -51,12 +52,14 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
           pid: Process.pid,
           message: message
         }
+
         allow(CMDx::Utils::Format).to receive(:to_str).with(expected_hash).and_return(+"formatted output")
+
+        expect(CMDx::Utils::Format).to receive(:to_str).with(expected_hash)
 
         result = formatter.call(severity, time, progname, message)
 
         expect(result).to eq("formatted output\n")
-        expect(CMDx::Utils::Format).to have_received(:to_str).with(expected_hash)
       end
     end
 
@@ -129,6 +132,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles unicode characters" do
         unicode_message = "Test message with émojis 🚀"
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(unicode_message).and_return(unicode_message)
 
         result = formatter.call(severity, time, progname, unicode_message)
@@ -138,6 +142,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles backslashes in strings" do
         message_with_backslash = "C:\\Windows\\Path"
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(message_with_backslash).and_return(message_with_backslash)
 
         result = formatter.call(severity, time, progname, message_with_backslash)
@@ -152,10 +157,11 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
       it "processes CMDx objects through Utils::Format.to_log" do
         allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(cmdx_hash)
 
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
         result = formatter.call(severity, time, progname, message)
 
         expect(result).to include('message={"state" => "complete", "status" => "success"}')
-        expect(CMDx::Utils::Format).to have_received(:to_log).with(message)
       end
 
       it "handles complex nested structures" do
@@ -164,6 +170,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
           "context" => { "user_id" => 123, "session" => "abc123" },
           "metadata" => { "attempts" => 1, "duration" => 0.45 }
         }
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(complex_hash)
 
         result = formatter.call(severity, time, progname, message)
@@ -175,6 +182,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
     context "with numeric and boolean messages" do
       it "handles integer messages" do
         integer_message = 42
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(integer_message).and_return(integer_message)
 
         result = formatter.call(severity, time, progname, integer_message)
@@ -184,6 +192,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles boolean messages" do
         boolean_message = true
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(boolean_message).and_return(boolean_message)
 
         result = formatter.call(severity, time, progname, boolean_message)
@@ -193,6 +202,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles float messages" do
         float_message = 3.14159
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(float_message).and_return(float_message)
 
         result = formatter.call(severity, time, progname, float_message)
@@ -202,6 +212,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles false boolean message" do
         false_message = false
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(false_message).and_return(false_message)
 
         result = formatter.call(severity, time, progname, false_message)
@@ -213,6 +224,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
     context "with array messages" do
       it "handles array messages" do
         array_message = %w[item1 item2 item3]
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(array_message).and_return(array_message)
 
         result = formatter.call(severity, time, progname, array_message)
@@ -222,6 +234,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles empty array messages" do
         empty_array = []
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(empty_array).and_return(empty_array)
 
         result = formatter.call(severity, time, progname, empty_array)
@@ -279,6 +292,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
     context "with very long strings" do
       it "handles large messages without truncation" do
         large_message = "x" * 10_000
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(large_message).and_return(large_message)
 
         result = formatter.call(severity, time, progname, large_message)
@@ -307,6 +321,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles symbol message" do
         symbol_message = :success
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(symbol_message).and_return(symbol_message)
 
         result = formatter.call(severity, time, progname, symbol_message)
@@ -318,6 +333,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
     context "with hash message" do
       it "handles hash messages" do
         hash_message = { key: "value", count: 5 }
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(hash_message).and_return(hash_message)
 
         result = formatter.call(severity, time, progname, hash_message)
@@ -327,6 +343,7 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
       it "handles empty hash messages" do
         empty_hash = {}
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(empty_hash).and_return(empty_hash)
 
         result = formatter.call(severity, time, progname, empty_hash)

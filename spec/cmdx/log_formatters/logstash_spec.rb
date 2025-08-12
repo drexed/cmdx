@@ -119,6 +119,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
 
       it "handles unicode characters" do
         unicode_message = "Test message with émojis 🚀"
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(unicode_message).and_return(unicode_message)
 
         result = formatter.call(severity, time, progname, unicode_message)
@@ -134,11 +135,12 @@ RSpec.describe CMDx::LogFormatters::Logstash do
       it "uses Utils::Format.to_log for message processing" do
         allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(cmdx_hash)
 
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
         result = formatter.call(severity, time, progname, message)
         parsed = JSON.parse(result.chomp)
 
         expect(parsed["message"]).to eq(cmdx_hash)
-        expect(CMDx::Utils::Format).to have_received(:to_log).with(message)
       end
 
       it "handles complex nested structures" do
@@ -147,6 +149,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
           "context" => { "user_id" => 123, "session" => "abc123" },
           "metadata" => { "attempts" => 1, "duration" => 0.45 }
         }
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(complex_hash)
 
         result = formatter.call(severity, time, progname, message)
@@ -159,6 +162,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
     context "with numeric and boolean messages" do
       it "handles integer messages" do
         integer_message = 42
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(integer_message).and_return(integer_message)
 
         result = formatter.call(severity, time, progname, integer_message)
@@ -169,6 +173,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
 
       it "handles boolean messages" do
         boolean_message = true
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(boolean_message).and_return(boolean_message)
 
         result = formatter.call(severity, time, progname, boolean_message)
@@ -179,6 +184,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
 
       it "handles float messages" do
         float_message = 3.14159
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(float_message).and_return(float_message)
 
         result = formatter.call(severity, time, progname, float_message)
@@ -191,6 +197,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
     context "with array messages" do
       it "handles array messages" do
         array_message = %w[item1 item2 item3]
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(array_message).and_return(array_message)
 
         result = formatter.call(severity, time, progname, array_message)
@@ -233,6 +240,7 @@ RSpec.describe CMDx::LogFormatters::Logstash do
     context "with very long strings" do
       it "handles large messages without truncation" do
         large_message = "x" * 10_000
+
         allow(CMDx::Utils::Format).to receive(:to_log).with(large_message).and_return(large_message)
 
         result = formatter.call(severity, time, progname, large_message)
