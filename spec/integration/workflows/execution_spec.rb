@@ -11,7 +11,7 @@ RSpec.describe "Workflow execution", type: :feature do
 
       it "returns success" do
         expect(result).to have_been_success
-        expect(result).to have_matching_context(executed: %i[success success success])
+        expect(result).to have_matching_context(executed: %i[success inner middle outer success])
       end
     end
 
@@ -32,11 +32,11 @@ RSpec.describe "Workflow execution", type: :feature do
           outcome: CMDx::Result::INTERRUPTED,
           threw_failure: hash_including(
             index: 2,
-            class: start_with("FailingTask")
+            class: start_with("OuterTask")
           ),
           caused_failure: hash_including(
-            index: 2,
-            class: start_with("FailingTask")
+            index: 4,
+            class: start_with("InnerTask")
           )
         )
         expect(result).to have_matching_context(executed: %i[success])
@@ -53,11 +53,11 @@ RSpec.describe "Workflow execution", type: :feature do
           cause: be_a(CMDx::FailFault),
           threw_failure: hash_including(
             index: 2,
-            class: start_with("ErroringTask")
+            class: start_with("OuterTask")
           ),
           caused_failure: hash_including(
-            index: 2,
-            class: start_with("ErroringTask")
+            index: 4,
+            class: start_with("InnerTask")
           )
         )
         expect(result).to have_matching_context(executed: %i[success])
@@ -73,7 +73,7 @@ RSpec.describe "Workflow execution", type: :feature do
 
       it "returns success" do
         expect(result).to have_been_success
-        expect(result).to have_matching_context(executed: %i[success success success])
+        expect(result).to have_matching_context(executed: %i[success inner middle outer success])
       end
     end
 

@@ -18,7 +18,7 @@ module CMDx
 
       def create_successful_workflow(name: "SuccessfulWorkflow", &block)
         task1 = create_successful_task(name: "SuccessfulTask1")
-        task2 = create_successful_task(name: "SuccessfulTask2")
+        task2 = create_nested_task(strategy: :throw, status: :success)
         task3 = create_successful_task(name: "SuccessfulTask3")
 
         create_workflow_class(name:) do
@@ -30,7 +30,7 @@ module CMDx
 
       def create_skipping_workflow(name: "SkippingWorkflow", &block)
         pre_skip_task = create_successful_task(name: "PreSkipTask")
-        skipping_task = create_skipping_task(name: "SkippingTask")
+        skipping_task = create_nested_task(strategy: :throw, status: :skipped)
         post_skip_task = create_successful_task(name: "PostSkipTask")
 
         create_workflow_class(name:) do
@@ -42,7 +42,7 @@ module CMDx
 
       def create_failing_workflow(name: "FailingWorkflow", &block)
         pre_fail_task = create_successful_task(name: "PreFailTask")
-        failing_task = create_failing_task(name: "FailingTask")
+        failing_task = create_nested_task(strategy: :throw, status: :failure)
         post_fail_task = create_successful_task(name: "PostFailTask")
 
         create_workflow_class(name:) do
@@ -54,7 +54,7 @@ module CMDx
 
       def create_erroring_workflow(name: "ErroringWorkflow", &block)
         pre_error_task = create_successful_task(name: "PreErrorTask")
-        erroring_task = create_erroring_task(name: "ErroringTask")
+        erroring_task = create_nested_task(strategy: :raise, status: :error)
         post_error_task = create_successful_task(name: "PostErrorTask")
 
         create_workflow_class(name:) do
