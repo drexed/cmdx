@@ -204,7 +204,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source is callable" do
-        let(:callable) { instance_double("callable", call: "callable_result") }
+        let(:callable) { instance_double("Callable", call: "callable_result") }
         let(:source) { callable }
 
         before { allow(source).to receive(:respond_to?).with(:call).and_return(true) }
@@ -383,7 +383,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when default is callable" do
-        let(:callable) { instance_double("callable", call: "callable_default") }
+        let(:callable) { instance_double("Callable", call: "callable_default") }
         let(:default_option) { callable }
 
         before { allow(default_option).to receive(:respond_to?).with(:call).and_return(true) }
@@ -476,7 +476,7 @@ RSpec.describe CMDx::AttributeValue do
       end
 
       context "when source_value is callable" do
-        let(:callable) { instance_double("callable", call: "callable_value") }
+        let(:callable) { instance_double("Callable", call: "callable_value") }
 
         before { allow(callable).to receive(:respond_to?).with(:call).and_return(true) }
 
