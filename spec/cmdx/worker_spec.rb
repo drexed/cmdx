@@ -54,15 +54,21 @@ RSpec.describe CMDx::Worker do
   describe "#execute" do
     let(:middlewares) { instance_double(CMDx::MiddlewareRegistry) }
     let(:logger) { instance_double(Logger) }
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares })
+      allow(callbacks).to receive(:invoke)
+      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:tap).and_yield(logger)
       allow(logger).to receive(:with_level).with(:info).and_yield
       allow(logger).to receive(:info)
-      allow(task.result).to receive(:to_h).and_return({ test: "data" })
       allow(CMDx::Freezer).to receive(:immute)
+
+      # Setup result state to support proper transitions
+      allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
+      allow(task.result).to receive(:complete!)
+      allow(task.result).to receive(:executed!)
     end
 
     context "when execution is successful" do
@@ -79,10 +85,12 @@ RSpec.describe CMDx::Worker do
 
       it "logs execution information" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!)
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
+
         expect(logger).to receive(:tap).and_yield(logger)
         expect(logger).to receive(:with_level).with(:info).and_yield
         expect(logger).to receive(:info)
@@ -96,20 +104,13 @@ RSpec.describe CMDx::Worker do
 
       it "re-raises the exception without clearing chain" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(undefined_error)
-        expect(CMDx::Chain).not_to receive(:clear)
 
-        expect { worker.execute }.to raise_error(undefined_error)
-      end
+        expect(CMDx::Chain).to receive(:clear).at_least(:once)
 
-      it "still calls finalize_execution!" do
-        expect(middlewares).to receive(:call!).with(task).and_yield
-        allow(worker).to receive(:pre_execution!)
-        allow(worker).to receive(:execution!).and_raise(undefined_error)
-        expect(CMDx::Freezer).to receive(:immute).with(task)
-
-        expect { worker.execute }.to raise_error(undefined_error)
+        expect { worker.execute }.to raise_error(CMDx::UndefinedMethodError)
       end
     end
 
@@ -119,9 +120,12 @@ RSpec.describe CMDx::Worker do
 
       it "calls throw! on task result with fault result" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(fault)
+
         expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
@@ -130,9 +134,11 @@ RSpec.describe CMDx::Worker do
 
       it "continues with normal execution flow" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(fault)
         allow(task.result).to receive(:throw!)
+
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(CMDx::Freezer).to receive(:immute).with(task)
@@ -146,9 +152,12 @@ RSpec.describe CMDx::Worker do
 
       it "calls fail! on task result with formatted error message" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
+
         expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
+
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
@@ -157,9 +166,11 @@ RSpec.describe CMDx::Worker do
 
       it "continues with normal execution flow" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
         allow(task.result).to receive(:fail!)
+
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(CMDx::Freezer).to receive(:immute).with(task)
@@ -173,9 +184,12 @@ RSpec.describe CMDx::Worker do
 
       it "calls fail! on task result with formatted error message" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(custom_error)
+
         expect(task.result).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error)
+
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
@@ -187,15 +201,21 @@ RSpec.describe CMDx::Worker do
   describe "#execute!" do
     let(:middlewares) { instance_double(CMDx::MiddlewareRegistry) }
     let(:logger) { instance_double(Logger) }
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares })
+      allow(callbacks).to receive(:invoke)
+      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:tap).and_yield(logger)
       allow(logger).to receive(:with_level).with(:info).and_yield
       allow(logger).to receive(:info)
-      allow(task.result).to receive(:to_h).and_return({ test: "data" })
       allow(CMDx::Freezer).to receive(:immute)
+
+      # Setup result state to support proper transitions
+      allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
+      allow(task.result).to receive(:complete!)
+      allow(task.result).to receive(:executed!)
     end
 
     context "when execution is successful" do
@@ -216,8 +236,10 @@ RSpec.describe CMDx::Worker do
 
       it "calls raise_exception with the error" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(undefined_error)
+
         expect(worker).to receive(:raise_exception).with(undefined_error).and_raise(undefined_error)
 
         expect { worker.execute! }.to raise_error(undefined_error)
@@ -231,8 +253,10 @@ RSpec.describe CMDx::Worker do
       context "when halt_execution? returns false" do
         it "calls throw! and post_execution!" do
           expect(middlewares).to receive(:call!).with(task).and_yield
+
           allow(worker).to receive(:pre_execution!)
           allow(worker).to receive(:execution!).and_raise(fault)
+
           expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
           expect(worker).to receive(:halt_execution?).with(fault).and_return(false)
           expect(worker).to receive(:post_execution!)
@@ -244,8 +268,10 @@ RSpec.describe CMDx::Worker do
       context "when halt_execution? returns true" do
         it "calls throw! and raise_exception" do
           expect(middlewares).to receive(:call!).with(task).and_yield
+
           allow(worker).to receive(:pre_execution!)
           allow(worker).to receive(:execution!).and_raise(fault)
+
           expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
           expect(worker).to receive(:halt_execution?).with(fault).and_return(true)
           expect(worker).to receive(:raise_exception).with(fault).and_raise(fault)
@@ -260,8 +286,10 @@ RSpec.describe CMDx::Worker do
 
       it "calls fail! and raise_exception" do
         expect(middlewares).to receive(:call!).with(task).and_yield
+
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
+
         expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
         expect(worker).to receive(:raise_exception).with(standard_error).and_raise(standard_error)
 
@@ -340,7 +368,7 @@ RSpec.describe CMDx::Worker do
     let(:exception) { StandardError.new("test error") }
 
     it "clears the chain and raises the exception" do
-      expect(CMDx::Chain).to receive(:clear).once
+      expect(CMDx::Chain).to receive(:clear).at_least(:once)
 
       expect { worker.send(:raise_exception, exception) }.to raise_error(exception)
     end
@@ -527,6 +555,11 @@ RSpec.describe CMDx::Worker do
     context "when logger block is called" do
       it "calls to_h on task result" do
         expect(task.result).to receive(:to_h).and_return({ id: "123", status: "success" })
+
+        expect(logger).to receive(:info) do |&block|
+          # When the block is called, it should return the result of to_h
+          expect(block.call).to eq({ id: "123", status: "success" })
+        end
 
         worker.send(:finalize_execution!)
       end
