@@ -150,12 +150,12 @@ RSpec.describe CMDx::ValidatorRegistry do
     context "when validator type exists" do
       context "with hash options" do
         it "evaluates condition and calls Utils::Call.invoke when condition is true" do
-          registry.validate(:custom, mock_task, value, options)
-
-          expect(CMDx::Utils::Condition).to have_received(:evaluate).with(mock_task, options, value)
-          expect(CMDx::Utils::Call).to have_received(:invoke).with(
+          expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, options, value)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
             mock_task, mock_validator, value, options
           )
+
+          registry.validate(:custom, mock_task, value, options)
         end
 
         it "returns the result from Utils::Call.invoke" do
@@ -170,9 +170,9 @@ RSpec.describe CMDx::ValidatorRegistry do
           end
 
           it "does not call the validator" do
-            registry.validate(:custom, mock_task, value, options)
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-            expect(CMDx::Utils::Call).not_to have_received(:invoke)
+            registry.validate(:custom, mock_task, value, options)
           end
 
           it "returns nil" do
@@ -187,11 +187,12 @@ RSpec.describe CMDx::ValidatorRegistry do
           let(:options) { { allow_nil: true } }
 
           it "calls the validator" do
-            registry.validate(:custom, mock_task, value, options)
-
-            expect(CMDx::Utils::Call).to have_received(:invoke).with(
+            expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+            expect(CMDx::Utils::Call).to receive(:invoke).with(
               mock_task, mock_validator, value, options
             )
+
+            registry.validate(:custom, mock_task, value, options)
           end
 
           it "returns the result from Utils::Call.invoke" do
@@ -205,9 +206,9 @@ RSpec.describe CMDx::ValidatorRegistry do
           let(:options) { { allow_nil: true } }
 
           it "does not call the validator" do
-            registry.validate(:custom, mock_task, value, options)
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-            expect(CMDx::Utils::Call).not_to have_received(:invoke)
+            registry.validate(:custom, mock_task, value, options)
           end
 
           it "returns nil" do
@@ -222,9 +223,9 @@ RSpec.describe CMDx::ValidatorRegistry do
           let(:options) { { allow_nil: false } }
 
           it "does not call the validator" do
-            registry.validate(:custom, mock_task, value, options)
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-            expect(CMDx::Utils::Call).not_to have_received(:invoke)
+            registry.validate(:custom, mock_task, value, options)
           end
 
           it "returns nil" do
@@ -239,21 +240,21 @@ RSpec.describe CMDx::ValidatorRegistry do
         let(:options) { true }
 
         it "uses options directly as condition" do
-          registry.validate(:custom, mock_task, value, options)
-
-          expect(CMDx::Utils::Condition).not_to have_received(:evaluate)
-          expect(CMDx::Utils::Call).to have_received(:invoke).with(
+          expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
             mock_task, mock_validator, value, options
           )
+
+          registry.validate(:custom, mock_task, value, options)
         end
 
         context "when options is false" do
           let(:options) { false }
 
           it "does not call the validator" do
-            registry.validate(:custom, mock_task, value, options)
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-            expect(CMDx::Utils::Call).not_to have_received(:invoke)
+            registry.validate(:custom, mock_task, value, options)
           end
 
           it "returns nil" do
@@ -268,23 +269,24 @@ RSpec.describe CMDx::ValidatorRegistry do
         let(:initial_registry) { { "custom" => mock_validator } }
 
         it "works with string type names" do
-          registry.validate("custom", mock_task, value, options)
-
-          expect(CMDx::Utils::Call).to have_received(:invoke).with(
+          expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, options, value)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
             mock_task, mock_validator, value, options
           )
+
+          registry.validate("custom", mock_task, value, options)
         end
       end
     end
 
     context "when options are not provided" do
       it "passes empty hash as options and evaluates condition" do
-        registry.validate(:custom, mock_task, value)
-
-        expect(CMDx::Utils::Condition).to have_received(:evaluate).with(mock_task, {}, value)
-        expect(CMDx::Utils::Call).to have_received(:invoke).with(
+        expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, {}, value)
+        expect(CMDx::Utils::Call).to receive(:invoke).with(
           mock_task, mock_validator, value, {}
         )
+
+        registry.validate(:custom, mock_task, value)
       end
     end
 
