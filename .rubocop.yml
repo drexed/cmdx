@@ -65,6 +65,8 @@ RSpec/SpecFilePathFormat:
     CMDx: cmdx
 RSpec/SubjectStub:
   Enabled: false
+RSpec/StubbedMock:
+  Enabled: false
 RSpec/VerifiedDoubleReference:
   Enabled: false
 Style/CaseEquality:

@@ -116,12 +116,10 @@ RSpec.describe CMDx::Locale do
 
       before do
         stub_const("I18n", i18n_double)
-        allow(i18n_double).to receive(:t).and_return("no puede estar vacío")
       end
 
       it "delegates to I18n.t with the key and options" do
-        translate_result
-        expect(i18n_double).to have_received(:t).with(key, **options, default: "cannot be empty")
+        expect(i18n_double).to receive(:t).with(key, **options, default: "cannot be empty").and_return("no puede estar vacío")
         expect(translate_result).to eq("no puede estar vacío")
       end
 
@@ -129,8 +127,9 @@ RSpec.describe CMDx::Locale do
         let(:key) { "some.unknown.key" }
 
         it "sets default to nil and delegates to I18n" do
+          expect(i18n_double).to receive(:t).with(key, **options, default: nil).and_return("some translation")
+
           translate_result
-          expect(i18n_double).to have_received(:t).with(key, **options, default: nil)
         end
       end
 
@@ -138,8 +137,9 @@ RSpec.describe CMDx::Locale do
         let(:options) { { default: "Custom default", locale: :es } }
 
         it "preserves the provided default" do
+          expect(i18n_double).to receive(:t).with(key, **options).and_return("some translation")
+
           translate_result
-          expect(i18n_double).to have_received(:t).with(key, **options)
         end
       end
     end
