@@ -29,7 +29,7 @@ RSpec.describe CMDx::Chain do
     it "generates a unique id" do
       expect(CMDx::Identifier).to receive(:generate)
 
-      described_class.new
+      chain
     end
 
     it "initializes with an empty results array" do
