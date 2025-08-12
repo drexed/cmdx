@@ -357,77 +357,65 @@ RSpec.describe CMDx::Validators::Length do
 
     context "with internationalization" do
       it "calls Locale.t for default within message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized within message")
-
-        expect { validator.call("a", { within: (3..5) }) }
-          .to raise_error(CMDx::ValidationError, "localized within message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
+        expect(CMDx::Locale).to receive(:t).with(
           "cmdx.validators.length.within",
           min: 3,
           max: 5
-        )
+        ).and_return("localized within message")
+
+        expect { validator.call("a", { within: (3..5) }) }
+          .to raise_error(CMDx::ValidationError, "localized within message")
       end
 
       it "calls Locale.t for default not_within message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized not_within message")
-
-        expect { validator.call("test", { not_within: (3..5) }) }
-          .to raise_error(CMDx::ValidationError, "localized not_within message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
+        expect(CMDx::Locale).to receive(:t).with(
           "cmdx.validators.length.not_within",
           min: 3,
           max: 5
-        )
+        ).and_return("localized not_within message")
+
+        expect { validator.call("test", { not_within: (3..5) }) }
+          .to raise_error(CMDx::ValidationError, "localized not_within message")
       end
 
       it "calls Locale.t for default min message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized min message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.length.min",
+          min: 3
+        ).and_return("localized min message")
 
         expect { validator.call("ab", { min: 3 }) }
           .to raise_error(CMDx::ValidationError, "localized min message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.length.min",
-          min: 3
-        )
       end
 
       it "calls Locale.t for default max message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized max message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.length.max",
+          max: 3
+        ).and_return("localized max message")
 
         expect { validator.call("toolong", { max: 3 }) }
           .to raise_error(CMDx::ValidationError, "localized max message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.length.max",
-          max: 3
-        )
       end
 
       it "calls Locale.t for default is message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized is message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.length.is",
+          is: 5
+        ).and_return("localized is message")
 
         expect { validator.call("ab", { is: 5 }) }
           .to raise_error(CMDx::ValidationError, "localized is message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.length.is",
-          is: 5
-        )
       end
 
       it "calls Locale.t for default is_not message" do
-        allow(CMDx::Locale).to receive(:t).and_return("localized is_not message")
+        expect(CMDx::Locale).to receive(:t).with(
+          "cmdx.validators.length.is_not",
+          is_not: 4
+        ).and_return("localized is_not message")
 
         expect { validator.call("test", { is_not: 4 }) }
           .to raise_error(CMDx::ValidationError, "localized is_not message")
-
-        expect(CMDx::Locale).to have_received(:t).with(
-          "cmdx.validators.length.is_not",
-          is_not: 4
-        )
       end
 
       context "when custom message is provided without interpolation" do
