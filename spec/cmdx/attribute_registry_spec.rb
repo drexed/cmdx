@@ -57,6 +57,7 @@ RSpec.describe CMDx::AttributeRegistry do
 
     it "maintains independence between original and duplicate" do
       new_attribute = instance_double(CMDx::Attribute)
+
       duplicated_registry.register(new_attribute)
 
       expect(duplicated_registry.registry).to include(new_attribute)
@@ -110,6 +111,7 @@ RSpec.describe CMDx::AttributeRegistry do
     context "with empty array" do
       it "does not modify registry" do
         original_size = registry.registry.size
+
         registry.register([])
 
         expect(registry.registry.size).to eq(original_size)
