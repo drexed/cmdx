@@ -50,6 +50,8 @@ RSpec/ExampleLength:
   Enabled: false
 RSpec/IndexedLet:
   Enabled: false
+RSpec/MessageSpies:
+  EnforcedStyle: receive
 RSpec/MultipleExpectations:
   Enabled: false
 RSpec/MultipleMemoizedHelpers:

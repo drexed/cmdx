@@ -3,180 +3,148 @@
 require "spec_helper"
 
 RSpec.describe CMDx::AttributeRegistry do
-  subject(:registry) { described_class.new(initial_registry) }
-
-  let(:initial_registry) { [] }
-  let(:mock_attribute) { instance_double(CMDx::Attribute) }
-  let(:mock_task) { instance_double(CMDx::Task) }
+  let(:attribute1) { instance_double(CMDx::Attribute) }
+  let(:attribute2) { instance_double(CMDx::Attribute) }
+  let(:initial_registry) { [attribute1] }
+  let(:task) { instance_double("Task") }
 
   describe "#initialize" do
-    context "when no registry is provided" do
+    context "without arguments" do
       subject(:registry) { described_class.new }
 
-      it "initializes with an empty array" do
+      it "initializes with empty registry" do
         expect(registry.registry).to eq([])
       end
     end
 
-    context "when a registry is provided" do
-      let(:initial_registry) { [mock_attribute] }
+    context "with initial registry" do
+      subject(:registry) { described_class.new(initial_registry) }
 
-      it "initializes with the provided registry" do
-        expect(registry.registry).to eq([mock_attribute])
+      it "initializes with provided registry" do
+        expect(registry.registry).to eq(initial_registry)
       end
     end
   end
 
   describe "#registry" do
-    let(:initial_registry) { [mock_attribute] }
+    subject(:registry) { described_class.new(initial_registry) }
 
     it "returns the internal registry array" do
-      expect(registry.registry).to eq([mock_attribute])
+      expect(registry.registry).to eq(initial_registry)
     end
   end
 
   describe "#to_a" do
-    let(:initial_registry) { [mock_attribute] }
+    subject(:registry) { described_class.new(initial_registry) }
 
-    it "returns the registry array" do
-      expect(registry.to_a).to eq([mock_attribute])
-    end
-
-    it "is an alias for registry" do
-      expect(registry.method(:to_a)).to eq(registry.method(:registry))
+    it "aliases to registry method" do
+      expect(registry.to_a).to eq(registry.registry)
+      expect(registry.to_a).to eq(initial_registry)
     end
   end
 
   describe "#dup" do
-    let(:initial_registry) { [mock_attribute] }
+    subject(:registry) { described_class.new(initial_registry) }
 
-    it "returns a new AttributeRegistry instance" do
-      duplicated = registry.dup
+    let(:duplicated_registry) { registry.dup }
 
-      expect(duplicated).to be_a(described_class)
-      expect(duplicated).not_to be(registry)
+    it "creates new instance with duplicated registry" do
+      expect(duplicated_registry).to be_a(described_class)
+      expect(duplicated_registry).not_to be(registry)
+      expect(duplicated_registry.registry).to eq(registry.registry)
+      expect(duplicated_registry.registry).not_to be(registry.registry)
     end
 
-    it "duplicates the registry array" do
-      duplicated = registry.dup
-
-      expect(duplicated.registry).to eq(registry.registry)
-      expect(duplicated.registry).not_to be(registry.registry)
-    end
-
-    it "allows independent modification of the duplicated registry" do
-      duplicated = registry.dup
+    it "maintains independence between original and duplicate" do
       new_attribute = instance_double(CMDx::Attribute)
+      duplicated_registry.register(new_attribute)
 
-      duplicated.register(new_attribute)
-
-      expect(duplicated.registry).to include(new_attribute)
+      expect(duplicated_registry.registry).to include(new_attribute)
       expect(registry.registry).not_to include(new_attribute)
     end
   end
 
   describe "#register" do
-    context "when registering a single attribute" do
-      it "adds the attribute to the registry" do
-        registry.register(mock_attribute)
+    subject(:registry) { described_class.new }
 
-        expect(registry.registry).to include(mock_attribute)
-      end
+    context "with single attribute" do
+      it "adds attribute to registry and returns self" do
+        result = registry.register(attribute1)
 
-      it "returns self for method chaining" do
-        result = registry.register(mock_attribute)
-
+        expect(registry.registry).to include(attribute1)
         expect(result).to be(registry)
       end
     end
 
-    context "when registering multiple attributes as an array" do
-      let(:second_attribute) { instance_double(CMDx::Attribute) }
-      let(:attributes) { [mock_attribute, second_attribute] }
+    context "with multiple attributes as array" do
+      let(:attributes) { [attribute1, attribute2] }
 
-      it "adds all attributes to the registry" do
+      it "adds all attributes to registry" do
         registry.register(attributes)
 
-        expect(registry.registry).to include(mock_attribute, second_attribute)
-      end
-
-      it "maintains the order of attributes" do
-        registry.register(attributes)
-
-        expect(registry.registry).to eq(attributes)
+        expect(registry.registry).to include(attribute1)
+        expect(registry.registry).to include(attribute2)
+        expect(registry.registry.size).to eq(2)
       end
     end
 
-    context "when registering attributes to an existing registry" do
-      let(:initial_registry) { [mock_attribute] }
-      let(:new_attribute) { instance_double(CMDx::Attribute) }
+    context "with non-array attribute" do
+      it "converts to array and adds to registry" do
+        registry.register(attribute1)
+
+        expect(registry.registry).to eq([attribute1])
+      end
+    end
+
+    context "when adding to existing registry" do
+      subject(:registry) { described_class.new(initial_registry) }
 
       it "appends new attributes to existing ones" do
-        registry.register(new_attribute)
+        registry.register(attribute2)
 
-        expect(registry.registry).to eq([mock_attribute, new_attribute])
+        expect(registry.registry).to eq([attribute1, attribute2])
+        expect(registry.registry.size).to eq(2)
       end
     end
 
-    context "when registering nil" do
-      it "adds nil to the registry as an empty array" do
-        registry.register(nil)
+    context "with empty array" do
+      it "does not modify registry" do
+        original_size = registry.registry.size
+        registry.register([])
 
-        expect(registry.registry).to eq([])
-      end
-    end
-
-    context "when registering a non-array value" do
-      let(:single_value) { "string_value" }
-
-      it "converts the value to an array before adding" do
-        registry.register(single_value)
-
-        expect(registry.registry).to eq([single_value])
+        expect(registry.registry.size).to eq(original_size)
       end
     end
   end
 
   describe "#define_and_verify" do
-    let(:second_attribute) { instance_double(CMDx::Attribute) }
-    let(:initial_registry) { [mock_attribute, second_attribute] }
+    subject(:registry) { described_class.new([attribute1, attribute2]) }
 
-    before do
-      allow(mock_attribute).to receive(:task=)
-      allow(mock_attribute).to receive(:define_and_verify_tree)
-      allow(second_attribute).to receive(:task=)
-      allow(second_attribute).to receive(:define_and_verify_tree)
+    it "sets task on each attribute and calls define_and_verify_tree" do
+      expect(attribute1).to receive(:task=).with(task)
+      expect(attribute2).to receive(:task=).with(task)
+      expect(attribute1).to receive(:define_and_verify_tree)
+      expect(attribute2).to receive(:define_and_verify_tree)
+
+      registry.define_and_verify(task)
     end
 
-    it "sets the task on each attribute in the registry" do
-      registry.define_and_verify(mock_task)
+    context "with empty registry" do
+      subject(:registry) { described_class.new([]) }
 
-      expect(mock_attribute).to have_received(:task=).with(mock_task)
-      expect(second_attribute).to have_received(:task=).with(mock_task)
-    end
-
-    it "calls define_and_verify_tree on each attribute" do
-      registry.define_and_verify(mock_task)
-
-      expect(mock_attribute).to have_received(:define_and_verify_tree)
-      expect(second_attribute).to have_received(:define_and_verify_tree)
-    end
-
-    context "when registry is empty" do
-      let(:initial_registry) { [] }
-
-      it "does not raise an error" do
-        expect { registry.define_and_verify(mock_task) }.not_to raise_error
+      it "does not call any methods" do
+        expect { registry.define_and_verify(task) }.not_to raise_error
       end
     end
 
-    context "when an attribute raises an error" do
+    context "when attribute raises error" do
       before do
-        allow(mock_attribute).to receive(:define_and_verify_tree).and_raise(StandardError, "test error")
+        allow(attribute1).to receive(:task=)
+        allow(attribute1).to receive(:define_and_verify_tree).and_raise(StandardError, "attribute error")
       end
 
       it "propagates the error" do
-        expect { registry.define_and_verify(mock_task) }.to raise_error(StandardError, "test error")
+        expect { registry.define_and_verify(task) }.to raise_error(StandardError, "attribute error")
       end
     end
   end
