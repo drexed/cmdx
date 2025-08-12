@@ -204,6 +204,126 @@ RSpec.describe "Task execution", type: :feature do
           end
         end
       end
+
+      context "when throw to raise" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :throw_raise) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+            expect(result).to have_empty_context
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :error) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              reason: "[CMDx::TestError] borked error",
+              cause: be_a(CMDx::FailFault),
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+            expect(result).to have_empty_context
+          end
+        end
+      end
+
+      context "when raise to throw" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :raise_throw) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[outer])
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :failure) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+            expect(result).to have_empty_context
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :error) }
+
+          it "returns failure" do
+            expect(result).to have_been_failure(
+              outcome: CMDx::Result::INTERRUPTED,
+              reason: "[CMDx::TestError] borked error",
+              cause: be_a(CMDx::FailFault),
+              threw_failure: hash_including(
+                index: 1,
+                class: start_with("MiddleTask")
+              ),
+              caused_failure: hash_including(
+                index: 2,
+                class: start_with("InnerTask")
+              )
+            )
+            expect(result).to have_empty_context
+          end
+        end
+      end
     end
   end
 
@@ -353,6 +473,78 @@ RSpec.describe "Task execution", type: :feature do
 
           it "returns failure" do
             expect { result }.to raise_error(CMDx::TestError, "borked error")
+          end
+        end
+      end
+
+      context "when throw to raise" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :throw_raise) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[middle outer])
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :failure) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "no reason given")
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :throw_raise, status: :error) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "[CMDx::TestError] borked error")
+          end
+        end
+      end
+
+      context "when raise to throw" do
+        context "when successful" do
+          let(:task) { create_nested_task(strategy: :raise_throw) }
+
+          it "returns success" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[inner middle outer])
+          end
+        end
+
+        context "when skipping" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :skipped) }
+
+          it "returns skipped" do
+            expect(result).to have_been_success
+            expect(result).to have_matching_context(executed_list: %i[outer])
+          end
+        end
+
+        context "when failing" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :failure) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "no reason given")
+          end
+        end
+
+        context "when erroring" do
+          let(:task) { create_nested_task(strategy: :raise_throw, status: :error) }
+
+          it "returns failure" do
+            expect { result }.to raise_error(CMDx::FailFault, "[CMDx::TestError] borked error")
           end
         end
       end

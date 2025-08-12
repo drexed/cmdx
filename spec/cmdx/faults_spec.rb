@@ -83,7 +83,7 @@ RSpec.describe CMDx::Fault do
     context "when fault matches specified task class" do
       it "returns true for case equality" do
         temp_fault_class = described_class.for?(specific_task_class)
-        specific_fault = described_class.build(specific_failed_result)
+        specific_fault = described_class.new(specific_failed_result)
 
         # The implementation expects other.task but Fault has other.result.task
         # We'll stub the task method to return the task from result
@@ -96,7 +96,7 @@ RSpec.describe CMDx::Fault do
     context "when fault does not match specified task class" do
       it "returns false for case equality" do
         temp_fault_class = described_class.for?(specific_task_class)
-        other_fault = described_class.build(other_failed_result)
+        other_fault = described_class.new(other_failed_result)
 
         # Stub the task method for the other fault as well
         allow(other_fault).to receive(:task).and_return(other_fault.result.task)
@@ -108,8 +108,8 @@ RSpec.describe CMDx::Fault do
     context "when multiple task classes are specified" do
       it "matches any of the specified task classes" do
         temp_fault_class = described_class.for?(specific_task_class, other_task_class)
-        specific_fault = described_class.build(specific_failed_result)
-        other_fault = described_class.build(other_failed_result)
+        specific_fault = described_class.new(specific_failed_result)
+        other_fault = described_class.new(other_failed_result)
 
         # Stub the task method for both faults
         allow(specific_fault).to receive(:task).and_return(specific_fault.result.task)
@@ -164,7 +164,7 @@ RSpec.describe CMDx::Fault do
       context "when block returns true" do
         it "returns true for case equality" do
           temp_fault_class = described_class.matches? { |fault| fault.result.failed? }
-          failed_fault = described_class.build(failed_result)
+          failed_fault = described_class.new(failed_result)
 
           expect(temp_fault_class === failed_fault).to be(true)
         end
@@ -173,7 +173,7 @@ RSpec.describe CMDx::Fault do
       context "when block returns false" do
         it "returns false for case equality" do
           temp_fault_class = described_class.matches? { |fault| fault.result.failed? }
-          skipped_fault = described_class.build(skipped_result)
+          skipped_fault = described_class.new(skipped_result)
 
           expect(temp_fault_class === skipped_fault).to be(false)
         end
@@ -193,7 +193,7 @@ RSpec.describe CMDx::Fault do
           block_called_with = fault
           true
         end
-        failed_fault = described_class.build(failed_result)
+        failed_fault = described_class.new(failed_result)
 
         temp_fault_class === failed_fault # rubocop:disable Lint/Void
 

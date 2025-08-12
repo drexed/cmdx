@@ -66,8 +66,8 @@ module CMDx
         middle_task.define_method(:work) do
           case strategy
           when :swallow then inner_task.execute(context)
-          when :throw then throw!(inner_task.execute(context))
-          when :raise then inner_task.execute!(context)
+          when :throw, :raise_throw then throw!(inner_task.execute(context))
+          when :raise, :throw_raise then inner_task.execute!(context)
           else raise "unknown strategy #{strategy}"
           end
 
@@ -79,8 +79,8 @@ module CMDx
         outer_task.define_method(:work) do
           case strategy
           when :swallow then middle_task.execute(context)
-          when :throw then throw!(middle_task.execute(context))
-          when :raise then middle_task.execute!(context)
+          when :throw, :throw_raise then throw!(middle_task.execute(context))
+          when :raise, :raise_throw then middle_task.execute!(context)
           else raise "unknown strategy #{strategy}"
           end
 
