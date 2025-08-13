@@ -9,8 +9,8 @@ module CMDx
 
       # Base
 
-      def create_task_class(name: "AnonymousTask", &block)
-        task_class = Class.new(CMDx::Task)
+      def create_task_class(base: CMDx::Task, name: "AnonymousTask", &block)
+        task_class = Class.new(base)
         task_class.define_singleton_method(:name) { name.to_s + rand(9999).to_s.rjust(4, "0") }
         task_class.class_eval(&block) if block_given?
         task_class
