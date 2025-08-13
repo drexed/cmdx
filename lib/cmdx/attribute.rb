@@ -26,6 +26,9 @@ module CMDx
 
     class << self
 
+      # TODO: simplify this by only having a defines method and removing the define method
+      # TODO: rename defines to build
+
       def define(name, ...)
         new(name, ...)
       end
@@ -47,8 +50,6 @@ module CMDx
       def required(*names, **options, &)
         defines(*names, **options.merge(required: true), &)
       end
-
-      # TODO: add undefine methods and add remove_attribute method
 
     end
 

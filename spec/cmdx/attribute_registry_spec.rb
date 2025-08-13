@@ -119,6 +119,81 @@ RSpec.describe CMDx::AttributeRegistry, type: :unit do
     end
   end
 
+  describe "#deregister" do
+    subject(:registry) { described_class.new([parent_attribute, other_attribute]) }
+
+    let(:child_attribute) { instance_double(CMDx::Attribute, method_name: :child_attr, children: []) }
+    let(:parent_attribute) { instance_double(CMDx::Attribute, method_name: :parent_attr, children: [child_attribute]) }
+    let(:other_attribute) { instance_double(CMDx::Attribute, method_name: :other_attr, children: []) }
+
+    context "with single attribute name" do
+      it "removes attribute by method_name and returns self" do
+        result = registry.deregister(:parent_attr)
+
+        expect(registry.registry).not_to include(parent_attribute)
+        expect(registry.registry).to include(other_attribute)
+        expect(result).to be(registry)
+      end
+
+      it "converts string names to symbols" do
+        registry.deregister("parent_attr")
+
+        expect(registry.registry).not_to include(parent_attribute)
+        expect(registry.registry).to include(other_attribute)
+      end
+    end
+
+    context "with multiple attribute names" do
+      it "handles array of names" do
+        registry.deregister(%i[parent_attr other_attr])
+
+        expect(registry.registry).to be_empty
+      end
+    end
+
+    context "with child attribute name" do
+      it "removes parent attribute when child matches" do
+        registry.deregister(:child_attr)
+
+        expect(registry.registry).not_to include(parent_attribute)
+        expect(registry.registry).to include(other_attribute)
+      end
+    end
+
+    context "with non-existent attribute name" do
+      it "does not modify registry" do
+        original_registry = registry.registry.dup
+
+        registry.deregister(:non_existent)
+
+        expect(registry.registry).to eq(original_registry)
+      end
+    end
+
+    context "with nested children" do
+      subject(:registry) { described_class.new([complex_parent, other_attribute]) }
+
+      let(:grandchild_attribute) { instance_double(CMDx::Attribute, method_name: :grandchild_attr, children: []) }
+      let(:child_with_children) { instance_double(CMDx::Attribute, method_name: :child_with_children, children: [grandchild_attribute]) }
+      let(:complex_parent) { instance_double(CMDx::Attribute, method_name: :complex_parent, children: [child_with_children]) }
+
+      it "removes parent when deeply nested child matches" do
+        registry.deregister(:grandchild_attr)
+
+        expect(registry.registry).not_to include(complex_parent)
+        expect(registry.registry).to include(other_attribute)
+      end
+    end
+
+    context "with empty registry" do
+      subject(:registry) { described_class.new([]) }
+
+      it "does not raise error" do
+        expect { registry.deregister(:any_name) }.not_to raise_error
+      end
+    end
+  end
+
   describe "#define_and_verify" do
     subject(:registry) { described_class.new([attribute1, attribute2]) }
 

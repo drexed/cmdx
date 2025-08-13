@@ -200,7 +200,7 @@ RSpec.describe CMDx::Task, type: :unit do
 
     context "with unknown type" do
       it "raises an error" do
-        expect { task_class.register(:unknown, "object") }.to raise_error("unknown register type :unknown")
+        expect { task_class.register(:unknown, "object") }.to raise_error("unknown registry type :unknown")
       end
     end
   end
@@ -242,6 +242,37 @@ RSpec.describe CMDx::Task, type: :unit do
       expect(task_class).to receive(:register).with(:attribute, mock_attribute)
 
       task_class.required("arg1", "arg2")
+    end
+  end
+
+  describe ".remove_attribute" do
+    it "removes a single attribute from the registry" do
+      mock_registry = instance_double(CMDx::AttributeRegistry)
+      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
+
+      expect(mock_registry).to receive(:deregister).with("test_attr")
+
+      task_class.remove_attribute("test_attr")
+    end
+  end
+
+  describe ".remove_attributes" do
+    it "removes multiple attributes from the registry" do
+      mock_registry = instance_double(CMDx::AttributeRegistry)
+      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
+
+      expect(mock_registry).to receive(:deregister).with(%w[attr1 attr2 attr3])
+
+      task_class.remove_attributes("attr1", "attr2", "attr3")
+    end
+
+    it "handles single attribute removal" do
+      mock_registry = instance_double(CMDx::AttributeRegistry)
+      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
+
+      expect(mock_registry).to receive(:deregister).with(["single_attr"])
+
+      task_class.remove_attributes("single_attr")
     end
   end
 

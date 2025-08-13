@@ -19,11 +19,27 @@ module CMDx
       self
     end
 
+    def deregister(names)
+      Array(names).each do |name|
+        @registry.reject! { |attribute| matches_attribute_tree?(attribute, name.to_sym) }
+      end
+
+      self
+    end
+
     def define_and_verify(task)
       registry.each do |attribute|
         attribute.task = task
         attribute.define_and_verify_tree
       end
+    end
+
+    private
+
+    def matches_attribute_tree?(attribute, name)
+      return true if attribute.method_name == name
+
+      attribute.children.any? { |child| matches_attribute_tree?(child, name) }
     end
 
   end

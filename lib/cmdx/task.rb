@@ -49,7 +49,18 @@ module CMDx
         when :coercion then settings[:coercions].register(object, ...)
         when :middleware then settings[:middlewares].register(object, ...)
         when :validator then settings[:validators].register(object, ...)
-        else raise "unknown register type #{type.inspect}"
+        else raise "unknown registry type #{type.inspect}"
+        end
+      end
+
+      def deregister(type, object, ...)
+        case type
+        when :attribute then settings[:attributes].deregister(object, ...)
+        # when :callback then settings[:callbacks].deregister(object, ...)
+        # when :coercion then settings[:coercions].deregister(object, ...)
+        # when :middleware then settings[:middlewares].deregister(object, ...)
+        # when :validator then settings[:validators].deregister(object, ...)
+        else raise "unknown registry type #{type.inspect}"
         end
       end
 
@@ -67,6 +78,14 @@ module CMDx
 
       def required(...)
         register(:attribute, Attribute.required(...))
+      end
+
+      def remove_attribute(name)
+        deregister(:attribute, name)
+      end
+
+      def remove_attributes(*names)
+        deregister(:attribute, names)
       end
 
       CallbackRegistry::TYPES.each do |callback|

@@ -81,7 +81,7 @@ RSpec.describe CMDx::Coercions::Symbol, type: :unit do
         result = coercion.call("héllo wörld 🌍")
 
         expect(result).to be_a(Symbol)
-        expect(result).to eq(:"h\u00E9llo w\u00F6rld \u{1F30D}")
+        expect(result).to eq(:"héllo wörld 🌍")
       end
 
       it "converts string with newlines and tabs to symbol" do
