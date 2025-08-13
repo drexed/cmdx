@@ -48,6 +48,8 @@ module CMDx
         defines(*names, **options.merge(required: true), &)
       end
 
+      # TODO: add undefine methods and add remove_attribute method
+
     end
 
     def required?
