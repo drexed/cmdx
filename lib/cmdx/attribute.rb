@@ -17,7 +17,7 @@ module CMDx
       @required = options.delete(:required) || false
       @types = Array(options.delete(:types) || options.delete(:type))
 
-      @name = name
+      @name = name.to_sym
       @options = options
       @children = []
 
