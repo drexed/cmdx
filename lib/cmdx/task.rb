@@ -26,17 +26,20 @@ module CMDx
     class << self
 
       def settings(**options)
-        @settings ||=
-          if superclass.respond_to?(:configuration)
-            superclass.configuration
-          else
-            CMDx.configuration.to_h.except(:logger)
-          end.transform_values(&:dup).merge!(
-            attributes: AttributeRegistry.new,
-            deprecate: false,
-            tags: [],
-            **options
-          )
+        @settings ||= begin
+          hash =
+            if superclass.respond_to?(:settings)
+              superclass.settings
+            else
+              CMDx.configuration.to_h.except(:logger)
+            end.transform_values(&:dup)
+
+          hash[:attributes] ||= AttributeRegistry.new
+          hash[:deprecate] ||= false
+          hash[:tags] ||= []
+
+          hash.merge!(options)
+        end
       end
 
       def register(type, object, ...)

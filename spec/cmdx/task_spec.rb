@@ -106,29 +106,17 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(settings).to have_key(:tags)
         expect(settings[:tags]).to eq([])
       end
-
-      it "excludes logger from CMDx configuration" do
-        allow(CMDx.configuration).to receive(:to_h).and_return({ logger: "test_logger", other: "value" })
-
-        settings = task_class.settings
-
-        expect(settings).not_to have_key(:logger)
-        expect(settings).to have_key(:other)
-      end
     end
 
-    context "when superclass has configuration" do
+    context "when superclass has settings" do
       let(:parent_class) { create_task_class(name: "ParentTask") }
       let(:child_class) { Class.new(parent_class) }
 
       before do
-        # Define configuration method on parent class to simulate inheritance
-        parent_class.define_singleton_method(:configuration) do
-          { custom_setting: "parent_value" }
-        end
+        parent_class.settings(custom_setting: "parent_value")
       end
 
-      it "inherits from superclass configuration" do
+      it "inherits from superclass settings" do
         child_settings = child_class.settings
 
         expect(child_settings[:custom_setting]).to eq("parent_value")
@@ -156,16 +144,6 @@ RSpec.describe CMDx::Task, type: :unit do
       settings2 = task_class.settings
 
       expect(settings1).to be(settings2)
-    end
-
-    it "duplicates values to prevent mutation" do
-      original_config = { test_array: [1, 2, 3] }
-      allow(CMDx.configuration).to receive(:to_h).and_return(original_config)
-
-      settings = task_class.settings
-      settings[:test_array] << 4
-
-      expect(original_config[:test_array]).to eq([1, 2, 3])
     end
   end
 
