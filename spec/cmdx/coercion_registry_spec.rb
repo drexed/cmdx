@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::CoercionRegistry do
+RSpec.describe CMDx::CoercionRegistry, type: :unit do
   subject(:registry) { described_class.new(initial_registry) }
 
   let(:initial_registry) { nil }

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Context do
+RSpec.describe CMDx::Context, type: :unit do
   subject(:context) { described_class.new(initial_data) }
 
   let(:initial_data) { { name: "John", age: 30 } }

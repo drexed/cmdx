@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Errors do
+RSpec.describe CMDx::Errors, type: :unit do
   subject(:errors) { described_class.new }
 
   describe "#initialize" do

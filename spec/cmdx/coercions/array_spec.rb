@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Array do
+RSpec.describe CMDx::Coercions::Array, type: :unit do
   subject(:coercion) { described_class }
 
   describe ".call" do

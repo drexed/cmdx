@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Chain do
+RSpec.describe CMDx::Chain, type: :unit do
   subject(:chain) { described_class.new }
 
   let(:mock_task) { instance_double(CMDx::Task) }

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Middlewares::Correlate do
+RSpec.describe CMDx::Middlewares::Correlate, type: :unit do
   subject(:correlate) { described_class }
 
   let(:task) { double("CMDx::Task", id: "task-123", result: result) } # rubocop:disable RSpec/VerifiedDoubles

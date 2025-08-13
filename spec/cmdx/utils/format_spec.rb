@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Utils::Format do
+RSpec.describe CMDx::Utils::Format, type: :unit do
   subject(:format_module) { described_class }
 
   describe ".to_log" do

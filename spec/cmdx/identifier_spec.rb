@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Identifier do
+RSpec.describe CMDx::Identifier, type: :unit do
   subject(:identifier) { described_class }
 
   describe ".generate" do

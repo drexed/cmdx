@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Date do
+RSpec.describe CMDx::Coercions::Date, type: :unit do
   subject(:coercion) { described_class }
 
   describe ".call" do

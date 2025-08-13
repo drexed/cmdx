@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Workflow do
+RSpec.describe CMDx::Workflow, type: :unit do
   let(:workflow_class) { create_workflow_class(name: "TestWorkflow") }
   let(:workflow) { workflow_class.new }
   let(:context_hash) { { executed: [] } }

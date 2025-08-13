@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::LogFormatters::Raw do
+RSpec.describe CMDx::LogFormatters::Raw, type: :unit do
   subject(:formatter) { described_class.new }
 
   let(:severity) { "INFO" }

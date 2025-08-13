@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Middlewares::Timeout do
+RSpec.describe CMDx::Middlewares::Timeout, type: :unit do
   subject(:timeout_middleware) { described_class }
 
   let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles

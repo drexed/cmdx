@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Deprecator do
+RSpec.describe CMDx::Deprecator, type: :unit do
   let(:mock_task) { instance_double("MockTask") }
   let(:mock_task_class) { class_double(CMDx::Task, name: "TestTask") }
   let(:mock_logger) { instance_double(Logger) }

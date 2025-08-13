@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::AttributeValue do
+RSpec.describe CMDx::AttributeValue, type: :unit do
   let(:task_class) { create_task_class }
   let(:errors) { instance_double(CMDx::Errors, add: nil, for?: false) }
   let(:task) { task_class.new }

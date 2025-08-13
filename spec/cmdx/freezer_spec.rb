@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Freezer do
+RSpec.describe CMDx::Freezer, type: :unit do
   let(:task) { instance_double(CMDx::Task) }
   let(:result) { instance_double(CMDx::Result) }
   let(:context) { instance_double(CMDx::Context) }

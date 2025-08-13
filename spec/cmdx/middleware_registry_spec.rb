@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::MiddlewareRegistry do
+RSpec.describe CMDx::MiddlewareRegistry, type: :unit do
   subject(:registry) { described_class.new(initial_registry) }
 
   let(:initial_registry) { [] }

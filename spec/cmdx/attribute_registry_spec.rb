@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::AttributeRegistry do
+RSpec.describe CMDx::AttributeRegistry, type: :unit do
   let(:attribute1) { instance_double(CMDx::Attribute) }
   let(:attribute2) { instance_double(CMDx::Attribute) }
   let(:initial_registry) { [attribute1] }

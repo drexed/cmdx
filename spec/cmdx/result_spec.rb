@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Result do
+RSpec.describe CMDx::Result, type: :unit do
   let(:task_class) { create_successful_task(name: "TestTask") }
   let(:task) { task_class.new }
   let(:result) { task.result }

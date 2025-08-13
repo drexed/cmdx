@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Utils::Condition do
+RSpec.describe CMDx::Utils::Condition, type: :unit do
   subject(:condition_module) { described_class }
 
   let(:target_object) do

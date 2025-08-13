@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Validators::Exclusion do
+RSpec.describe CMDx::Validators::Exclusion, type: :unit do
   subject(:validator) { described_class }
 
   describe ".call" do

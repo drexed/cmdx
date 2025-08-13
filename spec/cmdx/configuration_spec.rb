@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Configuration do
+RSpec.describe CMDx::Configuration, type: :unit do
   subject(:configuration) { described_class.new }
 
   describe "#initialize" do

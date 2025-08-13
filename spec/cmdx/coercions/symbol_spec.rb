@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Symbol do
+RSpec.describe CMDx::Coercions::Symbol, type: :unit do
   subject(:coercion) { described_class }
 
   describe ".call" do
@@ -81,7 +81,7 @@ RSpec.describe CMDx::Coercions::Symbol do
         result = coercion.call("héllo wörld 🌍")
 
         expect(result).to be_a(Symbol)
-        expect(result).to eq(:"héllo wörld 🌍")
+        expect(result).to eq(:"h\u00E9llo w\u00F6rld \u{1F30D}")
       end
 
       it "converts string with newlines and tabs to symbol" do

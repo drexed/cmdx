@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Task do
+RSpec.describe CMDx::Task, type: :unit do
   let(:task_class) { create_task_class(name: "TestTask") }
   let(:task) { task_class.new }
   let(:context_hash) { { foo: "bar", baz: 42 } }

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Middlewares::Runtime do
+RSpec.describe CMDx::Middlewares::Runtime, type: :unit do
   subject(:runtime) { described_class }
 
   let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles

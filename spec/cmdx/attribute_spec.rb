@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Attribute do
+RSpec.describe CMDx::Attribute, type: :unit do
   let(:task_class) { create_task_class }
   let(:task) { task_class.new }
   let(:attribute_name) { :test_attr }

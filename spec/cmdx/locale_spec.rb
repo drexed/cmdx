@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Locale do
+RSpec.describe CMDx::Locale, type: :unit do
   subject(:translate_result) { described_class.translate(key, **options) }
 
   describe "#translate" do

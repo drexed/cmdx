@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Utils::Call do
+RSpec.describe CMDx::Utils::Call, type: :unit do
   subject(:call_module) { described_class }
 
   let(:target_object) do

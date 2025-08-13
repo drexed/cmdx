@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::LogFormatters::Logstash do
+RSpec.describe CMDx::LogFormatters::Logstash, type: :unit do
   subject(:formatter) { described_class.new }
 
   let(:severity) { "INFO" }

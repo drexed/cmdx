@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Float do
+RSpec.describe CMDx::Coercions::Float, type: :unit do
   subject(:coercion) { described_class }
 
   describe ".call" do
