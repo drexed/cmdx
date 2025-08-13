@@ -10,7 +10,6 @@ RSpec.describe CMDx::Attribute, type: :unit do
   let(:attribute) { described_class.new(attribute_name, **attribute_options) }
 
   describe "#initialize" do
-    # Arrange & Act
     subject(:new_attribute) { described_class.new(attribute_name, **attribute_options) }
 
     context "with basic parameters" do
@@ -105,26 +104,8 @@ RSpec.describe CMDx::Attribute, type: :unit do
     end
   end
 
-  describe ".define" do
-    subject(:defined_attribute) { described_class.define(attribute_name, **attribute_options) }
-
-    it "creates a new attribute instance" do
-      expect(defined_attribute).to be_a(described_class)
-      expect(defined_attribute.name).to eq(attribute_name)
-    end
-
-    context "with options" do
-      let(:attribute_options) { { required: true, type: :string } }
-
-      it "passes options to initialize" do
-        expect(defined_attribute.required?).to be true
-        expect(defined_attribute.types).to eq([:string])
-      end
-    end
-  end
-
-  describe ".defines" do
-    subject(:defined_attributes) { described_class.defines(*names, **attribute_options) }
+  describe ".build" do
+    subject(:defined_attributes) { described_class.build(*names, **attribute_options) }
 
     let(:names) { %i[attr1 attr2] }
 
@@ -167,7 +148,8 @@ RSpec.describe CMDx::Attribute, type: :unit do
 
     context "with block" do
       it "passes block to each attribute" do
-        attributes = described_class.defines(*names) { nil }
+        attributes = described_class.build(*names) { nil }
+
         expect(attributes.size).to eq(2)
       end
     end
@@ -299,6 +281,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       it "memoizes the result" do
         first_result = attribute.source
         second_result = attribute.source
+
         expect(first_result).to eq(second_result)
       end
     end
@@ -369,6 +352,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       it "memoizes the result" do
         first_result = attribute.method_name
         second_result = attribute.method_name
+
         expect(first_result).to equal(second_result)
       end
     end
@@ -381,6 +365,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
     before do
       attribute.task = task
       attribute.children.push(child1, child2)
+
       allow(attribute).to receive(:define_and_verify)
       allow(child1).to receive(:define_and_verify_tree)
       allow(child2).to receive(:define_and_verify_tree)
@@ -388,11 +373,13 @@ RSpec.describe CMDx::Attribute, type: :unit do
 
     it "calls define_and_verify on self" do
       expect(attribute).to receive(:define_and_verify)
+
       attribute.define_and_verify_tree
     end
 
     it "sets task on all children" do
       attribute.define_and_verify_tree
+
       expect(child1.task).to eq(task)
       expect(child2.task).to eq(task)
     end
@@ -400,6 +387,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
     it "calls define_and_verify_tree on all children" do
       expect(child1).to receive(:define_and_verify_tree)
       expect(child2).to receive(:define_and_verify_tree)
+
       attribute.define_and_verify_tree
     end
   end
@@ -471,6 +459,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
 
       before do
         attribute.task = task
+
         allow(CMDx::AttributeValue).to receive(:new).and_return(attribute_value)
         allow(attribute).to receive(:method_name).and_return(:test_method)
       end
@@ -482,12 +471,14 @@ RSpec.describe CMDx::Attribute, type: :unit do
 
         it "creates AttributeValue instance" do
           expect(CMDx::AttributeValue).to receive(:new).with(attribute)
+
           attribute.send(:define_and_verify)
         end
 
         it "calls generate and validate on AttributeValue" do
           expect(attribute_value).to receive(:generate)
           expect(attribute_value).to receive(:validate)
+
           attribute.send(:define_and_verify)
         end
 
@@ -496,6 +487,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
             expect(code).to include("def test_method")
             expect(code).to include("attributes[:test_method]")
           end
+
           attribute.send(:define_and_verify)
         end
       end
@@ -526,6 +518,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
     context "when value is true" do
       it "calls the block" do
         result = affix_proc.call(true) { "block_result" }
+
         expect(result).to eq("block_result")
       end
     end
@@ -533,6 +526,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
     context "when value is not true" do
       it "returns the value" do
         result = affix_proc.call("custom_value") { "block_result" }
+
         expect(result).to eq("custom_value")
       end
     end

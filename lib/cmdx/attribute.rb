@@ -26,29 +26,22 @@ module CMDx
 
     class << self
 
-      # TODO: simplify this by only having a defines method and removing the define method
-      # TODO: rename defines to build
-
-      def define(name, ...)
-        new(name, ...)
-      end
-
-      def defines(*names, **options, &)
+      def build(*names, **options, &)
         if names.none?
           raise ArgumentError, "no attributes given"
         elsif (names.size > 1) && options.key?(:as)
           raise ArgumentError, ":as option only supports one attribute per definition"
         end
 
-        names.filter_map { |name| define(name, **options, &) }
+        names.filter_map { |name| new(name, **options, &) }
       end
 
       def optional(*names, **options, &)
-        defines(*names, **options.merge(required: false), &)
+        build(*names, **options.merge(required: false), &)
       end
 
       def required(*names, **options, &)
-        defines(*names, **options.merge(required: true), &)
+        build(*names, **options.merge(required: true), &)
       end
 
     end
@@ -91,15 +84,11 @@ module CMDx
 
     private
 
-    def attribute(name, **options, &)
-      attr = self.class.define(name, **options.merge(parent: self), &)
-      children.push(attr)
-    end
-
     def attributes(*names, **options, &)
-      attrs = self.class.defines(*names, **options.merge(parent: self), &)
+      attrs = self.class.build(*names, **options.merge(parent: self), &)
       children.concat(attrs)
     end
+    alias attribute attributes
 
     def optional(*names, **options, &)
       attributes(*names, **options.merge(required: false), &)

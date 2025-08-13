@@ -205,20 +205,10 @@ RSpec.describe CMDx::Task, type: :unit do
     end
   end
 
-  describe ".attribute" do
-    it "defines and registers an attribute" do
-      mock_attribute = instance_double(CMDx::Attribute)
-      expect(CMDx::Attribute).to receive(:define).with("name", "arg1", "arg2").and_return(mock_attribute)
-      expect(task_class).to receive(:register).with(:attribute, mock_attribute)
-
-      task_class.attribute("name", "arg1", "arg2")
-    end
-  end
-
   describe ".attributes" do
     it "defines and registers multiple attributes" do
       mock_attributes = instance_double(CMDx::Attribute)
-      expect(CMDx::Attribute).to receive(:defines).with("arg1", "arg2").and_return(mock_attributes)
+      expect(CMDx::Attribute).to receive(:build).with("arg1", "arg2").and_return(mock_attributes)
       expect(task_class).to receive(:register).with(:attribute, mock_attributes)
 
       task_class.attributes("arg1", "arg2")
@@ -242,17 +232,6 @@ RSpec.describe CMDx::Task, type: :unit do
       expect(task_class).to receive(:register).with(:attribute, mock_attribute)
 
       task_class.required("arg1", "arg2")
-    end
-  end
-
-  describe ".remove_attribute" do
-    it "removes a single attribute from the registry" do
-      mock_registry = instance_double(CMDx::AttributeRegistry)
-      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
-
-      expect(mock_registry).to receive(:deregister).with("test_attr")
-
-      task_class.remove_attribute("test_attr")
     end
   end
 

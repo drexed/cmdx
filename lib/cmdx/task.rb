@@ -64,13 +64,10 @@ module CMDx
         end
       end
 
-      def attribute(name, ...)
-        register(:attribute, Attribute.define(name, ...))
-      end
-
       def attributes(...)
-        register(:attribute, Attribute.defines(...))
+        register(:attribute, Attribute.build(...))
       end
+      alias attribute attributes
 
       def optional(...)
         register(:attribute, Attribute.optional(...))
@@ -80,13 +77,10 @@ module CMDx
         register(:attribute, Attribute.required(...))
       end
 
-      def remove_attribute(name)
-        deregister(:attribute, name)
-      end
-
       def remove_attributes(*names)
         deregister(:attribute, names)
       end
+      alias remove_attribute remove_attributes
 
       CallbackRegistry::TYPES.each do |callback|
         define_method(callback) do |*callables, **options, &block|
