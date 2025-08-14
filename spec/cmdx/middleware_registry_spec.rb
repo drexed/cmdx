@@ -180,6 +180,121 @@ RSpec.describe CMDx::MiddlewareRegistry, type: :unit do
     end
   end
 
+  describe "#deregister" do
+    context "when deregistering middleware without options" do
+      before do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
+      end
+
+      it "removes the middleware from the registry" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+      end
+
+      it "returns self for method chaining" do
+        result = registry.deregister(mock_middleware1)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering middleware with options" do
+      let(:options) { { timeout: 30, retry: true } }
+
+      before do
+        registry.register(mock_middleware1, **options)
+        registry.register(mock_middleware2)
+      end
+
+      it "removes all instances of the middleware regardless of options" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+      end
+
+      it "removes middleware with any options" do
+        registry.register(mock_middleware1, timeout: 60)
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+        expect(registry.registry).not_to include([mock_middleware1, { timeout: 60 }])
+        expect(registry.registry).not_to include([mock_middleware1, options])
+      end
+    end
+
+    context "when deregistering from empty registry" do
+      it "does not raise an error" do
+        expect { registry.deregister(mock_middleware1) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(mock_middleware1)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering non-existent middleware" do
+      before do
+        registry.register(mock_middleware1)
+      end
+
+      it "does not affect existing middleware" do
+        registry.deregister(mock_middleware2)
+
+        expect(registry.registry).to include([mock_middleware1, {}])
+      end
+
+      it "returns self" do
+        result = registry.deregister(mock_middleware2)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering middleware registered multiple times" do
+      let(:options1) { { timeout: 30 } }
+      let(:options2) { { timeout: 60 } }
+
+      before do
+        registry.register(mock_middleware1, **options1)
+        registry.register(mock_middleware1, **options2)
+      end
+
+      it "removes all instances of the middleware" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to be_empty
+      end
+    end
+
+    context "when deregistering one of multiple middleware" do
+      before do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
+      end
+
+      it "removes only the specified middleware" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).not_to include([mock_middleware1, {}])
+        expect(registry.registry).to include([mock_middleware2, {}])
+      end
+
+      it "maintains order of remaining middleware" do
+        registry.register(mock_middleware1) # Now we have [mw1, mw2, mw1]
+        registry.deregister(mock_middleware2)
+
+        expect(registry.registry).to eq([
+                                          [mock_middleware1, {}],
+                                          [mock_middleware1, {}]
+                                        ])
+      end
+    end
+  end
+
   describe "#call!" do
     let(:block_result) { "block_executed" }
     let(:test_block) { proc { |_task| block_result } }

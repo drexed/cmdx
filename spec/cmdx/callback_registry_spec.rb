@@ -142,6 +142,132 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
     end
   end
 
+  describe "#deregister" do
+    it "returns self for method chaining" do
+      registry.register(:before_execution, callable_proc)
+      result = registry.deregister(:before_execution, callable_proc)
+
+      expect(result).to be(registry)
+    end
+
+    context "when deregistering a single callable" do
+      before do
+        registry.register(:before_execution, callable_proc)
+      end
+
+      it "removes the callable from the registry" do
+        registry.deregister(:before_execution, callable_proc)
+
+        expect(registry.registry).not_to have_key(:before_execution)
+      end
+    end
+
+    context "when deregistering multiple callables" do
+      before do
+        registry.register(:before_execution, callable_proc, callable_symbol)
+      end
+
+      it "removes the exact callables entry" do
+        registry.deregister(:before_execution, callable_proc, callable_symbol)
+
+        expect(registry.registry).not_to have_key(:before_execution)
+      end
+    end
+
+    context "when deregistering with options" do
+      let(:options) { { if: :active?, unless: :disabled? } }
+
+      before do
+        registry.register(:before_execution, callable_proc, **options)
+      end
+
+      it "removes only the entry with matching options" do
+        registry.deregister(:before_execution, callable_proc, **options)
+
+        expect(registry.registry).not_to have_key(:before_execution)
+      end
+
+      it "does not remove entries with different options" do
+        registry.register(:before_execution, callable_proc, if: :other?)
+        registry.deregister(:before_execution, callable_proc, **options)
+
+        expect(registry.registry[:before_execution]).to include([[callable_proc], { if: :other? }])
+      end
+    end
+
+    context "when deregistering with a block" do
+      it "removes the entry with the block" do
+        block = proc { |task| task.blocked = true }
+        registry.register(:before_execution, callable_proc, &block)
+        registry.deregister(:before_execution, callable_proc, &block)
+
+        expect(registry.registry).not_to have_key(:before_execution)
+      end
+    end
+
+    context "when deregistering from empty registry" do
+      it "does not raise an error" do
+        expect { registry.deregister(:before_execution, callable_proc) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:before_execution, callable_proc)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering non-existent callback" do
+      before do
+        registry.register(:before_execution, callable_symbol)
+      end
+
+      it "does not affect existing callbacks" do
+        registry.deregister(:before_execution, callable_proc)
+
+        expect(registry.registry[:before_execution]).to include([[callable_symbol], {}])
+      end
+    end
+
+    context "when deregistering from non-existent type" do
+      it "does not raise an error" do
+        expect { registry.deregister(:non_existent, callable_proc) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:non_existent, callable_proc)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering the last callback of a type" do
+      before do
+        registry.register(:before_execution, callable_proc)
+      end
+
+      it "removes the type from the registry" do
+        registry.deregister(:before_execution, callable_proc)
+
+        expect(registry.registry).not_to have_key(:before_execution)
+      end
+    end
+
+    context "when deregistering one of multiple callbacks" do
+      before do
+        registry.register(:before_execution, callable_proc)
+        registry.register(:before_execution, callable_symbol)
+      end
+
+      it "removes only the specified callback" do
+        registry.deregister(:before_execution, callable_proc)
+
+        expect(registry.registry[:before_execution]).not_to include([[callable_proc], {}])
+        expect(registry.registry[:before_execution]).to include([[callable_symbol], {}])
+      end
+    end
+  end
+
   describe "#invoke" do
     context "when type is valid" do
       before do

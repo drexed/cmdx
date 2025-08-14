@@ -35,6 +35,15 @@ module CMDx
       self
     end
 
+    def deregister(type, *callables, **options, &block)
+      callables << block if block_given?
+      return self unless registry[type]
+
+      registry[type].delete([callables, options])
+      registry.delete(type) if registry[type].empty?
+      self
+    end
+
     def invoke(type, task)
       raise TypeError, "unknown callback type #{type.inspect}" unless TYPES.include?(type)
 

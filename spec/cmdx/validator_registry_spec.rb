@@ -137,6 +137,99 @@ RSpec.describe CMDx::ValidatorRegistry, type: :unit do
     end
   end
 
+  describe "#deregister" do
+    context "when deregistering with string name" do
+      before do
+        registry.register("custom", mock_validator)
+      end
+
+      it "removes the validator from the registry" do
+        registry.deregister("custom")
+
+        expect(registry.registry).not_to have_key(:custom)
+      end
+
+      it "returns self for method chaining" do
+        result = registry.deregister("custom")
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering with symbol name" do
+      before do
+        registry.register(:custom, mock_validator)
+      end
+
+      it "removes the validator from the registry" do
+        registry.deregister(:custom)
+
+        expect(registry.registry).not_to have_key(:custom)
+      end
+    end
+
+    context "when deregistering from existing registry" do
+      let(:initial_registry) { { existing: "existing_validator", custom: mock_validator } }
+
+      it "removes only the specified validator" do
+        registry.deregister(:custom)
+
+        expect(registry.registry).to include(existing: "existing_validator")
+        expect(registry.registry).not_to have_key(:custom)
+      end
+    end
+
+    context "when deregistering non-existent validator" do
+      it "does not raise an error" do
+        expect { registry.deregister(:nonexistent) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:nonexistent)
+
+        expect(result).to be(registry)
+      end
+
+      it "does not affect existing validators" do
+        registry.register(:existing, mock_validator)
+        registry.deregister(:nonexistent)
+
+        expect(registry.registry[:existing]).to eq(mock_validator)
+      end
+    end
+
+    context "when deregistering from empty registry" do
+      let(:initial_registry) { {} }
+
+      it "does not raise an error" do
+        expect { registry.deregister(:custom) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:custom)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering default validators" do
+      subject(:registry) { described_class.new }
+
+      it "removes the default validator" do
+        registry.deregister(:presence)
+
+        expect(registry.registry).not_to have_key(:presence)
+      end
+
+      it "does not affect other default validators" do
+        registry.deregister(:presence)
+
+        expect(registry.registry).to have_key(:format)
+        expect(registry.registry).to have_key(:length)
+      end
+    end
+  end
+
   describe "#validate" do
     let(:initial_registry) { { custom: mock_validator } }
     let(:value) { "test_value" }

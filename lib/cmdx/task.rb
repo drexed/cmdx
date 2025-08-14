@@ -56,10 +56,10 @@ module CMDx
       def deregister(type, object, ...)
         case type
         when :attribute then settings[:attributes].deregister(object, ...)
-        # when :callback then settings[:callbacks].deregister(object, ...)
-        # when :coercion then settings[:coercions].deregister(object, ...)
-        # when :middleware then settings[:middlewares].deregister(object, ...)
-        # when :validator then settings[:validators].deregister(object, ...)
+        when :callback then settings[:callbacks].deregister(object, ...)
+        when :coercion then settings[:coercions].deregister(object, ...)
+        when :middleware then settings[:middlewares].deregister(object, ...)
+        when :validator then settings[:validators].deregister(object, ...)
         else raise "unknown registry type #{type.inspect}"
         end
       end

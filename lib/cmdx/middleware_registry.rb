@@ -19,6 +19,11 @@ module CMDx
       self
     end
 
+    def deregister(middleware)
+      registry.reject! { |mw, _opts| mw == middleware }
+      self
+    end
+
     def call!(task, &)
       raise ArgumentError, "block required" unless block_given?
 

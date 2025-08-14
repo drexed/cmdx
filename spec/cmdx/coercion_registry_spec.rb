@@ -129,6 +129,99 @@ RSpec.describe CMDx::CoercionRegistry, type: :unit do
     end
   end
 
+  describe "#deregister" do
+    context "when deregistering with string name" do
+      before do
+        registry.register("custom", mock_coercion)
+      end
+
+      it "removes the coercion from the registry" do
+        registry.deregister("custom")
+
+        expect(registry.registry).not_to have_key(:custom)
+      end
+
+      it "returns self for method chaining" do
+        result = registry.deregister("custom")
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering with symbol name" do
+      before do
+        registry.register(:custom, mock_coercion)
+      end
+
+      it "removes the coercion from the registry" do
+        registry.deregister(:custom)
+
+        expect(registry.registry).not_to have_key(:custom)
+      end
+    end
+
+    context "when deregistering from existing registry" do
+      let(:initial_registry) { { existing: "existing_coercion", custom: mock_coercion } }
+
+      it "removes only the specified coercion" do
+        registry.deregister(:custom)
+
+        expect(registry.registry).to include(existing: "existing_coercion")
+        expect(registry.registry).not_to have_key(:custom)
+      end
+    end
+
+    context "when deregistering non-existent coercion" do
+      it "does not raise an error" do
+        expect { registry.deregister(:nonexistent) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:nonexistent)
+
+        expect(result).to be(registry)
+      end
+
+      it "does not affect existing coercions" do
+        registry.register(:existing, mock_coercion)
+        registry.deregister(:nonexistent)
+
+        expect(registry.registry[:existing]).to eq(mock_coercion)
+      end
+    end
+
+    context "when deregistering from empty registry" do
+      let(:initial_registry) { {} }
+
+      it "does not raise an error" do
+        expect { registry.deregister(:custom) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:custom)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering default coercions" do
+      subject(:registry) { described_class.new }
+
+      it "removes the default coercion" do
+        registry.deregister(:string)
+
+        expect(registry.registry).not_to have_key(:string)
+      end
+
+      it "does not affect other default coercions" do
+        registry.deregister(:string)
+
+        expect(registry.registry).to have_key(:integer)
+        expect(registry.registry).to have_key(:boolean)
+      end
+    end
+  end
+
   describe "#coerce" do
     let(:initial_registry) { { custom: mock_coercion } }
     let(:value) { "test_value" }

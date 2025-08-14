@@ -32,6 +32,11 @@ module CMDx
       self
     end
 
+    def deregister(name)
+      registry.delete(name.to_sym)
+      self
+    end
+
     def coerce(type, task, value, options = {})
       raise TypeError, "unknown coercion type #{type.inspect}" unless registry.key?(type)
 

@@ -30,6 +30,11 @@ module CMDx
       self
     end
 
+    def deregister(name)
+      registry.delete(name.to_sym)
+      self
+    end
+
     def validate(type, task, value, options = {})
       raise TypeError, "unknown validator type #{type.inspect}" unless registry.key?(type)
 
