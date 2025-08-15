@@ -24,11 +24,11 @@ module CMDx
       # @raise [CoercionError] When the value cannot be coerced to a Hash
       #
       # @example Coerce from existing Hash
-      #   call({a: 1, b: 2}) # => {a: 1, b: 2}
+      #   Hash.call({a: 1, b: 2}) # => {a: 1, b: 2}
       # @example Coerce from Array
-      #   call([:a, 1, :b, 2]) # => {a: 1, b: 2}
+      #   Hash.call([:a, 1, :b, 2]) # => {a: 1, b: 2}
       # @example Coerce from JSON string
-      #   call('{"key": "value"}') # => {"key" => "value"}
+      #   Hash.call('{"key": "value"}') # => {"key" => "value"}
       def call(value, options = {})
         if value.is_a?(::Hash)
           value

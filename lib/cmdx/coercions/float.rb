@@ -21,15 +21,15 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to a float
       #
       # @example Convert numeric strings to float
-      #   call("123")        # => 123.0
-      #   call("123.456")    # => 123.456
-      #   call("-42.5")      # => -42.5
-      #   call("1.23e4")     # => 12300.0
+      #   Float.call("123")        # => 123.0
+      #   Float.call("123.456")    # => 123.456
+      #   Float.call("-42.5")      # => -42.5
+      #   Float.call("1.23e4")     # => 12300.0
       # @example Convert numeric types to float
-      #   call(42)           # => 42.0
-      #   call(BigDecimal("123.456")) # => 123.456
-      #   call(Rational(3, 4))       # => 0.75
-      #   call(Complex(5.0, 0))      # => 5.0
+      #   Float.call(42)           # => 42.0
+      #   Float.call(BigDecimal("123.456")) # => 123.456
+      #   Float.call(Rational(3, 4))       # => 0.75
+      #   Float.call(Complex(5.0, 0))      # => 5.0
       def call(value, options = {})
         Float(value)
       rescue ArgumentError, RangeError, TypeError

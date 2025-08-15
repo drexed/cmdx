@@ -27,13 +27,13 @@ module CMDx
       # @raise [ValidationError] When the value is found in the forbidden collection
       #
       # @example Exclude specific values
-      #   call("admin", in: ["admin", "root", "superuser"])
+      #   Exclusion.call("admin", in: ["admin", "root", "superuser"])
       #   # => raises ValidationError if value is "admin"
       # @example Exclude values within a range
-      #   call(5, in: 1..10)
+      #   Exclusion.call(5, in: 1..10)
       #   # => raises ValidationError if value is 5 (within 1..10)
       # @example Exclude with custom message
-      #   call("test", in: ["test", "demo"], message: "value %{values} is forbidden")
+      #   Exclusion.call("test", in: ["test", "demo"], message: "value %{values} is forbidden")
       def call(value, options = {})
         values = options[:in] || options[:within]
 

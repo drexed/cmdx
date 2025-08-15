@@ -24,19 +24,19 @@ module CMDx
       # @raise [ValidationError] When the value is empty, nil, or contains only whitespace
       #
       # @example Validate string presence
-      #   call("hello world")
+      #   Presence.call("hello world")
       #   # => nil (validation passes)
       # @example Validate empty string
-      #   call("   ")
+      #   Presence.call("   ")
       #   # => raises ValidationError
       # @example Validate array presence
-      #   call([1, 2, 3])
+      #   Presence.call([1, 2, 3])
       #   # => nil (validation passes)
       # @example Validate empty array
-      #   call([])
+      #   Presence.call([])
       #   # => raises ValidationError
       # @example Validate with custom message
-      #   call(nil, message: "Value cannot be blank")
+      #   Presence.call(nil, message: "Value cannot be blank")
       #   # => raises ValidationError with custom message
       def call(value, options = {})
         match =

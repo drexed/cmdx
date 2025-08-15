@@ -21,10 +21,10 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to a symbol
       #
       # @example Basic symbol coercion
-      #   call("hello")           # => :hello
-      #   call("user_id")         # => :user_id
-      #   call("")                # => :""
-      #   call(:existing)         # => :existing
+      #   Symbol.call("hello")           # => :hello
+      #   Symbol.call("user_id")         # => :user_id
+      #   Symbol.call("")                # => :""
+      #   Symbol.call(:existing)         # => :existing
       def call(value, options = {})
         value.to_sym
       rescue NoMethodError

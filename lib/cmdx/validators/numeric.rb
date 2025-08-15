@@ -37,16 +37,16 @@ module CMDx
       # @raise [ArgumentError] When unknown validator options are provided
       #
       # @example Validate value within a range
-      #   call(5, within: 1..10)
+      #   Numeric.call(5, within: 1..10)
       #   # => nil (validation passes)
       # @example Validate minimum and maximum bounds
-      #   call(15, min: 10, max: 20)
+      #   Numeric.call(15, min: 10, max: 20)
       #   # => nil (validation passes)
       # @example Validate exact value match
-      #   call(42, is: 42)
+      #   Numeric.call(42, is: 42)
       #   # => nil (validation passes)
       # @example Validate value exclusion
-      #   call(5, not_in: 1..10)
+      #   Numeric.call(5, not_in: 1..10)
       #   # => nil (validation passes - 5 is not in 1..10)
       def call(value, options = {})
         case options

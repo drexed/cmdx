@@ -20,7 +20,7 @@ module CMDx
       # @return [String] The raw message with a trailing newline
       #
       # @example Basic usage
-      #   call("INFO", Time.now, "MyApp", "User logged in")
+      #   Raw.new.call("INFO", Time.now, "MyApp", "User logged in")
       #   # => "User logged in\n"
       def call(severity, time, progname, message)
         "#{message}\n"

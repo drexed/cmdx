@@ -24,14 +24,14 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to DateTime
       #
       # @example Convert date strings to DateTime
-      #   call("2023-12-25")               # => #<DateTime: 2023-12-25T00:00:00+00:00>
-      #   call("Dec 25, 2023")             # => #<DateTime: 2023-12-25T00:00:00+00:00>
+      #   DateTime.call("2023-12-25")               # => #<DateTime: 2023-12-25T00:00:00+00:00>
+      #   DateTime.call("Dec 25, 2023")             # => #<DateTime: 2023-12-25T00:00:00+00:00>
       # @example Convert with custom strptime format
-      #   call("25/12/2023", strptime: "%d/%m/%Y")
+      #   DateTime.call("25/12/2023", strptime: "%d/%m/%Y")
       #   # => #<DateTime: 2023-12-25T00:00:00+00:00>
       # @example Convert existing date objects
-      #   call(Date.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
-      #   call(Time.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
+      #   DateTime.call(Date.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
+      #   DateTime.call(Time.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
         return ::DateTime.strptime(value, options[:strptime]) if options[:strptime]

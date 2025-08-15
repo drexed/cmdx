@@ -19,7 +19,7 @@ module CMDx
       # @return [String] A JSON-formatted log entry with a trailing newline
       #
       # @example Basic usage
-      #   call("INFO", Time.now, "MyApp", "User logged in")
+      #   JSON.new.call("INFO", Time.now, "MyApp", "User logged in")
       #   # => '{"severity":"INFO","timestamp":"2024-01-15T10:30:45.123456Z","progname":"MyApp","pid":12345,"message":"User logged in"}\n'
       def call(severity, time, progname, message)
         hash = {

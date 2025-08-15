@@ -40,19 +40,16 @@ module CMDx
       # @raise [ArgumentError] When unknown validation options are provided
       #
       # @example Exact length validation
-      #   call("hello", is: 5)
+      #   Length.call("hello", is: 5)
       #   # => nil (validation passes)
-      #
       # @example Range-based validation
-      #   call("test", within: 3..6)
+      #   Length.call("test", within: 3..6)
       #   # => nil (validation passes - length 4 is within range)
-      #
       # @example Min/max validation
-      #   call("username", min: 3, max: 20)
+      #   Length.call("username", min: 3, max: 20)
       #   # => nil (validation passes - length 8 is between 3 and 20)
-      #
       # @example Exclusion validation
-      #   call("short", not_in: 1..3)
+      #   Length.call("short", not_in: 1..3)
       #   # => nil (validation passes - length 5 is not in excluded range)
       def call(value, options = {})
         case options

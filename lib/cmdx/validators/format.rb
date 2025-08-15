@@ -24,13 +24,13 @@ module CMDx
       # @raise [ValidationError] When validation fails
       #
       # @example Basic format validation
-      #   call("hello123", with: /\A[a-z]+\d+\z/)
+      #   Format.call("hello123", with: /\A[a-z]+\d+\z/)
       #   # => nil (validation passes)
       # @example Exclude specific patterns
-      #   call("test@example.com", without: /\s/)
+      #   Format.call("test@example.com", without: /\s/)
       #   # => nil (validation passes - no whitespace)
       # @example Combined with and without
-      #   call("user123", with: /\A[a-z]+\d+\z/, without: /admin/)
+      #   Format.call("user123", with: /\A[a-z]+\d+\z/, without: /admin/)
       #   # => nil (validation passes - matches format, excludes 'admin')
       def call(value, options = {})
         match =

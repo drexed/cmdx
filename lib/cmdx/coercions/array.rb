@@ -21,11 +21,11 @@ module CMDx
       # @raise [JSON::ParserError] If the string value contains invalid JSON
       #
       # @example Convert a JSON-like string to an array
-      #   call("[1, 2, 3]") # => [1, 2, 3]
+      #   Array.call("[1, 2, 3]") # => [1, 2, 3]
       # @example Convert other values using Array()
-      #   call("hello")     # => ["hello"]
-      #   call(42)          # => [42]
-      #   call(nil)         # => []
+      #   Array.call("hello")     # => ["hello"]
+      #   Array.call(42)          # => [42]
+      #   Array.call(nil)         # => []
       def call(value, options = {})
         if value.is_a?(::String) && value.start_with?("[")
           JSON.parse(value)

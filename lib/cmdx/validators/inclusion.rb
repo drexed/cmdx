@@ -27,13 +27,13 @@ module CMDx
       # @raise [ValidationError] When the value is not found in the allowed collection
       #
       # @example Include specific values
-      #   call("admin", in: ["admin", "user", "guest"])
+      #   Inclusion.call("admin", in: ["admin", "user", "guest"])
       #   # => nil (validation passes)
       # @example Include values within a range
-      #   call(5, in: 1..10)
+      #   Inclusion.call(5, in: 1..10)
       #   # => nil (validation passes - 5 is within 1..10)
       # @example Include with custom message
-      #   call("test", in: ["admin", "user"], message: "must be one of: %{values}")
+      #   Inclusion.call("test", in: ["admin", "user"], message: "must be one of: %{values}")
       def call(value, options = {})
         values = options[:in] || options[:within]
 

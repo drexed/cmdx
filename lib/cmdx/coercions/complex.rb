@@ -20,12 +20,12 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to Complex
       #
       # @example Convert numeric strings to Complex
-      #   call("3+4i")                     # => (3+4i)
-      #   call("2.5")                      # => (2.5+0i)
+      #   Complex.call("3+4i")                     # => (3+4i)
+      #   Complex.call("2.5")                      # => (2.5+0i)
       # @example Convert other numeric types
-      #   call(5)                          # => (5+0i)
-      #   call(3.14)                       # => (3.14+0i)
-      #   call(Complex(1, 2))              # => (1+2i)
+      #   Complex.call(5)                          # => (5+0i)
+      #   Complex.call(3.14)                       # => (3.14+0i)
+      #   Complex.call(Complex(1, 2))              # => (1+2i)
       def call(value, options = {})
         Complex(value)
       rescue ArgumentError, TypeError

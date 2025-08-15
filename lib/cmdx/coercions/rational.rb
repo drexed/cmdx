@@ -22,17 +22,17 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to a rational number
       #
       # @example Convert numeric strings to rational numbers
-      #   call("3/4")     # => (3/4)
-      #   call("2.5")     # => (5/2)
-      #   call("0")       # => (0/1)
+      #   Rational.call("3/4")     # => (3/4)
+      #   Rational.call("2.5")     # => (5/2)
+      #   Rational.call("0")       # => (0/1)
       # @example Convert numeric types to rational numbers
-      #   call(3.14)      # => (157/50)
-      #   call(2)         # => (2/1)
-      #   call(0.5)       # => (1/2)
+      #   Rational.call(3.14)      # => (157/50)
+      #   Rational.call(2)         # => (2/1)
+      #   Rational.call(0.5)       # => (1/2)
       # @example Handle edge cases
-      #   call("")        # => (0/1)
-      #   call(nil)       # => (0/1)
-      #   call(0)         # => (0/1)
+      #   Rational.call("")        # => (0/1)
+      #   Rational.call(nil)       # => (0/1)
+      #   Rational.call(0)         # => (0/1)
       def call(value, options = {})
         Rational(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError, ZeroDivisionError

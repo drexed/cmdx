@@ -24,16 +24,16 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to a Time object
       #
       # @example Convert time-like objects
-      #   call(Time.now)                    # => Time object (unchanged)
-      #   call(DateTime.now)                # => Time object (converted)
-      #   call(Date.today)                  # => Time object (converted)
+      #   Time.call(Time.now)                    # => Time object (unchanged)
+      #   Time.call(DateTime.now)                # => Time object (converted)
+      #   Time.call(Date.today)                  # => Time object (converted)
       # @example Convert strings with default parsing
-      #   call("2023-12-25 10:30:00")      # => Time object
-      #   call("2023-12-25")               # => Time object
-      #   call("10:30:00")                 # => Time object
+      #   Time.call("2023-12-25 10:30:00")      # => Time object
+      #   Time.call("2023-12-25")               # => Time object
+      #   Time.call("10:30:00")                 # => Time object
       # @example Convert strings with custom format
-      #   call("25/12/2023", strptime: "%d/%m/%Y")  # => Time object
-      #   call("12-25-2023", strptime: "%m-%d-%Y")  # => Time object
+      #   Time.call("25/12/2023", strptime: "%d/%m/%Y")  # => Time object
+      #   Time.call("12-25-2023", strptime: "%m-%d-%Y")  # => Time object
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
         return value.to_time if value.respond_to?(:to_time)

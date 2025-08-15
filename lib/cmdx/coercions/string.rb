@@ -21,11 +21,11 @@ module CMDx
       # @raise [TypeError] If the value cannot be converted to a string
       #
       # @example Basic string coercion
-      #   call("hello")           # => "hello"
-      #   call(42)                # => "42"
-      #   call([1, 2, 3])         # => "[1, 2, 3]"
-      #   call(nil)               # => ""
-      #   call(true)              # => "true"
+      #   String.call("hello")           # => "hello"
+      #   String.call(42)                # => "42"
+      #   String.call([1, 2, 3])         # => "[1, 2, 3]"
+      #   String.call(nil)               # => ""
+      #   String.call(true)              # => "true"
       def call(value, options = {})
         String(value)
       end

@@ -24,16 +24,16 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to boolean
       #
       # @example Convert truthy strings to true
-      #   call("true")   # => true
-      #   call("yes")    # => true
-      #   call("1")      # => true
+      #   Boolean.call("true")   # => true
+      #   Boolean.call("yes")    # => true
+      #   Boolean.call("1")      # => true
       # @example Convert falsey strings to false
-      #   call("false")  # => false
-      #   call("no")     # => false
-      #   call("0")      # => false
+      #   Boolean.call("false")  # => false
+      #   Boolean.call("no")     # => false
+      #   Boolean.call("0")      # => false
       # @example Handle case-insensitive input
-      #   call("TRUE")   # => true
-      #   call("False")  # => false
+      #   Boolean.call("TRUE")   # => true
+      #   Boolean.call("False")  # => false
       def call(value, options = {})
         case value.to_s.downcase
         when FALSEY then false

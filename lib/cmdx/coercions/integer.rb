@@ -22,18 +22,18 @@ module CMDx
       # @raise [CoercionError] If the value cannot be converted to an integer
       #
       # @example Convert numeric strings to integers
-      #   call("42")      # => 42
-      #   call("-123")    # => -123
-      #   call("0")       # => 0
+      #   Integer.call("42")      # => 42
+      #   Integer.call("-123")    # => -123
+      #   Integer.call("0")       # => 0
       # @example Convert numeric types to integers
-      #   call(42.0)      # => 42
-      #   call(3.14)      # => 3
-      #   call(0.0)       # => 0
+      #   Integer.call(42.0)      # => 42
+      #   Integer.call(3.14)      # => 3
+      #   Integer.call(0.0)       # => 0
       # @example Handle edge cases
-      #   call("")        # => 0
-      #   call(nil)       # => 0
-      #   call(false)     # => 0
-      #   call(true)      # => 1
+      #   Integer.call("")        # => 0
+      #   Integer.call(nil)       # => 0
+      #   Integer.call(false)     # => 0
+      #   Integer.call(true)      # => 1
       def call(value, options = {})
         Integer(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError
