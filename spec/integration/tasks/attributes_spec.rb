@@ -232,6 +232,27 @@ RSpec.describe "Task attributes", type: :feature do
     end
   end
 
+  context "when undefining" do
+    it "raises a NameError" do
+      task = create_task_class do
+        attribute :raw_attr
+
+        remove_attribute :raw_attr
+
+        def work
+          context.attrs = [raw_attr]
+        end
+      end
+
+      result = task.execute
+
+      expect(result).to have_been_failure(
+        reason: start_with("[NameError] undefined local variable or method 'raw_attr' for an instance of"),
+        cause: be_a(NameError)
+      )
+    end
+  end
+
   context "when inheriting" do
     it "assumes the parents attributes" do
       parent_task = create_task_class(name: "ParentTask") do
