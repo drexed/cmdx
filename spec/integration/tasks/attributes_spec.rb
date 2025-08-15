@@ -120,7 +120,7 @@ RSpec.describe "Task attributes", type: :feature do
       end
 
       context "when value can be coerced" do
-        it "fails with coercion error message" do
+        it "coerces the value into the type" do
           task = create_task_class do
             attribute :raw_attr, type: :integer
 
