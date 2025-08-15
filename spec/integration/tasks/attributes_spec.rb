@@ -8,20 +8,26 @@ RSpec.describe "Task attributes", type: :feature do
       context "with no inputs" do
         it "fails due to missing input" do
           task = create_task_class do
-            attribute :plain_attr
+            attribute :plain_optional_attr
+            attributes :plain_required_attr, required: true
             required :required_attr
             optional :optional_attr
 
             def work
-              context.attrs = [plain_attr, required_attr, optional_attr]
+              context.attrs = [plain_optional_attr, plain_required_attr, required_attr, optional_attr]
             end
           end
 
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "required_attr must be accessible via the source",
-            metadata: { messages: { required_attr: ["must be accessible via the source"] } },
+            reason: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
+            metadata: {
+              messages: {
+                plain_required_attr: ["must be accessible via the source"],
+                required_attr: ["must be accessible via the source"]
+              }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end
@@ -30,38 +36,103 @@ RSpec.describe "Task attributes", type: :feature do
       context "with minimum inputs" do
         it "returns attributes defined as methods" do
           task = create_task_class do
-            attribute :plain_attr
+            attribute :plain_optional_attr
+            attributes :plain_required_attr, required: true
             required :required_attr
             optional :optional_attr
 
             def work
-              context.attrs = [plain_attr, required_attr, optional_attr]
+              context.attrs = [plain_optional_attr, plain_required_attr, required_attr, optional_attr]
             end
           end
 
-          result = task.execute(required_attr: "required")
+          result = task.execute(
+            plain_required_attr: "plain_required",
+            required_attr: "required"
+          )
 
           expect(result).to have_been_success
-          expect(result).to have_matching_context(attrs: [nil, "required", nil])
+          expect(result).to have_matching_context(attrs: [nil, "plain_required", "required", nil])
         end
       end
 
       context "with maximum inputs" do
         it "returns attributes defined as methods" do
           task = create_task_class do
-            attribute :plain_attr
+            attribute :plain_optional_attr
+            attributes :plain_required_attr, required: true
             required :required_attr
             optional :optional_attr
 
             def work
-              context.attrs = [plain_attr, required_attr, optional_attr]
+              context.attrs = [plain_optional_attr, plain_required_attr, required_attr, optional_attr]
             end
           end
 
-          result = task.execute(plain_attr: "plain", required_attr: "required", optional_attr: "optional")
+          result = task.execute(
+            plain_optional_attr: "plain_optional",
+            plain_required_attr: "plain_required",
+            required_attr: "required",
+            optional_attr: "optional"
+          )
 
           expect(result).to have_been_success
-          expect(result).to have_matching_context(attrs: %w[plain required optional])
+          expect(result).to have_matching_context(attrs: %w[plain_optional plain_required required optional])
+        end
+      end
+    end
+
+    context "with type options" do
+      context "when cannot be coerced into type" do
+        it "fails with coercion error message" do
+          task = create_task_class do
+            attribute :raw_attr, type: :integer
+
+            def work = nil
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_failure(
+            reason: "raw_attr could not coerce into an integer",
+            metadata: { messages: { raw_attr: ["could not coerce into an integer"] } },
+            cause: be_a(CMDx::FailFault)
+          )
+        end
+      end
+
+      context "when cannot be coerced into any type" do
+        it "fails with coercion error message" do
+          task = create_task_class do
+            attribute :raw_attr, types: %i[float integer]
+
+            def work = nil
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_failure(
+            reason: "raw_attr could not coerce into one of: float, integer",
+            metadata: { messages: { raw_attr: ["could not coerce into one of: float, integer"] } },
+            cause: be_a(CMDx::FailFault)
+          )
+        end
+      end
+
+      context "when value can be coerced" do
+        it "fails with coercion error message" do
+          task = create_task_class do
+            attribute :raw_attr, type: :integer
+
+            def work
+              context.attrs = [raw_attr]
+            end
+          end
+
+          result = task.execute(raw_attr: "123")
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attrs: [123])
         end
       end
     end

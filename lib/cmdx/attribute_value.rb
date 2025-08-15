@@ -105,11 +105,18 @@ module CMDx
 
       attribute.types.find.with_index do |type, i|
         break registry.coerce(type, task, derived_value, options)
-      rescue CoercionError
+      rescue CoercionError => e
         next if i != last_idx
 
-        tl = attribute.types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
-        errors.add(method_name, Locale.t("cmdx.coercions.into_any", types: tl))
+        message =
+          if last_idx.zero?
+            e.message
+          else
+            tl = attribute.types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
+            Locale.t("cmdx.coercions.into_any", types: tl)
+          end
+
+        errors.add(method_name, message)
         nil
       end
     end
