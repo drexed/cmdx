@@ -18,8 +18,6 @@ module CMDx
     # @param task [Task] The task instance to freeze
     # @option ENV["SKIP_CMDX_FREEZING"] [String, Boolean] Set to "true" or true to skip freezing
     #
-    # @return [void]
-    #
     # @raise [RuntimeError] If attempting to stub on frozen objects
     #
     # @example Freeze a completed task

@@ -7,7 +7,6 @@ module CMDx
   # for various data types including arrays, numbers, dates, and other primitives.
   class CoercionRegistry
 
-    # @return [Hash<Symbol, Class>] the registry mapping type names to coercion classes
     attr_reader :registry
     alias to_h registry
 

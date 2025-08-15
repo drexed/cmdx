@@ -6,16 +6,8 @@ module CMDx
   # callbacks, coercions, validators, breakpoints, and logging.
   class Configuration
 
-    # Default breakpoints for both tasks and workflows
     DEFAULT_BREAKPOINTS = %w[failed].freeze
 
-    # @return [MiddlewareRegistry] registry for middleware components
-    # @return [CallbackRegistry] registry for callback components
-    # @return [CoercionRegistry] registry for type coercion components
-    # @return [ValidatorRegistry] registry for validation components
-    # @return [Array<String>] breakpoints that trigger work stoppages for tasks
-    # @return [Array<String>] breakpoints that trigger work stoppages for workflows
-    # @return [Logger] logger instance for CMDx operations
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
                   :task_breakpoints, :workflow_breakpoints, :logger
 

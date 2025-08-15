@@ -8,7 +8,6 @@ module CMDx
 
     extend Forwardable
 
-    # @return [Hash{Symbol => Set<String>}] Collection of error messages grouped by attribute
     attr_reader :messages
 
     def_delegators :messages, :empty?
@@ -22,8 +21,6 @@ module CMDx
     #
     # @param attribute [Symbol] The attribute name associated with the error
     # @param message [String] The error message to add
-    #
-    # @return [void]
     #
     # @example
     #   errors = CMDx::Errors.new

@@ -11,7 +11,6 @@ module CMDx
 
     extend Forwardable
 
-    # @return [Hash<Symbol, Object>] the underlying hash table storing context data
     attr_reader :table
     alias to_h table
 

@@ -20,7 +20,6 @@ module CMDx
       on_bad
     ].freeze
 
-    # @return [Hash<Symbol, Set>] The internal registry mapping callback types to sets of callables
     attr_reader :registry
     alias to_h registry
 
@@ -87,8 +86,6 @@ module CMDx
     #
     # @param type [Symbol] The callback type to invoke
     # @param task [Task] The task instance to pass to callbacks
-    #
-    # @return [void]
     #
     # @raise [TypeError] When type is not a valid callback type
     #

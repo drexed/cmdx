@@ -9,7 +9,6 @@ module CMDx
   # they were registered.
   class MiddlewareRegistry
 
-    # @return [Array<Array>] The registry containing middleware and their options
     attr_reader :registry
     alias to_a registry
 

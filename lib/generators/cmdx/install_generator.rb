@@ -19,8 +19,6 @@ module Cmdx
     # the install.rb template. This file contains the default CMDx configuration
     # that can be customized for the specific application needs.
     #
-    # @return [void]
-    #
     # @raise [Thor::Error] if the destination file cannot be created or already exists without force
     #
     # @example Generate CMDx initializer

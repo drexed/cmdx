@@ -22,8 +22,6 @@ module CMDx
       # @option options [String] :in_message Custom message for range-based exclusions
       # @option options [String] :within_message Custom message for range-based exclusions
       #
-      # @return [void]
-      #
       # @raise [ValidationError] When the value is found in the forbidden collection
       #
       # @example Exclude specific values

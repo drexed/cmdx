@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module CMDx
+  # Represents a configurable attribute within a CMDx task.
+  # Attributes define the data structure and validation rules for task parameters.
+  # They can be nested to create complex hierarchical data structures.
   class Attribute
 
     AFFIX = proc do |value, &block|
@@ -12,6 +15,26 @@ module CMDx
 
     attr_reader :name, :options, :children, :parent, :types
 
+    # Creates a new attribute with the specified name and configuration.
+    #
+    # @param name [Symbol, String] The name of the attribute
+    # @param options [Hash] Configuration options for the attribute
+    # @option options [Attribute] :parent The parent attribute for nested structures
+    # @option options [Boolean] :required Whether the attribute is required (default: false)
+    # @option options [Array<Class>, Class] :types The expected type(s) for the attribute value
+    # @option options [Symbol, String, Proc] :source The source of the attribute value
+    # @option options [Symbol, String] :as The method name to use for this attribute
+    # @option options [Symbol, String, Boolean] :prefix The prefix to add to the method name
+    # @option options [Symbol, String, Boolean] :suffix The suffix to add to the method name
+    # @option options [Object] :default The default value for the attribute
+    #
+    # @yield [self] Block to configure nested attributes
+    #
+    # @example
+    #   Attribute.new(:user_id, required: true, types: [Integer, String]) do
+    #     required :name, types: String
+    #     optional :email, types: String
+    #   end
     def initialize(name, options = {}, &)
       @parent = options.delete(:parent)
       @required = options.delete(:required) || false
@@ -26,6 +49,19 @@ module CMDx
 
     class << self
 
+      # Builds multiple attributes with the same configuration.
+      #
+      # @param names [Array<Symbol, String>] The names of the attributes to create
+      # @param options [Hash] Configuration options for the attributes
+      #
+      # @yield [self] Block to configure nested attributes
+      #
+      # @return [Array<Attribute>] Array of created attributes
+      #
+      # @raise [ArgumentError] When no names are provided or :as is used with multiple attributes
+      #
+      # @example
+      #   Attribute.build(:first_name, :last_name, required: true, types: String)
       def build(*names, **options, &)
         if names.none?
           raise ArgumentError, "no attributes given"
@@ -36,20 +72,54 @@ module CMDx
         names.filter_map { |name| new(name, **options, &) }
       end
 
+      # Creates optional attributes (not required).
+      #
+      # @param names [Array<Symbol, String>] The names of the attributes to create
+      # @param options [Hash] Configuration options for the attributes
+      #
+      # @yield [self] Block to configure nested attributes
+      #
+      # @return [Array<Attribute>] Array of created optional attributes
+      #
+      # @example
+      #   Attribute.optional(:description, :tags, types: String)
       def optional(*names, **options, &)
         build(*names, **options.merge(required: false), &)
       end
 
+      # Creates required attributes.
+      #
+      # @param names [Array<Symbol, String>] The names of the attributes to create
+      # @param options [Hash] Configuration options for the attributes
+      #
+      # @yield [self] Block to configure nested attributes
+      #
+      # @return [Array<Attribute>] Array of created required attributes
+      #
+      # @example
+      #   Attribute.required(:id, :name, types: [Integer, String])
       def required(*names, **options, &)
         build(*names, **options.merge(required: true), &)
       end
 
     end
 
+    # Checks if the attribute is required.
+    #
+    # @return [Boolean] true if the attribute is required, false otherwise
+    #
+    # @example
+    #   attribute.required? # => true
     def required?
       !!@required
     end
 
+    # Determines the source of the attribute value.
+    #
+    # @return [Symbol] The source identifier for the attribute value
+    #
+    # @example
+    #   attribute.source # => :context
     def source
       @source ||= parent&.method_name || begin
         value = options[:source]
@@ -64,6 +134,12 @@ module CMDx
       end
     end
 
+    # Generates the method name for accessing this attribute.
+    #
+    # @return [Symbol] The method name for the attribute
+    #
+    # @example
+    #   attribute.method_name # => :user_name
     def method_name
       @method_name ||= options[:as] || begin
         prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
@@ -73,6 +149,7 @@ module CMDx
       end
     end
 
+    # Defines and verifies the entire attribute tree including nested children.
     def define_and_verify_tree
       define_and_verify
 
@@ -84,20 +161,56 @@ module CMDx
 
     private
 
+    # Creates nested attributes as children of this attribute.
+    #
+    # @param names [Array<Symbol, String>] The names of the child attributes
+    # @param options [Hash] Configuration options for the child attributes
+    #
+    # @yield [self] Block to configure the child attributes
+    #
+    # @return [Array<Attribute>] Array of created child attributes
+    #
+    # @example
+    #   attributes :street, :city, :zip, types: String
     def attributes(*names, **options, &)
       attrs = self.class.build(*names, **options.merge(parent: self), &)
       children.concat(attrs)
     end
     alias attribute attributes
 
+    # Creates optional nested attributes.
+    #
+    # @param names [Array<Symbol, String>] The names of the optional child attributes
+    # @param options [Hash] Configuration options for the child attributes
+    #
+    # @yield [self] Block to configure the child attributes
+    #
+    # @return [Array<Attribute>] Array of created optional child attributes
+    #
+    # @example
+    #   optional :middle_name, :nickname, types: String
     def optional(*names, **options, &)
       attributes(*names, **options.merge(required: false), &)
     end
 
+    # Creates required nested attributes.
+    #
+    # @param names [Array<Symbol, String>] The names of the required child attributes
+    # @param options [Hash] Configuration options for the child attributes
+    #
+    # @yield [self] Block to configure the child attributes
+    #
+    # @return [Array<Attribute>] Array of created required child attributes
+    #
+    # @example
+    #   required :first_name, :last_name, types: String
     def required(*names, **options, &)
       attributes(*names, **options.merge(required: true), &)
     end
 
+    # Defines the attribute method on the task and validates the configuration.
+    #
+    # @raise [RuntimeError] When the method name is already defined on the task
     def define_and_verify
       raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
 

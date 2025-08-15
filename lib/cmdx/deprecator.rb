@@ -36,8 +36,6 @@ module CMDx
     # @option task.class.settings[:deprecate] false No action taken
     # @option task.class.settings[:deprecate] nil No action taken
     #
-    # @return [void]
-    #
     # @raise [DeprecationError] When deprecation type is 'error' or true
     # @raise [RuntimeError] When deprecation type is unknown
     #

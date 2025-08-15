@@ -72,8 +72,6 @@ module CMDx
     # @param options [Hash, Object] Validation options or condition
     # @option options [Boolean] :allow_nil Whether to allow nil values
     #
-    # @return [void]
-    #
     # @raise [TypeError] When the validator type is not registered
     #
     # @example
