@@ -82,6 +82,26 @@ RSpec.describe "Task attributes", type: :feature do
       end
     end
 
+    context "with source options" do
+      context "when source doesnt exist" do
+        it "fails with coercion error message" do
+          task = create_task_class do
+            attribute :raw_attr, source: :not_a_method
+
+            def work = nil
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_failure(
+            reason: "raw_attr delegates to undefined method not_a_method",
+            metadata: { messages: { raw_attr: ["delegates to undefined method not_a_method"] } },
+            cause: be_a(CMDx::FailFault)
+          )
+        end
+      end
+    end
+
     context "with type options" do
       context "when cannot be coerced into type" do
         it "fails with coercion error message" do
@@ -133,6 +153,60 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_success
           expect(result).to have_matching_context(attrs: [123])
+        end
+      end
+    end
+
+    context "with default option" do
+      context "when derived value is nil" do
+        it "returns the default value" do
+          task = create_task_class do
+            attribute :raw_attr, default: 987
+
+            def work
+              context.attrs = [raw_attr]
+            end
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attrs: [987])
+        end
+      end
+
+      context "when derived value is not nil" do
+        it "returns the derived value" do
+          task = create_task_class do
+            attribute :raw_attr, default: 987
+
+            def work
+              context.attrs = [raw_attr]
+            end
+          end
+
+          result = task.execute(raw_attr: "123")
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attrs: ["123"])
+        end
+      end
+
+      context "when the default value cannot be coerced into the type" do
+        it "fails with coercion error message" do
+          task = create_task_class do
+            attribute :raw_attr, type: :integer, default: "abc"
+
+            def work = nil
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_failure(
+            reason: "raw_attr could not coerce into an integer",
+            metadata: { messages: { raw_attr: ["could not coerce into an integer"] } },
+            cause: be_a(CMDx::FailFault)
+          )
         end
       end
     end
