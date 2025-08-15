@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module CMDx
+  # Manages the value lifecycle for a single attribute within a task.
+  # Handles value sourcing, derivation, coercion, and validation through
+  # a coordinated pipeline that ensures data integrity and type safety.
   class AttributeValue
 
     extend Forwardable
@@ -10,14 +13,34 @@ module CMDx
     def_delegators :attribute, :task, :parent, :name, :options, :types, :source, :method_name, :required?
     def_delegators :task, :attributes, :errors
 
+    # Creates a new attribute value manager for the given attribute.
+    #
+    # @param attribute [Attribute] The attribute to manage values for
+    #
+    # @example
+    #   attr = Attribute.new(:user_id, required: true)
+    #   attr_value = AttributeValue.new(attr)
     def initialize(attribute)
       @attribute = attribute
     end
 
+    # Retrieves the current value for this attribute from the task's attributes.
+    #
+    # @return [Object, nil] The current attribute value or nil if not set
+    #
+    # @example
+    #   attr_value.value # => "john_doe"
     def value
       attributes[method_name]
     end
 
+    # Generates the attribute value through the complete pipeline:
+    # sourcing, derivation, coercion, and storage.
+    #
+    # @return [Object, nil] The generated value or nil if generation failed
+    #
+    # @example
+    #   attr_value.generate # => 42
     def generate
       return value if attributes.key?(method_name)
 
@@ -33,6 +56,13 @@ module CMDx
       attributes[method_name] = coerced_value
     end
 
+    # Validates the current attribute value against configured validators.
+    #
+    # @raise [ValidationError] When validation fails (handled internally)
+    #
+    # @example
+    #   attr_value.validate
+    #   # Validates value against :presence, :format, etc.
     def validate
       registry = task.class.settings[:validators]
 
@@ -46,6 +76,15 @@ module CMDx
 
     private
 
+    # Retrieves the source value for this attribute from various sources.
+    #
+    # @return [Object, nil] The sourced value or nil if unavailable
+    #
+    # @raise [NoMethodError] When the source method doesn't exist
+    #
+    # @example
+    #   # Sources from task method, proc, or direct value
+    #   source_value # => "raw_value"
     def source_value
       sourced_value =
         case source
@@ -68,6 +107,13 @@ module CMDx
       nil
     end
 
+    # Retrieves the default value for this attribute if configured.
+    #
+    # @return [Object, nil] The default value or nil if not configured
+    #
+    # @example
+    #   # Default can be symbol, proc, or direct value
+    #   default_value # => "default_value"
     def default_value
       default = options[:default]
 
@@ -82,6 +128,17 @@ module CMDx
       end
     end
 
+    # Derives the actual value from the source value using various strategies.
+    #
+    # @param source_value [Object] The source value to derive from
+    #
+    # @return [Object, nil] The derived value or nil if derivation failed
+    #
+    # @raise [NoMethodError] When the derivation method doesn't exist
+    #
+    # @example
+    #   # Derives from hash key, method call, or proc execution
+    #   derive_value({user_id: 42}) # => 42
     def derive_value(source_value)
       derived_value =
         case source_value
@@ -97,6 +154,17 @@ module CMDx
       nil
     end
 
+    # Coerces the derived value to the expected type(s) using the coercion registry.
+    #
+    # @param derived_value [Object] The value to coerce
+    #
+    # @return [Object, nil] The coerced value or nil if coercion failed
+    #
+    # @raise [CoercionError] When coercion fails (handled internally)
+    #
+    # @example
+    #   # Coerces "42" to Integer, "true" to Boolean, etc.
+    #   coerce_value("42") # => 42
     def coerce_value(derived_value)
       return derived_value if attribute.types.empty?
 
