@@ -19,7 +19,7 @@ module CMDx
       # @return [String] A single-line formatted log entry with a trailing newline
       #
       # @example Basic usage
-      #   Line.new.call("INFO", Time.now, "MyApp", "User logged in")
+      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
       #   # => "I, [2024-01-15T10:30:45.123456Z #12345] INFO -- MyApp: User logged in\n"
       def call(severity, time, progname, message)
         "#{severity[0]}, [#{time.utc.iso8601(6)} ##{Process.pid}] #{severity} -- #{progname}: #{message}\n"

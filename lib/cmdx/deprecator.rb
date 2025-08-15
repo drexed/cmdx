@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module CMDx
+  # Handles deprecation warnings and restrictions for tasks.
+  #
+  # The Deprecator module provides functionality to restrict usage of deprecated
+  # tasks based on configuration settings. It supports different deprecation
+  # behaviors including warnings, logging, and errors.
   module Deprecator
 
     extend self
@@ -19,6 +24,29 @@ module CMDx
     end.freeze
     private_constant :EVAL
 
+    # Restricts task usage based on deprecation settings.
+    #
+    # @param task [Object] The task object to check for deprecation
+    # @option task.class.settings[:deprecate] [Symbol, Proc, String, Boolean]
+    #   The deprecation configuration for the task
+    # @option task.class.settings[:deprecate] :error Raises DeprecationError
+    # @option task.class.settings[:deprecate] :log Logs deprecation warning
+    # @option task.class.settings[:deprecate] :warn Outputs warning to stderr
+    # @option task.class.settings[:deprecate] true Raises DeprecationError
+    # @option task.class.settings[:deprecate] false No action taken
+    # @option task.class.settings[:deprecate] nil No action taken
+    #
+    # @return [void]
+    #
+    # @raise [DeprecationError] When deprecation type is 'error' or true
+    # @raise [RuntimeError] When deprecation type is unknown
+    #
+    # @example
+    #   class MyTask
+    #     settings[:deprecate] = :warn
+    #   end
+    #
+    #   MyTask.new # => [MyTask] DEPRECATED: migrate to replacement or discontinue use
     def restrict(task)
       type = EVAL.call(task, task.class.settings[:deprecate])
 
