@@ -15,8 +15,11 @@ module CMDx
       #
       # @param value [Object] The value to coerce to a string
       # @param options [Hash] Optional configuration parameters (unused in this coercion)
+      #
       # @return [String] The coerced string value
+      #
       # @raise [TypeError] If the value cannot be converted to a string
+      #
       # @example Basic string coercion
       #   call("hello")           # => "hello"
       #   call(42)                # => "42"

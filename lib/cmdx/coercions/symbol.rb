@@ -15,8 +15,11 @@ module CMDx
       #
       # @param value [Object] The value to coerce to a symbol
       # @param options [Hash] Optional configuration parameters (unused in this coercion)
+      #
       # @return [Symbol] The coerced symbol value
+      #
       # @raise [CoercionError] If the value cannot be converted to a symbol
+      #
       # @example Basic symbol coercion
       #   call("hello")           # => :hello
       #   call("user_id")         # => :user_id

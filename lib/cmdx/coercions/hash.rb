@@ -18,8 +18,11 @@ module CMDx
       # @param value [Object] The value to coerce
       # @param options [Hash] Additional options (currently unused)
       # @option options [Symbol] :strict Whether to enforce strict conversion
+      #
       # @return [Hash] The coerced hash value
+      #
       # @raise [CoercionError] When the value cannot be coerced to a Hash
+      #
       # @example Coerce from existing Hash
       #   call({a: 1, b: 2}) # => {a: 1, b: 2}
       # @example Coerce from Array

@@ -19,8 +19,11 @@ module CMDx
       # @param value [Object] The value to convert to a Date
       # @param options [Hash] Optional configuration parameters
       # @option options [String] :strptime Custom date format string for parsing
+      #
       # @return [Date] The converted Date object
+      #
       # @raise [CoercionError] If the value cannot be converted to a Date
+      #
       # @example Convert string to Date using default parsing
       #   call("2023-12-25")           # => #<Date: 2023-12-25>
       #   call("Dec 25, 2023")        # => #<Date: 2023-12-25>

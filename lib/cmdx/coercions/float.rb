@@ -15,8 +15,11 @@ module CMDx
       # @param value [Object] The value to convert to a float
       # @param options [Hash] Optional configuration parameters (currently unused)
       # @option options [Object] :unused Currently no options are used
+      #
       # @return [Float] The converted float value
+      #
       # @raise [CoercionError] If the value cannot be converted to a float
+      #
       # @example Convert numeric strings to float
       #   call("123")        # => 123.0
       #   call("123.456")    # => 123.456

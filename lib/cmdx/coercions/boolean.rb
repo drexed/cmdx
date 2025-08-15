@@ -18,8 +18,11 @@ module CMDx
       # @param value [Object] The value to convert to boolean
       # @param options [Hash] Optional configuration parameters (currently unused)
       # @option options [Object] :unused Currently no options are used
+      #
       # @return [Boolean] The converted boolean value
+      #
       # @raise [CoercionError] If the value cannot be converted to boolean
+      #
       # @example Convert truthy strings to true
       #   call("true")   # => true
       #   call("yes")    # => true

@@ -16,8 +16,11 @@ module CMDx
       # @param value [Object] The value to convert to a rational number
       # @param options [Hash] Optional configuration parameters (currently unused)
       # @option options [Object] :unused Currently no options are used
+      #
       # @return [Rational] The converted rational number
+      #
       # @raise [CoercionError] If the value cannot be converted to a rational number
+      #
       # @example Convert numeric strings to rational numbers
       #   call("3/4")     # => (3/4)
       #   call("2.5")     # => (5/2)

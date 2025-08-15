@@ -16,8 +16,11 @@ module CMDx
       # @param value [Object] The value to convert to an integer
       # @param options [Hash] Optional configuration parameters (currently unused)
       # @option options [Object] :unused Currently no options are used
+      #
       # @return [Integer] The converted integer value
+      #
       # @raise [CoercionError] If the value cannot be converted to an integer
+      #
       # @example Convert numeric strings to integers
       #   call("42")      # => 42
       #   call("-123")    # => -123

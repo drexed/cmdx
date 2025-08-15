@@ -18,8 +18,11 @@ module CMDx
       # @param value [Object] The value to convert to a Time object
       # @param options [Hash] Optional configuration parameters
       # @option options [String] :strptime Custom strptime format string for parsing
+      #
       # @return [Time] The converted Time object
+      #
       # @raise [CoercionError] If the value cannot be converted to a Time object
+      #
       # @example Convert time-like objects
       #   call(Time.now)                    # => Time object (unchanged)
       #   call(DateTime.now)                # => Time object (converted)

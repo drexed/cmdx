@@ -14,8 +14,11 @@ module CMDx
       #
       # @param value [Object] The value to convert to Complex
       # @param options [Hash] Optional configuration parameters (currently unused)
+      #
       # @return [Complex] The converted Complex number value
+      #
       # @raise [CoercionError] If the value cannot be converted to Complex
+      #
       # @example Convert numeric strings to Complex
       #   call("3+4i")                     # => (3+4i)
       #   call("2.5")                      # => (2.5+0i)
