@@ -10,11 +10,11 @@ module CMDx
         match =
           case options
           in with:, without:
-            value.match?(with) && !value.match?(without)
+            value&.match?(with) && !value&.match?(without)
           in with:
-            value.match?(with)
+            value&.match?(with)
           in without:
-            !value.match?(without)
+            !value&.match?(without)
           else
             false
           end

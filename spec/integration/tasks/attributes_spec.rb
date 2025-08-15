@@ -210,6 +210,26 @@ RSpec.describe "Task attributes", type: :feature do
         end
       end
     end
+
+    context "with validation options" do
+      context "when value is not valid" do
+        it "fails with validation error message" do
+          task = create_task_class do
+            attribute :raw_attr, format: { with: /^\d+$/ }
+
+            def work = nil
+          end
+
+          result = task.execute
+
+          expect(result).to have_been_failure(
+            reason: "raw_attr is an invalid format",
+            metadata: { messages: { raw_attr: ["is an invalid format"] } },
+            cause: be_a(CMDx::FailFault)
+          )
+        end
+      end
+    end
   end
 
   context "when inheriting" do
