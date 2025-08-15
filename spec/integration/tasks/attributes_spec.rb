@@ -230,6 +230,59 @@ RSpec.describe "Task attributes", type: :feature do
         end
       end
     end
+
+    context "with naming options" do
+      context "when prefix is set" do
+        it "prefixes the attribute name" do
+          task = create_task_class do
+            attribute :raw_attr, prefix: :prefix_
+
+            def work
+              context.attrs = [prefix_raw_attr]
+            end
+          end
+
+          result = task.execute(raw_attr: "123")
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attrs: ["123"])
+        end
+      end
+    end
+
+    context "when suffix is set" do
+      it "suffixes the attribute name" do
+        task = create_task_class do
+          attribute :raw_attr, suffix: :_suffix
+
+          def work
+            context.attrs = [raw_attr_suffix]
+          end
+        end
+
+        result = task.execute(raw_attr: "123")
+
+        expect(result).to have_been_success
+        expect(result).to have_matching_context(attrs: ["123"])
+      end
+    end
+
+    context "when as is set" do
+      it "sets the attribute name" do
+        task = create_task_class do
+          attribute :raw_attr, as: :raw_attr_as
+
+          def work
+            context.attrs = [raw_attr_as]
+          end
+        end
+
+        result = task.execute(raw_attr: "123")
+
+        expect(result).to have_been_success
+        expect(result).to have_matching_context(attrs: ["123"])
+      end
+    end
   end
 
   context "when undefining" do
