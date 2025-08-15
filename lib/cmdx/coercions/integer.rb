@@ -2,10 +2,35 @@
 
 module CMDx
   module Coercions
+    # Converts various input types to Integer format
+    #
+    # Handles conversion from strings, numbers, and other values to integers
+    # using Ruby's Integer() method. Raises CoercionError for values that
+    # cannot be converted to integers.
     module Integer
 
       extend self
 
+      # Converts a value to an Integer
+      #
+      # @param value [Object] The value to convert to an integer
+      # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :unused Currently no options are used
+      # @return [Integer] The converted integer value
+      # @raise [CoercionError] If the value cannot be converted to an integer
+      # @example Convert numeric strings to integers
+      #   call("42")      # => 42
+      #   call("-123")    # => -123
+      #   call("0")       # => 0
+      # @example Convert numeric types to integers
+      #   call(42.0)      # => 42
+      #   call(3.14)      # => 3
+      #   call(0.0)       # => 0
+      # @example Handle edge cases
+      #   call("")        # => 0
+      #   call(nil)       # => 0
+      #   call(false)     # => 0
+      #   call(true)      # => 1
       def call(value, options = {})
         Integer(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError
