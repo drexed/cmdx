@@ -8,7 +8,6 @@ Task context provides flexible data storage, access, and sharing within task exe
 - [Accessing Data](#accessing-data)
 - [Modifying Context](#modifying-context)
 - [Data Sharing](#data-sharing)
-- [Error Handling](#error-handling)
 
 ## Assigning Data
 
