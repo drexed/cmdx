@@ -11,8 +11,7 @@ Chains automatically group related task executions within a thread, providing un
 
 ## Management
 
-Each thread maintains its own chain context through thread-local storage,
-providing automatic isolation without manual coordination.
+Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.
 
 ```ruby
 # Thread A
@@ -32,7 +31,10 @@ CMDx::Chain.current  # Returns current chain or nil
 CMDx::Chain.clear    # Clears current thread's chain
 ```
 
-## Automatated Creation
+> [!IMPORTANT]
+> Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.
+
+## Automated Creation
 
 Every task execution automatically creates or joins the current thread's chain:
 
@@ -51,10 +53,12 @@ result2.chain.results.size            # 2
 result1.chain.results == result2.chain.results # true
 ```
 
+> [!NOTE]
+> Chain creation is automatic and transparent. You don't need to manually manage chain lifecycle.
+
 ## Inheritance
 
-When tasks call subtasks within the same thread, all executions automatically
-inherit the current chain, creating a unified execution trail.
+When tasks call subtasks within the same thread, all executions automatically inherit the current chain, creating a unified execution trail.
 
 ```ruby
 class ProcessOrder < CMDx::Task
