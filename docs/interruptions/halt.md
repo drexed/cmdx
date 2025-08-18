@@ -184,7 +184,7 @@ rescue CMDx::FailFault => e
 end
 ```
 
-## Halt Reasons
+## Best Practices
 
 Always try to provide a `reason` when using halt methods. This provides clear context for debugging and creates meaningful exception messages.
 
