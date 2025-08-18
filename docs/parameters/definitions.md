@@ -438,7 +438,7 @@ result.metadata
 ```
 
 > [!TIP]
-> Parameter validation occurs before the `call` method executes, so you can rely on parameter presence and types within your task logic.
+> Parameter validation occurs before the `execute` method executes, so you can rely on parameter presence and types within your task logic.
 
 ---
 

@@ -37,8 +37,8 @@ process SendEmailTask, if: proc { context.notify_user? }
 process SkipableTask, unless: :should_skip?
 
 # Halt behavior control
-process CriticalTask, workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
-process OptionalTask, workflow_halt: []  # Never halt
+process CriticalTask, workflow_breakpoints: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
+process OptionalTask, workflow_breakpoints: []  # Never halt
 
 # Context flows through all tasks automatically
 result = OrderWorkflow.execute(order: order)
@@ -49,7 +49,7 @@ result.context.payment_id    # Set by ChargePaymentTask
 ## Basic Usage
 
 > [!WARNING]
-> Do **NOT** define a `call` method in workflow classes. The workflow automatically provides execution logic.
+> Do **NOT** define a `execute` method in workflow classes. The workflow automatically provides execution logic.
 
 ```ruby
 class OrderProcessingWorkflow < CMDx::Workflow
@@ -176,7 +176,7 @@ Configure halt behavior for the entire workflow:
 ```ruby
 class CriticalWorkflow < CMDx::Workflow
   # Halt on both failed and skipped results
-  settings(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  settings(workflow_breakpoints: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   process LoadCriticalDataTask
   process ValidateCriticalDataTask
@@ -184,7 +184,7 @@ end
 
 class OptionalWorkflow < CMDx::Workflow
   # Never halt, always continue
-  settings(workflow_halt: [])
+  settings(workflow_breakpoints: [])
 
   process TryLoadDataTask
   process TryValidateDataTask
@@ -200,11 +200,11 @@ Different task groups can have different halt behavior:
 class AccountWorkflow < CMDx::Workflow
   # Critical tasks - halt on any failure or skip
   process CreateUserTask, ValidateUserTask,
-    workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
+    workflow_breakpoints: [CMDx::Result::FAILED, CMDx::Result::SKIPPED]
 
   # Optional tasks - never halt
   process SendWelcomeEmailTask, CreateProfileTask,
-    workflow_halt: []
+    workflow_breakpoints: []
 
   # Default behavior for remaining tasks
   process NotifyAdminTask, LogUserCreationTask
@@ -213,7 +213,7 @@ end
 
 ### Available Result Statuses
 
-Use these statuses in `workflow_halt` arrays:
+Use these statuses in `workflow_breakpoints` arrays:
 
 | Status | Description |
 |--------|-------------|
@@ -229,7 +229,7 @@ The `process` method supports these options:
 |--------|-------------|---------|
 | `:if` | Execute task if condition is true | `if: proc { context.enabled? }` |
 | `:unless` | Execute task if condition is false | `unless: :should_skip?` |
-| `:workflow_halt` | Which statuses should halt execution | `workflow_halt: [CMDx::Result::FAILED]` |
+| `:workflow_breakpoints` | Which statuses should halt execution | `workflow_breakpoints: [CMDx::Result::FAILED]` |
 
 Conditions can be procs, lambdas, symbols, or strings referencing instance methods.
 
@@ -275,7 +275,7 @@ result.metadata[:reason]  #=> "ValidateDataTask failed: Data cannot be nil"
 
 # Halt on skipped task
 class StrictWorkflow < CMDx::Workflow
-  process RequiredTask, workflow_halt: [CMDx::Result::SKIPPED]
+  process RequiredTask, workflow_breakpoints: [CMDx::Result::SKIPPED]
   process OptionalTask, if: proc { false }  # Always skipped
   process FinalTask  # Never executes
 end
@@ -324,7 +324,7 @@ class PaymentWorkflow < CMDx::Workflow
 
   # Workflow settings
   settings(
-    workflow_halt: [CMDx::Result::FAILED],
+    workflow_breakpoints: [CMDx::Result::FAILED],
     log_level: :debug,
     tags: [:critical, :payment]
   )

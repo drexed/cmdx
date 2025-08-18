@@ -1,6 +1,6 @@
 # Callbacks
 
-Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `call` method, enabling rich integration patterns.
+Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
 
 ## Table of Contents
 
@@ -208,8 +208,8 @@ Execute around task logic:
 
 | Callback | Timing | Description |
 |----------|--------|-------------|
-| `before_execution` | Before `call` method | Setup and preparation |
-| `after_execution` | After `call` completes | Cleanup and finalization |
+| `before_execution` | Before `execute` method | Setup and preparation |
+| `after_execution` | After `execute` completes | Cleanup and finalization |
 
 ```ruby
 class ProcessPayment < CMDx::Task

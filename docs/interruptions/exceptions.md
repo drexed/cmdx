@@ -1,6 +1,6 @@
 # Interruptions - Exceptions
 
-CMDx provides robust exception handling that differs between the `call` and `call!` methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.
+CMDx provides robust exception handling that differs between the `execute` and `execute!` methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.
 
 ## Table of Contents
 
@@ -30,11 +30,11 @@ result.metadata[:original_exception] # Original exception object
 ## Exception Handling Methods
 
 > [!IMPORTANT]
-> The key difference: `call` guarantees a result object, while `call!` allows exceptions to propagate for standard error handling patterns.
+> The key difference: `execute` guarantees a result object, while `execute!` allows exceptions to propagate for standard error handling patterns.
 
-### Non-bang Call (`call`)
+### Non-bang Call (`execute`)
 
-The `call` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
+The `execute` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
 
 | Behavior | Description |
 |----------|-------------|
@@ -57,9 +57,9 @@ result.status   #=> "failed"
 result.failed?  #=> true
 ```
 
-### Bang Call (`call!`)
+### Bang Call (`execute!`)
 
-The `call!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
+The `execute!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -122,15 +122,15 @@ end
 ## Bang Call Behavior
 
 > [!WARNING]
-> `call!` propagates exceptions immediately, bypassing result object creation. Only use when you need direct exception handling or integration with exception-based error handling systems.
+> `execute!` propagates exceptions immediately, bypassing result object creation. Only use when you need direct exception handling or integration with exception-based error handling systems.
 
 ### Fault vs Exception Handling
 
-CMDx faults receive special treatment based on `task_halt` configuration:
+CMDx faults receive special treatment based on `task_breakpoints` configuration:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  settings(task_halt: [CMDx::Result::FAILED])
+  settings(task_breakpoints: [CMDx::Result::FAILED])
 
   def work
     if context.payment_invalid
@@ -141,7 +141,7 @@ class ProcessOrder < CMDx::Task
   end
 end
 
-# Fault behavior (converted to exception due to task_halt)
+# Fault behavior (converted to exception due to task_breakpoints)
 begin
   ProcessOrder.execute!(payment_invalid: true)
 rescue CMDx::FailFault => e
@@ -180,10 +180,10 @@ end
 
 ### Exception Hierarchy
 
-| Exception Type | `call` Behavior | `call!` Behavior |
+| Exception Type | `execute` Behavior | `execute!` Behavior |
 |----------------|-----------------|------------------|
 | **CMDx Framework** | Propagates | Propagates |
-| **CMDx Faults** | Converts to result | Respects `task_halt` config |
+| **CMDx Faults** | Converts to result | Respects `task_breakpoints` config |
 | **Standard Exceptions** | Converts to result | Propagates |
 | **Custom Exceptions** | Converts to result | Propagates |
 
@@ -225,7 +225,7 @@ end
 ```
 
 > [!TIP]
-> Use `call` for workflow processing where you need guaranteed result objects, and `call!` for direct integration with existing exception-based error handling patterns.
+> Use `execute` for workflow processing where you need guaranteed result objects, and `execute!` for direct integration with existing exception-based error handling patterns.
 
 ---
 

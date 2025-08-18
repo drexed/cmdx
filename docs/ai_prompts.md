@@ -37,7 +37,7 @@ AI prompt templates provide structured guidance for generating production-ready 
 I'm working with CMDx, a Ruby framework for designing and executing business logic within service/command objects.
 
 CORE CONCEPTS:
-- Tasks inherit from CMDx::Task with business logic in `call` method
+- Tasks inherit from CMDx::Task with business logic in `execute` method
 - Workflows inherit from CMDx::Workflow to orchestrate multiple tasks
 - Parameters support type coercion, validation, defaults, and nesting
 - Results contain status (success/failed/skipped), state, context, metadata

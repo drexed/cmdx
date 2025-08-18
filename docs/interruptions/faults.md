@@ -1,6 +1,6 @@
 # Interruptions - Faults
 
-Faults are exception mechanisms that halt task execution via `skip!` and `fail!` methods. When tasks execute with the `call!` method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.
+Faults are exception mechanisms that halt task execution via `skip!` and `fail!` methods. When tasks execute with the `execute!` method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.
 
 ## Table of Contents
 
@@ -224,12 +224,12 @@ end
 
 ### Task Halt Settings
 
-Control which statuses raise exceptions using `task_halt`:
+Control which statuses raise exceptions using `task_breakpoints`:
 
 ```ruby
 class DataProcessor < CMDx::Task
   # Only failures raise exceptions
-  settings(task_halt: [CMDx::Result::FAILED])
+  settings(task_breakpoints: [CMDx::Result::FAILED])
 
   def work
     skip!(No data to process") if data.empty?
@@ -239,7 +239,7 @@ end
 
 class CriticalValidator < CMDx::Task
   # Both failures and skips raise exceptions
-  settings(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  settings(task_breakpoints: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def work
     skip!(Validation bypassed") if bypass_mode?
@@ -249,14 +249,14 @@ end
 ```
 
 > [!WARNING]
-> Task halt configuration only affects the `call!` method. The `call` method always captures exceptions and converts them to result objects regardless of halt settings.
+> Task halt configuration only affects the `execute!` method. The `execute` method always captures exceptions and converts them to result objects regardless of halt settings.
 
 ### Global Configuration
 
 ```ruby
 # Configure default halt behavior
 CMDx.configure do |config|
-  config.task_halt = [CMDx::Result::FAILED]  # Default: only failures halt
+  config.task_breakpoints = [CMDx::Result::FAILED]  # Default: only failures halt
 end
 ```
 
