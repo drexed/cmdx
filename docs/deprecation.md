@@ -69,14 +69,14 @@ ObsoleteTask.call #=> issues Ruby warning
 class ProcessLegacyPayment < CMDx::Task
   cmd_setting!(deprecated: :error)
 
-  def call
+  def work
     # This code will never execute
     charge_customer(amount)
   end
 end
 
 # Attempting to use deprecated task
-result = ProcessLegacyPaymentTask.execute(amount: 100)
+result = ProcessLegacyPayment.execute(amount: 100)
 #=> raises CMDx::DeprecationError: "ProcessLegacyPaymentTask usage prohibited"
 ```
 
@@ -89,14 +89,14 @@ result = ProcessLegacyPaymentTask.execute(amount: 100)
 class ProcessOldPayment < CMDx::Task
   cmd_setting!(deprecated: :log)
 
-  def call
+  def work
     # Task executes normally but logs deprecation warning
     charge_customer(amount)
   end
 end
 
 # Task executes with logged warning
-result = ProcessOldPaymentTask.execute(amount: 100)
+result = ProcessOldPayment.execute(amount: 100)
 result.successful? #=> true
 
 # Check logs for deprecation warning:
@@ -112,14 +112,14 @@ result.successful? #=> true
 class ProcessObsoletePayment < CMDx::Task
   cmd_setting!(deprecated: :warning)
 
-  def call
+  def work
     # Task executes with Ruby warning
     charge_customer(amount)
   end
 end
 
 # Task executes with Ruby warning
-result = ProcessObsoletePaymentTask.execute(amount: 100)
+result = ProcessObsoletePayment.execute(amount: 100)
 # stderr: [ProcessObsoletePaymentTask] DEPRECATED: migrate to replacement or discontinue use
 
 result.successful? #=> true
@@ -136,7 +136,7 @@ class ExperimentalFeature < CMDx::Task
     deprecated: Rails.env.production? ? :error : :warning
   )
 
-  def call
+  def work
     enable_experimental_feature
   end
 end
@@ -151,7 +151,7 @@ class LegacyIntegration < CMDx::Task
     deprecated: -> { ENV['NEW_API_ENABLED'] == 'true' ? :log : nil }
   )
 
-  def call
+  def work
     call_legacy_api
   end
 end
@@ -168,7 +168,7 @@ end
 class Notification < CMDx::Task
   cmd_setting!(deprecated: :log)
 
-  def call
+  def work
     # Provide fallback while encouraging migration
     logger.warn "Consider migrating to NotificationServiceV2"
 
@@ -188,13 +188,13 @@ end
 
 ```ruby
 begin
-  result = LegacyTask.execute(params)
+  result = Legacy.execute(params)
 rescue CMDx::DeprecationError => e
   # Handle deprecation gracefully
   Rails.logger.error "Attempted to use deprecated task: #{e.message}"
 
   # Use replacement task instead
-  result = ReplacementTask.execute(params)
+  result = Replacement.execute(params)
 end
 
 if result.successful?
@@ -222,7 +222,7 @@ class LegacyReport < CMDx::Task
   # @note This task will be removed in v2.0.0
   # @since 1.5.0 marked as deprecated
 
-  def call
+  def work
     # Add inline documentation
     logger.warn <<~DEPRECATION
       LegacyReportTask is deprecated and will be removed in v2.0.0.

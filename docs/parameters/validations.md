@@ -62,16 +62,16 @@ class CreateUser < CMDx::Task
   required :name, presence: { message: "cannot be blank" }
   required :active, inclusion: { in: [true, false] }
 
-  def call
+  def work
     User.create!(email: email, name: name, active: active)
   end
 end
 
 # Valid inputs
-CreateUserTask.execute(email: "user@example.com", name: "John", active: true)
+CreateUser.execute(email: "user@example.com", name: "John", active: true)
 
 # Invalid inputs
-CreateUserTask.execute(email: "", name: "   ", active: nil)
+CreateUser.execute(email: "", name: "   ", active: nil)
 #=> ValidationError: "email can't be blank. name cannot be blank. active must be one of: true, false"
 ```
 
@@ -90,7 +90,7 @@ class RegisterUser < CMDx::Task
     if: :secure_password_required?
   }
 
-  def call
+  def work
     create_user_account
   end
 
@@ -124,7 +124,7 @@ class UpdateOrder < CMDx::Task
     unless: :digital_product?
   }
 
-  def call
+  def work
     update_order_attributes
   end
 
@@ -165,13 +165,13 @@ class ProcessPayment < CMDx::Task
     of_message: "is not valid"
   }
 
-  def call
+  def work
     charge_payment_method
   end
 end
 
 # Valid usage
-ProcessPaymentTask.execute(
+ProcessPayment.execute(
   payment_method: "credit_card",
   amount: 29.99,
   promo_code: "SAVE20"
@@ -206,7 +206,7 @@ class CreatePost < CMDx::Task
   optional :summary, length: { max: 200, allow_nil: true }
   optional :category_code, length: { is: 3 }
 
-  def call
+  def work
     Post.create!(title: title, content: content, slug: slug)
   end
 end
@@ -247,13 +247,13 @@ class ProcessOrder < CMDx::Task
   optional :discount, numeric: { max: 50, allow_nil: true }
   optional :api_version, numeric: { is: 2 }
 
-  def call
+  def work
     calculate_order_total
   end
 end
 
 # Error example
-ProcessOrderTask.execute(
+ProcessOrder.execute(
   quantity: 0,      # Below minimum
   price: -5.00,     # Below minimum
   tax_rate: 0.30    # Above maximum
@@ -283,12 +283,12 @@ class CreateUser < CMDx::Task
   required :username, presence: true, length: { min: 3 }
   required :age, numeric: { min: 13, max: 120 }
 
-  def call
+  def work
     # Process user
   end
 end
 
-result = CreateUserTask.execute(
+result = CreateUser.execute(
   email: "invalid-email",
   username: "",
   age: 5
@@ -328,13 +328,13 @@ class ProcessOrder < CMDx::Task
     end
   end
 
-  def call
+  def work
     # Process validated order
   end
 end
 
 # Nested validation errors
-result = ProcessOrderTask.execute(
+result = ProcessOrder.execute(
   order: {
     customer_email: "invalid",
     items: [],
@@ -379,7 +379,7 @@ class UserRegistration < CMDx::Task
     format: { with: /@/, unless: :parent_present? }
   }
 
-  def call
+  def work
     create_user_account
   end
 

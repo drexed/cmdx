@@ -257,7 +257,7 @@ Test CMDx's failure propagation patterns:
 expect(result).to have_caused_failure
 
 # Distinguished from thrown failures
-result = ValidateDataTask.execute(data: "invalid")
+result = ValidateData.execute(data: "invalid")
 expect(result).to have_caused_failure
 expect(result).not_to have_thrown_failure
 ```
@@ -298,7 +298,7 @@ expect(receiving_task).to have_received_thrown_failure
 expect(MyTask).to be_well_formed_task
 
 # For dynamically created tasks
-task_class = Class.new(CMDx::Task) { def call; end }
+task_class = Class.new(CMDx::Task) { def work; end }
 expect(task_class).to be_well_formed_task
 ```
 
@@ -445,7 +445,7 @@ expect(result).to have_context(user_id: 999)
 
 ```ruby
 # Use descriptive failure messages for debugging
-result = ProcessDataTask.execute(data: "invalid")
+result = ProcessData.execute(data: "invalid")
 expect(result).to be_successful_task
 #=> "expected result to be successful, but was failed,
 #    expected result to be complete, but was interrupted"

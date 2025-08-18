@@ -30,7 +30,7 @@ class ProcessOrder < CMDx::Task
     optional :apartment
   end
 
-  def call
+  def work
     order_id    #=> value from call arguments
     name        #=> delegates to user.name
     street      #=> delegates to shipping_address.street
@@ -38,7 +38,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Usage
-ProcessOrderTask.execute(
+ProcessOrder.execute(
   order_id: 123,
   customer_id: 456,
   shipping_address: { street: "123 Main St", city: "Miami", state: "FL" }
@@ -64,7 +64,7 @@ class CreateUser < CMDx::Task
   required :age, type: :integer, numeric: { min: 18 }
   optional :tags, type: :array, default: []
 
-  def call
+  def work
     # All parameters become instance methods
     user = User.create!(
       email: email,           # Required - guaranteed to be present
@@ -80,7 +80,7 @@ class CreateUser < CMDx::Task
 end
 
 # Parameters passed as keyword arguments
-CreateUserTask.execute(
+CreateUser.execute(
   email: "user@example.com",
   age: 25,
   phone: "555-0123",
@@ -107,7 +107,7 @@ class UpdateProfile < CMDx::Task
   # Explicitly specify context source
   required :email, source: :context
 
-  def call
+  def work
     user = User.find(user_id)     # From context.user_id
     user.update!(
       email: email,               # From context.email
@@ -128,7 +128,7 @@ class GenerateInvoice < CMDx::Task
   required :total, :items, source: :order
   optional :discount, source: :order
 
-  def call
+  def work
     Invoice.create!(
       customer_name: name,        # From user.name
       customer_email: email,      # From user.email
@@ -149,7 +149,7 @@ class GenerateInvoice < CMDx::Task
   end
 end
 
-GenerateInvoiceTask.execute(user_id: 123, order_id: 456)
+GenerateInvoice.execute(user_id: 123, order_id: 456)
 ```
 
 ### Dynamic Sources
@@ -164,7 +164,7 @@ class CalculatePermissions < CMDx::Task
   required :role, source: :determine_user_role
   optional :access_level, source: :calculate_access_level
 
-  def call
+  def work
     {
       user: current_user.name,  # Resolved via lambda
       company: company_name,    # Resolved via proc
@@ -222,7 +222,7 @@ class CreateShipment < CMDx::Task
     end
   end
 
-  def call
+  def work
     shipment = Shipment.create!(
       order_id: order_id,
 
@@ -241,7 +241,7 @@ class CreateShipment < CMDx::Task
   end
 end
 
-CreateShipmentTask.execute(
+CreateShipment.execute(
   order_id: 123,
   shipping_address: {
     street: "123 Main St",
@@ -279,7 +279,7 @@ class ProcessPayment < CMDx::Task
     end
   end
 
-  def call
+  def work
     # All parameters accessible as instance methods
     payment = PaymentService.charge(
       amount: amount,                    # Direct parameter access
@@ -307,7 +307,7 @@ class IntrospectionExample < CMDx::Task
     optional :unit
   end
 
-  def call
+  def work
     # Access parameter metadata
     params = self.class.parameters
 
@@ -337,13 +337,13 @@ class RequiredParams < CMDx::Task
     required :street, :city
   end
 
-  def call
+  def work
     # Task logic
   end
 end
 
 # Missing required parameters
-result = RequiredParamsTask.execute(user_id: 123)
+result = RequiredParams.execute(user_id: 123)
 result.failed?  #=> true
 result.metadata
 # {
@@ -355,7 +355,7 @@ result.metadata
 # }
 
 # Missing nested required parameters
-result = RequiredParamsTask.execute(
+result = RequiredParams.execute(
   user_id: 123,
   order_id: 456,
   shipping_address: { street: "123 Main St" }  # Missing city
@@ -377,7 +377,7 @@ class SourceError < CMDx::Task
   required :name, source: :user
   required :status, source: :nonexistent_method
 
-  def call
+  def work
     # Task logic
   end
 
@@ -407,13 +407,13 @@ class ValidationError < CMDx::Task
     optional :language, inclusion: { in: %w[en es fr] }
   end
 
-  def call
+  def work
     # Task logic
   end
 end
 
 # Multiple validation failures
-result = ValidationErrorTask.execute(
+result = ValidationError.execute(
   email: "invalid-email",
   age: "not-a-number",
   phone: "123",

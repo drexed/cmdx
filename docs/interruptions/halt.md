@@ -30,8 +30,8 @@ skip!(
 )
 
 # Exception behavior with call vs call!
-result = Task.execute(params)    # Returns result object
-Task.execute!(params)            # Raises CMDx::SkipFault/Failed on halt
+result = .execute(params)    # Returns result object
+.execute!(params)            # Raises CMDx::SkipFault/Failed on halt
 ```
 
 ## Skip (`skip!`)
@@ -47,7 +47,7 @@ The `skip!` method indicates that a task did not meet the criteria to continue e
 class ProcessOrder < CMDx::Task
   required :order_id, type: :integer
 
-  def call
+  def work
     context.order = Order.find(order_id)
 
     # Skip if order already processed
@@ -84,7 +84,7 @@ The `fail!` method indicates that a task encountered an error condition that pre
 class ProcessPayment < CMDx::Task
   required :payment_id, type: :integer
 
-  def call
+  def work
     context.payment = Payment.find(payment_id)
 
     # Fail on validation errors
@@ -124,7 +124,7 @@ Both halt methods accept metadata to provide context about the interruption. Met
 class ProcessSubscription < CMDx::Task
   required :user_id, type: :integer
 
-  def call
+  def work
     context.user = User.find(user_id)
 
     if context.user.subscription_expired?
@@ -155,7 +155,7 @@ end
 ### Accessing Metadata
 
 ```ruby
-result = ProcessSubscriptionTask.execute(user_id: 123)
+result = ProcessSubscription.execute(user_id: 123)
 
 # Check result status
 result.skipped?                         #=> true
@@ -178,7 +178,7 @@ Halt methods trigger specific state and status transitions:
 | `fail!` | `executing` → `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
-result = ProcessSubscriptionTask.execute(user_id: 123)
+result = ProcessSubscription.execute(user_id: 123)
 
 # State information
 result.state        #=> "interrupted"
@@ -200,7 +200,7 @@ Halt methods behave differently depending on the call method used:
 Returns a result object without raising exceptions:
 
 ```ruby
-result = ProcessPaymentTask.execute(payment_id: 123)
+result = ProcessPayment.execute(payment_id: 123)
 
 case result.status
 when "success"
@@ -220,7 +220,7 @@ end
 
 ```ruby
 begin
-  result = ProcessPaymentTask.execute!(payment_id: 123)
+  result = ProcessPayment.execute!(payment_id: 123)
   puts "Success: Payment processed for $#{result.context.payment.amount}"
 rescue CMDx::SkipFault => e
   puts "Skipped: #{e.message}"
@@ -238,7 +238,7 @@ end
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # This works - metadata accepts any hash
     skip!(Valid skip", order_id: 123, custom_data: {nested: true})
 

@@ -71,7 +71,7 @@ failed → skipped     # ❌ Cannot transition
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Task starts with success status
     context.result.success? #=> true
 
@@ -100,7 +100,7 @@ Use status predicates to check execution outcomes:
 
 ```ruby
 class PaymentProcessing < CMDx::Task
-  def call
+  def work
     charge_customer
     send_receipt
   end
@@ -139,7 +139,7 @@ end
 
 ```ruby
 class OrderFulfillment < CMDx::Task
-  def call
+  def work
     validate_inventory
     process_payment
     schedule_shipping
@@ -169,14 +169,14 @@ result
 
 ```ruby
 class ProcessRefund < CMDx::Task
-  def call
+  def work
     refund = create_refund(context.payment_id)
     context.refund_id = refund.id
     context.processed_at = Time.now
   end
 end
 
-result = ProcessRefundTask.execute(payment_id: "pay_123")
+result = ProcessRefund.execute(payment_id: "pay_123")
 result.success?  #=> true
 result.metadata  #=> {} (typically empty for success)
 ```
@@ -185,7 +185,7 @@ result.metadata  #=> {} (typically empty for success)
 
 ```ruby
 class ProcessSubscription < CMDx::Task
-  def call
+  def work
     subscription = Subscription.find(context.subscription_id)
 
     if subscription.cancelled?
@@ -200,7 +200,7 @@ class ProcessSubscription < CMDx::Task
   end
 end
 
-result = ProcessSubscriptionTask.execute(subscription_id: 123)
+result = ProcessSubscription.execute(subscription_id: 123)
 if result.skipped?
   result.metadata[:reason]       #=> "Subscription already cancelled"
   result.metadata[:cancelled_at] #=> 2023-10-01 10:30:00 UTC
@@ -212,7 +212,7 @@ end
 
 ```ruby
 class ValidateUserData < CMDx::Task
-  def call
+  def work
     user = User.find(context.user_id)
 
     unless user.valid?
@@ -228,7 +228,7 @@ class ValidateUserData < CMDx::Task
   end
 end
 
-result = ValidateUserDataTask.execute(user_id: 123)
+result = ValidateUserData.execute(user_id: 123)
 if result.failed?
   result.metadata[:reason]      #=> "User validation failed"
   result.metadata[:errors]      #=> ["Email is invalid", "Name can't be blank"]
@@ -245,7 +245,7 @@ Statuses enable sophisticated outcome-based decision making:
 
 ```ruby
 class EmailDelivery < CMDx::Task
-  def call
+  def work
     # Business logic here
     send_email
   end
@@ -297,7 +297,7 @@ Understanding the relationship between these concepts:
 
 ```ruby
 class DataImport < CMDx::Task
-  def call
+  def work
     import_data
     validate_data
   end
@@ -311,13 +311,13 @@ result.status   #=> "success" (business outcome)
 result.outcome  #=> "success" (same as status when complete)
 
 # Skipped execution
-skipped_result = DataImportTask.execute(skip_import: true)
+skipped_result = DataImport.execute(skip_import: true)
 skipped_result.state    #=> "complete" (execution finished)
 skipped_result.status   #=> "skipped" (business outcome)
 skipped_result.outcome  #=> "skipped" (same as status)
 
 # Failed execution
-failed_result = DataImportTask.execute(invalid_data: true)
+failed_result = DataImport.execute(invalid_data: true)
 failed_result.state     #=> "interrupted" (execution stopped)
 failed_result.status    #=> "failed" (business outcome)
 failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)

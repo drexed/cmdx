@@ -85,7 +85,7 @@ class Process < CMDx::Task
 end
 
 # Execution
-result = ProcessTask.execute(data: "hello")
+result = Process.execute(data: "hello")
 
 result.state  #=> "executed"
 result.status #=> "success"
@@ -97,8 +97,8 @@ result1 = task.execute # ✓ Works
 result2 = task.execute # ✗ Raises FrozenError
 
 # Create new instances for each execution
-result1 = ProcessOrderTask.execute(order_id: 123)
-result2 = ProcessOrderTask.execute(order_id: 456) # ✓ Works
+result1 = ProcessOrder.execute(order_id: 123)
+result2 = ProcessOrder.execute(order_id: 456) # ✓ Works
 ```
 
 ## Errors
@@ -119,7 +119,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Invalid parameters
-result = ProcessOrderTask.execute(
+result = ProcessOrder.execute(
   order_id: "not-a-number",
   amount: "invalid"
 )
@@ -148,7 +148,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Order not found
-result = ProcessOrderTask.execute(order_id: 99999)
+result = ProcessOrder.execute(order_id: 99999)
 
 result.state  #=> "interrupted"
 result.status #=> "failed"

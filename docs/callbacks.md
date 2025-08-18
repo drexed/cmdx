@@ -82,7 +82,7 @@ class ProcessOrder < CMDx::Task
   # Multiple callbacks
   on_success :update_inventory, :send_confirmation, :log_success
 
-  def call
+  def work
     context.order = Order.find(context.order_id)
     context.order.process!
   end
@@ -111,7 +111,7 @@ class AuditCallback < CMDx::Callback
     @level = level
   end
 
-  def call(task, type)
+  def work(task, type)
     AuditLogger.log(
       level: @level,
       action: @action,
@@ -129,7 +129,7 @@ class NotificationCallback < CMDx::Callback
     @template = template
   end
 
-  def call(task, type)
+  def work(task, type)
     return unless should_notify?(type)
 
     @channels.each do |channel|
@@ -181,7 +181,7 @@ class CreateUser < CMDx::Task
   required :email, type: :string
   required :plan, type: :string
 
-  def call
+  def work
     User.create!(email: email, plan: plan)
   end
 
@@ -216,7 +216,7 @@ class ProcessPayment < CMDx::Task
   before_execution :acquire_payment_lock
   after_execution :release_payment_lock
 
-  def call
+  def work
     Payment.process!(context.payment_data)
   end
 
@@ -276,7 +276,7 @@ class EmailCampaign < CMDx::Task
   on_good -> { Metrics.increment('campaigns.positive_outcome') }
   on_bad :create_incident_ticket
 
-  def call
+  def work
     EmailService.send_campaign(context.campaign_data)
   end
 
@@ -342,7 +342,7 @@ class ProcessOrder < CMDx::Task
   # Complex conditional logic
   on_success :trigger_automation, if: :automation_conditions_met?
 
-  def call
+  def work
     Order.process!(context.order_data)
   end
 
@@ -385,7 +385,7 @@ class ProcessData < CMDx::Task
   on_success :send_notification       # Error stops callback chain
   after_execution :cleanup_resources   # Always runs
 
-  def call
+  def work
     ProcessingService.handle(context.data)
   end
 
@@ -423,7 +423,7 @@ class ResilientCallback < CMDx::Callback
     @isolate = isolate
   end
 
-  def call(task, type)
+  def work(task, type)
     if @isolate
       begin
         @callback_proc.execute(task, type)
@@ -446,7 +446,7 @@ class ProcessOrder < CMDx::Task
     isolate: true
   )
 
-  def call
+  def work
     Order.process!(context.order_data)
   end
 end
@@ -506,7 +506,7 @@ class ProcessPayment < ApplicationTask
   on_success :send_receipt
   on_failed :refund_payment, if: :payment_captured?
 
-  def call
+  def work
     # Inherits global logging, error handling, and metrics
     # Plus payment-specific behavior
     PaymentProcessor.charge(context.payment_data)

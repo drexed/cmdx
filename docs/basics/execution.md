@@ -132,7 +132,7 @@ result
 Tasks progress through defined states and statuses during execution:
 
 ```ruby
-result = ProcessOrderTask.execute(order_id: 12345)
+result = ProcessOrder.execute(order_id: 12345)
 
 # Execution states
 result.state #=> "initialized" → "executing" → "complete"/"interrupted"
@@ -146,7 +146,7 @@ result.status #=> "success"/"failed"/"skipped"
 The `Result` object provides comprehensive execution information:
 
 ```ruby
-result = ProcessOrderTask.execute(order_id: 12345)
+result = ProcessOrder.execute(order_id: 12345)
 
 # Execution metadata
 result.id           #=> "abc123..."  (unique execution ID)

@@ -62,7 +62,7 @@ initialized → executing → interrupted (failed/halted execution)
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  def call
+  def work
     # State automatically managed:
     # 1. initialized → executing (when call begins)
     # 2. executing → complete (successful completion)
@@ -101,7 +101,7 @@ Use state predicates to check the current execution lifecycle:
 
 ```ruby
 class OrderFulfillment < CMDx::Task
-  def call
+  def work
     process_order
     ship_items
   end
@@ -141,7 +141,7 @@ end
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     validate_inventory
     charge_payment
     update_stock
@@ -194,7 +194,7 @@ Understanding the difference between states and statuses is crucial:
 
 ```ruby
 class ProcessRefund < CMDx::Task
-  def call
+  def work
     return unless eligible_for_refund?
 
     process_refund
@@ -208,7 +208,7 @@ result.state    #=> "complete" (finished executing)
 result.status   #=> "success" (executed successfully)
 
 # Failed execution
-failed_result = ProcessRefundTask.execute(invalid_order_id: "xyz")
+failed_result = ProcessRefund.execute(invalid_order_id: "xyz")
 failed_result.state   #=> "interrupted" (execution stopped)
 failed_result.status  #=> "failed" (outcome was failure)
 ```

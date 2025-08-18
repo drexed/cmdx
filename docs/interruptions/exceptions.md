@@ -46,7 +46,7 @@ The `call` method captures **all** unhandled exceptions and converts them to fai
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  def call
+  def work
     raise ActiveRecord::RecordNotFound, "Payment method not found"
   end
 end
@@ -63,7 +63,7 @@ The `call!` method allows unhandled exceptions to propagate, enabling standard R
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  def call
+  def work
     raise StandardError, "Payment gateway unavailable"
   end
 end
@@ -100,7 +100,7 @@ exception.backtrace                      #=> ["lib/tasks/payment.rb:15:in `call'
 
 ```ruby
 class Database < CMDx::Task
-  def call
+  def work
     raise ActiveRecord::ConnectionNotEstablished, "Database unavailable"
   end
 end
@@ -132,7 +132,7 @@ CMDx faults receive special treatment based on `task_halt` configuration:
 class ProcessOrder < CMDx::Task
   settings(task_halt: [CMDx::Result::FAILED])
 
-  def call
+  def work
     if context.payment_invalid
       fail!(Invalid payment method")  # CMDx fault
     else
@@ -143,14 +143,14 @@ end
 
 # Fault behavior (converted to exception due to task_halt)
 begin
-  ProcessOrderTask.execute!(payment_invalid: true)
+  ProcessOrder.execute!(payment_invalid: true)
 rescue CMDx::FailFault => e
   puts "Controlled fault: #{e.message}"
 end
 
 # Exception behavior (propagates normally)
 begin
-  ProcessOrderTask.execute!(payment_invalid: false)
+  ProcessOrder.execute!(payment_invalid: false)
 rescue StandardError => e
   puts "System exception: #{e.message}"
 end
@@ -193,7 +193,7 @@ end
 
 ```ruby
 class ProcessUserData < CMDx::Task
-  def call
+  def work
     user_data = fetch_user_data
     process_data(user_data)
   end
@@ -207,7 +207,7 @@ class ProcessUserData < CMDx::Task
 end
 
 # Handle with graceful degradation
-result = ProcessUserDataTask.execute(user_id: 12345)
+result = ProcessUserData.execute(user_id: 12345)
 
 if result.failed?
   case result.metadata[:original_exception]

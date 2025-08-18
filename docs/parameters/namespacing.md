@@ -56,7 +56,7 @@ class UpdateCustomer < CMDx::Task
   required :email, suffix: "_address"
   required :phone, suffix: "_number"
 
-  def call
+  def work
     customer = Customer.find(customer_id)
     customer.update!(
       name: customer_name,
@@ -67,7 +67,7 @@ class UpdateCustomer < CMDx::Task
 end
 
 # Call uses original parameter names
-UpdateCustomerTask.execute(
+UpdateCustomer.execute(
   id: 123,
   name: "Jane Smith",
   email: "jane@example.com",
@@ -86,7 +86,7 @@ class GenerateInvoice < CMDx::Task
   required :amount, source: :order, prefix: true      #=> order_amount
   required :tax_rate, source: :settings, suffix: true #=> tax_rate_settings
 
-  def call
+  def work
     customer = Customer.find(context_id)
     total = order_amount * (1 + tax_rate_settings)
 
@@ -124,7 +124,7 @@ class ProcessAccount < CMDx::Task
   required :class, suffix: "_type"        # Not Object#class
   required :method, prefix: "http_"       # Not Object#method
 
-  def call
+  def work
     Account.create!(
       name: account_name,
       classification: class_type,
@@ -143,7 +143,7 @@ class DataProcessing < CMDx::Task
   required :result, prefix: "api_"        # Not CMDx::Task#result
   required :logger, suffix: "_config"     # Not CMDx::Task#logger
 
-  def call
+  def work
     process_data(context_payload, api_result, logger_config)
   end
 end
@@ -162,7 +162,7 @@ class SyncData < CMDx::Task
   required :name, source: :vendor, prefix: "vendor_"
   required :email, source: :vendor, prefix: "vendor_"
 
-  def call
+  def work
     sync_customer_data(customer_id, customer_name, customer_email)
     sync_vendor_data(vendor_id, vendor_name, vendor_email)
   end
@@ -198,7 +198,7 @@ class CreateShipment < CMDx::Task
     optional :signature_required, type: :boolean, default: false
   end
 
-  def call
+  def work
     shipment = Shipment.create!(
       origin_address: origin_address,
       destination_address: destination_address,
@@ -237,7 +237,7 @@ class ProcessPayment < CMDx::Task
   required :fee_rate, source: :processor, prefix: "processor_", type: :float
   required :timeout, source: :processor, prefix: "processor_", type: :integer
 
-  def call
+  def work
     charge = PaymentProcessor.charge(
       amount: payment_amount,
       currency: payment_currency,
@@ -273,7 +273,7 @@ class CreateUser < CMDx::Task
   required :age, suffix: "_value", type: :integer, numeric: { min: 18, max: 120 }
   required :role, source: :account, prefix: "account_", inclusion: { in: %w[admin user guest] }
 
-  def call
+  def work
     User.create!(
       email: user_email,
       age: age_value,
@@ -289,7 +289,7 @@ class CreateUser < CMDx::Task
 end
 
 # Invalid input produces namespaced error messages
-result = CreateUserTask.execute(
+result = CreateUser.execute(
   email: "invalid-email",
   age: "fifteen",
   account: OpenStruct.new(role: "superuser")
@@ -314,7 +314,7 @@ class Problematic < CMDx::Task
   required :data, prefix: "user_"
   required :config, source: :settings, suffix: "_data"
 
-  def call
+  def work
     # ❌ WRONG: Using original parameter names in task methods
     process(data)         # NoMethodError: undefined method `data`
     apply(config)         # NoMethodError: undefined method `config`
@@ -332,13 +332,13 @@ class Problematic < CMDx::Task
 end
 
 # ❌ WRONG: Using namespaced names in call arguments
-ProblematicTask.execute(
+Problematic.execute(
   user_data: { name: "John" },    # ArgumentError: unknown parameter
   config_data: { theme: "dark" }  # ArgumentError: unknown parameter
 )
 
 # ✅ CORRECT: Using original parameter names in call arguments
-ProblematicTask.execute(
+Problematic.execute(
   data: { name: "John" },         # Correct
   config: { theme: "dark" }       # Correct
 )
@@ -351,7 +351,7 @@ class Debugging < CMDx::Task
   required :id, prefix: "user_"
   required :data, source: :profile, suffix: "_payload"
 
-  def call
+  def work
     # Use introspection to understand parameter mapping
     puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
     #=> ["user_id", "data_payload"]

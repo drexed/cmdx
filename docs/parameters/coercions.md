@@ -65,7 +65,7 @@ class ProcessPayment < CMDx::Task
   optional :metadata, type: :hash, default: {}
   optional :tags, type: :array, default: []
 
-  def call
+  def work
     # All parameters automatically coerced
     charge_amount = amount * 100  # Float math
     user = User.find(user_id)     # Integer lookup
@@ -75,7 +75,7 @@ class ProcessPayment < CMDx::Task
 end
 
 # Usage with string inputs
-ProcessPaymentTask.execute(
+ProcessPayment.execute(
   amount: "99.99",           #=> 99.99 (Float)
   user_id: "12345",          #=> 12345 (Integer)
   send_email: "true",        #=> true (Boolean)
@@ -100,7 +100,7 @@ class ProcessOrder < CMDx::Task
   # Temporal: flexible date/time handling
   optional :due_date, type: [:datetime, :date, :string]
 
-  def call
+  def work
     case total
     when Float   then process_precise_amount(total)
     when Integer then process_rounded_amount(total)
@@ -114,8 +114,8 @@ class ProcessOrder < CMDx::Task
 end
 
 # Different inputs produce different types
-ProcessOrderTask.execute(total: "99.99")  #=> 99.99 (Float)
-ProcessOrderTask.execute(total: "100")    #=> 100 (Integer)
+ProcessOrder.execute(total: "99.99")  #=> 99.99 (Float)
+ProcessOrder.execute(total: "100")    #=> 100 (Integer)
 ```
 
 ## Advanced Examples
@@ -127,14 +127,14 @@ class ProcessInventory < CMDx::Task
   required :product_ids, type: :array
   required :config, type: :hash
 
-  def call
+  def work
     products = Product.where(id: product_ids)
     apply_configuration(config)
   end
 end
 
 # Multiple input formats supported
-ProcessInventoryTask.execute(
+ProcessInventory.execute(
   product_ids: [1, 2, 3],              # Already array
   product_ids: "[1,2,3]",              # JSON string
   product_ids: "1",                    # Single value → ["1"]
@@ -152,7 +152,7 @@ class UpdateUserSettings < CMDx::Task
   required :notifications, type: :boolean
   required :active, type: :boolean
 
-  def call
+  def work
     user.update!(
       email_notifications: notifications,
       account_active: active
@@ -161,7 +161,7 @@ class UpdateUserSettings < CMDx::Task
 end
 
 # Boolean coercion recognizes many patterns
-UpdateUserSettingsTask.execute(
+UpdateUserSettings.execute(
   notifications: "true",    #=> true
   notifications: "yes",     #=> true
   notifications: "1",       #=> true
@@ -185,7 +185,7 @@ class ScheduleEvent < CMDx::Task
   optional :deadline, type: :date, format: "%m/%d/%Y"
   optional :meeting_time, type: :time, format: "%I:%M %p"
 
-  def call
+  def work
     Event.create!(
       scheduled_date: event_date,
       start_time: start_time,
@@ -195,7 +195,7 @@ class ScheduleEvent < CMDx::Task
   end
 end
 
-ScheduleEventTask.execute(
+ScheduleEvent.execute(
   event_date: "2023-12-25",      # Standard ISO format
   start_time: "14:30:00",        # 24-hour format
   deadline: "12/31/2023",        # Custom MM/DD/YYYY format
@@ -222,7 +222,7 @@ class ProcessOrder < CMDx::Task
     end
   end
 
-  def call
+  def work
     order_id = order[:id]              # Integer (coerced)
     total_amount = order[:total]       # Float (coerced)
 
@@ -235,7 +235,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # JSON input with automatic nested coercion
-ProcessOrderTask.execute(
+ProcessOrder.execute(
   order: '{
     "id": "12345",
     "total": "299.99",
@@ -260,13 +260,13 @@ class ProcessData < CMDx::Task
   required :amount, type: [:float, :big_decimal]
   required :active, type: :boolean
 
-  def call
+  def work
     # Task logic
   end
 end
 
 # Invalid inputs
-result = ProcessDataTask.execute(
+result = ProcessData.execute(
   count: "not-a-number",
   amount: "invalid-float",
   active: "maybe"
@@ -288,15 +288,15 @@ result.metadata
 
 ```ruby
 # Invalid array JSON
-ProcessDataTask.execute(items: "[invalid json")
+ProcessData.execute(items: "[invalid json")
 #=> "items could not coerce into an array"
 
 # Invalid date format
-ProcessDataTask.execute(start_date: "not-a-date")
+ProcessData.execute(start_date: "not-a-date")
 #=> "start_date could not coerce into a date"
 
 # Multiple type failure
-ProcessDataTask.execute(value: "abc", type: [:integer, :float])
+ProcessData.execute(value: "abc", type: [:integer, :float])
 #=> "value could not coerce into one of: integer, float"
 ```
 
@@ -315,7 +315,7 @@ class ImportData < CMDx::Task
   # 12-hour time
   optional :appointment, type: :time, format: "%I:%M %p"
 
-  def call
+  def work
     # Dates parsed according to specified formats
   end
 end
@@ -328,7 +328,7 @@ class CalculatePrice < CMDx::Task
   required :base_price, type: :big_decimal
   required :tax_rate, type: :big_decimal, precision: 8
 
-  def call
+  def work
     tax_amount = base_price * tax_rate  # High-precision calculation
   end
 end
@@ -344,7 +344,7 @@ end
 module CurrencyCoercion
   module_function
 
-  def call(value, options = {})
+  def work(value, options = {})
     return value if value.is_a?(BigDecimal)
 
     # Remove currency symbols and formatting
@@ -375,13 +375,13 @@ class ProcessProduct < CMDx::Task
   required :price, type: :currency
   required :url_slug, type: :slug
 
-  def call
+  def work
     price    #=> BigDecimal from "$99.99"
     url_slug #=> "my-product-name" from "My Product Name!"
   end
 end
 
-ProcessProductTask.execute(
+ProcessProduct.execute(
   price: "$149.99",
   url_slug: "My Amazing Product!"
 )

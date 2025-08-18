@@ -51,7 +51,7 @@ class AuditMiddleware < CMDx::Middleware
     @resource_type = resource_type
   end
 
-  def call(task, callable)
+  def work(task, callable)
     result = callable.execute(task)
 
     if result.success?
@@ -70,7 +70,7 @@ end
 class ProcessOrder < CMDx::Task
   use :middleware, AuditMiddleware, action: 'process', resource_type: 'Order'
 
-  def call
+  def work
     context.order = Order.find(order_id)
     context.order.process!
   end
@@ -89,7 +89,7 @@ class ProcessOrder < CMDx::Task
     tags: ['order', 'payment']
   )
 
-  def call
+  def work
     context.order = Order.find(order_id)
     context.order.process!
   end
@@ -111,7 +111,7 @@ class ProcessOrder < CMDx::Task
     result
   }
 
-  def call
+  def work
     # Business logic
   end
 end
@@ -128,7 +128,7 @@ class ProcessOrder < CMDx::Task
   use :middleware, AuthenticationMiddleware # 2nd: middle wrapper
   use :middleware, ValidationMiddleware     # 3rd: innermost wrapper
 
-  def call
+  def work
     # Core logic executes here
   end
 end
@@ -155,7 +155,7 @@ class RateLimitMiddleware < CMDx::Middleware
     @window = window
   end
 
-  def call(task, callable)
+  def work(task, callable)
     key = "rate_limit:#{task.context.current_user&.id}"
     current_count = Rails.cache.read(key) || 0
 
@@ -172,7 +172,7 @@ end
 class SendEmail < CMDx::Task
   use :middleware, RateLimitMiddleware, limit: 50
 
-  def call
+  def work
     # Only executes if rate limit check passes
     EmailService.deliver(email_params)
   end
@@ -195,7 +195,7 @@ class ProcessOrder < ApplicationTask
   use :middleware, AuthenticationMiddleware  # Added to inherited middleware
   use :middleware, OrderValidationMiddleware # Domain-specific validation
 
-  def call
+  def work
     # Inherits all ApplicationTask middleware plus order-specific ones
     context.order = Order.find(order_id)
     context.order.process!
@@ -215,7 +215,7 @@ Enforces execution time limits with support for static and dynamic timeout value
 class ProcessLargeReport < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: 300
 
-  def call
+  def work
     # Long-running report generation with 5-minute timeout
     ReportGenerator.create(report_params)
   end
@@ -225,7 +225,7 @@ end
 class QuickValidation < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout
 
-  def call
+  def work
     # Fast validation with default 3-second timeout
     ValidationService.validate(data)
   end
@@ -242,7 +242,7 @@ end
 class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: :calculate_timeout
 
-  def call
+  def work
     context.order = Order.find(order_id)
     context.order.process!
   end
@@ -263,7 +263,7 @@ class ProcessWorkflow < CMDx::Task
     context.workflow_size > 100 ? 120 : 60
   }
 
-  def call
+  def work
     context.workflow_items.each { |item| process_item(item) }
   end
 end
@@ -302,7 +302,7 @@ class ProcessOrder < CMDx::Task
       seconds: 60,
       unless: -> { Rails.env.development? }
 
-  def call
+  def work
     context.order = Order.find(order_id)
     context.order.process!
   end
@@ -331,7 +331,7 @@ end
 class ProcessApiRequest < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate
 
-  def call
+  def work
     # Correlation ID automatically managed and propagated
     context.api_response = ExternalService.execute(request_data)
   end
@@ -377,7 +377,7 @@ class ApiController < ApplicationController
   before_action :set_correlation_id
 
   def process_order
-    result = ProcessOrderTask.execute(order_params)
+    result = ProcessOrder.execute(order_params)
 
     if result.success?
       render json: { order: result.context.order, correlation_id: result.chain.id }
@@ -398,11 +398,11 @@ end
 class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate
 
-  def call
+  def work
     # Inherits correlation ID from controller thread context
-    ValidateOrderDataTask.execute(context)
-    ChargePaymentTask.execute(context)
-    SendConfirmationEmailTask.execute(context)
+    ValidateOrderData.execute(context)
+    ChargePayment.execute(context)
+    SendConfirmationEmail.execute(context)
   end
 end
 ```
@@ -414,7 +414,7 @@ end
 
 ```ruby
 class DatabaseTransactionMiddleware < CMDx::Middleware
-  def call(task, callable)
+  def work(task, callable)
     ActiveRecord::Base.transaction do
       result = callable.execute(task)
 
@@ -432,7 +432,7 @@ class CacheMiddleware < CMDx::Middleware
     @key_prefix = key_prefix
   end
 
-  def call(task, callable)
+  def work(task, callable)
     cache_key = build_cache_key(task)
     cached_result = Rails.cache.read(cache_key)
 
@@ -466,7 +466,7 @@ end
 
 ```ruby
 class ErrorProneMiddleware < CMDx::Middleware
-  def call(task, callable)
+  def work(task, callable)
     # Middleware error prevents task execution
     raise "Configuration missing" unless configured?
 
@@ -482,7 +482,7 @@ end
 class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: 5
 
-  def call
+  def work
     sleep(10)  # Exceeds timeout
   end
 end
@@ -496,7 +496,7 @@ result.reason   #=> "Task timed out after 5 seconds"
 
 ```ruby
 class ResilientMiddleware < CMDx::Middleware
-  def call(task, callable)
+  def work(task, callable)
     callable.execute(task)
   rescue ExternalServiceError => e
     # Log error but allow task to complete

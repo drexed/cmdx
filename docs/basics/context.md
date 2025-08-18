@@ -32,7 +32,7 @@ Context provides multiple access patterns with automatic nil safety:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Method-style access (preferred)
     user_id = context.user_id
     amount = context.amount
@@ -60,7 +60,7 @@ Context supports dynamic modification during task execution:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Direct assignment
     context.user = User.find(context.user_id)
     context.order = Order.find(context.order_id)
@@ -102,7 +102,7 @@ Context enables seamless data flow between related tasks in complex workflows:
 ```ruby
 # Before and during execution
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Validate order data
     validation_result = ValidateOrder.execute(context)
 

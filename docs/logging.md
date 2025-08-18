@@ -24,7 +24,7 @@ CMDx provides comprehensive automatic logging for task execution with structured
 ```ruby
 # Automatic logging - no setup required
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Task execution automatically logged with metadata
   end
 end
@@ -112,7 +112,7 @@ class SendEmail < CMDx::Task
     log_level: Logger::WARN
   )
 
-  def call
+  def work
     # Task implementation
   end
 end
@@ -141,7 +141,7 @@ end
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  def call
+  def work
     # Structured logging with metadata
     logger.info "Starting order processing", order_id: context.order_id
 
@@ -190,7 +190,7 @@ end
 
 ```ruby
 class BrokenFormatter
-  def call(severity, time, task, message)
+  def work(severity, time, task, message)
     raise StandardError, "Formatter error"
   end
 end
@@ -198,7 +198,7 @@ end
 class Test < CMDx::Task
   settings(log_formatter: BrokenFormatter.new)
 
-  def call
+  def work
     # Execution continues with fallback formatter
     # Error logged to STDERR for debugging
   end
@@ -222,7 +222,7 @@ end
 
 ```ruby
 class AlertFormatter
-  def call(severity, time, task, message)
+  def work(severity, time, task, message)
     emoji = case severity
             when 'INFO' then '✅'
             when 'WARN' then '⚠️'
@@ -237,7 +237,7 @@ end
 class Notification < CMDx::Task
   settings(log_formatter: AlertFormatter.new)
 
-  def call
+  def work
     # Uses custom emoji-based formatting
   end
 end

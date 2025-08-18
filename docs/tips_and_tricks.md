@@ -100,7 +100,7 @@ class UpdateUserProfile < CMDx::Task
     optional :years_experience, numericality: { less_than: 80 }
   end
 
-  def call
+  def work
     # Implementation
   end
 end

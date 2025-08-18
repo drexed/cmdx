@@ -52,7 +52,7 @@ throw!(validation_result) if validation_result.failed?
 
 ```ruby
 begin
-  ProcessOrderTask.execute!(order_id: 123)
+  ProcessOrder.execute!(order_id: 123)
 rescue CMDx::SkipFault => e
   logger.info "Order processing skipped: #{e.message}"
   schedule_retry(e.context.order_id)
@@ -153,7 +153,7 @@ end
 
 ```ruby
 class OrderProcessor < CMDx::Task
-  def call
+  def work
     # Validate order data
     validation_result = OrderValidator.execute(context)
     throw!(validation_result) if validation_result.failed?
@@ -172,7 +172,7 @@ end
 
 ```ruby
 class WorkflowProcessor < CMDx::Task
-  def call
+  def work
     step_result = DataValidation.execute(context)
 
     if step_result.failed?
@@ -231,7 +231,7 @@ class DataProcessor < CMDx::Task
   # Only failures raise exceptions
   settings(task_halt: [CMDx::Result::FAILED])
 
-  def call
+  def work
     skip!(No data to process") if data.empty?
     # Skip will NOT raise exception on call!
   end
@@ -241,7 +241,7 @@ class CriticalValidator < CMDx::Task
   # Both failures and skips raise exceptions
   settings(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
-  def call
+  def work
     skip!(Validation bypassed") if bypass_mode?
     # Skip WILL raise exception on call!
   end

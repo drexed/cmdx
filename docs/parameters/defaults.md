@@ -48,7 +48,7 @@ class ProcessOrder < CMDx::Task
   optional :tags, type: :array, default: []
   optional :metadata, type: :hash, default: {}
 
-  def call
+  def work
     # Defaults used when parameters not provided
     process_order_with_priority(priority)     # "standard"
     send_notification if send_email           # true
@@ -57,11 +57,11 @@ class ProcessOrder < CMDx::Task
 end
 
 # Using defaults
-ProcessOrderTask.execute(order_id: 123)
+ProcessOrder.execute(order_id: 123)
 # priority: "standard", send_email: true, max_retries: 3
 
 # Overriding defaults
-ProcessOrderTask.execute(
+ProcessOrder.execute(
   order_id: 123,
   priority: "urgent",
   send_email: false,
@@ -90,7 +90,7 @@ class SendNotification < CMDx::Task
   optional :template, default: :default_template
   optional :priority, default: :calculate_priority
 
-  def call
+  def work
     notification = {
       message: message,
       sent_at: sent_at,          # Current time when accessed
@@ -136,7 +136,7 @@ class ConfigureService < CMDx::Task
   # Dynamic defaults with coercion
   optional :session_id, type: :string, default: -> { Time.now.to_i }
 
-  def call
+  def work
     max_connections  #=> 100 (Integer from "100")
     config          #=> {"timeout" => 30} (Hash from JSON)
     allowed_hosts   #=> ["localhost"] (Array from JSON)
@@ -162,7 +162,7 @@ class ScheduleTask < CMDx::Task
   optional :retry_count, type: :integer, default: 3,
     numeric: { min: 0, max: 10 }
 
-  def call
+  def work
     # All defaults validated against their rules
     schedule_task(task_name, priority: priority, timeout: timeout)
   end
@@ -197,7 +197,7 @@ class ProcessPayment < CMDx::Task
     end
   end
 
-  def call
+  def work
     # Process payment with defaults applied at each level
     PaymentProcessor.charge(
       amount: amount,
@@ -224,7 +224,7 @@ class ProcessPayment < CMDx::Task
 end
 
 # Usage with nested defaults
-ProcessPaymentTask.execute(amount: 99.99, user_id: 123)
+ProcessPayment.execute(amount: 99.99, user_id: 123)
 # payment_config automatically gets:
 # {
 #   method: "credit_card",
@@ -251,7 +251,7 @@ class BadDefaults < CMDx::Task
   # This default will fail coercion
   optional :count, type: :integer, default: "not-a-number"
 
-  def call
+  def work
     # Won't reach here due to validation/coercion failures
   end
 end
@@ -278,7 +278,7 @@ class ProblematicDefaults < CMDx::Task
   # Proc that might fail
   optional :api_key, default: -> { fetch_api_key_from_vault }
 
-  def call
+  def work
     # Task logic
   end
 
@@ -307,7 +307,7 @@ class NilHandling < CMDx::Task
   optional :status, default: "active"
   optional :tags, type: :array, default: []
 
-  def call
+  def work
     status  # Default applied based on input
     tags    # Default applied based on input
   end
@@ -318,11 +318,11 @@ NilHandlingTask.call
 # status: "active", tags: []
 
 # Explicitly nil parameters also use defaults
-NilHandlingTask.execute(status: nil, tags: nil)
+NilHandling.execute(status: nil, tags: nil)
 # status: "active", tags: []
 
 # Empty string is NOT nil - no default applied
-NilHandlingTask.execute(status: "", tags: "")
+NilHandling.execute(status: "", tags: "")
 # status: "", tags: "" (string, not array - may cause coercion error)
 ```
 
