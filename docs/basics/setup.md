@@ -1,6 +1,7 @@
 # Basics - Setup
 
-A task represents a unit of work to execute. Tasks are the core building blocks of CMDx, encapsulating business logic within a structured, reusable object. While CMDx offers extensive features like parameter validation, callbacks, and state tracking, only a `call` method is required to create a functional task.
+A task represents a unit of work to execute. Tasks are the core building blocks of CMDx,
+encapsulating business logic within a structured, reusable object.
 
 ## Table of Contents
 
@@ -55,14 +56,14 @@ Tasks follow a predictable execution pattern with specific states and status tra
 |-------|-------------|--------|-------------------|
 | **Instantiation** | Task object created with context | `initialized` | `success` |
 | **Validation** | Parameters validated against definitions | `executing` | `success`, `failed` |
-| **Execution** | The `call` method runs business logic | `executing` | `success`, `failed`, `skipped` |
-| **Post-execution** | After callbacks run | `executing` | `success`, `failed`, `skipped` |
+| **Execution** | The `work` method runs business logic | `executing` | `success`, `failed`, `skipped` |
+| **Post-execution** | After callbacks executed | `executing` | `success`, `failed`, `skipped` |
 | **Completion** | Result finalized with final state | `executed` | `success`, `failed`, `skipped` |
 | **Freezing** | Task becomes immutable | `executed` | `success`, `failed`, `skipped` |
 
 > [!WARNING]
-> Tasks are single-use objects. Once executed, they are frozen and cannot be called again.
-> Attempting to call a frozen task will raise an error.
+> Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
+> Attempting to execute a frozen task will raise an error.
 
 ### Lifecycle Example
 
