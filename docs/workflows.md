@@ -65,7 +65,7 @@ result = OrderProcessingWorkflow.execute(order: order, user: current_user)
 if result.success?
   redirect_to order_path(result.context.order)
 elsif result.failed?
-  handle_error(result.metadata[:reason])
+  handle_error(result.reason)
 end
 ```
 
@@ -271,7 +271,7 @@ end
 
 result = ProcessDataWorkflow.execute(data: nil)
 result.failed?  #=> true
-result.metadata[:reason]  #=> "ValidateDataTask failed: Data cannot be nil"
+result.reason  #=> "ValidateDataTask failed: Data cannot be nil"
 
 # Halt on skipped task
 class StrictWorkflow < CMDx::Workflow

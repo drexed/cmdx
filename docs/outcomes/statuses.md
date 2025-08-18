@@ -125,7 +125,7 @@ def handle_payment_result(result)
   if result.success?
     send_confirmation_email(result.context.customer)
   elsif result.skipped?
-    log_skip_reason(result.metadata[:reason])
+    log_skip_reason(result.reason)
   elsif result.failed?
     handle_payment_failure(result.metadata)
   end
@@ -202,7 +202,7 @@ end
 
 result = ProcessSubscription.execute(subscription_id: 123)
 if result.skipped?
-  result.metadata[:reason]       #=> "Subscription already cancelled"
+  result.reason       #=> "Subscription already cancelled"
   result.metadata[:cancelled_at] #=> 2023-10-01 10:30:00 UTC
   result.metadata[:skip_code]    #=> "ALREADY_CANCELLED"
 end
@@ -230,7 +230,7 @@ end
 
 result = ValidateUserData.execute(user_id: 123)
 if result.failed?
-  result.metadata[:reason]      #=> "User validation failed"
+  result.reason      #=> "User validation failed"
   result.metadata[:errors]      #=> ["Email is invalid", "Name can't be blank"]
   result.metadata[:error_code]  #=> "VALIDATION_FAILED"
   result.metadata[:retryable]   #=> false
@@ -263,7 +263,7 @@ end
 # Bad outcomes (skipped OR failed, excluding success)
 if result.bad?
   # Handle any non-success outcome
-  show_error_message(result.metadata[:reason])
+  show_error_message(result.reason)
   track_failure_metrics(result)
 end
 ```

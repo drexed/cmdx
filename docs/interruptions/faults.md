@@ -20,7 +20,7 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 begin
   PaymentProcessor.execute!(amount: 100)
 rescue CMDx::SkipFault => e
-  handle_skipped_payment(e.result.metadata[:reason])
+  handle_skipped_payment(e.result.reason)
 rescue CMDx::FailFault => e
   handle_failed_payment(e.result.metadata[:error])
 rescue CMDx::Fault => e
@@ -94,7 +94,7 @@ begin
 rescue CMDx::Fault => e
   # Result information
   e.result.status            #=> "failed" or "skipped"
-  e.result.metadata[:reason] #=> "Email already exists"
+  e.result.reason #=> "Email already exists"
   e.result.runtime           #=> 0.05
 
   # Task information
@@ -201,7 +201,7 @@ if result.failed?
   original = result.caused_failure
   if original
     puts "Original failure: #{original.task.class.name}"
-    puts "Reason: #{original.metadata[:reason]}"
+    puts "Reason: #{original.reason}"
   end
 
   # Find what propagated the failure

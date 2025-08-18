@@ -122,7 +122,7 @@ if result.failed?
   # Find the original cause of failure
   if original_failure = result.caused_failure
     puts "Root cause: #{original_failure.task.class.name}"
-    puts "Reason: #{original_failure.metadata[:reason]}"
+    puts "Reason: #{original_failure.reason}"
   end
 
   # Find what threw the failure to this result
@@ -143,7 +143,7 @@ end
 result = ProcessPayment.execute(amount: "invalid")
 
 if result.failed?
-  case result.metadata[:reason]
+  case result.reason
   when /validation/i
     handle_validation_error(result)
   when /network/i
@@ -182,7 +182,7 @@ result = ProcessOrder.execute(order_id: 123)
 result
   .on_success { |r| send_confirmation_email(r.context.email) }
   .on_failed { |r| handle_payment_failure(r) }
-  .on_skipped { |r| log_skip_reason(r.metadata[:reason]) }
+  .on_skipped { |r| log_skip_reason(r.reason) }
 
 # State-based callbacks
 result

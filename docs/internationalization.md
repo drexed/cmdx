@@ -128,17 +128,17 @@ end
 # English
 I18n.locale = :en
 result = ProcessPayment.execute(payment_method: "card", amount: 99.99)
-result.metadata[:reason] #=> "no reason given"
+result.reason #=> "no reason given"
 
 # Spanish
 I18n.locale = :es
 result = ProcessPayment.execute(payment_method: "card", amount: 99.99)
-result.metadata[:reason] #=> "no se proporcionó razón"
+result.reason #=> "no se proporcionó razón"
 
 # Japanese
 I18n.locale = :ja
 result = ProcessPayment.execute(payment_method: "card", amount: 99.99)
-result.metadata[:reason] #=> "理由が提供されませんでした"
+result.reason #=> "理由が提供されませんでした"
 ```
 
 ### Custom Fault Messages

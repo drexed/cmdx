@@ -1,6 +1,6 @@
 # Interruptions - Halt
 
-Halting stops execution of a task with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes, each serving specific use cases in business logic.
+Halting stops task execution with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes.
 
 ## Table of Contents
 
@@ -9,11 +9,11 @@ Halting stops execution of a task with explicit intent signaling. Tasks provide 
 - [Metadata Enrichment](#metadata-enrichment)
 - [State Transitions](#state-transitions)
 - [Execution Behavior](#execution-behavior)
-- [Halt Reasons](#halt-reasons)
+- [Best Practices](#best-practices)
 
 ## Skipping
 
-The `skip!` method indicates that a task did not meet the criteria to continue execution. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
+The `skip!` method indicates a task did not meet criteria to continue execution. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -22,7 +22,7 @@ class ProcessOrder < CMDx::Task
     skip! if Array(ENV["PHASED_OUT_TASKS"]).include?(self.class.name)
 
     # With a reason
-    skip!("Outside of business hours") unless Time.now.hour.between?(9, 17)
+    skip!("Outside business hours") unless Time.now.hour.between?(9, 17)
 
     order = Order.find(context.order_id)
 
@@ -43,15 +43,15 @@ result.status #=> "skipped"
 result.reason #=> "no reason given"
 
 # With a reason
-result.reason #=> "Outside of business hours"
+result.reason #=> "Outside business hours"
 ```
 
 > [!NOTE]
-> Skipping is not an error or failure. Skipped tasks are considered successful outcomes.
+> Skipping is not a failure or error. Skipped tasks are considered successful outcomes.
 
 ## Failing
 
-The `fail!` method indicates that a task encountered an error condition that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
+The `fail!` method indicates a task encountered an error condition that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -86,7 +86,7 @@ result.reason #=> "Unsupported payment type"
 
 ## Metadata Enrichment
 
-Both halt methods accept metadata to provide context about the interruption. Metadata is stored as a hash and becomes available through the result object.
+Both halt methods accept metadata to provide additional context about the interruption. Metadata is stored as a hash and becomes available through the result object.
 
 ```ruby
 class ProcessSubscription < CMDx::Task
@@ -127,10 +127,10 @@ result.metadata #=> {
 
 Halt methods trigger specific state and status transitions:
 
-| Method | State Transition | Status | Outcome |
-|--------|------------------|--------|---------|
-| `skip!` | `executing` → `interrupted` | `skipped` | `good? = true`, `bad? = true` |
-| `fail!` | `executing` → `interrupted` | `failed` | `good? = false`, `bad? = true` |
+| Method | State | Status | Outcome |
+|--------|-------|--------|---------|
+| `skip!` | `interrupted` | `skipped` | `good? = true`, `bad? = true` |
+| `fail!` | `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
 result = ProcessSubscription.execute(user_id: 123)
@@ -152,7 +152,7 @@ Halt methods behave differently depending on the call method used:
 
 ### With `execute` (Non-bang)
 
-Returns a result object without raising exceptions:
+Returns result object without raising exceptions:
 
 ```ruby
 result = ProcessPayment.execute(payment_id: 123)
@@ -161,35 +161,32 @@ case result.status
 when "success"
   puts "Payment processed: $#{result.context.payment.amount}"
 when "skipped"
-  puts "Payment skipped: #{result.metadata[:reason]}"
+  puts "Payment skipped: #{result.reason}"
 when "failed"
-  puts "Payment failed: #{result.metadata[:reason]}"
+  puts "Payment failed: #{result.reason}"
   handle_payment_error(result.metadata[:code])
 end
 ```
 
 ### With `execute!` (Bang)
 
-The `execute!` method raises exceptions for halt conditions based on the `task_breakpoints` configuration.
-Handle these exceptions appropriately in your application flow.
+Raises exceptions for halt conditions based on `task_breakpoints` configuration:
 
 ```ruby
 begin
   result = ProcessPayment.execute!(payment_id: 123)
-  puts "Success: Payment processed for $#{result.context.payment.amount}"
+  puts "Success: Payment processed"
 rescue CMDx::SkipFault => e
   puts "Skipped: #{e.message}"
-  log_skip_event(e.context.payment_id, e.result.metadata)
 rescue CMDx::FailFault => e
   puts "Failed: #{e.message}"
   handle_payment_failure(e.result.metadata[:code])
-  notify_payment_team(e.context.payment_id)
 end
 ```
 
 ## Halt Reasons
 
-Always provide a `reason` when using halt methods. This provides clear context for debugging and creates meaningful exception messages.
+Always try to provide a `reason` when using halt methods. This provides clear context for debugging and creates meaningful exception messages.
 
 ```ruby
 # Good: Clear, specific reason
@@ -204,15 +201,6 @@ fail!("Declined")
 skip! #=> "no reason given"
 fail! #=> "no reason given"
 ```
-
-Best Practices:
-
-| Practice | Example |
-|----------|---------|
-| **Be specific** | `"Credit card expired on 2023-12-31"` vs `"Payment error"` |
-| **Include context** | `"Inventory insufficient: need 5, have 2"` |
-| **Use actionable language** | `"Email verification required before login"` |
-| **Avoid technical jargon** | `"Payment declined"` vs `"Gateway returned 402"` |
 
 ---
 

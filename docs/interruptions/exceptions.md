@@ -23,7 +23,7 @@ result.metadata[:original_exception] # Access original exception
 ProcessOrderTask.call!             # Raises exceptions (except configured faults)
 
 # Exception info always available in metadata
-result.metadata[:reason]           # Human-readable error message
+result.reason           # Human-readable error message
 result.metadata[:original_exception] # Original exception object
 ```
 
@@ -86,7 +86,7 @@ end
 result = ProcessPaymentTask.call
 
 # Exception metadata always includes:
-result.metadata[:reason]                  #=> "[StandardError] Payment gateway unavailable"
+result.reason                  #=> "[StandardError] Payment gateway unavailable"
 result.metadata[:original_exception]      #=> <StandardError instance>
 
 # Access original exception properties
@@ -219,7 +219,7 @@ if result.failed?
     error_reporter.log_api_format_error
   else
     # Generic error handling
-    notify_administrators(result.metadata[:reason])
+    notify_administrators(result.reason)
   end
 end
 ```

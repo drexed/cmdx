@@ -483,7 +483,7 @@ class Application < CMDx::Task
   def report_failure
     ErrorReporter.notify(
       task: self.class.name,
-      error: result.metadata[:reason],
+      error: result.reason,
       context: context.to_h.except(:sensitive_data),
       backtrace: result.metadata[:backtrace]
     )
