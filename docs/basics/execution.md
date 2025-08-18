@@ -1,10 +1,9 @@
-# Basics - Call
+# Basics - Execution
 
-Task execution in CMDx provides two distinct methods that handle success and failure scenarios differently. Understanding when to use each method is crucial for proper error handling and control flow in your application workflows.
+Task execution in CMDx provides two distinct methods that handle success and halt scenarios differently. Understanding when to use each method is crucial for proper error handling and control flow in your application workflows.
 
 ## Table of Contents
 
-- [TLDR](#tldr)
 - [Execution Methods Overview](#execution-methods-overview)
 - [Non-bang Call (`call`)](#non-bang-call-call)
 - [Bang Call (`call!`)](#bang-call-call)
@@ -15,30 +14,6 @@ Task execution in CMDx provides two distinct methods that handle success and fai
 - [Task State Lifecycle](#task-state-lifecycle)
 - [Error Handling](#error-handling)
 - [Return Value Details](#return-value-details)
-
-## TLDR
-
-```ruby
-# Standard execution (preferred)
-result = ProcessOrderTask.call(order_id: 12345)
-result.success?  # → true/false
-
-# Exception-based execution
-begin
-  result = ProcessOrderTask.call!(order_id: 12345)
-  # Handle success
-rescue CMDx::Failed => e
-  # Handle failure
-end
-
-# Result callbacks
-ProcessOrderTask.call(order_id: 12345)
-  .on_success { |result| notify_customer(result) }
-  .on_failed { |result| handle_error(result) }
-
-# Propagate failures
-throw!(validation_result) if validation_result.failed?
-```
 
 ## Execution Methods Overview
 

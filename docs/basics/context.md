@@ -359,5 +359,5 @@ end
 
 ---
 
-- **Prev:** [Basics - Call](call.md)
+- **Prev:** [Basics - Execution](execution.md)
 - **Next:** [Basics - Chain](chain.md)
