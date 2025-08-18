@@ -9,3 +9,4 @@ Update the active tab using the following guidelines:
 - Examples should not cross boundaries or focus
 - Docs must cover both typical use cases, including invalid inputs and error conditions
 - Use GitHub flavored markdown, including alerts to emphasize critical information (https://github.com/orgs/community/discussions/16925)
+- Optimize for coding agents

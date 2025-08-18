@@ -15,7 +15,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
   - [Validators](#validators)
 - [Task Configuration](#task-configuration)
   - [Settings](#settings)
-  - [Register](#register)
+  - [Registrations](#registrations)
 - [Configuration Management](#configuration-management)
   - [Access](#access)
   - [Resetting](#resetting)
@@ -188,11 +188,12 @@ class ProcessPayment < CMDx::Task
     # Task configuration settings
     log_level: :info,                               # Log level override
     log_formatter: CMDx::LogFormatters::Json.new    # Log formatter override
-    tags: ["payments", "critical"]                  # Logging tags
+    tags: ["payments", "critical"],                 # Logging tags
+    deprecated: true                                # Task deprecations
   )
 
   def work
-    # Logic
+    # Your logic here...
   end
 end
 ```
@@ -201,7 +202,7 @@ end
 > Use task-level settings for tasks that require special handling, such as payment processing,
 > external API calls, or critical system operations.
 
-### Register
+### Registrations
 
 Register middlewares, callbacks, coercions, and validators on a specific task.
 Deregister options that should not be available.
@@ -228,7 +229,7 @@ class ProcessPayment < CMDx::Task
   deregister :validator, :phone
 
   def work
-    # Logic
+    # Your logic here...
   end
 end
 ```
@@ -290,7 +291,7 @@ This creates a new task file with the basic structure:
 # app/tasks/process_order.rb
 class ProcessOrder < CMDx::Task
   def work
-    # TODO: add logic here
+    # Your logic here...
   end
 end
 ```

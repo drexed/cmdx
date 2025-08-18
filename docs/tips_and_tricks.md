@@ -4,6 +4,8 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 ## Table of Contents
 
+TODO: add a style guide suggestion
+
 - [TLDR](#tldr)
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)

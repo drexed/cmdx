@@ -2,7 +2,8 @@
   class <%= class_name %> < <%= parent_class_name %>
 
     def work
-      # TODO: learn more at https://github.com/drexed/cmdx
+      # Your logic here...
+      # Docs: https://github.com/drexed/cmdx
     end
 
   end
