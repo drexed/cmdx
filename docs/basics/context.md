@@ -1,6 +1,6 @@
 # Basics - Context
 
-Task context provides flexible data storage, access, and sharing within task execution.
+Task context provides flexible data storage, access, and sharing within task execution. It serves as the primary data container for all task inputs, intermediate results, and outputs.
 
 ## Table of Contents
 
@@ -8,19 +8,23 @@ Task context provides flexible data storage, access, and sharing within task exe
 - [Accessing Data](#accessing-data)
 - [Modifying Context](#modifying-context)
 - [Data Sharing](#data-sharing)
+- [Error Handling](#error-handling)
 
 ## Assigning Data
 
-Context is automatically populated with all inputs passed to a task.
-Known context attributes are accessible via method and hash style accessors.
-Unknown context attributes return `nil`. All keys are automatically normalized
-to symbols for consistent access:
+Context is automatically populated with all inputs passed to a task. All keys are normalized to symbols for consistent access:
 
 ```ruby
-ProcessOrder.execute(user_id: 123, "currency" => "USD")
-# or
-ProcessOrder.new(user_id: 123, "currency" => "USD")
+# Direct execution
+ProcessOrder.execute(user_id: 123, currency: "USD")
+
+# Instance creation
+task = ProcessOrder.new(user_id: 123, "currency" => "USD")
+task.execute
 ```
+
+> [!NOTE]
+> String keys are automatically converted to symbols. Use symbols for consistency in your code.
 
 ## Accessing Data
 
