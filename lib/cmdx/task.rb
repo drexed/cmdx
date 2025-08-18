@@ -222,7 +222,12 @@ module CMDx
     #   logger.info "Starting task execution"
     #   logger.error "Task failed", error: exception
     def logger
-      self.class.settings[:logger] || CMDx.configuration.logger
+      @logger ||= begin
+        logger = self.class.settings[:logger] || CMDx.configuration.logger
+        logger.level = self.class.settings[:log_level] || logger.level
+        logger.formatter = self.class.settings[:log_formatter] || logger.formatter
+        logger
+      end
     end
 
     # @return [Hash] A hash representation of the task

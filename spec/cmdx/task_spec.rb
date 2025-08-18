@@ -350,6 +350,9 @@ RSpec.describe CMDx::Task, type: :unit do
 
       before do
         allow(task.class).to receive(:settings).and_return({ logger: class_logger })
+        allow(class_logger).to receive_messages(level: Logger::INFO, formatter: nil)
+        allow(class_logger).to receive(:level=)
+        allow(class_logger).to receive(:formatter=)
       end
 
       it "returns the class logger" do
@@ -363,6 +366,9 @@ RSpec.describe CMDx::Task, type: :unit do
       before do
         allow(task.class).to receive(:settings).and_return({})
         allow(CMDx.configuration).to receive(:logger).and_return(config_logger)
+        allow(config_logger).to receive_messages(level: Logger::INFO, formatter: nil)
+        allow(config_logger).to receive(:level=)
+        allow(config_logger).to receive(:formatter=)
       end
 
       it "returns the configuration logger" do
