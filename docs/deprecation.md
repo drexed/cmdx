@@ -31,9 +31,9 @@ class ObsoleteTask < CMDx::Task
 end
 
 # Usage triggers appropriate deprecation handling
-LegacyTask.call   # → raises DeprecationError
-OldTask.call      # → logs warning via task.logger
-ObsoleteTask.call # → issues Ruby warning
+LegacyTask.call   #=> raises DeprecationError
+OldTask.call      #=> logs warning via task.logger
+ObsoleteTask.call #=> issues Ruby warning
 ```
 
 ## Deprecation Fundamentals
@@ -77,7 +77,7 @@ end
 
 # Attempting to use deprecated task
 result = ProcessLegacyPaymentTask.call(amount: 100)
-# → raises CMDx::DeprecationError: "ProcessLegacyPaymentTask usage prohibited"
+#=> raises CMDx::DeprecationError: "ProcessLegacyPaymentTask usage prohibited"
 ```
 
 ### Log Mode (Soft Deprecation)
@@ -97,7 +97,7 @@ end
 
 # Task executes with logged warning
 result = ProcessOldPaymentTask.call(amount: 100)
-result.successful? # → true
+result.successful? #=> true
 
 # Check logs for deprecation warning:
 # WARN -- : DEPRECATED: migrate to replacement or discontinue use
@@ -122,7 +122,7 @@ end
 result = ProcessObsoletePaymentTask.call(amount: 100)
 # stderr: [ProcessObsoletePaymentTask] DEPRECATED: migrate to replacement or discontinue use
 
-result.successful? # → true
+result.successful? #=> true
 ```
 
 ## Configuration Examples

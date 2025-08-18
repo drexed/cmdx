@@ -20,8 +20,8 @@ Task context provides flexible data storage and sharing for task execution. Buil
 ProcessOrderTask.call(user_id: 123, amount: 99.99)
 
 # Dynamic attribute access
-context.user_id           # → 123
-context[:amount]          # → 99.99
+context.user_id           #=> 123
+context[:amount]          #=> 99.99
 
 # Safe modification
 context.total = amount * 1.08
@@ -49,9 +49,9 @@ class ProcessOrderTask < CMDx::Task
 
   def call
     # Parameters automatically available in context
-    context.user_id   # → 123
-    context.amount    # → 99.99
-    context.currency  # → "USD"
+    context.user_id   #=> 123
+    context.amount    #=> 99.99
+    context.currency  #=> "USD"
   end
 end
 
@@ -67,8 +67,8 @@ All keys are automatically normalized to symbols for consistent access:
 ProcessOrderTask.call("user_id" => 123, :amount => 99.99)
 
 # Both accessible as symbols
-context.user_id  # → 123
-context.amount   # → 99.99
+context.user_id  #=> 123
+context.amount   #=> 99.99
 ```
 
 ## Accessing Data
@@ -174,9 +174,9 @@ class ProcessOrderWorkflowTask < CMDx::Task
     NotifyOrderProcessedTask.call(context)
 
     # Context now contains accumulated data from all tasks
-    context.order_validated    # → true (from validation)
-    context.payment_processed  # → true (from payment)
-    context.notification_sent  # → true (from notification)
+    context.order_validated    #=> true (from validation)
+    context.payment_processed  #=> true (from payment)
+    context.notification_sent  #=> true (from notification)
   end
 end
 ```
@@ -209,9 +209,9 @@ extraction_result = ExtractDataTask.call(source_id: 123)
 processing_result = ProcessDataTask.call(extraction_result)
 
 # Context flows automatically between tasks
-processing_result.context.source_id         # → 123 (from first task)
-processing_result.context.extracted_records # → [...] (from first task)
-processing_result.context.processed_count   # → 50 (from second task)
+processing_result.context.source_id         #=> 123 (from first task)
+processing_result.context.extracted_records #=> [...] (from first task)
+processing_result.context.processed_count   #=> 50 (from second task)
 ```
 
 ### Error Propagation in Chains
@@ -238,7 +238,7 @@ begin
   extraction_result = ExtractDataTask.call!(source_id: 123)
   processing_result = ProcessDataTask.call!(extraction_result)
   notification_result = NotifyCompletionTask.call!(processing_result)
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   # Access failed task's context for error analysis
   ErrorReportingTask.call(
     error: e.message,
@@ -260,7 +260,7 @@ class DebuggableTask < CMDx::Task
 
     # Convert to hash for serialization
     context_data = context.to_h
-    # → { user_id: 123, amount: 99.99, status: "processing" }
+    #=> { user_id: 123, amount: 99.99, status: "processing" }
 
     # Iterate over context data
     context.each_pair do |key, value|
@@ -268,8 +268,8 @@ class DebuggableTask < CMDx::Task
     end
 
     # Check for specific keys
-    has_user = context.key?(:user_id)     # → true
-    has_admin = context.key?(:admin_mode) # → false
+    has_user = context.key?(:user_id)     #=> true
+    has_admin = context.key?(:admin_mode) #=> false
   end
 end
 ```

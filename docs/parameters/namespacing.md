@@ -16,12 +16,12 @@ Parameter namespacing provides method name customization to prevent conflicts an
 
 ```ruby
 # Fixed prefixes/suffixes
-required :name, prefix: "user_"        # → user_name method
-required :email, suffix: "_address"    # → email_address method
+required :name, prefix: "user_"        #=> user_name method
+required :email, suffix: "_address"    #=> email_address method
 
 # Dynamic source-based namespacing
-required :id, prefix: true             # → context_id method (from context source)
-required :name, source: :profile, suffix: true  # → name_profile method
+required :id, prefix: true             #=> context_id method (from context source)
+required :name, source: :profile, suffix: true  #=> name_profile method
 
 # Conflict resolution
 required :context, suffix: "_data"     # Avoids CMDx::Task#context method
@@ -82,9 +82,9 @@ UpdateCustomerTask.call(
 
 ```ruby
 class GenerateInvoiceTask < CMDx::Task
-  required :id, prefix: true                          # → context_id
-  required :amount, source: :order, prefix: true      # → order_amount
-  required :tax_rate, source: :settings, suffix: true # → tax_rate_settings
+  required :id, prefix: true                          #=> context_id
+  required :amount, source: :order, prefix: true      #=> order_amount
+  required :tax_rate, source: :settings, suffix: true #=> tax_rate_settings
 
   def call
     customer = Customer.find(context_id)
@@ -295,7 +295,7 @@ result = CreateUserTask.call(
   account: OpenStruct.new(role: "superuser")
 )
 
-result.failed? # → true
+result.failed? #=> true
 result.metadata
 # {
 #   user_email format is not valid. age_value could not coerce into an integer. account_role inclusion is not valid.",
@@ -354,7 +354,7 @@ class DebuggingTask < CMDx::Task
   def call
     # Use introspection to understand parameter mapping
     puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
-    # → ["user_id", "data_payload"]
+    #=> ["user_id", "data_payload"]
 
     # Access parameters using correct namespaced names
     user = User.find(user_id)

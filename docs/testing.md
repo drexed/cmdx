@@ -430,15 +430,15 @@ Common error scenarios and their resolution:
 ```ruby
 # Parameter not found
 expect(SimpleTask).to have_parameter(:nonexistent)
-# → "expected task to have parameter nonexistent, but had parameters: []"
+#=> "expected task to have parameter nonexistent, but had parameters: []"
 
 # Middleware not registered
 expect(SimpleTask).to have_middleware(ComplexMiddleware)
-# → "expected task to have middleware ComplexMiddleware, but had []"
+#=> "expected task to have middleware ComplexMiddleware, but had []"
 
 # Context mismatch
 expect(result).to have_context(user_id: 999)
-# → "expected context to include {user_id: 999}, but user_id: expected 999, got 123"
+#=> "expected context to include {user_id: 999}, but user_id: expected 999, got 123"
 ```
 
 ### Test Failures and Debugging
@@ -447,13 +447,13 @@ expect(result).to have_context(user_id: 999)
 # Use descriptive failure messages for debugging
 result = ProcessDataTask.call(data: "invalid")
 expect(result).to be_successful_task
-# → "expected result to be successful, but was failed,
+#=> "expected result to be successful, but was failed,
 #    expected result to be complete, but was interrupted"
 
 # Combine matchers for comprehensive validation
 expect(result).to be_failed_task("validation_error")
   .with_metadata(field: "email", rule: "format")
-# → Clear indication of what specifically failed
+#=> Clear indication of what specifically failed
 ```
 
 ## Best Practices

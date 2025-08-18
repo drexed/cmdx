@@ -19,16 +19,16 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 # Basic exception handling
 begin
   PaymentProcessor.call!(amount: 100)
-rescue CMDx::Skipped => e
+rescue CMDx::SkipFault => e
   handle_skipped_payment(e.result.metadata[:reason])
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   handle_failed_payment(e.result.metadata[:error])
 rescue CMDx::Fault => e
   handle_any_interruption(e)
 end
 
 # Advanced matching
-rescue CMDx::Failed.for?(PaymentProcessor, CardValidator) => e
+rescue CMDx::FailFault.for?(PaymentProcessor, CardValidator) => e
 rescue CMDx::Fault.matches? { |f| f.context.amount > 1000 } => e
 
 # Fault propagation
@@ -39,8 +39,8 @@ throw!(validation_result) if validation_result.failed?
 
 | Type | Triggered By | Use Case |
 |------|--------------|----------|
-| `CMDx::Skipped` | `skip!` method | Optional processing, early returns |
-| `CMDx::Failed` | `fail!` method | Validation errors, processing failures |
+| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
+| `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
 | `CMDx::Fault` | Base class | Catch-all for any interruption |
 
 > [!NOTE]
@@ -53,10 +53,10 @@ throw!(validation_result) if validation_result.failed?
 ```ruby
 begin
   ProcessOrderTask.call!(order_id: 123)
-rescue CMDx::Skipped => e
+rescue CMDx::SkipFault => e
   logger.info "Order processing skipped: #{e.message}"
   schedule_retry(e.context.order_id)
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   logger.error "Order processing failed: #{e.message}"
   notify_customer(e.context.customer_email, e.result.metadata[:error])
 rescue CMDx::Fault => e
@@ -70,7 +70,7 @@ end
 ```ruby
 begin
   PaymentProcessor.call!(card_token: token, amount: amount)
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   case e.result.metadata[:error_code]
   when "INSUFFICIENT_FUNDS"
     suggest_different_payment_method
@@ -121,10 +121,10 @@ end
 ```ruby
 begin
   PaymentWorkflow.call!(payment_data: data)
-rescue CMDx::Failed.for?(CardValidator, PaymentProcessor) => e
+rescue CMDx::FailFault.for?(CardValidator, PaymentProcessor) => e
   # Handle only payment-related failures
   retry_with_backup_method(e.context)
-rescue CMDx::Skipped.for?(FraudCheck, RiskAssessment) => e
+rescue CMDx::SkipFault.for?(FraudCheck, RiskAssessment) => e
   # Handle security-related skips
   flag_for_manual_review(e.context.transaction_id)
 end
@@ -137,7 +137,7 @@ begin
   OrderProcessor.call!(order: order_data)
 rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
   escalate_high_value_failure(e)
-rescue CMDx::Failed.matches? { |f| f.result.metadata[:retry_count] > 3 } => e
+rescue CMDx::FailFault.matches? { |f| f.result.metadata[:retry_count] > 3 } => e
   abandon_processing(e)
 rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_type] == "timeout" } => e
   increase_timeout_and_retry(e)

@@ -19,11 +19,11 @@ decision making and monitoring.
 
 ```ruby
 # Check execution lifecycle
-result.initialized?  # → false (after execution)
-result.executing?    # → false (after execution)
-result.complete?     # → true (successful completion)
-result.interrupted?  # → false (no interruption)
-result.executed?     # → true (complete OR interrupted)
+result.initialized?  #=> false (after execution)
+result.executing?    #=> false (after execution)
+result.complete?     #=> true (successful completion)
+result.interrupted?  #=> false (no interruption)
+result.executed?     #=> true (complete OR interrupted)
 
 # State-based callbacks
 result

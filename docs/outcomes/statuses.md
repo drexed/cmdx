@@ -18,13 +18,13 @@ Statuses represent the business outcome of task execution logic, indicating how 
 
 ```ruby
 # Check business outcomes
-result.success?  # → true (default outcome)
-result.skipped?  # → false (via skip!)
-result.failed?   # → false (via fail!)
+result.success?  #=> true (default outcome)
+result.skipped?  #=> false (via skip!)
+result.failed?   #=> false (via fail!)
 
 # Outcome-based logic
-result.good?     # → true (success OR skipped)
-result.bad?      # → false (skipped OR failed)
+result.good?     #=> true (success OR skipped)
+result.bad?      #=> false (skipped OR failed)
 
 # Status-based callbacks
 result

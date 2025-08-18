@@ -488,8 +488,8 @@ class ProcessOrderTask < CMDx::Task
 end
 
 result = ProcessOrderTask.call
-result.failed?  # → true
-result.reason   # → "Task timed out after 5 seconds"
+result.failed?  #=> true
+result.reason   #=> "Task timed out after 5 seconds"
 ```
 
 ### Middleware Error Recovery

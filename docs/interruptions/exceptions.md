@@ -144,7 +144,7 @@ end
 # Fault behavior (converted to exception due to task_halt)
 begin
   ProcessOrderTask.call!(payment_invalid: true)
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   puts "Controlled fault: #{e.message}"
 end
 

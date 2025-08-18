@@ -72,7 +72,7 @@ CreateUserTask.call(email: "user@example.com", name: "John", active: true)
 
 # Invalid inputs
 CreateUserTask.call(email: "", name: "   ", active: nil)
-# → ValidationError: "email can't be blank. name cannot be blank. active must be one of: true, false"
+#=> ValidationError: "email can't be blank. name cannot be blank. active must be one of: true, false"
 ```
 
 ## Format
@@ -258,7 +258,7 @@ ProcessOrderTask.call(
   price: -5.00,     # Below minimum
   tax_rate: 0.30    # Above maximum
 )
-# → ValidationError: "quantity must be within 1 and 100. price must be at least 0.01. tax_rate must be at most 0.25"
+#=> ValidationError: "quantity must be within 1 and 100. price must be at least 0.01. tax_rate must be at most 0.25"
 ```
 
 **Constraint Options:**
@@ -294,9 +294,9 @@ result = CreateUserTask.call(
   age: 5
 )
 
-result.state    # → "interrupted"
-result.status   # → "failed"
-result.failed?  # → true
+result.state    #=> "interrupted"
+result.status   #=> "failed"
+result.failed?  #=> true
 
 # Detailed error information
 result.metadata
@@ -310,8 +310,8 @@ result.metadata
 # }
 
 # Access specific parameter errors
-result.metadata[:messages][:email]    # → ["must be valid"]
-result.metadata[:messages][:username] # → ["can't be blank", "length must be at least 3"]
+result.metadata[:messages][:email]    #=> ["must be valid"]
+result.metadata[:messages][:username] #=> ["can't be blank", "length must be at least 3"]
 ```
 
 ### Nested Parameter Validation

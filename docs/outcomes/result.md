@@ -20,9 +20,9 @@ The result object is the comprehensive return value of task execution, providing
 ```ruby
 # Basic result inspection
 result = ProcessOrderTask.call(order_id: 123)
-result.success?    # → true/false
-result.failed?     # → true/false
-result.runtime     # → 0.5 (seconds)
+result.success?    #=> true/false
+result.failed?     #=> true/false
+result.runtime     #=> 0.5 (seconds)
 
 # Fluent callbacks
 result
@@ -47,16 +47,16 @@ Every result provides access to essential execution information:
 result = ProcessOrderTask.call(order_id: 123)
 
 # Core objects
-result.task     # → ProcessOrderTask instance
-result.context  # → CMDx::Context with all task data
-result.chain    # → CMDx::Chain execution tracking
-result.metadata # → Hash with execution metadata
+result.task     #=> ProcessOrderTask instance
+result.context  #=> CMDx::Context with all task data
+result.chain    #=> CMDx::Chain execution tracking
+result.metadata #=> Hash with execution metadata
 
 # Execution information
-result.id       # → "abc123..." (unique execution ID)
-result.state    # → "complete"
-result.status   # → "success"
-result.runtime  # → 0.5 (execution time in seconds)
+result.id       #=> "abc123..." (unique execution ID)
+result.state    #=> "complete"
+result.status   #=> "success"
+result.runtime  #=> 0.5 (execution time in seconds)
 ```
 
 ## State and Status Information
@@ -67,18 +67,18 @@ Results provide comprehensive methods for checking execution state and status:
 result = ProcessOrderTask.call(order_id: 123)
 
 # State predicates (execution lifecycle)
-result.complete?    # → true (successful completion)
-result.interrupted? # → false (no interruption)
-result.executed?    # → true (execution finished)
+result.complete?    #=> true (successful completion)
+result.interrupted? #=> false (no interruption)
+result.executed?    #=> true (execution finished)
 
 # Status predicates (execution outcome)
-result.success?     # → true (successful execution)
-result.failed?      # → false (no failure)
-result.skipped?     # → false (not skipped)
+result.success?     #=> true (successful execution)
+result.failed?      #=> false (no failure)
+result.skipped?     #=> false (not skipped)
 
 # Outcome categorization
-result.good?        # → true (success or skipped)
-result.bad?         # → false (failed only)
+result.good?        #=> true (success or skipped)
+result.bad?         #=> false (failed only)
 ```
 
 ## Execution Outcome Analysis
@@ -88,7 +88,7 @@ Results provide unified outcome determination:
 ```ruby
 result = ProcessOrderTask.call(order_id: 123)
 
-result.outcome # → "success" (combines state and status)
+result.outcome #=> "success" (combines state and status)
 ```
 
 ## Runtime and Performance
@@ -99,7 +99,7 @@ Results capture detailed timing information for performance analysis:
 result = ProcessOrderTask.call(order_id: 123)
 
 # Execution timing
-result.runtime # → 0.5 (total execution time in seconds)
+result.runtime #=> 0.5 (total execution time in seconds)
 
 # Performance monitoring
 result
@@ -131,9 +131,9 @@ if result.failed?
   end
 
   # Failure classification
-  result.caused_failure?  # → true if this result was the original cause
-  result.threw_failure?   # → true if this result threw a failure
-  result.thrown_failure?  # → true if this result received a thrown failure
+  result.caused_failure?  #=> true if this result was the original cause
+  result.threw_failure?   #=> true if this result threw a failure
+  result.thrown_failure?  #=> true if this result received a thrown failure
 end
 ```
 
@@ -162,10 +162,10 @@ Results track their position within execution chains:
 result = ProcessOrderTask.call(order_id: 123)
 
 # Position in execution sequence
-result.index # → 0 (first task in chain)
+result.index #=> 0 (first task in chain)
 
 # Access via chain
-result.chain.results[result.index] == result # → true
+result.chain.results[result.index] == result #=> true
 ```
 
 ## Result Callbacks and Chaining
@@ -282,7 +282,7 @@ Results provide comprehensive serialization and inspection capabilities:
 result = ProcessOrderTask.call(order_id: 123)
 
 result.to_h
-# → {
+#=> {
 #     class: "ProcessOrderTask",
 #     type: "Task",
 #     index: 0,
@@ -303,7 +303,7 @@ result.to_h
 result = ProcessOrderTask.call(order_id: 123)
 
 result.to_s
-# → "ProcessOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
+#=> "ProcessOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
 ```
 
 ### Failure Chain Serialization
@@ -315,7 +315,7 @@ result.to_s
 failed_result = ProcessOrderWorkflowTask.call(order_id: 123)
 
 failed_result.to_h
-# → {
+#=> {
 #     # ... standard result data ...
 #     caused_failure: {
 #       class: "ValidateOrderTask",

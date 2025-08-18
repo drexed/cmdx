@@ -210,7 +210,7 @@ end
 ```ruby
 # Invalid log levels default to INFO
 CMDx.configure do |config|
-  config.log_level = "INVALID"  # → Logger::INFO
+  config.log_level = "INVALID"  #=> Logger::INFO
 end
 
 # Valid levels: DEBUG, INFO, WARN, ERROR, FATAL

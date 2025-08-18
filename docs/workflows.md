@@ -270,8 +270,8 @@ class ProcessDataWorkflow < CMDx::Workflow
 end
 
 result = ProcessDataWorkflow.call(data: nil)
-result.failed?  # → true
-result.metadata[:reason]  # → "ValidateDataTask failed: Data cannot be nil"
+result.failed?  #=> true
+result.metadata[:reason]  #=> "ValidateDataTask failed: Data cannot be nil"
 
 # Halt on skipped task
 class StrictWorkflow < CMDx::Workflow
@@ -281,7 +281,7 @@ class StrictWorkflow < CMDx::Workflow
 end
 
 result = StrictWorkflow.call
-result.failed?  # → true (halted on skipped task)
+result.failed?  #=> true (halted on skipped task)
 ```
 
 > [!TIP]

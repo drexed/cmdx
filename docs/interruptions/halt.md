@@ -31,7 +31,7 @@ skip!(
 
 # Exception behavior with call vs call!
 result = Task.call(params)    # Returns result object
-Task.call!(params)            # Raises CMDx::Skipped/Failed on halt
+Task.call!(params)            # Raises CMDx::SkipFault/Failed on halt
 ```
 
 ## Skip (`skip!`)
@@ -222,10 +222,10 @@ end
 begin
   result = ProcessPaymentTask.call!(payment_id: 123)
   puts "Success: Payment processed for $#{result.context.payment.amount}"
-rescue CMDx::Skipped => e
+rescue CMDx::SkipFault => e
   puts "Skipped: #{e.message}"
   log_skip_event(e.context.payment_id, e.result.metadata)
-rescue CMDx::Failed => e
+rescue CMDx::FailFault => e
   puts "Failed: #{e.message}"
   handle_payment_failure(e.result.metadata[:code])
   notify_payment_team(e.context.payment_id)

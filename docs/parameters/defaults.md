@@ -24,7 +24,7 @@ optional :created_at, default: -> { Time.now }
 optional :template, default: :determine_template
 
 # With coercion - defaults are coerced too
-optional :max_items, type: :integer, default: "50"  # → 50
+optional :max_items, type: :integer, default: "50"  #=> 50
 
 # Nested defaults
 optional :config, type: :hash, default: {} do
@@ -137,11 +137,11 @@ class ConfigureServiceTask < CMDx::Task
   optional :session_id, type: :string, default: -> { Time.now.to_i }
 
   def call
-    max_connections  # → 100 (Integer from "100")
-    config          # → {"timeout" => 30} (Hash from JSON)
-    allowed_hosts   # → ["localhost"] (Array from JSON)
-    debug_mode      # → false (Boolean from "false")
-    session_id      # → "1640995200" (String from Integer)
+    max_connections  #=> 100 (Integer from "100")
+    config          #=> {"timeout" => 30} (Hash from JSON)
+    allowed_hosts   #=> ["localhost"] (Array from JSON)
+    debug_mode      #=> false (Boolean from "false")
+    session_id      #=> "1640995200" (String from Integer)
   end
 end
 ```
@@ -170,7 +170,7 @@ end
 
 # Invalid default would cause validation error
 # optional :priority, default: "invalid", inclusion: { in: %w[low medium high] }
-# → CMDx::ValidationError: priority invalid is not included in the list
+#=> CMDx::ValidationError: priority invalid is not included in the list
 ```
 
 ## Nested Parameter Defaults
@@ -257,7 +257,7 @@ class BadDefaultsTask < CMDx::Task
 end
 
 result = BadDefaultsTask.call
-result.failed?  # → true
+result.failed?  #=> true
 result.metadata
 # {
 #   priority invalid is not included in the list. count could not coerce into an integer.",

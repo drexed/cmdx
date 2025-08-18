@@ -181,15 +181,16 @@ Override global configuration for specific tasks using `settings`:
 class ProcessPayment < CMDx::Task
   settings(
     # Global configuration overrides
-    task_breakpoints: ["failed"],                   # Breakpoint override
-    workflow_breakpoints: [],                       # Breakpoint override
-    logger: CustomLogger.new($stdout),              # Custom logger
+    task_breakpoints: ["failed"],                # Breakpoint override
+    workflow_breakpoints: [],                    # Breakpoint override
+    logger: CustomLogger.new($stdout),           # Custom logger
 
     # Task configuration settings
-    log_level: :info,                               # Log level override
-    log_formatter: CMDx::LogFormatters::Json.new    # Log formatter override
-    tags: ["payments", "critical"],                 # Logging tags
-    deprecated: true                                # Task deprecations
+    breakpoints: ["failed"],                     # Pointer, eg: Task => :task_breakpoints, Workflow => :workflow_breakpoints
+    log_level: :info,                            # Log level override
+    log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
+    tags: ["payments", "critical"],              # Logging tags
+    deprecated: true                             # Task deprecations
   )
 
   def work

@@ -31,9 +31,9 @@ class ProcessOrderTask < CMDx::Task
   end
 
   def call
-    order_id    # → value from call arguments
-    name        # → delegates to user.name
-    street      # → delegates to shipping_address.street
+    order_id    #=> value from call arguments
+    name        #=> delegates to user.name
+    street      #=> delegates to shipping_address.street
   end
 end
 
@@ -344,7 +344,7 @@ end
 
 # Missing required parameters
 result = RequiredParamsTask.call(user_id: 123)
-result.failed?  # → true
+result.failed?  #=> true
 result.metadata
 # {
 #   order_id is required. shipping_address is required.",
@@ -360,7 +360,7 @@ result = RequiredParamsTask.call(
   order_id: 456,
   shipping_address: { street: "123 Main St" }  # Missing city
 )
-result.failed?  # → true
+result.failed?  #=> true
 result.metadata
 # {
 #   city is required.",
@@ -390,7 +390,7 @@ class SourceErrorTask < CMDx::Task
 end
 
 result = SourceErrorTask.call
-result.failed?  # → true
+result.failed?  #=> true
 # Error propagated from source resolution failure
 ```
 
@@ -423,7 +423,7 @@ result = ValidationErrorTask.call(
   }
 )
 
-result.failed?  # → true
+result.failed?  #=> true
 result.metadata
 # {
 #   email format is not valid. age could not coerce into an integer. phone format is not valid. theme purple is not included in the list. language invalid is not included in the list.",

@@ -76,11 +76,11 @@ end
 
 # Usage with string inputs
 ProcessPaymentTask.call(
-  amount: "99.99",           # → 99.99 (Float)
-  user_id: "12345",          # → 12345 (Integer)
-  send_email: "true",        # → true (Boolean)
-  metadata: '{"source":"web"}',  # → {"source" => "web"} (Hash)
-  tags: "[\"priority\"]"     # → ["priority"] (Array)
+  amount: "99.99",           #=> 99.99 (Float)
+  user_id: "12345",          #=> 12345 (Integer)
+  send_email: "true",        #=> true (Boolean)
+  metadata: '{"source":"web"}',  #=> {"source" => "web"} (Hash)
+  tags: "[\"priority\"]"     #=> ["priority"] (Array)
 )
 ```
 
@@ -114,8 +114,8 @@ class ProcessOrderTask < CMDx::Task
 end
 
 # Different inputs produce different types
-ProcessOrderTask.call(total: "99.99")  # → 99.99 (Float)
-ProcessOrderTask.call(total: "100")    # → 100 (Integer)
+ProcessOrderTask.call(total: "99.99")  #=> 99.99 (Float)
+ProcessOrderTask.call(total: "100")    #=> 100 (Integer)
 ```
 
 ## Advanced Examples
@@ -162,15 +162,15 @@ end
 
 # Boolean coercion recognizes many patterns
 UpdateUserSettingsTask.call(
-  notifications: "true",    # → true
-  notifications: "yes",     # → true
-  notifications: "1",       # → true
-  notifications: "on",      # → true
+  notifications: "true",    #=> true
+  notifications: "yes",     #=> true
+  notifications: "1",       #=> true
+  notifications: "on",      #=> true
 
-  active: "false",          # → false
-  active: "no",             # → false
-  active: "0",              # → false
-  active: "off"             # → false
+  active: "false",          #=> false
+  active: "no",             #=> false
+  active: "0",              #=> false
+  active: "off"             #=> false
 )
 ```
 
@@ -272,7 +272,7 @@ result = ProcessDataTask.call(
   active: "maybe"
 )
 
-result.failed?  # → true
+result.failed?  #=> true
 result.metadata
 # {
 #   count could not coerce into an integer. amount could not coerce into one of: float, big_decimal. active could not coerce into a boolean.",
@@ -289,15 +289,15 @@ result.metadata
 ```ruby
 # Invalid array JSON
 ProcessDataTask.call(items: "[invalid json")
-# → "items could not coerce into an array"
+#=> "items could not coerce into an array"
 
 # Invalid date format
 ProcessDataTask.call(start_date: "not-a-date")
-# → "start_date could not coerce into a date"
+#=> "start_date could not coerce into a date"
 
 # Multiple type failure
 ProcessDataTask.call(value: "abc", type: [:integer, :float])
-# → "value could not coerce into one of: integer, float"
+#=> "value could not coerce into one of: integer, float"
 ```
 
 ## Custom Coercion Options
@@ -376,8 +376,8 @@ class ProcessProductTask < CMDx::Task
   required :url_slug, type: :slug
 
   def call
-    price    # → BigDecimal from "$99.99"
-    url_slug # → "my-product-name" from "My Product Name!"
+    price    #=> BigDecimal from "$99.99"
+    url_slug #=> "my-product-name" from "My Product Name!"
   end
 end
 
