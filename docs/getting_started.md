@@ -1,6 +1,6 @@
 # Getting Started
 
-CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic parameter validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic parameter validation, structured error handling, comprehensive logging, and intelligent execution flow control.
 
 ## Table of Contents
 
@@ -50,13 +50,12 @@ CMDx follows a two-tier configuration hierarchy:
 
 ## Global Configuration
 
-The CMDx global configuration is initialized with sensible defaults.
+Global configuration settings apply to all tasks inherited from `CMDx::Task`.
+Globally these settings are initialized with sensible defaults.
 
 ### Breakpoints
 
 Breakpoints control when `execute!` raises faults.
-
-Configure breakpoints that automatically apply to all tasks:
 
 ```ruby
 CMDx.configure do |config|
@@ -67,8 +66,6 @@ end
 
 ### Logging
 
-Configure logger that automatically apply to all tasks:
-
 ```ruby
 CMDx.configure do |config|
   config.logger = CustomLogger.new($stdout)
@@ -76,8 +73,6 @@ end
 ```
 
 ### Middlewares
-
-Configure middlewares that automatically apply to all tasks:
 
 ```ruby
 CMDx.configure do |config|
@@ -107,8 +102,6 @@ end
 
 ### Callbacks
 
-Configure callbacks that automatically apply to all tasks:
-
 ```ruby
 CMDx.configure do |config|
   # Via method
@@ -133,8 +126,6 @@ end
 
 ### Coercions
 
-Configure custom coercions for domain-specific types:
-
 ```ruby
 CMDx.configure do |config|
   # Via object
@@ -158,8 +149,6 @@ end
 ```
 
 ### Validators
-
-Configure custom validators for parameter validation:
 
 ```ruby
 CMDx.configure do |config|
@@ -255,7 +244,7 @@ CMDx.configuration.task_breakpoints     #=> ["failed"]
 CMDx.configuration.middlewares.registry #=> [<Middleware>, ...]
 
 # Task configuration access
-class DataProcessingTask < CMDx::Task
+class AnalyzeData < CMDx::Task
   settings(tags: ["data", "analytics"])
 
   def work
