@@ -298,7 +298,7 @@ result = CreateUserTask.call(
 result.failed? # → true
 result.metadata
 # {
-#   reason: "user_email format is not valid. age_value could not coerce into an integer. account_role inclusion is not valid.",
+#   user_email format is not valid. age_value could not coerce into an integer. account_role inclusion is not valid.",
 #   messages: {
 #     user_email: ["format is not valid"],
 #     age_value: ["could not coerce into an integer"],

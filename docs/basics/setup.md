@@ -341,7 +341,7 @@ result.failed?  # → true
 result.status   # → :failure
 result.metadata
 # {
-#   reason: "order_id could not coerce into an integer. amount could not coerce into a float.",
+#   order_id could not coerce into an integer. amount could not coerce into a float.",
 #   messages: {
 #     order_id: ["could not coerce into an integer"],
 #     amount: ["could not coerce into a float"]

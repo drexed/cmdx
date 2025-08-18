@@ -347,7 +347,7 @@ result = RequiredParamsTask.call(user_id: 123)
 result.failed?  # → true
 result.metadata
 # {
-#   reason: "order_id is required. shipping_address is required.",
+#   order_id is required. shipping_address is required.",
 #   messages: {
 #     order_id: ["is required"],
 #     shipping_address: ["is required"]
@@ -363,7 +363,7 @@ result = RequiredParamsTask.call(
 result.failed?  # → true
 result.metadata
 # {
-#   reason: "city is required.",
+#   city is required.",
 #   messages: {
 #     city: ["is required"]
 #   }
@@ -426,7 +426,7 @@ result = ValidationErrorTask.call(
 result.failed?  # → true
 result.metadata
 # {
-#   reason: "email format is not valid. age could not coerce into an integer. phone format is not valid. theme purple is not included in the list. language invalid is not included in the list.",
+#   email format is not valid. age could not coerce into an integer. phone format is not valid. theme purple is not included in the list. language invalid is not included in the list.",
 #   messages: {
 #     email: ["format is not valid"],
 #     age: ["could not coerce into an integer"],

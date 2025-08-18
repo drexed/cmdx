@@ -196,7 +196,7 @@ class CreateUserTask < CMDx::Task
     plan_limit = Plan.find_by(name: plan).user_limit
 
     if current_users >= plan_limit
-      throw(:skip, reason: "Plan user limit reached")
+      throw(:skip, Plan user limit reached")
     end
   end
 end

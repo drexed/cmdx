@@ -301,7 +301,7 @@ module CMDx
     # @raise [TypeError] When result is not a CMDx::Result instance
     #
     # @example
-    #   other_result = some_task.execute
+    #   other_result = OtherTask.execute
     #   result.throw!(other_result, cause: upstream_error)
     def throw!(result, halt: true, cause: nil, **metadata)
       raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)

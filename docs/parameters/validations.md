@@ -301,7 +301,7 @@ result.failed?  # → true
 # Detailed error information
 result.metadata
 # {
-#   reason: "email must be valid. username can't be blank. username length must be at least 3. age must be at least 13.",
+#   email must be valid. username can't be blank. username length must be at least 3. age must be at least 13.",
 #   messages: {
 #     email: ["must be valid"],
 #     username: ["can't be blank", "length must be at least 3"],

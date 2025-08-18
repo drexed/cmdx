@@ -332,7 +332,7 @@ class PaymentTask < CMDx::Task
     # Check for required context before proceeding
     unless context.user_id && context.amount
       context.error_message = "Missing required payment data"
-      fail!(reason: "Cannot process payment")
+      fail!(Cannot process payment")
     end
 
     process_payment

@@ -262,7 +262,7 @@ EDGE CASES:
 # Parameter validation failures
 expect(result).to be_failed_task
   .with_metadata(
-    reason: "user_id is required",
+    user_id is required",
     messages: { user_id: ["can't be blank"] }
   )
 

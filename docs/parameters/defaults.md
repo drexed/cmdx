@@ -260,7 +260,7 @@ result = BadDefaultsTask.call
 result.failed?  # → true
 result.metadata
 # {
-#   reason: "priority invalid is not included in the list. count could not coerce into an integer.",
+#   priority invalid is not included in the list. count could not coerce into an integer.",
 #   messages: {
 #     priority: ["invalid is not included in the list"],
 #     count: ["could not coerce into an integer"]

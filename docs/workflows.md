@@ -250,7 +250,7 @@ result = OrderWorkflow.call(order: invalid_order)
 if result.failed?
   result.metadata
   # {
-  #   reason: "ValidateOrderTask failed: Order ID is required",
+  #   ValidateOrderTask failed: Order ID is required",
   #   failed_task: "ValidateOrderTask",
   #   task_index: 0,
   #   executed_tasks: ["ValidateOrderTask"],
@@ -357,7 +357,7 @@ Generate workflow scaffolding using the Rails generator:
 rails g cmdx:workflow ProcessOrder
 ```
 
-Creates `app/commands/process_order_workflow.rb`:
+Creates `app/tasks/process_order_workflow.rb`:
 
 ```ruby
 class ProcessOrderWorkflow < ApplicationWorkflow
@@ -366,7 +366,7 @@ end
 ```
 
 > [!NOTE]
-> The generator creates workflow files in `app/commands/`, inherits from `ApplicationWorkflow` if available (otherwise `CMDx::Workflow`), and handles proper naming conventions.
+> The generator creates workflow files in `app/tasks/`, inherits from `ApplicationWorkflow` if available (otherwise `CMDx::Workflow`), and handles proper naming conventions.
 
 ---
 

@@ -160,7 +160,7 @@ class RateLimitMiddleware < CMDx::Middleware
     current_count = Rails.cache.read(key) || 0
 
     if current_count >= @limit
-      task.fail!(reason: "Rate limit exceeded: #{@limit} requests per hour")
+      task.fail!(Rate limit exceeded: #{@limit} requests per hour")
       return task.result  # Short-circuit - task never executes
     end
 
@@ -473,7 +473,7 @@ class ErrorProneMiddleware < CMDx::Middleware
     callable.call(task)
   rescue StandardError => e
     # Handle middleware-specific errors
-    task.fail!(reason: "Middleware error: #{e.message}")
+    task.fail!(Middleware error: #{e.message}")
     task.result
   end
 end

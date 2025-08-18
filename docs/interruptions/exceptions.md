@@ -134,7 +134,7 @@ class ProcessOrderTask < CMDx::Task
 
   def call
     if context.payment_invalid
-      fail!(reason: "Invalid payment method")  # CMDx fault
+      fail!(Invalid payment method")  # CMDx fault
     else
       raise StandardError, "System error"     # Regular exception
     end

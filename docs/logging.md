@@ -78,7 +78,7 @@ class=CreateOrderTask status=success metadata={order_id: 123} runtime=0.45
 
 # Skipped (WARN level)
 W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePaymentTask:
-index=1 status=skipped metadata={reason: "Order already processed"} runtime=0.02
+index=1 status=skipped metadata={Order already processed"} runtime=0.02
 
 # Failed (ERROR level)
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPaymentTask:

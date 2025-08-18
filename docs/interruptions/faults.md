@@ -232,7 +232,7 @@ class DataProcessor < CMDx::Task
   cmd_settings!(task_halt: [CMDx::Result::FAILED])
 
   def call
-    skip!(reason: "No data to process") if data.empty?
+    skip!(No data to process") if data.empty?
     # Skip will NOT raise exception on call!
   end
 end
@@ -242,7 +242,7 @@ class CriticalValidator < CMDx::Task
   cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def call
-    skip!(reason: "Validation bypassed") if bypass_mode?
+    skip!(Validation bypassed") if bypass_mode?
     # Skip WILL raise exception on call!
   end
 end

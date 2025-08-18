@@ -177,18 +177,18 @@ expect(result).to have_bad_outcome   # failed (not success)
 
 ```ruby
 # Basic metadata validation
-expect(result).to have_metadata(reason: "validation_failed", code: 422)
+expect(result).to have_metadata(validation_failed", code: 422)
 
 # With RSpec matchers for flexible assertions
 expect(result).to have_metadata(
-  reason: "validation_failed",
+  validation_failed",
   started_at: be_a(Time),
   duration: be > 0,
   error_code: match(/^ERR/)
 )
 
 # Chainable metadata inclusion
-expect(result).to have_metadata(reason: "error")
+expect(result).to have_metadata(error")
   .including(retry_count: 3, retryable: false)
 
 # Empty metadata validation

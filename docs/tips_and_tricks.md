@@ -1,4 +1,4 @@
-# Tips & Tricks
+# Tips and Tricks
 
 This guide covers advanced patterns and optimization techniques for getting the most out of CMDx in production applications.
 
@@ -15,7 +15,7 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 ## TLDR
 
-- **Organization** - Group commands by domain in `/app/commands` with descriptive subdirectories
+- **Organization** - Group commands by domain in `/app/tasks` with descriptive subdirectories
 - **Naming** - Tasks use "Verb + Noun + Task", workflows use "Noun + Verb + Workflow"
 - **Parameter optimization** - Use `with_options` to reduce duplication in parameter definitions
 - **Monitoring** - Enable ActiveRecord query tagging for better debugging and observability
@@ -29,7 +29,7 @@ Create a well-organized command structure for maintainable applications:
 
 ```txt
 /app
-  /commands
+  /tasks
     /orders
       - process_order_task.rb
       - validate_order_task.rb
@@ -116,7 +116,7 @@ config.active_record.query_log_tags_enabled = true
 config.active_record.query_log_tags << :cmdx_task_class
 config.active_record.query_log_tags << :cmdx_chain_id
 
-# app/commands/application_task.rb
+# app/tasks/application_task.rb
 class ApplicationTask < CMDx::Task
   before_execution :set_execution_context
 

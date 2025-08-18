@@ -17,14 +17,14 @@ Halting stops execution of a task with explicit intent signaling. Tasks provide 
 
 ```ruby
 # Skip when task shouldn't execute (not an error)
-skip!(reason: "Order already processed")
+skip!(Order already processed")
 
 # Fail when task encounters error condition
-fail!(reason: "Insufficient funds", error_code: "PAYMENT_DECLINED")
+fail!(Insufficient funds", error_code: "PAYMENT_DECLINED")
 
 # With structured metadata
 skip!(
-  reason: "User inactive",
+  User inactive",
   user_id: 123,
   last_active: "2023-01-01"
 )
@@ -51,10 +51,10 @@ class ProcessOrderTask < CMDx::Task
     context.order = Order.find(order_id)
 
     # Skip if order already processed
-    skip!(reason: "Order already processed") if context.order.processed?
+    skip!(Order already processed") if context.order.processed?
 
     # Skip if prerequisites not met
-    skip!(reason: "Payment method required") unless context.order.payment_method
+    skip!(Payment method required") unless context.order.payment_method
 
     # Continue with business logic
     context.order.process!
@@ -66,10 +66,10 @@ end
 
 | Scenario | Example |
 |----------|---------|
-| **Already processed** | `skip!(reason: "User already verified")` |
-| **Prerequisites missing** | `skip!(reason: "Required documents not uploaded")` |
-| **Business rules** | `skip!(reason: "Outside business hours")` |
-| **State conditions** | `skip!(reason: "Account suspended")` |
+| **Already processed** | `skip!(User already verified")` |
+| **Prerequisites missing** | `skip!(Required documents not uploaded")` |
+| **Business rules** | `skip!(Outside business hours")` |
+| **State conditions** | `skip!(Account suspended")` |
 
 ## Fail (`fail!`)
 
@@ -88,10 +88,10 @@ class ProcessPaymentTask < CMDx::Task
     context.payment = Payment.find(payment_id)
 
     # Fail on validation errors
-    fail!(reason: "Payment amount must be positive") unless context.payment.amount > 0
+    fail!(Payment amount must be positive") unless context.payment.amount > 0
 
     # Fail on business rule violations
-    fail!(reason: "Insufficient funds", code: "INSUFFICIENT_FUNDS") unless sufficient_funds?
+    fail!(Insufficient funds", code: "INSUFFICIENT_FUNDS") unless sufficient_funds?
 
     # Continue with processing
     charge_payment
@@ -109,10 +109,10 @@ end
 
 | Scenario | Example |
 |----------|---------|
-| **Validation errors** | `fail!(reason: "Invalid email format")` |
-| **Business rule violations** | `fail!(reason: "Credit limit exceeded")` |
-| **External service errors** | `fail!(reason: "Payment gateway unavailable")` |
-| **Data integrity issues** | `fail!(reason: "Duplicate transaction detected")` |
+| **Validation errors** | `fail!(Invalid email format")` |
+| **Business rule violations** | `fail!(Credit limit exceeded")` |
+| **External service errors** | `fail!(Payment gateway unavailable")` |
+| **Data integrity issues** | `fail!(Duplicate transaction detected")` |
 
 ## Metadata Enrichment
 
@@ -129,7 +129,7 @@ class ProcessSubscriptionTask < CMDx::Task
 
     if context.user.subscription_expired?
       skip!(
-        reason: "Subscription expired",
+        Subscription expired",
         user_id: context.user.id,
         expired_at: context.user.subscription_expires_at,
         plan_type: context.user.subscription_plan,
@@ -139,7 +139,7 @@ class ProcessSubscriptionTask < CMDx::Task
 
     unless context.user.payment_method_valid?
       fail!(
-        reason: "Invalid payment method",
+        Invalid payment method",
         user_id: context.user.id,
         payment_method_id: context.user.payment_method&.id,
         error_code: "PAYMENT_METHOD_INVALID",
@@ -240,7 +240,7 @@ end
 class ProcessOrderTask < CMDx::Task
   def call
     # This works - metadata accepts any hash
-    skip!(reason: "Valid skip", order_id: 123, custom_data: {nested: true})
+    skip!(Valid skip", order_id: 123, custom_data: {nested: true})
 
     # This also works - no metadata required
     fail!
@@ -261,8 +261,8 @@ The `:reason` key in metadata has special significance:
 
 ```ruby
 # Good: Clear, specific reason
-skip!(reason: "User account suspended until manual review")
-fail!(reason: "Credit card declined by issuer", code: "CARD_DECLINED")
+skip!(User account suspended until manual review")
+fail!(Credit card declined by issuer", code: "CARD_DECLINED")
 
 # Acceptable: Other metadata without reason
 skip!(status: "redundant", processed_at: Time.current)

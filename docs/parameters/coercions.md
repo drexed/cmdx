@@ -275,7 +275,7 @@ result = ProcessDataTask.call(
 result.failed?  # → true
 result.metadata
 # {
-#   reason: "count could not coerce into an integer. amount could not coerce into one of: float, big_decimal. active could not coerce into a boolean.",
+#   count could not coerce into an integer. amount could not coerce into one of: float, big_decimal. active could not coerce into a boolean.",
 #   messages: {
 #     count: ["could not coerce into an integer"],
 #     amount: ["could not coerce into one of: float, big_decimal"],

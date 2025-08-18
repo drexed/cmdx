@@ -77,13 +77,13 @@ class ProcessOrderTask < CMDx::Task
 
     # Conditional skip
     if context.order.already_processed?
-      skip!(reason: "Order already processed")
+      skip!(Order already processed")
       # Status is now skipped, execution halts
     end
 
     # Conditional failure
     unless context.user.authorized?
-      fail!(reason: "Insufficient permissions")
+      fail!(Insufficient permissions")
       # Status is now failed, execution halts
     end
 
@@ -190,7 +190,7 @@ class ProcessSubscriptionTask < CMDx::Task
 
     if subscription.cancelled?
       skip!(
-        reason: "Subscription already cancelled",
+        Subscription already cancelled",
         cancelled_at: subscription.cancelled_at,
         skip_code: "ALREADY_CANCELLED"
       )
@@ -217,7 +217,7 @@ class ValidateUserDataTask < CMDx::Task
 
     unless user.valid?
       fail!(
-        reason: "User validation failed",
+        User validation failed",
         errors: user.errors.full_messages,
         error_code: "VALIDATION_FAILED",
         retryable: false
