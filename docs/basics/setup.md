@@ -30,7 +30,7 @@ and functionality across all your tasks. Mechanisms like middlewares,
 validators, and attributes are inherited from the parent class.
 
 ```ruby
-class ApplicationTask < CMDx::Task
+class Application < CMDx::Task
   register :middleware, AuthenticateUserMiddleware
 
   before_execution :set_correlation_id
@@ -68,7 +68,7 @@ Tasks follow a predictable execution pattern with specific states and status tra
 ### Lifecycle Example
 
 ```ruby
-class ProcessTask < CMDx::Task
+class Process < CMDx::Task
   required :data, type: :string
 
   before_execution :log_start
@@ -109,7 +109,7 @@ including parameter validation errors, execution exceptions, and halt conditions
 ### Parameter Validation Errors
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order_id, type: :integer
   optional :amount, type: :float
 
@@ -138,7 +138,7 @@ result.metadata #=> {
 ### Runtime Exceptions
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order_id, type: :integer
 
   def work

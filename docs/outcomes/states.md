@@ -61,7 +61,7 @@ initialized → executing → interrupted (failed/halted execution)
 ### Automatic State Management
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   def call
     # State automatically managed:
     # 1. initialized → executing (when call begins)
@@ -100,7 +100,7 @@ result.executed!    # executing → complete OR interrupted (based on status)
 Use state predicates to check the current execution lifecycle:
 
 ```ruby
-class OrderFulfillmentTask < CMDx::Task
+class OrderFulfillment < CMDx::Task
   def call
     process_order
     ship_items
@@ -140,7 +140,7 @@ end
 > Use state-based callbacks for lifecycle event handling. The `on_executed` callback is particularly useful for cleanup operations that should run regardless of success or failure.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     validate_inventory
     charge_payment
@@ -193,7 +193,7 @@ Understanding the difference between states and statuses is crucial:
 - **Status**: Execution outcome (`success`, `skipped`, `failed`)
 
 ```ruby
-class ProcessRefundTask < CMDx::Task
+class ProcessRefund < CMDx::Task
   def call
     return unless eligible_for_refund?
 

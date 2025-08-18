@@ -56,18 +56,18 @@ Follow consistent naming patterns for clarity and maintainability:
 
 ```ruby
 # Tasks: Verb + Noun + Task
-class ProcessOrderTask < CMDx::Task; end
-class SendEmailTask < CMDx::Task; end
-class ValidatePaymentTask < CMDx::Task; end
+class ProcessOrder < CMDx::Task; end
+class SendEmail < CMDx::Task; end
+class ValidatePayment < CMDx::Task; end
 
 # Workflows: Noun + Verb + Workflow
 class OrderProcessingWorkflow < CMDx::Workflow; end
 class NotificationDeliveryWorkflow < CMDx::Workflow; end
 
 # Use present tense verbs for actions
-class CreateUserTask < CMDx::Task; end      # ✓ Good
-class CreatingUserTask < CMDx::Task; end    # ❌ Avoid
-class UserCreationTask < CMDx::Task; end    # ❌ Avoid
+class CreateUser < CMDx::Task; end      # ✓ Good
+class CreatingUser < CMDx::Task; end    # ❌ Avoid
+class UserCreation < CMDx::Task; end    # ❌ Avoid
 ```
 
 ## Parameter Optimization
@@ -77,7 +77,7 @@ class UserCreationTask < CMDx::Task; end    # ❌ Avoid
 Use Rails `with_options` to reduce duplication and improve readability:
 
 ```ruby
-class UpdateUserProfileTask < CMDx::Task
+class UpdateUserProfile < CMDx::Task
   # Apply common options to multiple parameters
   with_options(type: :string, presence: true) do
     required :email, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -119,7 +119,7 @@ config.active_record.query_log_tags << :cmdx_task_class
 config.active_record.query_log_tags << :cmdx_chain_id
 
 # app/tasks/application_task.rb
-class ApplicationTask < CMDx::Task
+class Application < CMDx::Task
   before_execution :set_execution_context
 
   private

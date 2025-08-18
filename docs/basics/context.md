@@ -1,11 +1,12 @@
 # Basics - Context
 
-Task context provides flexible data storage and sharing for task execution. Built on `LazyStruct`, context enables dynamic attribute access, parameter validation, and seamless data flow between related tasks.
+Task context provides flexible data storage, access, and sharing within task execution.
 
 ## Table of Contents
 
-- [TLDR](#tldr)
 - [Context Fundamentals](#context-fundamentals)
+  - [Input Loading](#input-loading)
+  - [Key normalization](#input-loading)
 - [Accessing Data](#accessing-data)
 - [Modifying Context](#modifying-context)
 - [Data Sharing Between Tasks](#data-sharing-between-tasks)
@@ -13,49 +14,25 @@ Task context provides flexible data storage and sharing for task execution. Buil
 - [Context Inspection and Debugging](#context-inspection-and-debugging)
 - [Error Handling](#error-handling)
 
-## TLDR
-
-```ruby
-# Automatic parameter loading
-ProcessOrderTask.call(user_id: 123, amount: 99.99)
-
-# Dynamic attribute access
-context.user_id           #=> 123
-context[:amount]          #=> 99.99
-
-# Safe modification
-context.total = amount * 1.08
-context.merge!(status: "processed", completed_at: Time.now)
-
-# Task chaining with context preservation
-result = ValidateOrderTask.call(context)
-ProcessPaymentTask.call(result) if result.success?
-```
-
 ## Context Fundamentals
 
-> [!IMPORTANT]
-> Context is automatically populated with all parameters passed to a task. Parameters become accessible as dynamic attributes using both method and hash-style access patterns.
+Context is automatically populated with all inputs passed to a task.
 
-### Automatic Parameter Loading
+### Input Loading
 
-When calling tasks, all parameters automatically become context attributes:
+Known context attributes are accessible via method and hash style accessors.
+Unknown context attributes return `nil`.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
-  required :user_id, type: :integer
-  required :amount, type: :float
-  optional :currency, default: "USD"
-
+class ProcessOrder < CMDx::Task
   def call
-    # Parameters automatically available in context
     context.user_id   #=> 123
-    context.amount    #=> 99.99
-    context.currency  #=> "USD"
+    context[:amount]  #=> 99.99
+    context.currency  #=> nil
   end
 end
 
-ProcessOrderTask.call(user_id: 123, amount: 99.99)
+ProcessOrder.call(user_id: 123, amount: 99.99)
 ```
 
 ### Key Normalization
@@ -64,7 +41,7 @@ All keys are automatically normalized to symbols for consistent access:
 
 ```ruby
 # String and symbol keys both work
-ProcessOrderTask.call("user_id" => 123, :amount => 99.99)
+ProcessOrder.call("user_id" => 123, :amount => 99.99)
 
 # Both accessible as symbols
 context.user_id  #=> 123
@@ -76,7 +53,7 @@ context.amount   #=> 99.99
 Context provides multiple access patterns with automatic nil safety:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # Method-style access (preferred)
     user_id = context.user_id
@@ -117,7 +94,7 @@ context.timestamp     = Time.now
 Context supports dynamic modification during task execution:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # Direct assignment
     context.user = User.find(context.user_id)
@@ -160,18 +137,18 @@ Context enables seamless data flow between related tasks in complex workflows:
 ### Task Composition
 
 ```ruby
-class ProcessOrderWorkflowTask < CMDx::Task
+class ProcessOrderWorkflow < CMDx::Task
   def call
     # Validate order data
-    validation_result = ValidateOrderTask.call(context)
+    validation_result = ValidateOrder.call(context)
     throw!(validation_result) unless validation_result.success?
 
     # Process payment with enriched context
-    payment_result = ProcessPaymentTask.call(context)
+    payment_result = ProcessPayment.call(context)
     throw!(payment_result) unless payment_result.success?
 
     # Send notifications with complete context
-    NotifyOrderProcessedTask.call(context)
+    NotifyOrderProcessed.call(context)
 
     # Context now contains accumulated data from all tasks
     context.order_validated    #=> true (from validation)
@@ -188,13 +165,13 @@ end
 initial_data = { user_id: 123, product_ids: [1, 2, 3] }
 
 # Chain tasks with context flow
-validation_result = ValidateCartTask.call(initial_data)
+validation_result = ValidateCart.call(initial_data)
 
 if validation_result.success?
   # Context accumulates data through the chain
-  inventory_result = CheckInventoryTask.call(validation_result.context)
-  payment_result = ProcessPaymentTask.call(inventory_result.context)
-  shipping_result = CreateShipmentTask.call(payment_result.context)
+  inventory_result = CheckInventory.call(validation_result.context)
+  payment_result = ProcessPayment.call(inventory_result.context)
+  shipping_result = CreateShipment.call(payment_result.context)
 end
 ```
 
@@ -205,8 +182,8 @@ end
 
 ```ruby
 # Seamless task chaining
-extraction_result = ExtractDataTask.call(source_id: 123)
-processing_result = ProcessDataTask.call(extraction_result)
+extraction_result = ExtractData.call(source_id: 123)
+processing_result = ProcessData.call(extraction_result)
 
 # Context flows automatically between tasks
 processing_result.context.source_id         #=> 123 (from first task)
@@ -218,16 +195,16 @@ processing_result.context.processed_count   #=> 50 (from second task)
 
 ```ruby
 # Non-raising chain with error handling
-extraction_result = ExtractDataTask.call(source_id: 123)
+extraction_result = ExtractData.call(source_id: 123)
 
 if extraction_result.failed?
   # Context preserved even in failure scenarios
-  error_handler_result = HandleExtractionErrorTask.call(extraction_result)
+  error_handler_result = HandleExtractionError.call(extraction_result)
   return error_handler_result
 end
 
 # Continue processing with successful result
-ProcessDataTask.call(extraction_result)
+ProcessData.call(extraction_result)
 ```
 
 ### Exception-Based Chains
@@ -235,12 +212,12 @@ ProcessDataTask.call(extraction_result)
 ```ruby
 begin
   # Raising version propagates exceptions while preserving context
-  extraction_result = ExtractDataTask.call!(source_id: 123)
-  processing_result = ProcessDataTask.call!(extraction_result)
-  notification_result = NotifyCompletionTask.call!(processing_result)
+  extraction_result = ExtractData.call!(source_id: 123)
+  processing_result = ProcessData.call!(extraction_result)
+  notification_result = NotifyCompletion.call!(processing_result)
 rescue CMDx::FailFault => e
   # Access failed task's context for error analysis
-  ErrorReportingTask.call(
+  ErrorReporting.call(
     error: e.message,
     failed_context: e.result.context,
     user_id: e.result.context.user_id
@@ -253,7 +230,7 @@ end
 Context provides comprehensive inspection capabilities for debugging and logging:
 
 ```ruby
-class DebuggableTask < CMDx::Task
+class Debuggable < CMDx::Task
   def call
     # Log current context state
     Rails.logger.info "Context: #{context.inspect}"
@@ -277,7 +254,7 @@ end
 ### Production Logging
 
 ```ruby
-class OrderProcessingTask < CMDx::Task
+class OrderProcessing < CMDx::Task
   def call
     log_context_snapshot("start")
 
@@ -306,7 +283,7 @@ end
 ### Safe Access Patterns
 
 ```ruby
-class RobustTask < CMDx::Task
+class Robust < CMDx::Task
   def call
     # Safe: returns nil for missing attributes
     user_id = context.user_id || 'anonymous'
@@ -327,7 +304,7 @@ end
 
 ```ruby
 # Missing required context data
-class PaymentTask < CMDx::Task
+class Payment < CMDx::Task
   def call
     # Check for required context before proceeding
     unless context.user_id && context.amount
@@ -340,7 +317,7 @@ class PaymentTask < CMDx::Task
 end
 
 # Invalid context modifications
-class ValidationTask < CMDx::Task
+class Validation < CMDx::Task
   def call
     # Context cannot be replaced entirely
     # context = {} # This won't work as expected

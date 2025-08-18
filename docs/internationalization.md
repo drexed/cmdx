@@ -72,7 +72,7 @@ end
 ### Per-Request Localization
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :amount, type: :float
   required :customer_email, format: { with: /@/ }
 
@@ -97,7 +97,7 @@ end
 ### Default Fault Localization
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :payment_method, inclusion: { in: %w[card paypal bank] }
   required :amount, type: :float
 
@@ -144,7 +144,7 @@ result.metadata[:reason] #=> "理由が提供されませんでした"
 ### Custom Fault Messages
 
 ```ruby
-class ProcessRefundTask < CMDx::Task
+class ProcessRefund < CMDx::Task
   required :order_id, type: :integer
   required :reason, presence: true
 
@@ -168,7 +168,7 @@ end
 ### Required Parameter Errors
 
 ```ruby
-class CreateUserAccountTask < CMDx::Task
+class CreateUserAccount < CMDx::Task
   required :email, format: { with: /@/ }
   required :password, length: { min: 8 }
   required :age, type: :integer, numeric: { min: 18 }
@@ -240,7 +240,7 @@ result.metadata[:messages]
 ### Single Type Coercion Errors
 
 ```ruby
-class ProcessInventoryTask < CMDx::Task
+class ProcessInventory < CMDx::Task
   required :product_id, type: :integer
   required :price, type: :float
   required :in_stock, type: :boolean
@@ -288,7 +288,7 @@ result.metadata[:messages]
 ### Multiple Type Coercion Errors
 
 ```ruby
-class ProcessFlexibleDataTask < CMDx::Task
+class ProcessFlexibleData < CMDx::Task
   required :amount, type: [:float, :big_decimal, :integer]
   required :identifier, type: [:integer, :string]
   required :timestamp, type: [:datetime, :date, :time]
@@ -322,7 +322,7 @@ result.metadata[:messages][:amount] #=> ["无法强制转换为以下类型之�
 ### Nested Parameter Coercion
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order, type: :hash do
     required :id, type: :integer
     required :total, type: :float
@@ -367,7 +367,7 @@ result.metadata[:messages]
 ### Format Validation
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   required :email, format: { with: /@/, message: nil }  # Use default i18n
   required :phone, format: { with: /\A\+?[\d\s-()]+\z/ }
   required :username, format: { with: /\A[a-zA-Z0-9_]+\z/ }
@@ -405,7 +405,7 @@ result.metadata[:messages]
 ### Numeric Validation
 
 ```ruby
-class ConfigureServiceTask < CMDx::Task
+class ConfigureService < CMDx::Task
   required :port, numeric: { min: 1024, max: 65535 }
   required :timeout, numeric: { greater_than: 0, less_than: 300 }
   required :retry_count, numeric: { min: 1, max: 10 }
@@ -443,7 +443,7 @@ result.metadata[:messages]
 ### Inclusion and Exclusion
 
 ```ruby
-class ProcessSubscriptionTask < CMDx::Task
+class ProcessSubscription < CMDx::Task
   required :plan, inclusion: { in: %w[basic premium enterprise] }
   required :billing_cycle, inclusion: { in: %w[monthly yearly] }
   required :username, exclusion: { from: %w[admin root system] }
@@ -481,7 +481,7 @@ result.metadata[:messages]
 ### Length Validation
 
 ```ruby
-class CreatePostTask < CMDx::Task
+class CreatePost < CMDx::Task
   required :title, length: { min: 5, max: 100 }
   required :content, length: { min: 50 }
   required :tags, length: { max: 10 }
@@ -524,7 +524,7 @@ result.metadata[:messages]
 ### Override Examples
 
 ```ruby
-class RegisterAccountTask < CMDx::Task
+class RegisterAccount < CMDx::Task
   required :email,
     format: { with: /@/, message: "Please provide a valid email address" }
 
@@ -558,7 +558,7 @@ result.metadata[:messages]
 ### Conditional Overrides
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :amount, type: :float, numeric: { min: 0.01 }
 
   # Conditional message based on context
@@ -591,7 +591,7 @@ I18n.exception_handler = lambda do |exception, locale, key, options|
   "translation missing: #{locale}.#{key}"
 end
 
-class DebuggingTask < CMDx::Task
+class Debugging < CMDx::Task
   required :test_param, type: :integer
 
   def call
@@ -611,7 +611,7 @@ result = DebuggingTask.call(test_param: "invalid")
 # Configure fallback behavior in Rails
 I18n.fallbacks = { es: [:es, :en], fr: [:fr, :en] }
 
-class TestLocalizationTask < CMDx::Task
+class TestLocalization < CMDx::Task
   required :value, type: :integer
 
   def call
@@ -628,7 +628,7 @@ result = TestLocalizationTask.call(value: "invalid")
 ### Error Message Analysis
 
 ```ruby
-class AnalyzeErrorsTask < CMDx::Task
+class AnalyzeErrors < CMDx::Task
   required :data, type: :hash do
     required :id, type: :integer
     required :nested, type: :hash do

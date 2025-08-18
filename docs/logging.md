@@ -23,7 +23,7 @@ CMDx provides comprehensive automatic logging for task execution with structured
 
 ```ruby
 # Automatic logging - no setup required
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # Task execution automatically logged with metadata
   end
@@ -105,7 +105,7 @@ end
 ### Task-Specific Configuration
 
 ```ruby
-class SendEmailTask < CMDx::Task
+class SendEmail < CMDx::Task
   settings(
     logger: Rails.logger,
     log_formatter: CMDx::LogFormatters::Logstash.new,
@@ -118,7 +118,7 @@ class SendEmailTask < CMDx::Task
 end
 
 # Base class configuration
-class ApplicationTask < CMDx::Task
+class Application < CMDx::Task
   settings(
     logger: Logger.new("log/tasks.log"),
     log_formatter: CMDx::LogFormatters::Json.new
@@ -140,7 +140,7 @@ end
 ## Manual Logging
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # Structured logging with metadata
     logger.info "Starting order processing", order_id: context.order_id
@@ -195,7 +195,7 @@ class BrokenFormatter
   end
 end
 
-class TestTask < CMDx::Task
+class Test < CMDx::Task
   settings(log_formatter: BrokenFormatter.new)
 
   def call
@@ -234,7 +234,7 @@ class AlertFormatter
   end
 end
 
-class NotificationTask < CMDx::Task
+class Notification < CMDx::Task
   settings(log_formatter: AlertFormatter.new)
 
   def call

@@ -27,7 +27,7 @@ CMDx::Chain.current  # Current chain or nil
 CMDx::Chain.clear    # Clear thread's chain
 
 # Subtasks automatically inherit chain
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # These inherit the same chain automatically
     ValidateOrderTask.call!(order_id: order_id)
@@ -84,7 +84,7 @@ result1.chain.results == result2.chain.results  # true
 > When tasks call subtasks within the same thread, all executions automatically inherit the current chain, creating a unified execution trail.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     context.order = Order.find(order_id)
 
@@ -192,7 +192,7 @@ result.chain.id # Different correlation ID
 > Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     ValidateOrderTask.call!(order_id: order_id)    # Success
     ChargePaymentTask.call!(order_id: order_id)    # Failure

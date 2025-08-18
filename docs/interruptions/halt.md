@@ -44,7 +44,7 @@ The `skip!` method indicates that a task did not meet the criteria to continue e
 ### Basic Usage
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order_id, type: :integer
 
   def call
@@ -81,7 +81,7 @@ The `fail!` method indicates that a task encountered an error condition that pre
 ### Basic Usage
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :payment_id, type: :integer
 
   def call
@@ -121,7 +121,7 @@ Both halt methods accept metadata to provide context about the interruption. Met
 ### Structured Metadata
 
 ```ruby
-class ProcessSubscriptionTask < CMDx::Task
+class ProcessSubscription < CMDx::Task
   required :user_id, type: :integer
 
   def call
@@ -237,7 +237,7 @@ end
 ### Invalid Metadata
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # This works - metadata accepts any hash
     skip!(Valid skip", order_id: 123, custom_data: {nested: true})

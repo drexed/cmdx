@@ -57,7 +57,7 @@ on_success :increment_counter, :send_notification
 | Block | Inline block | `on_success { increment_counter }` |
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   # Method name
   before_validation :load_order
   after_validation :verify_inventory
@@ -174,7 +174,7 @@ Execute around parameter validation:
 | `after_validation` | After successful validation | Post-validation logic |
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   before_validation :normalize_email
   after_validation :check_user_limits
 
@@ -212,7 +212,7 @@ Execute around task logic:
 | `after_execution` | After `call` completes | Cleanup and finalization |
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   before_execution :acquire_payment_lock
   after_execution :release_payment_lock
 
@@ -264,7 +264,7 @@ Execute based on outcome classification:
 | `on_bad` | Failed | Negative outcomes |
 
 ```ruby
-class EmailCampaignTask < CMDx::Task
+class EmailCampaign < CMDx::Task
   on_executing -> { Metrics.increment('campaigns.started') }
   on_complete :track_completion
   on_interrupted :handle_interruption
@@ -324,7 +324,7 @@ end
 | `:unless` | Execute if condition is falsy | `unless: :maintenance_mode?` |
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   # Method name conditions
   on_success :send_receipt, if: :email_enabled?
   on_failed :retry_payment, unless: :max_retries_reached?
@@ -380,7 +380,7 @@ end
 ### Callback Error Behavior
 
 ```ruby
-class ProcessDataTask < CMDx::Task
+class ProcessData < CMDx::Task
   before_execution :critical_setup     # Error stops execution
   on_success :send_notification       # Error stops callback chain
   after_execution :cleanup_resources   # Always runs
@@ -436,7 +436,7 @@ class ResilientCallback < CMDx::Callback
   end
 end
 
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   # Critical callback
   before_execution :validate_payment_method
 
@@ -458,7 +458,7 @@ end
 > Callbacks are inherited from parent classes, enabling application-wide patterns. Child classes can add additional callbacks or override inherited behavior.
 
 ```ruby
-class ApplicationTask < CMDx::Task
+class Application < CMDx::Task
   # Global logging
   before_execution :log_task_start
   after_execution :log_task_end
@@ -498,7 +498,7 @@ class ApplicationTask < CMDx::Task
   end
 end
 
-class ProcessPaymentTask < ApplicationTask
+class ProcessPayment < ApplicationTask
   # Inherits all ApplicationTask callbacks
   # Plus payment-specific callbacks
 

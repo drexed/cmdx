@@ -70,7 +70,7 @@ failed → skipped     # ❌ Cannot transition
 ### Status Transition Examples
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   def call
     # Task starts with success status
     context.result.success? #=> true
@@ -99,7 +99,7 @@ end
 Use status predicates to check execution outcomes:
 
 ```ruby
-class PaymentProcessingTask < CMDx::Task
+class PaymentProcessing < CMDx::Task
   def call
     charge_customer
     send_receipt
@@ -138,7 +138,7 @@ end
 > Use status-based callbacks for business logic branching. The `on_good` and `on_bad` callbacks are particularly useful for handling success/skip vs failed outcomes respectively.
 
 ```ruby
-class OrderFulfillmentTask < CMDx::Task
+class OrderFulfillment < CMDx::Task
   def call
     validate_inventory
     process_payment
@@ -168,7 +168,7 @@ result
 ### Success Metadata
 
 ```ruby
-class ProcessRefundTask < CMDx::Task
+class ProcessRefund < CMDx::Task
   def call
     refund = create_refund(context.payment_id)
     context.refund_id = refund.id
@@ -184,7 +184,7 @@ result.metadata  #=> {} (typically empty for success)
 ### Skip Metadata
 
 ```ruby
-class ProcessSubscriptionTask < CMDx::Task
+class ProcessSubscription < CMDx::Task
   def call
     subscription = Subscription.find(context.subscription_id)
 
@@ -211,7 +211,7 @@ end
 ### Failure Metadata
 
 ```ruby
-class ValidateUserDataTask < CMDx::Task
+class ValidateUserData < CMDx::Task
   def call
     user = User.find(context.user_id)
 
@@ -244,7 +244,7 @@ Statuses enable sophisticated outcome-based decision making:
 ### Good vs Bad Outcomes
 
 ```ruby
-class EmailDeliveryTask < CMDx::Task
+class EmailDelivery < CMDx::Task
   def call
     # Business logic here
     send_email
@@ -296,7 +296,7 @@ Understanding the relationship between these concepts:
 - **Outcome**: Combined representation for unified logic
 
 ```ruby
-class DataImportTask < CMDx::Task
+class DataImport < CMDx::Task
   def call
     import_data
     validate_data

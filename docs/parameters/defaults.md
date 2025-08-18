@@ -38,7 +38,7 @@ end
 > Defaults apply when parameters are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested parameters.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order_id, type: :integer
 
   # Fixed value defaults
@@ -75,7 +75,7 @@ ProcessOrderTask.call(
 > Use procs, lambdas, or method symbols for dynamic defaults evaluated at runtime. Essential for timestamps, UUIDs, and context-dependent values.
 
 ```ruby
-class SendNotificationTask < CMDx::Task
+class SendNotification < CMDx::Task
   required :user_id, type: :integer
   required :message, type: :string
 
@@ -126,7 +126,7 @@ end
 ### Coercion with Defaults
 
 ```ruby
-class ConfigureServiceTask < CMDx::Task
+class ConfigureService < CMDx::Task
   # String defaults coerced to target types
   optional :max_connections, type: :integer, default: "100"
   optional :config, type: :hash, default: '{"timeout": 30}'
@@ -149,7 +149,7 @@ end
 ### Validation with Defaults
 
 ```ruby
-class ScheduleTaskTask < CMDx::Task
+class ScheduleTask < CMDx::Task
   required :task_name, type: :string
 
   # Default must pass validation rules
@@ -176,7 +176,7 @@ end
 ## Nested Parameter Defaults
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :amount, type: :float
   required :user_id, type: :integer
 
@@ -243,7 +243,7 @@ ProcessPaymentTask.call(amount: 99.99, user_id: 123)
 ### Validation Errors with Defaults
 
 ```ruby
-class BadDefaultsTask < CMDx::Task
+class BadDefaults < CMDx::Task
   # This default will fail validation
   optional :priority, default: "invalid",
     inclusion: { in: %w[low medium high] }
@@ -271,7 +271,7 @@ result.metadata
 ### Dynamic Default Errors
 
 ```ruby
-class ProblematicDefaultsTask < CMDx::Task
+class ProblematicDefaults < CMDx::Task
   # Method that might raise an error
   optional :config, default: :load_external_config
 
@@ -303,7 +303,7 @@ end
 ### Nil vs Missing Parameters
 
 ```ruby
-class NilHandlingTask < CMDx::Task
+class NilHandling < CMDx::Task
   optional :status, default: "active"
   optional :tags, type: :array, default: []
 

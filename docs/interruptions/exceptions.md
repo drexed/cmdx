@@ -45,7 +45,7 @@ The `call` method captures **all** unhandled exceptions and converts them to fai
 | **Metadata** | Exception details preserved |
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   def call
     raise ActiveRecord::RecordNotFound, "Payment method not found"
   end
@@ -62,7 +62,7 @@ result.failed?  #=> true
 The `call!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   def call
     raise StandardError, "Payment gateway unavailable"
   end
@@ -99,7 +99,7 @@ exception.backtrace                      #=> ["lib/tasks/payment.rb:15:in `call'
 ### Exception Type Checking
 
 ```ruby
-class DatabaseTask < CMDx::Task
+class Database < CMDx::Task
   def call
     raise ActiveRecord::ConnectionNotEstablished, "Database unavailable"
   end
@@ -129,7 +129,7 @@ end
 CMDx faults receive special treatment based on `task_halt` configuration:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   settings(task_halt: [CMDx::Result::FAILED])
 
   def call
@@ -166,7 +166,7 @@ end
 Certain exceptions are never converted to failed results:
 
 ```ruby
-class InvalidTask < CMDx::Task
+class Invalid < CMDx::Task
   # Intentionally not implementing call method
 end
 
@@ -192,7 +192,7 @@ end
 ### Graceful Degradation
 
 ```ruby
-class ProcessUserDataTask < CMDx::Task
+class ProcessUserData < CMDx::Task
   def call
     user_data = fetch_user_data
     process_data(user_data)

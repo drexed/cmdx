@@ -14,7 +14,7 @@ Parameters define the interface between task callers and implementation, enablin
 ## TLDR
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   # Required parameters - must be provided
   required :order_id, :customer_id
 
@@ -51,7 +51,7 @@ ProcessOrderTask.call(
 > Required parameters must be provided in call arguments or task execution will fail. Optional parameters return `nil` when not provided.
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   # Single parameter definitions
   required :email
   optional :name
@@ -99,7 +99,7 @@ Parameters delegate to source objects within the task context. The default sourc
 ### Default Context Source
 
 ```ruby
-class UpdateProfileTask < CMDx::Task
+class UpdateProfile < CMDx::Task
   # Default source is :context
   required :user_id
   optional :avatar_url
@@ -120,7 +120,7 @@ end
 ### Custom Object Sources
 
 ```ruby
-class GenerateInvoiceTask < CMDx::Task
+class GenerateInvoice < CMDx::Task
   # Delegate to user object
   required :name, :email, source: :user
 
@@ -155,7 +155,7 @@ GenerateInvoiceTask.call(user_id: 123, order_id: 456)
 ### Dynamic Sources
 
 ```ruby
-class CalculatePermissionsTask < CMDx::Task
+class CalculatePermissions < CMDx::Task
   # Proc/Lambda source for dynamic resolution
   required :current_user, source: ->(task) { User.find(task.context.user_id) }
   required :company_name, source: proc { Company.find_by(context.company_id).name }
@@ -197,7 +197,7 @@ Nested parameters enable complex parameter structures where child parameters aut
 > Child parameters are only required when their parent parameter is provided, enabling flexible optional structures.
 
 ```ruby
-class CreateShipmentTask < CMDx::Task
+class CreateShipment < CMDx::Task
   required :order_id
 
   # Required parent with required children
@@ -265,7 +265,7 @@ CreateShipmentTask.call(
 ### Parameter Method Generation
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :amount, type: :float
   required :payment_method
 
@@ -298,7 +298,7 @@ end
 ### Parameter Introspection
 
 ```ruby
-class IntrospectionExampleTask < CMDx::Task
+class IntrospectionExample < CMDx::Task
   required :name
   optional :age, type: :integer, default: 18
 
@@ -331,7 +331,7 @@ end
 ### Missing Required Parameters
 
 ```ruby
-class RequiredParamsTask < CMDx::Task
+class RequiredParams < CMDx::Task
   required :user_id, :order_id
   required :shipping_address do
     required :street, :city
@@ -373,7 +373,7 @@ result.metadata
 ### Source Resolution Errors
 
 ```ruby
-class SourceErrorTask < CMDx::Task
+class SourceError < CMDx::Task
   required :name, source: :user
   required :status, source: :nonexistent_method
 
@@ -397,7 +397,7 @@ result.failed?  #=> true
 ### Complex Validation Errors
 
 ```ruby
-class ValidationErrorTask < CMDx::Task
+class ValidationError < CMDx::Task
   required :email, format: { with: /@/ }
   required :age, type: :integer, numeric: { min: 18, max: 120 }
   optional :phone, format: { with: /\A\d{10}\z/ }

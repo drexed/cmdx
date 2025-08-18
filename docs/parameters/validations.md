@@ -57,7 +57,7 @@ Validates that parameter values are not empty using intelligent type checking:
 > For boolean fields accepting `true` and `false`, use `inclusion: { in: [true, false] }` instead of presence validation.
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   required :email, presence: true
   required :name, presence: { message: "cannot be blank" }
   required :active, inclusion: { in: [true, false] }
@@ -80,7 +80,7 @@ CreateUserTask.call(email: "", name: "   ", active: nil)
 Validates parameter values against regular expression patterns. Supports positive matching (`with`), negative matching (`without`), or both.
 
 ```ruby
-class RegisterUserTask < CMDx::Task
+class RegisterUser < CMDx::Task
   required :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
   required :username, format: { without: /\A(admin|root|system)\z/i }
 
@@ -115,7 +115,7 @@ end
 > Validates that parameter values are within a specific set of allowed values (array, range, or other enumerable).
 
 ```ruby
-class UpdateOrderTask < CMDx::Task
+class UpdateOrder < CMDx::Task
   required :status, inclusion: { in: %w[pending processing shipped delivered] }
   required :priority, inclusion: { in: 1..5 }
 
@@ -156,7 +156,7 @@ end
 Validates that parameter values are not within a specific set of forbidden values.
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :payment_method, exclusion: { in: %w[cash check] }
   required :amount, exclusion: { in: 0.0..0.99, in_message: "must be at least $1.00" }
 
@@ -198,7 +198,7 @@ ProcessPaymentTask.call(
 Validates parameter length for any object responding to `#size` or `#length`. Only one constraint option can be used at a time, except `:min` and `:max` which can be combined.
 
 ```ruby
-class CreatePostTask < CMDx::Task
+class CreatePost < CMDx::Task
   required :title, length: { within: 5..100 }
   required :content, length: { min: 50 }
   required :slug, length: { min: 3, max: 50 }
@@ -239,7 +239,7 @@ end
 Validates numeric values against constraints. Works with any numeric type including integers, floats, and decimals.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :quantity, numeric: { within: 1..100 }
   required :price, numeric: { min: 0.01 }
   required :tax_rate, numeric: { min: 0, max: 0.25 }
@@ -278,7 +278,7 @@ ProcessOrderTask.call(
 > Validation failures cause tasks to enter a failed state with detailed error information including parameter paths and specific violation messages.
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   required :email, format: { with: /@/, message: "must be valid" }
   required :username, presence: true, length: { min: 3 }
   required :age, numeric: { min: 13, max: 120 }
@@ -317,7 +317,7 @@ result.metadata[:messages][:username] #=> ["can't be blank", "length must be at 
 ### Nested Parameter Validation
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order, type: :hash do
     required :customer_email, format: { with: /@/ }
     required :items, type: :array, length: { min: 1 }
@@ -360,7 +360,7 @@ result.metadata[:messages]
 > Use `:if` and `:unless` options to apply validations conditionally based on runtime context or other parameter values.
 
 ```ruby
-class UserRegistrationTask < CMDx::Task
+class UserRegistration < CMDx::Task
   required :email, presence: true, format: { with: /@/ }
   required :user_type, inclusion: { in: %w[individual business] }
 

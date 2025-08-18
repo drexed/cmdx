@@ -50,7 +50,7 @@ TaskClass.call(name: "John", email: "john@example.com", context: {...})
 Use string or symbol values for consistent prefixes or suffixes:
 
 ```ruby
-class UpdateCustomerTask < CMDx::Task
+class UpdateCustomer < CMDx::Task
   required :id, prefix: "customer_"
   required :name, prefix: "customer_"
   required :email, suffix: "_address"
@@ -81,7 +81,7 @@ UpdateCustomerTask.call(
 > Use `true` with `prefix:` or `suffix:` to automatically generate method names based on parameter sources, creating self-documenting code.
 
 ```ruby
-class GenerateInvoiceTask < CMDx::Task
+class GenerateInvoice < CMDx::Task
   required :id, prefix: true                          #=> context_id
   required :amount, source: :order, prefix: true      #=> order_amount
   required :tax_rate, source: :settings, suffix: true #=> tax_rate_settings
@@ -118,7 +118,7 @@ end
 ### Ruby Method Conflicts
 
 ```ruby
-class ProcessAccountTask < CMDx::Task
+class ProcessAccount < CMDx::Task
   # Avoid conflicts with Ruby's built-in methods
   required :name, prefix: "account_"      # Not Object#name
   required :class, suffix: "_type"        # Not Object#class
@@ -137,7 +137,7 @@ end
 ### CMDx Method Conflicts
 
 ```ruby
-class DataProcessingTask < CMDx::Task
+class DataProcessing < CMDx::Task
   # Avoid conflicts with CMDx::Task methods
   required :context, suffix: "_payload"   # Not CMDx::Task#context
   required :result, prefix: "api_"        # Not CMDx::Task#result
@@ -152,7 +152,7 @@ end
 ### Multi-Source Disambiguation
 
 ```ruby
-class SyncDataTask < CMDx::Task
+class SyncData < CMDx::Task
   # Customer and vendor both have overlapping attributes
   required :id, source: :customer, prefix: "customer_"
   required :name, source: :customer, prefix: "customer_"
@@ -184,7 +184,7 @@ end
 ### Hierarchical Parameter Organization
 
 ```ruby
-class CreateShipmentTask < CMDx::Task
+class CreateShipment < CMDx::Task
   required :address, source: :origin, prefix: "origin_" do
     required :street, :city, :state, :zip_code
   end
@@ -222,7 +222,7 @@ end
 ### Domain-Specific Grouping
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   # Payment-related parameters
   required :amount, prefix: "payment_", type: :big_decimal
   required :currency, prefix: "payment_", type: :string
@@ -268,7 +268,7 @@ end
 ### Validation Error Messages
 
 ```ruby
-class CreateUserTask < CMDx::Task
+class CreateUser < CMDx::Task
   required :email, prefix: "user_", format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
   required :age, suffix: "_value", type: :integer, numeric: { min: 18, max: 120 }
   required :role, source: :account, prefix: "account_", inclusion: { in: %w[admin user guest] }
@@ -310,7 +310,7 @@ result.metadata
 ### Common Namespacing Mistakes
 
 ```ruby
-class ProblematicTask < CMDx::Task
+class Problematic < CMDx::Task
   required :data, prefix: "user_"
   required :config, source: :settings, suffix: "_data"
 
@@ -347,7 +347,7 @@ ProblematicTask.call(
 ### Debugging Namespaced Parameters
 
 ```ruby
-class DebuggingTask < CMDx::Task
+class Debugging < CMDx::Task
   required :id, prefix: "user_"
   required :data, source: :profile, suffix: "_payload"
 

@@ -67,7 +67,7 @@ class AuditMiddleware < CMDx::Middleware
   end
 end
 
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, AuditMiddleware, action: 'process', resource_type: 'Order'
 
   def call
@@ -82,7 +82,7 @@ end
 Pre-configured middleware instances for complex initialization:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, LoggingMiddleware.new(
     level: :debug,
     formatter: CustomFormatter.new,
@@ -101,7 +101,7 @@ end
 Inline middleware for simple cases:
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, proc { |task, callable|
     start_time = Time.now
     result = callable.call(task)
@@ -123,7 +123,7 @@ end
 > Middleware executes in nested fashion - first declared wraps all others, creating an onion-like execution pattern.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, TimingMiddleware         # 1st: outermost wrapper
   use :middleware, AuthenticationMiddleware # 2nd: middle wrapper
   use :middleware, ValidationMiddleware     # 3rd: innermost wrapper
@@ -169,7 +169,7 @@ class RateLimitMiddleware < CMDx::Middleware
   end
 end
 
-class SendEmailTask < CMDx::Task
+class SendEmail < CMDx::Task
   use :middleware, RateLimitMiddleware, limit: 50
 
   def call
@@ -185,13 +185,13 @@ end
 > Middleware is inherited from parent classes, making it ideal for application-wide concerns.
 
 ```ruby
-class ApplicationTask < CMDx::Task
+class Application < CMDx::Task
   use :middleware, RequestIdMiddleware      # All tasks get request tracking
   use :middleware, PerformanceMiddleware    # All tasks get performance monitoring
   use :middleware, ErrorReportingMiddleware # All tasks get error reporting
 end
 
-class ProcessOrderTask < ApplicationTask
+class ProcessOrder < ApplicationTask
   use :middleware, AuthenticationMiddleware  # Added to inherited middleware
   use :middleware, OrderValidationMiddleware # Domain-specific validation
 
@@ -212,7 +212,7 @@ Enforces execution time limits with support for static and dynamic timeout value
 #### Basic Usage
 
 ```ruby
-class ProcessLargeReportTask < CMDx::Task
+class ProcessLargeReport < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: 300
 
   def call
@@ -222,7 +222,7 @@ class ProcessLargeReportTask < CMDx::Task
 end
 
 # Default timeout (3 seconds)
-class QuickValidationTask < CMDx::Task
+class QuickValidation < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout
 
   def call
@@ -239,7 +239,7 @@ end
 
 ```ruby
 # Method-based timeout
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: :calculate_timeout
 
   def call
@@ -258,7 +258,7 @@ class ProcessOrderTask < CMDx::Task
 end
 
 # Proc-based timeout
-class ProcessWorkflowTask < CMDx::Task
+class ProcessWorkflow < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: -> {
     context.workflow_size > 100 ? 120 : 60
   }
@@ -278,12 +278,12 @@ The middleware determines timeout values using this precedence:
 
 ```ruby
 # Static timeout - always 45 seconds
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: 45
 end
 
 # Method returns nil - falls back to 3 seconds
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: :might_return_nil
 
   private
@@ -297,7 +297,7 @@ end
 
 ```ruby
 # Environment-based timeout
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout,
       seconds: 60,
       unless: -> { Rails.env.development? }
@@ -309,7 +309,7 @@ class ProcessOrderTask < CMDx::Task
 end
 
 # Context-based timeout
-class SendEmailTask < CMDx::Task
+class SendEmail < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout,
       seconds: 30,
       if: :timeout_enabled?
@@ -328,7 +328,7 @@ end
 > Manages correlation IDs for request tracing across task boundaries, enabling distributed system observability.
 
 ```ruby
-class ProcessApiRequestTask < CMDx::Task
+class ProcessApiRequest < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate
 
   def call
@@ -349,17 +349,17 @@ The middleware determines correlation IDs using this hierarchy:
 
 ```ruby
 # Explicit correlation ID
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate, id: "order-processing"
 end
 
 # Dynamic correlation ID
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate, id: -> { "order-#{order_id}" }
 end
 
 # Method-based correlation ID
-class ProcessApiRequestTask < CMDx::Task
+class ProcessApiRequest < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate, id: :generate_correlation_id
 
   private
@@ -395,7 +395,7 @@ class ApiController < ApplicationController
   end
 end
 
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Correlate
 
   def call
@@ -479,7 +479,7 @@ class ErrorProneMiddleware < CMDx::Middleware
 end
 
 # Timeout errors are automatically handled
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   use :middleware, CMDx::Middlewares::Timeout, seconds: 5
 
   def call

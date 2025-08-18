@@ -57,7 +57,7 @@ required :raw_data, type: :virtual    # Returns unchanged
 ### Basic Usage
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
+class ProcessPayment < CMDx::Task
   required :amount, type: :float
   required :user_id, type: :integer
   required :send_email, type: :boolean
@@ -90,7 +90,7 @@ ProcessPaymentTask.call(
 > Specify multiple types for fallback coercion. CMDx attempts each type in order until one succeeds.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   # Numeric: try precise float, fall back to integer
   required :total, type: [:float, :integer]
 
@@ -123,7 +123,7 @@ ProcessOrderTask.call(total: "100")    #=> 100 (Integer)
 ### Array and Hash Coercion
 
 ```ruby
-class ProcessInventoryTask < CMDx::Task
+class ProcessInventory < CMDx::Task
   required :product_ids, type: :array
   required :config, type: :hash
 
@@ -148,7 +148,7 @@ ProcessInventoryTask.call(
 ### Boolean Patterns
 
 ```ruby
-class UpdateUserSettingsTask < CMDx::Task
+class UpdateUserSettings < CMDx::Task
   required :notifications, type: :boolean
   required :active, type: :boolean
 
@@ -177,7 +177,7 @@ UpdateUserSettingsTask.call(
 ### Date and Time Handling
 
 ```ruby
-class ScheduleEventTask < CMDx::Task
+class ScheduleEvent < CMDx::Task
   required :event_date, type: :date
   required :start_time, type: :time
 
@@ -209,7 +209,7 @@ ScheduleEventTask.call(
 > Coercion applies at every level of nested parameter structures, enabling complex data transformation while maintaining type safety.
 
 ```ruby
-class ProcessOrderTask < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :order, type: :hash do
     required :id, type: :integer
     required :total, type: :float
@@ -255,7 +255,7 @@ ProcessOrderTask.call(
 > Coercion failures provide detailed error information including parameter paths, attempted types, and specific failure reasons.
 
 ```ruby
-class ProcessDataTask < CMDx::Task
+class ProcessData < CMDx::Task
   required :count, type: :integer
   required :amount, type: [:float, :big_decimal]
   required :active, type: :boolean
@@ -305,7 +305,7 @@ ProcessDataTask.call(value: "abc", type: [:integer, :float])
 ### Date/Time Formats
 
 ```ruby
-class ImportDataTask < CMDx::Task
+class ImportData < CMDx::Task
   # US date format
   required :birth_date, type: :date, format: "%m/%d/%Y"
 
@@ -324,7 +324,7 @@ end
 ### BigDecimal Precision
 
 ```ruby
-class CalculatePriceTask < CMDx::Task
+class CalculatePrice < CMDx::Task
   required :base_price, type: :big_decimal
   required :tax_rate, type: :big_decimal, precision: 8
 
@@ -371,7 +371,7 @@ CMDx.configure do |config|
 end
 
 # Use in tasks
-class ProcessProductTask < CMDx::Task
+class ProcessProduct < CMDx::Task
   required :price, type: :currency
   required :url_slug, type: :slug
 

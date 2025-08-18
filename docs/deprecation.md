@@ -16,17 +16,17 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
 
 ```ruby
 # Prevent task execution completely
-class LegacyTask < CMDx::Task
+class Legacy < CMDx::Task
   cmd_setting!(deprecated: :error)
 end
 
 # Log deprecation warnings
-class OldTask < CMDx::Task
+class Old < CMDx::Task
   cmd_setting!(deprecated: :log)
 end
 
 # Issue Ruby warnings
-class ObsoleteTask < CMDx::Task
+class Obsolete < CMDx::Task
   cmd_setting!(deprecated: :warning)
 end
 
@@ -66,7 +66,7 @@ ObsoleteTask.call #=> issues Ruby warning
 > Error mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.
 
 ```ruby
-class ProcessLegacyPaymentTask < CMDx::Task
+class ProcessLegacyPayment < CMDx::Task
   cmd_setting!(deprecated: :error)
 
   def call
@@ -86,7 +86,7 @@ result = ProcessLegacyPaymentTask.call(amount: 100)
 > Log mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.
 
 ```ruby
-class ProcessOldPaymentTask < CMDx::Task
+class ProcessOldPayment < CMDx::Task
   cmd_setting!(deprecated: :log)
 
   def call
@@ -109,7 +109,7 @@ result.successful? #=> true
 > Warning mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.
 
 ```ruby
-class ProcessObsoletePaymentTask < CMDx::Task
+class ProcessObsoletePayment < CMDx::Task
   cmd_setting!(deprecated: :warning)
 
   def call
@@ -130,7 +130,7 @@ result.successful? #=> true
 ### Environment-Specific Deprecation
 
 ```ruby
-class ExperimentalFeatureTask < CMDx::Task
+class ExperimentalFeature < CMDx::Task
   # Different deprecation behavior per environment
   cmd_setting!(
     deprecated: Rails.env.production? ? :error : :warning
@@ -145,7 +145,7 @@ end
 ### Conditional Deprecation
 
 ```ruby
-class LegacyIntegrationTask < CMDx::Task
+class LegacyIntegration < CMDx::Task
   # Deprecate only for specific conditions
   cmd_setting!(
     deprecated: -> { ENV['NEW_API_ENABLED'] == 'true' ? :log : nil }
@@ -165,7 +165,7 @@ end
 ### Graceful Fallback
 
 ```ruby
-class NotificationTask < CMDx::Task
+class Notification < CMDx::Task
   cmd_setting!(deprecated: :log)
 
   def call
@@ -212,7 +212,7 @@ end
 > Always document deprecation reasons, timelines, and migration paths. Clear communication prevents confusion and reduces support burden.
 
 ```ruby
-class LegacyReportTask < CMDx::Task
+class LegacyReport < CMDx::Task
   # Document deprecation clearly
   cmd_setting!(deprecated: :log)
 
