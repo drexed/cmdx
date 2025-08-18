@@ -18,7 +18,7 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 ```ruby
 # Basic exception handling
 begin
-  PaymentProcessor.call!(amount: 100)
+  PaymentProcessor.execute!(amount: 100)
 rescue CMDx::SkipFault => e
   handle_skipped_payment(e.result.metadata[:reason])
 rescue CMDx::FailFault => e
@@ -52,7 +52,7 @@ throw!(validation_result) if validation_result.failed?
 
 ```ruby
 begin
-  ProcessOrderTask.call!(order_id: 123)
+  ProcessOrderTask.execute!(order_id: 123)
 rescue CMDx::SkipFault => e
   logger.info "Order processing skipped: #{e.message}"
   schedule_retry(e.context.order_id)
@@ -69,7 +69,7 @@ end
 
 ```ruby
 begin
-  PaymentProcessor.call!(card_token: token, amount: amount)
+  PaymentProcessor.execute!(card_token: token, amount: amount)
 rescue CMDx::FailFault => e
   case e.result.metadata[:error_code]
   when "INSUFFICIENT_FUNDS"
@@ -90,7 +90,7 @@ Faults provide comprehensive access to execution context:
 
 ```ruby
 begin
-  UserRegistration.call!(email: email, password: password)
+  UserRegistration.execute!(email: email, password: password)
 rescue CMDx::Fault => e
   # Result information
   e.result.status            #=> "failed" or "skipped"
@@ -120,7 +120,7 @@ end
 
 ```ruby
 begin
-  PaymentWorkflow.call!(payment_data: data)
+  PaymentWorkflow.execute!(payment_data: data)
 rescue CMDx::FailFault.for?(CardValidator, PaymentProcessor) => e
   # Handle only payment-related failures
   retry_with_backup_method(e.context)
@@ -134,7 +134,7 @@ end
 
 ```ruby
 begin
-  OrderProcessor.call!(order: order_data)
+  OrderProcessor.execute!(order: order_data)
 rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
   escalate_high_value_failure(e)
 rescue CMDx::FailFault.matches? { |f| f.result.metadata[:retry_count] > 3 } => e
@@ -155,11 +155,11 @@ end
 class OrderProcessor < CMDx::Task
   def call
     # Validate order data
-    validation_result = OrderValidator.call(context)
+    validation_result = OrderValidator.execute(context)
     throw!(validation_result) if validation_result.failed?
 
     # Process payment
-    payment_result = PaymentProcessor.call(context)
+    payment_result = PaymentProcessor.execute(context)
     throw!(payment_result) if payment_result.failed?
 
     # Continue processing
@@ -173,7 +173,7 @@ end
 ```ruby
 class WorkflowProcessor < CMDx::Task
   def call
-    step_result = DataValidation.call(context)
+    step_result = DataValidation.execute(context)
 
     if step_result.failed?
       throw!(step_result, {
@@ -194,7 +194,7 @@ end
 > Results provide methods to analyze fault propagation and identify original failure sources in complex execution chains.
 
 ```ruby
-result = PaymentWorkflow.call(invalid_data)
+result = PaymentWorkflow.execute(invalid_data)
 
 if result.failed?
   # Trace the original failure

@@ -32,7 +32,7 @@ class ProcessOrder < CMDx::Task
   end
 end
 
-ProcessOrder.call(user_id: 123, amount: 99.99)
+ProcessOrder.execute(user_id: 123, amount: 99.99)
 ```
 
 ### Key Normalization
@@ -41,7 +41,7 @@ All keys are automatically normalized to symbols for consistent access:
 
 ```ruby
 # String and symbol keys both work
-ProcessOrder.call("user_id" => 123, :amount => 99.99)
+ProcessOrder.execute("user_id" => 123, :amount => 99.99)
 
 # Both accessible as symbols
 context.user_id  #=> 123
@@ -140,15 +140,15 @@ Context enables seamless data flow between related tasks in complex workflows:
 class ProcessOrderWorkflow < CMDx::Task
   def call
     # Validate order data
-    validation_result = ValidateOrder.call(context)
+    validation_result = ValidateOrder.execute(context)
     throw!(validation_result) unless validation_result.success?
 
     # Process payment with enriched context
-    payment_result = ProcessPayment.call(context)
+    payment_result = ProcessPayment.execute(context)
     throw!(payment_result) unless payment_result.success?
 
     # Send notifications with complete context
-    NotifyOrderProcessed.call(context)
+    NotifyOrderProcessed.execute(context)
 
     # Context now contains accumulated data from all tasks
     context.order_validated    #=> true (from validation)
@@ -165,13 +165,13 @@ end
 initial_data = { user_id: 123, product_ids: [1, 2, 3] }
 
 # Chain tasks with context flow
-validation_result = ValidateCart.call(initial_data)
+validation_result = ValidateCart.execute(initial_data)
 
 if validation_result.success?
   # Context accumulates data through the chain
-  inventory_result = CheckInventory.call(validation_result.context)
-  payment_result = ProcessPayment.call(inventory_result.context)
-  shipping_result = CreateShipment.call(payment_result.context)
+  inventory_result = CheckInventory.execute(validation_result.context)
+  payment_result = ProcessPayment.execute(inventory_result.context)
+  shipping_result = CreateShipment.execute(payment_result.context)
 end
 ```
 
@@ -182,8 +182,8 @@ end
 
 ```ruby
 # Seamless task chaining
-extraction_result = ExtractData.call(source_id: 123)
-processing_result = ProcessData.call(extraction_result)
+extraction_result = ExtractData.execute(source_id: 123)
+processing_result = ProcessData.execute(extraction_result)
 
 # Context flows automatically between tasks
 processing_result.context.source_id         #=> 123 (from first task)
@@ -195,16 +195,16 @@ processing_result.context.processed_count   #=> 50 (from second task)
 
 ```ruby
 # Non-raising chain with error handling
-extraction_result = ExtractData.call(source_id: 123)
+extraction_result = ExtractData.execute(source_id: 123)
 
 if extraction_result.failed?
   # Context preserved even in failure scenarios
-  error_handler_result = HandleExtractionError.call(extraction_result)
+  error_handler_result = HandleExtractionError.execute(extraction_result)
   return error_handler_result
 end
 
 # Continue processing with successful result
-ProcessData.call(extraction_result)
+ProcessData.execute(extraction_result)
 ```
 
 ### Exception-Based Chains
@@ -212,12 +212,12 @@ ProcessData.call(extraction_result)
 ```ruby
 begin
   # Raising version propagates exceptions while preserving context
-  extraction_result = ExtractData.call!(source_id: 123)
-  processing_result = ProcessData.call!(extraction_result)
-  notification_result = NotifyCompletion.call!(processing_result)
+  extraction_result = ExtractData.execute!(source_id: 123)
+  processing_result = ProcessData.execute!(extraction_result)
+  notification_result = NotifyCompletion.execute!(processing_result)
 rescue CMDx::FailFault => e
   # Access failed task's context for error analysis
-  ErrorReporting.call(
+  ErrorReporting.execute(
     error: e.message,
     failed_context: e.result.context,
     user_id: e.result.context.user_id

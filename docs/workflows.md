@@ -41,7 +41,7 @@ process CriticalTask, workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPE
 process OptionalTask, workflow_halt: []  # Never halt
 
 # Context flows through all tasks automatically
-result = OrderWorkflow.call(order: order)
+result = OrderWorkflow.execute(order: order)
 result.context.tax_amount    # Set by CalculateTaxTask
 result.context.payment_id    # Set by ChargePaymentTask
 ```
@@ -60,7 +60,7 @@ class OrderProcessingWorkflow < CMDx::Workflow
 end
 
 # Execute workflow
-result = OrderProcessingWorkflow.call(order: order, user: current_user)
+result = OrderProcessingWorkflow.execute(order: order, user: current_user)
 
 if result.success?
   redirect_to order_path(result.context.order)
@@ -107,7 +107,7 @@ class PaymentWorkflow < CMDx::Workflow
   process ChargePaymentTask  # Uses context.tax_amount, sets context.payment_id
 end
 
-result = PaymentWorkflow.call(order: order)
+result = PaymentWorkflow.execute(order: order)
 # Context contains cumulative data from all executed tasks
 result.context.validation_errors  # From ValidateOrderTask
 result.context.tax_amount         # From CalculateTaxTask
@@ -245,7 +245,7 @@ class OrderWorkflow < CMDx::Workflow
   process ChargePaymentTask
 end
 
-result = OrderWorkflow.call(order: invalid_order)
+result = OrderWorkflow.execute(order: invalid_order)
 
 if result.failed?
   result.metadata
@@ -269,7 +269,7 @@ class ProcessDataWorkflow < CMDx::Workflow
   process TransformDataTask # Never executes
 end
 
-result = ProcessDataWorkflow.call(data: nil)
+result = ProcessDataWorkflow.execute(data: nil)
 result.failed?  #=> true
 result.metadata[:reason]  #=> "ValidateDataTask failed: Data cannot be nil"
 

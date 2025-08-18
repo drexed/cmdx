@@ -19,7 +19,7 @@ CMDx provides comprehensive internationalization support for all error messages,
 ```ruby
 # Automatic localization based on I18n.locale
 I18n.locale = :es
-result = CreateUserTask.call(email: "invalid", age: "too-young")
+result = CreateUserTask.execute(email: "invalid", age: "too-young")
 result.metadata[:messages][:email] #=> ["formato inválido"]
 
 # 24 built-in languages with complete coverage
@@ -78,13 +78,13 @@ class ProcessOrder < CMDx::Task
 
   def call
     # Task logic runs with current I18n.locale
-    ChargeCustomer.call(amount: amount, email: customer_email)
+    ChargeCustomer.execute(amount: amount, email: customer_email)
   end
 end
 
 # Different locales produce localized errors
 I18n.with_locale(:fr) do
-  result = ProcessOrderTask.call(amount: "invalid", customer_email: "bad-email")
+  result = ProcessOrderTask.execute(amount: "invalid", customer_email: "bad-email")
   result.metadata[:messages][:amount] #=> ["impossible de contraindre en float"]
 end
 ```
@@ -127,17 +127,17 @@ end
 
 # English
 I18n.locale = :en
-result = ProcessPaymentTask.call(payment_method: "card", amount: 99.99)
+result = ProcessPaymentTask.execute(payment_method: "card", amount: 99.99)
 result.metadata[:reason] #=> "no reason given"
 
 # Spanish
 I18n.locale = :es
-result = ProcessPaymentTask.call(payment_method: "card", amount: 99.99)
+result = ProcessPaymentTask.execute(payment_method: "card", amount: 99.99)
 result.metadata[:reason] #=> "no se proporcionó razón"
 
 # Japanese
 I18n.locale = :ja
-result = ProcessPaymentTask.call(payment_method: "card", amount: 99.99)
+result = ProcessPaymentTask.execute(payment_method: "card", amount: 99.99)
 result.metadata[:reason] #=> "理由が提供されませんでした"
 ```
 
@@ -183,7 +183,7 @@ end
 
 # Missing required parameters
 I18n.locale = :en
-result = CreateUserAccountTask.call({})
+result = CreateUserAccountTask.execute({})
 result.metadata[:messages]
 # {
 #   email: ["is a required parameter"],
@@ -193,7 +193,7 @@ result.metadata[:messages]
 
 # German localization
 I18n.locale = :de
-result = CreateUserAccountTask.call({})
+result = CreateUserAccountTask.execute({})
 result.metadata[:messages]
 # {
 #   email: ["ist ein erforderlicher Parameter"],
@@ -207,7 +207,7 @@ result.metadata[:messages]
 ```ruby
 # Undefined source method delegation
 I18n.locale = :en
-result = CreateUserAccountTask.call(
+result = CreateUserAccountTask.execute(
   email: "user@example.com",
   password: "securepass",
   age: 25
@@ -220,7 +220,7 @@ result.metadata[:messages]
 
 # French localization
 I18n.locale = :fr
-result = CreateUserAccountTask.call(
+result = CreateUserAccountTask.execute(
   email: "user@example.com",
   password: "securepass",
   age: 25
@@ -254,7 +254,7 @@ end
 
 # English coercion errors
 I18n.locale = :en
-result = ProcessInventoryTask.call(
+result = ProcessInventoryTask.execute(
   product_id: "not-a-number",
   price: "invalid-price",
   in_stock: "maybe",
@@ -273,7 +273,7 @@ result.metadata[:messages]
 
 # Spanish coercion errors
 I18n.locale = :es
-result = ProcessInventoryTask.call(
+result = ProcessInventoryTask.execute(
   product_id: "not-a-number",
   price: "invalid-price"
 )
@@ -300,7 +300,7 @@ end
 
 # Multiple type failure messages
 I18n.locale = :en
-result = ProcessFlexibleDataTask.call(
+result = ProcessFlexibleDataTask.execute(
   amount: "definitely-not-numeric",
   identifier: nil,
   timestamp: "not-a-date"
@@ -315,7 +315,7 @@ result.metadata[:messages]
 
 # Chinese localization
 I18n.locale = :zh
-result = ProcessFlexibleDataTask.call(amount: "invalid")
+result = ProcessFlexibleDataTask.execute(amount: "invalid")
 result.metadata[:messages][:amount] #=> ["无法强制转换为以下类型之一：float、big_decimal、integer"]
 ```
 
@@ -339,7 +339,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Nested coercion errors with full path context
-result = ProcessOrderTask.call(
+result = ProcessOrderTask.execute(
   order: {
     id: "not-a-number",
     total: "invalid-amount",
@@ -379,7 +379,7 @@ end
 
 # English format errors
 I18n.locale = :en
-result = CreateUserTask.call(
+result = CreateUserTask.execute(
   email: "not-an-email",
   phone: "invalid!phone",
   username: "bad@username"
@@ -394,7 +394,7 @@ result.metadata[:messages]
 
 # Japanese format errors
 I18n.locale = :ja
-result = CreateUserTask.call(email: "invalid", phone: "bad")
+result = CreateUserTask.execute(email: "invalid", phone: "bad")
 result.metadata[:messages]
 # {
 #   email: ["無効な形式です"],
@@ -417,7 +417,7 @@ end
 
 # English numeric errors
 I18n.locale = :en
-result = ConfigureServiceTask.call(
+result = ConfigureServiceTask.execute(
   port: 80,           # Below minimum
   timeout: 500,       # Above maximum
   retry_count: 0      # Below minimum
@@ -432,7 +432,7 @@ result.metadata[:messages]
 
 # German numeric errors
 I18n.locale = :de
-result = ConfigureServiceTask.call(port: 80, timeout: 500)
+result = ConfigureServiceTask.execute(port: 80, timeout: 500)
 result.metadata[:messages]
 # {
 #   port: ["muss größer oder gleich 1024 sein"],
@@ -455,7 +455,7 @@ end
 
 # English inclusion/exclusion errors
 I18n.locale = :en
-result = ProcessSubscriptionTask.call(
+result = ProcessSubscriptionTask.execute(
   plan: "invalid-plan",
   billing_cycle: "weekly",
   username: "admin"
@@ -470,7 +470,7 @@ result.metadata[:messages]
 
 # French inclusion/exclusion errors
 I18n.locale = :fr
-result = ProcessSubscriptionTask.call(plan: "invalid", username: "root")
+result = ProcessSubscriptionTask.execute(plan: "invalid", username: "root")
 result.metadata[:messages]
 # {
 #   plan: ["n'est pas inclus dans la liste"],
@@ -493,7 +493,7 @@ end
 
 # English length errors
 I18n.locale = :en
-result = CreatePostTask.call(
+result = CreatePostTask.execute(
   title: "Hi",                    # Too short
   content: "Brief content",       # Too short
   tags: (1..15).to_a             # Too many
@@ -508,7 +508,7 @@ result.metadata[:messages]
 
 # Russian length errors
 I18n.locale = :ru
-result = CreatePostTask.call(title: "Hi", content: "Short")
+result = CreatePostTask.execute(title: "Hi", content: "Short")
 result.metadata[:messages]
 # {
 #   title: ["слишком короткий (минимум 5 символов)"],
@@ -541,7 +541,7 @@ end
 
 # Custom messages ignore locale settings
 I18n.locale = :es
-result = RegisterAccountTask.call(
+result = RegisterAccountTask.execute(
   email: "invalid",
   password: "short",
   age: 16
@@ -601,7 +601,7 @@ end
 
 # Test with unsupported locale
 I18n.locale = :unsupported_locale
-result = DebuggingTask.call(test_param: "invalid")
+result = DebuggingTask.execute(test_param: "invalid")
 # Logs: "Missing translation: unsupported_locale.cmdx.errors.coercion.integer"
 ```
 
@@ -621,7 +621,7 @@ end
 
 # Test fallback behavior
 I18n.locale = :es  # Falls back to :en if Spanish translation missing
-result = TestLocalizationTask.call(value: "invalid")
+result = TestLocalizationTask.execute(value: "invalid")
 # Uses English if Spanish translation unavailable
 ```
 
@@ -642,7 +642,7 @@ class AnalyzeErrors < CMDx::Task
 end
 
 # Comprehensive error analysis
-result = AnalyzeErrorsTask.call(
+result = AnalyzeErrorsTask.execute(
   data: {
     id: "not-integer",
     nested: {

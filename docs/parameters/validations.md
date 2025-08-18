@@ -68,10 +68,10 @@ class CreateUser < CMDx::Task
 end
 
 # Valid inputs
-CreateUserTask.call(email: "user@example.com", name: "John", active: true)
+CreateUserTask.execute(email: "user@example.com", name: "John", active: true)
 
 # Invalid inputs
-CreateUserTask.call(email: "", name: "   ", active: nil)
+CreateUserTask.execute(email: "", name: "   ", active: nil)
 #=> ValidationError: "email can't be blank. name cannot be blank. active must be one of: true, false"
 ```
 
@@ -171,7 +171,7 @@ class ProcessPayment < CMDx::Task
 end
 
 # Valid usage
-ProcessPaymentTask.call(
+ProcessPaymentTask.execute(
   payment_method: "credit_card",
   amount: 29.99,
   promo_code: "SAVE20"
@@ -253,7 +253,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Error example
-ProcessOrderTask.call(
+ProcessOrderTask.execute(
   quantity: 0,      # Below minimum
   price: -5.00,     # Below minimum
   tax_rate: 0.30    # Above maximum
@@ -288,7 +288,7 @@ class CreateUser < CMDx::Task
   end
 end
 
-result = CreateUserTask.call(
+result = CreateUserTask.execute(
   email: "invalid-email",
   username: "",
   age: 5
@@ -334,7 +334,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Nested validation errors
-result = ProcessOrderTask.call(
+result = ProcessOrderTask.execute(
   order: {
     customer_email: "invalid",
     items: [],

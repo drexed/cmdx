@@ -19,7 +19,7 @@ The result object is the comprehensive return value of task execution, providing
 
 ```ruby
 # Basic result inspection
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 result.success?    #=> true/false
 result.failed?     #=> true/false
 result.runtime     #=> 0.5 (seconds)
@@ -44,7 +44,7 @@ end
 Every result provides access to essential execution information:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 # Core objects
 result.task     #=> ProcessOrderTask instance
@@ -64,7 +64,7 @@ result.runtime  #=> 0.5 (execution time in seconds)
 Results provide comprehensive methods for checking execution state and status:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 # State predicates (execution lifecycle)
 result.complete?    #=> true (successful completion)
@@ -86,7 +86,7 @@ result.bad?         #=> false (failed only)
 Results provide unified outcome determination:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 result.outcome #=> "success" (combines state and status)
 ```
@@ -96,7 +96,7 @@ result.outcome #=> "success" (combines state and status)
 Results capture detailed timing information for performance analysis:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 # Execution timing
 result.runtime #=> 0.5 (total execution time in seconds)
@@ -116,7 +116,7 @@ result
 For failed results, comprehensive failure analysis is available:
 
 ```ruby
-result = ProcessOrderWorkflowTask.call(order_id: 123)
+result = ProcessOrderWorkflowTask.execute(order_id: 123)
 
 if result.failed?
   # Find the original cause of failure
@@ -140,7 +140,7 @@ end
 ### Error Handling Patterns
 
 ```ruby
-result = ProcessPaymentTask.call(amount: "invalid")
+result = ProcessPaymentTask.execute(amount: "invalid")
 
 if result.failed?
   case result.metadata[:reason]
@@ -159,7 +159,7 @@ end
 Results track their position within execution chains:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 # Position in execution sequence
 result.index #=> 0 (first task in chain)
@@ -176,7 +176,7 @@ result.chain.results[result.index] == result #=> true
 Results support fluent callback patterns for conditional logic:
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 # Status-based callbacks
 result
@@ -200,10 +200,10 @@ result
 ```ruby
 # Order processing pipeline
 ProcessOrderTask
-  .call(order_id: params[:order_id])
+  .execute(order_id: params[:order_id])
   .on_success { |result|
     # Chain to notification task
-    SendOrderConfirmationTask.call(result.context)
+    SendOrderConfirmationTask.execute(result.context)
   }
   .on_failed { |result|
     # Handle specific failure types
@@ -232,7 +232,7 @@ Results support Ruby's pattern matching through array and hash deconstruction:
 ### Array Pattern Matching
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 case result
 in ["complete", "success"]
@@ -247,7 +247,7 @@ end
 ### Hash Pattern Matching
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 case result
 in { state: "complete", status: "success" }
@@ -279,7 +279,7 @@ Results provide comprehensive serialization and inspection capabilities:
 ### Hash Serialization
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 result.to_h
 #=> {
@@ -300,7 +300,7 @@ result.to_h
 ### Human-Readable Inspection
 
 ```ruby
-result = ProcessOrderTask.call(order_id: 123)
+result = ProcessOrderTask.execute(order_id: 123)
 
 result.to_s
 #=> "ProcessOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
@@ -312,7 +312,7 @@ result.to_s
 > Failed results include complete failure chain information. This data can be substantial in complex workflows - consider filtering when logging or persisting.
 
 ```ruby
-failed_result = ProcessOrderWorkflowTask.call(order_id: 123)
+failed_result = ProcessOrderWorkflowTask.execute(order_id: 123)
 
 failed_result.to_h
 #=> {

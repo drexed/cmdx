@@ -57,11 +57,11 @@ class ProcessOrder < CMDx::Task
 end
 
 # Using defaults
-ProcessOrderTask.call(order_id: 123)
+ProcessOrderTask.execute(order_id: 123)
 # priority: "standard", send_email: true, max_retries: 3
 
 # Overriding defaults
-ProcessOrderTask.call(
+ProcessOrderTask.execute(
   order_id: 123,
   priority: "urgent",
   send_email: false,
@@ -224,7 +224,7 @@ class ProcessPayment < CMDx::Task
 end
 
 # Usage with nested defaults
-ProcessPaymentTask.call(amount: 99.99, user_id: 123)
+ProcessPaymentTask.execute(amount: 99.99, user_id: 123)
 # payment_config automatically gets:
 # {
 #   method: "credit_card",
@@ -318,11 +318,11 @@ NilHandlingTask.call
 # status: "active", tags: []
 
 # Explicitly nil parameters also use defaults
-NilHandlingTask.call(status: nil, tags: nil)
+NilHandlingTask.execute(status: nil, tags: nil)
 # status: "active", tags: []
 
 # Empty string is NOT nil - no default applied
-NilHandlingTask.call(status: "", tags: "")
+NilHandlingTask.execute(status: "", tags: "")
 # status: "", tags: "" (string, not array - may cause coercion error)
 ```
 

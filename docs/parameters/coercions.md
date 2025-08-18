@@ -75,7 +75,7 @@ class ProcessPayment < CMDx::Task
 end
 
 # Usage with string inputs
-ProcessPaymentTask.call(
+ProcessPaymentTask.execute(
   amount: "99.99",           #=> 99.99 (Float)
   user_id: "12345",          #=> 12345 (Integer)
   send_email: "true",        #=> true (Boolean)
@@ -114,8 +114,8 @@ class ProcessOrder < CMDx::Task
 end
 
 # Different inputs produce different types
-ProcessOrderTask.call(total: "99.99")  #=> 99.99 (Float)
-ProcessOrderTask.call(total: "100")    #=> 100 (Integer)
+ProcessOrderTask.execute(total: "99.99")  #=> 99.99 (Float)
+ProcessOrderTask.execute(total: "100")    #=> 100 (Integer)
 ```
 
 ## Advanced Examples
@@ -134,7 +134,7 @@ class ProcessInventory < CMDx::Task
 end
 
 # Multiple input formats supported
-ProcessInventoryTask.call(
+ProcessInventoryTask.execute(
   product_ids: [1, 2, 3],              # Already array
   product_ids: "[1,2,3]",              # JSON string
   product_ids: "1",                    # Single value → ["1"]
@@ -161,7 +161,7 @@ class UpdateUserSettings < CMDx::Task
 end
 
 # Boolean coercion recognizes many patterns
-UpdateUserSettingsTask.call(
+UpdateUserSettingsTask.execute(
   notifications: "true",    #=> true
   notifications: "yes",     #=> true
   notifications: "1",       #=> true
@@ -195,7 +195,7 @@ class ScheduleEvent < CMDx::Task
   end
 end
 
-ScheduleEventTask.call(
+ScheduleEventTask.execute(
   event_date: "2023-12-25",      # Standard ISO format
   start_time: "14:30:00",        # 24-hour format
   deadline: "12/31/2023",        # Custom MM/DD/YYYY format
@@ -235,7 +235,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # JSON input with automatic nested coercion
-ProcessOrderTask.call(
+ProcessOrderTask.execute(
   order: '{
     "id": "12345",
     "total": "299.99",
@@ -266,7 +266,7 @@ class ProcessData < CMDx::Task
 end
 
 # Invalid inputs
-result = ProcessDataTask.call(
+result = ProcessDataTask.execute(
   count: "not-a-number",
   amount: "invalid-float",
   active: "maybe"
@@ -288,15 +288,15 @@ result.metadata
 
 ```ruby
 # Invalid array JSON
-ProcessDataTask.call(items: "[invalid json")
+ProcessDataTask.execute(items: "[invalid json")
 #=> "items could not coerce into an array"
 
 # Invalid date format
-ProcessDataTask.call(start_date: "not-a-date")
+ProcessDataTask.execute(start_date: "not-a-date")
 #=> "start_date could not coerce into a date"
 
 # Multiple type failure
-ProcessDataTask.call(value: "abc", type: [:integer, :float])
+ProcessDataTask.execute(value: "abc", type: [:integer, :float])
 #=> "value could not coerce into one of: integer, float"
 ```
 
@@ -381,7 +381,7 @@ class ProcessProduct < CMDx::Task
   end
 end
 
-ProcessProductTask.call(
+ProcessProductTask.execute(
   price: "$149.99",
   url_slug: "My Amazing Product!"
 )

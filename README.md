@@ -60,7 +60,7 @@ class SendWelcomeEmail < CMDx::Task
 end
 
 # Execute task
-result = SendWelcomeEmail.call(user_id: 123, template: "admin")
+result = SendWelcomeEmail.execute(user_id: 123, template: "admin")
 
 # Handle result
 if result.success?

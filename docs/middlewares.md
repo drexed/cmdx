@@ -52,7 +52,7 @@ class AuditMiddleware < CMDx::Middleware
   end
 
   def call(task, callable)
-    result = callable.call(task)
+    result = callable.execute(task)
 
     if result.success?
       AuditLog.create!(
@@ -104,7 +104,7 @@ Inline middleware for simple cases:
 class ProcessOrder < CMDx::Task
   use :middleware, proc { |task, callable|
     start_time = Time.now
-    result = callable.call(task)
+    result = callable.execute(task)
     duration = Time.now - start_time
 
     Rails.logger.info "#{task.class.name} completed in #{duration.round(3)}s"
@@ -165,7 +165,7 @@ class RateLimitMiddleware < CMDx::Middleware
     end
 
     Rails.cache.write(key, current_count + 1, expires_in: @window)
-    callable.call(task)
+    callable.execute(task)
   end
 end
 
@@ -333,7 +333,7 @@ class ProcessApiRequest < CMDx::Task
 
   def call
     # Correlation ID automatically managed and propagated
-    context.api_response = ExternalService.call(request_data)
+    context.api_response = ExternalService.execute(request_data)
   end
 end
 ```
@@ -377,7 +377,7 @@ class ApiController < ApplicationController
   before_action :set_correlation_id
 
   def process_order
-    result = ProcessOrderTask.call(order_params)
+    result = ProcessOrderTask.execute(order_params)
 
     if result.success?
       render json: { order: result.context.order, correlation_id: result.chain.id }
@@ -400,9 +400,9 @@ class ProcessOrder < CMDx::Task
 
   def call
     # Inherits correlation ID from controller thread context
-    ValidateOrderDataTask.call(context)
-    ChargePaymentTask.call(context)
-    SendConfirmationEmailTask.call(context)
+    ValidateOrderDataTask.execute(context)
+    ChargePaymentTask.execute(context)
+    SendConfirmationEmailTask.execute(context)
   end
 end
 ```
@@ -416,7 +416,7 @@ end
 class DatabaseTransactionMiddleware < CMDx::Middleware
   def call(task, callable)
     ActiveRecord::Base.transaction do
-      result = callable.call(task)
+      result = callable.execute(task)
 
       # Rollback transaction if task failed
       raise ActiveRecord::Rollback if result.failed?
@@ -438,7 +438,7 @@ class CacheMiddleware < CMDx::Middleware
 
     return cached_result if cached_result
 
-    result = callable.call(task)
+    result = callable.execute(task)
 
     if result.success?
       Rails.cache.write(cache_key, result, expires_in: @ttl)
@@ -470,7 +470,7 @@ class ErrorProneMiddleware < CMDx::Middleware
     # Middleware error prevents task execution
     raise "Configuration missing" unless configured?
 
-    callable.call(task)
+    callable.execute(task)
   rescue StandardError => e
     # Handle middleware-specific errors
     task.fail!(Middleware error: #{e.message}")
@@ -497,14 +497,14 @@ result.reason   #=> "Task timed out after 5 seconds"
 ```ruby
 class ResilientMiddleware < CMDx::Middleware
   def call(task, callable)
-    callable.call(task)
+    callable.execute(task)
   rescue ExternalServiceError => e
     # Log error but allow task to complete
     Rails.logger.error "External service unavailable: #{e.message}"
 
     # Continue execution with degraded functionality
     task.context.external_service_available = false
-    callable.call(task)
+    callable.execute(task)
   end
 end
 ```

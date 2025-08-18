@@ -30,8 +30,8 @@ skip!(
 )
 
 # Exception behavior with call vs call!
-result = Task.call(params)    # Returns result object
-Task.call!(params)            # Raises CMDx::SkipFault/Failed on halt
+result = Task.execute(params)    # Returns result object
+Task.execute!(params)            # Raises CMDx::SkipFault/Failed on halt
 ```
 
 ## Skip (`skip!`)
@@ -155,7 +155,7 @@ end
 ### Accessing Metadata
 
 ```ruby
-result = ProcessSubscriptionTask.call(user_id: 123)
+result = ProcessSubscriptionTask.execute(user_id: 123)
 
 # Check result status
 result.skipped?                         #=> true
@@ -178,7 +178,7 @@ Halt methods trigger specific state and status transitions:
 | `fail!` | `executing` → `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
-result = ProcessSubscriptionTask.call(user_id: 123)
+result = ProcessSubscriptionTask.execute(user_id: 123)
 
 # State information
 result.state        #=> "interrupted"
@@ -200,7 +200,7 @@ Halt methods behave differently depending on the call method used:
 Returns a result object without raising exceptions:
 
 ```ruby
-result = ProcessPaymentTask.call(payment_id: 123)
+result = ProcessPaymentTask.execute(payment_id: 123)
 
 case result.status
 when "success"
@@ -220,7 +220,7 @@ end
 
 ```ruby
 begin
-  result = ProcessPaymentTask.call!(payment_id: 123)
+  result = ProcessPaymentTask.execute!(payment_id: 123)
   puts "Success: Payment processed for $#{result.context.payment.amount}"
 rescue CMDx::SkipFault => e
   puts "Skipped: #{e.message}"

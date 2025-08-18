@@ -28,7 +28,7 @@ required :context, suffix: "_data"     # Avoids CMDx::Task#context method
 required :name, prefix: "customer_"    # Avoids Ruby's Object#name method
 
 # Call arguments always use original parameter names
-TaskClass.call(name: "John", email: "john@example.com", context: {...})
+TaskClass.execute(name: "John", email: "john@example.com", context: {...})
 ```
 
 ## Namespacing Fundamentals
@@ -67,7 +67,7 @@ class UpdateCustomer < CMDx::Task
 end
 
 # Call uses original parameter names
-UpdateCustomerTask.call(
+UpdateCustomerTask.execute(
   id: 123,
   name: "Jane Smith",
   email: "jane@example.com",
@@ -289,7 +289,7 @@ class CreateUser < CMDx::Task
 end
 
 # Invalid input produces namespaced error messages
-result = CreateUserTask.call(
+result = CreateUserTask.execute(
   email: "invalid-email",
   age: "fifteen",
   account: OpenStruct.new(role: "superuser")
@@ -332,13 +332,13 @@ class Problematic < CMDx::Task
 end
 
 # ❌ WRONG: Using namespaced names in call arguments
-ProblematicTask.call(
+ProblematicTask.execute(
   user_data: { name: "John" },    # ArgumentError: unknown parameter
   config_data: { theme: "dark" }  # ArgumentError: unknown parameter
 )
 
 # ✅ CORRECT: Using original parameter names in call arguments
-ProblematicTask.call(
+ProblematicTask.execute(
   data: { name: "John" },         # Correct
   config: { theme: "dark" }       # Correct
 )

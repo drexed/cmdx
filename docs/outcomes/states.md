@@ -161,7 +161,7 @@ result
 
 ```ruby
 ProcessOrderTask
-  .call(order_id: 123)
+  .execute(order_id: 123)
   .on_complete { |result|
     # Only runs if task completed successfully
     OrderMailer.confirmation(result.context.order).deliver_now
@@ -208,7 +208,7 @@ result.state    #=> "complete" (finished executing)
 result.status   #=> "success" (executed successfully)
 
 # Failed execution
-failed_result = ProcessRefundTask.call(invalid_order_id: "xyz")
+failed_result = ProcessRefundTask.execute(invalid_order_id: "xyz")
 failed_result.state   #=> "interrupted" (execution stopped)
 failed_result.status  #=> "failed" (outcome was failure)
 ```

@@ -426,12 +426,12 @@ class ResilientCallback < CMDx::Callback
   def call(task, type)
     if @isolate
       begin
-        @callback_proc.call(task, type)
+        @callback_proc.execute(task, type)
       rescue => e
         Rails.logger.warn "Isolated callback failed: #{e.message}"
       end
     else
-      @callback_proc.call(task, type)
+      @callback_proc.execute(task, type)
     end
   end
 end

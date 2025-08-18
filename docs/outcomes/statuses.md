@@ -176,7 +176,7 @@ class ProcessRefund < CMDx::Task
   end
 end
 
-result = ProcessRefundTask.call(payment_id: "pay_123")
+result = ProcessRefundTask.execute(payment_id: "pay_123")
 result.success?  #=> true
 result.metadata  #=> {} (typically empty for success)
 ```
@@ -200,7 +200,7 @@ class ProcessSubscription < CMDx::Task
   end
 end
 
-result = ProcessSubscriptionTask.call(subscription_id: 123)
+result = ProcessSubscriptionTask.execute(subscription_id: 123)
 if result.skipped?
   result.metadata[:reason]       #=> "Subscription already cancelled"
   result.metadata[:cancelled_at] #=> 2023-10-01 10:30:00 UTC
@@ -228,7 +228,7 @@ class ValidateUserData < CMDx::Task
   end
 end
 
-result = ValidateUserDataTask.call(user_id: 123)
+result = ValidateUserDataTask.execute(user_id: 123)
 if result.failed?
   result.metadata[:reason]      #=> "User validation failed"
   result.metadata[:errors]      #=> ["Email is invalid", "Name can't be blank"]
@@ -311,13 +311,13 @@ result.status   #=> "success" (business outcome)
 result.outcome  #=> "success" (same as status when complete)
 
 # Skipped execution
-skipped_result = DataImportTask.call(skip_import: true)
+skipped_result = DataImportTask.execute(skip_import: true)
 skipped_result.state    #=> "complete" (execution finished)
 skipped_result.status   #=> "skipped" (business outcome)
 skipped_result.outcome  #=> "skipped" (same as status)
 
 # Failed execution
-failed_result = DataImportTask.call(invalid_data: true)
+failed_result = DataImportTask.execute(invalid_data: true)
 failed_result.state     #=> "interrupted" (execution stopped)
 failed_result.status    #=> "failed" (business outcome)
 failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)

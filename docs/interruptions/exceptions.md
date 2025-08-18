@@ -143,14 +143,14 @@ end
 
 # Fault behavior (converted to exception due to task_halt)
 begin
-  ProcessOrderTask.call!(payment_invalid: true)
+  ProcessOrderTask.execute!(payment_invalid: true)
 rescue CMDx::FailFault => e
   puts "Controlled fault: #{e.message}"
 end
 
 # Exception behavior (propagates normally)
 begin
-  ProcessOrderTask.call!(payment_invalid: false)
+  ProcessOrderTask.execute!(payment_invalid: false)
 rescue StandardError => e
   puts "System exception: #{e.message}"
 end
@@ -207,7 +207,7 @@ class ProcessUserData < CMDx::Task
 end
 
 # Handle with graceful degradation
-result = ProcessUserDataTask.call(user_id: 12345)
+result = ProcessUserDataTask.execute(user_id: 12345)
 
 if result.failed?
   case result.metadata[:original_exception]

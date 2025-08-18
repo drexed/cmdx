@@ -241,7 +241,7 @@ expect(result).to have_chain_index(0)  # First task in chain
 expect(result).to have_chain_index(2)  # Third task in chain
 
 # Workflow structure testing
-workflow_result = MyWorkflow.call(data: "test")
+workflow_result = MyWorkflow.execute(data: "test")
 first_task = workflow_result.chain.first
 expect(first_task).to have_chain_index(0)
 ```
@@ -257,7 +257,7 @@ Test CMDx's failure propagation patterns:
 expect(result).to have_caused_failure
 
 # Distinguished from thrown failures
-result = ValidateDataTask.call(data: "invalid")
+result = ValidateDataTask.execute(data: "invalid")
 expect(result).to have_caused_failure
 expect(result).not_to have_thrown_failure
 ```
@@ -269,7 +269,7 @@ expect(result).not_to have_thrown_failure
 expect(result).to have_thrown_failure
 
 # Thrown failure with specific original result
-workflow_result = MultiStepWorkflow.call(data: "problematic")
+workflow_result = MultiStepWorkflow.execute(data: "problematic")
 original_failure = workflow_result.chain.find(&:caused_failure?)
 throwing_task = workflow_result.chain.find(&:threw_failure?)
 expect(throwing_task).to have_thrown_failure(original_failure)
@@ -282,7 +282,7 @@ expect(throwing_task).to have_thrown_failure(original_failure)
 expect(result).to have_received_thrown_failure
 
 # Testing downstream task failure handling
-workflow_result = ProcessingWorkflow.call(data: "invalid")
+workflow_result = ProcessingWorkflow.execute(data: "invalid")
 receiving_task = workflow_result.chain.find { |r| r.thrown_failure? }
 expect(receiving_task).to have_received_thrown_failure
 ```
@@ -445,7 +445,7 @@ expect(result).to have_context(user_id: 999)
 
 ```ruby
 # Use descriptive failure messages for debugging
-result = ProcessDataTask.call(data: "invalid")
+result = ProcessDataTask.execute(data: "invalid")
 expect(result).to be_successful_task
 #=> "expected result to be successful, but was failed,
 #    expected result to be complete, but was interrupted"
@@ -514,7 +514,7 @@ describe ProcessOrderTask do
 
   context "when processing succeeds" do
     it "returns successful result with order data" do
-      result = described_class.call(order_id: 123)
+      result = described_class.execute(order_id: 123)
 
       expect(result).to be_successful_task(order_id: 123)
         .and have_context(order: be_present, processed_at: be_a(Time))
@@ -524,7 +524,7 @@ describe ProcessOrderTask do
 
   context "when validation fails" do
     it "returns failed result with error details" do
-      result = described_class.call(order_id: nil)
+      result = described_class.execute(order_id: nil)
 
       expect(result).to be_failed_task("validation_failed")
         .with_metadata(field: "order_id", rule: "presence")

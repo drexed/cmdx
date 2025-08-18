@@ -38,7 +38,7 @@ class ProcessOrder < CMDx::Task
 end
 
 # Usage
-ProcessOrderTask.call(
+ProcessOrderTask.execute(
   order_id: 123,
   customer_id: 456,
   shipping_address: { street: "123 Main St", city: "Miami", state: "FL" }
@@ -80,7 +80,7 @@ class CreateUser < CMDx::Task
 end
 
 # Parameters passed as keyword arguments
-CreateUserTask.call(
+CreateUserTask.execute(
   email: "user@example.com",
   age: 25,
   phone: "555-0123",
@@ -149,7 +149,7 @@ class GenerateInvoice < CMDx::Task
   end
 end
 
-GenerateInvoiceTask.call(user_id: 123, order_id: 456)
+GenerateInvoiceTask.execute(user_id: 123, order_id: 456)
 ```
 
 ### Dynamic Sources
@@ -241,7 +241,7 @@ class CreateShipment < CMDx::Task
   end
 end
 
-CreateShipmentTask.call(
+CreateShipmentTask.execute(
   order_id: 123,
   shipping_address: {
     street: "123 Main St",
@@ -343,7 +343,7 @@ class RequiredParams < CMDx::Task
 end
 
 # Missing required parameters
-result = RequiredParamsTask.call(user_id: 123)
+result = RequiredParamsTask.execute(user_id: 123)
 result.failed?  #=> true
 result.metadata
 # {
@@ -355,7 +355,7 @@ result.metadata
 # }
 
 # Missing nested required parameters
-result = RequiredParamsTask.call(
+result = RequiredParamsTask.execute(
   user_id: 123,
   order_id: 456,
   shipping_address: { street: "123 Main St" }  # Missing city
@@ -413,7 +413,7 @@ class ValidationError < CMDx::Task
 end
 
 # Multiple validation failures
-result = ValidationErrorTask.call(
+result = ValidationErrorTask.execute(
   email: "invalid-email",
   age: "not-a-number",
   phone: "123",

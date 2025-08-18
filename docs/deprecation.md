@@ -44,7 +44,7 @@ ObsoleteTask.call #=> issues Ruby warning
 ### How It Works
 
 1. **Configuration**: Tasks declare deprecation mode using `cmd_setting!(deprecated: mode)`
-2. **Processing**: CMDx automatically calls `TaskDeprecator.call(task)` during task lifecycle
+2. **Processing**: CMDx automatically calls `TaskDeprecator.execute(task)` during task lifecycle
 3. **Action**: Appropriate deprecation handling occurs based on configured mode
 4. **Execution**: Task proceeds normally (unless `:error` mode prevents it)
 
@@ -76,7 +76,7 @@ class ProcessLegacyPayment < CMDx::Task
 end
 
 # Attempting to use deprecated task
-result = ProcessLegacyPaymentTask.call(amount: 100)
+result = ProcessLegacyPaymentTask.execute(amount: 100)
 #=> raises CMDx::DeprecationError: "ProcessLegacyPaymentTask usage prohibited"
 ```
 
@@ -96,7 +96,7 @@ class ProcessOldPayment < CMDx::Task
 end
 
 # Task executes with logged warning
-result = ProcessOldPaymentTask.call(amount: 100)
+result = ProcessOldPaymentTask.execute(amount: 100)
 result.successful? #=> true
 
 # Check logs for deprecation warning:
@@ -119,7 +119,7 @@ class ProcessObsoletePayment < CMDx::Task
 end
 
 # Task executes with Ruby warning
-result = ProcessObsoletePaymentTask.call(amount: 100)
+result = ProcessObsoletePaymentTask.execute(amount: 100)
 # stderr: [ProcessObsoletePaymentTask] DEPRECATED: migrate to replacement or discontinue use
 
 result.successful? #=> true
@@ -188,13 +188,13 @@ end
 
 ```ruby
 begin
-  result = LegacyTask.call(params)
+  result = LegacyTask.execute(params)
 rescue CMDx::DeprecationError => e
   # Handle deprecation gracefully
   Rails.logger.error "Attempted to use deprecated task: #{e.message}"
 
   # Use replacement task instead
-  result = ReplacementTask.call(params)
+  result = ReplacementTask.execute(params)
 end
 
 if result.successful?
