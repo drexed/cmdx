@@ -22,8 +22,8 @@ rails generate cmdx:install
 ```
 
 > [!NOTE]
-> This creates `config/initializers/cmdx.rb` with default settings. More settings could be
-> set globally via the initializer such as middlewares (check docs for instructions).
+> This creates `config/initializers/cmdx.rb` with default settings. You can configure
+> middlewares, logging, and other options globally in this file (check docs for how-to).
 
 ## Task Generator
 
