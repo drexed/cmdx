@@ -30,7 +30,7 @@ class ProcessOrderTask < CMDx::Task
 end
 
 # Custom formatter
-cmd_settings!(log_formatter: CMDx::LogFormatters::Json.new)
+settings(log_formatter: CMDx::LogFormatters::Json.new)
 
 # Manual logging within tasks
 logger.info "Processing order", order_id: context.order_id
@@ -106,7 +106,7 @@ end
 
 ```ruby
 class SendEmailTask < CMDx::Task
-  cmd_settings!(
+  settings(
     logger: Rails.logger,
     log_formatter: CMDx::LogFormatters::Logstash.new,
     log_level: Logger::WARN
@@ -119,7 +119,7 @@ end
 
 # Base class configuration
 class ApplicationTask < CMDx::Task
-  cmd_settings!(
+  settings(
     logger: Logger.new("log/tasks.log"),
     log_formatter: CMDx::LogFormatters::Json.new
   )
@@ -196,7 +196,7 @@ class BrokenFormatter
 end
 
 class TestTask < CMDx::Task
-  cmd_settings!(log_formatter: BrokenFormatter.new)
+  settings(log_formatter: BrokenFormatter.new)
 
   def call
     # Execution continues with fallback formatter
@@ -235,7 +235,7 @@ class AlertFormatter
 end
 
 class NotificationTask < CMDx::Task
-  cmd_settings!(log_formatter: AlertFormatter.new)
+  settings(log_formatter: AlertFormatter.new)
 
   def call
     # Uses custom emoji-based formatting

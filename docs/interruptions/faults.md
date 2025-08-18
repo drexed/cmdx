@@ -229,7 +229,7 @@ Control which statuses raise exceptions using `task_halt`:
 ```ruby
 class DataProcessor < CMDx::Task
   # Only failures raise exceptions
-  cmd_settings!(task_halt: [CMDx::Result::FAILED])
+  settings(task_halt: [CMDx::Result::FAILED])
 
   def call
     skip!(No data to process") if data.empty?
@@ -239,7 +239,7 @@ end
 
 class CriticalValidator < CMDx::Task
   # Both failures and skips raise exceptions
-  cmd_settings!(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  settings(task_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   def call
     skip!(Validation bypassed") if bypass_mode?

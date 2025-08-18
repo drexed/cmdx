@@ -176,7 +176,7 @@ Configure halt behavior for the entire workflow:
 ```ruby
 class CriticalWorkflow < CMDx::Workflow
   # Halt on both failed and skipped results
-  cmd_settings!(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
+  settings(workflow_halt: [CMDx::Result::FAILED, CMDx::Result::SKIPPED])
 
   process LoadCriticalDataTask
   process ValidateCriticalDataTask
@@ -184,7 +184,7 @@ end
 
 class OptionalWorkflow < CMDx::Workflow
   # Never halt, always continue
-  cmd_settings!(workflow_halt: [])
+  settings(workflow_halt: [])
 
   process TryLoadDataTask
   process TryValidateDataTask
@@ -323,7 +323,7 @@ class PaymentWorkflow < CMDx::Workflow
   optional :notify_user, type: :boolean, default: true
 
   # Workflow settings
-  cmd_settings!(
+  settings(
     workflow_halt: [CMDx::Result::FAILED],
     log_level: :debug,
     tags: [:critical, :payment]

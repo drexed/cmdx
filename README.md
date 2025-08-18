@@ -75,7 +75,6 @@ end
 ## Table of contents
 
 - [Getting Started](docs/getting_started.md)
-- [Configuration](docs/configuration.md)
 - Basics
   - [Setup](docs/basics/setup.md)
   - [Call](docs/basics/call.md)

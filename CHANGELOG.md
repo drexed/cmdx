@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 - Rebuild CMDx to be simpler, less magical, and more performant
+- TODO: remove ruby 3.1 prerequisite
 
 ## [1.1.2] - 2025-07-20
 

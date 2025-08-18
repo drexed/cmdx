@@ -130,7 +130,7 @@ CMDx faults receive special treatment based on `task_halt` configuration:
 
 ```ruby
 class ProcessOrderTask < CMDx::Task
-  cmd_settings!(task_halt: [CMDx::Result::FAILED])
+  settings(task_halt: [CMDx::Result::FAILED])
 
   def call
     if context.payment_invalid

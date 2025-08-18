@@ -1,137 +1,149 @@
 # Configuration
 
-CMDx provides a flexible configuration system that allows customization at both global and task levels. Configuration follows a hierarchy where global settings serve as defaults that can be overridden at the task level.
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic parameter validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
 
 ## Table of Contents
 
-- [TLDR](#tldr)
+- [Installation](#installation)
 - [Configuration Hierarchy](#configuration-hierarchy)
 - [Global Configuration](#global-configuration)
-  - [Configuration Options](#configuration-options)
-  - [Global Middlewares](#global-middlewares)
-  - [Global Callbacks](#global-callbacks)
-  - [Global Coercions](#global-coercions)
-  - [Global Validators](#global-validators)
-- [Task Settings](#task-settings)
-  - [Available Task Settings](#available-task-settings)
-  - [Workflow Configuration](#workflow-configuration)
+  - [Breakpoints](#breakpoints)
+  - [Logging](#logging)
+  - [Middlewares](#middlewares)
+  - [Callbacks](#callbacks)
+  - [Coercions](#coercions)
+  - [Validators](#validators)
+- [Task Configuration](#task-configuration)
+  - [Settings](#settings)
+  - [Register](#register)
 - [Configuration Management](#configuration-management)
-  - [Accessing Configuration](#accessing-configuration)
-  - [Resetting Configuration](#resetting-configuration)
-- [Error Handling](#error-handling)
+  - [Access](#access)
+  - [Resetting](#resetting)
+- [Task Generator](#task-generator)
 
-## TLDR
+## Installation
+
+Add CMDx to your Gemfile:
 
 ```ruby
-# Generate configuration file
-rails g cmdx:install
-
-# Global configuration
-CMDx.configure do |config|
-  config.task_halt = ["failed", "skipped"]     # Multiple halt statuses
-  config.logger = Rails.logger                 # Custom logger
-  config.middlewares.use TimeoutMiddleware     # Global middleware
-  config.callbacks.register :on_failure, :log # Global callback
-end
-
-# Task-level overrides
-class PaymentTask < CMDx::Task
-  cmd_settings!(task_halt: "failed", tags: ["payments"])
-
-  def call
-    halt_on = cmd_setting(:task_halt)  # Access settings
-  end
-end
+gem 'cmdx'
 ```
+
+For Rails applications, generate the configuration:
+
+```bash
+rails generate cmdx:install
+```
+
+This creates `config/initializers/cmdx.rb` file.
 
 ## Configuration Hierarchy
 
-CMDx follows a three-tier configuration hierarchy:
+CMDx follows a two-tier configuration hierarchy:
 
 1. **Global Configuration**: Framework-wide defaults
-2. **Task Settings**: Class-level overrides via `cmd_settings!`
-3. **Runtime Parameters**: Instance-specific overrides during execution
+2. **Task Settings**: Class-level overrides via `settings`
 
 > [!IMPORTANT]
-> Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
+> Task-level settings take precedence over global configuration.
+> Settings are inherited from superclasses and can be overridden in subclasses.
 
 ## Global Configuration
 
-Generate a configuration file using the Rails generator:
+The CMDx global configuration is initialized with sensible defaults.
 
-```bash
-rails g cmdx:install
+### Breakpoints
+
+Breakpoints control when `execute!` raises faults.
+
+Configure breakpoints that automatically apply to all tasks:
+
+```ruby
+CMDx.configure do |config|
+  config.task_breakpoints = "skipped"
+  config.workflow_breakpoints = ["skipped", "failed"]
+end
 ```
 
-This creates `config/initializers/cmdx.rb` with sensible defaults.
+### Logging
 
-### Configuration Options
+Configure logger that automatically apply to all tasks:
 
-| Option        | Type                  | Default        | Description |
-|---------------|-----------------------|----------------|-------------|
-| `task_halt`   | String, Array<String> | `"failed"`     | Result statuses that cause `call!` to raise faults |
-| `workflow_halt`  | String, Array<String> | `"failed"`     | Result statuses that halt workflow execution |
-| `logger`      | Logger                | Line formatter | Logger instance for task execution logging |
-| `middlewares` | MiddlewareRegistry    | Empty registry | Global middleware registry applied to all tasks |
-| `callbacks`   | CallbackRegistry      | Empty registry | Global callback registry applied to all tasks |
-| `coercions`   | CoercionRegistry      | Built-in coercions | Global coercion registry for custom parameter types |
-| `validators`  | ValidatorRegistry     | Built-in validators | Global validator registry for parameter validation |
+```ruby
+CMDx.configure do |config|
+  config.logger = CustomLogger.new($stdout)
+end
+```
 
-### Global Middlewares
+### Middlewares
 
 Configure middlewares that automatically apply to all tasks:
 
 ```ruby
 CMDx.configure do |config|
-  # Simple middleware registration
-  config.middlewares.use CMDx::Middlewares::Timeout
+  # Via object
+  config.middlewares.register CMDx::Middlewares::Timeout
 
-  # Middleware with configuration
-  config.middlewares.use CMDx::Middlewares::Timeout, seconds: 30
+  # Via proc
+  config.middlewares.register proc { |task, options|
+    start = Time.now
+    result = yield
+    finish = Time.now
+    Rails.logger.debug { "task complete in #{finish - start}ms" }
+    result
+  }
 
-  # Multiple middlewares
-  config.middlewares.use AuthenticationMiddleware
-  config.middlewares.use LoggingMiddleware, level: :debug
-  config.middlewares.use MetricsMiddleware, namespace: "app.tasks"
+  # With options
+  config.middlewares.register MetricsMiddleware, namespace: "app.tasks"
+
+  # Remove middleware
+  config.middlewares.deregister CMDx::Middlewares::Timeout
 end
 ```
 
 > [!NOTE]
-> Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
+> Middlewares are executed in registration order. Each middleware wraps the next,
+> creating an execution chain around task logic.
 
-### Global Callbacks
+### Callbacks
 
 Configure callbacks that automatically apply to all tasks:
 
 ```ruby
 CMDx.configure do |config|
-  # Method callbacks
+  # Via method
   config.callbacks.register :before_execution, :setup_request_context
-  config.callbacks.register :after_execution, :cleanup_temp_files
 
-  # Conditional callbacks
-  config.callbacks.register :on_failure, :notify_admin, if: :production?
-  config.callbacks.register :on_success, :update_metrics, unless: :test?
+  # Via object
+  config.callbacks.register :on_success, TrackSuccessfulPurchase
 
-  # Proc callbacks with context
-  config.callbacks.register :on_complete, proc { |task, type|
+  # Via proc
+  config.callbacks.register :on_complete, proc { |task|
     duration = task.metadata[:runtime]
     StatsD.histogram("task.duration", duration, tags: ["class:#{task.class.name}"])
   }
+
+  # With options
+  config.callbacks.register :on_failure, :notify_admin, if: :production?
+
+  # Remove callback
+  config.callbacks.deregister :on_success, TrackSuccessfulPurchase
 end
 ```
 
-### Global Coercions
+### Coercions
 
 Configure custom coercions for domain-specific types:
 
 ```ruby
 CMDx.configure do |config|
-  # Simple coercion classes
+  # Via object
   config.coercions.register :money, MoneyCoercion
-  config.coercions.register :email, EmailCoercion
 
-  # Complex coercions with options
+  # Via method
+  config.coercions.register :point, :point_coercion
+
+  # Via proc
   config.coercions.register :csv_array, proc { |value, options|
     separator = options[:separator] || ','
     max_items = options[:max_items] || 100
@@ -139,145 +151,135 @@ CMDx.configure do |config|
     items = value.to_s.split(separator).map(&:strip).reject(&:empty?)
     items.first(max_items)
   }
+
+  # Remove coercion
+  config.coercions.deregister :money
 end
 ```
 
-### Global Validators
+### Validators
 
 Configure custom validators for parameter validation:
 
 ```ruby
 CMDx.configure do |config|
-  # Validator classes
+  # Via object
   config.validators.register :email, EmailValidator
-  config.validators.register :phone, PhoneValidator
 
-  # Proc validators with options
+  # Via method
+  config.validators.register :phone, :phone_validator
+
+  # Via proc
   config.validators.register :api_key, proc { |value, options|
-    required_prefix = options.dig(:api_key, :prefix) || "sk_"
-    min_length = options.dig(:api_key, :min_length) || 32
+    required_prefix = options[:prefix] || "sk_"
+    min_length = options[:min_length] || 32
 
     value.start_with?(required_prefix) && value.length >= min_length
   }
+
+  # Remove validator
+  config.validators.deregister :email
 end
 ```
 
-## Task Settings
+## Task Configuration
 
-Override global configuration for specific tasks using `cmd_settings!`:
+### Settings
+
+Override global configuration for specific tasks using `settings`:
 
 ```ruby
-class ProcessPaymentTask < CMDx::Task
-  cmd_settings!(
-    task_halt: ["failed"],                          # Only halt on failures
-    tags: ["payments", "critical"],                 # Logging tags
-    logger: PaymentLogger.new,                      # Custom logger
+class ProcessPayment < CMDx::Task
+  settings(
+    # Global configuration overrides
+    task_breakpoints: ["failed"],                   # Breakpoint override
+    workflow_breakpoints: [],                       # Breakpoint override
+    logger: CustomLogger.new($stdout),              # Custom logger
+
+    # Task configuration settings
     log_level: :info,                               # Log level override
-    log_formatter: CMDx::LogFormatters::Json.new    # JSON formatting
+    log_formatter: CMDx::LogFormatters::Json.new    # Log formatter override
+    tags: ["payments", "critical"]                  # Logging tags
   )
 
-  def call
-    # Payment processing logic
-    charge_customer(amount, payment_method)
-  end
-
-  private
-
-  def charge_customer(amount, method)
-    # Implementation details
+  def work
+    # Logic
   end
 end
 ```
-
-### Available Task Settings
-
-| Setting         | Type                  | Description |
-|-----------------|-----------------------|-------------|
-| `task_halt`     | String, Array<String> | Result statuses that cause `call!` to raise faults |
-| `workflow_halt`    | String, Array<String> | Result statuses that halt workflow execution |
-| `tags`          | Array<String>         | Tags automatically appended to logs |
-| `logger`        | Logger                | Custom logger instance |
-| `log_level`     | Symbol                | Log level (`:debug`, `:info`, `:warn`, `:error`, `:fatal`) |
-| `log_formatter` | LogFormatter          | Custom log formatter |
 
 > [!TIP]
-> Use task-level settings for tasks that require special handling, such as payment processing, external API calls, or critical system operations.
+> Use task-level settings for tasks that require special handling, such as payment processing,
+> external API calls, or critical system operations.
 
-### Workflow Configuration
+### Register
 
-Configure halt behavior and logging for workflows:
+Register middlewares, callbacks, coercions, and validators on a specific task.
+Deregister options that should not be available.
 
 ```ruby
-class OrderProcessingWorkflow < CMDx::Workflow
-  # Halt on any non-success status
-  cmd_settings!(
-    workflow_halt: ["failed", "skipped"],
-    tags: ["orders", "e-commerce"],
-    log_level: :info
-  )
+class ProcessPayment < CMDx::Task
+  # Middlewares
+  register :middleware, CMDx::Middlewares::Timeout
+  deregister :middleware, MetricsMiddleware
 
-  process ValidateOrderTask
-  process ChargePaymentTask
-  process UpdateInventoryTask
-  process SendConfirmationTask
-end
+  # Callbacks
+  register :callback, :on_complete, proc { |task|
+    duration = task.metadata[:runtime]
+    StatsD.histogram("task.duration", duration, tags: ["class:#{task.class.name}"])
+  }
+  deregister :callback, :before_execution, :setup_request_context
 
-class DataMigrationWorkflow < CMDx::Workflow
-  # Continue on skipped tasks, halt only on failures
-  cmd_settings!(
-    workflow_halt: "failed",
-    tags: ["migration", "maintenance"]
-  )
+  # Coercions
+  register :coercion, :money, MoneyCoercion
+  deregister :coercion, :point
 
-  process BackupDataTask
-  process MigrateUsersTask
-  process MigrateOrdersTask
-  process ValidateDataTask
+  # Validators
+  register :validator, :email, :email_validator
+  deregister :validator, :phone
+
+  def work
+    # Logic
+  end
 end
 ```
 
 ## Configuration Management
 
-### Accessing Configuration
+### Access
 
 ```ruby
 # Global configuration access
-CMDx.configuration.logger                    #=> <Logger instance>
-CMDx.configuration.task_halt                 #=> "failed"
-CMDx.configuration.middlewares.middlewares   #=> [<Middleware>, ...]
-CMDx.configuration.callbacks.callbacks       #=> {before_execution: [...], ...}
+CMDx.configuration.logger               #=> <Logger instance>
+CMDx.configuration.task_breakpoints     #=> ["failed"]
+CMDx.configuration.middlewares.registry #=> [<Middleware>, ...]
 
-# Task-specific settings
+# Task configuration access
 class DataProcessingTask < CMDx::Task
-  cmd_settings!(
-    tags: ["data", "analytics"],
-    task_halt: ["failed", "skipped"]
-  )
+  settings(tags: ["data", "analytics"])
 
-  def call
-    # Access current task settings
-    log_tags = cmd_setting(:tags)               #=> ["data", "analytics"]
-    halt_on = cmd_setting(:task_halt)           #=> ["failed", "skipped"]
-    logger_instance = cmd_setting(:logger)      #=> Inherited from global
+  def work
+    self.class.settings[:logger] #=> Global configuration value
+    self.class.settings[:tags]   #=> Task configuration value => ["data", "analytics"]
   end
 end
 ```
 
-### Resetting Configuration
+### Resetting
 
 > [!WARNING]
-> Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
+> Resetting configuration affects the entire application. Use primarily in
+> test environments or during application initialization.
 
 ```ruby
 # Reset to framework defaults
 CMDx.reset_configuration!
 
 # Verify reset
-CMDx.configuration.task_halt     #=> "failed" (default)
-CMDx.configuration.middlewares   #=> Empty registry
-CMDx.configuration.callbacks     #=> Empty registry
+CMDx.configuration.task_breakpoints     #=> ["failed"] (default)
+CMDx.configuration.middlewares.registry #=> Empty registry
 
-# Commonly used in test setup
+# Commonly used in test setup (RSpec example)
 RSpec.configure do |config|
   config.before(:each) do
     CMDx.reset_configuration!
@@ -285,60 +287,30 @@ RSpec.configure do |config|
 end
 ```
 
-## Error Handling
+## Task Generator
 
-### Configuration Validation
+Generate new CMDx tasks quickly using the built-in generator:
 
-```ruby
-# Invalid configuration types
-CMDx.configure do |config|
-  config.task_halt = :invalid_type    # Error: must be String or Array
-  config.logger = "not_a_logger"      # Error: must respond to logging methods
-end
+```bash
+rails generate cmdx:task TaskName
 ```
 
-### Missing Settings Access
+This creates a new task file with the basic structure:
 
 ```ruby
-class ExampleTask < CMDx::Task
-  def call
-    # Accessing non-existent setting
-    value = cmd_setting(:non_existent_setting)  #=> nil (returns nil for undefined)
-
-    # Check if setting exists
-    if cmd_setting(:custom_timeout)
-      timeout = cmd_setting(:custom_timeout)
-    else
-      timeout = 30  # fallback
-    end
+# app/tasks/process_order.rb
+class ProcessOrder < CMDx::Task
+  def work
+    # TODO: add logic here
   end
 end
 ```
 
-### Configuration Conflicts
-
-```ruby
-# Parent class configuration
-class BaseTask < CMDx::Task
-  cmd_settings!(task_halt: "failed", tags: ["base"])
-end
-
-# Child class inherits and overrides
-class SpecialTask < BaseTask
-  cmd_settings!(task_halt: ["failed", "skipped"])  # Overrides parent
-  # tags: ["base"] inherited from parent
-
-  def call
-    halt_statuses = cmd_setting(:task_halt)  #=> ["failed", "skipped"]
-    inherited_tags = cmd_setting(:tags)      #=> ["base"]
-  end
-end
-```
-
-> [!IMPORTANT]
-> Settings inheritance follows Ruby's method resolution order. Child class settings always override parent class settings for the same key.
+> [!TIP]
+> Use **present tense verbs + noun** for task names, eg:
+> `ProcessOrder`, `SendWelcomeEmail`, `ValidatePaymentDetails`
 
 ---
 
-- **Prev:** [Getting Started](getting_started.md)
+- **Prev:** [Tips and Tricks](tips_and_tricks.md)
 - **Next:** [Basics - Setup](basics/setup.md)
