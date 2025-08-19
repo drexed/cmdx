@@ -15,7 +15,7 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
 
-##  Modes
+## Modes
 
 ### Raise
 
@@ -33,6 +33,9 @@ end
 result = ProcessLegacyPayment.execute
 #=> raises CMDx::DeprecationError: "ProcessLegacyPayment usage prohibited"
 ```
+
+> [!WARNING]
+> Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
 
 ### Log
 
@@ -53,8 +56,8 @@ end
 result = ProcessOldPayment.execute
 result.successful? #=> true
 
-# Check logs for deprecation warning:
-# WARN -- : DEPRECATED: migrate to replacement or discontinue use
+# Deprecation warning appears in logs:
+# WARN -- : DEPRECATED: ProcessOldPayment - migrate to replacement or discontinue use
 ```
 
 ### Warn
@@ -73,8 +76,8 @@ end
 result = ProcessObsoletePayment.execute
 result.successful? #=> true
 
-# Check STDOUT for deprecation warning:
-# stderr: [ProcessObsoletePayment] DEPRECATED: migrate to replacement or discontinue use
+# Ruby warning appears in stderr:
+# [ProcessObsoletePayment] DEPRECATED: migrate to replacement or discontinue use
 ```
 
 ## Declarations
@@ -95,7 +98,7 @@ end
 
 ```ruby
 class LegacyIntegration < CMDx::Task
-  # Deprecates
+  # Deprecates with default :log mode
   settings(deprecated: true)
 
   # Skips deprecation
