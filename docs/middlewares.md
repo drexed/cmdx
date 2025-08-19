@@ -16,7 +16,10 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
 
 ## Order
 
-Middleware executes in nested fashion - first declared wraps all others, creating an onion-like execution pattern.
+Middleware executes in a nested fashion, creating an onion-like execution pattern:
+
+> [!IMPORTANT]
+> Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -43,6 +46,8 @@ end
 
 ### Proc or Lambda
 
+Use anonymous functions for simple middleware logic:
+
 ```ruby
 class ProcessOrder < CMDx::Task
   # Proc
@@ -62,6 +67,8 @@ end
 ```
 
 ### Class or Module
+
+For complex middleware logic, use classes or modules:
 
 ```ruby
 class MetricsMiddleware
@@ -98,15 +105,18 @@ class ProcessOrder < CMDx::Task
 end
 ```
 
+> [!IMPORTANT]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+
 ## Built-in
 
 ### Timeout
 
-The timeout middleware ensures a tasks execution does not exceed a certain threshold.
+Ensures task execution doesn't exceed a specified time limit:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  # Default timeout is 3 seconds
+  # Default timeout: 3 seconds
   register :middleware, CMDx::Middlewares::Timeout
 
   # Seconds (takes Numeric, Symbol, Proc, Lambda, Class, Module)
@@ -138,12 +148,11 @@ result.metadata #=> { limit: 3 }
 
 ### Correlate
 
-The correlate middleware tags tasks with a global correlation ID.
-This is very useful for tracing many task executions that are part of one sequence.
+Tags tasks with a global correlation ID for distributed tracing:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  # Default timeout is 3 seconds
+  # Default correlation ID generation
   register :middleware, CMDx::Middlewares::Correlate
 
   # Seconds (takes Object, Symbol, Proc, Lambda, Class, Module)
@@ -159,7 +168,7 @@ class ProcessOrder < CMDx::Task
   private
 
   def tracing_enabled?
-    ENV["DATADOG_API_KEY"].present?
+    ENV["TRACING_ENABLED"] == "true"
   end
 end
 
