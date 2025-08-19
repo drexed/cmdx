@@ -10,7 +10,7 @@ CMDx provides comprehensive internationalization support for all error messages,
 ## Localization
 
 > [!NOTE]
-> CMDx automatically localizes all error messages based on your application's `I18n.locale` setting.
+> CMDx automatically localizes all error messages based on the `I18n.locale` setting.
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -27,9 +27,7 @@ I18n.with_locale(:fr) do
 end
 ```
 
-## I18n
-
-Install the `cmdx-i18n` gem to add more locale support.
+Use ready-made locales by installing the [cmdx-i18n](#TODO) gem.
 
 ---
 
