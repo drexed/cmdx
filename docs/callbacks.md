@@ -2,19 +2,21 @@
 
 Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
 
+> **Note:** Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
+
 ## Table of Contents
 
-- [Hooks](#hooks)
-- [Declarations](#declarations)
-  - [Symbol](#symbol)
+- [Available Hooks](#available-hooks)
+- [Callback Declarations](#callback-declarations)
+  - [Symbol References](#symbol-references)
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
-  - [Conditionals](#conditionals)
-- [Removals](#removals)
+  - [Conditional Execution](#conditional-execution)
+- [Callback Removal](#callback-removal)
 
-## Hooks
+## Available Hooks
 
-Callbacks execute in precise lifecycle order. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out). Here is a list of available callbacks and which order they get executed:
+Callbacks execute in precise lifecycle order. Here is the complete execution sequence:
 
 ```ruby
 1. before_validation           # Pre-validation setup
@@ -26,16 +28,18 @@ Callbacks execute in precise lifecycle order. Multiple callbacks of the same typ
 6. on_[good|bad]               # Based on outcome classification
 ```
 
-## Declarations
+## Callback Declarations
 
-### Symbol
+### Symbol References
+
+Reference instance methods by symbol for simple callback logic:
 
 ```ruby
 class ProcessOrder < CMDx::Task
   before_execution :find_order
 
   # Batch declarations (works for any type)
-  on_complete :notify_old_apm, :notify_new_apm
+  on_complete :notify_customer, :update_inventory
 
   def work
     # Your logic here...
@@ -46,15 +50,25 @@ class ProcessOrder < CMDx::Task
   def find_order
     @order ||= Order.find(context.order_id)
   end
+
+  def notify_customer
+    CustomerNotifier.call(context.user, result)
+  end
+
+  def update_inventory
+    InventoryService.update(context.product_ids, result)
+  end
 end
 ```
 
 ### Proc or Lambda
 
+Use anonymous functions for inline callback logic:
+
 ```ruby
 class ProcessOrder < CMDx::Task
   # Proc
-  on_interrupted proc { BuildLine.stop! }
+  on_interrupted proc { |task| BuildLine.stop! }
 
   # Lambda
   on_complete -> { BuildLine.resume! }
@@ -62,6 +76,8 @@ end
 ```
 
 ### Class or Module
+
+Implement reusable callback logic in dedicated classes:
 
 ```ruby
 class SendNotificationCallback
@@ -83,7 +99,9 @@ class ProcessOrder < CMDx::Task
 end
 ```
 
-### Conditionals
+### Conditional Execution
+
+Control callback execution with conditional logic:
 
 ```ruby
 class AbilityCheck
@@ -124,10 +142,9 @@ class ProcessOrder < CMDx::Task
 end
 ```
 
-## Removals
+## Callback Removal
 
-Symbol, Class, and Module based declarations can be removed at a global and task level.
-Only one removal is allowed per invocation.
+Remove callbacks at runtime for dynamic behavior control:
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -138,6 +155,9 @@ class ProcessOrder < CMDx::Task
   deregister :callback, :on_complete, SendNotificationCallback
 end
 ```
+
+> [!IMPORTANT]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ---
 
