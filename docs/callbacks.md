@@ -10,6 +10,7 @@ Callbacks provide precise control over task execution lifecycle, running custom 
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
   - [Conditionals](#conditionals)
+- [Removals](#removals)
 
 ## Hooks
 
@@ -32,6 +33,9 @@ Callbacks execute in precise lifecycle order. Multiple callbacks of the same typ
 ```ruby
 class ProcessOrder < CMDx::Task
   before_execution :find_order
+
+  # Batch declarations (works for any type)
+  on_complete :notify_old_apm, :notify_new_apm
 
   def work
     # Your logic here...
@@ -117,6 +121,21 @@ class ProcessOrder < CMDx::Task
   def email_temporary?
     context.user.email_service == :temporary
   end
+end
+```
+
+## Removals
+
+Symbol, Class, and Module based declarations can be removed at a global and task level.
+Only one removal is allowed per invocation.
+
+```ruby
+class ProcessOrder < CMDx::Task
+  # Symbol
+  deregister :callback, :before_execution, :notify_customer
+
+  # Class or Module (no instances)
+  deregister :callback, :on_complete, SendNotificationCallback
 end
 ```
 
