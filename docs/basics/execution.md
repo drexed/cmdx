@@ -25,6 +25,8 @@ Create a new instance for subsequent executions.
 The `execute` method always returns a `CMDx::Result` object regardless of execution outcome.
 This is the preferred method for most use cases.
 
+Any unhandled exceptions will be caught and returned as a task failure.
+
 ```ruby
 result = ProcessOrder.execute(order_id: 12345)
 
@@ -41,8 +43,9 @@ result.status           #=> "success"
 
 ## Bang Execution
 
-The bang `execute!` method raises a `CMDx::Fault` based exception when tasks fail or are skipped,
- and returns a `CMDx::Result` object only on success.
+The bang `execute!` method raises a `CMDx::Fault` based exception when tasks fail or are skipped, and returns a `CMDx::Result` object only on success.
+
+It raises any unhandled non-fault exceptions caused during execution.
 
 | Exception | Raised When |
 |-----------|-------------|
@@ -61,6 +64,8 @@ rescue CMDx::FailFault => e
   RetryOrderJob.perform_later(e.result.context.order_id)
 rescue CMDx::SkipFault => e
   Rails.logger.info("Order skipped: #{e.result.reason}")
+rescue Exception => e
+  BugTracker.notify(unhandled_exception: e)
 end
 ```
 

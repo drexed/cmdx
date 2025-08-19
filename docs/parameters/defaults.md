@@ -256,7 +256,7 @@ class BadDefaults < CMDx::Task
   end
 end
 
-result = BadDefaultsTask.call
+result = BadDefaults.call
 result.failed?  #=> true
 result.metadata
 # {
@@ -314,7 +314,7 @@ class NilHandling < CMDx::Task
 end
 
 # Missing parameters use defaults
-NilHandlingTask.call
+NilHandling.call
 # status: "active", tags: []
 
 # Explicitly nil parameters also use defaults

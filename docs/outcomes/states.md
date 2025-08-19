@@ -76,7 +76,7 @@ end
 task = ProcessPaymentTask.new
 task.result.state #=> "initialized"
 
-result = ProcessPaymentTask.call
+result = ProcessPayment.call
 result.state #=> "complete" (if successful)
 ```
 
@@ -107,7 +107,7 @@ class OrderFulfillment < CMDx::Task
   end
 end
 
-result = OrderFulfillmentTask.call
+result = OrderFulfillment.call
 
 # Check current state
 result.initialized? #=> false (after execution)
@@ -148,7 +148,7 @@ class ProcessOrder < CMDx::Task
   end
 end
 
-result = ProcessOrderTask.call
+result = ProcessOrder.call
 
 # Individual state callbacks
 result
@@ -203,7 +203,7 @@ class ProcessRefund < CMDx::Task
 end
 
 # Successful execution
-result = ProcessRefundTask.call
+result = ProcessRefund.call
 result.state    #=> "complete" (finished executing)
 result.status   #=> "success" (executed successfully)
 
@@ -230,7 +230,7 @@ failed_result.status  #=> "failed" (outcome was failure)
 > States are automatically captured in result serialization and logging. All state information persists through the complete task execution lifecycle.
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessOrder.call
 
 # Hash representation includes state
 result.to_h

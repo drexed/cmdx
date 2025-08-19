@@ -487,7 +487,7 @@ class ProcessOrder < CMDx::Task
   end
 end
 
-result = ProcessOrderTask.call
+result = ProcessOrder.call
 result.failed?  #=> true
 result.reason   #=> "Task timed out after 5 seconds"
 ```

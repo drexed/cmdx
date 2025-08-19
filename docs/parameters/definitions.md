@@ -389,7 +389,7 @@ class SourceError < CMDx::Task
   end
 end
 
-result = SourceErrorTask.call
+result = SourceError.call
 result.failed?  #=> true
 # Error propagated from source resolution failure
 ```

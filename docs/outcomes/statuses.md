@@ -106,7 +106,7 @@ class PaymentProcessing < CMDx::Task
   end
 end
 
-result = PaymentProcessingTask.call
+result = PaymentProcessing.call
 
 # Individual status checks
 result.success? #=> true/false
@@ -146,7 +146,7 @@ class OrderFulfillment < CMDx::Task
   end
 end
 
-result = OrderFulfillmentTask.call
+result = OrderFulfillment.call
 
 # Individual status callbacks
 result
@@ -251,7 +251,7 @@ class EmailDelivery < CMDx::Task
   end
 end
 
-result = EmailDeliveryTask.call
+result = EmailDelivery.call
 
 # Good outcomes (success OR skipped)
 if result.good?
@@ -303,7 +303,7 @@ class DataImport < CMDx::Task
   end
 end
 
-result = DataImportTask.call
+result = DataImport.call
 
 # Successful execution
 result.state    #=> "complete" (execution finished)
@@ -329,7 +329,7 @@ failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)
 > Statuses are automatically captured in result serialization and logging. All status information persists through the complete task execution lifecycle.
 
 ```ruby
-result = ProcessOrderTask.call
+result = ProcessOrder.call
 
 # Hash representation includes status
 result.to_h
