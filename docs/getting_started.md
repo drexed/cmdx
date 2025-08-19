@@ -79,7 +79,7 @@ CMDx.configure do |config|
   # Via callable (must respond to `call(task, options)`)
   config.middlewares.register CMDx::Middlewares::Timeout
 
-  # Via proc
+  # Via proc or lambda
   config.middlewares.register proc { |task, options|
     start = Time.now
     result = yield
@@ -110,7 +110,7 @@ CMDx.configure do |config|
   # Via callable (must respond to `call(task)`)
   config.callbacks.register :on_success, TrackSuccessfulPurchase
 
-  # Via proc
+  # Via proc or lambda
   config.callbacks.register :on_complete, proc { |task|
     duration = task.metadata[:runtime]
     StatsD.histogram("task.duration", duration, tags: ["class:#{task.class.name}"])
@@ -134,7 +134,7 @@ CMDx.configure do |config|
   # Via method (must match signature `def point_coercion(value, options)`)
   config.coercions.register :point, :point_coercion
 
-  # Via proc
+  # Via proc or lambda
   config.coercions.register :csv_array, proc { |value, options|
     separator = options[:separator] || ','
     max_items = options[:max_items] || 100
@@ -158,7 +158,7 @@ CMDx.configure do |config|
   # Via method (must match signature `def phone_validator(value, options)`)
   config.validators.register :phone, :phone_validator
 
-  # Via proc
+  # Via proc or lambda
   config.validators.register :api_key, proc { |value, options|
     required_prefix = options[:prefix] || "sk_"
     min_length = options[:min_length] || 32

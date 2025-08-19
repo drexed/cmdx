@@ -88,7 +88,7 @@ class LegacyIntegration < CMDx::Task
     # Via method
     deprecated: :deprecate_by_year,
 
-    # Via proc
+    # Via proc or lambda
     deprecated: -> { Rails.env.local? ? :raise : :log }
 
     # Via callable (must respond to `call(task)`)
