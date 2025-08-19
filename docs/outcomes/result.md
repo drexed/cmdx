@@ -4,62 +4,43 @@ The result object is the comprehensive return value of task execution, providing
 
 ## Table of Contents
 
-- [TLDR](#tldr)
-- [Core Result Attributes](#core-result-attributes)
-- [State and Status Information](#state-and-status-information)
-- [Execution Outcome Analysis](#execution-outcome-analysis)
-- [Runtime and Performance](#runtime-and-performance)
-- [Failure Chain Analysis](#failure-chain-analysis)
+- [Result Attributes](#result-attributes)
+- [Lifecycle Information](#lifecycle-information)
+- [Outcome Analysis](#outcome-analysis)
+- [Chain Analysis](#chain-analysis)
 - [Index and Position](#index-and-position)
-- [Result Callbacks and Chaining](#result-callbacks-and-chaining)
+- [Handlers](#handlers)
 - [Pattern Matching](#pattern-matching)
-- [Serialization and Inspection](#serialization-and-inspection)
+  - [Array Pattern](#array-pattern)
+  - [Hash Pattern](#hash-pattern)
+  - [Pattern Guards](#pattern-guards)
 
-## TLDR
-
-```ruby
-# Basic result inspection
-result = ProcessOrder.execute(order_id: 123)
-result.success?    #=> true/false
-result.failed?     #=> true/false
-result.runtime     #=> 0.5 (seconds)
-
-# Fluent callbacks
-result
-  .on_success { |r| send_notification(r.context) }
-  .on_failed { |r| handle_error(r.metadata) }
-
-# Failure chain analysis
-if result.failed?
-  original = result.caused_failure    # Find root cause
-  thrower = result.threw_failure      # Find failure source
-end
-```
-
-## Core Result Attributes
+## Result Attributes
 
 > [!NOTE]
-> Result objects are immutable after task execution completes. All result data reflects the final state of the task execution and cannot be modified.
+> Result objects are immutable after task execution completes and reflect the final state.
 
 Every result provides access to essential execution information:
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
 
-# Core objects
-result.task     #=> ProcessOrderTask instance
-result.context  #=> CMDx::Context with all task data
-result.chain    #=> CMDx::Chain execution tracking
-result.metadata #=> Hash with execution metadata
+# Object data
+result.task     #=> <ProcessOrder>
+result.context  #=> <CMDx::Context>
+result.chain    #=> <CMDx::Chain>
 
-# Execution information
-result.id       #=> "abc123..." (unique execution ID)
-result.state    #=> "complete"
-result.status   #=> "success"
-result.runtime  #=> 0.5 (execution time in seconds)
+# Execution data
+result.state    #=> "interrupted"
+result.status   #=> "failed"
+
+# Fault data
+result.reason   #=> "Unsupported payment type"
+result.cause    #=> <CMDx::FailFault>
+result.metadata #=> { error_code: "PAYMENT_TYPE.UNSUPPORTED" }
 ```
 
-## State and Status Information
+## Lifcycle Information
 
 Results provide comprehensive methods for checking execution state and status:
 
@@ -78,42 +59,22 @@ result.skipped?     #=> false (not skipped)
 
 # Outcome categorization
 result.good?        #=> true (success or skipped)
-result.bad?         #=> false (failed only)
+result.bad?         #=> false (skipped or failed)
 ```
 
-## Execution Outcome Analysis
+## Outcome Analysis
 
-Results provide unified outcome determination:
+Results provide unified outcome determination depending on the fault causal chain:
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
 
-result.outcome #=> "success" (combines state and status)
+result.outcome #=> "success" (state and status)
 ```
 
-## Runtime and Performance
+## Chain Analysis
 
-Results capture detailed timing information for performance analysis:
-
-```ruby
-result = ProcessOrder.execute(order_id: 123)
-
-# Execution timing
-result.runtime #=> 0.5 (total execution time in seconds)
-
-# Performance monitoring
-result
-  .on_executed { |r|
-    MetricsService.record_execution_time(r.task.class.name, r.runtime)
-  }
-```
-
-## Failure Chain Analysis
-
-> [!IMPORTANT]
-> Failure chain analysis is only available for failed results. Use these methods to trace the root cause of failures in complex task workflows.
-
-For failed results, comprehensive failure analysis is available:
+Use these methods to trace the root cause of faults or trace the cause points.
 
 ```ruby
 result = ProcessOrderWorkflow.execute(order_id: 123)
@@ -128,29 +89,13 @@ if result.failed?
   # Find what threw the failure to this result
   if throwing_task = result.threw_failure
     puts "Failure source: #{throwing_task.task.class.name}"
+    puts "Reason: #{throwing_task.reason}"
   end
 
   # Failure classification
   result.caused_failure?  #=> true if this result was the original cause
   result.threw_failure?   #=> true if this result threw a failure
   result.thrown_failure?  #=> true if this result received a thrown failure
-end
-```
-
-### Error Handling Patterns
-
-```ruby
-result = ProcessPayment.execute(amount: "invalid")
-
-if result.failed?
-  case result.reason
-  when /validation/i
-    handle_validation_error(result)
-  when /network/i
-    schedule_retry(result)
-  else
-    escalate_error(result)
-  end
 end
 ```
 
@@ -168,68 +113,38 @@ result.index #=> 0 (first task in chain)
 result.chain.results[result.index] == result #=> true
 ```
 
-## Result Callbacks and Chaining
+## Handlers
 
-> [!TIP]
-> Use result callbacks for clean, functional-style conditional logic. Callbacks return the result object, enabling method chaining and fluent interfaces.
-
-Results support fluent callback patterns for conditional logic:
+Use result handlers for clean, functional-style conditional logic. Handlers return the result object, enabling method chaining and fluent interfaces.
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
 
 # Status-based callbacks
 result
-  .on_success { |r| send_confirmation_email(r.context.email) }
+  .on_success { |r| send_confirmation_email(r) }
   .on_failed { |r| handle_payment_failure(r) }
-  .on_skipped { |r| log_skip_reason(r.reason) }
+  .on_skipped { |r| log_skip_reason(r) }
 
 # State-based callbacks
 result
-  .on_complete { |r| update_order_status("processed") }
-  .on_interrupted { |r| cleanup_partial_state(r.context) }
+  .on_complete { |r| update_order_status(r) }
+  .on_interrupted { |r| cleanup_partial_state(r) }
 
 # Outcome-based callbacks
 result
-  .on_good { |r| increment_success_counter }
-  .on_bad { |r| alert_operations_team }
-```
-
-### Practical Callback Examples
-
-```ruby
-# Order processing pipeline
-ProcessOrderTask
-  .execute(order_id: params[:order_id])
-  .on_success { |result|
-    # Chain to notification task
-    SendOrderConfirmation.execute(result.context)
-  }
-  .on_failed { |result|
-    # Handle specific failure types
-    case result.metadata[:error_type]
-    when "payment_declined"
-      redirect_to payment_retry_path
-    when "inventory_unavailable"
-      redirect_to out_of_stock_path
-    else
-      redirect_to error_path
-    end
-  }
-  .on_executed { |result|
-    # Always log performance metrics
-    Rails.logger.info "Order processing took #{result.runtime}s"
-  }
+  .on_good { |r| increment_success_counter(r) }
+  .on_bad { |r| alert_operations_team(r) }
 ```
 
 ## Pattern Matching
 
 > [!NOTE]
-> Pattern matching requires Ruby 3.0+. The `deconstruct` method returns `[state, status]` for array patterns, while `deconstruct_keys` provides hash access to result attributes.
+> Pattern matching requires Ruby 3.0+. The `deconstruct` method returns a `[state, status]` array pattern, while `deconstruct_keys` provides hash access to result attributes.
 
 Results support Ruby's pattern matching through array and hash deconstruction:
 
-### Array Pattern Matching
+### Array Pattern
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
@@ -244,7 +159,7 @@ in ["complete", "skipped"]
 end
 ```
 
-### Hash Pattern Matching
+### Hash Pattern
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
@@ -259,7 +174,7 @@ in { bad: true, metadata: { reason: String => reason } }
 end
 ```
 
-### Pattern Matching with Guards
+### Pattern Guards
 
 ```ruby
 case result
@@ -270,68 +185,6 @@ in { status: "failed", metadata: { attempts: n } } if n >= 3
 in { runtime: time } if time > performance_threshold
   investigate_performance_issue(result)
 end
-```
-
-## Serialization and Inspection
-
-Results provide comprehensive serialization and inspection capabilities:
-
-### Hash Serialization
-
-```ruby
-result = ProcessOrder.execute(order_id: 123)
-
-result.to_h
-#=> {
-#     class: "ProcessOrderTask",
-#     type: "Task",
-#     index: 0,
-#     id: "abc123...",
-#     chain_id: "def456...",
-#     tags: [],
-#     state: "complete",
-#     status: "success",
-#     outcome: "success",
-#     metadata: {},
-#     runtime: 0.5
-#   }
-```
-
-### Human-Readable Inspection
-
-```ruby
-result = ProcessOrder.execute(order_id: 123)
-
-result.to_s
-#=> "ProcessOrderTask: type=Task index=0 id=abc123... state=complete status=success outcome=success metadata={} runtime=0.5"
-```
-
-### Failure Chain Serialization
-
-> [!WARNING]
-> Failed results include complete failure chain information. This data can be substantial in complex workflows - consider filtering when logging or persisting.
-
-```ruby
-failed_result = ProcessOrderWorkflow.execute(order_id: 123)
-
-failed_result.to_h
-#=> {
-#     # ... standard result data ...
-#     caused_failure: {
-#       class: "ValidateOrderTask",
-#       index: 1,
-#       id: "xyz789...",
-#       state: "interrupted",
-#       status: "failed"
-#     },
-#     threw_failure: {
-#       class: "ProcessPaymentTask",
-#       index: 2,
-#       id: "uvw123...",
-#       state: "interrupted",
-#       status: "failed"
-#     }
-#   }
 ```
 
 ---
