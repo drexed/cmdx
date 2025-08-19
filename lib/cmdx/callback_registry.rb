@@ -97,7 +97,7 @@ module CMDx
       Array(registry[type]).each do |callables, options|
         next unless Utils::Condition.evaluate(task, options, task)
 
-        Array(callables).each { |callable| Utils::Call.invoke(task, callable) }
+        Array(callables).each { |callable| Utils::Call.invoke(task, callable, task) }
       end
     end
 

@@ -10,7 +10,7 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
   - [Warn](#warn)
 - [Declarations](#declarations)
   - [Symbol or String](#symbol-or-string)
-  - [Boolean](#boolean)
+  - [Boolean or Nil](#boolean-or-nil)
   - [Method](#method)
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
@@ -91,7 +91,7 @@ class LegacyIntegration < CMDx::Task
 end
 ```
 
-### Boolean
+### Boolean or Nil
 
 ```ruby
 class LegacyIntegration < CMDx::Task

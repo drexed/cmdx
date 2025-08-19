@@ -283,8 +283,8 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
       end
 
       it "invokes each callable when conditions are met" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc)
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_symbol)
+        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc, mock_task)
+        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_symbol, mock_task)
 
         registry.invoke(:before_execution, mock_task)
       end
@@ -342,7 +342,7 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
       end
 
       it "handles Array conversion gracefully" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc)
+        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc, mock_task)
 
         expect { registry.invoke(:before_execution, mock_task) }.not_to raise_error
       end
