@@ -40,7 +40,7 @@ result.cause    #=> <CMDx::FailFault>
 result.metadata #=> { error_code: "PAYMENT_TYPE.UNSUPPORTED" }
 ```
 
-## Lifcycle Information
+## Lifecycle Information
 
 Results provide comprehensive methods for checking execution state and status:
 

@@ -123,7 +123,7 @@ module CMDx
     #   workflow.work # Stops on first breakpoint encountered
     def work
       self.class.execution_groups.each do |group|
-        next unless Utils::Condition.evaluate(self, group.options)
+        next unless Utils::Condition.evaluate(self, group.options, self)
 
         breakpoints = group.options[:breakpoints] || self.class.settings[:workflow_breakpoints]
         breakpoints = Array(breakpoints).map(&:to_s).uniq
