@@ -32,6 +32,7 @@ InvalidTask.execute #=> raises CMDx::UndefinedMethodError
 
 ## Inheritance
 
+All configuration options are inheritable by any child classes.
 Create a base class to share common configuration across tasks:
 
 ```ruby
