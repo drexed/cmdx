@@ -1,6 +1,6 @@
 # Parameters - Coercions
 
-Parameter coercions provide automatic type conversion for task arguments, enabling flexible input handling while ensuring type safety. Coercions transform raw input values into expected types, supporting everything from simple string-to-integer conversion to complex JSON parsing and custom type handling.
+Parameter coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
 
 ## Table of Contents
 
@@ -13,6 +13,8 @@ Parameter coercions provide automatic type conversion for task arguments, enabli
 - [Error Handling](#error-handling)
 
 ## Usage
+
+Define attribute types to enable automatic coercion:
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -58,27 +60,25 @@ end
 
 ## Built-in Coercions
 
-| Type | Options | Description | Example |
-|------|---------|-------------|---------|
-| `:array` | | Array conversion, handles JSON | `"[1,2,3]"` → `[1, 2, 3]` |
-| `:big_decimal` | `:precision` | High-precision decimal | `"123.45"` → `BigDecimal("123.45")` |
-| `:boolean` | | True/false with text patterns | `"yes"` → `true` |
+| Type | Options | Description | Examples |
+|------|---------|-------------|----------|
+| `:array` | | Array conversion with JSON support | `"a,b,c"` → `["a", "b", "c"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
+| `:big_decimal` | `:precision` | High-precision decimal | `"123.456"` → `BigDecimal("123.456")` |
+| `:boolean` | | Boolean with text patterns | `"yes"` → `true`, `"no"` → `false` |
 | `:complex` | | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
-| `:date` | `:strptime` | Date objects | `"2023-12-25"` → `Date` |
-| `:datetime` | `:strptime` | DateTime objects | `"2023-12-25 10:30"` → `DateTime` |
-| `:float` | | Floating-point | `"123.45"` → `123.45` |
-| `:hash` | | Hash conversion, handles JSON | `'{"a":1}'` → `{"a" => 1}` |
-| `:integer` | | Integer, handles hex/octal | `"0xFF"` → `255` |
+| `:date` | `:strptime` | Date objects | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
+| `:datetime` | `:strptime` | DateTime objects | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
+| `:float` | | Floating-point numbers | `"123.45"` → `123.45` |
+| `:hash` | | Hash conversion with JSON support | `'{"a":1}'` → `{"a" => 1}` |
+| `:integer` | | Integer with hex/octal support | `"0xFF"` → `255`, `"077"` → `63` |
 | `:rational` | | Rational numbers | `"1/2"` → `Rational(1, 2)` |
 | `:string` | | String conversion | `123` → `"123"` |
-| `:symbol` | Symbol conversion | `"abc"` → `:abc` |
-| `:time` | `:strptime` | Time objects | `"10:30:00"` → `Time` |
-
-## Declarations
+| `:symbol` | | Symbol conversion | `"abc"` → `:abc` |
+| `:time` | `:strptime` | Time objects | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)` |
 
 ### Proc or Lambda
 
-Use anonymous functions for simple callback logic:
+Use anonymous functions for simple coercion logic:
 
 ```ruby
 class FindLocation < CMDx::Task
@@ -104,7 +104,7 @@ end
 
 ### Class or Module
 
-For complex coercion logic, use classes or modules:
+Register custom coercion logic for specialized type handling:
 
 ```ruby
 class PointCoercion
@@ -124,7 +124,7 @@ end
 
 ## Removals
 
-Class and Module based declarations can be removed at a global and task level.
+Remove custom coercions when no longer needed:
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -138,7 +138,7 @@ end
 
 ## Error Handling
 
-Coercion failures provide detailed error information including parameter paths, attempted types, and specific failure reasons.
+Coercion failures provide detailed error information including parameter paths, attempted types, and specific failure reasons:
 
 ```ruby
 class ProcessData < CMDx::Task
