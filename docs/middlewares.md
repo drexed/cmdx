@@ -95,8 +95,7 @@ end
 
 ## Removals
 
-Class, and Module based declarations can be removed at a global and task level.
-Only one removal is allowed per invocation.
+Class and Module based declarations can be removed at a global and task level.
 
 ```ruby
 class ProcessOrder < CMDx::Task
