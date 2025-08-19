@@ -4,7 +4,6 @@ Callbacks provide precise control over task execution lifecycle, running custom 
 
 ## Table of Contents
 
-- [TLDR](#tldr)
 - [Callback Declaration](#callback-declaration)
 - [Callback Classes](#callback-classes)
 - [Available Callbacks](#available-callbacks)
@@ -18,34 +17,14 @@ Callbacks provide precise control over task execution lifecycle, running custom 
 - [Error Handling](#error-handling)
 - [Callback Inheritance](#callback-inheritance)
 
-## TLDR
 
-```ruby
-# Method name callbacks
-after_validation :verify_order_data
-on_success :send_notification
-
-# Proc/lambda callbacks
-on_complete -> { send_telemetry_data }
-
-# Callback class instances
-before_execution LoggingCallback.new(:debug)
-
-# Conditional execution
-on_failed :alert_support, if: :critical_order?
-after_execution :cleanup, unless: :preserve_data?
-
-# Multiple callbacks for same event
-on_success :increment_counter, :send_notification
-```
-
-> [!IMPORTANT]
-> Callbacks execute in declaration order (FIFO) and are inherited by subclasses, making them ideal for application-wide patterns.
 
 ## Callback Declaration
 
-> [!NOTE]
-> Callbacks can be declared using method names, procs/lambdas, Callback class instances, or blocks. All forms have access to the task's context and result.
+Callbacks can be declared using method names, procs/lambdas, Callback class instances, or blocks. All forms have access to the task's context and result.
+
+> [!IMPORTANT]
+> Callbacks execute in declaration order (FIFO) and are inherited by subclasses, making them ideal for application-wide patterns.
 
 ### Declaration Methods
 

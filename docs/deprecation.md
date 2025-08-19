@@ -5,17 +5,17 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
 ## Table of Contents
 
 - [Modes](#modes)
-- [Configuration](#configuration)
+  - [Raise](#raise)
+  - [Log](#log)
+  - [Warn](#warn)
+- [Declarations](#declarations)
+  - [Symbol or String](#symbol-or-string)
+  - [Boolean](#boolean)
+  - [Method](#method)
+  - [Proc or Lambda](#proc-or-lambda)
+  - [Class or Module](#class-or-module)
 
 ##  Modes
-
-| Mode | Behavior | Use Case |
-|------|----------|----------|
-| `:raise` | Raises `DeprecationError` | Hard deprecation, prevent execution |
-| `:log` | Logs warning via `task.logger.warn` | Soft deprecation, track usage |
-| `:warn` | Issues Ruby warning | Development alerts |
-| `true` | Same as `:log` | Legacy boolean support |
-| `nil/false` | No deprecation handling | Default behavior |
 
 ### Raise
 
@@ -41,6 +41,9 @@ result = ProcessLegacyPayment.execute
 ```ruby
 class ProcessOldPayment < CMDx::Task
   settings(deprecated: :log)
+
+  # Same
+  settings(deprecated: true)
 
   def work
     # Executes but logs deprecation warning...
@@ -74,26 +77,39 @@ result.successful? #=> true
 # stderr: [ProcessObsoletePayment] DEPRECATED: migrate to replacement or discontinue use
 ```
 
-## Configuration
+## Declarations
+
+### Symbol or String
 
 ```ruby
 class LegacyIntegration < CMDx::Task
-  settings(
-    # Via symbol or string
-    deprecated: "raise",
+  # Symbol
+  settings(deprecated: :raise)
 
-    # Via boolean
-    deprecated: true,
+  # String
+  settings(deprecated: "warn")
+end
+```
 
-    # Via method
-    deprecated: :deprecate_by_year,
+### Boolean
 
-    # Via proc or lambda
-    deprecated: -> { Rails.env.local? ? :raise : :log }
+```ruby
+class LegacyIntegration < CMDx::Task
+  # Deprecates
+  settings(deprecated: true)
 
-    # Via callable (must respond to `call(task)`)
-    deprecated: LegacyTaskChecker
-  )
+  # Skips deprecation
+  settings(deprecated: false)
+  settings(deprecated: nil)
+end
+```
+
+### Method
+
+```ruby
+class LegacyIntegration < CMDx::Task
+  # Symbol
+  settings(deprecated: :deprecated?)
 
   def work
     # Your logic here...
@@ -101,9 +117,39 @@ class LegacyIntegration < CMDx::Task
 
   private
 
-  def deprecate_by_year
-    Time.now.year > 2020
+  def deprecated?
+    Time.now.year > 2020 ? :raise : false
   end
+end
+```
+
+### Proc or Lambda
+
+```ruby
+class LegacyIntegration < CMDx::Task
+  # Proc
+  settings(deprecated: proc { Rails.env.local? ? :raise : :log })
+
+  # Lambda
+  settings(deprecated: -> { Current.user.legacy? ? :warn : :raise })
+end
+```
+
+### Class or Module
+
+```ruby
+class LegacyTaskDeprecator
+  def call(task)
+    task.class.name.include?("Legacy")
+  end
+end
+
+class LegacyIntegration < CMDx::Task
+  # Class or Module
+  settings(deprecated: LegacyTaskDeprecator)
+
+  # Instance
+  settings(deprecated: LegacyTaskDeprecator.new)
 end
 ```
 
