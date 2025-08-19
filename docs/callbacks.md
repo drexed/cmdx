@@ -6,15 +6,15 @@ Callbacks provide precise control over task execution lifecycle, running custom 
 
 ## Table of Contents
 
-- [Available Hooks](#available-hooks)
-- [Callback Declarations](#callback-declarations)
+- [Available Callbacks](#available-callbacks)
+- [Declarations](#declarations)
   - [Symbol References](#symbol-references)
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
   - [Conditional Execution](#conditional-execution)
 - [Callback Removal](#callback-removal)
 
-## Available Hooks
+## Available Callbacks
 
 Callbacks execute in precise lifecycle order. Here is the complete execution sequence:
 
@@ -28,7 +28,7 @@ Callbacks execute in precise lifecycle order. Here is the complete execution seq
 6. on_[good|bad]               # Based on outcome classification
 ```
 
-## Callback Declarations
+## Declarations
 
 ### Symbol References
 

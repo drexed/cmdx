@@ -1,20 +1,21 @@
-# Workflow
+# Workflows
 
-CMDx::Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business workflows from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
+CMDx::Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
 
 ## Table of Contents
 
-- [Declaration](#declaration)
+- [Declarations](#declarations)
   - [Task](#task)
+  - [Group](#group)
   - [Conditionals](#conditionals)
 - [Halt Behavior](#halt-behavior)
   - [Task Configuration](#task-configuration)
   - [Group Configuration](#group-configuration)
 - [Nested Workflows](#nested-workflows)
 
-## Declaration
+## Declarations
 
-Tasks execute in declaration order (FIFO). The workflow context gets passed to each declared task so each task can access the data assigned from the task or workflow before it.
+Tasks execute in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
 
 > [!WARNING]
 > Do **NOT** define a `work` method in workflow tasks.
@@ -33,7 +34,31 @@ class NotificationWorkflow < CMDx::Task
 end
 ```
 
+### Group
+
+Group related tasks for better organization and shared configuration:
+
+```ruby
+class DataProcessingWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  # Validation phase
+  tasks ValidateInput, ValidateSchema, ValidateBusinessRules, breakpoints: ["skipped"]
+
+  # Processing phase
+  tasks TransformData, ApplyRules, CalculateMetrics
+
+  # Output phase
+  tasks GenerateReport, SaveResults, NotifyStakeholders
+end
+```
+
+> [!IMPORTANT]
+> Settings and conditionals for a group apply to all tasks within that group.
+
 ### Conditionals
+
+Conditionals support multiple syntaxes for flexible execution control:
 
 ```ruby
 class DeliveryCheck
