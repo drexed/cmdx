@@ -99,7 +99,6 @@ end
 - [Deprecation](docs/deprecation.md)
 - [Workflows](docs/workflows.md)
 - [Testing](docs/testing.md)
-- [AI Prompts](docs/ai_prompts.md)
 - [Tips & Tricks](docs/tips_and_tricks.md)
 
 ## Development
