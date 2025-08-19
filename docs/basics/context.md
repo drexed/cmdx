@@ -18,8 +18,7 @@ Context is automatically populated with all inputs passed to a task. All keys ar
 ProcessOrder.execute(user_id: 123, currency: "USD")
 
 # Instance creation
-task = ProcessOrder.new(user_id: 123, "currency" => "USD")
-task.execute
+ProcessOrder.new(user_id: 123, "currency" => "USD")
 ```
 
 > [!NOTE]
@@ -32,11 +31,11 @@ Context provides multiple access patterns with automatic nil safety:
 ```ruby
 class ProcessOrder < CMDx::Task
   def work
-    # Method-style access (preferred)
+    # Method style access (preferred)
     user_id = context.user_id
     amount = context.amount
 
-    # Hash-style access
+    # Hash style access
     order_id = context[:order_id]
     metadata = context["metadata"]
 
@@ -99,7 +98,7 @@ end
 Context enables seamless data flow between related tasks in complex workflows:
 
 ```ruby
-# Before and during execution
+# During execution
 class ProcessOrder < CMDx::Task
   def work
     # Validate order data

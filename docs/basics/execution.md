@@ -8,9 +8,6 @@ Task execution in CMDx provides two distinct methods that handle success and hal
 - [Non-bang Execution](#non-bang-execution)
 - [Bang Execution](#bang-execution)
 - [Direct Instantiation](#direct-instantiation)
-- [Result Handlers](#result-handlers)
-  - [Available Handlers](#available-handlers)
-- [Execution Lifecycle](#execution-lifecycle)
 - [Result Details](#result-details)
 
 ## Methods Overview
@@ -88,57 +85,6 @@ task.execute
 task.execute!
 
 task.result.success?         #=> true/false
-```
-
-## Result Handlers
-
-Results support fluent handler patterns for terse conditional logic:
-
-```ruby
-ProcessOrder
-  .execute(order_id: 12345)
-  .on_success { |result| SendOrderConfirmation.execute(result.context) }
-  .on_failed { |result| ErrorReportingService.notify(result.cause) }
-  .on_executed { |result| MetricsService.timing('order.processing_time', result.metadata[:runtime]) }
-```
-
-### Available Handlers
-
-Handlers return the result object, enabling method chaining for complex conditional logic.
-
-```ruby
-result = ProcessOrder.execute(order_id: 12345)
-
-# State-based handlers
-result
-  .on_complete { |r| cleanup_resources(r) }
-  .on_interrupted { |r| handle_interruption(r) }
-  .on_executed { |r| log_execution_time(r) }
-
-# Status-based handlers
-result
-  .on_success { |r| handle_success(r) }
-  .on_skipped { |r| handle_skip(r) }
-  .on_failed { |r| handle_failure(r) }
-
-# Outcome-based handlers
-result
-  .on_good { |r| log_positive_outcome(r) } # success or skipped
-  .on_bad { |r| log_negative_outcome(r) }  # skipped or failed
-```
-
-## Execution Lifecycle
-
-Tasks progress through defined states and statuses during execution:
-
-```ruby
-result = ProcessOrder.execute(order_id: 12345)
-
-# Execution states
-result.state #=> "initialized" → "executing" → "complete"/"interrupted"
-
-# Outcome statuses
-result.status #=> "success"/"failed"/"skipped"
 ```
 
 ## Result Details

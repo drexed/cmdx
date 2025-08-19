@@ -119,7 +119,7 @@ config.active_record.query_log_tags << :cmdx_task_class
 config.active_record.query_log_tags << :cmdx_chain_id
 
 # app/tasks/application_task.rb
-class Application < CMDx::Task
+class ApplicationTask < CMDx::Task
   before_execution :set_execution_context
 
   private

@@ -19,9 +19,9 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 
 | Type | Triggered By | Use Case |
 |------|--------------|----------|
+| `CMDx::Fault` | Base class | Catch-all for any interruption |
 | `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
 | `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
-| `CMDx::Fault` | Base class | Catch-all for any interruption |
 
 > [!NOTE]
 > All fault exceptions inherit from `CMDx::Fault` and provide access to the complete task execution context including result, task, context, and chain information.
@@ -45,7 +45,7 @@ end
 
 ## Data Access
 
-Faults provide comprehensive access to execution context:
+Faults provide comprehensive access to execution context, eg:
 
 ```ruby
 begin
@@ -57,7 +57,7 @@ rescue CMDx::Fault => e
   e.result.reason    #=> "Email already exists"
 
   # Task information
-  e.task.class       #=> #<UserRegistration ...>
+  e.task.class       #=> <UserRegistration>
   e.task.id          #=> "abc123..."
 
   # Context data

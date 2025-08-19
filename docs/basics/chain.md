@@ -5,7 +5,7 @@ Chains automatically group related task executions within a thread, providing un
 ## Table of Contents
 
 - [Management](#management)
-- [Automated Creation](#automated-creation)
+- [Links](#links)
 - [Inheritance](#inheritance)
 - [Structure](#structure)
 
@@ -17,40 +17,44 @@ Each thread maintains its own chain context through thread-local storage, provid
 # Thread A
 Thread.new do
   result = ProcessOrder.execute(order_id: 123)
-  result.chain.id    # "018c2b95-b764-7615-a924-cc5b910ed1e5"
+  result.chain.id    #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
 end
 
 # Thread B (completely separate chain)
 Thread.new do
   result = ProcessOrder.execute(order_id: 456)
-  result.chain.id    # "z3a42b95-c821-7892-b156-dd7c921fe2a3"
+  result.chain.id    #=> "z3a42b95-c821-7892-b156-dd7c921fe2a3"
 end
 
 # Access current thread's chain
-CMDx::Chain.current  # Returns current chain or nil
-CMDx::Chain.clear    # Clears current thread's chain
+CMDx::Chain.current  #=> Returns current chain or nil
+CMDx::Chain.clear    #=> Clears current thread's chain
 ```
 
 > [!IMPORTANT]
 > Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.
 
-## Automated Creation
+## Links
 
 Every task execution automatically creates or joins the current thread's chain:
 
 ```ruby
-# First task creates new chain
-result1 = ProcessOrder.execute(order_id: 123)
-result1.chain.id           # "018c2b95-b764-7615-a924-cc5b910ed1e5"
-result1.chain.results.size # 1
+class ProcessOrder < CMDx::Task
+  def work
+    # First task creates new chain
+    result1 = ProcessOrder.execute(order_id: 123)
+    result1.chain.id           #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+    result1.chain.results.size #=> 1
 
-# Second task joins existing chain
-result2 = SendEmail.execute(to: "user@example.com")
-result2.chain.id == result1.chain.id  # true
-result2.chain.results.size            # 2
+    # Second task joins existing chain
+    result2 = SendEmail.execute(to: "user@example.com")
+    result2.chain.id == result1.chain.id  #=> true
+    result2.chain.results.size            #=> 2
 
-# Both results reference the same chain
-result1.chain.results == result2.chain.results # true
+    # Both results reference the same chain
+    result1.chain.results == result2.chain.results #=> true
+  end
+end
 ```
 
 > [!NOTE]
@@ -66,8 +70,8 @@ class ProcessOrder < CMDx::Task
     context.order = Order.find(order_id)
 
     # Subtasks automatically inherit current chain
-    ValidateOrder.execute(order_id: order_id)
-    ChargePayment.execute!(order_id: order_id)
+    ValidateOrder.execute
+    ChargePayment.execute!(context)
     SendConfirmation.execute(order_id: order_id)
   end
 end
@@ -76,9 +80,9 @@ result = ProcessOrder.execute(order_id: 123)
 chain = result.chain
 
 # All tasks share the same chain
-chain.results.size # 4 (main task + 3 subtasks)
-chain.results.map(&:task).map(&:class)
-# [ProcessOrder, ValidateOrder, ChargePayment, SendConfirmation]
+chain.results.size #=> 4 (main task + 3 subtasks)
+chain.results.map { |r| r.task.class }
+#=> [ProcessOrder, ValidateOrder, ChargePayment, SendConfirmation]
 ```
 
 ## Structure
@@ -90,13 +94,13 @@ result = ProcessOrder.execute(order_id: 123)
 chain = result.chain
 
 # Chain identification
-chain.id      # "018c2b95-b764-7615-a924-cc5b910ed1e5"
-chain.results # Array of all results in execution order
+chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+chain.results #=> Array of all results in execution order
 
 # State delegation (from first/outer-most result)
-chain.state   # "complete"
-chain.status  # "success"
-chain.outcome # "success"
+chain.state   #=> "complete"
+chain.status  #=> "success"
+chain.outcome #=> "success"
 
 # Access individual results
 chain.results.each_with_index do |result, index|

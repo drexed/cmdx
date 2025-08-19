@@ -458,7 +458,7 @@ end
 > Callbacks are inherited from parent classes, enabling application-wide patterns. Child classes can add additional callbacks or override inherited behavior.
 
 ```ruby
-class Application < CMDx::Task
+class ApplicationTask < CMDx::Task
   # Global logging
   before_execution :log_task_start
   after_execution :log_task_end

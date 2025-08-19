@@ -283,7 +283,7 @@ end
 Generate new CMDx tasks quickly using the built-in generator:
 
 ```bash
-rails generate cmdx:task TaskName
+rails generate cmdx:task ProcessOrder
 ```
 
 This creates a new task file with the basic structure:

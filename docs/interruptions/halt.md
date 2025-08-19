@@ -9,6 +9,8 @@ Halting stops task execution with explicit intent signaling. Tasks provide two p
 - [Metadata Enrichment](#metadata-enrichment)
 - [State Transitions](#state-transitions)
 - [Execution Behavior](#execution-behavior)
+  - [Non-bang execution](#non-bang-execution)
+  - [Bang execution](#bang-execution)
 - [Best Practices](#best-practices)
 
 ## Skipping
@@ -119,7 +121,7 @@ result.metadata #=> {}
 # With metadata
 result.metadata #=> {
                 #     error_code: "PAYMENT_METHOD.INVALID",
-                #     retry_after: #<Time 1 hour from now>
+                #     retry_after: <Time 1 hour from now>
                 #   }
 ```
 
@@ -150,7 +152,7 @@ result.bad?         #=> true for both skipped and failed
 
 Halt methods behave differently depending on the call method used:
 
-### With `execute` (Non-bang)
+### Non-bang execution
 
 Returns result object without raising exceptions:
 
@@ -168,7 +170,7 @@ when "failed"
 end
 ```
 
-### With `execute!` (Bang)
+### Bang execution
 
 Raises exceptions for halt conditions based on `task_breakpoints` configuration:
 

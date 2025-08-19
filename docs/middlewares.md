@@ -185,7 +185,7 @@ end
 > Middleware is inherited from parent classes, making it ideal for application-wide concerns.
 
 ```ruby
-class Application < CMDx::Task
+class ApplicationTask < CMDx::Task
   use :middleware, RequestIdMiddleware      # All tasks get request tracking
   use :middleware, PerformanceMiddleware    # All tasks get performance monitoring
   use :middleware, ErrorReportingMiddleware # All tasks get error reporting

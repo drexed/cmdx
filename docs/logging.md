@@ -118,7 +118,7 @@ class SendEmail < CMDx::Task
 end
 
 # Base class configuration
-class Application < CMDx::Task
+class ApplicationTask < CMDx::Task
   settings(
     logger: Logger.new("log/tasks.log"),
     log_formatter: CMDx::LogFormatters::Json.new

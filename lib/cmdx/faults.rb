@@ -9,8 +9,11 @@ module CMDx
   # Each fault contains a reference to the result object that caused the fault.
   class Fault < Error
 
-    # @return [Result] the result object that caused this fault
+    extend Forwardable
+
     attr_reader :result
+
+    def_delegators :result, :task, :context, :chain
 
     # Initialize a new fault with the given result.
     #
