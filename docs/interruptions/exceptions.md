@@ -21,7 +21,7 @@ class ProcessPayment < CMDx::Task
   end
 end
 
-result = ProcessPayment.call
+result = ProcessPayment.execute
 result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.failed?  #=> true
@@ -41,7 +41,7 @@ class ProcessPayment < CMDx::Task
 end
 
 begin
-  ProcessPayment.call!
+  ProcessPayment.execute!
 rescue UnknownPaymentMethod => e
   puts "Handle exception: #{e.message}"
 end

@@ -31,9 +31,9 @@ class Obsolete < CMDx::Task
 end
 
 # Usage triggers appropriate deprecation handling
-Legacy.call   #=> raises DeprecationError
-Old.call      #=> logs warning via task.logger
-Obsolete.call #=> issues Ruby warning
+Legacy.execute   #=> raises DeprecationError
+Old.execute      #=> logs warning via task.logger
+Obsolete.execute #=> issues Ruby warning
 ```
 
 ## Deprecation Fundamentals

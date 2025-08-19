@@ -280,7 +280,7 @@ class StrictWorkflow < CMDx::Workflow
   process FinalTask  # Never executes
 end
 
-result = StrictWorkflow.call
+result = StrictWorkflow.execute
 result.failed?  #=> true (halted on skipped task)
 ```
 

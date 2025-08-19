@@ -120,21 +120,21 @@ Use result handlers for clean, functional-style conditional logic. Handlers retu
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
 
-# Status-based callbacks
+# Status-based handlers
 result
-  .on_success { |r| send_confirmation_email(r) }
-  .on_failed { |r| handle_payment_failure(r) }
-  .on_skipped { |r| log_skip_reason(r) }
+  .on_success { |result| send_confirmation_email(result) }
+  .on_failed { |result| handle_payment_failure(result) }
+  .on_skipped { |result| log_skip_reason(result) }
 
-# State-based callbacks
+# State-based handlers
 result
-  .on_complete { |r| update_order_status(r) }
-  .on_interrupted { |r| cleanup_partial_state(r) }
+  .on_complete { |result| update_order_status(result) }
+  .on_interrupted { |result| cleanup_partial_state(result) }
 
-# Outcome-based callbacks
+# Outcome-based handlers
 result
-  .on_good { |r| increment_success_counter(r) }
-  .on_bad { |r| alert_operations_team(r) }
+  .on_good { |result| increment_success_counter(result) }
+  .on_bad { |result| alert_operations_team(result) }
 ```
 
 ## Pattern Matching

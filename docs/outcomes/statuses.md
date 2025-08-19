@@ -4,43 +4,12 @@ Statuses represent the business outcome of task execution logic, indicating how 
 
 ## Table of Contents
 
-- [TLDR](#tldr)
-- [Status Definitions](#status-definitions)
-- [Status Transitions](#status-transitions)
-- [Status Predicates](#status-predicates)
-- [Status-Based Callbacks](#status-based-callbacks)
-- [Status Metadata](#status-metadata)
-- [Outcome-Based Logic](#outcome-based-logic)
-- [Status vs State vs Outcome](#status-vs-state-vs-outcome)
-- [Status Serialization and Inspection](#status-serialization-and-inspection)
+- [Definitions](#definitions)
+- [Transitions](#transitions)
+- [Predicates](#predicates)
+- [Handlers](#handlers)
 
-## TLDR
-
-```ruby
-# Check business outcomes
-result.success?  #=> true (default outcome)
-result.skipped?  #=> false (via skip!)
-result.failed?   #=> false (via fail!)
-
-# Outcome-based logic
-result.good?     #=> true (success OR skipped)
-result.bad?      #=> false (skipped OR failed)
-
-# Status-based callbacks
-result
-  .on_success { |r| process_success(r) }
-  .on_skipped { |r| handle_skip_condition(r) }
-  .on_failed { |r| handle_business_failure(r) }
-
-# Statuses: HOW it ended, States: WHERE in lifecycle
-result.status  #=> "success" (business outcome)
-result.state   #=> "complete" (execution lifecycle)
-```
-
-## Status Definitions
-
-> [!IMPORTANT]
-> Statuses represent business outcomes, not technical execution states. A task can be technically "complete" but have a "failed" status if business logic determined the operation could not succeed.
+## Definitions
 
 | Status | Description |
 | ------ | ----------- |
@@ -48,12 +17,10 @@ result.state   #=> "complete" (execution lifecycle)
 | `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary. |
 | `failed` | Task stopped execution due to business rule violations, validation errors, or exceptions. |
 
-## Status Transitions
+## Transitions
 
-> [!WARNING]
+> [!IMPORTANT]
 > Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.
-
-Unlike states, statuses can only transition from success to skipped/failed:
 
 ```ruby
 # Valid status transitions
@@ -67,46 +34,12 @@ failed → success     # ❌ Cannot transition
 failed → skipped     # ❌ Cannot transition
 ```
 
-### Status Transition Examples
-
-```ruby
-class ProcessOrder < CMDx::Task
-  def work
-    # Task starts with success status
-    context.result.success? #=> true
-
-    # Conditional skip
-    if context.order.already_processed?
-      skip!(Order already processed")
-      # Status is now skipped, execution halts
-    end
-
-    # Conditional failure
-    unless context.user.authorized?
-      fail!(Insufficient permissions")
-      # Status is now failed, execution halts
-    end
-
-    # Continue with business logic
-    process_order
-    # Status remains success
-  end
-end
-```
-
-## Status Predicates
+## Predicates
 
 Use status predicates to check execution outcomes:
 
 ```ruby
-class PaymentProcessing < CMDx::Task
-  def work
-    charge_customer
-    send_receipt
-  end
-end
-
-result = PaymentProcessing.call
+result = PaymentProcessing.execute
 
 # Individual status checks
 result.success? #=> true/false
@@ -118,246 +51,23 @@ result.good?    #=> true if success OR skipped
 result.bad?     #=> true if skipped OR failed (not success)
 ```
 
-### Status Checking in Business Logic
+## Handlers
+
+Use status-based handlers for business logic branching. The `on_good` and `on_bad` handlers are particularly useful for handling success/skip vs failed outcomes respectively.
 
 ```ruby
-def handle_payment_result(result)
-  if result.success?
-    send_confirmation_email(result.context.customer)
-  elsif result.skipped?
-    log_skip_reason(result.reason)
-  elsif result.failed?
-    handle_payment_failure(result.metadata)
-  end
-end
-```
+result = OrderFulfillment.execute
 
-## Status-Based Callbacks
-
-> [!TIP]
-> Use status-based callbacks for business logic branching. The `on_good` and `on_bad` callbacks are particularly useful for handling success/skip vs failed outcomes respectively.
-
-```ruby
-class OrderFulfillment < CMDx::Task
-  def work
-    validate_inventory
-    process_payment
-    schedule_shipping
-  end
-end
-
-result = OrderFulfillment.call
-
-# Individual status callbacks
+# Individual status handlers
 result
-  .on_success { |r| schedule_delivery(r.context.order) }
-  .on_skipped { |r| notify_backorder(r.context.customer) }
-  .on_failed { |r| refund_payment(r.context.payment_id) }
+  .on_success { |result| schedule_delivery(result) }
+  .on_skipped { |result| notify_backorder(result) }
+  .on_failed { |result| refund_payment(result) }
 
-# Outcome-based callbacks
+# Outcome-based handlers
 result
-  .on_good { |r| update_inventory(r.context.items) }
-  .on_bad { |r| log_negative_outcome(r.metadata) }
-```
-
-## Status Metadata
-
-> [!NOTE]
-> Always include rich metadata with skip and fail operations. This information is invaluable for debugging, user feedback, and automated error handling.
-
-### Success Metadata
-
-```ruby
-class ProcessRefund < CMDx::Task
-  def work
-    refund = create_refund(context.payment_id)
-    context.refund_id = refund.id
-    context.processed_at = Time.now
-  end
-end
-
-result = ProcessRefund.execute(payment_id: "pay_123")
-result.success?  #=> true
-result.metadata  #=> {} (typically empty for success)
-```
-
-### Skip Metadata
-
-```ruby
-class ProcessSubscription < CMDx::Task
-  def work
-    subscription = Subscription.find(context.subscription_id)
-
-    if subscription.cancelled?
-      skip!(
-        Subscription already cancelled",
-        cancelled_at: subscription.cancelled_at,
-        skip_code: "ALREADY_CANCELLED"
-      )
-    end
-
-    process_subscription(subscription)
-  end
-end
-
-result = ProcessSubscription.execute(subscription_id: 123)
-if result.skipped?
-  result.reason       #=> "Subscription already cancelled"
-  result.metadata[:cancelled_at] #=> 2023-10-01 10:30:00 UTC
-  result.metadata[:skip_code]    #=> "ALREADY_CANCELLED"
-end
-```
-
-### Failure Metadata
-
-```ruby
-class ValidateUserData < CMDx::Task
-  def work
-    user = User.find(context.user_id)
-
-    unless user.valid?
-      fail!(
-        User validation failed",
-        errors: user.errors.full_messages,
-        error_code: "VALIDATION_FAILED",
-        retryable: false
-      )
-    end
-
-    context.validated_user = user
-  end
-end
-
-result = ValidateUserData.execute(user_id: 123)
-if result.failed?
-  result.reason      #=> "User validation failed"
-  result.metadata[:errors]      #=> ["Email is invalid", "Name can't be blank"]
-  result.metadata[:error_code]  #=> "VALIDATION_FAILED"
-  result.metadata[:retryable]   #=> false
-end
-```
-
-## Outcome-Based Logic
-
-Statuses enable sophisticated outcome-based decision making:
-
-### Good vs Bad Outcomes
-
-```ruby
-class EmailDelivery < CMDx::Task
-  def work
-    # Business logic here
-    send_email
-  end
-end
-
-result = EmailDelivery.call
-
-# Good outcomes (success OR skipped)
-if result.good?
-  # Both success and skipped are "good" outcomes
-  update_user_interface(result)
-  track_completion_metrics(result)
-end
-
-# Bad outcomes (skipped OR failed, excluding success)
-if result.bad?
-  # Handle any non-success outcome
-  show_error_message(result.reason)
-  track_failure_metrics(result)
-end
-```
-
-### Conditional Processing
-
-```ruby
-def process_batch_results(results)
-  successful_count = results.count(&:success?)
-  skipped_count = results.count(&:skipped?)
-  failed_count = results.count(&:failed?)
-
-  if results.all?(&:good?)
-    mark_batch_complete
-  elsif results.any?(&:failed?)
-    schedule_batch_retry(results.select(&:failed?))
-  end
-end
-```
-
-## Status vs State vs Outcome
-
-> [!NOTE]
-> Status tracks the business outcome (how the task ended), while state tracks the execution lifecycle (where the task is). Both provide valuable but different information about task execution.
-
-Understanding the relationship between these concepts:
-
-- **Status**: Business execution outcome (`success`, `skipped`, `failed`)
-- **State**: Technical execution lifecycle (`initialized`, `executing`, `complete`, `interrupted`)
-- **Outcome**: Combined representation for unified logic
-
-```ruby
-class DataImport < CMDx::Task
-  def work
-    import_data
-    validate_data
-  end
-end
-
-result = DataImport.call
-
-# Successful execution
-result.state    #=> "complete" (execution finished)
-result.status   #=> "success" (business outcome)
-result.outcome  #=> "success" (same as status when complete)
-
-# Skipped execution
-skipped_result = DataImport.execute(skip_import: true)
-skipped_result.state    #=> "complete" (execution finished)
-skipped_result.status   #=> "skipped" (business outcome)
-skipped_result.outcome  #=> "skipped" (same as status)
-
-# Failed execution
-failed_result = DataImport.execute(invalid_data: true)
-failed_result.state     #=> "interrupted" (execution stopped)
-failed_result.status    #=> "failed" (business outcome)
-failed_result.outcome   #=> "interrupted" (reflects state for interrupted tasks)
-```
-
-## Status Serialization and Inspection
-
-> [!IMPORTANT]
-> Statuses are automatically captured in result serialization and logging. All status information persists through the complete task execution lifecycle.
-
-```ruby
-result = ProcessOrder.call
-
-# Hash representation includes status
-result.to_h
-#=> {
-#     class: "ProcessOrderTask",
-#     index: 0,
-#     state: "complete",
-#     status: "success",
-#     outcome: "success",
-#     runtime: 0.045,
-#     metadata: {},
-#     context: { order_id: 123 }
-#   }
-
-# Human-readable inspection
-result.to_s
-#=> "ProcessOrderTask: type=Task index=0 state=complete status=success outcome=success runtime=0.045s"
-
-# Chain-level status aggregation
-result.chain.to_h
-#=> {
-#     id: "chain-550e8400-e29b-41d4-a716-446655440000",
-#     state: "complete",
-#     status: "success",
-#     results: [
-#       { state: "complete", status: "success", ... }
-#     ]
-#   }
+  .on_good { |result| update_inventory(result) }
+  .on_bad { |result| log_negative_outcome(result) }
 ```
 
 ---
