@@ -40,24 +40,6 @@ ProcessPayment.execute(paid_with: "amex", paid_on: "01-23-2020", total: "34.99")
 > [!TIP]
 > Specify multiple types for fallback coercion. CMDx attempts each type in order until one succeeds.
 
-## Declarations
-
-```ruby
-class PointCoercion
-  def self.call(value, options = {})
-    Point(value)
-  rescue StandardError
-    raise CoercionError, "could not convert into a point"
-  end
-end
-
-class ProcessPayment < CMDx::Task
-  register :coercion, :point, PointCoercion
-
-  attribute :longitude, type: :point
-end
-```
-
 ## Built-in Coercions
 
 | Type | Options | Description | Examples |
@@ -76,6 +58,11 @@ end
 | `:symbol` | | Symbol conversion | `"abc"` → `:abc` |
 | `:time` | `:strptime` | Time objects | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)` |
 
+## Declarations
+
+> [!IMPORTANT]
+> Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
+
 ### Proc or Lambda
 
 Use anonymous functions for simple coercion logic:
@@ -87,7 +74,7 @@ class FindLocation < CMDx::Task
     begin
       Point(value)
     rescue StandardError
-      raise CoercionError, "could not convert into a point"
+      raise CMDx::CoercionError, "could not convert into a point"
     end
   end
 
@@ -96,7 +83,7 @@ class FindLocation < CMDx::Task
     begin
       Point(value)
     rescue StandardError
-      raise CoercionError, "could not convert into a point"
+      raise CMDx::CoercionError, "could not convert into a point"
     end
   }
 end
@@ -111,7 +98,7 @@ class PointCoercion
   def self.call(value, options = {})
     Point(value)
   rescue StandardError
-    raise CoercionError, "could not convert into a point"
+    raise CMDx::CoercionError, "could not convert into a point"
   end
 end
 
