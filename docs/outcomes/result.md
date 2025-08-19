@@ -154,7 +154,7 @@ in ["complete", "success"]
   redirect_to success_page
 in ["interrupted", "failed"]
   retry_with_backoff(result)
-in ["complete", "skipped"]
+in ["interrupted", "skipped"]
   log_skip_and_continue
 end
 ```
