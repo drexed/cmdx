@@ -9,6 +9,8 @@ CMDx provides comprehensive automatic logging for task execution with structured
 
 ## Formatters
 
+CMDx supports multiple log formatters to integrate with various logging systems:
+
 | Formatter | Use Case | Output Style |
 |-----------|----------|--------------|
 | `Line` | Traditional logging | Single-line format |
@@ -41,7 +43,7 @@ threw_failure={index: 1, class: "ValidatePayment", status: "failed"}
 
 ## Structure
 
-All log entries include comprehensive execution metadata for debugging and monitoring. Field availability depends on the execution context.
+All log entries include comprehensive execution metadata. Field availability depends on execution context and outcome.
 
 ### Core Fields
 
