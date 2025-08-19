@@ -76,7 +76,7 @@ end
 
 ```ruby
 CMDx.configure do |config|
-  # Via object
+  # Via callable (must respond to `call(task, options)`)
   config.middlewares.register CMDx::Middlewares::Timeout
 
   # Via proc
@@ -107,7 +107,7 @@ CMDx.configure do |config|
   # Via method
   config.callbacks.register :before_execution, :setup_request_context
 
-  # Via object
+  # Via callable (must respond to `call(task)`)
   config.callbacks.register :on_success, TrackSuccessfulPurchase
 
   # Via proc
@@ -128,10 +128,10 @@ end
 
 ```ruby
 CMDx.configure do |config|
-  # Via object
+  # Via callable (must respond to `call(value, options)`)
   config.coercions.register :money, MoneyCoercion
 
-  # Via method
+  # Via method (must match signature `def point_coercion(value, options)`)
   config.coercions.register :point, :point_coercion
 
   # Via proc
@@ -152,10 +152,10 @@ end
 
 ```ruby
 CMDx.configure do |config|
-  # Via object
+  # Via callable (must respond to `call(value, options)`)
   config.validators.register :email, EmailValidator
 
-  # Via method
+  # Via method (must match signature `def phone_validator(value, options)`)
   config.validators.register :phone, :phone_validator
 
   # Via proc

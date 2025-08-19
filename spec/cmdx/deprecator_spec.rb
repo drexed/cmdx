@@ -42,8 +42,8 @@ RSpec.describe CMDx::Deprecator, type: :unit do
       end
     end
 
-    context "when deprecate setting contains 'error'" do
-      let(:deprecate_value) { "error" }
+    context "when deprecate setting contains 'raise'" do
+      let(:deprecate_value) { "raise" }
 
       it "raises DeprecationError" do
         expect { described_class.restrict(mock_task) }.to raise_error(
@@ -51,8 +51,8 @@ RSpec.describe CMDx::Deprecator, type: :unit do
         )
       end
 
-      context "when deprecate setting is 'custom_error'" do
-        let(:deprecate_value) { "custom_error" }
+      context "when deprecate setting is 'custom_raise'" do
+        let(:deprecate_value) { "custom_raise" }
 
         it "raises DeprecationError" do
           expect { described_class.restrict(mock_task) }.to raise_error(

@@ -12,7 +12,7 @@ module CMDx
 
     EVAL = proc do |target, callable|
       case callable
-      when /error|log|warn/ then callable
+      when /raise|log|warn/ then callable
       when NilClass, FalseClass, TrueClass then !!callable
       when Symbol then target.send(callable)
       when Proc then target.instance_eval(&callable)
@@ -29,19 +29,19 @@ module CMDx
     # @param task [Object] The task object to check for deprecation
     # @option task.class.settings[:deprecate] [Symbol, Proc, String, Boolean]
     #   The deprecation configuration for the task
-    # @option task.class.settings[:deprecate] :error Raises DeprecationError
+    # @option task.class.settings[:deprecate] :raise Raises DeprecationError
     # @option task.class.settings[:deprecate] :log Logs deprecation warning
     # @option task.class.settings[:deprecate] :warn Outputs warning to stderr
     # @option task.class.settings[:deprecate] true Raises DeprecationError
     # @option task.class.settings[:deprecate] false No action taken
     # @option task.class.settings[:deprecate] nil No action taken
     #
-    # @raise [DeprecationError] When deprecation type is 'error' or true
+    # @raise [DeprecationError] When deprecation type is :raise or true
     # @raise [RuntimeError] When deprecation type is unknown
     #
     # @example
     #   class MyTask
-    #     settings[:deprecate] = :warn
+    #     settings(deprecate: :warn)
     #   end
     #
     #   MyTask.new # => [MyTask] DEPRECATED: migrate to replacement or discontinue use
@@ -50,7 +50,7 @@ module CMDx
 
       case type
       when NilClass, FalseClass # Do nothing
-      when TrueClass, /error/ then raise DeprecationError, "#{task.class.name} usage prohibited"
+      when TrueClass, /raise/ then raise DeprecationError, "#{task.class.name} usage prohibited"
       when /log/ then task.logger.warn { "DEPRECATED: migrate to replacement or discontinue use" }
       when /warn/ then warn("[#{task.class.name}] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
       else raise "unknown deprecation type #{type.inspect}"
