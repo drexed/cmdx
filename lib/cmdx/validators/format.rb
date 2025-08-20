@@ -2,36 +2,42 @@
 
 module CMDx
   module Validators
-    # Validates that a value matches or doesn't match specified regex patterns.
+    # Validates that a value matches a specified format pattern
     #
-    # This validator supports both positive matching (with:) and negative matching (without:)
-    # options. It can be used to ensure values conform to expected formats or exclude
-    # unwanted patterns.
+    # This validator ensures that the given value conforms to a specific format
+    # using regular expressions. It supports both direct regex matching and
+    # conditional matching with inclusion/exclusion patterns.
     module Format
 
       extend self
 
-      # Validates a value against regex pattern options.
+      # Validates that a value matches the specified format pattern
       #
-      # @param value [String, nil] The value to validate
-      # @param options [Hash] Validation options
-      # @option options [Regexp] :with Regex pattern that the value must match
-      # @option options [Regexp] :without Regex pattern that the value must not match
+      # @param value [Object] The value to validate for format compliance
+      # @param options [Hash, Regexp] Validation configuration options or direct regex pattern
+      # @option options [Regexp] :with Required pattern that the value must match
+      # @option options [Regexp] :without Pattern that the value must not match
       # @option options [String] :message Custom error message
       #
       # @return [nil] Returns nil if validation passes
       #
-      # @raise [ValidationError] When validation fails
+      # @raise [ValidationError] When the value doesn't match the required format
       #
-      # @example Basic format validation
-      #   Format.call("hello123", with: /\A[a-z]+\d+\z/)
+      # @example Direct regex validation
+      #   Format.call("user@example.com", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i)
       #   # => nil (validation passes)
-      # @example Exclude specific patterns
-      #   Format.call("test@example.com", without: /\s/)
-      #   # => nil (validation passes - no whitespace)
-      # @example Combined with and without
-      #   Format.call("user123", with: /\A[a-z]+\d+\z/, without: /admin/)
-      #   # => nil (validation passes - matches format, excludes 'admin')
+      # @example Validate with required pattern
+      #   Format.call("ABC123", with: /\A[A-Z]{3}\d{3}\z/)
+      #   # => nil (validation passes)
+      # @example Validate with exclusion pattern
+      #   Format.call("hello", without: /\d/)
+      #   # => nil (validation passes - no digits)
+      # @example Validate with both patterns
+      #   Format.call("test123", with: /\A\w+\z/, without: /\A\d+\z/)
+      #   # => nil (validation passes - alphanumeric but not all digits)
+      # @example Validate with custom message
+      #   Format.call("invalid", with: /\A\d+\z/, message: "Must contain only digits")
+      #   # => raises ValidationError with custom message
       def call(value, options = {})
         match =
           if options.is_a?(Regexp)
