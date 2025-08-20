@@ -163,8 +163,8 @@ end
 
 Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
-> [!TIP]
-> Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
+> [!IMPORTANT]
+> All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
 
 ```ruby
 class CreateShipment < CMDx::Task
@@ -216,9 +216,15 @@ CreateShipment.execute(
 )
 ```
 
+> [!TIP]
+> Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
+
 ## Error Handling
 
 Attribute validation failures result in structured error information with details about each failed attribute.
+
+> [!IMPORTANT]
+> Nested attributes are only ever evaluated when the parent attribute is available and valid.
 
 ```ruby
 class ProcessOrder < CMDx::Task
