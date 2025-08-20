@@ -34,7 +34,7 @@ State-Status combinations:
 
 ## Transitions
 
-> [!IMPORTANT]
+> [!CAUTION]
 > States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
 
 ```ruby

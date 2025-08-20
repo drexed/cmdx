@@ -210,7 +210,7 @@ end
 ## Declarations
 
 > [!IMPORTANT]
-> Custom validators must raise a CMDx::ValidationError and its message is used as part of the fault reason and metadata.
+> Custom validators must raise a `CMDx::ValidationError` and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 
@@ -258,14 +258,14 @@ end
 
 Remove custom validators when no longer needed:
 
+> [!IMPORTANT]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+
 ```ruby
 class CreateWebsite < CMDx::Task
   deregister :validator, :domain
 end
 ```
-
-> [!IMPORTANT]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ## Error Handling
 

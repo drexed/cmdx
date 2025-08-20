@@ -61,6 +61,9 @@ end
 
 Tasks follow a predictable call pattern with specific states and statuses:
 
+> [!WARNING]
+> Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
+
 | Stage | State | Status | Description |
 |-------|-------|--------|-------------|
 | **Instantiation** | `initialized` | `success` | Task created with context |
@@ -68,9 +71,6 @@ Tasks follow a predictable call pattern with specific states and statuses:
 | **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
 | **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
 | **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
-
-> [!WARNING]
-> Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
 
 ---
 

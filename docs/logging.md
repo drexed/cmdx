@@ -22,21 +22,21 @@ CMDx supports multiple log formatters to integrate with various logging systems:
 
 Sample output:
 
-```text
-# Success (INFO level)
+```log
+<!-- Success (INFO level) -->
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- CreateOrder:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
 class="CreateOrder" state="complete" status="success" metadata={runtime: 123}
 
-# Skipped (WARN level)
+<!-- Skipped (WARN level) -->
 W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePayment:
 index=1 state="interrupted" status="skipped" reason="Order already processed"
 
-# Failed (ERROR level)
+<!-- Failed (ERROR level) -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPayment:
 index=2 state="interrupted" status="failed" metadata={error_code: "INSUFFICIENT_FUNDS"}
 
-# Failed Chain
+<!-- Failed Chain -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- OrderWorkflow:
 caused_failure={index: 2, class: "ProcessPayment", status: "failed"}
 threw_failure={index: 1, class: "ValidatePayment", status: "failed"}

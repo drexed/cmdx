@@ -97,15 +97,15 @@ end
 
 Class and Module based declarations can be removed at a global and task level.
 
+> [!IMPORTANT]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+
 ```ruby
 class ProcessOrder < CMDx::Task
   # Class or Module (no instances)
   deregister :middleware, MetricsMiddleware
 end
 ```
-
-> [!IMPORTANT]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ## Built-in
 

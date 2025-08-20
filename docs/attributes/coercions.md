@@ -117,14 +117,14 @@ end
 
 Remove custom coercions when no longer needed:
 
+> [!IMPORTANT]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+
 ```ruby
 class ProcessOrder < CMDx::Task
   deregister :coercion, :point
 end
 ```
-
-> [!IMPORTANT]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ## Error Handling
 

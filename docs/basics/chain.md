@@ -13,6 +13,9 @@ Chains automatically group related task executions within a thread, providing un
 
 Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.
 
+> [!IMPORTANT]
+> Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.
+
 ```ruby
 # Thread A
 Thread.new do
@@ -31,12 +34,12 @@ CMDx::Chain.current  #=> Returns current chain or nil
 CMDx::Chain.clear    #=> Clears current thread's chain
 ```
 
-> [!IMPORTANT]
-> Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.
-
 ## Links
 
 Every task execution automatically creates or joins the current thread's chain:
+
+> [!NOTE]
+> Chain creation is automatic and transparent. You don't need to manually manage chain lifecycle.
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -56,9 +59,6 @@ class ProcessOrder < CMDx::Task
   end
 end
 ```
-
-> [!NOTE]
-> Chain creation is automatic and transparent. You don't need to manually manage chain lifecycle.
 
 ## Inheritance
 
@@ -89,6 +89,9 @@ chain.results.map { |r| r.task.class }
 
 Chains provide comprehensive execution information with state delegation:
 
+> [!NOTE]
+> Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.
+
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
 chain = result.chain
@@ -107,9 +110,6 @@ chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
 ```
-
-> [!NOTE]
-> Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.
 
 ---
 

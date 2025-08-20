@@ -17,10 +17,10 @@ The result object is the comprehensive return value of task execution, providing
 
 ## Result Attributes
 
+Every result provides access to essential execution information:
+
 > [!NOTE]
 > Result objects are immutable after task execution completes and reflect the final state.
-
-Every result provides access to essential execution information:
 
 ```ruby
 result = ProcessOrder.execute(order_id: 123)
@@ -139,10 +139,10 @@ result
 
 ## Pattern Matching
 
+Results support Ruby's pattern matching through array and hash deconstruction:
+
 > [!NOTE]
 > Pattern matching requires Ruby 3.0+. The `deconstruct` method returns a `[state, status]` array pattern, while `deconstruct_keys` provides hash access to result attributes.
-
-Results support Ruby's pattern matching through array and hash deconstruction:
 
 ### Array Pattern
 

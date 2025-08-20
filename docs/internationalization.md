@@ -5,7 +5,6 @@ CMDx provides comprehensive internationalization support for all error messages,
 ## Table of Contents
 
 - [Localization](#localization)
-- [I18n](#i18n)
 
 ## Localization
 

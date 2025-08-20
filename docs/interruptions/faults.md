@@ -111,15 +111,15 @@ Use `throw!` to propagate failures while preserving fault context and maintainin
 ```ruby
 class OrderProcessor < CMDx::Task
   def work
-    # Validate order
+    # Throw if skipped or failed
     validation_result = OrderValidator.execute(context)
-    throw!(validation_result) # Skipped or Failed
+    throw!(validation_result)
 
-    # Check inventory
+    # Only throw if skipped
     check_inventory = CheckInventory.execute(context)
     throw!(check_inventory) if check_inventory.skipped?
 
-    # Process payment
+    # Only throw if failed
     payment_result = PaymentProcessor.execute(context)
     throw!(payment_result) if payment_result.failed?
 

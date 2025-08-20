@@ -1,6 +1,6 @@
 # Workflows
 
-CMDx::Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
+Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
 
 ## Table of Contents
 
@@ -38,6 +38,9 @@ end
 
 Group related tasks for better organization and shared configuration:
 
+> [!NOTE]
+> Settings and conditionals for a group apply to all tasks within that group.
+
 ```ruby
 class DataProcessingWorkflow < CMDx::Task
   include CMDx::Workflow
@@ -52,9 +55,6 @@ class DataProcessingWorkflow < CMDx::Task
   tasks GenerateReport, SaveResults, NotifyStakeholders
 end
 ```
-
-> [!IMPORTANT]
-> Settings and conditionals for a group apply to all tasks within that group.
 
 ### Conditionals
 

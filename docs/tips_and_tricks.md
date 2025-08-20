@@ -17,22 +17,22 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 Create a well-organized command structure for maintainable applications:
 
-```txt
-/app
-  /tasks
-    /orders
-      - charge_order.rb
-      - validate_order.rb
-      - fulfill_order.rb
-      - process_order.rb # workflow
-    /notifications
-      - send_email.rb
-      - send_sms.rb
-      - post_slack_message.rb
-      - deliver_notifications.rb # workflow
-    - application_task.rb # base class
-    - login_user.rb
-    - register_user.rb
+```text
+/app/
+└── /tasks/
+    ├── /orders/
+    │   ├── charge_order.rb
+    │   ├── validate_order.rb
+    │   ├── fulfill_order.rb
+    │   └── process_order.rb # workflow
+    ├── /notifications/
+    │   ├── send_email.rb
+    │   ├── send_sms.rb
+    │   ├── post_slack_message.rb
+    │   └── deliver_notifications.rb # workflow
+    ├── application_task.rb # base class
+    ├── login_user.rb
+    └── register_user.rb
 ```
 
 ### Naming Conventions
