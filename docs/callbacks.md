@@ -161,5 +161,5 @@ end
 
 ---
 
-- **Prev:** [Parameters - Defaults](parameters/defaults.md)
+- **Prev:** [Attributes - Defaults](attributes/defaults.md)
 - **Next:** [Middlewares](middlewares.md)

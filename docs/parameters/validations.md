@@ -1,4 +1,4 @@
-# Parameters - Validations
+# Attributes - Validations
 
 Parameter validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
 
@@ -306,5 +306,5 @@ result.metadata #=> {
 
 ---
 
-- **Prev:** [Parameters - Coercions](coercions.md)
-- **Next:** [Parameters - Defaults](defaults.md)
+- **Prev:** [Attributes - Coercions](coercions.md)
+- **Next:** [Attributes - Defaults](defaults.md)

@@ -1,4 +1,4 @@
-# Parameters - Coercions
+# Attributes - Coercions
 
 Parameter coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
 
@@ -159,5 +159,5 @@ result.metadata #=> {
 
 ---
 
-- **Prev:** [Parameters - Naming](naming.md)
-- **Next:** [Parameters - Validations](validations.md)
+- **Prev:** [Attributes - Naming](naming.md)
+- **Next:** [Attributes - Validations](validations.md)

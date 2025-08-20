@@ -64,7 +64,7 @@ Tasks follow a predictable call pattern with specific states and statuses:
 | Stage | State | Status | Description |
 |-------|-------|--------|-------------|
 | **Instantiation** | `initialized` | `success` | Task created with context |
-| **Validation** | `executing` | `success`/`failed` | Parameters validated |
+| **Validation** | `executing` | `success`/`failed` | Attributes validated |
 | **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
 | **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
 | **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |

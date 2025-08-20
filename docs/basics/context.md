@@ -50,7 +50,7 @@ end
 ```
 
 > [!NOTE]
-> Accessing undefined context attributes returns `nil` instead of raising errors, enabling graceful handling of optional parameters.
+> Accessing undefined context attributes returns `nil` instead of raising errors, enabling graceful handling of optional attributes.
 
 ## Modifying Context
 
@@ -91,7 +91,7 @@ end
 ```
 
 > [!TIP]
-> Use context for both input parameters and intermediate results. This creates natural data flow through your task execution pipeline.
+> Use context for both input attributes and intermediate results. This creates natural data flow through your task execution pipeline.
 
 ## Data Sharing
 

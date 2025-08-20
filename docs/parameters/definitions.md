@@ -1,13 +1,13 @@
-# Parameters - Definitions
+# Attributes - Definitions
 
-Parameters define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.
+Attributes define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.
 
 ## Table of Contents
 
 - [TLDR](#tldr)
 - [Basic Parameter Definition](#basic-parameter-definition)
 - [Parameter Sources](#parameter-sources)
-- [Nested Parameters](#nested-parameters)
+- [Nested Attributes](#nested-attributes)
 - [Advanced Features](#advanced-features)
 - [Error Handling](#error-handling)
 
@@ -15,16 +15,16 @@ Parameters define the interface between task callers and implementation, enablin
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  # Required parameters - must be provided
+  # Required attributes - must be provided
   required :order_id, :customer_id
 
-  # Optional parameters - can be nil
+  # Optional attributes - can be nil
   optional :notes, :priority
 
   # Custom sources
   required :name, :email, source: :user
 
-  # Nested parameters
+  # Nested attributes
   required :shipping_address do
     required :street, :city, :state
     optional :apartment
@@ -48,7 +48,7 @@ ProcessOrder.execute(
 ## Basic Parameter Definition
 
 > [!IMPORTANT]
-> Required parameters must be provided in call arguments or task execution will fail. Optional parameters return `nil` when not provided.
+> Required attributes must be provided in call arguments or task execution will fail. Optional attributes return `nil` when not provided.
 
 ```ruby
 class CreateUser < CMDx::Task
@@ -56,16 +56,16 @@ class CreateUser < CMDx::Task
   required :email
   optional :name
 
-  # Multiple parameters in one declaration
+  # Multiple attributes in one declaration
   required :age, :phone
   optional :bio, :website
 
-  # Parameters with type coercion and validation
+  # Attributes with type coercion and validation
   required :age, type: :integer, numeric: { min: 18 }
   optional :tags, type: :array, default: []
 
   def work
-    # All parameters become instance methods
+    # All attributes become instance methods
     user = User.create!(
       email: email,           # Required - guaranteed to be present
       name: name,             # Optional - may be nil
@@ -79,7 +79,7 @@ class CreateUser < CMDx::Task
   end
 end
 
-# Parameters passed as keyword arguments
+# Attributes passed as keyword arguments
 CreateUser.execute(
   email: "user@example.com",
   age: 25,
@@ -91,10 +91,10 @@ CreateUser.execute(
 
 ## Parameter Sources
 
-Parameters delegate to source objects within the task context. The default source is `:context`, but any accessible method or object can serve as a parameter source.
+Attributes delegate to source objects within the task context. The default source is `:context`, but any accessible method or object can serve as a parameter source.
 
 > [!NOTE]
-> Sources allow parameters to pull values from different objects instead of just call arguments.
+> Sources allow attributes to pull values from different objects instead of just call arguments.
 
 ### Default Context Source
 
@@ -189,12 +189,12 @@ class CalculatePermissions < CMDx::Task
 end
 ```
 
-## Nested Parameters
+## Nested Attributes
 
-Nested parameters enable complex parameter structures where child parameters automatically inherit their parent as the source. This allows validation and access of structured data.
+Nested attributes enable complex parameter structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
 > [!TIP]
-> Child parameters are only required when their parent parameter is provided, enabling flexible optional structures.
+> Child attributes are only required when their parent parameter is provided, enabling flexible optional structures.
 
 ```ruby
 class CreateShipment < CMDx::Task
@@ -226,7 +226,7 @@ class CreateShipment < CMDx::Task
     shipment = Shipment.create!(
       order_id: order_id,
 
-      # Access nested parameters directly
+      # Access nested attributes directly
       ship_to_street: street,           # From shipping_address.street
       ship_to_city: city,               # From shipping_address.city
       ship_to_state: state,             # From shipping_address.state
@@ -269,7 +269,7 @@ class ProcessPayment < CMDx::Task
   required :amount, type: :float
   required :payment_method
 
-  # Nested parameters generate flattened methods
+  # Nested attributes generate flattened methods
   required :customer do
     required :id, :email
 
@@ -280,7 +280,7 @@ class ProcessPayment < CMDx::Task
   end
 
   def work
-    # All parameters accessible as instance methods
+    # All attributes accessible as instance methods
     payment = PaymentService.charge(
       amount: amount,                    # Direct parameter access
       method: payment_method,            # Direct parameter access
@@ -309,7 +309,7 @@ class IntrospectionExample < CMDx::Task
 
   def work
     # Access parameter metadata
-    params = self.class.parameters
+    params = self.class.attributes
 
     params.each do |param|
       puts "Parameter: #{param.name}"
@@ -328,7 +328,7 @@ end
 > [!WARNING]
 > Parameter validation failures result in structured error information with details about each failed parameter.
 
-### Missing Required Parameters
+### Missing Required Attributes
 
 ```ruby
 class RequiredParams < CMDx::Task
@@ -342,7 +342,7 @@ class RequiredParams < CMDx::Task
   end
 end
 
-# Missing required parameters
+# Missing required attributes
 result = RequiredParams.execute(user_id: 123)
 result.failed?  #=> true
 result.metadata
@@ -354,7 +354,7 @@ result.metadata
 #   }
 # }
 
-# Missing nested required parameters
+# Missing nested required attributes
 result = RequiredParams.execute(
   user_id: 123,
   order_id: 456,
@@ -443,4 +443,4 @@ result.metadata
 ---
 
 - **Prev:** [Configuration](../configuration.md)
-- **Next:** [Parameters - Naming](naming.md)
+- **Next:** [Attributes - Naming](naming.md)

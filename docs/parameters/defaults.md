@@ -1,6 +1,6 @@
-# Parameters - Defaults
+# Attributes - Defaults
 
-Parameter defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional parameters while maintaining flexibility for callers to override when needed.
+Parameter defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@ Parameter defaults provide fallback values when arguments are not provided or re
 
 ## Declarations
 
-Defaults apply when parameters are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested parameters.
+Defaults apply when attributes are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested attributes.
 
 ### Static Values
 
@@ -86,5 +86,5 @@ end
 
 ---
 
-- **Prev:** [Parameters - Validations](validations.md)
+- **Prev:** [Attributes - Validations](validations.md)
 - **Next:** [Callbacks](../callbacks.md)

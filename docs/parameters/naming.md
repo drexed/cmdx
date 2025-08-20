@@ -1,35 +1,15 @@
-# Parameters - Naming
+# Attributes - Naming
 
-Parameter namespacing provides method name customization to prevent conflicts and enable flexible parameter access patterns. When parameters share names with existing methods or when multiple parameters from different sources have the same name, namespacing ensures clean method resolution within tasks.
+Parameter namespacing provides method name customization to prevent conflicts and enable flexible parameter access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, namespacing ensures clean method resolution within tasks.
 
 ## Table of Contents
 
-- [TLDR](#tldr)
 - [Namespacing Fundamentals](#namespacing-fundamentals)
 - [Fixed Value Namespacing](#fixed-value-namespacing)
 - [Dynamic Source-Based Namespacing](#dynamic-source-based-namespacing)
 - [Conflict Resolution](#conflict-resolution)
 - [Advanced Patterns](#advanced-patterns)
 - [Error Handling](#error-handling)
-
-## TLDR
-
-```ruby
-# Fixed prefixes/suffixes
-required :name, prefix: "user_"        #=> user_name method
-required :email, suffix: "_address"    #=> email_address method
-
-# Dynamic source-based namespacing
-required :id, prefix: true             #=> context_id method (from context source)
-required :name, source: :profile, suffix: true  #=> name_profile method
-
-# Conflict resolution
-required :context, suffix: "_data"     # Avoids CMDx::Task#context method
-required :name, prefix: "customer_"    # Avoids Ruby's Object#name method
-
-# Call arguments always use original parameter names
-TaskClass.execute(name: "John", email: "john@example.com", context: {...})
-```
 
 ## Namespacing Fundamentals
 
@@ -223,17 +203,17 @@ end
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  # Payment-related parameters
+  # Payment-related attributes
   required :amount, prefix: "payment_", type: :big_decimal
   required :currency, prefix: "payment_", type: :string
   required :method, prefix: "payment_", type: :string
 
-  # Customer billing parameters
+  # Customer billing attributes
   required :address, source: :billing, prefix: "billing_" do
     required :street, :city, :country
   end
 
-  # Merchant processing parameters
+  # Merchant processing attributes
   required :fee_rate, source: :processor, prefix: "processor_", type: :float
   required :timeout, source: :processor, prefix: "processor_", type: :integer
 
@@ -344,7 +324,7 @@ Problematic.execute(
 )
 ```
 
-### Debugging Namespaced Parameters
+### Debugging Namespaced Attributes
 
 ```ruby
 class Debugging < CMDx::Task
@@ -356,7 +336,7 @@ class Debugging < CMDx::Task
     puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
     #=> ["user_id", "data_payload"]
 
-    # Access parameters using correct namespaced names
+    # Access attributes using correct namespaced names
     user = User.find(user_id)
     user.update!(data_payload)
   end
@@ -370,9 +350,9 @@ end
 ```
 
 > [!NOTE]
-> When debugging namespaced parameters, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original parameter names used in task calls.
+> When debugging namespaced attributes, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original parameter names used in task calls.
 
 ---
 
-- **Prev:** [Parameters - Definitions](definitions.md)
-- **Next:** [Parameters - Coercions](coercions.md)
+- **Prev:** [Attributes - Definitions](definitions.md)
+- **Next:** [Attributes - Coercions](coercions.md)

@@ -78,14 +78,14 @@ Use Rails `with_options` to reduce duplication and improve readability:
 
 ```ruby
 class UpdateUserProfile < CMDx::Task
-  # Apply common options to multiple parameters
+  # Apply common options to multiple attributes
   with_options(type: :string, presence: true) do
     required :email, format: { with: URI::MailTo::EMAIL_REGEXP }
     optional :first_name, :last_name
     optional :phone, format: { with: /\A\+?[\d\s\-\(\)]+\z/ }
   end
 
-  # Nested parameters with shared prefix
+  # Nested attributes with shared prefix
   required :address do
     with_options(prefix: :address_) do
       required :street, :city, :postal_code, type: :string

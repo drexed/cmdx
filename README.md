@@ -84,12 +84,12 @@ end
   - [Halt](docs/interruptions/halt.md)
   - [Faults](docs/interruptions/faults.md)
   - [Exceptions](docs/interruptions/exceptions.md)
-- Parameters
-  - [Definitions](docs/parameters/definitions.md)
-  - [Naming](docs/parameters/naming.md)
-  - [Coercions](docs/parameters/coercions.md)
-  - [Validations](docs/parameters/validations.md)
-  - [Defaults](docs/parameters/defaults.md)
+- Attributes
+  - [Definitions](docs/attributes/definitions.md)
+  - [Naming](docs/attributes/naming.md)
+  - [Coercions](docs/attributes/coercions.md)
+  - [Validations](docs/attributes/validations.md)
+  - [Defaults](docs/attributes/defaults.md)
 - Outcomes
   - [Result](docs/outcomes/result.md)
   - [States](docs/outcomes/states.md)
