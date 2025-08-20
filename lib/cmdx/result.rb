@@ -289,7 +289,7 @@ module CMDx
 
       # Strip the first two frames (this method and the delegator)
       frames = caller_locations(3..-1)
-      fault.set_backtrace(frames) unless frames.empty?
+      fault.set_backtrace(frames.map(&:to_s)) unless frames.empty?
 
       raise(fault)
     end
