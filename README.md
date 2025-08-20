@@ -1,9 +1,14 @@
-# CMDx
+<p align="center">
+  <img src="./src/cmdx-logo.png" width="200" alt="CMDx Logo">
+</p>
 
-[![forthebadge](http://forthebadge.com/images/badges/made-with-ruby.svg)](http://forthebadge.com)
-[![Gem Version](https://badge.fury.io/rb/cmdx.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/cmdx)
-[![CI](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
+  <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
+  <img alt="License" src="https://img.shields.io/github/license/drexed/cmdx">
+</p>
+
+# CMDx
 
 `CMDx` is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
 
