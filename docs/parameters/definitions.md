@@ -159,7 +159,7 @@ class UpdateProfile < CMDx::Task
 end
 ```
 
-## Nested Attributes
+## Nesting
 
 Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
@@ -168,8 +168,6 @@ Nested attributes enable complex attribute structures where child attributes aut
 
 ```ruby
 class CreateShipment < CMDx::Task
-  required :order_id
-
   # Required parent with required children
   required :shipping_address do
     required :street, :city, :state, :zip
@@ -178,8 +176,8 @@ class CreateShipment < CMDx::Task
 
   # Optional parent with conditional children
   optional :billing_address do
-    required :street, :city    # Only required if billing_address provided
-    optional :same_as_shipping
+    required :street, :city # Only required if billing_address provided
+    optional :same_as_shipping, prefix: true
   end
 
   # Multi-level nesting
@@ -187,27 +185,15 @@ class CreateShipment < CMDx::Task
     required :type
 
     optional :insurance do
-      required :coverage_amount, type: :float
+      required :coverage_amount
       optional :carrier
     end
   end
 
   def work
-    shipment = Shipment.create!(
-      order_id: order_id,
-
-      # Access nested attributes directly
-      ship_to_street: street,           # From shipping_address.street
-      ship_to_city: city,               # From shipping_address.city
-      ship_to_state: state,             # From shipping_address.state
-      delivery_instructions: instructions,
-
-      # Handle optional nested structures
-      special_handling_type: type,      # From special_handling.type (if provided)
-      insurance_amount: coverage_amount  # From special_handling.insurance.coverage_amount
-    )
-
-    shipment
+    shipping_address #=> { street: "123 Main St" ... }
+    street           #=> "123 Main St"
+    apartment        #=> nil
   end
 end
 
