@@ -4,11 +4,10 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 ## Table of Contents
 
-TODO: add a style guide suggestion
-
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
+  - [Style Guide](#style-guide)
 - [Attribute Options](#attribute-options)
 - [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
@@ -50,6 +49,48 @@ class ValidatePayment < CMDx::Task; end
 class CreateUser < CMDx::Task; end      # ✓ Good
 class CreatingUser < CMDx::Task; end    # ❌ Avoid
 class UserCreation < CMDx::Task; end    # ❌ Avoid
+```
+
+### Style Guide
+
+Follow a style pattern for consistent task design:
+
+```ruby
+class ProcessOrder < CMDx::Task
+
+  # 1. Register functions
+  register :middleware, CMDx::Middlewares::Correlate
+  register :validator, :domain, DomainValidator
+
+  # 2. Define callbacks
+  before_execution :find_order
+  on_complete :track_datadog_metrics, if: ->(task) { Current.account.metrics? }
+
+  # 3. Define attributes
+  attributes :customer_id
+  required :order_id
+  optional :store_id
+
+  # 4. Define work
+  def work
+    order.charge!
+    order.ship!
+
+    context.tracking_number = order.tracking_number
+  end
+
+  private
+
+  # 5. Define methods
+  def find_order
+    @order ||= Order.find(order_id)
+  end
+
+  def track_datadog_metrics
+    DataDog.increment(:order_processed)
+  end
+
+end
 ```
 
 ## Attribute Options

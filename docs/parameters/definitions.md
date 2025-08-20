@@ -17,6 +17,9 @@ Attributes define the interface between task callers and implementation, enablin
 
 ## Declarations
 
+> [!TIP]
+> Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
+
 ### Optional
 
 Optional attributes return `nil` when not provided.
@@ -26,7 +29,7 @@ class CreateUser < CMDx::Task
   attribute :email
   attributes :age, :ssn
 
-  # Alias for attributes
+  # Alias for attributes (preferred)
   optional :phone
   optional :sex, :tags
 
@@ -57,7 +60,7 @@ class CreateUser < CMDx::Task
   attribute :email, required: true
   attributes :age, :ssn, required: true
 
-  # Alias for attributes => required: true
+  # Alias for attributes => required: true (preferred)
   required :phone
   required :sex, :tags
 
@@ -111,7 +114,10 @@ Reference instance methods by symbol for dynamic source values:
 
 ```ruby
 class UpdateProfile < CMDx::Task
-  attribute :email, source: :user
+  attributes :email, :settings, source: :user
+
+  # Access from declared attributes
+  attribute :email_token, source: :settings
 
   def work
     # Your logic here...
