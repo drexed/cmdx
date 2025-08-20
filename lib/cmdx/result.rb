@@ -288,7 +288,8 @@ module CMDx
       fault = klass.new(self)
 
       # Strip the first two frames (this method and the delegator)
-      fault.set_backtrace(caller_locations(3..-1))
+      frames = caller_locations(3..-1)
+      fault.set_backtrace(frames) unless frames.empty?
 
       raise(fault)
     end
