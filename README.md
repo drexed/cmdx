@@ -86,8 +86,10 @@ end
   - [Exceptions](docs/interruptions/exceptions.md)
 - Parameters
   - [Definitions](docs/parameters/definitions.md)
+  - [Naming](docs/parameters/naming.md)
   - [Coercions](docs/parameters/coercions.md)
   - [Validations](docs/parameters/validations.md)
+  - [Defaults](docs/parameters/defaults.md)
 - Outcomes
   - [Result](docs/outcomes/result.md)
   - [States](docs/outcomes/states.md)

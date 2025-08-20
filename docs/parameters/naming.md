@@ -1,4 +1,4 @@
-# Parameters - Namespacing
+# Parameters - Naming
 
 Parameter namespacing provides method name customization to prevent conflicts and enable flexible parameter access patterns. When parameters share names with existing methods or when multiple parameters from different sources have the same name, namespacing ensures clean method resolution within tasks.
 

@@ -159,5 +159,5 @@ result.metadata #=> {
 
 ---
 
-- **Prev:** [Parameters - Namespacing](namespacing.md)
+- **Prev:** [Parameters - Naming](naming.md)
 - **Next:** [Parameters - Validations](validations.md)
