@@ -1,356 +1,70 @@
 # Attributes - Naming
 
-Attribute namespacing provides method name customization to prevent conflicts and enable flexible attribute access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, namespacing ensures clean method resolution within tasks.
+Attribute naming provides method name customization to prevent conflicts and enable flexible attribute access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, affixing ensures clean method resolution within tasks.
+
+> [!IMPORTANT]
+> Affixing modifies only the generated accessor method names within tasks.
 
 ## Table of Contents
 
-- [Namespacing Fundamentals](#namespacing-fundamentals)
-- [Fixed Value Namespacing](#fixed-value-namespacing)
-- [Dynamic Source-Based Namespacing](#dynamic-source-based-namespacing)
-- [Conflict Resolution](#conflict-resolution)
-- [Advanced Patterns](#advanced-patterns)
-- [Error Handling](#error-handling)
+- [Prefix](#prefix)
+- [Suffix](#suffix)
+- [As](#as)
 
-## Namespacing Fundamentals
-
-> [!IMPORTANT]
-> Namespacing modifies only the generated accessor method names within tasks. Attribute names in call arguments remain unchanged, ensuring a clean external interface.
-
-### Namespacing Options
-
-| Option | Type | Description | Example |
-|--------|------|-------------|---------|
-| `prefix:` | String/Symbol | Fixed prefix | `prefix: "user_"` → `user_name` |
-| `prefix:` | Boolean | Dynamic prefix from source | `prefix: true` → `context_name` |
-| `suffix:` | String/Symbol | Fixed suffix | `suffix: "_data"` → `name_data` |
-| `suffix:` | Boolean | Dynamic suffix from source | `suffix: true` → `name_context` |
-
-## Fixed Value Namespacing
-
-Use string or symbol values for consistent prefixes or suffixes:
+## Prefix
 
 ```ruby
 class UpdateCustomer < CMDx::Task
-  required :id, prefix: "customer_"
-  required :name, prefix: "customer_"
-  required :email, suffix: "_address"
-  required :phone, suffix: "_number"
+  # Dynamic from :source
+  attribute :id, prefix: true
+
+  # Static
+  attribute :name, prefix: "customer_"
 
   def work
-    customer = Customer.find(customer_id)
-    customer.update!(
-      name: customer_name,
-      email: email_address,
-      phone: phone_number
-    )
+    context_id    #=> 123
+    customer_name #=> "Jane Smith"
+  end
+end
+
+# `execute` uses original attribute names
+UpdateCustomer.execute(id: 123, name: "Jane Smith")
+```
+
+## Suffix
+
+```ruby
+class UpdateCustomer < CMDx::Task
+  # Dynamic from :source
+  attribute :email, suffix: true
+
+  # Static
+  attribute :phone, suffix: "_number"
+
+  def work
+    email_context #=> "jane@example.com"
+    phone_number  #=> "555-0123"
   end
 end
 
 # Call uses original attribute names
-UpdateCustomer.execute(
-  id: 123,
-  name: "Jane Smith",
-  email: "jane@example.com",
-  phone: "555-0123"
-)
+UpdateCustomer.execute(email: "jane@example.com", phone: "555-0123")
 ```
 
-## Dynamic Source-Based Namespacing
-
-> [!TIP]
-> Use `true` with `prefix:` or `suffix:` to automatically generate method names based on attribute sources, creating self-documenting code.
+## As
 
 ```ruby
-class GenerateInvoice < CMDx::Task
-  required :id, prefix: true                          #=> context_id
-  required :amount, source: :order, prefix: true      #=> order_amount
-  required :tax_rate, source: :settings, suffix: true #=> tax_rate_settings
+class UpdateCustomer < CMDx::Task
+  attribute :birthday, as: :bday
 
   def work
-    customer = Customer.find(context_id)
-    total = order_amount * (1 + tax_rate_settings)
-
-    Invoice.create!(
-      customer: customer,
-      amount: order_amount,
-      tax_rate: tax_rate_settings,
-      total: total
-    )
-  end
-
-  private
-
-  def order
-    @order ||= Order.find(context.order_id)
-  end
-
-  def settings
-    @settings ||= TaxSettings.for_region(context.region)
-  end
-end
-```
-
-## Conflict Resolution
-
-> [!WARNING]
-> Attribute names that conflict with existing Ruby or CMDx methods can cause unexpected behavior. Always use namespacing to avoid method collisions.
-
-### Ruby Method Conflicts
-
-```ruby
-class ProcessAccount < CMDx::Task
-  # Avoid conflicts with Ruby's built-in methods
-  required :name, prefix: "account_"      # Not Object#name
-  required :class, suffix: "_type"        # Not Object#class
-  required :method, prefix: "http_"       # Not Object#method
-
-  def work
-    Account.create!(
-      name: account_name,
-      classification: class_type,
-      request_method: http_method
-    )
-  end
-end
-```
-
-### CMDx Method Conflicts
-
-```ruby
-class DataProcessing < CMDx::Task
-  # Avoid conflicts with CMDx::Task methods
-  required :context, suffix: "_payload"   # Not CMDx::Task#context
-  required :result, prefix: "api_"        # Not CMDx::Task#result
-  required :logger, suffix: "_config"     # Not CMDx::Task#logger
-
-  def work
-    process_data(context_payload, api_result, logger_config)
-  end
-end
-```
-
-### Multi-Source Disambiguation
-
-```ruby
-class SyncData < CMDx::Task
-  # Customer and vendor both have overlapping attributes
-  required :id, source: :customer, prefix: "customer_"
-  required :name, source: :customer, prefix: "customer_"
-  required :email, source: :customer, prefix: "customer_"
-
-  required :id, source: :vendor, prefix: "vendor_"
-  required :name, source: :vendor, prefix: "vendor_"
-  required :email, source: :vendor, prefix: "vendor_"
-
-  def work
-    sync_customer_data(customer_id, customer_name, customer_email)
-    sync_vendor_data(vendor_id, vendor_name, vendor_email)
-  end
-
-  private
-
-  def customer
-    @customer ||= Customer.find(context.customer_id)
-  end
-
-  def vendor
-    @vendor ||= Vendor.find(context.vendor_id)
-  end
-end
-```
-
-## Advanced Patterns
-
-### Hierarchical Attribute Organization
-
-```ruby
-class CreateShipment < CMDx::Task
-  required :address, source: :origin, prefix: "origin_" do
-    required :street, :city, :state, :zip_code
-  end
-
-  required :address, source: :destination, prefix: "destination_" do
-    required :street, :city, :state, :zip_code
-  end
-
-  optional :preferences, suffix: "_config" do
-    required :priority, type: :string
-    optional :signature_required, type: :boolean, default: false
-  end
-
-  def work
-    shipment = Shipment.create!(
-      origin_address: origin_address,
-      destination_address: destination_address,
-      priority: preferences_config[:priority],
-      signature_required: preferences_config[:signature_required]
-    )
-  end
-
-  private
-
-  def origin
-    @origin ||= Address.find(context.origin_address_id)
-  end
-
-  def destination
-    @destination ||= Address.find(context.destination_address_id)
-  end
-end
-```
-
-### Domain-Specific Grouping
-
-```ruby
-class ProcessPayment < CMDx::Task
-  # Payment-related attributes
-  required :amount, prefix: "payment_", type: :big_decimal
-  required :currency, prefix: "payment_", type: :string
-  required :method, prefix: "payment_", type: :string
-
-  # Customer billing attributes
-  required :address, source: :billing, prefix: "billing_" do
-    required :street, :city, :country
-  end
-
-  # Merchant processing attributes
-  required :fee_rate, source: :processor, prefix: "processor_", type: :float
-  required :timeout, source: :processor, prefix: "processor_", type: :integer
-
-  def work
-    charge = PaymentProcessor.charge(
-      amount: payment_amount,
-      currency: payment_currency,
-      method: payment_method,
-      billing_address: billing_address,
-      processor_fee: payment_amount * processor_fee_rate,
-      timeout: processor_timeout
-    )
-  end
-
-  private
-
-  def billing
-    @billing ||= BillingAddress.find(context.billing_address_id)
-  end
-
-  def processor
-    @processor ||= PaymentProcessor.for_method(payment_method)
-  end
-end
-```
-
-## Error Handling
-
-> [!WARNING]
-> Validation errors reference namespaced method names, not original attribute names. This affects error message interpretation and debugging.
-
-### Validation Error Messages
-
-```ruby
-class CreateUser < CMDx::Task
-  required :email, prefix: "user_", format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
-  required :age, suffix: "_value", type: :integer, numeric: { min: 18, max: 120 }
-  required :role, source: :account, prefix: "account_", inclusion: { in: %w[admin user guest] }
-
-  def work
-    User.create!(
-      email: user_email,
-      age: age_value,
-      role: account_role
-    )
-  end
-
-  private
-
-  def account
-    @account ||= Account.find(context.account_id)
+    bday #=> <Date>
   end
 end
 
-# Invalid input produces namespaced error messages
-result = CreateUser.execute(
-  email: "invalid-email",
-  age: "fifteen",
-  account: OpenStruct.new(role: "superuser")
-)
-
-result.failed? #=> true
-result.metadata
-# {
-#   user_email format is not valid. age_value could not coerce into an integer. account_role inclusion is not valid.",
-#   messages: {
-#     user_email: ["format is not valid"],
-#     age_value: ["could not coerce into an integer"],
-#     account_role: ["inclusion is not valid"]
-#   }
-# }
+# Call uses original attribute names
+UpdateCustomer.execute(birthday: Date.new(2020, 10, 31))
 ```
-
-### Common Namespacing Mistakes
-
-```ruby
-class Problematic < CMDx::Task
-  required :data, prefix: "user_"
-  required :config, source: :settings, suffix: "_data"
-
-  def work
-    # ❌ WRONG: Using original attribute names in task methods
-    process(data)         # NoMethodError: undefined method `data`
-    apply(config)         # NoMethodError: undefined method `config`
-
-    # ✅ CORRECT: Using namespaced method names
-    process(user_data)    # Works correctly
-    apply(config_data)    # Works correctly
-  end
-
-  private
-
-  def settings
-    @settings ||= AppSettings.current
-  end
-end
-
-# ❌ WRONG: Using namespaced names in call arguments
-Problematic.execute(
-  user_data: { name: "John" },    # ArgumentError: unknown attribute
-  config_data: { theme: "dark" }  # ArgumentError: unknown attribute
-)
-
-# ✅ CORRECT: Using original attribute names in call arguments
-Problematic.execute(
-  data: { name: "John" },         # Correct
-  config: { theme: "dark" }       # Correct
-)
-```
-
-### Debugging Namespaced Attributes
-
-```ruby
-class Debugging < CMDx::Task
-  required :id, prefix: "user_"
-  required :data, source: :profile, suffix: "_payload"
-
-  def work
-    # Use introspection to understand attribute mapping
-    puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
-    #=> ["user_id", "data_payload"]
-
-    # Access attributes using correct namespaced names
-    user = User.find(user_id)
-    user.update!(data_payload)
-  end
-
-  private
-
-  def profile
-    @profile ||= UserProfile.find(context.profile_id)
-  end
-end
-```
-
-> [!NOTE]
-> When debugging namespaced attributes, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original attribute names used in task calls.
 
 ---
 
