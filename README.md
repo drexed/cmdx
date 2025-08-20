@@ -34,7 +34,7 @@ Or install it yourself as:
 # Setup task
 # ---
 class SendWelcomeEmail < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate, id: -> { request.request_id }
+  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
   on_success :track_email_delivery!
 
