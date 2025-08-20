@@ -34,7 +34,11 @@ class ProcessPayment < CMDx::Task
   end
 end
 
-ProcessPayment.execute(paid_with: "amex", paid_on: "01-23-2020", total: "34.99")
+ProcessPayment.execute(
+  paid_with: "amex",
+  paid_on: "01-23-2020",
+  total: "34.99"
+)
 ```
 
 > [!TIP]
@@ -61,7 +65,8 @@ ProcessPayment.execute(paid_with: "amex", paid_on: "01-23-2020", total: "34.99")
 ## Declarations
 
 > [!IMPORTANT]
-> Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
+> Coercions must raise a CMDx::CoercionError and its message is used
+> as part of the fault reason and metadata.
 
 ### Proc or Lambda
 
@@ -136,7 +141,10 @@ class ProcessData < CMDx::Task
   end
 end
 
-result = ProcessData.execute(count: "not-a-number", amount: "invalid-float")
+result = ProcessData.execute(
+  count: "not-a-number",
+  amount: "invalid-float"
+)
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
