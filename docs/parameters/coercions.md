@@ -115,7 +115,6 @@ Remove custom coercions when no longer needed:
 
 ```ruby
 class ProcessOrder < CMDx::Task
-  # Class or Module (no instances)
   deregister :coercion, :point
 end
 ```
