@@ -13,9 +13,11 @@ Attribute naming provides method name customization to prevent conflicts and ena
 
 ## Prefix
 
+Adds a prefix to the generated accessor method name.
+
 ```ruby
 class UpdateCustomer < CMDx::Task
-  # Dynamic from :source
+  # Dynamic from attribute source
   attribute :id, prefix: true
 
   # Static
@@ -27,15 +29,17 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# `execute` uses original attribute names
+# Execution uses original attribute names
 UpdateCustomer.execute(id: 123, name: "Jane Smith")
 ```
 
 ## Suffix
 
+Adds a suffix to the generated accessor method name.
+
 ```ruby
 class UpdateCustomer < CMDx::Task
-  # Dynamic from :source
+  # Dynamic from attribute source
   attribute :email, suffix: true
 
   # Static
@@ -47,11 +51,13 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Call uses original attribute names
+# Execution uses original attribute names
 UpdateCustomer.execute(email: "jane@example.com", phone: "555-0123")
 ```
 
 ## As
+
+Completely renames the generated accessor method.
 
 ```ruby
 class UpdateCustomer < CMDx::Task
@@ -62,7 +68,7 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Call uses original attribute names
+# Execution uses original attribute names
 UpdateCustomer.execute(birthday: Date.new(2020, 10, 31))
 ```
 
