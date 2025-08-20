@@ -6,22 +6,11 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 TODO: add a style guide suggestion
 
-- [TLDR](#tldr)
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
-- [Attribute Optimization](#attribute-optimization)
-  - [Efficient Attribute Definitions](#efficient-attribute-definitions)
-- [Monitoring and Observability](#monitoring-and-observability)
-  - [ActiveRecord Query Tagging](#activerecord-query-tagging)
-
-## TLDR
-
-- **Organization** - Group commands by domain in `/app/tasks` with descriptive subdirectories
-- **Naming** - Tasks use "Verb + Noun + Task", workflows use "Noun + Verb + Workflow"
-- **Attribute optimization** - Use `with_options` to reduce duplication in attribute definitions
-- **Monitoring** - Enable ActiveRecord query tagging for better debugging and observability
-- **Base classes** - Create `ApplicationTask` and `ApplicationWorkflow` for shared configuration
+- [Attribute Options](#attribute-options)
+- [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
 ## Project Organization
 
@@ -33,21 +22,18 @@ Create a well-organized command structure for maintainable applications:
 /app
   /tasks
     /orders
-      - process_order_task.rb
-      - validate_order_task.rb
-      - fulfill_order_task.rb
-      - order_processing_workflow.rb
+      - charge_order.rb
+      - validate_order.rb
+      - fulfill_order.rb
+      - process_order.rb # workflow
     /notifications
-      - send_email_task.rb
-      - send_sms_task.rb
-      - post_slack_message_task.rb
-      - notification_delivery_workflow.rb
-    /payments
-      - charge_payment_task.rb
-      - refund_payment_task.rb
-      - validate_payment_method_task.rb
-    - application_task.rb
-    - application_workflow.rb
+      - send_email.rb
+      - send_sms.rb
+      - post_slack_message.rb
+      - deliver_notifications.rb # workflow
+    - application_task.rb # base class
+    - login_user.rb
+    - register_user.rb
 ```
 
 ### Naming Conventions
@@ -55,14 +41,10 @@ Create a well-organized command structure for maintainable applications:
 Follow consistent naming patterns for clarity and maintainability:
 
 ```ruby
-# Tasks: Verb + Noun + Task
+# Verb + Noun
 class ProcessOrder < CMDx::Task; end
 class SendEmail < CMDx::Task; end
 class ValidatePayment < CMDx::Task; end
-
-# Workflows: Noun + Verb + Workflow
-class OrderProcessingWorkflow < CMDx::Workflow; end
-class NotificationDeliveryWorkflow < CMDx::Workflow; end
 
 # Use present tense verbs for actions
 class CreateUser < CMDx::Task; end      # ✓ Good
@@ -70,9 +52,7 @@ class CreatingUser < CMDx::Task; end    # ❌ Avoid
 class UserCreation < CMDx::Task; end    # ❌ Avoid
 ```
 
-## Attribute Optimization
-
-### Efficient Attribute Definitions
+## Attribute Options
 
 Use Rails `with_options` to reduce duplication and improve readability:
 
@@ -80,35 +60,27 @@ Use Rails `with_options` to reduce duplication and improve readability:
 class UpdateUserProfile < CMDx::Task
   # Apply common options to multiple attributes
   with_options(type: :string, presence: true) do
-    required :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-    optional :first_name, :last_name
+    attributes :email, format: { with: URI::MailTo::EMAIL_REGEXP }
+    required :first_name, :last_name
     optional :phone, format: { with: /\A\+?[\d\s\-\(\)]+\z/ }
   end
 
   # Nested attributes with shared prefix
   required :address do
     with_options(prefix: :address_) do
-      required :street, :city, :postal_code, type: :string
+      attributes :street, :city, :postal_code, type: :string
       required :country, type: :string, inclusion: { in: VALID_COUNTRIES }
       optional :state, type: :string
     end
   end
 
-  # Shared validation rules
-  with_options(type: :integer, numericality: { greater_than: 0 }) do
-    optional :age, numericality: { less_than: 150 }
-    optional :years_experience, numericality: { less_than: 80 }
-  end
-
   def work
-    # Implementation
+    # Your logic here...
   end
 end
 ```
 
-## Monitoring and Observability
-
-### ActiveRecord Query Tagging
+## ActiveRecord Query Tagging
 
 Automatically tag SQL queries for better debugging:
 
@@ -125,6 +97,7 @@ class ApplicationTask < CMDx::Task
   private
 
   def set_execution_context
+    # NOTE: This could easily be made into a middleware
     ActiveSupport::ExecutionContext.set(
       cmdx_task_class: self.class.name,
       cmdx_chain_id: chain.id

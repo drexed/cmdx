@@ -171,7 +171,8 @@ class CreateShipment < CMDx::Task
   # Required parent with required children
   required :shipping_address do
     required :street, :city, :state, :zip
-    optional :apartment, :instructions
+    optional :apartment
+    attribute :instructions
   end
 
   # Optional parent with conditional children
@@ -181,7 +182,7 @@ class CreateShipment < CMDx::Task
   end
 
   # Multi-level nesting
-  optional :special_handling do
+  attribute :special_handling do
     required :type
 
     optional :insurance do
