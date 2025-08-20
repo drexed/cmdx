@@ -1,6 +1,6 @@
 # Attributes - Coercions
 
-Parameter coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
+Attribute coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
 
 ## Table of Contents
 
@@ -129,7 +129,7 @@ end
 
 ## Error Handling
 
-Coercion failures provide detailed error information including parameter paths, attempted types, and specific failure reasons:
+Coercion failures provide detailed error information including attribute paths, attempted types, and specific failure reasons:
 
 ```ruby
 class ProcessData < CMDx::Task

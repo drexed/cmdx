@@ -10,8 +10,8 @@ TODO: add a style guide suggestion
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
-- [Parameter Optimization](#parameter-optimization)
-  - [Efficient Parameter Definitions](#efficient-parameter-definitions)
+- [Attribute Optimization](#attribute-optimization)
+  - [Efficient Attribute Definitions](#efficient-attribute-definitions)
 - [Monitoring and Observability](#monitoring-and-observability)
   - [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
@@ -19,7 +19,7 @@ TODO: add a style guide suggestion
 
 - **Organization** - Group commands by domain in `/app/tasks` with descriptive subdirectories
 - **Naming** - Tasks use "Verb + Noun + Task", workflows use "Noun + Verb + Workflow"
-- **Parameter optimization** - Use `with_options` to reduce duplication in parameter definitions
+- **Attribute optimization** - Use `with_options` to reduce duplication in attribute definitions
 - **Monitoring** - Enable ActiveRecord query tagging for better debugging and observability
 - **Base classes** - Create `ApplicationTask` and `ApplicationWorkflow` for shared configuration
 
@@ -70,9 +70,9 @@ class CreatingUser < CMDx::Task; end    # ❌ Avoid
 class UserCreation < CMDx::Task; end    # ❌ Avoid
 ```
 
-## Parameter Optimization
+## Attribute Optimization
 
-### Efficient Parameter Definitions
+### Efficient Attribute Definitions
 
 Use Rails `with_options` to reduce duplication and improve readability:
 

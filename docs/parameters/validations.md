@@ -1,6 +1,6 @@
 # Attributes - Validations
 
-Parameter validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
+Attribute validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
 
 ## Table of Contents
 
@@ -270,7 +270,7 @@ end
 
 ## Error Handling
 
-Validation failures provide detailed error information including parameter paths, validation rules, and specific failure reasons:
+Validation failures provide detailed error information including attribute paths, validation rules, and specific failure reasons:
 
 ```ruby
 class CreateUser < CMDx::Task

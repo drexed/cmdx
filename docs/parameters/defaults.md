@@ -1,6 +1,6 @@
 # Attributes - Defaults
 
-Parameter defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.
+Attribute defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.
 
 ## Table of Contents
 

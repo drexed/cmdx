@@ -1,6 +1,6 @@
 # Basics - Setup
 
-Tasks are the core building blocks of CMDx, encapsulating business logic within structured, reusable objects. Each task represents a unit of work with automatic parameter validation, error handling, and execution tracking.
+Tasks are the core building blocks of CMDx, encapsulating business logic within structured, reusable objects. Each task represents a unit of work with automatic attribute validation, error handling, and execution tracking.
 
 ## Table of Contents
 

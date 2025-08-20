@@ -1,6 +1,6 @@
 # Attributes - Naming
 
-Parameter namespacing provides method name customization to prevent conflicts and enable flexible parameter access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, namespacing ensures clean method resolution within tasks.
+Attribute namespacing provides method name customization to prevent conflicts and enable flexible attribute access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, namespacing ensures clean method resolution within tasks.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ Parameter namespacing provides method name customization to prevent conflicts an
 ## Namespacing Fundamentals
 
 > [!IMPORTANT]
-> Namespacing modifies only the generated accessor method names within tasks. Parameter names in call arguments remain unchanged, ensuring a clean external interface.
+> Namespacing modifies only the generated accessor method names within tasks. Attribute names in call arguments remain unchanged, ensuring a clean external interface.
 
 ### Namespacing Options
 
@@ -46,7 +46,7 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Call uses original parameter names
+# Call uses original attribute names
 UpdateCustomer.execute(
   id: 123,
   name: "Jane Smith",
@@ -58,7 +58,7 @@ UpdateCustomer.execute(
 ## Dynamic Source-Based Namespacing
 
 > [!TIP]
-> Use `true` with `prefix:` or `suffix:` to automatically generate method names based on parameter sources, creating self-documenting code.
+> Use `true` with `prefix:` or `suffix:` to automatically generate method names based on attribute sources, creating self-documenting code.
 
 ```ruby
 class GenerateInvoice < CMDx::Task
@@ -93,7 +93,7 @@ end
 ## Conflict Resolution
 
 > [!WARNING]
-> Parameter names that conflict with existing Ruby or CMDx methods can cause unexpected behavior. Always use namespacing to avoid method collisions.
+> Attribute names that conflict with existing Ruby or CMDx methods can cause unexpected behavior. Always use namespacing to avoid method collisions.
 
 ### Ruby Method Conflicts
 
@@ -161,7 +161,7 @@ end
 
 ## Advanced Patterns
 
-### Hierarchical Parameter Organization
+### Hierarchical Attribute Organization
 
 ```ruby
 class CreateShipment < CMDx::Task
@@ -243,7 +243,7 @@ end
 ## Error Handling
 
 > [!WARNING]
-> Validation errors reference namespaced method names, not original parameter names. This affects error message interpretation and debugging.
+> Validation errors reference namespaced method names, not original attribute names. This affects error message interpretation and debugging.
 
 ### Validation Error Messages
 
@@ -295,7 +295,7 @@ class Problematic < CMDx::Task
   required :config, source: :settings, suffix: "_data"
 
   def work
-    # ❌ WRONG: Using original parameter names in task methods
+    # ❌ WRONG: Using original attribute names in task methods
     process(data)         # NoMethodError: undefined method `data`
     apply(config)         # NoMethodError: undefined method `config`
 
@@ -313,11 +313,11 @@ end
 
 # ❌ WRONG: Using namespaced names in call arguments
 Problematic.execute(
-  user_data: { name: "John" },    # ArgumentError: unknown parameter
-  config_data: { theme: "dark" }  # ArgumentError: unknown parameter
+  user_data: { name: "John" },    # ArgumentError: unknown attribute
+  config_data: { theme: "dark" }  # ArgumentError: unknown attribute
 )
 
-# ✅ CORRECT: Using original parameter names in call arguments
+# ✅ CORRECT: Using original attribute names in call arguments
 Problematic.execute(
   data: { name: "John" },         # Correct
   config: { theme: "dark" }       # Correct
@@ -332,7 +332,7 @@ class Debugging < CMDx::Task
   required :data, source: :profile, suffix: "_payload"
 
   def work
-    # Use introspection to understand parameter mapping
+    # Use introspection to understand attribute mapping
     puts "Available methods: #{methods.grep(/^(user_|.*_payload$)/)}"
     #=> ["user_id", "data_payload"]
 
@@ -350,7 +350,7 @@ end
 ```
 
 > [!NOTE]
-> When debugging namespaced attributes, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original parameter names used in task calls.
+> When debugging namespaced attributes, remember that error messages, method introspection, and stack traces will show the namespaced method names, not the original attribute names used in task calls.
 
 ---
 

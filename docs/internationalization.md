@@ -1,6 +1,6 @@
 # Internationalization (i18n)
 
-CMDx provides comprehensive internationalization support for all error messages, parameter validation failures, coercion errors, and fault messages. All user-facing text is automatically localized based on the current `I18n.locale`, ensuring your applications can serve global audiences with native-language error reporting.
+CMDx provides comprehensive internationalization support for all error messages, attribute validation failures, coercion errors, and fault messages. All user-facing text is automatically localized based on the current `I18n.locale`, ensuring your applications can serve global audiences with native-language error reporting.
 
 ## Table of Contents
 

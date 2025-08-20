@@ -5,8 +5,8 @@ Attributes define the interface between task callers and implementation, enablin
 ## Table of Contents
 
 - [TLDR](#tldr)
-- [Basic Parameter Definition](#basic-parameter-definition)
-- [Parameter Sources](#parameter-sources)
+- [Basic Attribute Definition](#basic-attribute-definition)
+- [Attribute Sources](#attribute-sources)
 - [Nested Attributes](#nested-attributes)
 - [Advanced Features](#advanced-features)
 - [Error Handling](#error-handling)
@@ -45,14 +45,14 @@ ProcessOrder.execute(
 )
 ```
 
-## Basic Parameter Definition
+## Basic Attribute Definition
 
 > [!IMPORTANT]
 > Required attributes must be provided in call arguments or task execution will fail. Optional attributes return `nil` when not provided.
 
 ```ruby
 class CreateUser < CMDx::Task
-  # Single parameter definitions
+  # Single attribute definitions
   required :email
   optional :name
 
@@ -89,9 +89,9 @@ CreateUser.execute(
 )
 ```
 
-## Parameter Sources
+## Attribute Sources
 
-Attributes delegate to source objects within the task context. The default source is `:context`, but any accessible method or object can serve as a parameter source.
+Attributes delegate to source objects within the task context. The default source is `:context`, but any accessible method or object can serve as a attribute source.
 
 > [!NOTE]
 > Sources allow attributes to pull values from different objects instead of just call arguments.
@@ -191,10 +191,10 @@ end
 
 ## Nested Attributes
 
-Nested attributes enable complex parameter structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
+Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
 > [!TIP]
-> Child attributes are only required when their parent parameter is provided, enabling flexible optional structures.
+> Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
 
 ```ruby
 class CreateShipment < CMDx::Task
@@ -262,7 +262,7 @@ CreateShipment.execute(
 
 ## Advanced Features
 
-### Parameter Method Generation
+### Attribute Method Generation
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -282,8 +282,8 @@ class ProcessPayment < CMDx::Task
   def work
     # All attributes accessible as instance methods
     payment = PaymentService.charge(
-      amount: amount,                    # Direct parameter access
-      method: payment_method,            # Direct parameter access
+      amount: amount,                    # Direct attribute access
+      method: payment_method,            # Direct attribute access
       customer_id: id,                   # From customer.id
       customer_email: email,             # From customer.email
       billing_street: street,            # From customer.billing_address.street
@@ -295,7 +295,7 @@ class ProcessPayment < CMDx::Task
 end
 ```
 
-### Parameter Introspection
+### Attribute Introspection
 
 ```ruby
 class IntrospectionExample < CMDx::Task
@@ -308,11 +308,11 @@ class IntrospectionExample < CMDx::Task
   end
 
   def work
-    # Access parameter metadata
+    # Access attribute metadata
     params = self.class.attributes
 
     params.each do |param|
-      puts "Parameter: #{param.name}"
+      puts "Attribute: #{param.name}"
       puts "Required: #{param.required?}"
       puts "Type: #{param.type}"
       puts "Default: #{param.default}" if param.has_default?
@@ -326,7 +326,7 @@ end
 ## Error Handling
 
 > [!WARNING]
-> Parameter validation failures result in structured error information with details about each failed parameter.
+> Attribute validation failures result in structured error information with details about each failed attribute.
 
 ### Missing Required Attributes
 
@@ -438,7 +438,7 @@ result.metadata
 ```
 
 > [!TIP]
-> Parameter validation occurs before the `execute` method executes, so you can rely on parameter presence and types within your task logic.
+> Attribute validation occurs before the `execute` method executes, so you can rely on attribute presence and types within your task logic.
 
 ---
 
