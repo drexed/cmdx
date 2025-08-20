@@ -1,7 +1,7 @@
 Process the following instructions in the order given:
 
 1. Create an `LLM.md` file
-2. Append all files within `docs/**/*.md` into `LLM.md`
+2. Append all files within `docs/**/*.md` into @LLM.md
   2a. Use order outlined in the table of contents of @README.md
   2b. Process one file at a time faster performance and improved accuracy
   2c. Remove the table of contents from the chunk
@@ -18,4 +18,4 @@ Process the following instructions in the order given:
       ---
 
       ```
-3. Optimize `LLM.md` for LLM and coding agent use
+3. Optimize @LLM.md for LLM and coding agent use
