@@ -34,20 +34,25 @@ module CMDx
       #   # => nil (validation passes - matches format, excludes 'admin')
       def call(value, options = {})
         match =
-          case options
-          in with:, without:
-            value&.match?(with) && !value&.match?(without)
-          in with:
-            value&.match?(with)
-          in without:
-            !value&.match?(without)
+          if options.is_a?(Regexp)
+            value&.match?(options)
           else
-            false
+            case options
+            in with:, without:
+              value&.match?(with) && !value&.match?(without)
+            in with:
+              value&.match?(with)
+            in without:
+              !value&.match?(without)
+            else
+              false
+            end
           end
 
         return if match
 
-        raise ValidationError, options[:message] || Locale.t("cmdx.validators.format")
+        message = options[:message] if options.is_a?(Hash)
+        raise ValidationError, message || Locale.t("cmdx.validators.format")
       end
 
     end
