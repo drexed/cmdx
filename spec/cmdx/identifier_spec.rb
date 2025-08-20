@@ -20,6 +20,8 @@ RSpec.describe CMDx::Identifier, type: :unit do
       end
 
       it "does not call the fallback uuid method" do
+        skip("Not supported on Ruby versions prior to 3.4") unless RubyVersion.min?(3.4)
+
         expect(SecureRandom).not_to receive(:uuid)
 
         identifier.generate

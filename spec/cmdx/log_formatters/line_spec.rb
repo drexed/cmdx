@@ -149,7 +149,11 @@ RSpec.describe CMDx::LogFormatters::Line, type: :unit do
 
         result = formatter.call(severity, time, progname, hash_message)
 
-        expect(result).to include('TestApp: {"state" => "complete", "status" => "success"}')
+        if RubyVersion.min?(3.4)
+          expect(result).to include('TestApp: {"state" => "complete", "status" => "success"}')
+        else
+          expect(result).to include('TestApp: {"state"=>"complete", "status"=>"success"}')
+        end
       end
 
       it "handles array messages" do

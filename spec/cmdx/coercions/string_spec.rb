@@ -166,7 +166,12 @@ RSpec.describe CMDx::Coercions::String, type: :unit do
         result = coercion.call({ a: 1, b: 2 })
 
         expect(result).to be_a(String)
-        expect(result).to eq("{a: 1, b: 2}")
+
+        if RubyVersion.min?(3.4)
+          expect(result).to eq("{a: 1, b: 2}")
+        else
+          expect(result).to eq("{:a=>1, :b=>2}")
+        end
       end
 
       it "converts empty hash to string" do

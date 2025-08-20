@@ -117,7 +117,11 @@ RSpec.describe CMDx::LogFormatters::Raw, type: :unit do
 
         result = formatter.call(severity, time, progname, hash_message)
 
-        expect(result).to eq("{\"state\" => \"complete\", \"status\" => \"success\"}\n")
+        if RubyVersion.min?(3.4)
+          expect(result).to eq("{\"state\" => \"complete\", \"status\" => \"success\"}\n")
+        else
+          expect(result).to eq("{\"state\"=>\"complete\", \"status\"=>\"success\"}\n")
+        end
       end
 
       it "handles array messages" do

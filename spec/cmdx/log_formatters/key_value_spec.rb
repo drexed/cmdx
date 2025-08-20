@@ -161,7 +161,11 @@ RSpec.describe CMDx::LogFormatters::KeyValue, type: :unit do
 
         result = formatter.call(severity, time, progname, message)
 
-        expect(result).to include('message={"state" => "complete", "status" => "success"}')
+        if RubyVersion.min?(3.4)
+          expect(result).to include('message={"state" => "complete", "status" => "success"}')
+        else
+          expect(result).to include('message={"state"=>"complete", "status"=>"success"}')
+        end
       end
 
       it "handles complex nested structures" do
@@ -338,7 +342,11 @@ RSpec.describe CMDx::LogFormatters::KeyValue, type: :unit do
 
         result = formatter.call(severity, time, progname, hash_message)
 
-        expect(result).to include("message={key: \"value\", count: 5}")
+        if RubyVersion.min?(3.4)
+          expect(result).to include('message={key: "value", count: 5}')
+        else
+          expect(result).to include('message={:key=>"value", :count=>5}')
+        end
       end
 
       it "handles empty hash messages" do

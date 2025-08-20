@@ -177,7 +177,11 @@ RSpec.describe CMDx::Utils::Format, type: :unit do
 
         result = format_module.to_str(hash)
 
-        expect(result).to eq('id=1 name="Test" data=[1, 2, 3] meta={nested: true}')
+        if RubyVersion.min?(3.4)
+          expect(result).to eq('id=1 name="Test" data=[1, 2, 3] meta={nested: true}')
+        else
+          expect(result).to eq('id=1 name="Test" data=[1, 2, 3] meta={:nested=>true}')
+        end
       end
 
       it "handles hash with nil values" do

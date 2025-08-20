@@ -300,7 +300,13 @@ RSpec.describe "Task attributes", type: :feature do
       result = task.execute
 
       expect(result).to have_been_failure(
-        reason: start_with("[NameError] undefined local variable or method 'raw_attr' for an instance of"),
+        reason: start_with(
+          if RubyVersion.min?(3.4)
+            "[NameError] undefined local variable or method 'raw_attr' for an instance of"
+          else
+            "[NameError] undefined local variable or method `raw_attr' for"
+          end
+        ),
         cause: be_a(NameError)
       )
     end

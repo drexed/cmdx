@@ -343,9 +343,15 @@ RSpec.describe CMDx::Utils::Call, type: :unit do
       end
 
       it "raises error for hash" do
-        expect do
-          call_module.invoke(target_object, { key: "value" })
-        end.to raise_error(/cannot invoke {key: "value"}/)
+        if RubyVersion.min?(3.4)
+          expect do
+            call_module.invoke(target_object, { key: "value" })
+          end.to raise_error(/cannot invoke {key: "value"}/)
+        else
+          expect do
+            call_module.invoke(target_object, { key: "value" })
+          end.to raise_error(/cannot invoke {:key=>"value"}/)
+        end
       end
 
       it "raises error for nil" do
