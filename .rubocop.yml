@@ -70,6 +70,9 @@ RSpec/StubbedMock:
   Enabled: false
 RSpec/VerifiedDoubleReference:
   Enabled: false
+Style/ArgumentsForwarding:
+  Exclude:
+    - 'lib/cmdx/utils/call.rb'
 Style/CaseEquality:
   Enabled: false
 Style/DocumentDynamicEvalDefinition:

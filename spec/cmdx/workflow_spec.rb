@@ -73,16 +73,6 @@ RSpec.describe CMDx::Workflow, type: :unit do
       end
     end
 
-    describe "#task" do
-      let(:task_class) { create_successful_task }
-
-      it "delegates to tasks method" do
-        expect(workflow_class).to receive(:tasks).with(task_class, if: true)
-
-        workflow_class.task(task_class, if: true)
-      end
-    end
-
     describe "#tasks" do
       let(:task1) { create_successful_task(name: "Task1") }
       let(:task2) { create_successful_task(name: "Task2") }

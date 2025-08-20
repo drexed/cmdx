@@ -41,22 +41,6 @@ module CMDx
         @execution_groups ||= []
       end
 
-      # Adds a single task to the workflow with optional configuration.
-      #
-      # @param task [Class] The task class to add
-      # @param options [Hash] Configuration options for the task execution
-      # @option options [Hash] :breakpoints Breakpoints that trigger workflow interruption
-      # @option options [Hash] :conditions Conditional logic for task execution
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task ProcessDataTask, breakpoints: [:failure]
-      #   end
-      def task(task, **options)
-        tasks(task, **options)
-      end
-
       # Adds multiple tasks to the workflow with optional configuration.
       #
       # @param tasks [Array<Class>] Array of task classes to add
@@ -81,6 +65,7 @@ module CMDx
           options
         )
       end
+      alias task tasks
 
     end
 

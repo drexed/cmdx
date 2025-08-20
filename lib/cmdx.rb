@@ -6,7 +6,7 @@ require "forwardable"
 require "json"
 require "logger"
 require "securerandom"
-require "set"
+require "set" # rubocop:disable Lint/RedundantRequireStatement
 require "time"
 require "timeout"
 require "yaml"
