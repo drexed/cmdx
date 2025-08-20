@@ -44,7 +44,7 @@ ProcessPayment.execute(paid_with: "amex", paid_on: "01-23-2020", total: "34.99")
 
 | Type | Options | Description | Examples |
 |------|---------|-------------|----------|
-| `:array` | | Array conversion with JSON support | `"a,b,c"` → `["a", "b", "c"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
+| `:array` | | Array conversion with JSON support | `"val"` → `["val"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
 | `:big_decimal` | `:precision` | High-precision decimal | `"123.456"` → `BigDecimal("123.456")` |
 | `:boolean` | | Boolean with text patterns | `"yes"` → `true`, `"no"` → `false` |
 | `:complex` | | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
