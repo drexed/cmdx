@@ -2,34 +2,31 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to strings.
+    # Coerces values to String type using Ruby's built-in String() method.
     #
-    # This coercion handles conversion of various types to strings using Ruby's
-    # built-in String() method, which provides consistent string conversion
-    # behavior across different object types.
-    class String < Coercion
+    # This coercion handles various input types by converting them to their
+    # string representation. It's a simple wrapper around Ruby's String()
+    # method for consistency with the CMDx coercion interface.
+    module String
 
-      # Converts the given value to a string.
+      extend self
+
+      # Coerces a value to String type.
       #
-      # @param value [Object] the value to convert to a string
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to coerce to a string
+      # @param options [Hash] Optional configuration parameters (unused in this coercion)
       #
-      # @return [String] the converted string value
+      # @return [String] The coerced string value
       #
-      # @raise [TypeError] if the value cannot be converted to a string
+      # @raise [TypeError] If the value cannot be converted to a string
       #
-      # @example Converting numbers
-      #   Coercions::String.call(123) #=> "123"
-      #   Coercions::String.call(45.67) #=> "45.67"
-      #
-      # @example Converting symbols and nil
-      #   Coercions::String.call(:symbol) #=> "symbol"
-      #   Coercions::String.call(nil) #=> ""
-      #
-      # @example Converting boolean values
-      #   Coercions::String.call(true) #=> "true"
-      #   Coercions::String.call(false) #=> "false"
-      def call(value, _options = {})
+      # @example Basic string coercion
+      #   String.call("hello")           # => "hello"
+      #   String.call(42)                # => "42"
+      #   String.call([1, 2, 3])         # => "[1, 2, 3]"
+      #   String.call(nil)               # => ""
+      #   String.call(true)              # => "true"
+      def call(value, options = {})
         String(value)
       end
 

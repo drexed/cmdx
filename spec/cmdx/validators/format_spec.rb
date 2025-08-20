@@ -2,259 +2,278 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Validators::Format do
-  subject(:validator) { described_class.new }
+RSpec.describe CMDx::Validators::Format, type: :unit do
+  subject(:validator) { described_class }
 
   describe ".call" do
-    it "creates instance and calls #call method" do
-      expect(described_class).to receive(:new).and_return(validator)
-      expect(validator).to receive(:call).with("value", { with: /\A[a-z]+\z/ })
-
-      described_class.call("value",  { with: /\A[a-z]+\z/ })
-    end
-  end
-
-  describe "#call" do
-    context "with positive pattern (with)" do
-      it "allows values matching the pattern" do
-        expect { validator.call("abc", { with: /\A[a-z]+\z/ }) }.not_to raise_error
-        expect { validator.call("user123", { with: /\A[a-z]+\d+\z/ }) }.not_to raise_error
+    context "with direct Regexp argument" do
+      it "validates value against the regex pattern" do
+        expect { validator.call("hello", /\A[a-z]+\z/) }.not_to raise_error
+        expect { validator.call("123", /\A\d+\z/) }.not_to raise_error
+        expect { validator.call("test@example.com", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }.not_to raise_error
       end
 
       it "raises ValidationError when value doesn't match pattern" do
-        expect { validator.call("123", { with: /\A[a-z]+\z/ }) }
+        expect { validator.call("Hello", /\A[a-z]+\z/) }
+          .to raise_error(CMDx::ValidationError, "is an invalid format")
+        expect { validator.call("abc", /\A\d+\z/) }
+          .to raise_error(CMDx::ValidationError, "is an invalid format")
+        expect { validator.call("invalid-email", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
-      it "raises ValidationError when value is empty and pattern requires content" do
-        expect { validator.call("", { with: /\A[a-z]+\z/ }) }
+      it "handles complex regex patterns" do
+        phone_regex = /\A\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\z/
+        expect { validator.call("123-456-7890", phone_regex) }.not_to raise_error
+        expect { validator.call("(123) 456-7890", phone_regex) }.not_to raise_error
+        expect { validator.call("123-45-6789", phone_regex) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
-      it "uses custom message when provided" do
-        options = { with: /\A[a-z]+\z/, message: "Must contain only lowercase letters" }
-
-        expect { validator.call("123", options) }
-          .to raise_error(CMDx::ValidationError, "Must contain only lowercase letters")
-      end
-
-      it "works with complex patterns" do
-        email_pattern = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
-
-        expect { validator.call("user@example.com", { with: email_pattern }) }.not_to raise_error
-        expect { validator.call("invalid-email", { with: email_pattern }) }
+      it "works with edge cases" do
+        expect { validator.call("", /\A.*\z/) }.not_to raise_error
+        expect { validator.call("", /\A.+\z/) }
+          .to raise_error(CMDx::ValidationError, "is an invalid format")
+        expect { validator.call(nil, /\A.+\z/) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
     end
 
-    context "with negative pattern (without)" do
-      it "allows values not matching the pattern" do
-        expect { validator.call("user",  { without: /admin|root/ }) }.not_to raise_error
-        expect { validator.call("guest123", { without: /admin|root/ }) }.not_to raise_error
+    context "with :with option" do
+      let(:options) { { with: /\A[a-z]+\z/ } }
+
+      context "when value matches pattern" do
+        it "does not raise error for matching values" do
+          expect { validator.call("hello", options) }.not_to raise_error
+          expect { validator.call("world", options) }.not_to raise_error
+          expect { validator.call("test", options) }.not_to raise_error
+        end
       end
 
-      it "raises ValidationError when value matches forbidden pattern" do
-        expect { validator.call("admin", { without: /admin|root/ }) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-        expect { validator.call("root_user", { without: /admin|root/ }) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
+      context "when value does not match pattern" do
+        it "raises ValidationError with default message" do
+          expect { validator.call("Hello", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+        end
+
+        it "raises ValidationError for various invalid formats" do
+          ["Hello", "123", "test_case", ""].each do |invalid_value|
+            expect { validator.call(invalid_value, options) }
+              .to raise_error(CMDx::ValidationError, "is an invalid format")
+          end
+        end
       end
 
-      it "allows empty values when pattern doesn't match" do
-        expect { validator.call("", { without: /admin|root/ }) }.not_to raise_error
+      context "with custom message" do
+        let(:options) { { with: /\A\d+\z/, message: "must contain only digits" } }
+
+        it "uses custom message when validation fails" do
+          expect { validator.call("abc", options) }
+            .to raise_error(CMDx::ValidationError, "must contain only digits")
+        end
       end
 
-      it "uses custom message when provided" do
-        options = { without: /admin|root/, message: "Reserved usernames not allowed" }
+      context "with email pattern" do
+        let(:options) { { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i } }
 
-        expect { validator.call("admin", options) }
-          .to raise_error(CMDx::ValidationError, "Reserved usernames not allowed")
-      end
-    end
+        it "validates email format correctly" do
+          expect { validator.call("user@example.com", options) }.not_to raise_error
+          expect { validator.call("test.email+tag@domain.co.uk", options) }.not_to raise_error
+        end
 
-    context "with combined patterns (with and without)" do
-      it "allows values matching 'with' pattern and not matching 'without' pattern" do
-        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
-
-        expect { validator.call("user123", options) }.not_to raise_error
-        expect { validator.call("guest456", options) }.not_to raise_error
-      end
-
-      it "raises ValidationError when value doesn't match 'with' pattern" do
-        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
-
-        expect { validator.call("123abc", options) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
-      it "raises ValidationError when value matches 'without' pattern" do
-        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
-
-        expect { validator.call("admin123", options) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
-      it "raises ValidationError when value fails both patterns" do
-        options = { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
-
-        expect { validator.call("ADMIN", options) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
-      it "uses custom message when provided" do
-        options = {
-          with: /\A[a-z]+\d+\z/,
-          without: /admin|root/,
-          message: "Invalid username format"
-        }
-
-        expect { validator.call("admin123", options) }
-          .to raise_error(CMDx::ValidationError, "Invalid username format")
-      end
-    end
-
-    context "with edge cases" do
-      it "raises NoMethodError for nil values" do
-        expect { validator.call(nil,  { with: /\A[a-z]+\z/ }) }
-          .to raise_error(NoMethodError, /undefined method 'match\?' for nil/)
-      end
-
-      it "raises NoMethodError for non-string values" do
-        expect { validator.call(123,  { with: /\A\d+\z/ }) }
-          .to raise_error(NoMethodError, /undefined method 'match\?' for an instance of Integer/)
-      end
-
-      it "handles symbols correctly" do
-        expect { validator.call(:admin,  { with: /\A[a-z]+\z/ }) }.not_to raise_error
-        expect { validator.call(:admin,  { without: /admin/ }) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
-      it "returns early for valid cases" do
-        expect(validator.call("valid", { with: /\A[a-z]+\z/ })).to be_nil
-      end
-    end
-
-    context "with missing or invalid options" do
-      it "raises ValidationError when no format options provided" do
-        expect { validator.call("any_value", {}) }
-          .to raise_error(CMDx::ValidationError, "is an invalid format")
-      end
-
-      it "raises TypeError when format patterns are nil" do
-        expect { validator.call("any_value", { with: nil }) }
-          .to raise_error(TypeError, /wrong argument type nil \(expected Regexp\)/)
-      end
-    end
-  end
-
-  describe "integration with tasks" do
-    let(:task_class) do
-      create_simple_task(name: "UserValidationTask") do
-        required :username, type: :string, format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ }
-        optional :email, type: :string, default: "user@example.com",
-                         format: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
-
-        def call
-          context.validated_user = { username: username, email: email }
+        it "rejects invalid email formats" do
+          expect { validator.call("invalid-email", options) }
+            .to raise_error(CMDx::ValidationError)
+          expect { validator.call("@example.com", options) }
+            .to raise_error(CMDx::ValidationError)
         end
       end
     end
 
-    it "validates successfully with valid formats" do
-      result = task_class.call(username: "user123", email: "user@example.com")
+    context "with :without option" do
+      let(:options) { { without: /[^a-zA-Z]/ } }
 
-      expect(result).to be_success
-      expect(result.context.validated_user).to eq({ username: "user123", email: "user@example.com" })
-    end
-
-    it "fails when username doesn't match required format" do
-      result = task_class.call(username: "123abc")
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to eq("username is an invalid format")
-      expect(result.metadata[:messages]).to eq({ username: ["is an invalid format"] })
-    end
-
-    it "fails when username matches forbidden pattern" do
-      result = task_class.call(username: "admin123")
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to eq("username is an invalid format")
-      expect(result.metadata[:messages]).to eq({ username: ["is an invalid format"] })
-    end
-
-    it "fails when email has invalid format" do
-      result = task_class.call(username: "user123", email: "invalid-email")
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to eq("email is an invalid format")
-      expect(result.metadata[:messages]).to eq({ email: ["is an invalid format"] })
-    end
-
-    it "validates with custom messages" do
-      custom_task = create_simple_task(name: "CustomValidationTask") do
-        required :code, type: :string, format: {
-          with: /\A[A-Z]{2}\d{4}\z/,
-          message: "Code must be 2 uppercase letters followed by 4 digits"
-        }
-
-        def call
-          context.validated_code = code
+      context "when value does not match forbidden pattern" do
+        it "does not raise error for valid values" do
+          expect { validator.call("Hello", options) }.not_to raise_error
+          expect { validator.call("World", options) }.not_to raise_error
+          expect { validator.call("", options) }.not_to raise_error
         end
       end
 
-      result = custom_task.call(code: "invalid")
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to eq("code Code must be 2 uppercase letters followed by 4 digits")
-      expect(result.metadata[:messages]).to eq({ code: ["Code must be 2 uppercase letters followed by 4 digits"] })
-    end
+      context "when value matches forbidden pattern" do
+        it "raises ValidationError with default message" do
+          expect { validator.call("hello123", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+        end
 
-    it "works with multiple format validations" do
-      multi_task = create_simple_task(name: "MultiFormatTask") do
-        required :username, type: :string, format: { with: /\A[a-z]+\d+\z/ }
-        required :password, type: :string, format: { without: /password|123456/, message: "Weak password" }
-
-        def call
-          context.validated_credentials = { username: username, password: password }
+        it "raises ValidationError for various invalid formats" do
+          ["test_case", "hello!", "123", "hello world"].each do |invalid_value|
+            expect { validator.call(invalid_value, options) }
+              .to raise_error(CMDx::ValidationError, "is an invalid format")
+          end
         end
       end
 
-      result = multi_task.call(username: "user123", password: "strong_pass")
-      expect(result).to be_success
+      context "with custom message" do
+        let(:options) { { without: /\d/, message: "cannot contain numbers" } }
 
-      result = multi_task.call(username: "invalid", password: "strong_pass")
-      expect(result).to be_failed
-
-      result = multi_task.call(username: "user123", password: "password")
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to eq("password Weak password")
+        it "uses custom message when validation fails" do
+          expect { validator.call("test123", options) }
+            .to raise_error(CMDx::ValidationError, "cannot contain numbers")
+        end
+      end
     end
 
-    it "validates with only positive pattern" do
-      positive_task = create_simple_task(name: "PositiveFormatTask") do
-        required :slug, type: :string, format: { with: /\A[a-z0-9\-]+\z/ }
+    context "with both :with and :without options" do
+      let(:options) { { with: /\A[a-zA-Z]+\z/, without: /[A-Z]{2,}/ } }
 
-        def call
-          context.validated_slug = slug
+      context "when value matches :with and does not match :without" do
+        it "does not raise error for valid values" do
+          expect { validator.call("Hello", options) }.not_to raise_error
+          expect { validator.call("world", options) }.not_to raise_error
+          expect { validator.call("Test", options) }.not_to raise_error
         end
       end
 
-      expect(positive_task.call(slug: "valid-slug-123")).to be_success
-      expect(positive_task.call(slug: "Invalid_Slug")).to be_failed
-    end
-
-    it "validates with only negative pattern" do
-      negative_task = create_simple_task(name: "NegativeFormatTask") do
-        required :content, type: :string, format: { without: /<script|javascript:/ }
-
-        def call
-          context.validated_content = content
+      context "when value does not match :with pattern" do
+        it "raises ValidationError" do
+          expect { validator.call("hello123", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+          expect { validator.call("test_case", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
         end
       end
 
-      expect(negative_task.call(content: "Safe content")).to be_success
-      expect(negative_task.call(content: "Unsafe <script>")).to be_failed
+      context "when value matches :without pattern" do
+        it "raises ValidationError for forbidden patterns" do
+          expect { validator.call("HELLO", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+          expect { validator.call("TEST", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+        end
+      end
+
+      context "when value fails both conditions" do
+        it "raises ValidationError" do
+          expect { validator.call("HELLO123", options) }
+            .to raise_error(CMDx::ValidationError, "is an invalid format")
+        end
+      end
+
+      context "with custom message" do
+        let(:options) do
+          {
+            with: /\A[a-z]+\z/,
+            without: /test/,
+            message: "must be lowercase letters without 'test'"
+          }
+        end
+
+        it "uses custom message when validation fails" do
+          expect { validator.call("testing", options) }
+            .to raise_error(CMDx::ValidationError, "must be lowercase letters without 'test'")
+        end
+      end
+    end
+
+    context "without any pattern options" do
+      let(:options) { {} }
+
+      it "always raises ValidationError" do
+        expect { validator.call("anything", options) }
+          .to raise_error(CMDx::ValidationError, "is an invalid format")
+        expect { validator.call("", options) }
+          .to raise_error(CMDx::ValidationError, "is an invalid format")
+      end
+
+      context "with custom message" do
+        let(:options) { { message: "no pattern specified" } }
+
+        it "uses custom message" do
+          expect { validator.call("test", options) }
+            .to raise_error(CMDx::ValidationError, "no pattern specified")
+        end
+      end
+    end
+
+    context "with complex regex patterns" do
+      context "when validating phone numbers" do
+        let(:options) { { with: /\A\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}\z/ } }
+
+        it "validates various phone number formats" do
+          valid_numbers = [
+            "123-456-7890",
+            "(123) 456-7890",
+            "123.456.7890",
+            "1234567890",
+            "+1-123-456-7890"
+          ]
+
+          valid_numbers.each do |number|
+            expect { validator.call(number, options) }.not_to raise_error
+          end
+        end
+
+        it "rejects invalid phone number formats" do
+          invalid_numbers = %w[
+            123-45-6789
+            abc-def-ghij
+            123-456-78901
+          ]
+
+          invalid_numbers.each do |number|
+            expect { validator.call(number, options) }
+              .to raise_error(CMDx::ValidationError)
+          end
+        end
+      end
+
+      context "when validating hexadecimal colors" do
+        let(:options) { { with: /\A#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\z/ } }
+
+        it "validates hex color codes" do
+          expect { validator.call("#FF0000", options) }.not_to raise_error
+          expect { validator.call("#fff", options) }.not_to raise_error
+          expect { validator.call("#123abc", options) }.not_to raise_error
+        end
+
+        it "rejects invalid hex color codes" do
+          expect { validator.call("FF0000", options) }
+            .to raise_error(CMDx::ValidationError)
+          expect { validator.call("#gg0000", options) }
+            .to raise_error(CMDx::ValidationError)
+        end
+      end
+    end
+
+    context "with string patterns" do
+      let(:options) { { with: "test" } }
+
+      it "treats string patterns as regex" do
+        expect { validator.call("testing", options) }.not_to raise_error
+        expect { validator.call("retest", options) }.not_to raise_error
+      end
+
+      it "raises error when string pattern not found" do
+        expect { validator.call("hello", options) }
+          .to raise_error(CMDx::ValidationError)
+      end
+    end
+
+    context "with edge case values" do
+      let(:options) { { with: /\A.+\z/ } }
+
+      it "handles empty strings" do
+        expect { validator.call("", { with: /\A.*\z/ }) }.not_to raise_error
+        expect { validator.call("", options) }
+          .to raise_error(CMDx::ValidationError)
+      end
+
+      it "handles very long strings" do
+        long_string = "a" * 10_000
+        expect { validator.call(long_string, options) }.not_to raise_error
+      end
     end
   end
 end

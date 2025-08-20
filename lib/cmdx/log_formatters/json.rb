@@ -2,36 +2,35 @@
 
 module CMDx
   module LogFormatters
-    # JSON log formatter that outputs structured log entries as JSON.
+    # Formats log messages as JSON for structured logging
     #
-    # This formatter converts log entries into JSON format, including metadata
-    # such as severity, process ID, and timestamp. Each log entry is output as
-    # a single line of JSON followed by a newline character.
-    class Json
+    # This formatter converts log entries into JSON format with standardized fields
+    # including severity, timestamp, program name, process ID, and formatted message.
+    # The output is suitable for log aggregation systems and structured analysis.
+    class JSON
 
-      # Formats a log entry as a JSON string.
+      # Formats a log entry as a JSON string
       #
-      # @param severity [String] the log severity level (e.g., "INFO", "ERROR")
-      # @param time [Time] the timestamp when the log entry was created
-      # @param task [Object] the task object associated with the log entry
-      # @param message [String] the log message content
+      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
+      # @param time [Time] The timestamp when the log entry was created
+      # @param progname [String, nil] The program name or identifier
+      # @param message [Object] The log message content
       #
-      # @return [String] the formatted JSON log entry with trailing newline
+      # @return [String] A JSON-formatted log entry with a trailing newline
       #
-      # @raise [JSON::GeneratorError] if the log data cannot be serialized to JSON
-      #
-      # @example Formatting a log entry
-      #   formatter = CMDx::LogFormatters::Json.new
-      #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   #=> "{\"severity\":\"INFO\",\"pid\":12345,\"timestamp\":\"2024-01-01T12:00:00Z\",\"message\":\"Task completed\"}\n"
-      def call(severity, time, task, message)
-        m = LoggerSerializer.call(severity, time, task, message).merge!(
+      # @example Basic usage
+      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
+      #   # => '{"severity":"INFO","timestamp":"2024-01-15T10:30:45.123456Z","progname":"MyApp","pid":12345,"message":"User logged in"}\n'
+      def call(severity, time, progname, message)
+        hash = {
           severity:,
+          timestamp: time.utc.iso8601(6),
+          progname:,
           pid: Process.pid,
-          timestamp: Utils::LogTimestamp.call(time.utc)
-        )
+          message: Utils::Format.to_log(message)
+        }
 
-        JSON.dump(m) << "\n"
+        ::JSON.dump(hash) << "\n"
       end
 
     end

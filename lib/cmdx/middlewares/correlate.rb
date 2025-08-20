@@ -2,78 +2,114 @@
 
 module CMDx
   module Middlewares
-    # Middleware that manages correlation IDs for task execution tracing.
-    # Automatically generates or uses provided correlation IDs to track task execution
-    # across complex workflows, enabling better debugging and monitoring.
-    class Correlate < CMDx::Middleware
+    # Middleware for correlating task executions with unique identifiers.
+    #
+    # The Correlate middleware provides thread-safe correlation ID management
+    # for tracking task execution flows across different operations.
+    # It automatically generates correlation IDs when none are provided and
+    # stores them in task result metadata for traceability.
+    module Correlate
 
-      # @return [String, Symbol, Proc, nil] The explicit correlation ID to use, or callable that generates one
-      attr_reader :id
+      extend self
 
-      # @return [Hash] The conditional options for correlation application
-      attr_reader :conditional
+      THREAD_KEY = :cmdx_correlate
 
-      # Initializes the correlation middleware with optional configuration.
+      # Retrieves the current correlation ID from thread-local storage.
       #
-      # @param options [Hash] configuration options for the middleware
-      # @option options [String, Symbol, Proc] :id explicit correlation ID or callable to generate one
-      # @option options [Symbol, Proc] :if condition that must be truthy to apply correlation
-      # @option options [Symbol, Proc] :unless condition that must be falsy to apply correlation
+      # @return [String, nil] The current correlation ID or nil if not set
       #
-      # @return [Correlate] new instance of the middleware
-      #
-      # @example Register with a middleware instance
-      #   use :middleware, CMDx::Middlewares::Correlate.new(id: "request-123")
-      #
-      # @example Register with explicit ID
-      #   use :middleware, CMDx::Middlewares::Correlate, id: "request-123"
-      #
-      # @example Register with dynamic ID generation
-      #   use :middleware, CMDx::Middlewares::Correlate, id: -> { SecureRandom.uuid }
-      #
-      # @example Register with conditions
-      #   use :middleware, CMDx::Middlewares::Correlate, if: :production?, unless: :testing?
-      def initialize(options = {})
-        @id          = options[:id]
-        @conditional = options.slice(:if, :unless)
+      # @example Get current correlation ID
+      #   Correlate.id # => "550e8400-e29b-41d4-a716-446655440000"
+      def id
+        Thread.current[THREAD_KEY]
       end
 
-      # Executes the middleware, wrapping task execution with correlation context.
-      # Evaluates conditions, determines correlation ID, and executes the task within
-      # the correlation context for tracing purposes.
+      # Sets the correlation ID in thread-local storage.
       #
-      # @param task [CMDx::Task] the task being executed
-      # @param callable [Proc] the callable that executes the task
+      # @param id [String] The correlation ID to set
+      # @return [String] The set correlation ID
       #
-      # @return [Object] the result of the task execution
-      #
-      # @example Task using correlation middleware
-      #   class ProcessOrderTask < CMDx::Task
-      #     use :middleware, CMDx::Middlewares::Correlate, id: "trace-123"
-      #
-      #     def call
-      #       # Task execution is automatically wrapped with correlation
-      #     end
-      #   end
-      #
-      # @example Global configuration with conditional tracing
-      #   CMDx.configure do |config|
-      #     config.middlewares.register CMDx::Middlewares::Correlate, if: :should_trace?
-      #   end
-      def call(task, callable)
-        # Check if correlation should be applied based on conditions
-        return callable.call(task) unless task.cmdx_eval(conditional)
+      # @example Set correlation ID
+      #   Correlate.id = "abc-123-def"
+      def id=(id)
+        Thread.current[THREAD_KEY] = id
+      end
 
-        # Get correlation ID using yield for dynamic generation
-        correlation_id = task.cmdx_yield(id) ||
-                         CMDx::Correlator.id ||
-                         task.chain.id ||
-                         CMDx::Correlator.generate
+      # Clears the current correlation ID from thread-local storage.
+      #
+      # @return [nil] Always returns nil
+      #
+      # @example Clear correlation ID
+      #   Correlate.clear
+      def clear
+        Thread.current[THREAD_KEY] = nil
+      end
 
-        # Execute task with correlation context
-        CMDx::Correlator.use(correlation_id) do
-          callable.call(task)
-        end
+      # Temporarily uses a new correlation ID for the duration of a block.
+      # Restores the previous ID after the block completes, even if an error occurs.
+      #
+      # @param new_id [String] The correlation ID to use temporarily
+      # @yield The block to execute with the new correlation ID
+      # @return [Object] The result of the yielded block
+      #
+      # @example Use temporary correlation ID
+      #   Correlate.use("temp-id") do
+      #     # Operations here use "temp-id"
+      #     perform_operation
+      #   end
+      #   # Previous ID is restored
+      def use(new_id)
+        old_id = id
+        self.id = new_id
+        yield
+      ensure
+        self.id = old_id
+      end
+
+      # Middleware entry point that applies correlation ID logic to task execution.
+      #
+      # Evaluates the condition from options and applies correlation ID handling
+      # if enabled. Generates or retrieves correlation IDs based on the :id option
+      # and stores them in task result metadata.
+      #
+      # @param task [Task] The task being executed
+      # @param options [Hash] Configuration options for correlation
+      # @option options [Symbol, Proc, Object, nil] :id The correlation ID source
+      # @option options [Symbol, Proc, Object, nil] :if Condition to enable correlation
+      # @option options [Symbol, Proc, Object, nil] :unless Condition to disable correlation
+      #
+      # @yield The task execution block
+      #
+      # @return [Object] The result of task execution
+      #
+      # @example Basic usage with automatic ID generation
+      #   Correlate.call(task, &block)
+      # @example Use custom correlation ID
+      #   Correlate.call(task, id: "custom-123", &block)
+      # @example Use task method for ID
+      #   Correlate.call(task, id: :correlation_id, &block)
+      # @example Use proc for dynamic ID generation
+      #   Correlate.call(task, id: -> { "dynamic-#{Time.now.to_i}" }, &block)
+      # @example Conditional correlation
+      #   Correlate.call(task, if: :enable_correlation, &block)
+      def call(task, **options, &)
+        return yield unless Utils::Condition.evaluate(task, options)
+
+        correlation_id =
+          case callable = options[:id]
+          when Symbol then task.send(callable)
+          when Proc then task.instance_eval(&callable)
+          else
+            if callable.respond_to?(:call)
+              callable.call(task)
+            else
+              callable || id || Identifier.generate
+            end
+          end
+
+        result = use(correlation_id, &)
+        task.result.metadata[:correlation_id] = correlation_id
+        result
       end
 
     end

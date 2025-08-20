@@ -2,283 +2,252 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Hash do
-  subject(:coercion) { described_class.new }
+RSpec.describe CMDx::Coercions::Hash, type: :unit do
+  subject(:coercion) { described_class }
 
   describe ".call" do
-    it "creates instance and calls #call method" do
-      expect(described_class.call('{"a": 1}')).to eq({ "a" => 1 })
-    end
-  end
+    context "when value is already a Hash" do
+      it "returns the hash unchanged" do
+        hash = { key: "value", nested: { inner: "data" } }
 
-  describe "#call" do
-    context "with hash values" do
-      it "returns hashes unchanged" do
-        input = { "a" => 1, "b" => 2 }
-        result = coercion.call(input)
+        result = coercion.call(hash)
 
-        expect(result).to eq({ "a" => 1, "b" => 2 })
+        expect(result).to be_a(Hash)
+        expect(result).to eq(hash)
+        expect(result).to be(hash)
       end
 
-      it "returns empty hashes unchanged" do
-        input = {}
-        result = coercion.call(input)
+      it "returns an empty hash unchanged" do
+        hash = {}
 
+        result = coercion.call(hash)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq({})
+        expect(result).to be(hash)
+      end
+    end
+
+    context "when value is an Array" do
+      it "converts even-length array to hash" do
+        array = [:key1, "value1", :key2, "value2"]
+
+        result = coercion.call(array)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(key1: "value1", key2: "value2")
+      end
+
+      it "converts array with string keys to hash" do
+        array = %w[name John age 30]
+
+        result = coercion.call(array)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq("name" => "John", "age" => "30")
+      end
+
+      it "converts array with mixed types to hash" do
+        array = [:symbol, 123, "string", true]
+
+        result = coercion.call(array)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(symbol: 123, "string" => true)
+      end
+
+      it "converts empty array to empty hash" do
+        result = coercion.call([])
+
+        expect(result).to be_a(Hash)
         expect(result).to eq({})
       end
 
-      it "returns hashes with mixed types unchanged" do
-        input = { "string" => "value", "number" => 42, "boolean" => true, "null" => nil }
-        result = coercion.call(input)
-
-        expect(result).to eq({ "string" => "value", "number" => 42, "boolean" => true, "null" => nil })
-      end
-
-      it "returns hashes with symbol keys unchanged" do
-        input = { a: 1, b: 2 }
-        result = coercion.call(input)
-
-        expect(result).to eq({ a: 1, b: 2 })
+      it "raises CoercionError for odd-length array" do
+        expect { coercion.call([:key1, "value1", :key2]) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
     end
 
-    context "with ActionController::Parameters" do
-      it "returns ActionController::Parameters unchanged" do
-        # Create a mock object that responds to class.name as "ActionController::Parameters"
-        params = double("ActionController::Parameters")
-        allow(params).to receive(:class).and_return(double(name: "ActionController::Parameters"))
+    context "when value is a JSON string" do
+      it "parses valid JSON object string" do
+        json_string = '{"name": "John", "age": 30}'
 
-        result = coercion.call(params)
+        result = coercion.call(json_string)
 
-        expect(result).to eq(params)
-      end
-    end
-
-    context "with array values" do
-      it "converts arrays to hashes using splat operator" do
-        input = ["a", 1, "b", 2]
-        result = coercion.call(input)
-
-        expect(result).to eq({ "a" => 1, "b" => 2 })
+        expect(result).to be_a(Hash)
+        expect(result).to eq("name" => "John", "age" => 30)
       end
 
-      it "converts empty arrays to empty hashes" do
-        input = []
-        result = coercion.call(input)
+      it "parses JSON string with nested objects" do
+        json_string = '{"user": {"name": "John", "details": {"age": 30}}}'
 
-        expect(result).to eq({})
+        result = coercion.call(json_string)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq("user" => { "name" => "John", "details" => { "age" => 30 } })
       end
 
-      it "converts arrays with symbol keys" do
-        input = [:a, 1, :b, 2]
-        result = coercion.call(input)
+      it "parses JSON string with arrays" do
+        json_string = '{"tags": ["ruby", "programming"], "count": 2}'
 
-        expect(result).to eq({ a: 1, b: 2 })
+        result = coercion.call(json_string)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq("tags" => %w[ruby programming], "count" => 2)
       end
 
-      it "raises CoercionError for arrays with odd number of elements" do
-        expect { coercion.call(["a", 1, "b"]) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-    end
-
-    context "with JSON string values" do
-      it "parses valid JSON hash strings" do
-        result = coercion.call('{"a": 1, "b": 2}')
-
-        expect(result).to eq({ "a" => 1, "b" => 2 })
-      end
-
-      it "parses JSON hashes with mixed types" do
-        result = coercion.call('{"string": "value", "number": 42, "boolean": true, "null": null}')
-
-        expect(result).to eq({ "string" => "value", "number" => 42, "boolean" => true, "null" => nil })
-      end
-
-      it "parses nested JSON hashes" do
-        result = coercion.call('{"outer": {"inner": "value"}}')
-
-        expect(result).to eq({ "outer" => { "inner" => "value" } })
-      end
-
-      it "parses empty JSON hashes" do
+      it "parses empty JSON object" do
         result = coercion.call("{}")
 
+        expect(result).to be_a(Hash)
         expect(result).to eq({})
       end
 
-      it "parses JSON hashes with arrays as values" do
-        result = coercion.call('{"tags": ["ruby", "rails"], "count": 2}')
-
-        expect(result).to eq({ "tags" => %w[ruby rails], "count" => 2 })
+      it "raises CoercionError for invalid JSON" do
+        expect { coercion.call('{"invalid": json}') }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for invalid JSON hashes" do
-        expect { coercion.call('{"invalid": json}') }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for JSON array string" do
+        expect { coercion.call('["not", "a", "hash"]') }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for incomplete JSON hashes" do
-        expect { coercion.call('{"incomplete"') }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for JSON string primitive" do
+        expect { coercion.call('"just a string"') }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for strings with only opening brace" do
-        expect { coercion.call("{") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for strings that start with { but aren't valid JSON" do
-        expect { coercion.call("{not json") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for strings that start with { but are not hashes" do
-        expect { coercion.call("{array Array}") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for unclosed JSON" do
+        expect { coercion.call('{"unclosed": "object"') }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
     end
 
-    context "with non-JSON string values" do
-      it "raises CoercionError for regular strings" do
-        expect { coercion.call("hello") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for empty strings" do
-        expect { coercion.call("") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for strings that contain braces but don't start with {" do
-        expect { coercion.call("test {with braces}") }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for strings with leading whitespace that look like JSON" do
-        expect { coercion.call('  {"a": 1}  ') }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
-      it "raises CoercionError for JSON arrays that start with [" do
-        expect { coercion.call('["a", "b", "c"]') }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-    end
-
-    context "with nil values" do
+    context "when value is invalid" do
       it "raises CoercionError for nil" do
-        expect { coercion.call(nil) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-    end
-
-    context "with numeric values" do
-      it "raises CoercionError for integers" do
-        expect { coercion.call(123) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+        expect { coercion.call(nil) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for floats" do
-        expect { coercion.call(3.14) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for string not starting with '{'" do
+        expect { coercion.call("not json") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for zero" do
-        expect { coercion.call(0) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-    end
-
-    context "with boolean values" do
-      it "raises CoercionError for true" do
-        expect { coercion.call(true) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for integer" do
+        expect { coercion.call(123) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for false" do
-        expect { coercion.call(false) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-    end
-
-    context "with complex objects" do
-      it "raises CoercionError for custom objects" do
-        input = Object.new
-        expect { coercion.call(input) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for float" do
+        expect { coercion.call(123.45) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
 
-      it "raises CoercionError for structs" do
-        input = Struct.new(:name, :age).new("John", 30)
-        expect { coercion.call(input) }.to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      it "raises CoercionError for boolean true" do
+        expect { coercion.call(true) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      end
+
+      it "raises CoercionError for boolean false" do
+        expect { coercion.call(false) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      end
+
+      it "raises CoercionError for symbol" do
+        expect { coercion.call(:symbol) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      end
+
+      it "raises CoercionError for object" do
+        expect { coercion.call(Object.new) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      end
+
+      it "raises CoercionError for empty string" do
+        expect { coercion.call("") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
+      end
+
+      it "raises CoercionError for string starting with '{' but invalid JSON" do
+        expect { coercion.call("{not valid json}") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
     end
 
     context "with options parameter" do
-      it "ignores options parameter for hash input" do
-        input = { "a" => 1 }
-        result = coercion.call(input, { some: "option" })
+      it "ignores options and converts valid hash" do
+        hash = { key: "value" }
 
-        expect(result).to eq({ "a" => 1 })
+        result = coercion.call(hash, some: "option")
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(hash)
       end
 
-      it "ignores options parameter for JSON input" do
-        result = coercion.call('{"a": 1}', { some: "option" })
+      it "ignores options and converts valid array" do
+        array = [:key, "value"]
 
-        expect(result).to eq({ "a" => 1 })
+        result = coercion.call(array, precision: 2)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(key: "value")
       end
 
-      it "ignores options parameter for array input" do
-        result = coercion.call(["a", 1], { some: "option" })
+      it "ignores options and converts valid JSON string" do
+        json_string = '{"test": "value"}'
 
-        expect(result).to eq({ "a" => 1 })
+        result = coercion.call(json_string, format: :json)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq("test" => "value")
       end
-    end
-  end
 
-  describe "integration with tasks" do
-    let(:task_class) do
-      create_simple_task(name: "ProcessConfigTask") do
-        required :config, type: :hash
-        optional :settings, type: :hash, default: {}
-
-        def call
-          context.config_keys = config.keys.map(&:to_s)
-          context.settings_count = settings.size
-        end
+      it "ignores options and raises error for invalid input" do
+        expect { coercion.call("invalid", some: "option") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
       end
     end
 
-    it "coerces JSON string parameters to hashes" do
-      result = task_class.call(config: '{"database": "postgres", "port": 5432}')
+    context "with edge cases" do
+      it "handles array with nil values" do
+        array = [:key1, nil, :key2, "value"]
 
-      expect(result).to be_success
-      expect(result.context.config_keys).to contain_exactly("database", "port")
-    end
+        result = coercion.call(array)
 
-    it "coerces array parameters to hashes" do
-      result = task_class.call(config: ["env", "production", "debug", false])
+        expect(result).to be_a(Hash)
+        expect(result).to eq(key1: nil, key2: "value")
+      end
 
-      expect(result).to be_success
-      expect(result.context.config_keys).to contain_exactly("env", "debug")
-    end
+      it "handles JSON string with null values" do
+        json_string = '{"key1": null, "key2": "value"}'
 
-    it "handles hash parameters unchanged" do
-      result = task_class.call(config: { database: "mysql", port: 3306 })
+        result = coercion.call(json_string)
 
-      expect(result).to be_success
-      expect(result.context.config_keys).to contain_exactly("database", "port")
-    end
+        expect(result).to be_a(Hash)
+        expect(result).to eq("key1" => nil, "key2" => "value")
+      end
 
-    it "uses default values for optional hash parameters" do
-      result = task_class.call(config: { "key" => "value" })
+      it "handles JSON string with special characters" do
+        json_string = '{"special": "\\n\\t\\r\\"", "unicode": "\\u0041"}'
 
-      expect(result).to be_success
-      expect(result.context.settings_count).to eq(0)
-    end
+        result = coercion.call(json_string)
 
-    it "fails with CoercionError for invalid hash parameters" do
-      result = task_class.call(config: "invalid_string")
+        expect(result).to be_a(Hash)
+        expect(result).to eq("special" => "\n\t\r\"", "unicode" => "A")
+      end
 
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("could not coerce into a hash")
-    end
+      it "handles very large JSON string" do
+        large_hash = (1..100).each_with_object({}) { |i, h| h["key#{i}"] = "value#{i}" }
+        json_string = large_hash.to_json
 
-    it "fails with CoercionError for odd-length arrays" do
-      result = task_class.call(config: ["a", 1, "b"])
+        result = coercion.call(json_string)
 
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("could not coerce into a hash")
-    end
-
-    it "fails with CoercionError for invalid JSON" do
-      result = task_class.call(config: '{"invalid": json}')
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("could not coerce into a hash")
+        expect(result).to be_a(Hash)
+        expect(result).to eq(large_hash)
+      end
     end
   end
 end

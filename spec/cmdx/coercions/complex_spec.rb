@@ -2,207 +2,219 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Complex do
-  subject(:coercion) { described_class.new }
+RSpec.describe CMDx::Coercions::Complex, type: :unit do
+  subject(:coercion) { described_class }
 
   describe ".call" do
-    it "creates instance and calls #call method" do
-      expect(described_class.call(5)).to eq(Complex(5))
+    context "when value is a valid string" do
+      it "coerces string integer to Complex" do
+        result = coercion.call("123")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(123))
+      end
+
+      it "coerces string decimal to Complex" do
+        result = coercion.call("123.456")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(123.456))
+      end
+
+      it "coerces negative string to Complex" do
+        result = coercion.call("-123.456")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(-123.456))
+      end
+
+      it "coerces string with imaginary unit to Complex" do
+        result = coercion.call("3+4i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(3, 4))
+      end
+
+      it "coerces string with negative imaginary unit to Complex" do
+        result = coercion.call("3-4i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(3, -4))
+      end
+
+      it "coerces pure imaginary string to Complex" do
+        result = coercion.call("4i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(0, 4))
+      end
+
+      it "coerces zero string to Complex" do
+        result = coercion.call("0")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(0))
+      end
+
+      it "coerces string with scientific notation to Complex" do
+        result = coercion.call("1.23e4")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(1.23e4))
+      end
     end
-  end
 
-  describe "#call" do
-    context "with numeric values" do
-      it "converts integers to complex numbers" do
-        result = coercion.call(5)
+    context "when value is a numeric type" do
+      it "coerces integer to Complex" do
+        result = coercion.call(123)
 
-        expect(result).to eq(Complex(5, 0))
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(123))
       end
 
-      it "converts floats to complex numbers" do
-        result = coercion.call(3.14)
+      it "coerces float to Complex" do
+        result = coercion.call(123.456)
 
-        expect(result).to eq(Complex(3.14, 0))
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(123.456))
       end
 
-      it "converts zero to complex number" do
+      it "coerces rational to Complex" do
+        result = coercion.call(Rational(22, 7))
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(Rational(22, 7)))
+      end
+
+      it "coerces existing Complex" do
+        original = Complex(3, 4)
+        result = coercion.call(original)
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(original)
+      end
+
+      it "coerces zero to Complex" do
         result = coercion.call(0)
 
-        expect(result).to eq(Complex(0, 0))
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(0))
       end
 
-      it "converts negative numbers to complex numbers" do
-        result = coercion.call(-2.5)
+      it "coerces negative number to Complex" do
+        result = coercion.call(-42)
 
-        expect(result).to eq(Complex(-2.5, 0))
-      end
-
-      it "converts BigDecimal to complex numbers" do
-        result = coercion.call(BigDecimal("3.14"))
-
-        expect(result).to eq(Complex(BigDecimal("3.14"), 0))
-      end
-
-      it "converts Rational to complex numbers" do
-        result = coercion.call(Rational(3, 4))
-
-        expect(result).to eq(Complex(Rational(3, 4), 0))
-      end
-    end
-
-    context "with string representations" do
-      it "converts basic complex string representations" do
-        result = coercion.call("2+3i")
-
-        expect(result).to eq(Complex(2, 3))
-      end
-
-      it "converts complex strings with negative imaginary parts" do
-        result = coercion.call("1-2i")
-
-        expect(result).to eq(Complex(1, -2))
-      end
-
-      it "converts pure imaginary strings" do
-        result = coercion.call("5i")
-
-        expect(result).to eq(Complex(0, 5))
-      end
-
-      it "converts negative pure imaginary strings" do
-        result = coercion.call("-3i")
-
-        expect(result).to eq(Complex(0, -3))
-      end
-
-      it "converts pure real strings" do
-        result = coercion.call("7")
-
-        expect(result).to eq(Complex(7, 0))
-      end
-
-      it "converts complex strings with decimal parts" do
-        result = coercion.call("1.5+2.5i")
-
-        expect(result).to eq(Complex(1.5, 2.5))
-      end
-    end
-
-    context "with complex number values" do
-      it "returns complex numbers unchanged" do
-        input = Complex(2, 3)
-        result = coercion.call(input)
-
-        expect(result).to eq(Complex(2, 3))
-      end
-
-      it "returns zero complex numbers unchanged" do
-        input = Complex(0, 0)
-        result = coercion.call(input)
-
-        expect(result).to eq(Complex(0, 0))
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(-42))
       end
     end
 
     context "with invalid values" do
-      it "raises CoercionError for invalid string formats" do
-        expect { coercion.call("invalid") }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for non-numeric string" do
+        expect { coercion.call("invalid") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for empty strings" do
-        expect { coercion.call("") }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for empty string" do
+        expect { coercion.call("") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for nil values" do
-        expect { coercion.call(nil) }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for nil" do
+        expect { coercion.call(nil) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for boolean values" do
-        expect { coercion.call(true) }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for boolean" do
+        expect { coercion.call(true) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for arrays" do
-        expect { coercion.call([1, 2, 3]) }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for array" do
+        expect { coercion.call([1, 2, 3]) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for hashes" do
-        expect { coercion.call({ a: 1 }) }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for hash" do
+        expect { coercion.call({ key: "value" }) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
 
-      it "raises CoercionError for objects" do
-        expect { coercion.call(Object.new) }.to raise_error(CMDx::CoercionError, /could not coerce into a complex/)
+      it "raises CoercionError for symbol" do
+        expect { coercion.call(:symbol) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
+      end
+
+      it "raises CoercionError for Object" do
+        expect { coercion.call(Object.new) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
+      end
+    end
+
+    context "with edge cases" do
+      it "coerces string with decimal imaginary unit" do
+        result = coercion.call("1.5+2.7i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(1.5, 2.7))
+      end
+
+      it "coerces string with just 'i' as imaginary unit" do
+        result = coercion.call("i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(0, 1))
+      end
+
+      it "coerces string with negative imaginary unit 'i'" do
+        result = coercion.call("-i")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(0, -1))
+      end
+
+      it "coerces string with 'j' notation" do
+        result = coercion.call("3+4j")
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(3, 4))
+      end
+
+      it "raises CoercionError for string with spaces" do
+        expect { coercion.call("3 + 4i") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
+      end
+
+      it "raises CoercionError for string with multiple operators" do
+        expect { coercion.call("3++4i") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
+      end
+
+      it "raises CoercionError for malformed complex string" do
+        expect { coercion.call("3+i4") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
     end
 
     context "with options parameter" do
-      it "ignores options parameter for valid values" do
-        result = coercion.call("2+3i", { some: "option" })
+      it "ignores options parameter for valid complex number" do
+        result = coercion.call("3+4i", { some: "option" })
 
-        expect(result).to eq(Complex(2, 3))
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(3, 4))
       end
 
-      it "still raises errors for invalid values with options" do
-        expect { coercion.call("invalid", { some: "option" }) }.to raise_error(CMDx::CoercionError)
+      it "ignores options parameter for valid numeric value" do
+        result = coercion.call(42, { some: "option" })
+
+        expect(result).to be_a(Complex)
+        expect(result).to eq(Complex(42))
       end
-    end
-  end
 
-  describe "integration with tasks" do
-    let(:task_class) do
-      create_simple_task(name: "ProcessComplexTask") do
-        required :value, type: :complex
-        optional :coefficient, type: :complex, default: Complex(1, 0)
-
-        def call
-          context.result = value * coefficient
-          context.magnitude = value.abs
-        end
+      it "ignores options parameter for invalid value" do
+        expect { coercion.call("invalid", { some: "option" }) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a complex")
       end
-    end
-
-    it "coerces string parameters to complex numbers" do
-      result = task_class.call(value: "2+3i")
-
-      expect(result).to be_success
-      expect(result.context.result).to eq(Complex(2, 3))
-      expect(result.context.magnitude).to be_within(0.001).of(3.606)
-    end
-
-    it "coerces numeric parameters to complex numbers" do
-      result = task_class.call(value: 5)
-
-      expect(result).to be_success
-      expect(result.context.result).to eq(Complex(5, 0))
-      expect(result.context.magnitude).to eq(5.0)
-    end
-
-    it "handles complex parameters unchanged" do
-      result = task_class.call(value: Complex(1, -2))
-
-      expect(result).to be_success
-      expect(result.context.result).to eq(Complex(1, -2))
-      expect(result.context.magnitude).to be_within(0.001).of(2.236)
-    end
-
-    it "uses default values for optional complex parameters" do
-      result = task_class.call(value: Complex(2, 3))
-
-      expect(result).to be_success
-      expect(result.context.result).to eq(Complex(2, 3))
-    end
-
-    it "coerces optional parameters when provided" do
-      result = task_class.call(value: "1+2i", coefficient: "2-i")
-
-      expect(result).to be_success
-      expect(result.context.result).to eq(Complex(4, 3))
-    end
-
-    it "fails when coercion fails for invalid values" do
-      result = task_class.call(value: "invalid")
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("could not coerce into a complex")
     end
   end
 end

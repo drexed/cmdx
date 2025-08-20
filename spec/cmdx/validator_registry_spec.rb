@@ -2,309 +2,403 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::ValidatorRegistry do
-  subject(:registry) { described_class.new }
+RSpec.describe CMDx::ValidatorRegistry, type: :unit do
+  subject(:registry) { described_class.new(initial_registry) }
 
-  let(:task) { create_simple_task(name: "TestTask").new }
+  let(:initial_registry) { nil }
+  let(:mock_validator) { instance_double("MockValidator") }
+  let(:mock_task) { instance_double(CMDx::Task) }
 
-  describe ".new" do
-    it "initializes with built-in validators" do
-      expect(registry.registry).to include(
-        exclusion: CMDx::Validators::Exclusion,
-        format: CMDx::Validators::Format,
-        inclusion: CMDx::Validators::Inclusion,
-        length: CMDx::Validators::Length,
-        numeric: CMDx::Validators::Numeric,
-        presence: CMDx::Validators::Presence
-      )
-    end
+  describe "#initialize" do
+    context "when no registry is provided" do
+      subject(:registry) { described_class.new }
 
-    it "creates a hash registry" do
-      expect(registry.registry).to be_a(Hash)
-    end
-  end
-
-  describe "#register" do
-    it "registers a validator class" do
-      validator_class = Class.new do
-        def self.call(value, _options)
-          value.length > 5
-        end
-      end
-
-      registry.register(:custom, validator_class)
-
-      expect(registry.registry[:custom]).to eq(validator_class)
-    end
-
-    it "registers a proc validator" do
-      validator_proc = ->(value, _options) { value.length > 3 }
-      registry.register(:proc_validator, validator_proc)
-
-      expect(registry.registry[:proc_validator]).to eq(validator_proc)
-    end
-
-    it "registers a symbol validator" do
-      registry.register(:symbol_validator, :validate_method)
-
-      expect(registry.registry[:symbol_validator]).to eq(:validate_method)
-    end
-
-    it "registers a string validator" do
-      registry.register(:string_validator, "validate_method")
-
-      expect(registry.registry[:string_validator]).to eq("validate_method")
-    end
-
-    it "returns self for method chaining" do
-      result = registry.register(:first, :method1)
-                       .register(:second, :method2)
-
-      expect(result).to eq(registry)
-      expect(registry.registry[:first]).to eq(:method1)
-      expect(registry.registry[:second]).to eq(:method2)
-    end
-
-    it "overwrites existing validator with same type" do
-      registry.register(:test, :original)
-      registry.register(:test, :updated)
-
-      expect(registry.registry[:test]).to eq(:updated)
-    end
-  end
-
-  describe "#call" do
-    context "with unknown validator type" do
-      it "raises UnknownValidatorError" do
-        expect { registry.call(task, :unknown, "value") }.to raise_error(
-          CMDx::UnknownValidatorError,
-          "unknown validator unknown"
+      it "initializes with default coercions" do
+        expect(registry.registry).to include(
+          exclusion: CMDx::Validators::Exclusion,
+          format: CMDx::Validators::Format,
+          inclusion: CMDx::Validators::Inclusion,
+          length: CMDx::Validators::Length,
+          numeric: CMDx::Validators::Numeric,
+          presence: CMDx::Validators::Presence
         )
       end
     end
 
-    context "with conditional execution" do
-      let(:conditional_task) do
-        create_task_class(name: "ConditionalTask") do
-          attr_accessor :should_validate
+    context "when a registry is provided" do
+      let(:initial_registry) { { custom: mock_validator } }
 
-          def call
-            context.executed = true
-          end
-        end.new
+      it "initializes with the provided registry" do
+        expect(registry.registry).to eq({ custom: mock_validator })
+      end
+    end
+  end
+
+  describe "#registry" do
+    let(:initial_registry) { { custom: mock_validator } }
+
+    it "returns the internal registry hash" do
+      expect(registry.registry).to eq({ custom: mock_validator })
+    end
+  end
+
+  describe "#to_h" do
+    let(:initial_registry) { { custom: mock_validator } }
+
+    it "returns the registry hash" do
+      expect(registry.to_h).to eq({ custom: mock_validator })
+    end
+
+    it "is an alias for registry" do
+      expect(registry.method(:to_h)).to eq(registry.method(:registry))
+    end
+  end
+
+  describe "#keys" do
+    let(:initial_registry) { { custom: mock_validator, another: mock_validator } }
+
+    it "returns the keys from the registry" do
+      expect(registry.keys).to match_array(%i[custom another])
+    end
+
+    it "delegates to the registry hash" do
+      allow(registry.registry).to receive(:keys).and_return([:delegated])
+
+      expect(registry.keys).to eq([:delegated])
+    end
+  end
+
+  describe "#dup" do
+    it "returns a new ValidatorRegistry instance" do
+      duplicated = registry.dup
+
+      expect(duplicated).to be_a(described_class)
+      expect(duplicated).not_to be(registry)
+    end
+
+    it "duplicates the registry hash" do
+      duplicated = registry.dup
+
+      expect(duplicated.registry).to eq(registry.registry)
+      expect(duplicated.registry).not_to be(registry.registry)
+    end
+
+    it "allows independent modification of the duplicated registry" do
+      duplicated = registry.dup
+
+      duplicated.register(:new_type, mock_validator)
+
+      expect(duplicated.registry).to have_key(:new_type)
+      expect(registry.registry).not_to have_key(:new_type)
+    end
+  end
+
+  describe "#register" do
+    context "when registering a validator with string name" do
+      it "adds the validator to the registry with symbol key" do
+        registry.register("custom", mock_validator)
+
+        expect(registry.registry[:custom]).to eq(mock_validator)
       end
 
-      it "executes validator when condition is true" do
-        conditional_task.should_validate = true
-        registry.register(:test, ->(value, _opts) { value })
+      it "returns self for method chaining" do
+        result = registry.register("custom", mock_validator)
 
-        result = registry.call(conditional_task, :test, "value", if: :should_validate)
-
-        expect(result).to eq("value")
-      end
-
-      it "skips validator when condition is false" do
-        conditional_task.should_validate = false
-        registry.register(:test, ->(value, _opts) { value })
-
-        result = registry.call(conditional_task, :test, "value", if: :should_validate)
-
-        expect(result).to be_nil
-      end
-
-      it "executes validator when no conditions specified" do
-        registry.register(:test, ->(value, _opts) { value })
-
-        result = registry.call(task, :test, "value", {})
-
-        expect(result).to eq("value")
+        expect(result).to be(registry)
       end
     end
 
-    context "with built-in validators" do
-      it "calls built-in validator class" do
-        expect(CMDx::Validators::Presence).to receive(:call).with("", {})
+    context "when registering a validator with symbol name" do
+      it "adds the validator to the registry" do
+        registry.register(:custom, mock_validator)
 
-        registry.call(task, :presence, "", {})
-      end
-
-      it "executes presence validation successfully" do
-        expect { registry.call(task, :presence, "value", {}) }.not_to raise_error
-      end
-
-      it "executes format validation successfully" do
-        expect { registry.call(task, :format, "test@example.com", { with: /@/ }) }.not_to raise_error
+        expect(registry.registry[:custom]).to eq(mock_validator)
       end
     end
 
-    context "with custom symbol validators" do
-      let(:validator_task) do
-        create_task_class(name: "ValidatorTask") do
-          def validate_email(value, _options)
-            value.include?("@") ? nil : "invalid email"
-          end
+    context "when registering to an existing registry" do
+      let(:initial_registry) { { existing: "existing_validator" } }
 
-          def call
-            context.executed = true
-          end
-        end.new
-      end
+      it "adds new validator to existing ones" do
+        registry.register(:new_type, mock_validator)
 
-      it "executes symbol validator via cmdx_try" do
-        registry.register(:email, :validate_email)
-
-        result = registry.call(validator_task, :email, "test@example.com", {})
-
-        expect(result).to be_nil
-      end
-
-      it "passes value and options to symbol validator" do
-        registry.register(:custom, :validate_email)
-
-        expect(validator_task).to receive(:validate_email).with("value", { strict: true })
-
-        registry.call(validator_task, :custom, "value", { strict: true })
+        expect(registry.registry).to include(existing: "existing_validator", new_type: mock_validator)
       end
     end
 
-    context "with custom string validators" do
-      let(:validator_task) do
-        create_task_class(name: "ValidatorTask") do
-          def validate_string_method(value, _options)
-            value.length > 5 ? nil : "too short"
-          end
+    context "when registering over an existing validator" do
+      let(:initial_registry) { { existing: "old_validator" } }
 
-          def call
-            context.executed = true
-          end
-        end.new
+      it "overwrites the existing validator" do
+        registry.register(:existing, mock_validator)
+
+        expect(registry.registry[:existing]).to eq(mock_validator)
+      end
+    end
+  end
+
+  describe "#deregister" do
+    context "when deregistering with string name" do
+      before do
+        registry.register("custom", mock_validator)
       end
 
-      it "executes string validator via cmdx_try" do
-        registry.register(:string_test, "validate_string_method")
+      it "removes the validator from the registry" do
+        registry.deregister("custom")
 
-        result = registry.call(validator_task, :string_test, "long enough", {})
+        expect(registry.registry).not_to have_key(:custom)
+      end
 
-        expect(result).to be_nil
+      it "returns self for method chaining" do
+        result = registry.deregister("custom")
+
+        expect(result).to be(registry)
       end
     end
 
-    context "with custom proc validators" do
-      it "executes proc validator" do
-        validator_proc = ->(value, _options) { value.length > 3 ? nil : "too short" }
-        registry.register(:proc_test, validator_proc)
-
-        result = registry.call(task, :proc_test, "long", {})
-
-        expect(result).to be_nil
+    context "when deregistering with symbol name" do
+      before do
+        registry.register(:custom, mock_validator)
       end
 
-      it "passes value and options to proc validator" do
-        validator_proc = lambda { |value, options|
-          options[:multiplier] ? value * options[:multiplier] : value
-        }
-        registry.register(:multiplier, validator_proc)
+      it "removes the validator from the registry" do
+        registry.deregister(:custom)
 
-        result = registry.call(task, :multiplier, 5, { multiplier: 3 })
-
-        expect(result).to eq(15)
-      end
-
-      it "handles proc validator with task context" do
-        validator_proc = ->(value, _options) { value.upcase }
-        registry.register(:upcase, validator_proc)
-
-        result = registry.call(task, :upcase, "hello", {})
-
-        expect(result).to eq("HELLO")
+        expect(registry.registry).not_to have_key(:custom)
       end
     end
 
-    context "with custom class validators" do
-      let(:custom_validator) do
-        Class.new do
-          def self.call(value, options)
-            return nil if value.length >= (options[:minimum] || 0)
+    context "when deregistering from existing registry" do
+      let(:initial_registry) { { existing: "existing_validator", custom: mock_validator } }
 
-            "too short"
+      it "removes only the specified validator" do
+        registry.deregister(:custom)
+
+        expect(registry.registry).to include(existing: "existing_validator")
+        expect(registry.registry).not_to have_key(:custom)
+      end
+    end
+
+    context "when deregistering non-existent validator" do
+      it "does not raise an error" do
+        expect { registry.deregister(:nonexistent) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:nonexistent)
+
+        expect(result).to be(registry)
+      end
+
+      it "does not affect existing validators" do
+        registry.register(:existing, mock_validator)
+        registry.deregister(:nonexistent)
+
+        expect(registry.registry[:existing]).to eq(mock_validator)
+      end
+    end
+
+    context "when deregistering from empty registry" do
+      let(:initial_registry) { {} }
+
+      it "does not raise an error" do
+        expect { registry.deregister(:custom) }.not_to raise_error
+      end
+
+      it "returns self" do
+        result = registry.deregister(:custom)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering default validators" do
+      subject(:registry) { described_class.new }
+
+      it "removes the default validator" do
+        registry.deregister(:presence)
+
+        expect(registry.registry).not_to have_key(:presence)
+      end
+
+      it "does not affect other default validators" do
+        registry.deregister(:presence)
+
+        expect(registry.registry).to have_key(:format)
+        expect(registry.registry).to have_key(:length)
+      end
+    end
+  end
+
+  describe "#validate" do
+    let(:initial_registry) { { custom: mock_validator } }
+    let(:value) { "test_value" }
+    let(:options) { { option1: "value1" } }
+
+    before do
+      allow(CMDx::Utils::Call).to receive(:invoke).and_return("validation_result")
+      allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(true)
+    end
+
+    context "when validator type exists" do
+      context "with hash options" do
+        it "evaluates condition and calls Utils::Call.invoke when condition is true" do
+          expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, options, value)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
+            mock_task, mock_validator, value, options
+          )
+
+          registry.validate(:custom, mock_task, value, options)
+        end
+
+        it "returns the result from Utils::Call.invoke" do
+          result = registry.validate(:custom, mock_task, value, options)
+
+          expect(result).to eq("validation_result")
+        end
+
+        context "when condition evaluates to false" do
+          before do
+            allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(false)
+          end
+
+          it "does not call the validator" do
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
+
+            registry.validate(:custom, mock_task, value, options)
+          end
+
+          it "returns nil" do
+            result = registry.validate(:custom, mock_task, value, options)
+
+            expect(result).to be_nil
+          end
+        end
+
+        context "with allow_nil option and nil value" do
+          let(:value) { nil }
+          let(:options) { { allow_nil: true } }
+
+          it "calls the validator" do
+            expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+            expect(CMDx::Utils::Call).to receive(:invoke).with(
+              mock_task, mock_validator, value, options
+            )
+
+            registry.validate(:custom, mock_task, value, options)
+          end
+
+          it "returns the result from Utils::Call.invoke" do
+            result = registry.validate(:custom, mock_task, value, options)
+
+            expect(result).to eq("validation_result")
+          end
+        end
+
+        context "with allow_nil option and non-nil value" do
+          let(:options) { { allow_nil: true } }
+
+          it "does not call the validator" do
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
+
+            registry.validate(:custom, mock_task, value, options)
+          end
+
+          it "returns nil" do
+            result = registry.validate(:custom, mock_task, value, options)
+
+            expect(result).to be_nil
+          end
+        end
+
+        context "with allow_nil false and nil value" do
+          let(:value) { nil }
+          let(:options) { { allow_nil: false } }
+
+          it "does not call the validator" do
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
+
+            registry.validate(:custom, mock_task, value, options)
+          end
+
+          it "returns nil" do
+            result = registry.validate(:custom, mock_task, value, options)
+
+            expect(result).to be_nil
           end
         end
       end
 
-      it "executes class validator" do
-        registry.register(:class_test, custom_validator)
+      context "with non-hash options" do
+        let(:options) { true }
 
-        result = registry.call(task, :class_test, "test", { minimum: 3 })
+        it "uses options directly as condition" do
+          expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
+            mock_task, mock_validator, value, options
+          )
 
-        expect(result).to be_nil
-      end
+          registry.validate(:custom, mock_task, value, options)
+        end
 
-      it "passes value and options to class validator" do
-        registry.register(:length_check, custom_validator)
+        context "when options is false" do
+          let(:options) { false }
 
-        result = registry.call(task, :length_check, "hi", { minimum: 5 })
+          it "does not call the validator" do
+            expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-        expect(result).to eq("too short")
-      end
-    end
+            registry.validate(:custom, mock_task, value, options)
+          end
 
-    context "with callable objects" do
-      let(:callable_validator) do
-        double("CallableValidator").tap do |validator|
-          allow(validator).to receive(:call).and_return("validation result")
+          it "returns nil" do
+            result = registry.validate(:custom, mock_task, value, options)
+
+            expect(result).to be_nil
+          end
         end
       end
 
-      it "executes callable object" do
-        registry.register(:callable, callable_validator)
+      context "with string type name" do
+        let(:initial_registry) { { "custom" => mock_validator } }
 
-        result = registry.call(task, :callable, "value", { option: "test" })
+        it "works with string type names" do
+          expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, options, value)
+          expect(CMDx::Utils::Call).to receive(:invoke).with(
+            mock_task, mock_validator, value, options
+          )
 
-        expect(callable_validator).to have_received(:call).with("value", { option: "test" })
-        expect(result).to eq("validation result")
+          registry.validate("custom", mock_task, value, options)
+        end
       end
     end
 
-    context "with complex conditional scenarios" do
-      let(:complex_task) do
-        create_task_class(name: "ComplexTask") do
-          attr_accessor :validation_enabled, :strict_mode
+    context "when options are not provided" do
+      it "passes empty hash as options and evaluates condition" do
+        expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, {}, value)
+        expect(CMDx::Utils::Call).to receive(:invoke).with(
+          mock_task, mock_validator, value, {}
+        )
 
-          def call
-            context.executed = true
-          end
-        end.new
+        registry.validate(:custom, mock_task, value)
+      end
+    end
+
+    context "when validator type does not exist" do
+      it "raises TypeError with descriptive message" do
+        expect { registry.validate(:nonexistent, mock_task, value) }
+          .to raise_error(TypeError, "unknown validator type :nonexistent")
       end
 
-      it "handles if and unless conditions together" do
-        complex_task.validation_enabled = true
-        complex_task.strict_mode = false
-        registry.register(:complex, ->(_v, _o) { "validated" })
-
-        result = registry.call(complex_task, :complex, "value", {
-                                 if: :validation_enabled,
-                                 unless: :strict_mode
-                               })
-
-        expect(result).to eq("validated")
+      it "raises TypeError for string type names" do
+        expect { registry.validate("string", mock_task, value) }
+          .to raise_error(TypeError, 'unknown validator type "string"')
       end
+    end
 
-      it "skips when if condition is false" do
-        complex_task.validation_enabled = false
-        registry.register(:complex, ->(_v, _o) { "validated" })
-
-        result = registry.call(complex_task, :complex, "value", { if: :validation_enabled })
-
-        expect(result).to be_nil
-      end
-
-      it "skips when unless condition is true" do
-        complex_task.strict_mode = true
-        registry.register(:complex, ->(_v, _o) { "validated" })
-
-        result = registry.call(complex_task, :complex, "value", { unless: :strict_mode })
-
-        expect(result).to be_nil
+    context "when type is nil" do
+      it "raises TypeError" do
+        expect { registry.validate(nil, mock_task, value) }
+          .to raise_error(TypeError, "unknown validator type nil")
       end
     end
   end

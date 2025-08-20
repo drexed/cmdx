@@ -2,64 +2,63 @@
 
 module CMDx
   module Validators
-    # Validator class for format validation using regular expressions.
+    # Validates that a value matches a specified format pattern
     #
-    # This validator ensures that a value matches or doesn't match specified
-    # regular expression patterns. It supports both positive matching (with)
-    # and negative matching (without) patterns, which can be used independently
-    # or in combination.
-    class Format < Validator
+    # This validator ensures that the given value conforms to a specific format
+    # using regular expressions. It supports both direct regex matching and
+    # conditional matching with inclusion/exclusion patterns.
+    module Format
 
-      # Validates that the given value matches the specified format pattern(s).
+      extend self
+
+      # Validates that a value matches the specified format pattern
       #
-      # @param value [Object] the value to validate
-      # @param options [Hash] validation options containing format configuration
-      # @option options [Hash] :format format validation configuration
-      # @option options [Regexp] :format.with pattern the value must match
-      # @option options [Regexp] :format.without pattern the value must not match
-      # @option options [String] :format.message custom error message
+      # @param value [Object] The value to validate for format compliance
+      # @param options [Hash, Regexp] Validation configuration options or direct regex pattern
+      # @option options [Regexp] :with Required pattern that the value must match
+      # @option options [Regexp] :without Pattern that the value must not match
+      # @option options [String] :message Custom error message
       #
-      # @return [void]
+      # @return [nil] Returns nil if validation passes
       #
-      # @raise [ValidationError] if the value doesn't match the format requirements
+      # @raise [ValidationError] When the value doesn't match the required format
       #
-      # @example Validating with a positive pattern
-      #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/ })
-      #   #=> nil (no error raised)
-      #
-      # @example Validating with a negative pattern
-      #   Validators::Format.call("admin", format: { without: /admin|root/ })
-      #   # raises ValidationError: "is an invalid format"
-      #
-      # @example Validating with both patterns
-      #   Validators::Format.call("user123", format: { with: /\A[a-z]+\d+\z/, without: /admin|root/ })
-      #   #=> nil (no error raised)
-      #
-      # @example Invalid format with positive pattern
-      #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/ })
-      #   # raises ValidationError: "is an invalid format"
-      #
-      # @example Using a custom message
-      #   Validators::Format.call("123abc", format: { with: /\A[a-z]+\d+\z/, message: "Username must start with letters" })
-      #   # raises ValidationError: "Username must start with letters"
+      # @example Direct regex validation
+      #   Format.call("user@example.com", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i)
+      #   # => nil (validation passes)
+      # @example Validate with required pattern
+      #   Format.call("ABC123", with: /\A[A-Z]{3}\d{3}\z/)
+      #   # => nil (validation passes)
+      # @example Validate with exclusion pattern
+      #   Format.call("hello", without: /\d/)
+      #   # => nil (validation passes - no digits)
+      # @example Validate with both patterns
+      #   Format.call("test123", with: /\A\w+\z/, without: /\A\d+\z/)
+      #   # => nil (validation passes - alphanumeric but not all digits)
+      # @example Validate with custom message
+      #   Format.call("invalid", with: /\A\d+\z/, message: "Must contain only digits")
+      #   # => raises ValidationError with custom message
       def call(value, options = {})
-        valid = case options
-                in { with: with, without: without }
-                  value.match?(with) && !value.match?(without)
-                in { with: with }
-                  value.match?(with)
-                in { without: without }
-                  !value.match?(without)
-                else
-                  false
-                end
+        match =
+          if options.is_a?(Regexp)
+            value&.match?(options)
+          else
+            case options
+            in with:, without:
+              value&.match?(with) && !value&.match?(without)
+            in with:
+              value&.match?(with)
+            in without:
+              !value&.match?(without)
+            else
+              false
+            end
+          end
 
-        return if valid
+        return if match
 
-        raise ValidationError, options[:message] || I18n.t(
-          "cmdx.validators.format",
-          default: "is an invalid format"
-        )
+        message = options[:message] if options.is_a?(Hash)
+        raise ValidationError, message || Locale.t("cmdx.validators.format")
       end
 
     end

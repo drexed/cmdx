@@ -2,43 +2,45 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to Date objects.
+    # Converts various input types to Date format
     #
-    # This coercion handles conversion of various types to Date objects, with support
-    # for custom date formats and automatic detection of date-like objects.
-    class Date < Coercion
+    # Handles conversion from strings, Date objects, DateTime objects, Time objects,
+    # and other date-like values to Date objects using Ruby's built-in parsing
+    # capabilities and optional custom format parsing.
+    module Date
 
+      extend self
+
+      # Types that are already date-like and don't need conversion
       ANALOG_TYPES = %w[Date DateTime Time].freeze
 
-      # Converts the given value to a Date object.
+      # Converts a value to a Date object
       #
-      # @param value [Object] the value to convert to a Date
-      # @param options [Hash] optional configuration
-      # @option options [String] :strptime custom date format for parsing
+      # @param value [Object] The value to convert to a Date
+      # @param options [Hash] Optional configuration parameters
+      # @option options [String] :strptime Custom date format string for parsing
       #
-      # @return [Date] the converted Date object
+      # @return [Date] The converted Date object
       #
-      # @raise [CoercionError] if the value cannot be converted to a Date
+      # @raise [CoercionError] If the value cannot be converted to a Date
       #
-      # @example Converting a string with default parsing
-      #   Coercions::Date.call('2023-12-25') #=> #<Date: 2023-12-25>
-      #
-      # @example Converting with custom format
-      #   Coercions::Date.call('25/12/2023', strptime: '%d/%m/%Y') #=> #<Date: 2023-12-25>
-      #
-      # @example Converting existing date-like objects
-      #   Coercions::Date.call(DateTime.now) #=> #<Date: 2023-12-25>
+      # @example Convert string to Date using default parsing
+      #   Date.call("2023-12-25")           # => #<Date: 2023-12-25>
+      #   Date.call("Dec 25, 2023")        # => #<Date: 2023-12-25>
+      # @example Convert string using custom format
+      #   Date.call("25/12/2023", strptime: "%d/%m/%Y")  # => #<Date: 2023-12-25>
+      #   Date.call("12-25-2023", strptime: "%m-%d-%Y")  # => #<Date: 2023-12-25>
+      # @example Return existing Date objects unchanged
+      #   Date.call(Date.new(2023, 12, 25)) # => #<Date: 2023-12-25>
+      #   Date.call(DateTime.new(2023, 12, 25)) # => #<Date: 2023-12-25>
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
         return ::Date.strptime(value, options[:strptime]) if options[:strptime]
 
         ::Date.parse(value)
       rescue TypeError, ::Date::Error
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "date",
-          default: "could not coerce into a date"
-        )
+        type = Locale.t("cmdx.types.date")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

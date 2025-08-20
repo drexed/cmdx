@@ -7,143 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [TODO]
 
-- Rebuild parameters to use a less magical approach
-- Revert deprecator to use old options
-- Validators to add errors directly instead of raising errors
-- Coercions to add errors directly instead of raising errors
-- Update procs to call with object as first item
-- Move I18n to own ruby gem
+### Required
+- Create `cmdx-i18n` gem with all locales
+- Create `cmdx-rspec` gem with RSpec matchers
+- Create `cmdx-minitest` gem with Minitest matchers
 
-## [Unreleased]
+### Optional
+- Create `cmdx-jobs` gem with background job integration
+- Create `cmdx-parallel` gem with parallel workflow task execution
+
+## [1.5.0] - 2025-08-20
+
+### Changes
+- BREAKING Rebuild CMDx to be simpler, less magical, and more performant
 
 ## [1.1.2] - 2025-07-20
 
-### Added
-- Add `UnknownDeprecationError` for unknown deprecation type
-
-## [1.1.1] - 2025-07-20
-
 ### Changed
-- Updated all docs and specs
-- Update deprecation key words
-
-## [1.1.0] - 2025-07-17
-
-### Added
-- Added `CoercionRegistry` class for managing parameter coercions with support for custom type registration
-- Added `ValidatorRegistry` class for managing parameter validators with support for custom validator registration
-- Added `CallbackRegistry` class to take uninstantiated callback classes
-- Added `Validator` and `Coercion` classes to build their respective handlers
-- Added deprecation setting
-
-### Changed
-- Moved `Task::CALLBACKS` constant to `CallbackRegistry::TYPES`
-- Updated `ParameterRegistry` class to not inherit from `Hash`
-- Updated `MiddlewareRegistry` class to not inherit from `Hash`
-- Updated `CallbackRegistry` class to not inherit from `Hash`
-
-### Removed
-- Removed task `register` class method
-- Removed `Custom` validator since users can create and register a custom one
-
-## [1.0.1] - 2025-07-07
-
-### Added
-- Added comprehensive internationalization support with 24 language locales
-  - Arabic, Chinese, Czech, Danish, Dutch, English, Finnish, French, German, Greek
-  - Hebrew, Hindi, Italian, Japanese, Korean, Norwegian, Polish, Portuguese
-  - Russian, Spanish, Swedish, Thai, Turkish, Vietnamese
-- Added TLDR sections to documentation for improved accessibility
-
-### Changed
-- Improved configuration template with better defaults and examples
-
-## [1.0.0] - 2025-07-03
-
-### Added
-- Added `Hook` class for flexible callback management
-- Added `perform!` and `perform` method aliases for class-level `call!` and `call` methods
-- Added comprehensive YARDoc documentation throughout codebase
-- Added configuration-based hook registration system
-- Added Cursor and GitHub Copilot configuration files for enhanced IDE support
-- Added middleware support for tasks enabling extensible request/response processing
-- Added pattern matching support for result objects
-- Added support for direct instantiation of Task and Workflow objects
-- Added Zeitwerk-based gem loading for improved performance and reliability
-
-### Changed
-- Changed `ArgumentError` to `TypeError` for type validation consistency
-- Changed configuration from hash-based to PORO (Plain Old Ruby Object) class structure
-- Improved documentation readability, consistency, and completeness
-- Improved test suite readability, consistency, and coverage
-- Renamed `Batch` to `Workflow` to better reflect functionality
-- Renamed `Hook` to `Callback` for naming consistency
-- Renamed `Parameters` to `ParameterRegistry` for clarity
-- Renamed `Run` and associated components to `Chain` for better semantic meaning
-- Updated `Chain` to use thread-based execution instead of context passing
-- Updated `Immutator` to use `SKIP_CMDX_FREEZING` environment variable instead of `RACK_ENV`/`RAILS_ENV`
-- Updated hooks from a hash structure to registry pattern
-
-### Removed
-- Removed deprecated `task_timeout` and `batch_timeout` configuration settings
-
-## [0.5.0] - 2025-03-21
-
-### Added
-- Added `on_[state]` and `on_[status]` based result callback handlers
-- Added `on_executed` state hook for task completion tracking
-- Added `on_good` and `on_bad` status hooks for success/failure handling
-- Added `state`, `status`, `outcome`, and `runtime` fields to run serializer
-- Added `to_a` alias for array of hashes serializers
-
-### Changed
-- Reordered status and state hook execution for more predictable behavior
-
-## [0.4.0] - 2025-03-17
-
-### Added
-- Added ANSI color utility for enhanced terminal output
-- Added JSON string parsing support in array coercion
-- Added JSON string parsing support in hash coercion
-
-### Changed
-- Improved ANSI escape sequence handling
-- Improved run inspector output formatting
-
-### Fixed
-- Fixed log settings assignment when logger is nil to prevent errors
-
-## [0.3.0] - 2025-03-14
-
-### Added
-- Added `LoggerSerializer` for standardized log output formatting
-- Added `progname` support for logger instances
-
-### Changed
-- Removed `pid` (process ID) from result serializer output
-- Reverted default log formatter from `PrettyLine` back to `Line`
-
-### Fixed
-- Fixed `call!` method not properly marking failure state as interrupted
-- Fixed serialization issues with frozen run objects
-
-## [0.2.0] - 2025-03-12
-
-### Added
-- Added `PrettyJson` log formatter for structured JSON output
-- Added `PrettyKeyValue` log formatter for key-value pair output
-- Added `PrettyLine` log formatter for enhanced line-based output
-
-### Changed
-- Renamed `DatetimeFormatter` utility to `LogTimestamp` for better clarity
-- Renamed `MethodName` utility to `NameAffix` for better clarity
-- Renamed `Runtime` utility to `MonotonicRuntime` for better clarity
-- Updated `PrettyLine` to be the default log formatter
-- Updated result logger to be wrapped in `Logger#with_logger` block for better context
-
-### Fixed
-- Fixed error when logging non-hash values
-- Fixed fault bubbling behavior with nested halted calls
+- All items between versions `0.1.0` and `1.1.2` should be reviewed within its own tag
 
 ## [0.1.0] - 2025-03-07
 

@@ -2,274 +2,255 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Rational do
-  subject(:coercion) { described_class.new }
+RSpec.describe CMDx::Coercions::Rational, type: :unit do
+  subject(:coercion) { described_class }
 
   describe ".call" do
-    it "creates instance and calls #call method" do
-      expect(described_class.call("1/2")).to eq(Rational(1, 2))
-    end
-  end
+    context "when value is a valid string" do
+      it "coerces string integer to Rational" do
+        result = coercion.call("123")
 
-  describe "#call" do
-    context "with string values" do
-      it "converts fraction strings to rationals" do
-        result = coercion.call("1/2")
-
-        expect(result).to eq(Rational(1, 2))
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(123))
       end
 
-      it "converts decimal strings to rationals" do
-        result = coercion.call("0.25")
+      it "coerces string fraction to Rational" do
+        result = coercion.call("3/4")
 
-        expect(result).to eq(Rational(1, 4))
-      end
-
-      it "converts integer strings to rationals" do
-        result = coercion.call("5")
-
-        expect(result).to eq(Rational(5, 1))
-      end
-
-      it "converts negative fraction strings to rationals" do
-        result = coercion.call("-3/4")
-
-        expect(result).to eq(Rational(-3, 4))
-      end
-
-      it "converts zero strings to rationals" do
-        result = coercion.call("0")
-
-        expect(result).to eq(Rational(0, 1))
-      end
-
-      it "raises CoercionError for invalid string formats" do
-        expect { coercion.call("invalid") }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-
-      it "raises CoercionError for empty strings" do
-        expect { coercion.call("") }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-
-      it "raises CoercionError for malformed fractions" do
-        expect { coercion.call("1/0/2") }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with numeric values" do
-      it "converts integers to rationals" do
-        result = coercion.call(42)
-
-        expect(result).to eq(Rational(42, 1))
-      end
-
-      it "converts floats to rationals" do
-        result = coercion.call(0.5)
-
-        expect(result).to eq(Rational(1, 2))
-      end
-
-      it "converts negative integers to rationals" do
-        result = coercion.call(-10)
-
-        expect(result).to eq(Rational(-10, 1))
-      end
-
-      it "converts zero to rationals" do
-        result = coercion.call(0)
-
-        expect(result).to eq(Rational(0, 1))
-      end
-
-      it "converts BigDecimal to rationals" do
-        result = coercion.call(BigDecimal("3.14"))
-
-        expect(result).to eq(Rational(BigDecimal("3.14")))
-      end
-
-      it "raises CoercionError for NaN float" do
-        expect { coercion.call(Float::NAN) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-
-      it "raises CoercionError for infinite float" do
-        expect { coercion.call(Float::INFINITY) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with rational values" do
-      it "returns rational values unchanged" do
-        input = Rational(3, 4)
-        result = coercion.call(input)
-
+        expect(result).to be_a(Rational)
         expect(result).to eq(Rational(3, 4))
       end
 
-      it "returns negative rational values unchanged" do
-        input = Rational(-2, 5)
-        result = coercion.call(input)
+      it "coerces string decimal to Rational" do
+        result = coercion.call("0.5")
 
-        expect(result).to eq(Rational(-2, 5))
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(1, 2))
       end
 
-      it "returns zero rational unchanged" do
-        input = Rational(0, 1)
-        result = coercion.call(input)
+      it "coerces negative string to Rational" do
+        result = coercion.call("-456")
 
-        expect(result).to eq(Rational(0, 1))
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(-456))
+      end
+
+      it "coerces negative fraction string to Rational" do
+        result = coercion.call("-3/4")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(-3, 4))
+      end
+
+      it "coerces zero string to Rational" do
+        result = coercion.call("0")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(0))
+      end
+
+      it "coerces string with positive sign to Rational" do
+        result = coercion.call("+42")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(42))
+      end
+
+      it "coerces string with leading/trailing whitespace to Rational" do
+        result = coercion.call("  3/5  ")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(3, 5))
+      end
+
+      it "coerces improper fraction string to Rational" do
+        result = coercion.call("7/3")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(7, 3))
+      end
+
+      it "coerces decimal with many digits to Rational" do
+        result = coercion.call("0.125")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(1, 8))
+      end
+
+      it "coerces scientific notation string to Rational" do
+        result = coercion.call("1e3")
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(1000))
       end
     end
 
-    context "with complex numbers" do
-      it "converts complex numbers with zero imaginary part to rationals" do
+    context "when value is a valid number" do
+      it "coerces integer to Rational" do
+        result = coercion.call(42)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(42))
+      end
+
+      it "coerces negative integer to Rational" do
+        result = coercion.call(-42)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(-42))
+      end
+
+      it "coerces zero to Rational" do
+        result = coercion.call(0)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(0))
+      end
+
+      it "coerces float to Rational" do
+        result = coercion.call(0.75)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(3, 4))
+      end
+
+      it "coerces negative float to Rational" do
+        result = coercion.call(-0.25)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(-1, 4))
+      end
+
+      it "coerces BigDecimal to Rational" do
+        result = coercion.call(BigDecimal("0.333"))
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(333, 1000))
+      end
+
+      it "coerces existing Rational to Rational" do
+        input = Rational(5, 8)
+        result = coercion.call(input)
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(5, 8))
+        expect(result).to be(input)
+      end
+
+      it "coerces Complex with zero imaginary part to Rational" do
         result = coercion.call(Complex(3, 0))
 
-        expect(result).to eq(Rational(3, 1))
-      end
-
-      it "raises CoercionError for complex numbers with non-zero imaginary part" do
-        expect { coercion.call(Complex(1, 2)) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(3))
       end
     end
 
-    context "with nil values" do
+    context "when value is invalid" do
+      it "raises CoercionError for non-numeric string" do
+        expect { coercion.call("not_a_number") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for empty string" do
+        expect { coercion.call("") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for string with letters mixed with numbers" do
+        expect { coercion.call("123abc") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for string with invalid fraction" do
+        expect { coercion.call("3//4") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
       it "raises CoercionError for nil" do
-        expect { coercion.call(nil) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with boolean values" do
-      it "raises CoercionError for true" do
-        expect { coercion.call(true) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+        expect { coercion.call(nil) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
       end
 
-      it "raises CoercionError for false" do
-        expect { coercion.call(false) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with array values" do
-      it "raises CoercionError for arrays" do
-        expect { coercion.call([1, 2]) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+      it "raises CoercionError for boolean true" do
+        expect { coercion.call(true) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
       end
 
-      it "raises CoercionError for empty arrays" do
-        expect { coercion.call([]) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with hash values" do
-      it "raises CoercionError for hashes" do
-        expect { coercion.call({ a: 1 }) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+      it "raises CoercionError for boolean false" do
+        expect { coercion.call(false) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
       end
 
-      it "raises CoercionError for empty hashes" do
-        expect { coercion.call({}) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
-      end
-    end
-
-    context "with complex objects" do
-      it "raises CoercionError for objects" do
-        expect { coercion.call(Object.new) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+      it "raises CoercionError for array" do
+        expect { coercion.call([1, 2, 3]) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
       end
 
-      it "raises CoercionError for symbols" do
-        expect { coercion.call(:symbol) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+      it "raises CoercionError for hash" do
+        expect { coercion.call({ key: "value" }) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for symbol" do
+        expect { coercion.call(:symbol) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for object" do
+        expect { coercion.call(Object.new) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for Complex with non-zero imaginary part" do
+        expect { coercion.call(Complex(1, 2)) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for Infinity" do
+        expect { coercion.call(Float::INFINITY) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for NaN" do
+        expect { coercion.call(Float::NAN) }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for division by zero string" do
+        expect { coercion.call("1/0") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for string with multiple decimal points" do
+        expect { coercion.call("1.2.3") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for string with multiple slashes" do
+        expect { coercion.call("1/2/3") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
+      end
+
+      it "raises CoercionError for string with text after number" do
+        expect { coercion.call("42units") }
+          .to raise_error(CMDx::CoercionError, "could not coerce into a rational")
       end
     end
 
     context "with options parameter" do
-      it "ignores options parameter" do
-        result = coercion.call("1/3", { some: "option" })
+      it "accepts options parameter but ignores it" do
+        result = coercion.call("3/4", { unused_option: true })
 
-        expect(result).to eq(Rational(1, 3))
-      end
-
-      it "processes valid values with options parameter" do
-        result = coercion.call(0.75, { some: "option" })
-
+        expect(result).to be_a(Rational)
         expect(result).to eq(Rational(3, 4))
       end
 
-      it "raises CoercionError for invalid values even with options" do
-        expect { coercion.call("invalid", { some: "option" }) }.to raise_error(CMDx::CoercionError, /could not coerce into a rational/)
+      it "accepts empty options hash" do
+        result = coercion.call("1/2", {})
+
+        expect(result).to be_a(Rational)
+        expect(result).to eq(Rational(1, 2))
       end
-    end
-  end
-
-  describe "integration with tasks" do
-    let(:task_class) do
-      create_simple_task(name: "CalculateRatioTask") do
-        required :ratio, type: :rational
-        optional :multiplier, type: :rational, default: Rational(1, 1)
-
-        def call
-          context.calculated_ratio = ratio * multiplier
-          context.decimal_value = ratio.to_f
-        end
-      end
-    end
-
-    it "coerces string fraction parameters to rationals" do
-      result = task_class.call(ratio: "3/4")
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(3, 4))
-      expect(result.context.decimal_value).to eq(0.75)
-    end
-
-    it "coerces decimal string parameters to rationals" do
-      result = task_class.call(ratio: "0.5")
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(1, 2))
-      expect(result.context.decimal_value).to eq(0.5)
-    end
-
-    it "coerces integer parameters to rationals" do
-      result = task_class.call(ratio: 2)
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(2, 1))
-      expect(result.context.decimal_value).to eq(2.0)
-    end
-
-    it "coerces float parameters to rationals" do
-      result = task_class.call(ratio: 0.25)
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(1, 4))
-      expect(result.context.decimal_value).to eq(0.25)
-    end
-
-    it "handles rational parameters unchanged" do
-      result = task_class.call(ratio: Rational(2, 3))
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(2, 3))
-      expect(result.context.decimal_value).to be_within(0.001).of(0.667)
-    end
-
-    it "uses default values for optional rational parameters" do
-      result = task_class.call(ratio: "1/2")
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(1, 2))
-    end
-
-    it "performs calculations with both parameters" do
-      result = task_class.call(ratio: "1/3", multiplier: "2/1")
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(2, 3))
-      expect(result.context.decimal_value).to be_within(0.001).of(0.333)
-    end
-
-    it "handles negative rationals" do
-      result = task_class.call(ratio: "-1/4")
-
-      expect(result).to be_success
-      expect(result.context.calculated_ratio).to eq(Rational(-1, 4))
-      expect(result.context.decimal_value).to eq(-0.25)
     end
   end
 end

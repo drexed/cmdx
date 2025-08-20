@@ -1,15 +1,29 @@
 en:
   cmdx:
+    attributes:
+      required: "must be accessible via the source"
+      undefined: "delegates to undefined method %{method}"
     coercions:
       into_a: "could not coerce into a %{type}"
       into_an: "could not coerce into an %{type}"
-      into_any: "could not coerce into one of: %{values}"
+      into_any: "could not coerce into one of: %{types}"
       unknown: "unknown %{type} coercion type"
     faults:
       unspecified: "no reason given"
-    parameters:
-      required: "is a required parameter"
-      undefined: "delegates to undefined method %{source}"
+    types:
+      array: "array"
+      big_decimal: "big decimal"
+      boolean: "boolean"
+      complex: "complex"
+      date_time: "date time"
+      date: "date"
+      float: "float"
+      hash: "hash"
+      integer: "integer"
+      rational: "rational"
+      string: "string"
+      symbol: "symbol"
+      time: "time"
     validators:
       exclusion:
         of: "must not be one of: %{values}"

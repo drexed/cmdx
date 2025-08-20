@@ -2,399 +2,253 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::LogFormatters::Logstash do
+RSpec.describe CMDx::LogFormatters::Logstash, type: :unit do
   subject(:formatter) { described_class.new }
 
+  let(:severity) { "INFO" }
+  let(:time) { Time.new(2023, 12, 15, 10, 30, 45.123454) }
+  let(:progname) { "TestApp" }
+  let(:message) { "Test message" }
+
   describe "#call" do
-    let(:severity) { "INFO" }
-    let(:time) { Time.parse("2024-01-01T12:00:00Z") }
-    let(:task) { double("task") }
-    let(:mock_logger_serializer) { { message: "test", index: 1, chain_id: "abc123", type: "Task", class: "TestTask", id: "def456", tags: [], origin: "CMDx" } }
+    context "with typical log parameters" do
+      it "returns properly formatted JSON with newline" do
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
 
-    before do
-      allow(CMDx::LoggerSerializer).to receive(:call).and_return(mock_logger_serializer)
-      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2024-01-01T12:00:00.000Z")
-      allow(Process).to receive(:pid).and_return(12_345)
-    end
-
-    context "with string messages" do
-      it "formats simple strings as Logstash JSON" do
-        result = formatter.call(severity, time, task, "Hello World")
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include(
-          "message" => "test",
-          "severity" => "INFO",
-          "pid" => 12_345,
-          "@version" => "1",
-          "@timestamp" => "2024-01-01T12:00:00.000Z",
-          "origin" => "CMDx"
+        expect(parsed).to eq(
+          {
+            "@version" => "1",
+            "@timestamp" => "2023-12-15T10:30:45.123454Z",
+            "severity" => "INFO",
+            "progname" => "TestApp",
+            "pid" => Process.pid,
+            "message" => "Test message"
+          }
         )
         expect(result).to end_with("\n")
       end
 
-      it "formats empty strings as Logstash JSON" do
-        result = formatter.call(severity, time, task, "")
-        json_output = JSON.parse(result.chomp)
+      it "includes current process PID" do
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect(parsed["pid"]).to eq(Process.pid)
       end
 
-      it "formats strings with special characters as Logstash JSON" do
-        result = formatter.call(severity, time, task, "Hello\nWorld\t!")
-        json_output = JSON.parse(result.chomp)
+      it "formats timestamp in UTC ISO8601 with microseconds" do
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-    end
-
-    context "with numeric messages" do
-      it "formats integers as Logstash JSON" do
-        result = formatter.call(severity, time, task, 42)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect(parsed["@timestamp"]).to eq("2023-12-15T10:30:45.123454Z")
       end
 
-      it "formats floats as Logstash JSON" do
-        result = formatter.call(severity, time, task, 3.14)
-        json_output = JSON.parse(result.chomp)
+      it "includes Logstash version field" do
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats zero as Logstash JSON" do
-        result = formatter.call(severity, time, task, 0)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats negative numbers as Logstash JSON" do
-        result = formatter.call(severity, time, task, -123)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect(parsed["@version"]).to eq("1")
       end
     end
 
-    context "with boolean messages" do
-      it "formats true as Logstash JSON" do
-        result = formatter.call(severity, time, task, true)
-        json_output = JSON.parse(result.chomp)
+    context "with different severity levels" do
+      %w[DEBUG INFO WARN ERROR FATAL].each do |level|
+        it "handles #{level} severity" do
+          result = formatter.call(level, time, progname, message)
+          parsed = JSON.parse(result.chomp)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats false as Logstash JSON" do
-        result = formatter.call(severity, time, task, false)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+          expect(parsed["severity"]).to eq(level)
+        end
       end
     end
 
-    context "with nil messages" do
-      it "formats nil as Logstash JSON" do
-        result = formatter.call(severity, time, task, nil)
-        json_output = JSON.parse(result.chomp)
+    context "with different time zones" do
+      it "converts time to UTC" do
+        local_time = Time.new(2023, 12, 15, 15, 30, 45.123454, "-05:00")
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, local_time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["@timestamp"]).to eq("2023-12-15T20:30:45.123454Z")
+      end
+    end
+
+    context "with nil values" do
+      it "handles nil severity" do
+        result = formatter.call(nil, time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["severity"]).to be_nil
+      end
+
+      it "handles nil progname" do
+        result = formatter.call(severity, time, nil, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["progname"]).to be_nil
+      end
+
+      it "handles nil message" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with(nil).and_return(nil)
+
+        result = formatter.call(severity, time, progname, nil)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to be_nil
+      end
+    end
+
+    context "with special characters in strings" do
+      it "properly escapes quotes in severity" do
+        severity_with_quotes = 'INFO "quoted"'
+
+        result = formatter.call(severity_with_quotes, time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["severity"]).to eq('INFO "quoted"')
+      end
+
+      it "properly escapes newlines in progname" do
+        progname_with_newline = "TestApp\nSecondLine"
+
+        result = formatter.call(severity, time, progname_with_newline, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["progname"]).to eq("TestApp\nSecondLine")
+      end
+
+      it "handles unicode characters" do
+        unicode_message = "Test message with émojis 🚀"
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(unicode_message).and_return(unicode_message)
+
+        result = formatter.call(severity, time, progname, unicode_message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq("Test message with émojis 🚀")
+      end
+    end
+
+    context "with CMDx objects as message" do
+      let(:cmdx_hash) { { "state" => "complete", "status" => "success" } }
+
+      it "uses Utils::Format.to_log for message processing" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(cmdx_hash)
+
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq(cmdx_hash)
+      end
+
+      it "handles complex nested structures" do
+        complex_hash = {
+          "task" => "ProcessData",
+          "context" => { "user_id" => 123, "session" => "abc123" },
+          "metadata" => { "attempts" => 1, "duration" => 0.45 }
+        }
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(complex_hash)
+
+        result = formatter.call(severity, time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq(complex_hash)
+      end
+    end
+
+    context "with numeric and boolean messages" do
+      it "handles integer messages" do
+        integer_message = 42
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(integer_message).and_return(integer_message)
+
+        result = formatter.call(severity, time, progname, integer_message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq(42)
+      end
+
+      it "handles boolean messages" do
+        boolean_message = true
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(boolean_message).and_return(boolean_message)
+
+        result = formatter.call(severity, time, progname, boolean_message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to be(true)
+      end
+
+      it "handles float messages" do
+        float_message = 3.14159
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(float_message).and_return(float_message)
+
+        result = formatter.call(severity, time, progname, float_message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq(3.14159)
       end
     end
 
     context "with array messages" do
-      it "formats simple arrays as Logstash JSON" do
-        result = formatter.call(severity, time, task, [1, 2, 3])
-        json_output = JSON.parse(result.chomp)
+      it "handles array messages" do
+        array_message = %w[item1 item2 item3]
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
+        allow(CMDx::Utils::Format).to receive(:to_log).with(array_message).and_return(array_message)
 
-      it "formats empty arrays as Logstash JSON" do
-        result = formatter.call(severity, time, task, [])
-        json_output = JSON.parse(result.chomp)
+        result = formatter.call(severity, time, progname, array_message)
+        parsed = JSON.parse(result.chomp)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats arrays with mixed types as Logstash JSON" do
-        result = formatter.call(severity, time, task, [1, "string", true, nil])
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats nested arrays as Logstash JSON" do
-        result = formatter.call(severity, time, task, [[1, 2], [3, 4]])
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect(parsed["message"]).to eq(%w[item1 item2 item3])
       end
     end
 
-    context "with hash messages" do
-      it "formats simple hashes as Logstash JSON" do
-        result = formatter.call(severity, time, task, { a: 1, b: 2 })
-        json_output = JSON.parse(result.chomp)
+    context "with extreme time values" do
+      it "handles very old timestamps" do
+        old_time = Time.new(1970, 1, 1, 0, 0, 0.0)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, old_time, progname, message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["@timestamp"]).to eq("1970-01-01T00:00:00.000000Z")
       end
 
-      it "formats empty hashes as Logstash JSON" do
-        result = formatter.call(severity, time, task, {})
-        json_output = JSON.parse(result.chomp)
+      it "handles future timestamps" do
+        future_time = Time.new(2099, 12, 31, 23, 59, 59.999999)
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
+        result = formatter.call(severity, future_time, progname, message)
+        parsed = JSON.parse(result.chomp)
 
-      it "formats hashes with string keys as Logstash JSON" do
-        result = formatter.call(severity, time, task, { "name" => "test", "value" => 42 })
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats nested hashes as Logstash JSON" do
-        result = formatter.call(severity, time, task, { user: { name: "John", age: 30 } })
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect(parsed["@timestamp"]).to eq("2099-12-31T23:59:59.999999Z")
       end
     end
 
-    context "with complex objects" do
-      it "formats custom objects as Logstash JSON" do
-        object = Object.new
-        result = formatter.call(severity, time, task, object)
-        json_output = JSON.parse(result.chomp)
+    context "when Utils::Format.to_log raises an error" do
+      it "allows the error to propagate" do
+        allow(CMDx::Utils::Format).to receive(:to_log).and_raise(StandardError, "Format error")
 
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats structs as Logstash JSON" do
-        person = Struct.new(:name, :age).new("John", 30)
-        result = formatter.call(severity, time, task, person)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats symbols as Logstash JSON" do
-        result = formatter.call(severity, time, task, :symbol)
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output).to include("severity" => "INFO", "@version" => "1")
-        expect(result).to end_with("\n")
+        expect do
+          formatter.call(severity, time, progname, message)
+        end.to raise_error(StandardError, "Format error")
       end
     end
 
-    context "with required Logstash fields" do
-      it "always includes severity in JSON output" do
-        result = formatter.call("ERROR", time, task, "test")
-        json_output = JSON.parse(result.chomp)
+    context "with very long strings" do
+      it "handles large messages without truncation" do
+        large_message = "x" * 10_000
 
-        expect(json_output["severity"]).to eq("ERROR")
+        allow(CMDx::Utils::Format).to receive(:to_log).with(large_message).and_return(large_message)
+
+        result = formatter.call(severity, time, progname, large_message)
+        parsed = JSON.parse(result.chomp)
+
+        expect(parsed["message"]).to eq(large_message)
+        expect(parsed["message"].length).to eq(10_000)
       end
-
-      it "always includes pid in JSON output" do
-        result = formatter.call(severity, time, task, "test")
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output["pid"]).to eq(12_345)
-      end
-
-      it "always includes @version field set to '1'" do
-        result = formatter.call(severity, time, task, "test")
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output["@version"]).to eq("1")
-      end
-
-      it "always includes @timestamp in JSON output" do
-        result = formatter.call(severity, time, task, "test")
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output["@timestamp"]).to eq("2024-01-01T12:00:00.000Z")
-      end
-
-      it "calls Utils::LogTimestamp with UTC time" do
-        utc_time = time.utc
-        allow(time).to receive(:utc).and_return(utc_time)
-
-        formatter.call(severity, time, task, "test")
-
-        expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(utc_time)
-      end
-    end
-
-    context "with parameter handling" do
-      it "passes all parameters to LoggerSerializer" do
-        formatter.call(severity, time, task, "message")
-
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task, "message")
-      end
-
-      it "handles different severity levels" do
-        %w[DEBUG INFO WARN ERROR FATAL].each do |level|
-          result = formatter.call(level, time, task, "message")
-          json_output = JSON.parse(result.chomp)
-
-          expect(json_output["severity"]).to eq(level)
-        end
-      end
-
-      it "handles different time values" do
-        time1 = Time.parse("2024-01-01T12:00:00Z")
-        time2 = Time.parse("2024-12-31T23:59:59Z")
-
-        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time1.utc).and_return("2024-01-01T12:00:00.000Z")
-        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time2.utc).and_return("2024-12-31T23:59:59.000Z")
-
-        result1 = formatter.call(severity, time1, task, "message")
-        result2 = formatter.call(severity, time2, task, "message")
-
-        json_output1 = JSON.parse(result1.chomp)
-        json_output2 = JSON.parse(result2.chomp)
-
-        expect(json_output1["@timestamp"]).to eq("2024-01-01T12:00:00.000Z")
-        expect(json_output2["@timestamp"]).to eq("2024-12-31T23:59:59.000Z")
-      end
-
-      it "handles different task objects" do
-        task1 = double("task1")
-        task2 = double("task2")
-
-        formatter.call(severity, time, task1, "message")
-        formatter.call(severity, time, task2, "message")
-
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task1, "message")
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task2, "message")
-      end
-
-      it "handles nil severity parameter gracefully" do
-        result = formatter.call(nil, time, task, "message")
-        json_output = JSON.parse(result.chomp)
-
-        expect(json_output["severity"]).to be_nil
-        expect(json_output["pid"]).to eq(12_345)
-        expect(json_output["@version"]).to eq("1")
-        expect(json_output["@timestamp"]).to eq("2024-01-01T12:00:00.000Z")
-      end
-    end
-
-    context "with JSON serialization errors" do
-      it "allows JSON::GeneratorError to propagate" do
-        # Create an object that can't be serialized to JSON
-        problematic_object = Object.new
-        def problematic_object.to_json(*_args)
-          raise JSON::GeneratorError, "Cannot serialize"
-        end
-
-        allow(CMDx::LoggerSerializer).to receive(:call).and_return({ message: problematic_object })
-
-        expect { formatter.call(severity, time, task, "test") }.to raise_error(JSON::GeneratorError)
-      end
-    end
-
-    context "with output format" do
-      it "outputs single line JSON with newline" do
-        result = formatter.call(severity, time, task, "test")
-
-        expect(result).to end_with("\n")
-        expect(result.count("\n")).to eq(1)
-        expect { JSON.parse(result.chomp) }.not_to raise_error
-      end
-
-      it "produces compact JSON without extra whitespace" do
-        result = formatter.call(severity, time, task, { key: "value" })
-        json_line = result.chomp
-
-        expect(json_line).not_to include("  ") # No double spaces
-        expect(json_line).not_to include("\n") # No internal newlines
-        expect(json_line).not_to include("\t") # No tabs
-      end
-
-      it "merges LoggerSerializer output with Logstash fields" do
-        result = formatter.call(severity, time, task, "test")
-        json_output = JSON.parse(result.chomp)
-
-        # Should contain LoggerSerializer fields
-        expect(json_output).to include(
-          "message" => "test",
-          "index" => 1,
-          "chain_id" => "abc123",
-          "type" => "Task",
-          "class" => "TestTask",
-          "id" => "def456",
-          "tags" => [],
-          "origin" => "CMDx"
-        )
-
-        # Should also contain Logstash-specific fields
-        expect(json_output).to include(
-          "severity" => "INFO",
-          "pid" => 12_345,
-          "@version" => "1",
-          "@timestamp" => "2024-01-01T12:00:00.000Z"
-        )
-      end
-    end
-  end
-
-  describe "integration with tasks" do
-    it "logs messages from task as Logstash JSON" do
-      local_io = StringIO.new
-
-      custom_task = create_simple_task(name: "CustomLogstashTask") do
-        cmd_settings!(
-          logger: Logger.new(local_io),
-          log_formatter: CMDx::LogFormatters::Logstash.new # rubocop:disable RSpec/DescribedClass
-        )
-
-        def call
-          logger.info("String message")
-          logger.debug([])
-          logger.warn(nil)
-          logger.error({ error: "failed", "code" => 500 })
-        end
-      end
-
-      custom_task.call
-      logged_content = local_io.tap(&:rewind).read
-
-      # Check that Logstash JSON output is present
-      expect(logged_content).to include('"severity":"INFO"')
-      expect(logged_content).to include('"severity":"DEBUG"')
-      expect(logged_content).to include('"severity":"WARN"')
-      expect(logged_content).to include('"severity":"ERROR"')
-
-      # Check for Logstash-specific fields
-      expect(logged_content).to include('"@version":"1"')
-      expect(logged_content).to include('"@timestamp"')
-      expect(logged_content).to include('"pid"')
-
-      # Task result is logged as JSON
-      expect(logged_content).to include('"class":"CustomLogstashTask')
     end
   end
 end

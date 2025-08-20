@@ -4,242 +4,159 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
 
 ## Table of Contents
 
-- [TLDR](#tldr)
-- [Deprecation Fundamentals](#deprecation-fundamentals)
-- [Deprecation Modes](#deprecation-modes)
-- [Configuration Examples](#configuration-examples)
-- [Migration Strategies](#migration-strategies)
-- [Error Handling](#error-handling)
-- [Best Practices](#best-practices)
+- [Modes](#modes)
+  - [Raise](#raise)
+  - [Log](#log)
+  - [Warn](#warn)
+- [Declarations](#declarations)
+  - [Symbol or String](#symbol-or-string)
+  - [Boolean or Nil](#boolean-or-nil)
+  - [Method](#method)
+  - [Proc or Lambda](#proc-or-lambda)
+  - [Class or Module](#class-or-module)
 
-## TLDR
+## Modes
+
+### Raise
+
+`:raise` mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.
 
 ```ruby
-# Prevent task execution completely
-class LegacyTask < CMDx::Task
-  cmd_setting!(deprecated: :error)
+class ProcessLegacyPayment < CMDx::Task
+  settings(deprecated: :raise)
+
+  def work
+    # Will never execute...
+  end
 end
 
-# Log deprecation warnings
-class OldTask < CMDx::Task
-  cmd_setting!(deprecated: :log)
-end
-
-# Issue Ruby warnings
-class ObsoleteTask < CMDx::Task
-  cmd_setting!(deprecated: :warning)
-end
-
-# Usage triggers appropriate deprecation handling
-LegacyTask.call   # → raises DeprecationError
-OldTask.call      # → logs warning via task.logger
-ObsoleteTask.call # → issues Ruby warning
+result = ProcessLegacyPayment.execute
+#=> raises CMDx::DeprecationError: "ProcessLegacyPayment usage prohibited"
 ```
-
-## Deprecation Fundamentals
-
-> [!NOTE]
-> Task deprecation is configured using the `cmd_setting!` declaration and processed automatically by CMDx before task execution. The deprecation system integrates seamlessly with existing logging and error handling infrastructure.
-
-### How It Works
-
-1. **Configuration**: Tasks declare deprecation mode using `cmd_setting!(deprecated: mode)`
-2. **Processing**: CMDx automatically calls `TaskDeprecator.call(task)` during task lifecycle
-3. **Action**: Appropriate deprecation handling occurs based on configured mode
-4. **Execution**: Task proceeds normally (unless `:error` mode prevents it)
-
-### Available Modes
-
-| Mode | Behavior | Use Case |
-|------|----------|----------|
-| `:error` | Raises `DeprecationError` | Hard deprecation, prevent execution |
-| `:log` | Logs warning via `task.logger.warn` | Soft deprecation, track usage |
-| `:warning` | Issues Ruby warning | Development alerts |
-| `true` | Same as `:log` | Legacy boolean support |
-| `nil/false` | No deprecation handling | Default behavior |
-
-## Deprecation Modes
-
-### Error Mode (Hard Deprecation)
 
 > [!WARNING]
-> Error mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.
+> Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
+
+### Log
+
+`:log` mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.
 
 ```ruby
-class ProcessLegacyPaymentTask < CMDx::Task
-  cmd_setting!(deprecated: :error)
+class ProcessOldPayment < CMDx::Task
+  settings(deprecated: :log)
 
-  def call
-    # This code will never execute
-    charge_customer(amount)
+  # Same
+  settings(deprecated: true)
+
+  def work
+    # Executes but logs deprecation warning...
   end
 end
 
-# Attempting to use deprecated task
-result = ProcessLegacyPaymentTask.call(amount: 100)
-# → raises CMDx::DeprecationError: "ProcessLegacyPaymentTask usage prohibited"
+result = ProcessOldPayment.execute
+result.successful? #=> true
+
+# Deprecation warning appears in logs:
+# WARN -- : DEPRECATED: ProcessOldPayment - migrate to replacement or discontinue use
 ```
 
-### Log Mode (Soft Deprecation)
+### Warn
 
-> [!TIP]
-> Log mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.
+`:warn` mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.
 
 ```ruby
-class ProcessOldPaymentTask < CMDx::Task
-  cmd_setting!(deprecated: :log)
+class ProcessObsoletePayment < CMDx::Task
+  settings(deprecated: :warn)
 
-  def call
-    # Task executes normally but logs deprecation warning
-    charge_customer(amount)
+  def work
+    # Executes but emits Ruby warning...
   end
 end
 
-# Task executes with logged warning
-result = ProcessOldPaymentTask.call(amount: 100)
-result.successful? # → true
+result = ProcessObsoletePayment.execute
+result.successful? #=> true
 
-# Check logs for deprecation warning:
-# WARN -- : DEPRECATED: migrate to replacement or discontinue use
+# Ruby warning appears in stderr:
+# [ProcessObsoletePayment] DEPRECATED: migrate to replacement or discontinue use
 ```
 
-### Warning Mode (Development Alerts)
+## Declarations
 
-> [!NOTE]
-> Warning mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.
-
-```ruby
-class ProcessObsoletePaymentTask < CMDx::Task
-  cmd_setting!(deprecated: :warning)
-
-  def call
-    # Task executes with Ruby warning
-    charge_customer(amount)
-  end
-end
-
-# Task executes with Ruby warning
-result = ProcessObsoletePaymentTask.call(amount: 100)
-# stderr: [ProcessObsoletePaymentTask] DEPRECATED: migrate to replacement or discontinue use
-
-result.successful? # → true
-```
-
-## Configuration Examples
-
-### Environment-Specific Deprecation
+### Symbol or String
 
 ```ruby
-class ExperimentalFeatureTask < CMDx::Task
-  # Different deprecation behavior per environment
-  cmd_setting!(
-    deprecated: Rails.env.production? ? :error : :warning
-  )
+class LegacyIntegration < CMDx::Task
+  # Symbol
+  settings(deprecated: :raise)
 
-  def call
-    enable_experimental_feature
-  end
+  # String
+  settings(deprecated: "warn")
 end
 ```
 
-### Conditional Deprecation
+### Boolean or Nil
 
 ```ruby
-class LegacyIntegrationTask < CMDx::Task
-  # Deprecate only for specific conditions
-  cmd_setting!(
-    deprecated: -> { ENV['NEW_API_ENABLED'] == 'true' ? :log : nil }
-  )
+class LegacyIntegration < CMDx::Task
+  # Deprecates with default :log mode
+  settings(deprecated: true)
 
-  def call
-    call_legacy_api
+  # Skips deprecation
+  settings(deprecated: false)
+  settings(deprecated: nil)
+end
+```
+
+### Method
+
+```ruby
+class LegacyIntegration < CMDx::Task
+  # Symbol
+  settings(deprecated: :deprecated?)
+
+  def work
+    # Your logic here...
+  end
+
+  private
+
+  def deprecated?
+    Time.now.year > 2020 ? :raise : false
   end
 end
 ```
 
-## Migration Strategies
-
-> [!IMPORTANT]
-> When deprecating tasks, always provide clear migration paths and replacement implementations to minimize disruption.
-
-### Graceful Fallback
+### Proc or Lambda
 
 ```ruby
-class NotificationTask < CMDx::Task
-  cmd_setting!(deprecated: :log)
+class LegacyIntegration < CMDx::Task
+  # Proc
+  settings(deprecated: proc { Rails.env.local? ? :raise : :log })
 
-  def call
-    # Provide fallback while encouraging migration
-    logger.warn "Consider migrating to NotificationServiceV2"
-
-    # Delegate to new service but maintain compatibility
-    NotificationServiceV2.send_notification(
-      recipient: recipient,
-      message: message,
-      delivery_method: :legacy
-    )
-  end
+  # Lambda
+  settings(deprecated: -> { Current.user.legacy? ? :warn : :raise })
 end
 ```
 
-## Error Handling
-
-### Catching Deprecation Errors
+### Class or Module
 
 ```ruby
-begin
-  result = LegacyTask.call(params)
-rescue CMDx::DeprecationError => e
-  # Handle deprecation gracefully
-  Rails.logger.error "Attempted to use deprecated task: #{e.message}"
-
-  # Use replacement task instead
-  result = ReplacementTask.call(params)
-end
-
-if result.successful?
-  # Process successful result
-else
-  # Handle task failure
-end
-```
-
-## Best Practices
-
-### Documentation and Communication
-
-> [!TIP]
-> Always document deprecation reasons, timelines, and migration paths. Clear communication prevents confusion and reduces support burden.
-
-```ruby
-class LegacyReportTask < CMDx::Task
-  # Document deprecation clearly
-  cmd_setting!(deprecated: :log)
-
-  # Class-level documentation
-  # @deprecated Use ReportGeneratorV2Task instead
-  # @see ReportGeneratorV2Task
-  # @note This task will be removed in v2.0.0
-  # @since 1.5.0 marked as deprecated
-
-  def call
-    # Add inline documentation
-    logger.warn <<~DEPRECATION
-      LegacyReportTask is deprecated and will be removed in v2.0.0.
-      Please migrate to ReportGeneratorV2Task which provides:
-      - Better performance
-      - Enhanced error handling
-      - More flexible output formats
-
-      Migration guide: https://docs.example.com/migration/reports
-    DEPRECATION
-
-    generate_legacy_report
+class LegacyTaskDeprecator
+  def call(task)
+    task.class.name.include?("Legacy")
   end
+end
+
+class LegacyIntegration < CMDx::Task
+  # Class or Module
+  settings(deprecated: LegacyTaskDeprecator)
+
+  # Instance
+  settings(deprecated: LegacyTaskDeprecator.new)
 end
 ```
 
 ---
 
-- **Prev:** [Testing](testing.md)
-- **Next:** [AI Prompts](ai_prompts.md)
+- **Prev:** [Internationalization (i18n)](internationalization.md)
+- **Next:** [Workflows](workflows.md)

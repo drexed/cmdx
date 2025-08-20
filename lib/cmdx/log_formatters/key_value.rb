@@ -2,37 +2,35 @@
 
 module CMDx
   module LogFormatters
-    # Key-value log formatter that outputs structured log entries as key=value pairs.
+    # Formats log messages as key-value pairs for structured logging
     #
-    # This formatter converts log entries into key-value format, including metadata
-    # such as severity, process ID, and timestamp. Each log entry is output as
-    # space-separated key=value pairs followed by a newline character.
+    # This formatter converts log entries into key-value format with standardized fields
+    # including severity, timestamp, program name, process ID, and formatted message.
+    # The output is suitable for log parsing tools and human-readable structured logs.
     class KeyValue
 
-      # Formats a log entry as a key=value string.
+      # Formats a log entry as a key-value string
       #
-      # @param severity [String] the log severity level (e.g., "INFO", "ERROR")
-      # @param time [Time] the timestamp when the log entry was created
-      # @param task [Object] the task object associated with the log entry
-      # @param message [String] the log message content
+      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
+      # @param time [Time] The timestamp when the log entry was created
+      # @param progname [String, nil] The program name or identifier
+      # @param message [Object] The log message content
       #
-      # @return [String] the formatted key=value log entry with trailing newline
+      # @return [String] A key-value formatted log entry with a trailing newline
       #
-      # @raise [StandardError] if the log data cannot be serialized to key=value format
-      #
-      # @example Formatting a log entry
-      #   formatter = CMDx::LogFormatters::KeyValue.new
-      #   result = formatter.call("INFO", Time.now, task_object, "Task completed")
-      #   #=> "severity=INFO pid=12345 timestamp=2024-01-01T12:00:00Z message=Task completed\n"
-      def call(severity, time, task, message)
-        m = LoggerSerializer.call(severity, time, task, message).merge!(
+      # @example Basic usage
+      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
+      #   # => "severity=INFO timestamp=2024-01-15T10:30:45.123456Z progname=MyApp pid=12345 message=User logged in\n"
+      def call(severity, time, progname, message)
+        hash = {
           severity:,
+          timestamp: time.utc.iso8601(6),
+          progname:,
           pid: Process.pid,
-          timestamp: Utils::LogTimestamp.call(time.utc)
-        )
+          message: Utils::Format.to_log(message)
+        }
 
-        m = m.map { |k, v| "#{k}=#{v}" }.join(" ") if m.is_a?(Hash)
-        m << "\n"
+        Utils::Format.to_str(hash) << "\n"
       end
 
     end

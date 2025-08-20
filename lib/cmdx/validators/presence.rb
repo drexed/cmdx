@@ -2,54 +2,44 @@
 
 module CMDx
   module Validators
-    # Validator class for ensuring values are present (not empty or nil).
+    # Validates that a value is present and not empty
     #
-    # This validator checks that a value is not empty, blank, or nil. For strings,
-    # it validates that there are non-whitespace characters. For objects that respond
-    # to empty?, it ensures they are not empty. For all other objects, it validates
-    # they are not nil.
-    class Presence < Validator
+    # This validator ensures that the given value exists and contains meaningful content.
+    # It handles different value types appropriately:
+    # - Strings: checks for non-whitespace characters
+    # - Collections: checks for non-empty collections
+    # - Other objects: checks for non-nil values
+    module Presence
 
-      # Validates that the given value is present (not empty or nil).
+      extend self
+
+      # Validates that a value is present and not empty
       #
-      # @param value [Object] the value to validate
-      # @param options [Hash] validation options containing presence configuration
-      # @option options [Hash] :presence presence validation configuration
-      # @option options [String] :presence.message custom error message
+      # @param value [Object] The value to validate for presence
+      # @param options [Hash] Validation configuration options
+      # @option options [String] :message Custom error message
       #
-      # @return [void] returns nothing when validation passes
+      # @return [nil] Returns nil if validation passes
       #
-      # @raise [ValidationError] if the value is empty, blank, or nil
+      # @raise [ValidationError] When the value is empty, nil, or contains only whitespace
       #
-      # @example Validating a non-empty string
-      #   Validators::Presence.call("hello", presence: {})
-      #   #=> nil (no error raised)
-      #
-      # @example Validating an empty string
-      #   Validators::Presence.call("", presence: {})
-      #   # raises ValidationError: "cannot be empty"
-      #
-      # @example Validating a whitespace-only string
-      #   Validators::Presence.call("   ", presence: {})
-      #   # raises ValidationError: "cannot be empty"
-      #
-      # @example Validating a non-empty array
-      #   Validators::Presence.call([1, 2, 3], presence: {})
-      #   #=> nil (no error raised)
-      #
-      # @example Validating an empty array
-      #   Validators::Presence.call([], presence: {})
-      #   # raises ValidationError: "cannot be empty"
-      #
-      # @example Validating a nil value
-      #   Validators::Presence.call(nil, presence: {})
-      #   # raises ValidationError: "cannot be empty"
-      #
-      # @example Using a custom message
-      #   Validators::Presence.call("", presence: { message: "This field is required" })
-      #   # raises ValidationError: "This field is required"
+      # @example Validate string presence
+      #   Presence.call("hello world")
+      #   # => nil (validation passes)
+      # @example Validate empty string
+      #   Presence.call("   ")
+      #   # => raises ValidationError
+      # @example Validate array presence
+      #   Presence.call([1, 2, 3])
+      #   # => nil (validation passes)
+      # @example Validate empty array
+      #   Presence.call([])
+      #   # => raises ValidationError
+      # @example Validate with custom message
+      #   Presence.call(nil, message: "Value cannot be blank")
+      #   # => raises ValidationError with custom message
       def call(value, options = {})
-        present =
+        match =
           if value.is_a?(String)
             /\S/.match?(value)
           elsif value.respond_to?(:empty?)
@@ -58,13 +48,10 @@ module CMDx
             !value.nil?
           end
 
-        return if present
+        return if match
 
         message = options[:message] if options.is_a?(Hash)
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.presence",
-          default: "cannot be empty"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.presence")
       end
 
     end

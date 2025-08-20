@@ -2,89 +2,69 @@
 
 module CMDx
 
-  # Custom exception raised when task execution exceeds the configured timeout limit.
-  # Inherits from Interrupt to provide consistent error handling for timeout scenarios
-  # and allow proper interruption of long-running tasks.
+  # Error raised when task execution exceeds the configured timeout limit.
+  #
+  # This error occurs when a task takes longer to execute than the specified
+  # time limit. Timeout errors are raised by Ruby's Timeout module and are
+  # caught by the middleware to properly fail the task with timeout information.
   TimeoutError = Class.new(Interrupt)
 
   module Middlewares
-    # Middleware that provides execution timeout protection for tasks.
-    # Automatically interrupts task execution if it exceeds the specified time limit,
-    # preventing runaway processes and ensuring system responsiveness.
-    class Timeout < CMDx::Middleware
+    # Middleware for enforcing execution time limits on tasks.
+    #
+    # The Timeout middleware provides execution time control by wrapping
+    # task execution with Ruby's Timeout module. It automatically fails
+    # tasks that exceed the configured time limit and provides detailed
+    # error information including the exceeded limit.
+    module Timeout
 
-      # @return [Integer, Float, Symbol, Proc] The timeout value in seconds
-      attr_reader :seconds
+      extend self
 
-      # @return [Hash] The conditional options for timeout application
-      attr_reader :conditional
+      # Default timeout limit in seconds when none is specified.
+      DEFAULT_LIMIT = 3
 
-      # Initializes the timeout middleware with optional configuration.
+      # Middleware entry point that enforces execution time limits.
       #
-      # @param options [Hash] configuration options for the middleware
-      # @option options [Integer, Float, Symbol, Proc] :seconds timeout duration in seconds (default: 3)
-      # @option options [Symbol, Proc] :if condition that must be truthy to apply timeout
-      # @option options [Symbol, Proc] :unless condition that must be falsy to apply timeout
+      # Evaluates the condition from options and applies timeout control
+      # if enabled. Supports various timeout limit configurations including
+      # numeric values, task method calls, and dynamic proc evaluation.
       #
-      # @return [Timeout] new instance of the middleware
+      # @param task [Task] The task being executed
+      # @param options [Hash] Configuration options for timeout control
+      # @option options [Numeric, Symbol, Proc, Object] :seconds The timeout limit source
+      # @option options [Symbol, Proc, Object, nil] :if Condition to enable timeout control
+      # @option options [Symbol, Proc, Object, nil] :unless Condition to disable timeout control
       #
-      # @example Register with a middleware instance
-      #   use :middleware, CMDx::Middlewares::Timeout.new(seconds: 30)
+      # @yield The task execution block
       #
-      # @example Register with fixed timeout
-      #   use :middleware, CMDx::Middlewares::Timeout, seconds: 30
+      # @return [Object] The result of task execution
       #
-      # @example Register with dynamic timeout
-      #   use :middleware, CMDx::Middlewares::Timeout, seconds: -> { Rails.env.test? ? 1 : 10 }
+      # @raise [TimeoutError] When execution exceeds the configured limit
       #
-      # @example Register with conditions
-      #   use :middleware, CMDx::Middlewares::Timeout, seconds: 5, if: :long_running?, unless: :skip_timeout?
-      def initialize(options = {})
-        @seconds     = options[:seconds] || 3
-        @conditional = options.slice(:if, :unless)
-      end
+      # @example Basic usage with default 3 second timeout
+      #   Timeout.call(task, &block)
+      # @example Custom timeout limit in seconds
+      #   Timeout.call(task, seconds: 10, &block)
+      # @example Use task method for timeout limit
+      #   Timeout.call(task, seconds: :timeout_limit, &block)
+      # @example Use proc for dynamic timeout calculation
+      #   Timeout.call(task, seconds: -> { calculate_timeout }, &block)
+      # @example Conditional timeout control
+      #   Timeout.call(task, if: :enable_timeout, &block)
+      def call(task, **options, &)
+        return yield unless Utils::Condition.evaluate(task, options)
 
-      # Executes the middleware, wrapping task execution with timeout protection.
-      # Evaluates conditions, determines timeout duration, and executes the task within
-      # the timeout boundary to prevent runaway execution.
-      #
-      # @param task [CMDx::Task] the task being executed
-      # @param callable [Proc] the callable that executes the task
-      #
-      # @return [Object] the result of the task execution
-      #
-      # @raise [TimeoutError] when task execution exceeds the timeout limit
-      #
-      # @example Task using timeout middleware
-      #   class ProcessFileTask < CMDx::Task
-      #     use :middleware, CMDx::Middlewares::Timeout, seconds: 10
-      #
-      #     def call
-      #       # Task execution is automatically wrapped with timeout protection
-      #     end
-      #   end
-      #
-      # @example Global configuration with conditional timeout
-      #   CMDx.configure do |config|
-      #     config.middlewares.register CMDx::Middlewares::Timeout, seconds: 30, if: :large_dataset?
-      #   end
-      def call(task, callable)
-        # Check if timeout should be applied based on conditions
-        return callable.call(task) unless task.cmdx_eval(conditional)
+        limit =
+          case callable = options[:seconds]
+          when Numeric then callable
+          when Symbol then task.send(callable)
+          when Proc then task.instance_eval(&callable)
+          else callable.respond_to?(:call) ? callable.call(task) : DEFAULT_LIMIT
+          end
 
-        # Get seconds using yield for dynamic generation
-        limit = task.cmdx_yield(seconds) || 3
-
-        # Ensure limit is numeric, fallback to default if not
-        limit = 3 unless limit.is_a?(Numeric)
-
-        # Apply timeout protection
-        ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds") do
-          callable.call(task)
-        end
+        ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds", &)
       rescue TimeoutError => e
-        task.fail!(reason: "[#{e.class}] #{e.message}", original_exception: e, seconds: limit)
-        task.result
+        task.result.tap { |r| r.fail!("[#{e.class}] #{e.message}", cause: e, limit:) }
       end
 
     end

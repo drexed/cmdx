@@ -2,124 +2,112 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Coercions::Array do
-  subject(:coercion) { described_class.new }
+RSpec.describe CMDx::Coercions::Array, type: :unit do
+  subject(:coercion) { described_class }
 
   describe ".call" do
-    it "creates instance and calls #call method" do
-      expect(described_class.call("value")).to eq(["value"])
-    end
-  end
-
-  describe "#call" do
-    context "with JSON string values" do
-      it "parses valid JSON array strings" do
+    context "when value is a JSON string starting with '['" do
+      it "parses valid JSON array string" do
         result = coercion.call('["a", "b", "c"]')
 
         expect(result).to eq(%w[a b c])
       end
 
-      it "parses JSON arrays with mixed types" do
+      it "parses JSON array with mixed types" do
         result = coercion.call('[1, "string", true, null]')
 
         expect(result).to eq([1, "string", true, nil])
       end
 
-      it "parses nested JSON arrays" do
-        result = coercion.call('[["a", "b"], ["c", "d"]]')
-
-        expect(result).to eq([%w[a b], %w[c d]])
-      end
-
-      it "parses empty JSON arrays" do
+      it "parses empty JSON array" do
         result = coercion.call("[]")
 
         expect(result).to eq([])
       end
 
-      it "parses JSON arrays with objects" do
-        result = coercion.call('[{"name": "test"}, {"id": 1}]')
+      it "parses nested JSON arrays" do
+        result = coercion.call("[[1, 2], [3, 4]]")
 
-        expect(result).to eq([{ "name" => "test" }, { "id" => 1 }])
+        expect(result).to eq([[1, 2], [3, 4]])
       end
 
-      it "raises JSON::ParserError for invalid JSON arrays" do
-        expect { coercion.call('["invalid", json}') }.to raise_error(JSON::ParserError)
+      it "parses JSON array with objects" do
+        result = coercion.call('[{"key": "value"}, {"number": 42}]')
+
+        expect(result).to eq([{ "key" => "value" }, { "number" => 42 }])
       end
 
-      it "raises JSON::ParserError for incomplete JSON arrays" do
-        expect { coercion.call('["incomplete"') }.to raise_error(JSON::ParserError)
-      end
+      context "with invalid JSON" do
+        it "raises JSON::ParserError for malformed JSON" do
+          expect { coercion.call("[invalid json") }
+            .to raise_error(JSON::ParserError)
+        end
 
-      it "raises JSON::ParserError for strings with only opening bracket" do
-        expect { coercion.call("[") }.to raise_error(JSON::ParserError)
-      end
+        it "raises JSON::ParserError for incomplete array" do
+          expect { coercion.call("[1, 2,") }
+            .to raise_error(JSON::ParserError)
+        end
 
-      it "raises JSON::ParserError for strings that start with [ but aren't valid JSON" do
-        expect { coercion.call("[not json") }.to raise_error(JSON::ParserError)
-      end
-
-      it "raises JSON::ParserError for strings that start with [ but are not arrays" do
-        expect { coercion.call("[object Object]") }.to raise_error(JSON::ParserError)
+        it "raises JSON::ParserError for unquoted strings" do
+          expect { coercion.call("[unquoted, string]") }
+            .to raise_error(JSON::ParserError)
+        end
       end
     end
 
-    context "with non-JSON string values" do
-      it "converts regular strings to single-element arrays" do
+    context "when value is a string not starting with '['" do
+      it "wraps single string value in array" do
         result = coercion.call("hello")
 
         expect(result).to eq(["hello"])
       end
 
-      it "converts empty strings to single-element arrays" do
+      it "wraps empty string in array" do
         result = coercion.call("")
 
         expect(result).to eq([""])
       end
 
-      it "converts strings that contain brackets but don't start with [" do
-        result = coercion.call("test [with brackets]")
+      it "wraps string starting with other characters" do
+        result = coercion.call("{key: value}")
 
-        expect(result).to eq(["test [with brackets]"])
+        expect(result).to eq(["{key: value}"])
       end
 
-      it "handles whitespace-only strings" do
-        result = coercion.call("   ")
+      it "wraps numeric string in array" do
+        result = coercion.call("123")
 
-        expect(result).to eq(["   "])
-      end
-
-      it "handles strings with leading whitespace that look like JSON" do
-        result = coercion.call('  ["a", "b"]  ')
-
-        expect(result).to eq(['  ["a", "b"]  '])
+        expect(result).to eq(["123"])
       end
     end
 
-    context "with array values" do
-      it "returns arrays unchanged" do
-        input = %w[a b c]
+    context "when value is already an array" do
+      it "returns the array unchanged" do
+        input = [1, 2, 3]
+
         result = coercion.call(input)
 
-        expect(result).to eq(%w[a b c])
+        expect(result).to eq([1, 2, 3])
       end
 
-      it "returns empty arrays unchanged" do
+      it "returns empty array unchanged" do
         input = []
+
         result = coercion.call(input)
 
         expect(result).to eq([])
       end
 
-      it "returns arrays with mixed types unchanged" do
-        input = [1, "string", true, nil]
+      it "returns nested array unchanged" do
+        input = [[1, 2], [3, 4]]
+
         result = coercion.call(input)
 
-        expect(result).to eq([1, "string", true, nil])
+        expect(result).to eq([[1, 2], [3, 4]])
       end
     end
 
-    context "with nil values" do
+    context "when value is nil" do
       it "converts nil to empty array" do
         result = coercion.call(nil)
 
@@ -127,141 +115,90 @@ RSpec.describe CMDx::Coercions::Array do
       end
     end
 
-    context "with numeric values" do
-      it "converts integers to single-element arrays" do
-        result = coercion.call(123)
+    context "when value is a number" do
+      it "wraps integer in array" do
+        result = coercion.call(42)
 
-        expect(result).to eq([123])
+        expect(result).to eq([42])
       end
 
-      it "converts floats to single-element arrays" do
+      it "wraps float in array" do
         result = coercion.call(3.14)
 
         expect(result).to eq([3.14])
       end
 
-      it "converts zero to single-element arrays" do
+      it "wraps zero in array" do
         result = coercion.call(0)
 
         expect(result).to eq([0])
       end
     end
 
-    context "with boolean values" do
-      it "converts true to single-element arrays" do
+    context "when value is a boolean" do
+      it "wraps true in array" do
         result = coercion.call(true)
 
         expect(result).to eq([true])
       end
 
-      it "converts false to single-element arrays" do
+      it "wraps false in array" do
         result = coercion.call(false)
 
         expect(result).to eq([false])
       end
     end
 
-    context "with hash values" do
-      it "converts hashes to arrays of key-value pairs" do
-        input = { a: 1, b: 2 }
+    context "when value is a hash" do
+      it "converts hash to array of key-value pairs" do
+        input = { key: "value" }
+
         result = coercion.call(input)
 
-        expect(result).to eq([[:a, 1], [:b, 2]])
+        expect(result).to eq([[:key, "value"]])
       end
 
-      it "converts empty hashes to empty arrays" do
-        input = {}
-        result = coercion.call(input)
+      it "converts empty hash to empty array" do
+        result = coercion.call({})
 
         expect(result).to eq([])
       end
     end
 
-    context "with complex objects" do
-      it "converts objects to single-element arrays" do
-        input = Object.new
-        result = coercion.call(input)
+    context "when value is an enumerable object" do
+      it "converts range to array" do
+        result = coercion.call(1..3)
 
-        expect(result).to eq([input])
+        expect(result).to eq([1, 2, 3])
       end
 
-      it "converts structs to arrays of their values" do
-        input = Struct.new(:name, :age).new("John", 30)
+      it "converts set to array" do
+        input = Set.new([1, 2, 3])
+
         result = coercion.call(input)
 
-        expect(result).to eq(["John", 30])
+        expect(result).to eq([1, 2, 3])
       end
     end
 
     context "with options parameter" do
-      it "ignores options parameter" do
-        result = coercion.call("test", { some: "option" })
-
-        expect(result).to eq(["test"])
-      end
-
-      it "processes JSON with options parameter" do
-        result = coercion.call('["a", "b"]', { some: "option" })
+      it "ignores options when processing JSON string" do
+        result = coercion.call('["a", "b"]', { unused: "option" })
 
         expect(result).to eq(%w[a b])
       end
-    end
-  end
 
-  describe "integration with tasks" do
-    let(:task_class) do
-      create_simple_task(name: "ProcessTagsTask") do
-        required :tags, type: :array
-        optional :categories, type: :array, default: []
+      it "ignores options when wrapping non-JSON values" do
+        result = coercion.call("hello", { unused: "option" })
 
-        def call
-          context.processed_tags = tags.map(&:downcase)
-          context.categories_count = categories.length
-        end
+        expect(result).to eq(["hello"])
       end
-    end
 
-    it "coerces JSON string parameters to arrays" do
-      result = task_class.call(tags: '["Ruby", "Rails", "CMDx"]')
+      it "works with empty options hash" do
+        result = coercion.call([1, 2, 3], {})
 
-      expect(result).to be_success
-      expect(result.context.processed_tags).to eq(%w[ruby rails cmdx])
-    end
-
-    it "coerces regular values to single-element arrays" do
-      result = task_class.call(tags: "Ruby")
-
-      expect(result).to be_success
-      expect(result.context.processed_tags).to eq(["ruby"])
-    end
-
-    it "handles array parameters unchanged" do
-      result = task_class.call(tags: %w[Ruby Rails])
-
-      expect(result).to be_success
-      expect(result.context.processed_tags).to eq(%w[ruby rails])
-    end
-
-    it "uses default values for optional array parameters" do
-      result = task_class.call(tags: ["Ruby"])
-
-      expect(result).to be_success
-      expect(result.context.categories_count).to eq(0)
-    end
-
-    it "coerces optional parameters when provided" do
-      result = task_class.call(tags: ["Ruby"], categories: '["Web", "Framework"]')
-
-      expect(result).to be_success
-      expect(result.context.categories_count).to eq(2)
-    end
-
-    it "fails when coercion fails for invalid JSON" do
-      result = task_class.call(tags: '["invalid json')
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to include("JSON::ParserError")
-      expect(result.metadata[:original_exception]).to be_a(JSON::ParserError)
+        expect(result).to eq([1, 2, 3])
+      end
     end
   end
 end

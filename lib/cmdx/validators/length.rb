@@ -2,223 +2,160 @@
 
 module CMDx
   module Validators
-    # Validator class for validating the length of values.
+    # Validates the length of a value against various constraints.
     #
-    # This validator ensures that a value's length meets specified criteria.
-    # It supports various length validation options including exact length,
-    # minimum/maximum bounds, range validation, and exclusion patterns.
-    class Length < Validator
+    # This validator supports multiple length validation strategies including exact length,
+    # minimum/maximum bounds, and range-based validation. It can be used to ensure
+    # values meet specific length requirements for strings, arrays, and other
+    # enumerable objects.
+    module Length
 
-      # Validates that the given value's length meets the specified criteria.
+      extend self
+
+      # Validates a value's length against specified constraints.
       #
-      # @param value [Object] the value to validate (must respond to #length)
-      # @param options [Hash] validation options containing length configuration
-      # @option options [Hash] :length length validation configuration
-      # @option options [Range] :length.within acceptable length range
-      # @option options [Range] :length.not_within unacceptable length range
-      # @option options [Range] :length.in alias for :within
-      # @option options [Range] :length.not_in alias for :not_within
-      # @option options [Integer] :length.min minimum acceptable length
-      # @option options [Integer] :length.max maximum acceptable length
-      # @option options [Integer] :length.is exact required length
-      # @option options [Integer] :length.is_not exact forbidden length
-      # @option options [String] :length.message custom error message
-      # @option options [String] :length.within_message custom error message for within validation
-      # @option options [String] :length.not_within_message custom error message for not_within validation
-      # @option options [String] :length.in_message alias for :within_message
-      # @option options [String] :length.not_in_message alias for :not_within_message
-      # @option options [String] :length.min_message custom error message for minimum validation
-      # @option options [String] :length.max_message custom error message for maximum validation
-      # @option options [String] :length.is_message custom error message for exact validation
-      # @option options [String] :length.is_not_message custom error message for exact exclusion validation
+      # @param value [String, Array, Hash, Object] The value to validate (must respond to #length)
+      # @param options [Hash] Validation options
+      # @option options [Range] :within Range that the length must fall within (inclusive)
+      # @option options [Range] :not_within Range that the length must not fall within
+      # @option options [Range] :in Alias for :within
+      # @option options [Range] :not_in Range that the length must not fall within
+      # @option options [Integer] :min Minimum allowed length
+      # @option options [Integer] :max Maximum allowed length
+      # @option options [Integer] :is Exact required length
+      # @option options [Integer] :is_not Length that is not allowed
+      # @option options [String] :message Custom error message for all validations
+      # @option options [String] :within_message Custom message for within/range validations
+      # @option options [String] :in_message Custom message for :in validation
+      # @option options [String] :not_within_message Custom message for not_within validation
+      # @option options [String] :not_in_message Custom message for not_in validation
+      # @option options [String] :min_message Custom message for minimum length validation
+      # @option options [String] :max_message Custom message for maximum length validation
+      # @option options [String] :is_message Custom message for exact length validation
+      # @option options [String] :is_not_message Custom message for is_not validation
       #
-      # @return [void]
+      # @return [nil] Returns nil if validation passes
       #
-      # @raise [ValidationError] if the value's length doesn't meet the criteria
-      # @raise [ArgumentError] if no known length validator options are provided
+      # @raise [ValidationError] When validation fails
+      # @raise [ArgumentError] When unknown validation options are provided
       #
-      # @example Validating within a range
-      #   Validators::Length.call("hello", length: { within: 1..10 })
-      #   #=> nil (no error raised)
-      #
-      # @example Validating minimum length
-      #   Validators::Length.call("hi", length: { min: 5 })
-      #   # raises ValidationError: "length must be at least 5"
-      #
-      # @example Validating exact length
-      #   Validators::Length.call("test", length: { is: 4 })
-      #   #=> nil (no error raised)
-      #
-      # @example Validating with custom message
-      #   Validators::Length.call("", length: { min: 1, message: "cannot be empty" })
-      #   # raises ValidationError: "cannot be empty"
+      # @example Exact length validation
+      #   Length.call("hello", is: 5)
+      #   # => nil (validation passes)
+      # @example Range-based validation
+      #   Length.call("test", within: 3..6)
+      #   # => nil (validation passes - length 4 is within range)
+      # @example Min/max validation
+      #   Length.call("username", min: 3, max: 20)
+      #   # => nil (validation passes - length 8 is between 3 and 20)
+      # @example Exclusion validation
+      #   Length.call("short", not_in: 1..3)
+      #   # => nil (validation passes - length 5 is not in excluded range)
       def call(value, options = {})
         case options
-        in { within: within }
+        in within:
           raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value.length)
-        in { not_within: not_within }
+        in not_within:
           raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within.cover?(value.length)
-        in { in: yn }
-          raise_within_validation_error!(yn.begin, yn.end, options) unless yn.cover?(value.length)
-        in { not_in: not_in }
+        in in: xin
+          raise_within_validation_error!(xin.begin, xin.end, options) unless xin.cover?(value.length)
+        in not_in:
           raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in.cover?(value.length)
-        in { min: min, max: max }
+        in min:, max:
           raise_within_validation_error!(min, max, options) unless value.length.between?(min, max)
-        in { min: min }
+        in min:
           raise_min_validation_error!(min, options) unless min <= value.length
-        in { max: max }
+        in max:
           raise_max_validation_error!(max, options) unless value.length <= max
-        in { is: is }
+        in is:
           raise_is_validation_error!(is, options) unless value.length == is
-        in { is_not: is_not }
+        in is_not:
           raise_is_not_validation_error!(is_not, options) if value.length == is_not
         else
-          raise ArgumentError, "no known length validator options given"
+          raise ArgumentError, "unknown length validator options given"
         end
       end
 
       private
 
-      # Raises a validation error for within/in range validation.
+      # Raises validation error for within/range validations.
       #
-      # @param min [Integer] the minimum acceptable length
-      # @param max [Integer] the maximum acceptable length
-      # @param options [Hash] validation options
+      # @param min [Integer] Minimum length value
+      # @param max [Integer] Maximum length value
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_within_validation_error!(5, 10, {})
-      #   # raises ValidationError: "length must be within 5 and 10"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_within_validation_error!(min, max, options)
         message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.within",
-          min:,
-          max:,
-          default: "length must be within #{min} and #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.within", min:, max:)
       end
 
-      # Raises a validation error for not_within/not_in range validation.
+      # Raises validation error for not_within validations.
       #
-      # @param min [Integer] the minimum forbidden length
-      # @param max [Integer] the maximum forbidden length
-      # @param options [Hash] validation options
+      # @param min [Integer] Minimum length value
+      # @param max [Integer] Maximum length value
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_not_within_validation_error!(5, 10, {})
-      #   # raises ValidationError: "length must not be within 5 and 10"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_not_within_validation_error!(min, max, options)
         message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.not_within",
-          min:,
-          max:,
-          default: "length must not be within #{min} and #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.not_within", min:, max:)
       end
 
-      # Raises a validation error for minimum length validation.
+      # Raises validation error for minimum length validation.
       #
-      # @param min [Integer] the minimum acceptable length
-      # @param options [Hash] validation options
+      # @param min [Integer] Minimum required length
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_min_validation_error!(5, {})
-      #   # raises ValidationError: "length must be at least 5"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_min_validation_error!(min, options)
         message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.min",
-          min:,
-          default: "length must be at least #{min}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.min", min:)
       end
 
-      # Raises a validation error for maximum length validation.
+      # Raises validation error for maximum length validation.
       #
-      # @param max [Integer] the maximum acceptable length
-      # @param options [Hash] validation options
+      # @param max [Integer] Maximum allowed length
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_max_validation_error!(10, {})
-      #   # raises ValidationError: "length must be at most 10"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_max_validation_error!(max, options)
         message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.max",
-          max:,
-          default: "length must be at most #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.max", max:)
       end
 
-      # Raises a validation error for exact length validation.
+      # Raises validation error for exact length validation.
       #
-      # @param is [Integer] the exact required length
-      # @param options [Hash] validation options
+      # @param is [Integer] Required exact length
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_is_validation_error!(5, {})
-      #   # raises ValidationError: "length must be 5"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_is_validation_error!(is, options)
         message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.is",
-          is:,
-          default: "length must be #{is}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.is", is:)
       end
 
-      # Raises a validation error for exact length exclusion validation.
+      # Raises validation error for is_not length validation.
       #
-      # @param is_not [Integer] the exact forbidden length
-      # @param options [Hash] validation options
+      # @param is_not [Integer] Length that is not allowed
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_is_not_validation_error!(5, {})
-      #   # raises ValidationError: "length must not be 5"
+      # @raise [ValidationError] Always raised with appropriate message
       def raise_is_not_validation_error!(is_not, options)
         message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.length.is_not",
-          is_not:,
-          default: "length must not be #{is_not}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.length.is_not", is_not:)
       end
 
     end

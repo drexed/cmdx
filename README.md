@@ -1,16 +1,13 @@
 # CMDx
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-ruby.svg)](http://forthebadge.com)
-
 [![Gem Version](https://badge.fury.io/rb/cmdx.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/cmdx)
 [![CI](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=shields)](http://makeapullrequest.com)
 
-`CMDx` is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic parameter validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
+`CMDx` is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
 
 ## Installation
-
-**Prerequisites:** This gem requires Ruby `>= 3.1` to be installed.
 
 Add this line to your application's Gemfile:
 
@@ -30,19 +27,19 @@ Or install it yourself as:
 
 ```ruby
 # Setup task
-class SendWelcomeEmailTask < CMDx::Task
-  use :middleware, CMDx::Middlewares::Timeout, seconds: 5
+class SendWelcomeEmail < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate, id: -> { request.request_id }
 
   on_success :track_email_delivery!
 
   required :user_id, type: :integer, numeric: { min: 1 }
-  optional :template, type: :string, default: "welcome"
+  optional :template, default: "customer"
 
-  def call
+  def work
     if user.nil?
-      fail!(reason: "User not found", code: 404)
+      fail!("User not found", code: 404)
     elsif user.unconfirmed?
-      skip!(reason: "Email not verified")
+      skip!("Email not verified")
     else
       response = UserMailer.welcome(user, template).deliver_now
       context.message_id = response.message_id
@@ -56,55 +53,52 @@ class SendWelcomeEmailTask < CMDx::Task
   end
 
   def track_email_delivery!
-    user.touch(:welcomed_at)
+    user.touch(:welcome_email_sent_at)
   end
 end
 
 # Execute task
-result = SendWelcomeEmailTask.call(user_id: 123, template: "premium_welcome")
+result = SendWelcomeEmail.execute(user_id: 123, template: "admin")
 
 # Handle result
 if result.success?
   puts "Welcome email sent <message_id: #{result.context.message_id}>"
 elsif result.skipped?
-  puts "Skipped: #{result.metadata[:reason]}"
+  puts "Skipped: #{result.reason}"
 elsif result.failed?
-  puts "Failed: #{result.metadata[:reason]} with code: #{result.metadata[:code]}"
+  puts "Failed: #{result.reason} with code: #{result.metadata[:code]}"
 end
 ```
 
 ## Table of contents
 
 - [Getting Started](docs/getting_started.md)
-- [Configuration](docs/configuration.md)
 - Basics
   - [Setup](docs/basics/setup.md)
-  - [Call](docs/basics/call.md)
+  - [Execution](docs/basics/execution.md)
   - [Context](docs/basics/context.md)
   - [Chain](docs/basics/chain.md)
 - Interruptions
   - [Halt](docs/interruptions/halt.md)
   - [Faults](docs/interruptions/faults.md)
   - [Exceptions](docs/interruptions/exceptions.md)
-- Parameters
-  - [Definitions](docs/parameters/definitions.md)
-  - [Namespacing](docs/parameters/namespacing.md)
-  - [Coercions](docs/parameters/coercions.md)
-  - [Validations](docs/parameters/validations.md)
-  - [Defaults](docs/parameters/defaults.md)
 - Outcomes
-  - [Result](#results)
+  - [Result](docs/outcomes/result.md)
   - [States](docs/outcomes/states.md)
   - [Statuses](docs/outcomes/statuses.md)
+- Attributes
+  - [Definitions](docs/attributes/definitions.md)
+  - [Naming](docs/attributes/naming.md)
+  - [Coercions](docs/attributes/coercions.md)
+  - [Validations](docs/attributes/validations.md)
+  - [Defaults](docs/attributes/defaults.md)
 - [Callbacks](docs/callbacks.md)
 - [Middlewares](docs/middlewares.md)
-- [Workflows](docs/workflows.md)
 - [Logging](docs/logging.md)
 - [Internationalization (i18n)](docs/internationalization.md)
-- [Testing](docs/testing.md)
 - [Deprecation](docs/deprecation.md)
-- [AI Prompts](docs/ai_prompts.md)
-- [Tips & Tricks](docs/tips_and_tricks.md)
+- [Workflows](docs/workflows.md)
+- [Tips and Tricks](docs/tips_and_tricks.md)
 
 ## Development
 

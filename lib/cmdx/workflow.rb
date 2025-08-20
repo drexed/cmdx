@@ -1,117 +1,121 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Sequential task execution orchestration system for CMDx framework.
-  #
-  # Workflow provides declarative composition of multiple tasks into linear pipelines
-  # with conditional execution, context propagation, and configurable halt behavior.
-  # Workflows inherit from Task, gaining all task capabilities including callbacks,
-  # parameter validation, result tracking, and configuration while coordinating
-  # other tasks rather than implementing business logic directly.
-  class Workflow < Task
+  # Provides workflow execution capabilities by organizing tasks into execution groups.
+  # Workflows allow you to define sequences of tasks that can be executed conditionally
+  # with breakpoint handling and context management.
+  module Workflow
 
-    # Data structure containing a group of tasks and their execution options.
-    #
-    # @!attribute [r] tasks
-    #   @return [Array<Class>] array of Task or Workflow classes to execute
-    # @!attribute [r] options
-    #   @return [Hash] execution options including conditional and halt configuration
-    Group = Struct.new(:tasks, :options)
+    module ClassMethods
 
-    class << self
-
-      # Returns the array of workflow groups defined for this workflow class.
+      # Prevents redefinition of the work method to maintain workflow integrity.
       #
-      # Each group contains tasks and their execution options. Groups are processed
-      # sequentially during workflow execution, with each group's tasks executing
-      # in order unless halted by a result status.
+      # @param method_name [Symbol] The name of the method being added
       #
-      # @return [Array<Group>] array of workflow groups containing tasks and options
+      # @raise [RuntimeError] If attempting to redefine the work method
       #
-      # @example Access workflow groups
-      #   class MyWorkflow < CMDx::Workflow
-      #     process TaskA, TaskB
-      #     process TaskC, if: :condition_met?
+      # @example
+      #   class MyWorkflow
+      #     include CMDx::Workflow
+      #     # This would raise an error:
+      #     # def work; end
       #   end
-      #
-      #   MyWorkflow.workflow_groups.size #=> 2
-      #   MyWorkflow.workflow_groups.first.tasks #=> [TaskA, TaskB]
-      def workflow_groups
-        @workflow_groups ||= []
+      def method_added(method_name)
+        raise "cannot redefine #{name}##{method_name} method" if method_name == :work
+
+        super
       end
 
-      # Declares a group of tasks to execute sequentially with optional conditions.
+      # Returns the collection of execution groups for this workflow.
       #
-      # Tasks are executed in the order specified, with shared context propagated
-      # between executions. Groups support conditional execution and configurable
-      # halt behavior to control workflow flow based on task results.
+      # @return [Array<ExecutionGroup>] Array of execution groups
       #
-      # @param tasks [Array<Class>] Task or Workflow classes to execute in sequence
-      # @param options [Hash] execution configuration options
-      #
-      # @option options [Proc, Symbol, String] :if condition that must be truthy for group execution
-      # @option options [Proc, Symbol, String] :unless condition that must be falsy for group execution
-      # @option options [String, Array<String>] :workflow_halt result statuses that halt workflow execution
-      #
-      # @return [void]
-      #
-      # @raise [TypeError] when tasks contain objects that are not Task or Workflow classes
-      #
-      # @example Declare sequential tasks
-      #   class UserRegistrationWorkflow < CMDx::Workflow
-      #     process CreateUserTask, SendWelcomeEmailTask
+      # @example
+      #   class MyWorkflow
+      #     include CMDx::Workflow
+      #     task Task1
+      #     task Task2
+      #     puts execution_groups.size # => 2
       #   end
+      def execution_groups
+        @execution_groups ||= []
+      end
+
+      # Adds multiple tasks to the workflow with optional configuration.
       #
-      # @example Declare conditional task group
-      #   class OrderProcessingWorkflow < CMDx::Workflow
-      #     process ValidateOrderTask
-      #     process ChargePaymentTask, if: ->(workflow) { workflow.context.payment_required? }
-      #     process ShipOrderTask, unless: :digital_product?
-      #     process NotifyAdminTask, if: proc { context.admin.active? }
-      #   end
+      # @param tasks [Array<Class>] Array of task classes to add
+      # @param options [Hash] Configuration options for the task execution
+      # @option options [Hash] :breakpoints Breakpoints that trigger workflow interruption
+      # @option options [Hash] :conditions Conditional logic for task execution
       #
-      # @example Configure halt behavior per group
-      #   class DataProcessingWorkflow < CMDx::Workflow
-      #     process LoadDataTask, ValidateDataTask, workflow_halt: %w[failed skipped]
-      #     process OptionalCleanupTask, workflow_halt: []
+      # @raise [TypeError] If any task is not a CMDx::Task subclass
+      #
+      # @example
+      #   class MyWorkflow
+      #     include CMDx::Workflow
+      #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
       #   end
-      def process(*tasks, **options)
-        workflow_groups << Group.new(
-          tasks.flatten.map do |task|
+      def tasks(*tasks, **options)
+        execution_groups << ExecutionGroup.new(
+          tasks.map do |task|
             next task if task.is_a?(Class) && (task <= Task)
 
-            raise TypeError, "must be a Task or Workflow"
+            raise TypeError, "must be a CMDx::Task"
           end,
           options
         )
       end
+      alias task tasks
 
     end
 
-    # Each group is evaluated for conditional execution, and if the group should
-    # execute, all tasks in the group are called in sequence. If any task returns
-    # a status that matches the workflow halt criteria, execution is halted and
-    # the result is thrown.
+    # Represents a group of tasks with shared execution options.
+    # @attr tasks [Array<Class>] Array of task classes in this group
+    # @attr options [Hash] Configuration options for the group
+    ExecutionGroup = Struct.new(:tasks, :options)
+
+    # Extends the including class with workflow capabilities.
+    #
+    # @param base [Class] The class including this module
+    #
+    # @example
+    #   class MyWorkflow
+    #     include CMDx::Workflow
+    #     # Now has access to task, tasks, and work methods
+    #   end
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+
+    # Executes the workflow by processing each execution group sequentially.
+    # Tasks within each group are executed based on conditional logic and breakpoint handling.
     #
     # @return [void]
     #
-    # @raise [Fault] if a task fails and its status matches the workflow halt criteria
+    # @raise [CMDx::Fault] If a breakpoint is encountered during execution
     #
-    # @example Execute workflow
-    #   workflow = MyWorkflow.new(user_id: 123)
-    #   workflow.call
-    def call
-      self.class.workflow_groups.each do |group|
-        next unless cmdx_eval(group.options)
+    # @example
+    #   workflow = MyWorkflow.new
+    #   workflow.work # Executes all tasks in the workflow
+    # @example
+    #   class DataProcessingWorkflow
+    #     include CMDx::Workflow
+    #     task ValidateDataTask, breakpoints: [:failure]
+    #     task ProcessDataTask, breakpoints: [:halt]
+    #     task NotifyCompletionTask
+    #   end
+    #   workflow = DataProcessingWorkflow.new
+    #   workflow.work # Stops on first breakpoint encountered
+    def work
+      self.class.execution_groups.each do |group|
+        next unless Utils::Condition.evaluate(self, group.options, self)
 
-        workflow_halt = Array(
-          group.options[:workflow_halt] ||
-          cmd_setting(:workflow_halt)
-        ).map(&:to_s)
+        breakpoints = group.options[:breakpoints] || self.class.settings[:workflow_breakpoints]
+        breakpoints = Array(breakpoints).map(&:to_s).uniq
 
         group.tasks.each do |task|
-          task_result = task.call(context)
-          next unless workflow_halt.include?(task_result.status)
+          task_result = task.execute(context)
+          next unless breakpoints.include?(task_result.status)
 
           throw!(task_result)
         end

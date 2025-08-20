@@ -1,80 +1,55 @@
 # frozen_string_literal: true
 
 module Cmdx
-  # Rails generator for creating CMDx task files.
+  # Generates CMDx task files for Rails applications
   #
-  # This generator creates task files in the app/cmds directory with proper
-  # class naming conventions and inheritance. It ensures task names end with
-  # "Task" suffix and creates files in the correct location within the Rails
-  # application structure.
+  # This generator creates task classes that inherit from either ApplicationTask
+  # (if defined) or CMDx::Task. It generates the task file in the standard
+  # Rails tasks directory structure.
   class TaskGenerator < Rails::Generators::NamedBase
 
     source_root File.expand_path("templates", __dir__)
-    check_class_collision suffix: "Task"
 
     desc "Creates a task with the given NAME"
 
-    # Creates the task file from the template.
+    # Copies the task template to the Rails application
     #
-    # Generates a new task file in the app/cmds directory based on the provided
-    # name. The file name is normalized to ensure it ends with "_task.rb" and
-    # is placed in the appropriate subdirectory structure.
+    # Creates a new task file at `app/tasks/[class_path]/[file_name].rb` using
+    # the task template. The file is placed in the standard Rails tasks directory
+    # structure, maintaining proper namespacing if the task is nested.
     #
     # @return [void]
     #
-    # @example Generate a user task
-    #   rails generate cmdx:task user
-    #   #=> Creates app/cmds/user_task.rb
+    # @example Basic usage
+    #   rails generate cmdx:task UserRegistration
+    #   # => Creates app/tasks/user_registration.rb
     #
-    # @example Generate a nested task
-    #   rails generate cmdx:task admin/users
-    #   #=> Creates app/cmds/admin/users_task.rb
+    # @example Nested task
+    #   rails generate cmdx:task Admin::UserManagement
+    #   # => Creates app/tasks/admin/user_management.rb
     def copy_files
-      name = file_name.sub(/_?task$/i, "")
-      path = File.join("app/cmds", class_path, "#{name}_task.rb")
+      path = File.join("app/tasks", class_path, "#{file_name}.rb")
       template("task.rb.tt", path)
     end
 
     private
 
-    # Ensures the class name ends with "Task" suffix.
+    # Determines the appropriate parent class name for the generated task
     #
-    # Takes the provided class name and appends "Task" if it doesn't already
-    # end with that suffix, ensuring consistent naming conventions across
-    # all generated task classes.
+    # Attempts to use ApplicationTask if it exists in the application, otherwise
+    # falls back to CMDx::Task. This allows applications to define their own
+    # base task class while maintaining compatibility.
     #
-    # @return [String] the class name with "Task" suffix
+    # @return [Class] The parent class for the generated task
     #
-    # @example Class name without suffix
-    #   # Given name: "User"
-    #   class_name #=> "UserTask"
+    # @example
+    #   parent_class_name # => ApplicationTask
     #
-    # @example Class name with suffix
-    #   # Given name: "UserTask"
-    #   class_name #=> "UserTask"
-    def class_name
-      @class_name ||= super.end_with?("Task") ? super : "#{super}Task"
-    end
-
-    # Determines the parent class for the generated task.
-    #
-    # Attempts to use ApplicationTask as the parent class if it exists in the
-    # application, otherwise falls back to CMDx::Task as the base class.
-    # This allows applications to define their own base task class with
-    # common functionality.
-    #
-    # @return [Class] the parent class for the generated task
-    #
-    # @raise [StandardError] if neither ApplicationTask nor CMDx::Task are available
-    #
-    # @example With ApplicationTask defined
-    #   parent_class_name #=> ApplicationTask
-    #
-    # @example Without ApplicationTask
-    #   parent_class_name #=> CMDx::Task
+    # @example Fallback behavior
+    #   parent_class_name # => CMDx::Task
     def parent_class_name
       ApplicationTask
-    rescue StandardError
+    rescue NameError
       CMDx::Task
     end
 

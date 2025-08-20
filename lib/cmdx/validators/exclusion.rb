@@ -2,103 +2,74 @@
 
 module CMDx
   module Validators
-    # Validator class for excluding values from a specified set.
+    # Validates that a value is not included in a specified set or range
     #
-    # This validator ensures that a value is not included in a given array or range
-    # of forbidden values. It supports both discrete value exclusion and range-based
-    # exclusion validation.
-    class Exclusion < Validator
+    # This validator ensures that the given value is excluded from a collection
+    # of forbidden values or falls outside a specified range. It supports both
+    # discrete value lists and range-based exclusions.
+    module Exclusion
 
-      # Validates that the given value is not included in the exclusion set.
+      extend self
+
+      # Validates that a value is excluded from the specified options
       #
-      # @param value [Object] the value to validate
-      # @param options [Hash] validation options containing exclusion configuration
-      # @option options [Hash] :exclusion exclusion validation configuration
-      # @option options [Array, Range] :exclusion.in the values to exclude
-      # @option options [Array, Range] :exclusion.within alias for :in
-      # @option options [String] :exclusion.message custom error message
-      # @option options [String] :exclusion.of_message custom error message for array exclusion
-      # @option options [String] :exclusion.in_message custom error message for range exclusion
-      # @option options [String] :exclusion.within_message alias for :in_message
+      # @param value [Object] The value to validate for exclusion
+      # @param options [Hash] Validation configuration options
+      # @option options [Array, Range] :in The collection of forbidden values or range
+      # @option options [Array, Range] :within Alias for :in option
+      # @option options [String] :message Custom error message template
+      # @option options [String] :of_message Custom message for discrete value exclusions
+      # @option options [String] :in_message Custom message for range-based exclusions
+      # @option options [String] :within_message Custom message for range-based exclusions
       #
-      # @return [void]
+      # @raise [ValidationError] When the value is found in the forbidden collection
       #
-      # @raise [ValidationError] if the value is found in the exclusion set
-      #
-      # @example Excluding from an array
-      #   Validators::Exclusion.call("admin", exclusion: { in: ["admin", "root"] })
-      #   # raises ValidationError: "must not be one of: \"admin\", \"root\""
-      #
-      # @example Excluding from a range
-      #   Validators::Exclusion.call(5, exclusion: { in: 1..10 })
-      #   # raises ValidationError: "must not be within 1 and 10"
-      #
-      # @example Valid exclusion
-      #   Validators::Exclusion.call("user", exclusion: { in: ["admin", "root"] })
-      #   #=> nil (no error raised)
-      #
-      # @example Using a custom message
-      #   Validators::Exclusion.call("admin", exclusion: { in: ["admin", "root"], message: "Reserved username not allowed" })
-      #   # raises ValidationError: "Reserved username not allowed"
+      # @example Exclude specific values
+      #   Exclusion.call("admin", in: ["admin", "root", "superuser"])
+      #   # => raises ValidationError if value is "admin"
+      # @example Exclude values within a range
+      #   Exclusion.call(5, in: 1..10)
+      #   # => raises ValidationError if value is 5 (within 1..10)
+      # @example Exclude with custom message
+      #   Exclusion.call("test", in: ["test", "demo"], message: "value %{values} is forbidden")
       def call(value, options = {})
         values = options[:in] || options[:within]
 
         if values.is_a?(Range)
           raise_within_validation_error!(values.begin, values.end, options) if values.cover?(value)
-        elsif Array(values).any? { |v| v === value } # rubocop:disable Style/CaseEquality
+        elsif Array(values).any? { |v| v === value }
           raise_of_validation_error!(values, options)
         end
       end
 
       private
 
-      # Raises a validation error for array-based exclusion.
+      # Raises validation error for discrete value exclusions
       #
-      # @param values [Array] the excluded values
-      # @param options [Hash] validation options
+      # @param values [Array] The forbidden values that caused the error
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_of_validation_error!(["admin", "root"], {})
-      #   # raises ValidationError: "must not be one of: \"admin\", \"root\""
+      # @raise [ValidationError] With appropriate error message
       def raise_of_validation_error!(values, options)
-        values  = values.map(&:inspect).join(", ") unless values.nil?
+        values = values.map(&:inspect).join(", ") unless values.nil?
         message = options[:of_message] || options[:message]
         message %= { values: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.exclusion.of",
-          values:,
-          default: "must not be one of: #{values}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.exclusion.of", values:)
       end
 
-      # Raises a validation error for range-based exclusion.
+      # Raises validation error for range-based exclusions
       #
-      # @param min [Object] the minimum value of the range
-      # @param max [Object] the maximum value of the range
-      # @param options [Hash] validation options
+      # @param min [Object] The minimum value of the forbidden range
+      # @param max [Object] The maximum value of the forbidden range
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_within_validation_error!(1, 10, {})
-      #   # raises ValidationError: "must not be within 1 and 10"
+      # @raise [ValidationError] With appropriate error message
       def raise_within_validation_error!(min, max, options)
         message = options[:in_message] || options[:within_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.exclusion.within",
-          min:,
-          max:,
-          default: "must not be within #{min} and #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.exclusion.within", min:, max:)
       end
 
     end

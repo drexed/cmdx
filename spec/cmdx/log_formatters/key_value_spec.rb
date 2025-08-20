@@ -2,322 +2,384 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::LogFormatters::KeyValue do
+RSpec.describe CMDx::LogFormatters::KeyValue, type: :unit do
   subject(:formatter) { described_class.new }
 
+  let(:severity) { "INFO" }
+  let(:time) { Time.new(2023, 12, 15, 10, 30, 45.123454) }
+  let(:progname) { "TestApp" }
+  let(:message) { "Test message" }
+
   describe "#call" do
-    let(:severity) { "INFO" }
-    let(:time) { Time.parse("2024-01-01T12:00:00Z") }
-    let(:task) { double("task") }
-    let(:mock_logger_serializer) { { message: "test", index: 1, chain_id: "abc123", type: "Task", class: "TestTask", id: "def456", tags: [], origin: "CMDx" } }
+    context "with typical log parameters" do
+      it "returns properly formatted key-value string with newline" do
+        result = formatter.call(severity, time, progname, message)
 
-    before do
-      allow(CMDx::LoggerSerializer).to receive(:call).and_return(mock_logger_serializer)
-      allow(CMDx::Utils::LogTimestamp).to receive(:call).and_return("2024-01-01T12:00:00.000000")
-      allow(Process).to receive(:pid).and_return(12_345)
-    end
-
-    context "with string messages" do
-      it "formats simple strings as key=value pairs" do
-        result = formatter.call(severity, time, task, "Hello World")
-
-        expect(result).to include("severity=INFO")
-        expect(result).to include("pid=12345")
-        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
-        expect(result).to include("message=test")
-        expect(result).to include("origin=CMDx")
+        expect(result).to eq(
+          'severity="INFO" timestamp="2023-12-15T10:30:45.123454Z" progname="TestApp" ' \
+          "pid=#{Process.pid} message=\"Test message\"\n"
+        )
         expect(result).to end_with("\n")
       end
 
-      it "formats empty strings as key=value pairs" do
-        result = formatter.call(severity, time, task, "")
+      it "includes current process PID" do
+        result = formatter.call(severity, time, progname, message)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect(result).to include("pid=#{Process.pid}")
       end
 
-      it "formats strings with special characters as key=value pairs" do
-        result = formatter.call(severity, time, task, "Hello\nWorld\t!")
+      it "formats timestamp in UTC ISO8601 with microseconds" do
+        result = formatter.call(severity, time, progname, message)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-    end
-
-    context "with numeric messages" do
-      it "formats integers as key=value pairs" do
-        result = formatter.call(severity, time, task, 42)
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect(result).to include('timestamp="2023-12-15T10:30:45.123454Z"')
       end
 
-      it "formats floats as key=value pairs" do
-        result = formatter.call(severity, time, task, 3.14)
+      it "uses Utils::Format.to_log for message processing" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return("processed message")
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
+        result = formatter.call(severity, time, progname, message)
+
+        expect(result).to include('message="processed message"')
       end
 
-      it "formats zero as key=value pairs" do
-        result = formatter.call(severity, time, task, 0)
+      it "uses Utils::Format.to_str to format the hash" do
+        expected_hash = {
+          severity: severity,
+          timestamp: time.utc.iso8601(6),
+          progname: progname,
+          pid: Process.pid,
+          message: message
+        }
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
+        allow(CMDx::Utils::Format).to receive(:to_str).with(expected_hash).and_return(+"formatted output")
 
-      it "formats negative numbers as key=value pairs" do
-        result = formatter.call(severity, time, task, -123)
+        expect(CMDx::Utils::Format).to receive(:to_str).with(expected_hash)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, time, progname, message)
+
+        expect(result).to eq("formatted output\n")
       end
     end
 
-    context "with boolean messages" do
-      it "formats true as key=value pairs" do
-        result = formatter.call(severity, time, task, true)
+    context "with different severity levels" do
+      %w[DEBUG INFO WARN ERROR FATAL].each do |level|
+        it "handles #{level} severity" do
+          result = formatter.call(level, time, progname, message)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats false as key=value pairs" do
-        result = formatter.call(severity, time, task, false)
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+          expect(result).to include("severity=\"#{level}\"")
+        end
       end
     end
 
-    context "with nil messages" do
-      it "formats nil as key=value pairs" do
-        result = formatter.call(severity, time, task, nil)
+    context "with different time zones" do
+      it "converts time to UTC" do
+        local_time = Time.new(2023, 12, 15, 15, 30, 45.123454, "-05:00")
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, local_time, progname, message)
+
+        expect(result).to include('timestamp="2023-12-15T20:30:45.123454Z"')
+      end
+
+      it "handles UTC time correctly" do
+        utc_time = Time.new(2023, 12, 15, 10, 30, 45.123454, "+00:00")
+
+        result = formatter.call(severity, utc_time, progname, message)
+
+        expect(result).to include('timestamp="2023-12-15T10:30:45.123454Z"')
+      end
+    end
+
+    context "with nil values" do
+      it "handles nil severity" do
+        result = formatter.call(nil, time, progname, message)
+
+        expect(result).to include("severity=nil")
+      end
+
+      it "handles nil progname" do
+        result = formatter.call(severity, time, nil, message)
+
+        expect(result).to include("progname=nil")
+      end
+
+      it "handles nil message" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with(nil).and_return(nil)
+
+        result = formatter.call(severity, time, progname, nil)
+
+        expect(result).to include("message=nil")
+      end
+    end
+
+    context "with special characters in strings" do
+      it "properly escapes quotes in severity" do
+        severity_with_quotes = 'INFO "quoted"'
+
+        result = formatter.call(severity_with_quotes, time, progname, message)
+
+        expect(result).to include('severity="INFO \"quoted\""')
+      end
+
+      it "properly escapes newlines in progname" do
+        progname_with_newline = "TestApp\nSecondLine"
+
+        result = formatter.call(severity, time, progname_with_newline, message)
+
+        expect(result).to include("progname=\"TestApp\\nSecondLine\"")
+      end
+
+      it "handles unicode characters" do
+        unicode_message = "Test message with émojis 🚀"
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(unicode_message).and_return(unicode_message)
+
+        result = formatter.call(severity, time, progname, unicode_message)
+
+        expect(result).to include("message=\"Test message with émojis 🚀\"")
+      end
+
+      it "handles backslashes in strings" do
+        message_with_backslash = "C:\\Windows\\Path"
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message_with_backslash).and_return(message_with_backslash)
+
+        result = formatter.call(severity, time, progname, message_with_backslash)
+
+        expect(result).to include("message=\"C:\\\\Windows\\\\Path\"")
+      end
+    end
+
+    context "with CMDx objects as message" do
+      let(:cmdx_hash) { { "state" => "complete", "status" => "success" } }
+
+      it "processes CMDx objects through Utils::Format.to_log" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(cmdx_hash)
+
+        expect(CMDx::Utils::Format).to receive(:to_log).with(message)
+
+        result = formatter.call(severity, time, progname, message)
+
+        if RubyVersion.min?(3.4)
+          expect(result).to include('message={"state" => "complete", "status" => "success"}')
+        else
+          expect(result).to include('message={"state"=>"complete", "status"=>"success"}')
+        end
+      end
+
+      it "handles complex nested structures" do
+        complex_hash = {
+          "task" => "ProcessData",
+          "context" => { "user_id" => 123, "session" => "abc123" },
+          "metadata" => { "attempts" => 1, "duration" => 0.45 }
+        }
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(message).and_return(complex_hash)
+
+        result = formatter.call(severity, time, progname, message)
+
+        expect(result).to include("message=#{complex_hash.inspect}")
+      end
+    end
+
+    context "with numeric and boolean messages" do
+      it "handles integer messages" do
+        integer_message = 42
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(integer_message).and_return(integer_message)
+
+        result = formatter.call(severity, time, progname, integer_message)
+
+        expect(result).to include("message=42")
+      end
+
+      it "handles boolean messages" do
+        boolean_message = true
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(boolean_message).and_return(boolean_message)
+
+        result = formatter.call(severity, time, progname, boolean_message)
+
+        expect(result).to include("message=true")
+      end
+
+      it "handles float messages" do
+        float_message = 3.14159
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(float_message).and_return(float_message)
+
+        result = formatter.call(severity, time, progname, float_message)
+
+        expect(result).to include("message=3.14159")
+      end
+
+      it "handles false boolean message" do
+        false_message = false
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(false_message).and_return(false_message)
+
+        result = formatter.call(severity, time, progname, false_message)
+
+        expect(result).to include("message=false")
       end
     end
 
     context "with array messages" do
-      it "formats simple arrays as key=value pairs" do
-        result = formatter.call(severity, time, task, [1, 2, 3])
+      it "handles array messages" do
+        array_message = %w[item1 item2 item3]
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        allow(CMDx::Utils::Format).to receive(:to_log).with(array_message).and_return(array_message)
+
+        result = formatter.call(severity, time, progname, array_message)
+
+        expect(result).to include('message=["item1", "item2", "item3"]')
       end
 
-      it "formats empty arrays as key=value pairs" do
-        result = formatter.call(severity, time, task, [])
+      it "handles empty array messages" do
+        empty_array = []
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
+        allow(CMDx::Utils::Format).to receive(:to_log).with(empty_array).and_return(empty_array)
 
-      it "formats arrays with mixed types as key=value pairs" do
-        result = formatter.call(severity, time, task, [1, "string", true, nil])
+        result = formatter.call(severity, time, progname, empty_array)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats nested arrays as key=value pairs" do
-        result = formatter.call(severity, time, task, [[1, 2], [3, 4]])
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect(result).to include("message=[]")
       end
     end
 
-    context "with hash messages" do
-      it "formats simple hashes as key=value pairs" do
-        result = formatter.call(severity, time, task, { a: 1, b: 2 })
+    context "with extreme time values" do
+      it "handles very old timestamps" do
+        old_time = Time.new(1970, 1, 1, 0, 0, 0.0)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, old_time, progname, message)
+
+        expect(result).to include('timestamp="1970-01-01T00:00:00.000000Z"')
       end
 
-      it "formats empty hashes as key=value pairs" do
-        result = formatter.call(severity, time, task, {})
+      it "handles future timestamps" do
+        future_time = Time.new(2099, 12, 31, 23, 59, 59.999999)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        result = formatter.call(severity, future_time, progname, message)
+
+        expect(result).to include('timestamp="2099-12-31T23:59:59.999999Z"')
       end
 
-      it "formats hashes with string keys as key=value pairs" do
-        result = formatter.call(severity, time, task, { "name" => "test", "value" => 42 })
+      it "handles time with no microseconds" do
+        time_no_microseconds = Time.new(2023, 1, 1, 12, 0, 0)
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
+        result = formatter.call(severity, time_no_microseconds, progname, message)
 
-      it "formats nested hashes as key=value pairs" do
-        result = formatter.call(severity, time, task, { user: { name: "John", age: 30 } })
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect(result).to include('timestamp="2023-01-01T12:00:00.000000Z"')
       end
     end
 
-    context "with complex objects" do
-      it "formats custom objects as key=value pairs" do
-        object = Object.new
-        result = formatter.call(severity, time, task, object)
+    context "when Utils::Format.to_log raises an error" do
+      it "allows the error to propagate" do
+        allow(CMDx::Utils::Format).to receive(:to_log).and_raise(StandardError, "Format error")
 
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats structs as key=value pairs" do
-        person = Struct.new(:name, :age).new("John", 30)
-        result = formatter.call(severity, time, task, person)
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
-      end
-
-      it "formats symbols as key=value pairs" do
-        result = formatter.call(severity, time, task, :symbol)
-
-        expect(result).to include("severity=INFO")
-        expect(result).to end_with("\n")
+        expect do
+          formatter.call(severity, time, progname, message)
+        end.to raise_error(StandardError, "Format error")
       end
     end
 
-    context "with required key=value fields" do
-      it "always includes severity in output" do
-        result = formatter.call("ERROR", time, task, "test")
+    context "when Utils::Format.to_str raises an error" do
+      it "allows the error to propagate" do
+        allow(CMDx::Utils::Format).to receive(:to_str).and_raise(StandardError, "String format error")
 
-        expect(result).to include("severity=ERROR")
-      end
-
-      it "always includes pid in output" do
-        result = formatter.call(severity, time, task, "test")
-
-        expect(result).to include("pid=12345")
-      end
-
-      it "always includes timestamp in output" do
-        result = formatter.call(severity, time, task, "test")
-
-        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
-      end
-
-      it "calls Utils::LogTimestamp with UTC time" do
-        utc_time = time.utc
-        allow(time).to receive(:utc).and_return(utc_time)
-
-        formatter.call(severity, time, task, "test")
-
-        expect(CMDx::Utils::LogTimestamp).to have_received(:call).with(utc_time)
+        expect do
+          formatter.call(severity, time, progname, message)
+        end.to raise_error(StandardError, "String format error")
       end
     end
 
-    context "with parameter handling" do
-      it "passes all parameters to LoggerSerializer" do
-        formatter.call(severity, time, task, "message")
+    context "with very long strings" do
+      it "handles large messages without truncation" do
+        large_message = "x" * 10_000
 
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task, "message")
+        allow(CMDx::Utils::Format).to receive(:to_log).with(large_message).and_return(large_message)
+
+        result = formatter.call(severity, time, progname, large_message)
+
+        expect(result).to include("message=\"#{'x' * 10_000}\"")
+        expect(result.length).to be > 10_000
       end
 
-      it "handles different severity levels" do
-        %w[DEBUG INFO WARN ERROR FATAL].each do |level|
-          result = formatter.call(level, time, task, "message")
+      it "handles large progname" do
+        large_progname = "LongApplicationName" * 100
 
-          expect(result).to include("severity=#{level}")
+        result = formatter.call(severity, time, large_progname, message)
+
+        expect(result).to include("progname=\"#{large_progname}\"")
+      end
+    end
+
+    context "with symbol values" do
+      it "handles symbol severity" do
+        symbol_severity = :warning
+
+        result = formatter.call(symbol_severity, time, progname, message)
+
+        expect(result).to include("severity=:warning")
+      end
+
+      it "handles symbol message" do
+        symbol_message = :success
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(symbol_message).and_return(symbol_message)
+
+        result = formatter.call(severity, time, progname, symbol_message)
+
+        expect(result).to include("message=:success")
+      end
+    end
+
+    context "with hash message" do
+      it "handles hash messages" do
+        hash_message = { key: "value", count: 5 }
+
+        allow(CMDx::Utils::Format).to receive(:to_log).with(hash_message).and_return(hash_message)
+
+        result = formatter.call(severity, time, progname, hash_message)
+
+        if RubyVersion.min?(3.4)
+          expect(result).to include('message={key: "value", count: 5}')
+        else
+          expect(result).to include('message={:key=>"value", :count=>5}')
         end
       end
 
-      it "handles different time values" do
-        time1 = Time.parse("2024-01-01T12:00:00Z")
-        time2 = Time.parse("2024-12-31T23:59:59Z")
+      it "handles empty hash messages" do
+        empty_hash = {}
 
-        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time1.utc).and_return("2024-01-01T12:00:00.000000")
-        allow(CMDx::Utils::LogTimestamp).to receive(:call).with(time2.utc).and_return("2024-12-31T23:59:59.000000")
+        allow(CMDx::Utils::Format).to receive(:to_log).with(empty_hash).and_return(empty_hash)
 
-        result1 = formatter.call(severity, time1, task, "message")
-        result2 = formatter.call(severity, time2, task, "message")
+        result = formatter.call(severity, time, progname, empty_hash)
 
-        expect(result1).to include("timestamp=2024-01-01T12:00:00.000000")
-        expect(result2).to include("timestamp=2024-12-31T23:59:59.000000")
-      end
-
-      it "handles different task objects" do
-        task1 = double("task1")
-        task2 = double("task2")
-
-        formatter.call(severity, time, task1, "message")
-        formatter.call(severity, time, task2, "message")
-
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task1, "message")
-        expect(CMDx::LoggerSerializer).to have_received(:call).with(severity, time, task2, "message")
-      end
-
-      it "handles nil severity parameter gracefully" do
-        result = formatter.call(nil, time, task, "message")
-
-        expect(result).to include("severity=")
-        expect(result).to include("pid=12345")
-        expect(result).to include("timestamp=2024-01-01T12:00:00.000000")
+        expect(result).to include("message={}")
       end
     end
 
-    context "with output format" do
-      it "outputs single line with space-separated key=value pairs and newline" do
-        result = formatter.call(severity, time, task, "test")
+    context "with empty string values" do
+      it "handles empty string severity" do
+        result = formatter.call("", time, progname, message)
 
-        expect(result).to end_with("\n")
-        expect(result.count("\n")).to eq(1)
-        expect(result).to match(/\A[\w=\s\[\]:._-]+\n\z/)
+        expect(result).to include('severity=""')
       end
 
-      it "produces space-separated key=value pairs" do
-        result = formatter.call(severity, time, task, "test")
-        line = result.chomp
+      it "handles empty string progname" do
+        result = formatter.call(severity, time, "", message)
 
-        # Should contain key=value pairs separated by spaces
-        expect(line).to match(/\w+=\w+/)
-        expect(line.scan(/\w+=[\w\[\]]+/).size).to be >= 3 # At least severity, pid, timestamp
+        expect(result).to include('progname=""')
       end
 
-      it "handles hash serializer output correctly" do
-        result = formatter.call(severity, time, task, "test")
+      it "handles empty string message" do
+        allow(CMDx::Utils::Format).to receive(:to_log).with("").and_return("")
 
-        expect(result).to end_with("\n")
-        expect(result).to be_a(String)
+        result = formatter.call(severity, time, progname, "")
+
+        expect(result).to include('message=""')
       end
-    end
-  end
-
-  describe "integration with tasks" do
-    it "logs messages from task as key=value pairs" do
-      local_io = StringIO.new
-
-      custom_task = create_simple_task(name: "CustomKeyValueTask") do
-        cmd_settings!(
-          logger: Logger.new(local_io),
-          log_formatter: CMDx::LogFormatters::KeyValue.new # rubocop:disable RSpec/DescribedClass
-        )
-
-        def call
-          logger.info("String message")
-          logger.debug([])
-          logger.warn(nil)
-          logger.error({ error: "failed", "code" => 500 })
-        end
-      end
-
-      custom_task.call
-      logged_content = local_io.tap(&:rewind).read
-
-      # Check that key=value output is present
-      expect(logged_content).to include("severity=INFO")
-      expect(logged_content).to include("severity=DEBUG")
-      expect(logged_content).to include("severity=WARN")
-      expect(logged_content).to include("severity=ERROR")
-
-      # Task result is logged as key=value pairs
-      expect(logged_content).to include("class=CustomKeyValueTask")
     end
   end
 end

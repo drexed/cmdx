@@ -2,36 +2,39 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to floats.
+    # Converts various input types to Float format
     #
-    # This coercion handles conversion of various types to float values using
-    # Ruby's built-in Float() method.
-    class Float < Coercion
+    # Handles conversion from numeric strings, integers, and other numeric types
+    # that can be converted to floats using Ruby's Float() method.
+    module Float
 
-      # Converts the given value to a float.
+      extend self
+
+      # Converts a value to a Float
       #
-      # @param value [Object] the value to convert to a float
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to convert to a float
+      # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :unused Currently no options are used
       #
-      # @return [Float] the converted float value
+      # @return [Float] The converted float value
       #
-      # @raise [CoercionError] if the value cannot be converted to a float
+      # @raise [CoercionError] If the value cannot be converted to a float
       #
-      # @example Converting numeric strings
-      #   Coercions::Float.call("3.14") #=> 3.14
-      #   Coercions::Float.call("42") #=> 42.0
-      #
-      # @example Converting other numeric types
-      #   Coercions::Float.call(42) #=> 42.0
-      #   Coercions::Float.call(3.14) #=> 3.14
-      def call(value, _options = {})
+      # @example Convert numeric strings to float
+      #   Float.call("123")        # => 123.0
+      #   Float.call("123.456")    # => 123.456
+      #   Float.call("-42.5")      # => -42.5
+      #   Float.call("1.23e4")     # => 12300.0
+      # @example Convert numeric types to float
+      #   Float.call(42)           # => 42.0
+      #   Float.call(BigDecimal("123.456")) # => 123.456
+      #   Float.call(Rational(3, 4))       # => 0.75
+      #   Float.call(Complex(5.0, 0))      # => 5.0
+      def call(value, options = {})
         Float(value)
       rescue ArgumentError, RangeError, TypeError
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "float",
-          default: "could not coerce into a float"
-        )
+        type = Locale.t("cmdx.types.float")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

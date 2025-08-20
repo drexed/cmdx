@@ -2,36 +2,35 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to complex numbers.
+    # Converts various input types to Complex number format
     #
-    # This coercion handles conversion of various types to complex numbers,
-    # including strings, integers, floats, and other numeric types.
-    class Complex < Coercion
+    # Handles conversion from numeric strings, integers, floats, and other
+    # values that can be converted to Complex using Ruby's Complex() method.
+    module Complex
 
-      # Converts the given value to a complex number.
+      extend self
+
+      # Converts a value to a Complex number
       #
-      # @param value [Object] the value to convert to a complex number
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to convert to Complex
+      # @param options [Hash] Optional configuration parameters (currently unused)
       #
-      # @return [Complex] the converted complex number value
+      # @return [Complex] The converted Complex number value
       #
-      # @raise [CoercionError] if the value cannot be converted to a complex number
+      # @raise [CoercionError] If the value cannot be converted to Complex
       #
-      # @example Converting numeric values
-      #   Coercions::Complex.call(5) #=> (5+0i)
-      #   Coercions::Complex.call(3.14) #=> (3.14+0i)
-      #
-      # @example Converting string representations
-      #   Coercions::Complex.call("2+3i") #=> (2+3i)
-      #   Coercions::Complex.call("1-2i") #=> (1-2i)
-      def call(value, _options = {})
+      # @example Convert numeric strings to Complex
+      #   Complex.call("3+4i")                     # => (3+4i)
+      #   Complex.call("2.5")                      # => (2.5+0i)
+      # @example Convert other numeric types
+      #   Complex.call(5)                          # => (5+0i)
+      #   Complex.call(3.14)                       # => (3.14+0i)
+      #   Complex.call(Complex(1, 2))              # => (1+2i)
+      def call(value, options = {})
         Complex(value)
       rescue ArgumentError, TypeError
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "complex",
-          default: "could not coerce into a complex"
-        )
+        type = Locale.t("cmdx.types.complex")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

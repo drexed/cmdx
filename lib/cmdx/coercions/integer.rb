@@ -2,37 +2,43 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to integers.
+    # Converts various input types to Integer format
     #
-    # This coercion handles conversion of various types to integers using Ruby's
-    # built-in Integer() method, which provides strict type conversion.
-    class Integer < Coercion
+    # Handles conversion from strings, numbers, and other values to integers
+    # using Ruby's Integer() method. Raises CoercionError for values that
+    # cannot be converted to integers.
+    module Integer
 
-      # Converts the given value to an integer.
+      extend self
+
+      # Converts a value to an Integer
       #
-      # @param value [Object] the value to convert to an integer
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to convert to an integer
+      # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :unused Currently no options are used
       #
-      # @return [Integer] the converted integer value
+      # @return [Integer] The converted integer value
       #
-      # @raise [CoercionError] if the value cannot be converted to an integer
+      # @raise [CoercionError] If the value cannot be converted to an integer
       #
-      # @example Converting numeric strings
-      #   Coercions::Integer.call("123") #=> 123
-      #   Coercions::Integer.call("-456") #=> -456
-      #
-      # @example Converting other numeric types
-      #   Coercions::Integer.call(123.45) #=> 123
-      #   Coercions::Integer.call(Time.now) #=> 1672574400 (timestamp)
-      #   Coercions::Integer.call(Complex(42, 0)) #=> 42
-      def call(value, _options = {})
+      # @example Convert numeric strings to integers
+      #   Integer.call("42")      # => 42
+      #   Integer.call("-123")    # => -123
+      #   Integer.call("0")       # => 0
+      # @example Convert numeric types to integers
+      #   Integer.call(42.0)      # => 42
+      #   Integer.call(3.14)      # => 3
+      #   Integer.call(0.0)       # => 0
+      # @example Handle edge cases
+      #   Integer.call("")        # => 0
+      #   Integer.call(nil)       # => 0
+      #   Integer.call(false)     # => 0
+      #   Integer.call(true)      # => 1
+      def call(value, options = {})
         Integer(value)
-      rescue ArgumentError, FloatDomainError, RangeError, TypeError # rubocop:disable Lint/ShadowedException
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_an",
-          type: "integer",
-          default: "could not coerce into an integer"
-        )
+      rescue ArgumentError, FloatDomainError, RangeError, TypeError
+        type = Locale.t("cmdx.types.integer")
+        raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
       end
 
     end

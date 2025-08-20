@@ -2,41 +2,37 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to BigDecimal.
+    # Converts various input types to BigDecimal format
     #
-    # This coercion handles conversion of various types to BigDecimal with
-    # configurable precision. It provides precise decimal arithmetic capabilities
-    # for financial calculations and other use cases requiring exact decimal representation.
-    class BigDecimal < Coercion
+    # Handles conversion from numeric strings, integers, floats, and other
+    # values that can be converted to BigDecimal using Ruby's BigDecimal() method.
+    module BigDecimal
+
+      extend self
 
       DEFAULT_PRECISION = 14
 
-      # Converts the given value to a BigDecimal.
+      # Converts a value to a BigDecimal
       #
-      # @param value [Object] the value to convert to a BigDecimal
-      # @param options [Hash] optional configuration
-      # @option options [Integer] :precision the precision for the BigDecimal (defaults to 14)
+      # @param value [Object] The value to convert to BigDecimal
+      # @param options [Hash] Optional configuration parameters
+      # @option options [Integer] :precision The precision to use (defaults to DEFAULT_PRECISION)
       #
-      # @return [BigDecimal] the converted BigDecimal value
+      # @return [BigDecimal] The converted BigDecimal value
       #
-      # @raise [CoercionError] if the value cannot be converted to a BigDecimal
+      # @raise [CoercionError] If the value cannot be converted to BigDecimal
       #
-      # @example Converting a string
-      #   Coercions::BigDecimal.call('123.45') #=> #<BigDecimal:...,'0.12345E3',18(27)>
-      #
-      # @example Converting with custom precision
-      #   Coercions::BigDecimal.call('123.456789', precision: 10) #=> #<BigDecimal:...,'0.123456789E3',18(27)>
-      #
-      # @example Converting an integer
-      #   Coercions::BigDecimal.call(100) #=> #<BigDecimal:...,'0.1E3',9(18)>
+      # @example Convert numeric strings to BigDecimal
+      #   BigDecimal.call("123.45")                   # => #<BigDecimal:7f8b8c0d8e0f '0.12345E3',9(18)>
+      #   BigDecimal.call("0.001", precision: 6)      # => #<BigDecimal:7f8b8c0d8e0f '0.1E-2',9(18)>
+      # @example Convert other numeric types
+      #   BigDecimal.call(42)                         # => #<BigDecimal:7f8b8c0d8e0f '0.42E2',9(18)>
+      #   BigDecimal.call(3.14159)                    # => #<BigDecimal:7f8b8c0d8e0f '0.314159E1',9(18)>
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError
-        raise CoercionError, I18n.t(
-          "cmdx.coercions.into_a",
-          type: "big decimal",
-          default: "could not coerce into a big decimal"
-        )
+        type = Locale.t("cmdx.types.big_decimal")
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
       end
 
     end

@@ -2,232 +2,157 @@
 
 module CMDx
   module Validators
-    # Validator class for validating numeric values with various constraints.
+    # Validates numeric values against various constraints and ranges
     #
     # This validator ensures that numeric values meet specified criteria such as
-    # being within a range, having minimum/maximum values, or matching exact values.
-    # It supports both inclusive and exclusive range validation, as well as discrete
-    # value matching and rejection.
-    class Numeric < Validator
+    # minimum/maximum bounds, exact matches, or range inclusions. It supports
+    # both inclusive and exclusive range validations with customizable error messages.
+    module Numeric
 
-      # Validates that the given numeric value meets the specified constraints.
+      extend self
+
+      # Validates a numeric value against the specified options
       #
-      # @param value [Numeric] the numeric value to validate
-      # @param options [Hash] validation options containing numeric configuration
-      # @option options [Hash] :numeric numeric validation configuration
-      # @option options [Range] :numeric.within the range the value must be within
-      # @option options [Range] :numeric.not_within the range the value must not be within
-      # @option options [Range] :numeric.in alias for :within
-      # @option options [Range] :numeric.not_in alias for :not_within
-      # @option options [Numeric] :numeric.min the minimum allowed value (can be combined with :max)
-      # @option options [Numeric] :numeric.max the maximum allowed value (can be combined with :min)
-      # @option options [Numeric] :numeric.is the exact value required
-      # @option options [Numeric] :numeric.is_not the exact value that is not allowed
-      # @option options [String] :numeric.message custom error message for any validation
-      # @option options [String] :numeric.within_message custom error message for within validation
-      # @option options [String] :numeric.in_message alias for :within_message
-      # @option options [String] :numeric.not_within_message custom error message for not_within validation
-      # @option options [String] :numeric.not_in_message alias for :not_within_message
-      # @option options [String] :numeric.min_message custom error message for min validation
-      # @option options [String] :numeric.max_message custom error message for max validation
-      # @option options [String] :numeric.is_message custom error message for is validation
-      # @option options [String] :numeric.is_not_message custom error message for is_not validation
+      # @param value [Numeric] The numeric value to validate
+      # @param options [Hash] Validation configuration options
+      # @option options [Range] :within Range that the value must fall within (inclusive)
+      # @option options [Range] :not_within Range that the value must not fall within
+      # @option options [Range] :in Alias for :within option
+      # @option options [Range] :not_in Alias for :not_within option
+      # @option options [Numeric] :min Minimum allowed value (inclusive)
+      # @option options [Numeric] :max Maximum allowed value (inclusive)
+      # @option options [Numeric] :is Exact value that must match
+      # @option options [Numeric] :is_not Value that must not match
+      # @option options [String] :message Custom error message template
+      # @option options [String] :within_message Custom message for range validations
+      # @option options [String] :not_within_message Custom message for exclusion validations
+      # @option options [String] :min_message Custom message for minimum validation
+      # @option options [String] :max_message Custom message for maximum validation
+      # @option options [String] :is_message Custom message for exact match validation
+      # @option options [String] :is_not_message Custom message for exclusion validation
       #
-      # @return [void]
+      # @return [nil] Returns nil if validation passes
       #
-      # @raise [ValidationError] if the value doesn't meet the specified constraints
-      # @raise [ArgumentError] if no known numeric validator options are provided
+      # @raise [ValidationError] When the value fails validation
+      # @raise [ArgumentError] When unknown validator options are provided
       #
-      # @example Range validation
-      #   Validators::Numeric.call(5, numeric: { within: 1..10 })
-      #   #=> nil (no error raised)
-      #
-      # @example Range exclusion
-      #   Validators::Numeric.call(5, numeric: { not_within: 1..10 })
-      #   # raises ValidationError: "must not be within 1 and 10"
-      #
-      # @example Min/max validation
-      #   Validators::Numeric.call(15, numeric: { min: 10, max: 20 })
-      #   #=> nil (no error raised)
-      #
-      # @example Minimum value validation
-      #   Validators::Numeric.call(5, numeric: { min: 10 })
-      #   # raises ValidationError: "must be at least 10"
-      #
-      # @example Exact value validation
-      #   Validators::Numeric.call(42, numeric: { is: 42 })
-      #   #=> nil (no error raised)
-      #
-      # @example Custom error message
-      #   Validators::Numeric.call(5, numeric: { min: 10, message: "Age must be at least %{min}" })
-      #   # raises ValidationError: "Age must be at least 10"
+      # @example Validate value within a range
+      #   Numeric.call(5, within: 1..10)
+      #   # => nil (validation passes)
+      # @example Validate minimum and maximum bounds
+      #   Numeric.call(15, min: 10, max: 20)
+      #   # => nil (validation passes)
+      # @example Validate exact value match
+      #   Numeric.call(42, is: 42)
+      #   # => nil (validation passes)
+      # @example Validate value exclusion
+      #   Numeric.call(5, not_in: 1..10)
+      #   # => nil (validation passes - 5 is not in 1..10)
       def call(value, options = {})
         case options
-        in { within: within }
+        in within:
           raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value)
-        in { not_within: not_within }
+        in not_within:
           raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within.cover?(value)
-        in { in: yn }
-          raise_within_validation_error!(yn.begin, yn.end, options) unless yn.cover?(value)
-        in { not_in: not_in }
+        in in: xin
+          raise_within_validation_error!(xin.begin, xin.end, options) unless xin.cover?(value)
+        in not_in:
           raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in.cover?(value)
-        in { min: min, max: max }
+        in min:, max:
           raise_within_validation_error!(min, max, options) unless value.between?(min, max)
-        in { min: min }
+        in min:
           raise_min_validation_error!(min, options) unless min <= value
-        in { max: max }
+        in max:
           raise_max_validation_error!(max, options) unless value <= max
-        in { is: is }
+        in is:
           raise_is_validation_error!(is, options) unless value == is
-        in { is_not: is_not }
+        in is_not:
           raise_is_not_validation_error!(is_not, options) if value == is_not
         else
-          raise ArgumentError, "no known numeric validator options given"
+          raise ArgumentError, "unknown numeric validator options given"
         end
       end
 
       private
 
-      # Raises a validation error for within/range validation.
+      # Raises validation error for range inclusion validation
       #
-      # @param min [Numeric] the minimum value of the range
-      # @param max [Numeric] the maximum value of the range
-      # @param options [Hash] validation options
+      # @param min [Numeric] The minimum value of the allowed range
+      # @param max [Numeric] The maximum value of the allowed range
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_within_validation_error!(1, 10, {})
-      #   # raises ValidationError: "must be within 1 and 10"
+      # @raise [ValidationError] With appropriate error message
       def raise_within_validation_error!(min, max, options)
         message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.within",
-          min:,
-          max:,
-          default: "must be within #{min} and #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.within", min:, max:)
       end
 
-      # Raises a validation error for not_within/range exclusion validation.
+      # Raises validation error for range exclusion validation
       #
-      # @param min [Numeric] the minimum value of the excluded range
-      # @param max [Numeric] the maximum value of the excluded range
-      # @param options [Hash] validation options
+      # @param min [Numeric] The minimum value of the excluded range
+      # @param max [Numeric] The maximum value of the excluded range
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_not_within_validation_error!(1, 10, {})
-      #   # raises ValidationError: "must not be within 1 and 10"
+      # @raise [ValidationError] With appropriate error message
       def raise_not_within_validation_error!(min, max, options)
         message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.not_within",
-          min:,
-          max:,
-          default: "must not be within #{min} and #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.not_within", min:, max:)
       end
 
-      # Raises a validation error for minimum value validation.
+      # Raises validation error for minimum value validation
       #
-      # @param min [Numeric] the minimum allowed value
-      # @param options [Hash] validation options
+      # @param min [Numeric] The minimum allowed value
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_min_validation_error!(10, {})
-      #   # raises ValidationError: "must be at least 10"
+      # @raise [ValidationError] With appropriate error message
       def raise_min_validation_error!(min, options)
         message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.min",
-          min:,
-          default: "must be at least #{min}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.min", min:)
       end
 
-      # Raises a validation error for maximum value validation.
+      # Raises validation error for maximum value validation
       #
-      # @param max [Numeric] the maximum allowed value
-      # @param options [Hash] validation options
+      # @param max [Numeric] The maximum allowed value
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_max_validation_error!(100, {})
-      #   # raises ValidationError: "must be at most 100"
+      # @raise [ValidationError] With appropriate error message
       def raise_max_validation_error!(max, options)
         message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.max",
-          max:,
-          default: "must be at most #{max}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.max", max:)
       end
 
-      # Raises a validation error for exact value validation.
+      # Raises validation error for exact value match validation
       #
-      # @param is [Numeric] the exact value required
-      # @param options [Hash] validation options
+      # @param is [Numeric] The exact value that was expected
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_is_validation_error!(42, {})
-      #   # raises ValidationError: "must be 42"
+      # @raise [ValidationError] With appropriate error message
       def raise_is_validation_error!(is, options)
         message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.is",
-          is:,
-          default: "must be #{is}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.is", is:)
       end
 
-      # Raises a validation error for exact value exclusion validation.
+      # Raises validation error for value exclusion validation
       #
-      # @param is_not [Numeric] the exact value that is not allowed
-      # @param options [Hash] validation options
+      # @param is_not [Numeric] The value that was not allowed
+      # @param options [Hash] Validation options containing custom messages
       #
-      # @return [void]
-      #
-      # @raise [ValidationError] always raised with appropriate message
-      #
-      # @example
-      #   raise_is_not_validation_error!(0, {})
-      #   # raises ValidationError: "must not be 0"
+      # @raise [ValidationError] With appropriate error message
       def raise_is_not_validation_error!(is_not, options)
         message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?
 
-        raise ValidationError, message || I18n.t(
-          "cmdx.validators.numeric.is_not",
-          is_not:,
-          default: "must not be #{is_not}"
-        )
+        raise ValidationError, message || Locale.t("cmdx.validators.numeric.is_not", is_not:)
       end
 
     end

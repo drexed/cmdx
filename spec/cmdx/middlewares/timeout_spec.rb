@@ -2,400 +2,259 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Middlewares::Timeout do
-  subject(:middleware) { described_class.new(options) }
+RSpec.describe CMDx::Middlewares::Timeout, type: :unit do
+  subject(:timeout_middleware) { described_class }
 
-  let(:options) { {} }
-  let(:task) { task_class.new }
-  let(:task_class) { create_simple_task }
-  let(:callable) do
-    lambda { |_task|
-      sleep(0.1)
-      "result"
-    }
+  let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles
+  let(:result) { instance_double(CMDx::Result) }
+  let(:block_result) { "block executed" }
+  let(:test_block) { proc { block_result } }
+
+  before do
+    allow(result).to receive(:fail!)
+    allow(result).to receive(:tap).and_return(result)
   end
 
-  describe "#initialize" do
-    context "with default options" do
-      it "sets default timeout to 3 seconds" do
-        expect(middleware.seconds).to eq(3)
+  describe ".call" do
+    context "when seconds option is a Numeric" do
+      it "uses the numeric value as timeout limit" do
+        expect(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, &test_block)
+
+        expect(result).to eq(block_result)
       end
 
-      it "sets empty conditional options" do
-        expect(middleware.conditional).to eq({})
+      it "handles float values" do
+        expect(Timeout).to receive(:timeout).with(2.5, CMDx::TimeoutError, "execution exceeded 2.5 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: 2.5, &test_block)
       end
-    end
 
-    context "with custom seconds" do
-      let(:options) { { seconds: 10 } }
+      it "handles zero timeout" do
+        expect(Timeout).to receive(:timeout).with(0, CMDx::TimeoutError, "execution exceeded 0 seconds").and_yield.and_return(block_result)
 
-      it "sets custom timeout value" do
-        expect(middleware.seconds).to eq(10)
-      end
-    end
-
-    context "with conditional options" do
-      let(:options) { { seconds: 5, if: :should_timeout?, unless: :skip_timeout? } }
-
-      it "extracts conditional options" do
-        expect(middleware.conditional).to eq(if: :should_timeout?, unless: :skip_timeout?)
+        timeout_middleware.call(task, seconds: 0, &test_block)
       end
     end
 
-    context "with proc timeout" do
-      let(:timeout_proc) { -> { 15 } }
-      let(:options) { { seconds: timeout_proc } }
+    context "when seconds option is a Symbol" do
+      let(:method_name) { :timeout_value }
 
-      it "stores proc as timeout value" do
-        expect(middleware.seconds).to eq(timeout_proc)
-      end
-    end
-  end
-
-  describe "#call" do
-    context "when task execution completes within timeout" do
-      let(:options) { { seconds: 1 } }
-
-      it "returns the result of the callable" do
-        result = middleware.call(task, callable)
-        expect(result).to eq("result")
+      before do
+        allow(task).to receive(:send).with(method_name).and_return(10)
       end
 
-      it "does not modify the task" do
-        expect { middleware.call(task, callable) }.not_to change(task, :result)
-      end
-    end
+      it "calls the method on the task and uses the result" do
+        allow(task).to receive(:send).with(method_name).and_return(10)
 
-    context "when task execution exceeds timeout" do
-      let(:options) { { seconds: 0.05 } }
-      let(:slow_callable) do
-        lambda { |_task|
-          sleep(0.2)
-          "slow result"
-        }
+        expect(Timeout).to receive(:timeout).with(10, CMDx::TimeoutError, "execution exceeded 10 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: method_name, &test_block)
       end
 
-      it "raises TimeoutError and fails the task" do
-        middleware.call(task, slow_callable)
+      it "passes non-numeric method return values directly to timeout" do
+        allow(task).to receive(:send).with(method_name).and_return("invalid")
 
-        expect(task.result).to be_failed
-        expect(task.result.metadata[:reason]).to match(/TimeoutError.*execution exceeded 0.05 seconds/)
-        expect(task.result.metadata[:original_exception]).to be_a(CMDx::TimeoutError)
-        expect(task.result.metadata[:seconds]).to eq(0.05)
-      end
+        expect(Timeout).to receive(:timeout).with("invalid", CMDx::TimeoutError, "execution exceeded invalid seconds").and_yield.and_return(block_result)
 
-      it "returns the failed task result" do
-        result = middleware.call(task, slow_callable)
-        expect(result).to eq(task.result)
+        timeout_middleware.call(task, seconds: method_name, &test_block)
       end
     end
 
-    context "with conditional execution" do
-      let(:task_class) do
-        create_simple_task do
-          def should_timeout?
-            @should_timeout || false # rubocop:disable RSpec/InstanceVariable
-          end
+    context "when seconds option is a Proc" do
+      let(:timeout_proc) { proc { 15 } }
 
-          attr_writer :should_timeout
-
-          def skip_timeout?
-            @skip_timeout || false # rubocop:disable RSpec/InstanceVariable
-          end
-
-          attr_writer :skip_timeout
-        end
+      before do
+        allow(task).to receive(:instance_eval).and_yield.and_return(15)
       end
 
-      context "with :if condition" do
-        let(:options) { { seconds: 0.05, if: :should_timeout? } }
+      it "evaluates the proc in task context and uses the result" do
+        expect(task).to receive(:instance_eval).and_yield.and_return(15)
 
-        it "applies timeout when condition is truthy" do
-          task.should_timeout = true
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
+        expect(Timeout).to receive(:timeout).with(15, CMDx::TimeoutError, "execution exceeded 15 seconds").and_yield.and_return(block_result)
 
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-        end
-
-        it "skips timeout when condition is falsy" do
-          task.should_timeout = false
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
-
-          result = middleware.call(task, slow_callable)
-          expect(result).to eq("slow result")
-        end
+        timeout_middleware.call(task, seconds: timeout_proc, &test_block)
       end
 
-      context "with :unless condition" do
-        let(:options) { { seconds: 0.05, unless: :skip_timeout? } }
+      it "passes non-numeric proc return values directly to timeout" do
+        expect(task).to receive(:instance_eval).and_yield.and_return(nil)
 
-        it "applies timeout when condition is falsy" do
-          task.skip_timeout = false
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
+        expect(Timeout).to receive(:timeout).with(nil, CMDx::TimeoutError, "execution exceeded  seconds").and_yield.and_return(block_result)
 
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-        end
-
-        it "skips timeout when condition is truthy" do
-          task.skip_timeout = true
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
-
-          result = middleware.call(task, slow_callable)
-          expect(result).to eq("slow result")
-        end
-      end
-
-      context "with both :if and :unless conditions" do
-        let(:options) { { seconds: 0.05, if: :should_timeout?, unless: :skip_timeout? } }
-
-        it "applies timeout when :if is truthy and :unless is falsy" do
-          task.should_timeout = true
-          task.skip_timeout = false
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
-
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-        end
-
-        it "skips timeout when :unless is truthy regardless of :if" do
-          task.should_timeout = true
-          task.skip_timeout = true
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
-
-          result = middleware.call(task, slow_callable)
-          expect(result).to eq("slow result")
-        end
+        timeout_middleware.call(task, seconds: timeout_proc, &test_block)
       end
     end
 
-    context "with dynamic timeout values" do
-      let(:task_class) do
-        create_simple_task do
-          def timeout_value
-            @timeout_value || 1 # rubocop:disable RSpec/InstanceVariable
-          end
+    context "when seconds option responds to call" do
+      let(:callable) { instance_double("MockCallable", call: 20) }
 
-          attr_writer :timeout_value
-        end
+      it "calls the callable with the task and uses the result" do
+        allow(callable).to receive(:call).with(task).and_return(20)
+
+        expect(Timeout).to receive(:timeout).with(20, CMDx::TimeoutError, "execution exceeded 20 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: callable, &test_block)
       end
 
-      context "with proc timeout" do
-        let(:options) { { seconds: -> { 0.05 } } }
+      it "passes non-numeric callable return values directly to timeout" do
+        allow(callable).to receive(:call).with(task).and_return(false)
 
-        it "evaluates proc to get timeout value" do
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
+        expect(Timeout).to receive(:timeout).with(false, CMDx::TimeoutError, "execution exceeded false seconds").and_yield.and_return(block_result)
 
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-          expect(task.result.metadata[:seconds]).to eq(0.05)
-        end
-      end
-
-      context "with symbol timeout" do
-        let(:options) { { seconds: :timeout_value } }
-
-        it "calls method to get timeout value" do
-          task.timeout_value = 0.05
-          slow_callable = lambda { |_task|
-            sleep(0.2)
-            "slow result"
-          }
-
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-          expect(task.result.metadata[:seconds]).to eq(0.05)
-        end
-      end
-
-      context "with nil timeout from evaluation" do
-        let(:options) { { seconds: -> {} } }
-
-        it "falls back to default timeout of 3 seconds" do
-          slow_callable = lambda { |_task|
-            sleep(0.1)
-            "slow result"
-          }
-
-          # We need to temporarily override the default timeout to make the test run faster
-          # and actually trigger the timeout. We'll mock the timeout call to simulate
-          # what would happen with the default 3-second timeout.
-          allow(Timeout).to receive(:timeout).with(3, CMDx::TimeoutError, "execution exceeded 3 seconds") do |_limit, exception_class, message|
-            raise exception_class, message
-          end
-
-          middleware.call(task, slow_callable)
-          expect(task.result).to be_failed
-          expect(task.result.metadata[:seconds]).to eq(3)
-        end
+        timeout_middleware.call(task, seconds: callable, &test_block)
       end
     end
 
-    context "with callable that raises other exceptions" do
-      let(:options) { { seconds: 1 } }
-      let(:error_callable) { ->(_task) { raise StandardError, "Something went wrong" } }
+    context "when seconds option is nil" do
+      it "uses the default timeout limit" do
+        expect(Timeout).to receive(:timeout).with(described_class::DEFAULT_LIMIT, CMDx::TimeoutError, "execution exceeded 3 seconds").and_yield.and_return(block_result)
 
-      it "allows other exceptions to propagate" do
-        expect { middleware.call(task, error_callable) }.to raise_error(StandardError, "Something went wrong")
+        timeout_middleware.call(task, seconds: nil, &test_block)
+      end
+    end
+
+    context "when seconds option is false" do
+      it "uses the default timeout limit" do
+        expect(Timeout).to receive(:timeout).with(described_class::DEFAULT_LIMIT, CMDx::TimeoutError, "execution exceeded 3 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: false, &test_block)
+      end
+    end
+
+    context "when no seconds option is provided" do
+      it "uses the default timeout limit" do
+        expect(Timeout).to receive(:timeout).with(described_class::DEFAULT_LIMIT, CMDx::TimeoutError, "execution exceeded 3 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, &test_block)
+      end
+    end
+
+    context "when seconds option is an unsupported type" do
+      it "uses the default timeout limit for string values" do
+        expect(Timeout).to receive(:timeout).with(described_class::DEFAULT_LIMIT, CMDx::TimeoutError, "execution exceeded 3 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: "invalid", &test_block)
+      end
+
+      it "uses the default timeout limit for array values" do
+        expect(Timeout).to receive(:timeout).with(described_class::DEFAULT_LIMIT, CMDx::TimeoutError, "execution exceeded 3 seconds").and_yield.and_return(block_result)
+
+        timeout_middleware.call(task, seconds: [1, 2, 3], &test_block)
+      end
+    end
+
+    context "when block execution succeeds" do
+      it "returns the block result" do
+        allow(Timeout).to receive(:timeout).and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+
+      it "returns nil when block returns nil" do
+        nil_block = proc {}
+        allow(Timeout).to receive(:timeout).and_yield.and_return(nil)
+
+        result = timeout_middleware.call(task, seconds: 5, &nil_block)
+
+        expect(result).to be_nil
+      end
+
+      it "returns false when block returns false" do
+        false_block = proc { false }
+        allow(Timeout).to receive(:timeout).and_yield.and_return(false)
+
+        result = timeout_middleware.call(task, seconds: 5, &false_block)
+
+        expect(result).to be false
+      end
+    end
+
+    context "when block raises other errors" do
+      let(:standard_error) { StandardError.new("unexpected error") }
+      let(:error_block) { proc { raise standard_error } }
+
+      it "re-raises non-timeout errors without calling fail!" do
+        expect(Timeout).to receive(:timeout).and_yield.and_raise(standard_error)
+
+        expect(result).not_to receive(:fail!)
+
+        expect do
+          timeout_middleware.call(task, seconds: 5, &error_block)
+        end.to raise_error(StandardError, "unexpected error")
+      end
+    end
+
+    context "with conditional execution using 'if'" do
+      before do
+        allow(task).to receive(:should_timeout?).and_return(true)
+        allow(Timeout).to receive(:timeout)
+      end
+
+      it "executes timeout when 'if' condition is true" do
+        expect(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, if: :should_timeout?, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+
+      it "skips timeout when 'if' condition is false" do
+        allow(task).to receive(:should_timeout?).and_return(false)
+        expect(Timeout).not_to receive(:timeout)
+
+        result = timeout_middleware.call(task, seconds: 5, if: :should_timeout?, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "with conditional execution using 'unless'" do
+      before do
+        allow(task).to receive(:skip_timeout?).and_return(false)
+        allow(Timeout).to receive(:timeout)
+      end
+
+      it "executes timeout when 'unless' condition is false" do
+        expect(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        result = timeout_middleware.call(task, seconds: 5, unless: :skip_timeout?, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+
+      it "skips timeout when 'unless' condition is true" do
+        allow(task).to receive(:skip_timeout?).and_return(true)
+
+        expect(Timeout).not_to receive(:timeout)
+
+        result = timeout_middleware.call(task, seconds: 5, unless: :skip_timeout?, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "with additional options" do
+      it "ignores unknown options" do
+        expect(Timeout).to receive(:timeout).with(5, CMDx::TimeoutError, "execution exceeded 5 seconds").and_yield.and_return(block_result)
+
+        expect do
+          timeout_middleware.call(task, seconds: 5, unknown_option: "value", &test_block)
+        end.not_to raise_error
       end
     end
   end
 
-  describe "integration with tasks" do
-    let(:fast_task_class) do
-      create_simple_task(name: "FastProcessingTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 1 # rubocop:disable RSpec/DescribedClass
-
-        def call
-          sleep(0.1)
-          context.processed = true
-          context.result = "completed quickly"
-        end
-      end
+  describe "CMDx::TimeoutError" do
+    it "is a subclass of Interrupt" do
+      expect(CMDx::TimeoutError.superclass).to eq(Interrupt)
     end
 
-    let(:slow_task_class) do
-      create_simple_task(name: "SlowProcessingTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05 # rubocop:disable RSpec/DescribedClass
-
-        def call
-          sleep(0.2)
-          context.processed = true
-          context.result = "should not reach here"
-        end
-      end
-    end
-
-    let(:conditional_task_class) do
-      create_simple_task(name: "ConditionalTimeoutTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05, if: :should_apply_timeout? # rubocop:disable RSpec/DescribedClass
-
-        optional :apply_timeout, type: :boolean, default: false
-
-        def call
-          sleep(0.1)
-          context.processed = true
-          context.result = "completed"
-        end
-
-        private
-
-        def should_apply_timeout?
-          apply_timeout
-        end
-      end
-    end
-
-    let(:dynamic_timeout_task_class) do
-      create_simple_task(name: "DynamicTimeoutTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: :timeout_duration # rubocop:disable RSpec/DescribedClass
-
-        required :timeout_duration, type: :float
-        optional :work_time, type: :float, default: 0.1
-
-        def call
-          sleep(work_time)
-          context.processed = true
-          context.result = "work completed"
-        end
-      end
-    end
-
-    it "allows tasks to complete within timeout" do
-      result = fast_task_class.call
-
-      expect(result).to be_success
-      expect(result.context.processed).to be(true)
-      expect(result.context.result).to eq("completed quickly")
-    end
-
-    it "fails tasks that exceed timeout" do
-      result = slow_task_class.call
-
-      expect(result).to be_failed
-      expect(result.metadata[:reason]).to match(/TimeoutError.*execution exceeded 0.05 seconds/)
-      expect(result.metadata[:original_exception]).to be_a(CMDx::TimeoutError)
-      expect(result.metadata[:seconds]).to eq(0.05)
-      expect(result.context.processed).to be_nil
-    end
-
-    it "applies timeout conditionally based on task state" do
-      result_without_timeout = conditional_task_class.call(apply_timeout: false)
-      expect(result_without_timeout).to be_success
-      expect(result_without_timeout.context.result).to eq("completed")
-
-      result_with_timeout = conditional_task_class.call(apply_timeout: true)
-      expect(result_with_timeout).to be_failed
-      expect(result_with_timeout.metadata[:reason]).to match(/TimeoutError/)
-    end
-
-    it "uses dynamic timeout values from task parameters" do
-      result_with_long_timeout = dynamic_timeout_task_class.call(timeout_duration: 1.0, work_time: 0.1)
-      expect(result_with_long_timeout).to be_success
-      expect(result_with_long_timeout.context.result).to eq("work completed")
-
-      result_with_short_timeout = dynamic_timeout_task_class.call(timeout_duration: 0.05, work_time: 0.2)
-      expect(result_with_short_timeout).to be_failed
-      expect(result_with_short_timeout.metadata[:seconds]).to eq(0.05)
-    end
-
-    it "verifies middleware is properly registered on task class" do
-      expect(fast_task_class.cmd_middlewares.registry).to have_key(described_class)
-      expect(slow_task_class.cmd_middlewares.registry).to have_key(described_class)
-      expect(conditional_task_class.cmd_middlewares.registry).to have_key(described_class)
-      expect(dynamic_timeout_task_class.cmd_middlewares.registry).to have_key(described_class)
-    end
-
-    it "handles task exceptions that occur before timeout" do
-      error_task_class = create_simple_task(name: "ErrorTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 1 # rubocop:disable RSpec/DescribedClass
-
-        def call
-          raise StandardError, "Task error occurred"
-        end
-      end
-
-      expect { error_task_class.call! }.to raise_error(StandardError, "Task error occurred")
-    end
-
-    it "preserves task context when timeout occurs" do
-      partial_work_task_class = create_simple_task(name: "PartialWorkTask") do
-        use :middleware, CMDx::Middlewares::Timeout, seconds: 0.05 # rubocop:disable RSpec/DescribedClass
-
-        def call
-          context.step1_completed = true
-          sleep(0.1)
-          context.step2_completed = true
-        end
-      end
-
-      result = partial_work_task_class.call
-
-      expect(result).to be_failed
-      expect(result.context.step1_completed).to be(true)
-      expect(result.context.step2_completed).to be_nil
+    it "can be instantiated with a message" do
+      error = CMDx::TimeoutError.new("test timeout")
+      expect(error.message).to eq("test timeout")
     end
   end
 end

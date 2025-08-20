@@ -2,30 +2,31 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to arrays.
+    # Converts various input types to Array format
     #
-    # This coercion handles conversion of various types to arrays, with special
-    # handling for JSON-formatted strings that start with "[".
-    class Array < Coercion
+    # Handles conversion from strings that look like JSON arrays and other
+    # values that can be converted to arrays using Ruby's Array() method.
+    module Array
 
-      # Converts the given value to an array.
+      extend self
+
+      # Converts a value to an Array
       #
-      # @param value [Object] the value to convert to an array
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to convert to an array
+      # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :unused Currently no options are used
       #
-      # @return [Array] the converted array value
+      # @return [Array] The converted array value
       #
-      # @raise [JSON::ParserError] if value is a JSON string that cannot be parsed
-      # @raise [TypeError] if the value cannot be converted to an array
+      # @raise [JSON::ParserError] If the string value contains invalid JSON
       #
-      # @example Converting a JSON string
-      #   Coercions::Array.call('["a", "b", "c"]') #=> ["a", "b", "c"]
-      #
-      # @example Converting other values
-      #   Coercions::Array.call("hello") #=> ["hello"]
-      #   Coercions::Array.call(123) #=> [123]
-      #   Coercions::Array.call(nil) #=> []
-      def call(value, _options = {})
+      # @example Convert a JSON-like string to an array
+      #   Array.call("[1, 2, 3]") # => [1, 2, 3]
+      # @example Convert other values using Array()
+      #   Array.call("hello")     # => ["hello"]
+      #   Array.call(42)          # => [42]
+      #   Array.call(nil)         # => []
+      def call(value, options = {})
         if value.is_a?(::String) && value.start_with?("[")
           JSON.parse(value)
         else

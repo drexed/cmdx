@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-spec_path = Pathname.new(File.expand_path("../../../lib/locales", File.dirname(__FILE__)))
-I18n.load_path += Dir[spec_path.join("*.yml")]
+require "i18n"
 
+locales = Dir[CMDx.gem_path.join("lib/locales/*.yml")]
+
+I18n.load_path += locales
+I18n.available_locales = locales.map { |path| File.basename(path, ".yml").to_sym }
 I18n.enforce_available_locales = true
 I18n.reload!
 

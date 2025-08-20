@@ -6,6 +6,7 @@ AllCops:
   NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
+  TargetRubyVersion: 3.1
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
 Layout/EmptyLinesAroundAttributeAccessor:
@@ -14,22 +15,25 @@ Layout/EmptyLinesAroundClassBody:
   EnforcedStyle: empty_lines_except_namespace
 Layout/EmptyLinesAroundModuleBody:
   EnforcedStyle: empty_lines_except_namespace
-Layout/ExtraSpacing:
-  Exclude:
-    - 'lib/generators/cmdx/templates/install.rb'
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
 Layout/LineLength:
   Enabled: false
 Lint/MissingSuper:
   Exclude:
-    - 'lib/cmdx/middlewares/**/*'
     - 'spec/**/**/*'
+Lint/ShadowedException:
+  Enabled: false
+Lint/UnusedMethodArgument:
+  Exclude:
+    - 'lib/cmdx/coercions/**/*'
+    - 'lib/cmdx/log_formatters/**/*'
+    - 'lib/cmdx/middlewares/**/*'
+    - 'lib/cmdx/validators/**/*'
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
-  Exclude:
-    - 'lib/cmdx/rspec/**/*'
-    - 'spec/**/**/*'
-    - '*.gemspec'
+  Enabled: false
 Metrics/ClassLength:
   Enabled: false
 Metrics/CyclomaticComplexity:
@@ -42,43 +46,50 @@ Metrics/PerceivedComplexity:
   Enabled: false
 Naming/MethodParameterName:
   Enabled: false
-RSpec/AnyInstance:
-  Enabled: false
 RSpec/DescribeClass:
   Exclude:
     - 'spec/integrations/**/*'
 RSpec/ExampleLength:
   Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
 RSpec/MessageSpies:
+  EnforcedStyle: receive
+RSpec/MultipleExpectations:
   Enabled: false
 RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-RSpec/MultipleExpectations:
   Enabled: false
 RSpec/NestedGroups:
   Enabled: false
 RSpec/SpecFilePathFormat:
   CustomTransform:
     CMDx: cmdx
-RSpec/StubbedMock:
-  Enabled: false
 RSpec/SubjectStub:
   Enabled: false
-RSpec/VerifiedDoubles:
+RSpec/StubbedMock:
   Enabled: false
 RSpec/VerifiedDoubleReference:
   Enabled: false
+Style/ArgumentsForwarding:
+  Exclude:
+    - 'lib/cmdx/utils/call.rb'
+Style/CaseEquality:
+  Enabled: false
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
 Style/Documentation:
   Enabled: false
-Style/FormatStringToken:
+Style/DoubleNegation:
   Enabled: false
 Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always_true
   SafeAutoCorrect: true
-Style/OpenStructUse:
-  Enabled: false
+Style/ModuleFunction:
+  EnforcedStyle: extend_self
 Style/OptionalBooleanParameter:
+  Enabled: false
+Style/StringConcatenation:
   Enabled: false
 Style/StringLiterals:
   EnforcedStyle: double_quotes

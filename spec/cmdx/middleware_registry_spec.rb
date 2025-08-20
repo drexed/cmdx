@@ -2,290 +2,443 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::MiddlewareRegistry do
-  subject(:registry) { described_class.new }
+RSpec.describe CMDx::MiddlewareRegistry, type: :unit do
+  subject(:registry) { described_class.new(initial_registry) }
 
-  let(:task) { create_simple_task(name: "TestTask").new }
+  let(:initial_registry) { [] }
+  let(:mock_task) { instance_double(CMDx::Task) }
+  let(:mock_middleware1) { instance_double("MockMiddleware1", call: nil) }
+  let(:mock_middleware2) { instance_double("MockMiddleware2", call: nil) }
 
-  let(:simple_middleware) do
-    Class.new do
-      def initialize(*args, **kwargs, &block)
-        @args = args
-        @kwargs = kwargs
-        @block = block
-      end
+  describe "#initialize" do
+    context "when no registry is provided" do
+      subject(:registry) { described_class.new }
 
-      def call(task, next_callable)
-        task.context.middleware_calls ||= []
-        task.context.middleware_calls << :simple
-        next_callable.call(task)
+      it "initializes with an empty array" do
+        expect(registry.registry).to eq([])
       end
     end
-  end
 
-  let(:blocking_middleware) do
-    Class.new do
-      def call(task, _next_callable)
-        task.context.middleware_calls ||= []
-        task.context.middleware_calls << :blocking
-        "blocked"
+    context "when a registry is provided" do
+      let(:initial_registry) { [[mock_middleware1, {}]] }
+
+      it "initializes with the provided registry" do
+        expect(registry.registry).to eq([[mock_middleware1, {}]])
       end
     end
   end
 
-  let(:middleware_instance) do
-    double("MiddlewareInstance").tap do |instance|
-      allow(instance).to receive(:call) do |task, next_callable|
-        task.context.middleware_calls ||= []
-        task.context.middleware_calls << :instance
-        next_callable.call(task)
-      end
+  describe "#registry" do
+    let(:initial_registry) { [[mock_middleware1, {}]] }
+
+    it "returns the internal registry array" do
+      expect(registry.registry).to eq([[mock_middleware1, {}]])
     end
   end
 
-  describe ".new" do
-    it "initializes with empty registry by default" do
-      expect(registry.registry).to eq({})
+  describe "#to_a" do
+    let(:initial_registry) { [[mock_middleware1, {}]] }
+
+    it "returns the registry array" do
+      expect(registry.to_a).to eq([[mock_middleware1, {}]])
     end
 
-    it "initializes with provided registry hash" do
-      initial_registry = { simple_middleware => [[], {}, nil] }
-      registry = described_class.new(initial_registry)
+    it "is an alias for registry" do
+      expect(registry.method(:to_a)).to eq(registry.method(:registry))
+    end
+  end
 
-      expect(registry.registry).to eq(initial_registry)
+  describe "#dup" do
+    let(:initial_registry) { [[mock_middleware1, { option: "value" }]] }
+
+    it "returns a new MiddlewareRegistry instance" do
+      duplicated = registry.dup
+
+      expect(duplicated).to be_a(described_class)
+      expect(duplicated).not_to be(registry)
     end
 
-    it "converts non-hash input to hash" do
-      registry = described_class.new([])
+    it "duplicates the registry array and its elements" do
+      duplicated = registry.dup
 
-      expect(registry.registry).to eq({})
+      expect(duplicated.registry).to eq(registry.registry)
+      expect(duplicated.registry).not_to be(registry.registry)
+      expect(duplicated.registry.first).not_to be(registry.registry.first)
+    end
+
+    it "allows independent modification of the duplicated registry" do
+      duplicated = registry.dup
+
+      duplicated.register(mock_middleware2)
+
+      expect(duplicated.registry.size).to eq(2)
+      expect(registry.registry.size).to eq(1)
+    end
+
+    context "when registry is empty" do
+      let(:initial_registry) { [] }
+
+      it "returns a new empty MiddlewareRegistry" do
+        duplicated = registry.dup
+
+        expect(duplicated.registry).to eq([])
+        expect(duplicated).not_to be(registry)
+      end
     end
   end
 
   describe "#register" do
-    it "registers middleware class without arguments" do
-      registry.register(simple_middleware)
+    context "when registering middleware without options" do
+      it "adds the middleware to the end of the registry" do
+        registry.register(mock_middleware1)
 
-      expect(registry.registry[simple_middleware]).to eq([[], {}, nil])
+        expect(registry.registry).to eq([[mock_middleware1, {}]])
+      end
+
+      it "returns self for method chaining" do
+        result = registry.register(mock_middleware1)
+
+        expect(result).to be(registry)
+      end
     end
 
-    it "registers middleware with positional arguments" do
-      registry.register(simple_middleware, :arg1, :arg2)
+    context "when registering middleware with options" do
+      let(:options) { { timeout: 30, retry: true } }
 
-      expect(registry.registry[simple_middleware]).to eq([%i[arg1 arg2], {}, nil])
+      it "stores the middleware with its options" do
+        registry.register(mock_middleware1, **options)
+
+        expect(registry.registry).to eq([[mock_middleware1, options]])
+      end
     end
 
-    it "registers middleware with keyword arguments" do
-      registry.register(simple_middleware, timeout: 30, level: :debug)
+    context "when registering middleware at a specific position" do
+      let(:initial_registry) { [[mock_middleware1, {}]] }
 
-      expect(registry.registry[simple_middleware]).to eq([[], { timeout: 30, level: :debug }, nil])
-    end
+      it "inserts at the beginning when at: 0" do
+        registry.register(mock_middleware2, at: 0)
 
-    it "registers middleware with both positional and keyword arguments" do
-      registry.register(simple_middleware, :arg1, timeout: 30)
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware2, {}],
+            [mock_middleware1, {}]
+          ]
+        )
+      end
 
-      expect(registry.registry[simple_middleware]).to eq([[:arg1], { timeout: 30 }, nil])
-    end
+      it "inserts at a specific index" do
+        registry.register(mock_middleware2, at: 1)
 
-    it "registers middleware with block" do
-      block = proc(&:id)
-      registry.register(simple_middleware, &block)
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
+        )
+      end
 
-      expect(registry.registry[simple_middleware]).to eq([[], {}, block])
-    end
+      it "inserts at the end when at: -1 (default)" do
+        registry.register(mock_middleware2, at: -1)
 
-    it "registers middleware instance (non-class)" do
-      registry.register(middleware_instance)
-
-      expect(registry.registry[middleware_instance]).to eq([[], {}, nil])
-    end
-
-    it "returns self for method chaining" do
-      result = registry.register(simple_middleware)
-                       .register(blocking_middleware)
-
-      expect(result).to eq(registry)
-      expect(registry.registry).to include(simple_middleware, blocking_middleware)
-    end
-
-    it "overwrites existing middleware registration" do
-      registry.register(simple_middleware, :original)
-      registry.register(simple_middleware, :updated)
-
-      expect(registry.registry[simple_middleware]).to eq([[:updated], {}, nil])
-    end
-  end
-
-  describe "#call" do
-    context "when no block is provided" do
-      it "raises ArgumentError" do
-        expect { registry.call(task) }.to raise_error(
-          ArgumentError, "block required"
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
         )
       end
     end
 
-    context "with empty registry" do
-      it "executes block directly" do
-        result = registry.call(task) { |_t| "executed" }
+    context "when registering multiple middlewares" do
+      it "maintains insertion order" do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
 
-        expect(result).to eq("executed")
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware1, {}],
+            [mock_middleware2, {}]
+          ]
+        )
       end
     end
 
-    context "with single middleware" do
-      before { registry.register(simple_middleware) }
+    context "when registering middleware with position and options" do
+      let(:initial_registry) { [[mock_middleware1, {}]] }
+      let(:options) { { timeout: 30 } }
 
-      it "executes middleware around block" do
-        result = registry.call(task) do |t|
-          t.context.executed = true
-          "success"
-        end
+      it "inserts at specified position with options" do
+        registry.register(mock_middleware2, at: 0, **options)
 
-        expect(task.context.middleware_calls).to eq([:simple])
-        expect(task.context.executed).to be true
-        expect(result).to eq("success")
-      end
-    end
-
-    context "with multiple middleware" do
-      let(:first_middleware) do
-        Class.new do
-          def call(task, next_callable)
-            task.context.middleware_calls ||= []
-            task.context.middleware_calls << :first
-            next_callable.call(task)
-          end
-        end
-      end
-
-      let(:second_middleware) do
-        Class.new do
-          def call(task, next_callable)
-            task.context.middleware_calls ||= []
-            task.context.middleware_calls << :second
-            next_callable.call(task)
-          end
-        end
-      end
-
-      it "executes middleware in reverse registration order" do
-        registry.register(first_middleware)
-        registry.register(second_middleware)
-
-        registry.call(task) { |t| t.context.executed = true }
-
-        expect(task.context.middleware_calls).to eq(%i[first second])
-        expect(task.context.executed).to be true
-      end
-    end
-
-    context "with middleware that blocks execution" do
-      before { registry.register(blocking_middleware) }
-
-      it "prevents block execution when middleware doesn't call next" do
-        result = registry.call(task) { |t| t.context.executed = true }
-
-        expect(task.context.middleware_calls).to eq([:blocking])
-        expect(task.context.executed).to be_nil
-        expect(result).to eq("blocked")
-      end
-    end
-
-    context "with middleware instance (non-class)" do
-      before { registry.register(middleware_instance) }
-
-      it "calls middleware instance directly" do
-        result = registry.call(task) { |_t| "success" }
-
-        expect(middleware_instance).to have_received(:call).with(task, anything)
-        expect(task.context.middleware_calls).to eq([:instance])
-        expect(result).to eq("success")
-      end
-    end
-
-    context "with middleware requiring initialization arguments" do
-      let(:configurable_middleware) do
-        Class.new do
-          def initialize(prefix, suffix: "")
-            @prefix = prefix
-            @suffix = suffix
-          end
-
-          def call(task, next_callable)
-            task.context.middleware_calls ||= []
-            task.context.middleware_calls << "#{@prefix}_middleware#{@suffix}"
-            next_callable.call(task)
-          end
-        end
-      end
-
-      it "passes initialization arguments to middleware constructor" do
-        registry.register(configurable_middleware, "test", suffix: "_configured")
-
-        registry.call(task) { |t| t.context.executed = true }
-
-        expect(task.context.middleware_calls).to eq(["test_middleware_configured"])
-        expect(task.context.executed).to be true
-      end
-    end
-
-    context "with middleware that modifies result" do
-      let(:transform_middleware) do
-        Class.new do
-          def call(task, next_callable)
-            result = next_callable.call(task)
-            "transformed: #{result}"
-          end
-        end
-      end
-
-      it "allows middleware to transform the result" do
-        registry.register(transform_middleware)
-
-        result = registry.call(task) { |_t| "original" }
-
-        expect(result).to eq("transformed: original")
+        expect(registry.registry).to eq(
+          [
+            [mock_middleware2, options],
+            [mock_middleware1, {}]
+          ]
+        )
       end
     end
   end
 
-  describe "#to_h" do
-    it "returns empty hash for empty registry" do
-      expect(registry.to_h).to eq({})
+  describe "#deregister" do
+    context "when deregistering middleware without options" do
+      before do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
+      end
+
+      it "removes the middleware from the registry" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+      end
+
+      it "returns self for method chaining" do
+        result = registry.deregister(mock_middleware1)
+
+        expect(result).to be(registry)
+      end
     end
 
-    it "returns deep copy of registry configurations" do
-      args = %i[arg1 arg2]
-      kwargs = { timeout: 30 }
-      block = proc(&:id)
+    context "when deregistering middleware with options" do
+      let(:options) { { timeout: 30, retry: true } }
 
-      registry.register(simple_middleware, *args, **kwargs, &block)
-      result = registry.to_h
+      before do
+        registry.register(mock_middleware1, **options)
+        registry.register(mock_middleware2)
+      end
 
-      expect(result[simple_middleware]).to eq([args, kwargs, block])
-      expect(result[simple_middleware][0]).not_to be(args)
-      expect(result[simple_middleware][1]).not_to be(kwargs)
-      expect(result[simple_middleware][2]).to be(block)
+      it "removes all instances of the middleware regardless of options" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+      end
+
+      it "removes middleware with any options" do
+        registry.register(mock_middleware1, timeout: 60)
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to eq([[mock_middleware2, {}]])
+        expect(registry.registry).not_to include([mock_middleware1, { timeout: 60 }])
+        expect(registry.registry).not_to include([mock_middleware1, options])
+      end
     end
 
-    it "handles multiple middleware configurations" do
-      registry.register(simple_middleware, :arg1)
-      registry.register(blocking_middleware, timeout: 10)
+    context "when deregistering from empty registry" do
+      it "does not raise an error" do
+        expect { registry.deregister(mock_middleware1) }.not_to raise_error
+      end
 
-      result = registry.to_h
+      it "returns self" do
+        result = registry.deregister(mock_middleware1)
 
-      expect(result).to include(
-        simple_middleware => [[:arg1], {}, nil],
-        blocking_middleware => [[], { timeout: 10 }, nil]
-      )
+        expect(result).to be(registry)
+      end
     end
 
-    it "preserves nil values in configurations" do
-      registry.register(simple_middleware)
-      result = registry.to_h
+    context "when deregistering non-existent middleware" do
+      before do
+        registry.register(mock_middleware1)
+      end
 
-      expect(result[simple_middleware]).to eq([[], {}, nil])
+      it "does not affect existing middleware" do
+        registry.deregister(mock_middleware2)
+
+        expect(registry.registry).to include([mock_middleware1, {}])
+      end
+
+      it "returns self" do
+        result = registry.deregister(mock_middleware2)
+
+        expect(result).to be(registry)
+      end
+    end
+
+    context "when deregistering middleware registered multiple times" do
+      let(:options1) { { timeout: 30 } }
+      let(:options2) { { timeout: 60 } }
+
+      before do
+        registry.register(mock_middleware1, **options1)
+        registry.register(mock_middleware1, **options2)
+      end
+
+      it "removes all instances of the middleware" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).to be_empty
+      end
+    end
+
+    context "when deregistering one of multiple middleware" do
+      before do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
+      end
+
+      it "removes only the specified middleware" do
+        registry.deregister(mock_middleware1)
+
+        expect(registry.registry).not_to include([mock_middleware1, {}])
+        expect(registry.registry).to include([mock_middleware2, {}])
+      end
+
+      it "maintains order of remaining middleware" do
+        registry.register(mock_middleware1) # Now we have [mw1, mw2, mw1]
+        registry.deregister(mock_middleware2)
+
+        expect(registry.registry).to eq([
+                                          [mock_middleware1, {}],
+                                          [mock_middleware1, {}]
+                                        ])
+      end
+    end
+  end
+
+  describe "#call!" do
+    let(:block_result) { "block_executed" }
+    let(:test_block) { proc { |_task| block_result } }
+
+    context "when no block is given" do
+      it "raises ArgumentError" do
+        expect { registry.call!(mock_task) }.to raise_error(ArgumentError, "block required")
+      end
+    end
+
+    context "when registry is empty" do
+      it "yields to the block immediately" do
+        result = registry.call!(mock_task, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+
+      it "passes the task to the block" do
+        yielded_task = nil
+        registry.call!(mock_task) { |task| yielded_task = task }
+
+        expect(yielded_task).to be(mock_task)
+      end
+    end
+
+    context "when registry has one middleware" do
+      before do
+        registry.register(mock_middleware1)
+      end
+
+      it "calls the middleware with empty options by default" do
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
+
+        registry.call!(mock_task, &test_block)
+      end
+
+      it "yields the result when middleware calls the block" do
+        allow(mock_middleware1).to receive(:call).and_yield
+
+        result = registry.call!(mock_task, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "when middleware is registered with options" do
+      let(:options) { { timeout: 30, retry: true } }
+
+      before do
+        registry.register(mock_middleware1, **options)
+      end
+
+      it "passes options to the middleware" do
+        expect(mock_middleware1).to receive(:call).with(mock_task, **options).and_yield
+
+        registry.call!(mock_task, &test_block)
+      end
+    end
+
+    context "when registry has multiple middlewares" do
+      before do
+        registry.register(mock_middleware1)
+        registry.register(mock_middleware2)
+      end
+
+      it "calls middlewares in order" do
+        call_order = []
+
+        allow(mock_middleware1).to receive(:call) do |_task, &block|
+          call_order << :middleware1
+          block.call
+        end
+        allow(mock_middleware2).to receive(:call) do |_task, &block|
+          call_order << :middleware2
+          block.call
+        end
+
+        registry.call!(mock_task) { call_order << :block }
+
+        expect(call_order).to eq(%i[middleware1 middleware2 block])
+      end
+
+      it "passes the task through the middleware chain" do
+        expect(mock_middleware1).to receive(:call).with(mock_task).and_yield
+        expect(mock_middleware2).to receive(:call).with(mock_task).and_yield
+
+        registry.call!(mock_task, &test_block)
+      end
+
+      it "returns the final result from the block" do
+        allow(mock_middleware1).to receive(:call).and_yield
+        allow(mock_middleware2).to receive(:call).and_yield
+
+        result = registry.call!(mock_task, &test_block)
+
+        expect(result).to eq(block_result)
+      end
+    end
+
+    context "when middleware modifies the result" do
+      let(:middleware_result) { "modified_result" }
+
+      before do
+        registry.register(mock_middleware1)
+
+        allow(mock_middleware1).to receive(:call) do |_task, &block|
+          block.call
+          middleware_result
+        end
+      end
+
+      it "returns the middleware's result" do
+        result = registry.call!(mock_task, &test_block)
+
+        expect(result).to eq(middleware_result)
+      end
+    end
+
+    context "when middleware doesn't yield" do
+      before do
+        registry.register(mock_middleware1)
+
+        allow(mock_middleware1).to receive(:call).and_return("middleware_stopped")
+      end
+
+      it "stops execution and returns middleware result" do
+        block_called = false
+        result = registry.call!(mock_task) { block_called = true }
+
+        expect(block_called).to be(false)
+        expect(result).to eq("middleware_stopped")
+      end
+    end
+
+    context "when middleware raises an error" do
+      before do
+        registry.register(mock_middleware1)
+
+        allow(mock_middleware1).to receive(:call).and_raise(StandardError, "middleware error")
+      end
+
+      it "propagates the error" do
+        expect { registry.call!(mock_task, &test_block) }.to raise_error(StandardError, "middleware error")
+      end
     end
   end
 end

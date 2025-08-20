@@ -1,0 +1,568 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+RSpec.describe CMDx::Worker, type: :unit do
+  let(:task_class) { create_successful_task(name: "TestTask") }
+  let(:task) { task_class.new }
+  let(:worker) { described_class.new(task) }
+
+  describe "#initialize" do
+    it "assigns the task" do
+      expect(worker.task).to eq(task)
+    end
+
+    it "provides read access to task attribute" do
+      expect(described_class.instance_methods).to include(:task)
+      expect(described_class.private_instance_methods).not_to include(:task)
+    end
+  end
+
+  describe ".execute" do
+    context "with raise: false" do
+      it "creates worker instance and calls execute" do
+        expect(described_class).to receive(:new).with(task).and_return(worker)
+        expect(worker).to receive(:execute).and_return(:result)
+
+        result = described_class.execute(task, raise: false)
+
+        expect(result).to eq(:result)
+      end
+    end
+
+    context "with raise: true" do
+      it "creates worker instance and calls execute!" do
+        expect(described_class).to receive(:new).with(task).and_return(worker)
+        expect(worker).to receive(:execute!).and_return(:result)
+
+        result = described_class.execute(task, raise: true)
+
+        expect(result).to eq(:result)
+      end
+    end
+
+    context "without raise parameter" do
+      it "defaults to raise: false" do
+        expect(described_class).to receive(:new).with(task).and_return(worker)
+        expect(worker).to receive(:execute).and_return(:result)
+
+        described_class.execute(task)
+      end
+    end
+  end
+
+  describe "#execute" do
+    let(:middlewares) { instance_double(CMDx::MiddlewareRegistry) }
+    let(:logger) { instance_double(Logger) }
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+
+    before do
+      allow(callbacks).to receive(:invoke)
+      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
+      allow(task).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:tap).and_yield(logger)
+      allow(logger).to receive(:with_level).with(:info).and_yield
+      allow(logger).to receive(:info)
+      allow(CMDx::Freezer).to receive(:immute)
+
+      # Setup result state to support proper transitions
+      allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
+      allow(task.result).to receive(:complete!)
+      allow(task.result).to receive(:executed!)
+    end
+
+    context "when execution is successful" do
+      it "calls middleware with task and executes successfully" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+        expect(worker).to receive(:pre_execution!)
+        expect(worker).to receive(:execution!)
+        expect(task.result).to receive(:executed!)
+        expect(worker).to receive(:post_execution!)
+        expect(CMDx::Freezer).to receive(:immute).with(task)
+
+        worker.execute
+      end
+
+      it "logs execution information" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!)
+        allow(task.result).to receive(:executed!)
+        allow(worker).to receive(:post_execution!)
+
+        expect(logger).to receive(:tap).and_yield(logger)
+        expect(logger).to receive(:with_level).with(:info).and_yield
+        expect(logger).to receive(:info)
+
+        worker.execute
+      end
+    end
+
+    context "when UndefinedMethodError is raised" do
+      let(:undefined_error) { CMDx::UndefinedMethodError.new("undefined method") }
+
+      it "re-raises the exception without clearing chain" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(undefined_error)
+
+        expect(CMDx::Chain).to receive(:clear).at_least(:once)
+
+        expect { worker.execute }.to raise_error(CMDx::UndefinedMethodError)
+      end
+    end
+
+    context "when Fault is raised" do
+      let(:fault_result) { instance_double(CMDx::Result, reason: "test failure") }
+      let(:fault) { CMDx::FailFault.new(fault_result) }
+
+      it "calls throw! on task result with fault result" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(fault)
+
+        expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+
+        allow(task.result).to receive(:executed!)
+        allow(worker).to receive(:post_execution!)
+
+        worker.execute
+      end
+
+      it "continues with normal execution flow" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(fault)
+        allow(task.result).to receive(:throw!)
+
+        expect(task.result).to receive(:executed!)
+        expect(worker).to receive(:post_execution!)
+        expect(CMDx::Freezer).to receive(:immute).with(task)
+
+        worker.execute
+      end
+    end
+
+    context "when StandardError is raised" do
+      let(:standard_error) { StandardError.new("something went wrong") }
+
+      it "calls fail! on task result with formatted error message" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(standard_error)
+
+        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
+
+        allow(task.result).to receive(:executed!)
+        allow(worker).to receive(:post_execution!)
+
+        worker.execute
+      end
+
+      it "continues with normal execution flow" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(standard_error)
+        allow(task.result).to receive(:fail!)
+
+        expect(task.result).to receive(:executed!)
+        expect(worker).to receive(:post_execution!)
+        expect(CMDx::Freezer).to receive(:immute).with(task)
+
+        worker.execute
+      end
+    end
+
+    context "when custom error is raised" do
+      let(:custom_error) { CMDx::TestError.new("test error") }
+
+      it "calls fail! on task result with formatted error message" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(custom_error)
+
+        expect(task.result).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error)
+
+        allow(task.result).to receive(:executed!)
+        allow(worker).to receive(:post_execution!)
+
+        worker.execute
+      end
+    end
+  end
+
+  describe "#execute!" do
+    let(:middlewares) { instance_double(CMDx::MiddlewareRegistry) }
+    let(:logger) { instance_double(Logger) }
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+
+    before do
+      allow(callbacks).to receive(:invoke)
+      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
+      allow(task).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:tap).and_yield(logger)
+      allow(logger).to receive(:with_level).with(:info).and_yield
+      allow(logger).to receive(:info)
+      allow(CMDx::Freezer).to receive(:immute)
+
+      # Setup result state to support proper transitions
+      allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
+      allow(task.result).to receive(:complete!)
+      allow(task.result).to receive(:executed!)
+    end
+
+    context "when execution is successful" do
+      it "calls middleware with task and executes successfully" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+        expect(worker).to receive(:pre_execution!)
+        expect(worker).to receive(:execution!)
+        expect(task.result).to receive(:executed!)
+        expect(worker).to receive(:post_execution!)
+        expect(CMDx::Freezer).to receive(:immute).with(task)
+
+        worker.execute!
+      end
+    end
+
+    context "when UndefinedMethodError is raised" do
+      let(:undefined_error) { CMDx::UndefinedMethodError.new("undefined method") }
+
+      it "calls raise_exception with the error" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(undefined_error)
+
+        expect(worker).to receive(:raise_exception).with(undefined_error).and_raise(undefined_error)
+
+        expect { worker.execute! }.to raise_error(undefined_error)
+      end
+    end
+
+    context "when Fault is raised" do
+      let(:fault_result) { instance_double(CMDx::Result, status: "failed", reason: "test failure") }
+      let(:fault) { CMDx::FailFault.new(fault_result) }
+
+      context "when halt_execution? returns false" do
+        it "calls throw! and post_execution!" do
+          expect(middlewares).to receive(:call!).with(task).and_yield
+
+          allow(worker).to receive(:pre_execution!)
+          allow(worker).to receive(:execution!).and_raise(fault)
+
+          expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+          expect(worker).to receive(:halt_execution?).with(fault).and_return(false)
+          expect(worker).to receive(:post_execution!)
+
+          worker.execute!
+        end
+      end
+
+      context "when halt_execution? returns true" do
+        it "calls throw! and raise_exception" do
+          expect(middlewares).to receive(:call!).with(task).and_yield
+
+          allow(worker).to receive(:pre_execution!)
+          allow(worker).to receive(:execution!).and_raise(fault)
+
+          expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+          expect(worker).to receive(:halt_execution?).with(fault).and_return(true)
+          expect(worker).to receive(:raise_exception).with(fault).and_raise(fault)
+
+          expect { worker.execute! }.to raise_error(fault)
+        end
+      end
+    end
+
+    context "when StandardError is raised" do
+      let(:standard_error) { StandardError.new("something went wrong") }
+
+      it "calls fail! and raise_exception" do
+        expect(middlewares).to receive(:call!).with(task).and_yield
+
+        allow(worker).to receive(:pre_execution!)
+        allow(worker).to receive(:execution!).and_raise(standard_error)
+
+        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
+        expect(worker).to receive(:raise_exception).with(standard_error).and_raise(standard_error)
+
+        expect { worker.execute! }.to raise_error(standard_error)
+      end
+    end
+  end
+
+  describe "#halt_execution?" do
+    let(:fault_result) { instance_double(CMDx::Result, status: "failed", reason: "test failure") }
+    let(:fault) { CMDx::FailFault.new(fault_result) }
+
+    context "when breakpoints setting exists" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ breakpoints: %w[failed skipped] })
+      end
+
+      context "when exception result status is in breakpoints" do
+        it "returns true" do
+          expect(worker.send(:halt_execution?, fault)).to be true
+        end
+      end
+
+      context "when exception result status is not in breakpoints" do
+        let(:success_result) { instance_double(CMDx::Result, status: "success", reason: "test success") }
+        let(:success_fault) { CMDx::SkipFault.new(success_result) }
+
+        it "returns false" do
+          expect(worker.send(:halt_execution?, success_fault)).to be false
+        end
+      end
+    end
+
+    context "when task_breakpoints setting exists" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ task_breakpoints: [:failed] })
+      end
+
+      it "converts symbols to strings and checks inclusion" do
+        expect(worker.send(:halt_execution?, fault)).to be true
+      end
+    end
+
+    context "when no breakpoints are configured" do
+      before do
+        allow(task.class).to receive(:settings).and_return({})
+      end
+
+      it "returns false" do
+        expect(worker.send(:halt_execution?, fault)).to be false
+      end
+    end
+
+    context "when breakpoints is nil" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ breakpoints: nil })
+      end
+
+      it "returns false" do
+        expect(worker.send(:halt_execution?, fault)).to be false
+      end
+    end
+
+    context "with duplicate breakpoints" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ breakpoints: ["failed", "failed", :failed] })
+      end
+
+      it "removes duplicates after string conversion" do
+        expect(worker.send(:halt_execution?, fault)).to be true
+      end
+    end
+  end
+
+  describe "#raise_exception" do
+    let(:exception) { StandardError.new("test error") }
+
+    it "clears the chain and raises the exception" do
+      expect(CMDx::Chain).to receive(:clear).at_least(:once)
+
+      expect { worker.send(:raise_exception, exception) }.to raise_error(exception)
+    end
+  end
+
+  describe "#invoke_callbacks" do
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+
+    before do
+      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+    end
+
+    it "delegates to callbacks registry with type and task" do
+      expect(callbacks).to receive(:invoke).with(:before_validation, task)
+
+      worker.send(:invoke_callbacks, :before_validation)
+    end
+  end
+
+  describe "#pre_execution!" do
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+    let(:attributes) { instance_double(CMDx::AttributeRegistry) }
+    let(:errors) { instance_double(CMDx::Errors) }
+
+    before do
+      allow(task.class).to receive(:settings).and_return({
+        callbacks: callbacks,
+        attributes: attributes
+      })
+      allow(task).to receive(:errors).and_return(errors)
+      allow(callbacks).to receive(:invoke)
+      allow(attributes).to receive(:define_and_verify)
+    end
+
+    context "when task has no errors" do
+      before do
+        allow(errors).to receive(:empty?).and_return(true)
+      end
+
+      it "invokes before_validation callback and defines attributes" do
+        expect(callbacks).to receive(:invoke).with(:before_validation, task)
+        expect(attributes).to receive(:define_and_verify).with(task)
+
+        worker.send(:pre_execution!)
+      end
+    end
+
+    context "when task has errors" do
+      before do
+        allow(errors).to receive_messages(
+          empty?: false,
+          to_s: "Validation failed",
+          to_h: { name: ["is required"] }
+        )
+        allow(task.result).to receive(:fail!)
+      end
+
+      it "calls fail! on result with error information" do
+        expect(task.result).to receive(:fail!).with("Validation failed", messages: { name: ["is required"] })
+
+        worker.send(:pre_execution!)
+      end
+    end
+  end
+
+  describe "#execution!" do
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+
+    before do
+      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+      allow(callbacks).to receive(:invoke)
+      allow(task.result).to receive(:executing!)
+      allow(task).to receive(:work)
+    end
+
+    it "invokes before_execution callback, sets executing state, and calls work" do
+      expect(callbacks).to receive(:invoke).with(:before_execution, task)
+      expect(task.result).to receive(:executing!)
+      expect(task).to receive(:work)
+
+      worker.send(:execution!)
+    end
+  end
+
+  describe "#post_execution!" do
+    let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
+    let(:result) { instance_double(CMDx::Result) }
+
+    before do
+      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+      allow(task).to receive(:result).and_return(result)
+      allow(callbacks).to receive(:invoke)
+    end
+
+    context "when result is executed and good" do
+      before do
+        allow(result).to receive_messages(
+          state: "complete",
+          status: "success",
+          executed?: true,
+          good?: true,
+          bad?: false
+        )
+      end
+
+      it "invokes all appropriate callbacks" do
+        expect(callbacks).to receive(:invoke).with(:on_complete, task)
+        expect(callbacks).to receive(:invoke).with(:on_executed, task)
+        expect(callbacks).to receive(:invoke).with(:on_success, task)
+        expect(callbacks).to receive(:invoke).with(:on_good, task)
+
+        worker.send(:post_execution!)
+      end
+    end
+
+    context "when result is failed and bad" do
+      before do
+        allow(result).to receive_messages(
+          state: "interrupted",
+          status: "failed",
+          executed?: false,
+          good?: false,
+          bad?: true
+        )
+      end
+
+      it "invokes all appropriate callbacks" do
+        expect(callbacks).to receive(:invoke).with(:on_interrupted, task)
+        expect(callbacks).to receive(:invoke).with(:on_failed, task)
+        expect(callbacks).to receive(:invoke).with(:on_bad, task)
+
+        worker.send(:post_execution!)
+      end
+    end
+
+    context "when result is skipped" do
+      before do
+        allow(result).to receive_messages(
+          state: "interrupted",
+          status: "skipped",
+          executed?: false,
+          good?: true,
+          bad?: false
+        )
+      end
+
+      it "invokes appropriate callbacks for skipped state" do
+        expect(callbacks).to receive(:invoke).with(:on_interrupted, task)
+        expect(callbacks).to receive(:invoke).with(:on_skipped, task)
+        expect(callbacks).to receive(:invoke).with(:on_good, task)
+
+        worker.send(:post_execution!)
+      end
+    end
+  end
+
+  describe "#finalize_execution!" do
+    let(:logger) { instance_double(Logger) }
+
+    before do
+      allow(CMDx::Freezer).to receive(:immute)
+      allow(task).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:tap).and_yield(logger)
+      allow(logger).to receive(:with_level).with(:info).and_yield
+      allow(logger).to receive(:info)
+      allow(task.result).to receive(:to_h).and_return({ id: "123", status: "success" })
+    end
+
+    it "immutes the task with Freezer" do
+      expect(CMDx::Freezer).to receive(:immute).with(task)
+
+      worker.send(:finalize_execution!)
+    end
+
+    it "logs the result information at info level" do
+      expect(task).to receive(:logger)
+      expect(logger).to receive(:tap)
+      expect(logger).to receive(:with_level).with(:info)
+      expect(logger).to receive(:info)
+
+      worker.send(:finalize_execution!)
+    end
+
+    context "when logger block is called" do
+      it "calls to_h on task result" do
+        expect(task.result).to receive(:to_h).and_return({ id: "123", status: "success" })
+
+        expect(logger).to receive(:info) do |&block|
+          # When the block is called, it should return the result of to_h
+          expect(block.call).to eq({ id: "123", status: "success" })
+        end
+
+        worker.send(:finalize_execution!)
+      end
+    end
+  end
+end

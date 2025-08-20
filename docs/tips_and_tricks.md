@@ -1,25 +1,15 @@
-# Tips & Tricks
+# Tips and Tricks
 
 This guide covers advanced patterns and optimization techniques for getting the most out of CMDx in production applications.
 
 ## Table of Contents
 
-- [TLDR](#tldr)
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
-- [Parameter Optimization](#parameter-optimization)
-  - [Efficient Parameter Definitions](#efficient-parameter-definitions)
-- [Monitoring and Observability](#monitoring-and-observability)
-  - [ActiveRecord Query Tagging](#activerecord-query-tagging)
-
-## TLDR
-
-- **Organization** - Group commands by domain in `/app/commands` with descriptive subdirectories
-- **Naming** - Tasks use "Verb + Noun + Task", workflows use "Noun + Verb + Workflow"
-- **Parameter optimization** - Use `with_options` to reduce duplication in parameter definitions
-- **Monitoring** - Enable ActiveRecord query tagging for better debugging and observability
-- **Base classes** - Create `ApplicationTask` and `ApplicationWorkflow` for shared configuration
+  - [Style Guide](#style-guide)
+- [Attribute Options](#attribute-options)
+- [ActiveRecord Query Tagging](#activerecord-query-tagging)
 
 ## Project Organization
 
@@ -29,23 +19,20 @@ Create a well-organized command structure for maintainable applications:
 
 ```txt
 /app
-  /commands
+  /tasks
     /orders
-      - process_order_task.rb
-      - validate_order_task.rb
-      - fulfill_order_task.rb
-      - order_processing_workflow.rb
+      - charge_order.rb
+      - validate_order.rb
+      - fulfill_order.rb
+      - process_order.rb # workflow
     /notifications
-      - send_email_task.rb
-      - send_sms_task.rb
-      - post_slack_message_task.rb
-      - notification_delivery_workflow.rb
-    /payments
-      - charge_payment_task.rb
-      - refund_payment_task.rb
-      - validate_payment_method_task.rb
-    - application_task.rb
-    - application_workflow.rb
+      - send_email.rb
+      - send_sms.rb
+      - post_slack_message.rb
+      - deliver_notifications.rb # workflow
+    - application_task.rb # base class
+    - login_user.rb
+    - register_user.rb
 ```
 
 ### Naming Conventions
@@ -53,60 +40,88 @@ Create a well-organized command structure for maintainable applications:
 Follow consistent naming patterns for clarity and maintainability:
 
 ```ruby
-# Tasks: Verb + Noun + Task
-class ProcessOrderTask < CMDx::Task; end
-class SendEmailTask < CMDx::Task; end
-class ValidatePaymentTask < CMDx::Task; end
-
-# Workflows: Noun + Verb + Workflow
-class OrderProcessingWorkflow < CMDx::Workflow; end
-class NotificationDeliveryWorkflow < CMDx::Workflow; end
+# Verb + Noun
+class ProcessOrder < CMDx::Task; end
+class SendEmail < CMDx::Task; end
+class ValidatePayment < CMDx::Task; end
 
 # Use present tense verbs for actions
-class CreateUserTask < CMDx::Task; end      # ✓ Good
-class CreatingUserTask < CMDx::Task; end    # ❌ Avoid
-class UserCreationTask < CMDx::Task; end    # ❌ Avoid
+class CreateUser < CMDx::Task; end      # ✓ Good
+class CreatingUser < CMDx::Task; end    # ❌ Avoid
+class UserCreation < CMDx::Task; end    # ❌ Avoid
 ```
 
-## Parameter Optimization
+### Style Guide
 
-### Efficient Parameter Definitions
+Follow a style pattern for consistent task design:
+
+```ruby
+class ProcessOrder < CMDx::Task
+
+  # 1. Register functions
+  register :middleware, CMDx::Middlewares::Correlate
+  register :validator, :domain, DomainValidator
+
+  # 2. Define callbacks
+  before_execution :find_order
+  on_complete :track_datadog_metrics, if: ->(task) { Current.account.metrics? }
+
+  # 3. Define attributes
+  attributes :customer_id
+  required :order_id
+  optional :store_id
+
+  # 4. Define work
+  def work
+    order.charge!
+    order.ship!
+
+    context.tracking_number = order.tracking_number
+  end
+
+  private
+
+  # 5. Define methods
+  def find_order
+    @order ||= Order.find(order_id)
+  end
+
+  def track_datadog_metrics
+    DataDog.increment(:order_processed)
+  end
+
+end
+```
+
+## Attribute Options
 
 Use Rails `with_options` to reduce duplication and improve readability:
 
 ```ruby
-class UpdateUserProfileTask < CMDx::Task
-  # Apply common options to multiple parameters
+class UpdateUserProfile < CMDx::Task
+  # Apply common options to multiple attributes
   with_options(type: :string, presence: true) do
-    required :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-    optional :first_name, :last_name
+    attributes :email, format: { with: URI::MailTo::EMAIL_REGEXP }
+    required :first_name, :last_name
     optional :phone, format: { with: /\A\+?[\d\s\-\(\)]+\z/ }
   end
 
-  # Nested parameters with shared prefix
+  # Nested attributes with shared prefix
   required :address do
     with_options(prefix: :address_) do
-      required :street, :city, :postal_code, type: :string
+      attributes :street, :city, :postal_code, type: :string
       required :country, type: :string, inclusion: { in: VALID_COUNTRIES }
       optional :state, type: :string
     end
   end
 
-  # Shared validation rules
-  with_options(type: :integer, numericality: { greater_than: 0 }) do
-    optional :age, numericality: { less_than: 150 }
-    optional :years_experience, numericality: { less_than: 80 }
-  end
-
-  def call
-    # Implementation
+  def work
+    # Your logic here...
   end
 end
 ```
 
-## Monitoring and Observability
-
-### ActiveRecord Query Tagging
+## ActiveRecord Query Tagging
 
 Automatically tag SQL queries for better debugging:
 
@@ -116,13 +131,14 @@ config.active_record.query_log_tags_enabled = true
 config.active_record.query_log_tags << :cmdx_task_class
 config.active_record.query_log_tags << :cmdx_chain_id
 
-# app/commands/application_task.rb
+# app/tasks/application_task.rb
 class ApplicationTask < CMDx::Task
   before_execution :set_execution_context
 
   private
 
   def set_execution_context
+    # NOTE: This could easily be made into a middleware
     ActiveSupport::ExecutionContext.set(
       cmdx_task_class: self.class.name,
       cmdx_chain_id: chain.id
@@ -136,5 +152,5 @@ end
 
 ---
 
-- **Prev:** [AI Prompts](ai_prompts.md)
+- **Prev:** [Workflows](workflows.md)
 - **Next:** [Getting Started](getting_started.md)

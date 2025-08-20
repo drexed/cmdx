@@ -2,44 +2,45 @@
 
 module CMDx
   module Coercions
-    # Coercion class for converting values to booleans.
+    # Converts various input types to Boolean format
     #
-    # This coercion handles conversion of various string representations to
-    # boolean values, supporting common true/false variations like "yes/no",
-    # "1/0", and "t/f".
-    class Boolean < Coercion
+    # Handles conversion from strings, numbers, and other values to boolean
+    # using predefined truthy and falsey patterns.
+    module Boolean
+
+      extend self
 
       FALSEY = /^(false|f|no|n|0)$/i
       TRUTHY = /^(true|t|yes|y|1)$/i
 
-      # Converts the given value to a boolean.
+      # Converts a value to a Boolean
       #
-      # @param value [Object] the value to convert to a boolean
-      # @param _options [Hash] optional configuration (currently unused)
+      # @param value [Object] The value to convert to boolean
+      # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :unused Currently no options are used
       #
-      # @return [Boolean] the converted boolean value
+      # @return [Boolean] The converted boolean value
       #
-      # @raise [CoercionError] if the value cannot be converted to a boolean
+      # @raise [CoercionError] If the value cannot be converted to boolean
       #
-      # @example Converting truthy values
-      #   Coercions::Boolean.call('true') #=> true
-      #   Coercions::Boolean.call('yes') #=> true
-      #   Coercions::Boolean.call('1') #=> true
-      #
-      # @example Converting falsey values
-      #   Coercions::Boolean.call('false') #=> false
-      #   Coercions::Boolean.call('no') #=> false
-      #   Coercions::Boolean.call('0') #=> false
-      def call(value, _options = {})
+      # @example Convert truthy strings to true
+      #   Boolean.call("true")   # => true
+      #   Boolean.call("yes")    # => true
+      #   Boolean.call("1")      # => true
+      # @example Convert falsey strings to false
+      #   Boolean.call("false")  # => false
+      #   Boolean.call("no")     # => false
+      #   Boolean.call("0")      # => false
+      # @example Handle case-insensitive input
+      #   Boolean.call("TRUE")   # => true
+      #   Boolean.call("False")  # => false
+      def call(value, options = {})
         case value.to_s.downcase
         when FALSEY then false
         when TRUTHY then true
         else
-          raise CoercionError, I18n.t(
-            "cmdx.coercions.into_a",
-            type: "boolean",
-            default: "could not coerce into a boolean"
-          )
+          type = Locale.t("cmdx.types.boolean")
+          raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
         end
       end
 
