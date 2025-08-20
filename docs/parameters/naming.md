@@ -29,7 +29,7 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Execution uses original attribute names
+# Attributes passed as original attribute names
 UpdateCustomer.execute(id: 123, name: "Jane Smith")
 ```
 
@@ -51,7 +51,7 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Execution uses original attribute names
+# Attributes passed as original attribute names
 UpdateCustomer.execute(email: "jane@example.com", phone: "555-0123")
 ```
 
@@ -68,7 +68,7 @@ class UpdateCustomer < CMDx::Task
   end
 end
 
-# Execution uses original attribute names
+# Attributes passed as original attribute names
 UpdateCustomer.execute(birthday: Date.new(2020, 10, 31))
 ```
 

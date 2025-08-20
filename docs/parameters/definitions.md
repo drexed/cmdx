@@ -4,78 +4,39 @@ Attributes define the interface between task callers and implementation, enablin
 
 ## Table of Contents
 
-- [TLDR](#tldr)
-- [Basic Attribute Definition](#basic-attribute-definition)
-- [Attribute Sources](#attribute-sources)
-- [Nested Attributes](#nested-attributes)
-- [Advanced Features](#advanced-features)
+- [Declarations](#declarations)
+  - [Optional](#optional)
+  - [Required](#required)
+- [Sources](#sources)
+  - [Context](#context)
+  - [Symbol References](#symbol-references)
+  - [Proc or Lambda](#proc-or-lambda)
+  - [Class or Module](#class-or-module)
+- [Nesting](#nesting)
 - [Error Handling](#error-handling)
 
-## TLDR
+## Declarations
 
-```ruby
-class ProcessOrder < CMDx::Task
-  # Required attributes - must be provided
-  required :order_id, :customer_id
+### Optional
 
-  # Optional attributes - can be nil
-  optional :notes, :priority
-
-  # Custom sources
-  required :name, :email, source: :user
-
-  # Nested attributes
-  required :shipping_address do
-    required :street, :city, :state
-    optional :apartment
-  end
-
-  def work
-    order_id    #=> value from call arguments
-    name        #=> delegates to user.name
-    street      #=> delegates to shipping_address.street
-  end
-end
-
-# Usage
-ProcessOrder.execute(
-  order_id: 123,
-  customer_id: 456,
-  shipping_address: { street: "123 Main St", city: "Miami", state: "FL" }
-)
-```
-
-## Basic Attribute Definition
-
-> [!IMPORTANT]
-> Required attributes must be provided in call arguments or task execution will fail. Optional attributes return `nil` when not provided.
+Optional attributes return `nil` when not provided.
 
 ```ruby
 class CreateUser < CMDx::Task
-  # Single attribute definitions
-  required :email
-  optional :name
+  attribute :email
+  attributes :age, :ssn
 
-  # Multiple attributes in one declaration
-  required :age, :phone
-  optional :bio, :website
-
-  # Attributes with type coercion and validation
-  required :age, type: :integer, numeric: { min: 18 }
-  optional :tags, type: :array, default: []
+  # Alias for attributes
+  optional :phone
+  optional :sex, :tags
 
   def work
-    # All attributes become instance methods
-    user = User.create!(
-      email: email,           # Required - guaranteed to be present
-      name: name,             # Optional - may be nil
-      age: age,               # Required integer, validated >= 18
-      phone: phone,           # Required - guaranteed to be present
-      bio: bio,               # Optional - may be nil
-      tags: tags              # Optional array with default []
-    )
-
-    user
+    email #=> "user@example.com"
+    age   #=> 25
+    ssn   #=> nil
+    phone #=> nil
+    sex   #=> nil
+    tags  #=> ["premium", "beta"]
   end
 end
 
@@ -83,20 +44,49 @@ end
 CreateUser.execute(
   email: "user@example.com",
   age: 25,
-  phone: "555-0123",
-  name: "John Doe",
   tags: ["premium", "beta"]
 )
 ```
 
-## Attribute Sources
+### Required
 
-Attributes delegate to source objects within the task context. The default source is `:context`, but any accessible method or object can serve as a attribute source.
+Required attributes must be provided in call arguments or task execution will fail.
 
-> [!NOTE]
-> Sources allow attributes to pull values from different objects instead of just call arguments.
+```ruby
+class CreateUser < CMDx::Task
+  attribute :email, required: true
+  attributes :age, :ssn, required: true
 
-### Default Context Source
+  # Alias for attributes => required: true
+  required :phone
+  required :sex, :tags
+
+  def work
+    email #=> "user@example.com"
+    age   #=> 25
+    ssn   #=> "123-456"
+    phone #=> "888-9909"
+    sex   #=> :male
+    tags  #=> ["premium", "beta"]
+  end
+end
+
+# Attributes passed as keyword arguments
+CreateUser.execute(
+  email: "user@example.com",
+  age: 25,
+  ssn: "123-456",
+  phone: "888-9909",
+  sex: :male,
+  tags: ["premium", "beta"]
+)
+```
+
+## Sources
+
+Attributes delegate to accessible objects within the task. The default source is `:context`, but any accessible method or object can serve as a attribute source.
+
+### Context
 
 ```ruby
 class UpdateProfile < CMDx::Task
@@ -105,87 +95,67 @@ class UpdateProfile < CMDx::Task
   optional :avatar_url
 
   # Explicitly specify context source
-  required :email, source: :context
+  attribute :email, source: :context
 
   def work
-    user = User.find(user_id)     # From context.user_id
-    user.update!(
-      email: email,               # From context.email
-      avatar_url: avatar_url      # From context.avatar_url
-    )
+    user_id    #=> context.user_id
+    email      #=> context.email
+    avatar_url #=> context.avatar_url
   end
 end
 ```
 
-### Custom Object Sources
+### Symbol References
+
+Reference instance methods by symbol for dynamic source values:
 
 ```ruby
-class GenerateInvoice < CMDx::Task
-  # Delegate to user object
-  required :name, :email, source: :user
-
-  # Delegate to order object
-  required :total, :items, source: :order
-  optional :discount, source: :order
+class UpdateProfile < CMDx::Task
+  attribute :email, source: :user
 
   def work
-    Invoice.create!(
-      customer_name: name,        # From user.name
-      customer_email: email,      # From user.email
-      amount: total,              # From order.total
-      line_items: items,          # From order.items
-      discount_amount: discount   # From order.discount
-    )
+    # Your logic here...
   end
 
   private
 
   def user
-    @user ||= User.find(context.user_id)
+    @user ||= User.find(1)
   end
+end
+```
 
-  def order
-    @order ||= user.orders.find(context.order_id)
+### Proc or Lambda
+
+Use anonymous functions for dynamic source values:
+
+```ruby
+class UpdateProfile < CMDx::Task
+  # Proc
+  attribute :email, source: proc { Current.user }
+
+  # Lambda
+  attribute :email, source: -> { Current.user }
+end
+```
+
+### Class or Module
+
+For complex source logic, use classes or modules:
+
+```ruby
+class UserSourcer
+  def self.call(task)
+    User.find(task.context.user_id)
   end
 end
 
-GenerateInvoice.execute(user_id: 123, order_id: 456)
-```
+class UpdateProfile < CMDx::Task
+  # Class or Module
+  attribute :email, source: UserSourcer
 
-### Dynamic Sources
-
-```ruby
-class CalculatePermissions < CMDx::Task
-  # Proc/Lambda source for dynamic resolution
-  required :current_user, source: ->(task) { User.find(task.context.user_id) }
-  required :company_name, source: proc { Company.find_by(context.company_id).name }
-
-  # Method symbol sources
-  required :role, source: :determine_user_role
-  optional :access_level, source: :calculate_access_level
-
-  def work
-    {
-      user: current_user.name,  # Resolved via lambda
-      company: company_name,    # Resolved via proc
-      role: role,               # From determine_user_role method
-      access: access_level      # From calculate_access_level method
-    }
-  end
-
-  private
-
-  def determine_user_role
-    current_user.admin? ? "admin" : "user"
-  end
-
-  def calculate_access_level
-    case role
-    when "admin" then "full"
-    when "user" then "limited"
-    else "none"
-    end
-  end
+  # Instance
+  attribute :email, source: UserSourcer.new
 end
 ```
 
@@ -260,185 +230,53 @@ CreateShipment.execute(
 )
 ```
 
-## Advanced Features
-
-### Attribute Method Generation
-
-```ruby
-class ProcessPayment < CMDx::Task
-  required :amount, type: :float
-  required :payment_method
-
-  # Nested attributes generate flattened methods
-  required :customer do
-    required :id, :email
-
-    optional :billing_address do
-      required :street, :city
-      optional :unit
-    end
-  end
-
-  def work
-    # All attributes accessible as instance methods
-    payment = PaymentService.charge(
-      amount: amount,                    # Direct attribute access
-      method: payment_method,            # Direct attribute access
-      customer_id: id,                   # From customer.id
-      customer_email: email,             # From customer.email
-      billing_street: street,            # From customer.billing_address.street
-      billing_city: city                 # From customer.billing_address.city
-    )
-
-    payment
-  end
-end
-```
-
-### Attribute Introspection
-
-```ruby
-class IntrospectionExample < CMDx::Task
-  required :name
-  optional :age, type: :integer, default: 18
-
-  required :address do
-    required :street
-    optional :unit
-  end
-
-  def work
-    # Access attribute metadata
-    params = self.class.attributes
-
-    params.each do |param|
-      puts "Attribute: #{param.name}"
-      puts "Required: #{param.required?}"
-      puts "Type: #{param.type}"
-      puts "Default: #{param.default}" if param.has_default?
-      puts "Source: #{param.source}"
-      puts "---"
-    end
-  end
-end
-```
-
 ## Error Handling
 
-> [!WARNING]
-> Attribute validation failures result in structured error information with details about each failed attribute.
-
-### Missing Required Attributes
+Attribute validation failures result in structured error information with details about each failed attribute.
 
 ```ruby
-class RequiredParams < CMDx::Task
+class ProcessOrder < CMDx::Task
   required :user_id, :order_id
   required :shipping_address do
     required :street, :city
   end
 
   def work
-    # Task logic
+    # Your logic here...
   end
 end
 
-# Missing required attributes
-result = RequiredParams.execute(user_id: 123)
-result.failed?  #=> true
-result.metadata
-# {
-#   order_id is required. shipping_address is required.",
-#   messages: {
-#     order_id: ["is required"],
-#     shipping_address: ["is required"]
-#   }
-# }
+# Missing required top-level attributes
+result = ProcessOrder.execute(user_id: 123)
 
-# Missing nested required attributes
-result = RequiredParams.execute(
+result.state    #=> "interrupted"
+result.status   #=> "failed"
+result.reason   #=> "city is required."
+result.metadata #=> {
+                #     order_id is required. shipping_address is required.",
+                #     messages: {
+                #       order_id: ["is required"],
+                #       shipping_address: ["is required"]
+                #     }
+                #   }
+
+# Missing required nested attributes
+result = ProcessOrder.execute(
   user_id: 123,
   order_id: 456,
-  shipping_address: { street: "123 Main St" }  # Missing city
-)
-result.failed?  #=> true
-result.metadata
-# {
-#   city is required.",
-#   messages: {
-#     city: ["is required"]
-#   }
-# }
-```
-
-### Source Resolution Errors
-
-```ruby
-class SourceError < CMDx::Task
-  required :name, source: :user
-  required :status, source: :nonexistent_method
-
-  def work
-    # Task logic
-  end
-
-  private
-
-  def user
-    # This will raise an error
-    raise StandardError, "User service unavailable"
-  end
-end
-
-result = SourceError.execute
-result.failed?  #=> true
-# Error propagated from source resolution failure
-```
-
-### Complex Validation Errors
-
-```ruby
-class ValidationError < CMDx::Task
-  required :email, format: { with: /@/ }
-  required :age, type: :integer, numeric: { min: 18, max: 120 }
-  optional :phone, format: { with: /\A\d{10}\z/ }
-
-  required :preferences do
-    required :theme, inclusion: { in: %w[light dark] }
-    optional :language, inclusion: { in: %w[en es fr] }
-  end
-
-  def work
-    # Task logic
-  end
-end
-
-# Multiple validation failures
-result = ValidationError.execute(
-  email: "invalid-email",
-  age: "not-a-number",
-  phone: "123",
-  preferences: {
-    theme: "purple",
-    language: "invalid"
-  }
+  shipping_address: { street: "123 Main St" } # Missing city
 )
 
-result.failed?  #=> true
-result.metadata
-# {
-#   email format is not valid. age could not coerce into an integer. phone format is not valid. theme purple is not included in the list. language invalid is not included in the list.",
-#   messages: {
-#     email: ["format is not valid"],
-#     age: ["could not coerce into an integer"],
-#     phone: ["format is not valid"],
-#     theme: ["purple is not included in the list"],
-#     language: ["invalid is not included in the list"]
-#   }
-# }
+result.state    #=> "interrupted"
+result.status   #=> "failed"
+result.reason   #=> "city is required."
+result.metadata #=> {
+                #     city is required.",
+                #     messages: {
+                #       city: ["is required"]
+                #     }
+                #   }
 ```
-
-> [!TIP]
-> Attribute validation occurs before the `execute` method executes, so you can rely on attribute presence and types within your task logic.
 
 ---
 
