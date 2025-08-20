@@ -16,11 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create `cmdx-jobs` gem with background job integration
 - Create `cmdx-parallel` gem with parallel workflow task execution
 
-## [1.5.0]
+## [1.5.0] - 2025-08-20
 
 ### Changes
-- Rebuild CMDx to be simpler, less magical, and more performant
-- TODO: remove ruby 3.1 prerequisite
+- BREAKING Rebuild CMDx to be simpler, less magical, and more performant
 
 ## [1.1.2] - 2025-07-20
 
