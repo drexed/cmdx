@@ -202,4 +202,4 @@ result.metadata #=> { runtime: 543 } (ms)
 ---
 
 - **Prev:** [Callbacks](callbacks.md)
-- **Next:** [Workflows](workflows.md)
+- **Next:** [Logging](logging.md)

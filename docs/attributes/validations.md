@@ -210,8 +210,7 @@ end
 ## Declarations
 
 > [!IMPORTANT]
-> Custom validators must raise a CMDx::ValidationError and its
-> message is used as part of the fault reason and metadata.
+> Custom validators must raise a CMDx::ValidationError and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 

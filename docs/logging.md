@@ -99,5 +99,5 @@ end
 
 ---
 
-- **Prev:** [Workflows](workflows.md)
+- **Prev:** [Middlewares](middlewares.md)
 - **Next:** [Internationalization (i18n)](internationalization.md)

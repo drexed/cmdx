@@ -158,5 +158,5 @@ end
 
 ---
 
-- **Prev:** [Testing](testing.md)
-- **Next:** [AI Prompts](ai_prompts.md)
+- **Prev:** [Internationalization (i18n)](internationalization.md)
+- **Next:** [Workflows](workflows.md)

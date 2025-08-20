@@ -152,5 +152,5 @@ end
 
 ---
 
-- **Prev:** [AI Prompts](ai_prompts.md)
+- **Prev:** [Workflows](workflows.md)
 - **Next:** [Getting Started](getting_started.md)

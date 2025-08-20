@@ -65,8 +65,7 @@ ProcessPayment.execute(
 ## Declarations
 
 > [!IMPORTANT]
-> Coercions must raise a CMDx::CoercionError and its message is used
-> as part of the fault reason and metadata.
+> Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 

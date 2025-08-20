@@ -190,4 +190,4 @@ end
 ---
 
 - **Prev:** [Interruptions - Exceptions](../interruptions/exceptions.md)
-- **Next:** [Outcomes - Statuses](statuses.md)
+- **Next:** [Outcomes - States](states.md)

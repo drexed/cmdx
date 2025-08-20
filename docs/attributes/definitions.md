@@ -277,5 +277,5 @@ result.metadata #=> {
 
 ---
 
-- **Prev:** [Configuration](../configuration.md)
+- **Prev:** [Outcomes - States](../outcomes/states.md)
 - **Next:** [Attributes - Naming](naming.md)

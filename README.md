@@ -77,30 +77,30 @@ end
 - [Getting Started](docs/getting_started.md)
 - Basics
   - [Setup](docs/basics/setup.md)
-  - [Call](docs/basics/call.md)
+  - [Execution](docs/basics/execution.md)
   - [Context](docs/basics/context.md)
   - [Chain](docs/basics/chain.md)
 - Interruptions
   - [Halt](docs/interruptions/halt.md)
   - [Faults](docs/interruptions/faults.md)
   - [Exceptions](docs/interruptions/exceptions.md)
+- Outcomes
+  - [Result](docs/outcomes/result.md)
+  - [States](docs/outcomes/states.md)
+  - [Statuses](docs/outcomes/statuses.md)
 - Attributes
   - [Definitions](docs/attributes/definitions.md)
   - [Naming](docs/attributes/naming.md)
   - [Coercions](docs/attributes/coercions.md)
   - [Validations](docs/attributes/validations.md)
   - [Defaults](docs/attributes/defaults.md)
-- Outcomes
-  - [Result](docs/outcomes/result.md)
-  - [States](docs/outcomes/states.md)
-  - [Statuses](docs/outcomes/statuses.md)
 - [Callbacks](docs/callbacks.md)
 - [Middlewares](docs/middlewares.md)
 - [Logging](docs/logging.md)
 - [Internationalization (i18n)](docs/internationalization.md)
 - [Deprecation](docs/deprecation.md)
 - [Workflows](docs/workflows.md)
-- [Tips & Tricks](docs/tips_and_tricks.md)
+- [Tips and Tricks](docs/tips_and_tricks.md)
 
 ## Development
 

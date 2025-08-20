@@ -186,7 +186,7 @@ class ProcessPayment < CMDx::Task
     logger: CustomLogger.new($stdout),           # Custom logger
 
     # Task configuration settings
-    breakpoints: ["failed"],                     # Pointer, eg: Task => :task_breakpoints, Workflow => :workflow_breakpoints
+    breakpoints: ["failed"],                     # Contextual pointer for :task_breakpoints and :workflow_breakpoints
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
     tags: ["payments", "critical"],              # Logging tags

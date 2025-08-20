@@ -76,5 +76,5 @@ result
 
 ---
 
-- **Prev:** [Outcomes - Statuses](statuses.md)
-- **Next:** [Attributes - Definitions](../attributes/definitions.md)
+- **Prev:** [Outcomes - Result](result.md)
+- **Next:** [Outcomes - Statuses](statuses.md)

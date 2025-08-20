@@ -72,5 +72,5 @@ result
 
 ---
 
-- **Prev:** [Outcomes - Result](result.md)
-- **Next:** [Outcomes - States](states.md)
+- **Prev:** [Outcomes - States](states.md)
+- **Next:** [Attributes - Definitions](../attributes/definitions.md)

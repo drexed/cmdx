@@ -27,9 +27,7 @@ I18n.with_locale(:fr) do
 end
 ```
 
-Use ready-made locales by installing the [cmdx-i18n](#TODO) gem.
-
 ---
 
 - **Prev:** [Logging](logging.md)
-- **Next:** [Testing](testing.md)
+- **Next:** [Deprecation](deprecation.md)
