@@ -6,6 +6,13 @@ Parameter validations ensure task arguments meet specified requirements before e
 
 - [Usage](#usage)
 - [Built-in Validators](#built-in-validators)
+  - [Common Options](#common-options)
+  - [Exclusion](#exclusion)
+  - [Format](#format)
+  - [Inclusion](#inclusion)
+  - [Length](#length)
+  - [Numeric](#numeric)
+  - [Presence](#presence)
 - [Declarations](#declarations)
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
@@ -22,13 +29,13 @@ class ProcessOrder < CMDx::Task
   attribute :customer_id, presence: true
 
   # String with length constraints
-  attribute :notes, type: :string, length: { minimum: 10, maximum: 500 }
+  attribute :notes, length: { minimum: 10, maximum: 500 }
 
   # Numeric range validation
-  attribute :quantity, type: :integer, inclusion: { in: 1..100 }
+  attribute :quantity, inclusion: { in: 1..100 }
 
   # Format validation for email
-  attribute :email, type: :string, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  attribute :email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
   def work
     customer_id #=> "12345"
@@ -51,14 +58,154 @@ ProcessOrder.execute(
 
 ## Built-in Validators
 
-| Validator | Options | Description | Examples |
-|-----------|---------|-------------|----------|
-| `presence` | `true` | Ensures value is not nil, empty string, or whitespace | `nil` → ❌<br>`""` → ❌<br>`" "` → ❌<br>`"value"` → ✅ |
-| `exclusion` | `in: [...]` | Value must not be in specified collection | `exclusion: { in: ["admin", "root"] }` |
-| `format` | `/\A...\z/` | Value must match regex pattern | `format: /\A\d{5}\z/` for 5-digit codes |
-| `inclusion` | `in: [...]` | Value must be in specified collection | `inclusion: { in: ["pending", "approved", "rejected"] }` |
-| `length` | `minimum`, `maximum`, `is` | String/array length constraints | `length: { minimum: 3, maximum: 50 }` |
-| `numeric` | `greater_than`, `less_than`, `equal_to` | Numeric value constraints | `numeric: { greater_than: 0, less_than: 1000 }` |
+### Common Options
+
+This list of options is available to all validators:
+
+| Option | Description |
+|--------|-------------|
+| `:allow_nil` | Skip validation when value is `nil` |
+| `:if` | Symbol, proc, lambda, or callable determining when to validate |
+| `:unless` | Symbol, proc, lambda, or callable determining when to skip validation |
+| `:message` | Custom error message for validation failures |
+
+### Exclusion
+
+```ruby
+class ProcessOrder < CMDx::Task
+  attribute :status, exclusion: { in: %w[out_of_stock discontinued] }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `:in` | The collection of forbidden values or range |
+| `:within` | Alias for :in option |
+| `:of_message` | Custom message for discrete value exclusions |
+| `:in_message` | Custom message for range-based exclusions |
+| `:within_message` | Alias for :in_message option |
+
+### Format
+
+```ruby
+class ProcessOrder < CMDx::Task
+  attribute :email, exclusion: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+
+  attribute :email, exclusion: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `regexp` | Alias for :with option |
+| `:with` | Regex pattern that the value must match |
+| `:without` | Regex pattern that the value must not match |
+
+### Inclusion
+
+```ruby
+class ProcessOrder < CMDx::Task
+  attribute :status, inclusion: { in: %w[preorder in_stock] }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `:in` | The collection of allowed values or range |
+| `:within` | Alias for :in option |
+| `:of_message` | Custom message for discrete value inclusions |
+| `:in_message` | Custom message for range-based inclusions |
+| `:within_message` | Alias for :in_message option |
+
+### Length
+
+```ruby
+class CreateUser < CMDx::Task
+  attribute :username, length: { within: 1..30 }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `:within` | Range that the length must fall within (inclusive) |
+| `:not_within` | Range that the length must not fall within |
+| `:in` | Alias for :within |
+| `:not_in` | Range that the length must not fall within |
+| `:min` | Minimum allowed length |
+| `:max` | Maximum allowed length |
+| `:is` | Exact required length |
+| `:is_not` | Length that is not allowed |
+| `:within_message` | Custom message for within/range validations |
+| `:in_message` | Custom message for :in validation |
+| `:not_within_message` | Custom message for not_within validation |
+| `:not_in_message` | Custom message for not_in validation |
+| `:min_message` | Custom message for minimum length validation |
+| `:max_message` | Custom message for maximum length validation |
+| `:is_message` | Custom message for exact length validation |
+| `:is_not_message` | Custom message for is_not validation |
+
+### Numeric
+
+```ruby
+class CreateUser < CMDx::Task
+  attribute :age, length: { min: 13 }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `:within` | Range that the value must fall within (inclusive) |
+| `:not_within` | Range that the value must not fall within |
+| `:in` | Alias for :within option |
+| `:not_in` | Alias for :not_within option |
+| `:min` | Minimum allowed value (inclusive, >=) |
+| `:max` | Maximum allowed value (inclusive, <=) |
+| `:is` | Exact value that must match |
+| `:is_not` | Value that must not match |
+| `:within_message` | Custom message for range validations |
+| `:not_within_message` | Custom message for exclusion validations |
+| `:min_message` | Custom message for minimum validation |
+| `:max_message` | Custom message for maximum validation |
+| `:is_message` | Custom message for exact match validation |
+| `:is_not_message` | Custom message for exclusion validation |
+
+### Presence
+
+```ruby
+class CreateUser < CMDx::Task
+  attribute :accept_tos, presence: true
+
+  attribute :accept_tos, presence: { message: "needs to be accepted" }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description |
+|---------|-------------|
+| `true` | Ensures value is not nil, empty string, or whitespace |
 
 ## Declarations
 
@@ -104,8 +251,7 @@ end
 class CreateWebsite < CMDx::Task
   register :validator, :domain, DomainValidator
 
-  attribute :domain_name, type: :string, domain: true
-  attribute :subdomain, type: :string, domain: true, allow_nil: true
+  attribute :domain_name, domain: true
 end
 ```
 
@@ -128,10 +274,10 @@ Validation failures provide detailed error information including parameter paths
 
 ```ruby
 class CreateUser < CMDx::Task
-  attribute :username, type: :string, presence: true, length: { minimum: 3, maximum: 20 }
-  attribute :age, type: :integer, numeric: { greater_than: 13, less_than: 120 }
-  attribute :role, type: :symbol, inclusion: { in: [:user, :moderator, :admin] }
-  attribute :email, type: :string, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  attribute :username, presence: true, length: { minimum: 3, maximum: 20 }
+  attribute :age, numeric: { greater_than: 13, less_than: 120 }
+  attribute :role, inclusion: { in: [:user, :moderator, :admin] }
+  attribute :email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
   def work
     # Your logic here...
