@@ -6,6 +6,7 @@ CMDx provides comprehensive automatic logging for task execution with structured
 
 - [Formatters](#formatters)
 - [Structure](#structure)
+- [Usage](#usage)
 
 ## Formatters
 
@@ -81,6 +82,20 @@ All log entries include comprehensive execution metadata. Field availability dep
 | `caused` | Cause exception details |
 | `caused_failure` | Original failing task details |
 | `threw_failure` | Task that propagated the failure |
+
+## Usage
+
+Tasks have access to the frameworks logger.
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    logger.debug { "Activated feature flags: #{Features.active_flags}" }
+    # Your logic here...
+    logger.info("Order processed")
+  end
+end
+```
 
 ---
 
