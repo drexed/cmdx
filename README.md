@@ -27,6 +27,7 @@ Or install it yourself as:
 
 ```ruby
 # Setup task
+# ---
 class SendWelcomeEmail < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { request.request_id }
 
@@ -41,8 +42,8 @@ class SendWelcomeEmail < CMDx::Task
     elsif user.unconfirmed?
       skip!("Email not verified")
     else
-      response = UserMailer.welcome(user, template).deliver_now
-      context.message_id = response.message_id
+      context.message = UserMailer.welcome(user, template).deliver_now
+      context.sent_at = Time.now
     end
   end
 
@@ -53,16 +54,21 @@ class SendWelcomeEmail < CMDx::Task
   end
 
   def track_email_delivery!
-    user.touch(:welcome_email_sent_at)
+    user.update!(welcome_email_message_id: context.message.id)
   end
 end
 
 # Execute task
-result = SendWelcomeEmail.execute(user_id: 123, template: "admin")
+# ---
+result = SendWelcomeEmail.execute(
+  user_id: 123,
+  "template" => "admin"
+)
 
 # Handle result
+# ---
 if result.success?
-  puts "Welcome email sent <message_id: #{result.context.message_id}>"
+  puts "Welcome email sent at #{result.context.sent_at}"
 elsif result.skipped?
   puts "Skipped: #{result.reason}"
 elsif result.failed?
@@ -99,6 +105,16 @@ end
 - [Deprecation](docs/deprecation.md)
 - [Workflows](docs/workflows.md)
 - [Tips and Tricks](docs/tips_and_tricks.md)
+
+## Ecosystem
+
+The following gems are under development:
+
+- `cmdx-i18n` I18n locales
+- `cmdx-rspec` RSpec matchers
+- `cmdx-minitest` Minitest matchers
+- `cmdx-jobs` Background job integrations
+- `cmdx-parallel` Parallel workflow task execution
 
 ## Development
 

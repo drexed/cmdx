@@ -18,4 +18,3 @@ Process the following instructions in the order given:
       ---
 
       ```
-3. Optimize @LLM.md for LLM and coding agent use

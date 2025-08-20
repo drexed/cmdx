@@ -3206,7 +3206,7 @@ class ProcessOrder < CMDx::Task
     order.charge!
     order.ship!
 
-    context.tracking_number = order.tracking_number
+    context.shipped_at = Time.now
   end
 
   private
