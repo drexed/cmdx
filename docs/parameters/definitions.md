@@ -84,7 +84,7 @@ CreateUser.execute(
 
 ## Sources
 
-Attributes delegate to accessible objects within the task. The default source is `:context`, but any accessible method or object can serve as a attribute source.
+Attributes delegate to accessible objects within the task. The default source is `:context`, but any accessible method or object can serve as an attribute source.
 
 ### Context
 
@@ -237,9 +237,8 @@ result = ProcessOrder.execute(user_id: 123)
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "city is required."
+result.reason   #=> "order_id is required. shipping_address is required."
 result.metadata #=> {
-                #     order_id is required. shipping_address is required.",
                 #     messages: {
                 #       order_id: ["is required"],
                 #       shipping_address: ["is required"]
@@ -257,7 +256,6 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.reason   #=> "city is required."
 result.metadata #=> {
-                #     city is required.",
                 #     messages: {
                 #       city: ["is required"]
                 #     }
