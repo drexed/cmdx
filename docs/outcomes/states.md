@@ -34,7 +34,7 @@ State-Status combinations:
 
 ## Transitions
 
-> [!IMPORTANT]
+> [!CAUTION]
 > States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
 
 ```ruby
@@ -48,7 +48,7 @@ initialized → executing → interrupted (skipped/failed execution)
 Use state predicates to check the current execution lifecycle:
 
 ```ruby
-result = OrderFulfillment.execute
+result = ProcessVideoUpload.execute
 
 # Individual state checks
 result.initialized? #=> false (after execution)
@@ -65,13 +65,13 @@ result.executed?    #=> true (complete OR interrupted)
 Use state-based handlers for lifecycle event handling. The `on_executed` handler is particularly useful for cleanup operations that should run regardless of success, skipped, or failure.
 
 ```ruby
-result = ProcessOrder.execute
+result = ProcessVideoUpload.execute
 
 # Individual state handlers
 result
-  .on_complete { |result| send_confirmation_email(result) }
-  .on_interrupted { |result| schedule_retry(result) }
-  .on_executed { |result| update_analytics(result) }
+  .on_complete { |result| send_upload_notification(result) }
+  .on_interrupted { |result| cleanup_temp_files(result) }
+  .on_executed { |result| log_upload_metrics(result) }
 ```
 
 ---

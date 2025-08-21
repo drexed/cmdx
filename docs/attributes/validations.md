@@ -24,32 +24,32 @@ Attribute validations ensure task arguments meet specified requirements before e
 Define validation rules on attributes to enforce data requirements:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessSubscription < CMDx::Task
   # Required field with presence validation
-  attribute :customer_id, presence: true
+  attribute :user_id, presence: true
 
   # String with length constraints
-  attribute :notes, length: { minimum: 10, maximum: 500 }
+  attribute :preferences, length: { minimum: 10, maximum: 500 }
 
   # Numeric range validation
-  attribute :quantity, inclusion: { in: 1..100 }
+  attribute :tier_level, inclusion: { in: 1..5 }
 
   # Format validation for email
-  attribute :email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  attribute :contact_email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
   def work
-    customer_id #=> "12345"
-    notes       #=> "Please deliver to front door"
-    quantity    #=> 5
-    email       #=> "customer@example.com"
+    user_id       #=> "98765"
+    preferences   #=> "Send weekly digest emails"
+    tier_level    #=> 3
+    contact_email #=> "user@company.com"
   end
 end
 
-ProcessOrder.execute(
-  customer_id: "12345",
-  notes: "Please deliver to front door",
-  quantity: 5,
-  email: "customer@example.com"
+ProcessSubscription.execute(
+  user_id: "98765",
+  preferences: "Send weekly digest emails",
+  tier_level: 3,
+  contact_email: "user@company.com"
 )
 ```
 
@@ -72,8 +72,8 @@ This list of options is available to all validators:
 ### Exclusion
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :status, exclusion: { in: %w[out_of_stock discontinued] }
+class ProcessProduct < CMDx::Task
+  attribute :status, exclusion: { in: %w[recalled archived] }
 
   def work
     # Your logic here...
@@ -92,10 +92,10 @@ end
 ### Format
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :email, exclusion: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+class ProcessProduct < CMDx::Task
+  attribute :sku, format: /\A[A-Z]{3}-[0-9]{4}\z/
 
-  attribute :email, exclusion: { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i }
+  attribute :sku, format: { with: /\A[A-Z]{3}-[0-9]{4}\z/ }
 
   def work
     # Your logic here...
@@ -112,8 +112,8 @@ end
 ### Inclusion
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :status, inclusion: { in: %w[preorder in_stock] }
+class ProcessProduct < CMDx::Task
+  attribute :availability, inclusion: { in: %w[available limited] }
 
   def work
     # Your logic here...
@@ -132,8 +132,8 @@ end
 ### Length
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :username, length: { within: 1..30 }
+class CreateBlogPost < CMDx::Task
+  attribute :title, length: { within: 5..100 }
 
   def work
     # Your logic here...
@@ -163,8 +163,8 @@ end
 ### Numeric
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :age, length: { min: 13 }
+class CreateBlogPost < CMDx::Task
+  attribute :word_count, numeric: { min: 100 }
 
   def work
     # Your logic here...
@@ -192,10 +192,10 @@ end
 ### Presence
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :accept_tos, presence: true
+class CreateBlogPost < CMDx::Task
+  attribute :content, presence: true
 
-  attribute :accept_tos, presence: { message: "needs to be accepted" }
+  attribute :content, presence: { message: "cannot be blank" }
 
   def work
     # Your logic here...
@@ -210,25 +210,25 @@ end
 ## Declarations
 
 > [!IMPORTANT]
-> Custom validators must raise a CMDx::ValidationError and its message is used as part of the fault reason and metadata.
+> Custom validators must raise a `CMDx::ValidationError` and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 
 Use anonymous functions for simple validation logic:
 
 ```ruby
-class CreateWebsite < CMDx::Task
+class SetupApplication < CMDx::Task
   # Proc
-  register :validator, :domain, proc do |value, options = {}|
-    unless value.match?(/\A[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}\z/)
-      raise CMDx::ValidationError, "invalid domain format"
+  register :validator, :api_key, proc do |value, options = {}|
+    unless value.match?(/\A[a-zA-Z0-9]{32}\z/)
+      raise CMDx::ValidationError, "invalid API key format"
     end
   end
 
   # Lambda
-  register :validator, :domain, ->(value, options = {}) {
-    unless value.match?(/\A[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}\z/)
-      raise CMDx::ValidationError, "invalid domain format"
+  register :validator, :api_key, ->(value, options = {}) {
+    unless value.match?(/\A[a-zA-Z0-9]{32}\z/)
+      raise CMDx::ValidationError, "invalid API key format"
     end
   }
 end
@@ -239,18 +239,18 @@ end
 Register custom validation logic for specialized requirements:
 
 ```ruby
-class DomainValidator
+class ApiKeyValidator
   def self.call(value, options = {})
-    unless value.match?(/\A[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}\z/)
-      raise CMDx::ValidationError, "invalid domain format"
+    unless value.match?(/\A[a-zA-Z0-9]{32}\z/)
+      raise CMDx::ValidationError, "invalid API key format"
     end
   end
 end
 
-class CreateWebsite < CMDx::Task
-  register :validator, :domain, DomainValidator
+class SetupApplication < CMDx::Task
+  register :validator, :api_key, ApiKeyValidator
 
-  attribute :domain_name, domain: true
+  attribute :access_key, api_key: true
 end
 ```
 
@@ -258,47 +258,47 @@ end
 
 Remove custom validators when no longer needed:
 
+> [!WARNING]
+> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+
 ```ruby
-class CreateWebsite < CMDx::Task
-  deregister :validator, :domain
+class SetupApplication < CMDx::Task
+  deregister :validator, :api_key
 end
 ```
-
-> [!IMPORTANT]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ## Error Handling
 
 Validation failures provide detailed error information including attribute paths, validation rules, and specific failure reasons:
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :username, presence: true, length: { minimum: 3, maximum: 20 }
-  attribute :age, numeric: { greater_than: 13, less_than: 120 }
-  attribute :role, inclusion: { in: [:user, :moderator, :admin] }
-  attribute :email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+class CreateProject < CMDx::Task
+  attribute :project_name, presence: true, length: { minimum: 3, maximum: 50 }
+  attribute :budget, numeric: { greater_than: 1000, less_than: 1000000 }
+  attribute :priority, inclusion: { in: [:low, :medium, :high] }
+  attribute :contact_email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
   def work
     # Your logic here...
   end
 end
 
-result = CreateUser.execute(
-  username: "ab",           # Too short
-  age: 10,                  # Too young
-  role: :superuser,         # Not in allowed list
-  email: "invalid-email"    # Invalid format
+result = CreateProject.execute(
+  project_name: "AB",           # Too short
+  budget: 500,                  # Too low
+  priority: :urgent,            # Not in allowed list
+  contact_email: "invalid-email"    # Invalid format
 )
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "username is too short (minimum is 3 characters). age must be greater than 13. role is not included in the list. email is invalid."
+result.reason   #=> "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid."
 result.metadata #=> {
                 #     messages: {
-                #       username: ["is too short (minimum is 3 characters)"],
-                #       age: ["must be greater than 13"],
-                #       role: ["is not included in the list"],
-                #       email: ["is invalid"]
+                #       project_name: ["is too short (minimum is 3 characters)"],
+                #       budget: ["must be greater than 1000"],
+                #       priority: ["is not included in the list"],
+                #       contact_email: ["is invalid"]
                 #     }
                 #   }
 ```

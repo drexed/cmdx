@@ -10,7 +10,14 @@
 
 # CMDx
 
-`CMDx` is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
+CMDx is a framework for building maintainable business processes. It simplifies building task objects by offering integrated:
+
+- Flow controls
+- Composable workflows
+- Comprehensive logging
+- Attribute definition
+- Validations and coercions
+- And much more...
 
 ## Installation
 
@@ -30,54 +37,56 @@ Or install it yourself as:
 
 ## Quick Example
 
+Here's how a quick 3 step process can open up a world of possibilities:
+
 ```ruby
-# Setup task
-# ---
-class SendWelcomeEmail < CMDx::Task
+# 1. Setup task
+# ---------------------------------
+class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
-  on_success :track_email_delivery!
+  on_success :track_analysis_completion!
 
-  required :user_id, type: :integer, numeric: { min: 1 }
-  optional :template, default: "customer"
+  required :dataset_id, type: :integer, numeric: { min: 1 }
+  optional :analysis_type, default: "standard"
 
   def work
-    if user.nil?
-      fail!("User not found", code: 404)
-    elsif user.unconfirmed?
-      skip!("Email not verified")
+    if dataset.nil?
+      fail!("Dataset not found", code: 404)
+    elsif dataset.unprocessed?
+      skip!("Dataset not ready for analysis")
     else
-      context.message = UserMailer.welcome(user, template).deliver_now
-      context.sent_at = Time.now
+      context.result = PValueAnalyzer.analyze(dataset, analysis_type)
+      context.analyzed_at = Time.now
     end
   end
 
   private
 
-  def user
-    @user ||= User.find_by(id: user_id)
+  def dataset
+    @dataset ||= Dataset.find_by(id: dataset_id)
   end
 
-  def track_email_delivery!
-    user.update!(welcome_email_message_id: context.message.id)
+  def track_analysis_completion!
+    dataset.update!(analysis_result_id: context.result.id)
   end
 end
 
-# Execute task
-# ---
-result = SendWelcomeEmail.execute(
-  user_id: 123,
-  "template" => "admin"
+# 2. Execute task
+# ---------------------------------
+result = AnalyzeMetrics.execute(
+  dataset_id: 123,
+  "analysis_type" => "advanced"
 )
 
-# Handle result
-# ---
+# 3. Handle result
+# ---------------------------------
 if result.success?
-  puts "Welcome email sent at #{result.context.sent_at}"
+  puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
-  puts "Skipped: #{result.reason}"
+  puts "Skipping analyzation due to: #{result.reason}"
 elsif result.failed?
-  puts "Failed: #{result.reason} with code: #{result.metadata[:code]}"
+  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
 end
 ```
 
@@ -113,7 +122,7 @@ end
 
 ## Ecosystem
 
-The following gems are under development:
+The following gems are currently under development:
 
 - `cmdx-i18n` I18n locales
 - `cmdx-rspec` RSpec matchers

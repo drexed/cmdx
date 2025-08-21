@@ -17,22 +17,22 @@ This guide covers advanced patterns and optimization techniques for getting the 
 
 Create a well-organized command structure for maintainable applications:
 
-```txt
-/app
-  /tasks
-    /orders
-      - charge_order.rb
-      - validate_order.rb
-      - fulfill_order.rb
-      - process_order.rb # workflow
-    /notifications
-      - send_email.rb
-      - send_sms.rb
-      - post_slack_message.rb
-      - deliver_notifications.rb # workflow
-    - application_task.rb # base class
-    - login_user.rb
-    - register_user.rb
+```text
+/app/
+└── /tasks/
+    ├── /invoices/
+    │   ├── calculate_tax.rb
+    │   ├── validate_invoice.rb
+    │   ├── send_invoice.rb
+    │   └── process_invoice.rb # workflow
+    ├── /reports/
+    │   ├── generate_pdf.rb
+    │   ├── compile_data.rb
+    │   ├── export_csv.rb
+    │   └── create_reports.rb # workflow
+    ├── application_task.rb # base class
+    ├── authenticate_session.rb
+    └── activate_account.rb
 ```
 
 ### Naming Conventions
@@ -41,14 +41,14 @@ Follow consistent naming patterns for clarity and maintainability:
 
 ```ruby
 # Verb + Noun
-class ProcessOrder < CMDx::Task; end
-class SendEmail < CMDx::Task; end
-class ValidatePayment < CMDx::Task; end
+class ExportData < CMDx::Task; end
+class CompressFile < CMDx::Task; end
+class ValidateSchema < CMDx::Task; end
 
 # Use present tense verbs for actions
-class CreateUser < CMDx::Task; end      # ✓ Good
-class CreatingUser < CMDx::Task; end    # ❌ Avoid
-class UserCreation < CMDx::Task; end    # ❌ Avoid
+class GenerateToken < CMDx::Task; end      # ✓ Good
+class GeneratingToken < CMDx::Task; end    # ❌ Avoid
+class TokenGeneration < CMDx::Task; end    # ❌ Avoid
 ```
 
 ### Style Guide
@@ -56,38 +56,38 @@ class UserCreation < CMDx::Task; end    # ❌ Avoid
 Follow a style pattern for consistent task design:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ExportReport < CMDx::Task
 
   # 1. Register functions
   register :middleware, CMDx::Middlewares::Correlate
-  register :validator, :domain, DomainValidator
+  register :validator, :format, FormatValidator
 
   # 2. Define callbacks
-  before_execution :find_order
-  on_complete :track_datadog_metrics, if: ->(task) { Current.account.metrics? }
+  before_execution :find_report
+  on_complete :track_export_metrics, if: ->(task) { Current.tenant.analytics? }
 
   # 3. Define attributes
-  attributes :customer_id
-  required :order_id
-  optional :store_id
+  attributes :user_id
+  required :report_id
+  optional :format_type
 
   # 4. Define work
   def work
-    order.charge!
-    order.ship!
+    report.compile!
+    report.export!
 
-    context.shipped_at = Time.now
+    context.exported_at = Time.now
   end
 
   private
 
   # 5. Define methods
-  def find_order
-    @order ||= Order.find(order_id)
+  def find_report
+    @report ||= Report.find(report_id)
   end
 
-  def track_datadog_metrics
-    DataDog.increment(:order_processed)
+  def track_export_metrics
+    Analytics.increment(:report_exported)
   end
 
 end
@@ -98,20 +98,20 @@ end
 Use Rails `with_options` to reduce duplication and improve readability:
 
 ```ruby
-class UpdateUserProfile < CMDx::Task
+class ConfigureCompany < CMDx::Task
   # Apply common options to multiple attributes
   with_options(type: :string, presence: true) do
-    attributes :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-    required :first_name, :last_name
-    optional :phone, format: { with: /\A\+?[\d\s\-\(\)]+\z/ }
+    attributes :website, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) }
+    required :company_name, :industry
+    optional :description, format: { with: /\A[\w\s\-\.,!?]+\z/ }
   end
 
   # Nested attributes with shared prefix
-  required :address do
-    with_options(prefix: :address_) do
-      attributes :street, :city, :postal_code, type: :string
+  required :headquarters do
+    with_options(prefix: :hq_) do
+      attributes :street, :city, :zip_code, type: :string
       required :country, type: :string, inclusion: { in: VALID_COUNTRIES }
-      optional :state, type: :string
+      optional :region, type: :string
     end
   end
 
@@ -147,7 +147,7 @@ class ApplicationTask < CMDx::Task
 end
 
 # SQL queries will now include comments like:
-# /*cmdx_task_class:ProcessOrderTask,cmdx_chain_id:018c2b95-b764-7615*/ SELECT * FROM orders WHERE id = 1
+# /*cmdx_task_class:ExportReportTask,cmdx_chain_id:018c2b95-b764-7615*/ SELECT * FROM reports WHERE id = 1
 ```
 
 ---

@@ -17,21 +17,21 @@ Defaults apply when attributes are not provided or resolve to `nil`. They work s
 ### Static Values
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :charge_type, default: :credit_card
-  attribute :priority, default: "standard"
-  attribute :send_email, default: true
-  attribute :max_retries, default: 3
-  attribute :tags, default: []
-  attribute :data, default: {}
+class OptimizeDatabase < CMDx::Task
+  attribute :strategy, default: :incremental
+  attribute :level, default: "basic"
+  attribute :notify_admin, default: true
+  attribute :timeout_minutes, default: 30
+  attribute :indexes, default: []
+  attribute :options, default: {}
 
   def work
-    charge_type #=> :credit_card
-    priority    #=> "standard"
-    send_email  #=> true
-    max_retries #=> 3
-    tags        #=> []
-    data        #=> {}
+    strategy        #=> :incremental
+    level           #=> "basic"
+    notify_admin    #=> true
+    timeout_minutes #=> 30
+    indexes         #=> []
+    options         #=> {}
   end
 end
 ```
@@ -41,8 +41,8 @@ end
 Reference instance methods by symbol for dynamic default values:
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :priority, default: :default_priority
+class ProcessAnalytics < CMDx::Task
+  attribute :granularity, default: :default_granularity
 
   def work
     # Your logic here...
@@ -50,8 +50,8 @@ class ProcessOrder < CMDx::Task
 
   private
 
-  def default_priority
-    Current.account.pro? ? "priority" : "standard"
+  def default_granularity
+    Current.user.premium? ? "hourly" : "daily"
   end
 end
 ```
@@ -61,12 +61,12 @@ end
 Use anonymous functions for dynamic default values:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class CacheContent < CMDx::Task
   # Proc
-  attribute :send_email, default: proc { Current.account.email_api_key? }
+  attribute :expire_hours, default: proc { Current.tenant.cache_duration || 24 }
 
   # Lambda
-  attribute :priority, default: -> { Current.account.pro? ? "priority" : "standard" }
+  attribute :compression, default: -> { Current.tenant.premium? ? "gzip" : "none" }
 end
 ```
 
@@ -75,12 +75,12 @@ end
 Defaults are subject to the same coercion and validation rules as provided values, ensuring consistency and catching configuration errors early.
 
 ```ruby
-class ConfigureService < CMDx::Task
+class ScheduleBackup < CMDx::Task
   # Coercions
-  attribute :retry_count, default: "3", type: :integer
+  attribute :retention_days, default: "7", type: :integer
 
   # Validations
-  optional :priority, default: "medium", inclusion: { in: %w[low medium high urgent] }
+  optional :frequency, default: "daily", inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
 
