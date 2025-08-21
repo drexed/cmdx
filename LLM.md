@@ -3182,6 +3182,38 @@ class GeneratingToken < CMDx::Task; end    # ❌ Avoid
 class TokenGeneration < CMDx::Task; end    # ❌ Avoid
 ```
 
+### Story Telling
+
+Consider using descriptive methods to express the task’s flow, rather than concentrating all logic inside the `work` method.
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    charge_payment_method
+    assign_to_warehouse
+    send_notification
+  end
+
+  private
+
+  def charge_payment_method
+    order.primary_payment_method.charge!
+  end
+
+  def assign_to_warehouse
+    order.ready_for_shipping!
+  end
+
+  def send_notification
+    if order.products_out_of_stock?
+      OrderMailer.pending(order).deliver
+    else
+      OrderMailer.preparing(order).deliver
+    end
+  end
+end
+```
+
 ### Style Guide
 
 Follow a style pattern for consistent task design:

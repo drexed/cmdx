@@ -7,6 +7,7 @@ This guide covers advanced patterns and optimization techniques for getting the 
 - [Project Organization](#project-organization)
   - [Directory Structure](#directory-structure)
   - [Naming Conventions](#naming-conventions)
+  - [Story Telling](#story-telling)
   - [Style Guide](#style-guide)
 - [Attribute Options](#attribute-options)
 - [ActiveRecord Query Tagging](#activerecord-query-tagging)
@@ -49,6 +50,38 @@ class ValidateSchema < CMDx::Task; end
 class GenerateToken < CMDx::Task; end      # ✓ Good
 class GeneratingToken < CMDx::Task; end    # ❌ Avoid
 class TokenGeneration < CMDx::Task; end    # ❌ Avoid
+```
+
+### Story Telling
+
+Consider using descriptive methods to express the task’s flow, rather than concentrating all logic inside the `work` method.
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    charge_payment_method
+    assign_to_warehouse
+    send_notification
+  end
+
+  private
+
+  def charge_payment_method
+    order.primary_payment_method.charge!
+  end
+
+  def assign_to_warehouse
+    order.ready_for_shipping!
+  end
+
+  def send_notification
+    if order.products_out_of_stock?
+      OrderMailer.pending(order).deliver
+    else
+      OrderMailer.preparing(order).deliver
+    end
+  end
+end
 ```
 
 ### Style Guide
