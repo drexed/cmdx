@@ -42,51 +42,51 @@ Here's how a quick 3 step process can open up a world of possibilities:
 ```ruby
 # 1. Setup task
 # ---------------------------------
-class SendWelcomeEmail < CMDx::Task
+class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
-  on_success :track_email_delivery!
+  on_success :track_analysis_completion!
 
-  required :user_id, type: :integer, numeric: { min: 1 }
-  optional :template, default: "customer"
+  required :dataset_id, type: :integer, numeric: { min: 1 }
+  optional :analysis_type, default: "standard"
 
   def work
-    if user.nil?
-      fail!("User not found", code: 404)
-    elsif user.unconfirmed?
-      skip!("Email not verified")
+    if dataset.nil?
+      fail!("Dataset not found", code: 404)
+    elsif dataset.unprocessed?
+      skip!("Dataset not ready for analysis")
     else
-      context.message = UserMailer.welcome(user, template).deliver_now
-      context.sent_at = Time.now
+      context.result = PValueAnalyzer.analyze(dataset, analysis_type)
+      context.analyzed_at = Time.now
     end
   end
 
   private
 
-  def user
-    @user ||= User.find_by(id: user_id)
+  def dataset
+    @dataset ||= Dataset.find_by(id: dataset_id)
   end
 
-  def track_email_delivery!
-    user.update!(welcome_email_message_id: context.message.id)
+  def track_analysis_completion!
+    dataset.update!(analysis_result_id: context.result.id)
   end
 end
 
 # 2. Execute task
 # ---------------------------------
-result = SendWelcomeEmail.execute(
-  user_id: 123,
-  "template" => "admin"
+result = AnalyzeMetrics.execute(
+  dataset_id: 123,
+  "analysis_type" => "advanced"
 )
 
 # 3. Handle result
 # ---------------------------------
 if result.success?
-  puts "Welcome email sent at #{result.context.sent_at}"
+  puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
-  puts "Skipped: #{result.reason}"
+  puts "Skipping analyzation due to: #{result.reason}"
 elsif result.failed?
-  puts "Failed: #{result.reason} with code: #{result.metadata[:code]}"
+  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
 end
 ```
 
