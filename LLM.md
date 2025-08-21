@@ -464,7 +464,6 @@ result.chain        #=> Task execution chain
 # Context and metadata
 result.context      #=> Context with all task data
 result.metadata     #=> Hash with execution metadata
-```
 
 ---
 
@@ -899,7 +898,6 @@ fail!("Unsupported")
 # Bad: Default, cannot determine reason
 skip! #=> "no reason given"
 fail! #=> "no reason given"
-```
 
 ---
 
@@ -1720,7 +1718,6 @@ result.metadata #=> {
                 #       port: ["is required"]
                 #     }
                 #   }
-```
 
 ---
 
@@ -1946,7 +1943,6 @@ result.metadata #=> {
                 #       score: ["could not coerce into one of: float, big_decimal"]
                 #     }
                 #   }
-```
 
 ---
 
