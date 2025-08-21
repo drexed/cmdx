@@ -66,12 +66,12 @@ class ExportReport < CMDx::Task
   before_execution :find_report
   on_complete :track_export_metrics, if: ->(task) { Current.tenant.analytics? }
 
-  # 3. Define attributes
+  # 3. Declare attributes
   attributes :user_id
   required :report_id
   optional :format_type
 
-  # 4. Define work
+  # 4. Define work method
   def work
     report.compile!
     report.export!
@@ -79,9 +79,10 @@ class ExportReport < CMDx::Task
     context.exported_at = Time.now
   end
 
+  # TIP: Favor private business logic to reduce the surface of the public API.
   private
 
-  # 5. Define methods
+  # 5. Build helper functions
   def find_report
     @report ||= Report.find(report_id)
   end
