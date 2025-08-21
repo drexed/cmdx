@@ -200,8 +200,7 @@ end
 ```
 
 > [!TIP]
-> Use task-level settings for tasks that require special handling, such as financial reporting,
-> external API integrations, or critical system operations.
+> Use task-level settings for tasks that require special handling, such as financial reporting, external API integrations, or critical system operations.
 
 ### Registrations
 
