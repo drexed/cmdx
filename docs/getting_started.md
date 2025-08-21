@@ -81,15 +81,15 @@ CMDx.configure do |config|
 
   # Via proc or lambda
   config.middlewares.register proc { |task, options|
-    start = Time.now
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     result = yield
-    finish = Time.now
-    Rails.logger.debug { "task complete in #{finish - start}ms" }
+    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    Rails.logger.debug { "task completed in #{((end_time - start_time) * 1000).round(2)}ms" }
     result
   }
 
   # With options
-  config.middlewares.register MetricsMiddleware, namespace: "app.tasks"
+  config.middlewares.register AuditTrailMiddleware, service_name: "document_processor"
 
   # Remove middleware
   config.middlewares.deregister CMDx::Middlewares::Timeout
@@ -105,22 +105,22 @@ end
 ```ruby
 CMDx.configure do |config|
   # Via method
-  config.callbacks.register :before_execution, :setup_request_context
+  config.callbacks.register :before_execution, :initialize_user_session
 
   # Via callable (must respond to `call(task)`)
-  config.callbacks.register :on_success, TrackSuccessfulPurchase
+  config.callbacks.register :on_success, LogUserActivity
 
   # Via proc or lambda
   config.callbacks.register :on_complete, proc { |task|
-    duration = task.metadata[:runtime]
-    StatsD.histogram("task.duration", duration, tags: ["class:#{task.class.name}"])
+    execution_time = task.metadata[:runtime]
+    Metrics.timer("task.execution_time", execution_time, tags: ["task:#{task.class.name.underscore}"])
   }
 
   # With options
-  config.callbacks.register :on_failure, :notify_admin, if: :production?
+  config.callbacks.register :on_failure, :send_alert_notification, if: :critical_task?
 
   # Remove callback
-  config.callbacks.deregister :on_success, TrackSuccessfulPurchase
+  config.callbacks.deregister :on_success, LogUserActivity
 end
 ```
 
@@ -129,22 +129,22 @@ end
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(value, options)`)
-  config.coercions.register :money, MoneyCoercion
+  config.coercions.register :currency, CurrencyCoercion
 
-  # Via method (must match signature `def point_coercion(value, options)`)
-  config.coercions.register :point, :point_coercion
+  # Via method (must match signature `def coordinates_coercion(value, options)`)
+  config.coercions.register :coordinates, :coordinates_coercion
 
   # Via proc or lambda
-  config.coercions.register :csv_array, proc { |value, options|
-    separator = options[:separator] || ','
-    max_items = options[:max_items] || 100
+  config.coercions.register :tag_list, proc { |value, options|
+    delimiter = options[:delimiter] || ','
+    max_tags = options[:max_tags] || 50
 
-    items = value.to_s.split(separator).map(&:strip).reject(&:empty?)
-    items.first(max_items)
+    tags = value.to_s.split(delimiter).map(&:strip).reject(&:empty?)
+    tags.first(max_tags)
   }
 
   # Remove coercion
-  config.coercions.deregister :money
+  config.coercions.deregister :currency
 end
 ```
 
@@ -153,21 +153,21 @@ end
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(value, options)`)
-  config.validators.register :email, EmailValidator
+  config.validators.register :username, UsernameValidator
 
-  # Via method (must match signature `def phone_validator(value, options)`)
-  config.validators.register :phone, :phone_validator
+  # Via method (must match signature `def url_validator(value, options)`)
+  config.validators.register :url, :url_validator
 
   # Via proc or lambda
-  config.validators.register :api_key, proc { |value, options|
-    required_prefix = options[:prefix] || "sk_"
-    min_length = options[:min_length] || 32
+  config.validators.register :access_token, proc { |value, options|
+    expected_prefix = options[:prefix] || "tok_"
+    minimum_length = options[:min_length] || 40
 
-    value.start_with?(required_prefix) && value.length >= min_length
+    value.start_with?(expected_prefix) && value.length >= minimum_length
   }
 
   # Remove validator
-  config.validators.deregister :email
+  config.validators.deregister :username
 end
 ```
 
@@ -178,7 +178,7 @@ end
 Override global configuration for specific tasks using `settings`:
 
 ```ruby
-class ProcessPayment < CMDx::Task
+class GenerateInvoice < CMDx::Task
   settings(
     # Global configuration overrides
     task_breakpoints: ["failed"],                # Breakpoint override
@@ -189,7 +189,7 @@ class ProcessPayment < CMDx::Task
     breakpoints: ["failed"],                     # Contextual pointer for :task_breakpoints and :workflow_breakpoints
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
-    tags: ["payments", "critical"],              # Logging tags
+    tags: ["billing", "financial"],              # Logging tags
     deprecated: true                             # Task deprecations
   )
 
@@ -200,8 +200,8 @@ end
 ```
 
 > [!TIP]
-> Use task-level settings for tasks that require special handling, such as payment processing,
-> external API calls, or critical system operations.
+> Use task-level settings for tasks that require special handling, such as financial reporting,
+> external API integrations, or critical system operations.
 
 ### Registrations
 
@@ -209,25 +209,25 @@ Register middlewares, callbacks, coercions, and validators on a specific task.
 Deregister options that should not be available.
 
 ```ruby
-class ProcessPayment < CMDx::Task
+class SendCampaignEmail < CMDx::Task
   # Middlewares
   register :middleware, CMDx::Middlewares::Timeout
-  deregister :middleware, MetricsMiddleware
+  deregister :middleware, AuditTrailMiddleware
 
   # Callbacks
   register :callback, :on_complete, proc { |task|
-    duration = task.metadata[:runtime]
-    StatsD.histogram("task.duration", duration, tags: ["class:#{task.class.name}"])
+    runtime = task.metadata[:runtime]
+    Analytics.track("email_campaign.sent", runtime, tags: ["task:#{task.class.name}"])
   }
-  deregister :callback, :before_execution, :setup_request_context
+  deregister :callback, :before_execution, :initialize_user_session
 
   # Coercions
-  register :coercion, :money, MoneyCoercion
-  deregister :coercion, :point
+  register :coercion, :currency, CurrencyCoercion
+  deregister :coercion, :coordinates
 
   # Validators
-  register :validator, :email, :email_validator
-  deregister :validator, :phone
+  register :validator, :username, :username_validator
+  deregister :validator, :url
 
   def work
     # Your logic here...
@@ -246,12 +246,12 @@ CMDx.configuration.task_breakpoints     #=> ["failed"]
 CMDx.configuration.middlewares.registry #=> [<Middleware>, ...]
 
 # Task configuration access
-class AnalyzeData < CMDx::Task
-  settings(tags: ["data", "analytics"])
+class ProcessUpload < CMDx::Task
+  settings(tags: ["files", "storage"])
 
   def work
     self.class.settings[:logger] #=> Global configuration value
-    self.class.settings[:tags]   #=> Task configuration value => ["data", "analytics"]
+    self.class.settings[:tags]   #=> Task configuration value => ["files", "storage"]
   end
 end
 ```
@@ -283,14 +283,14 @@ end
 Generate new CMDx tasks quickly using the built-in generator:
 
 ```bash
-rails generate cmdx:task ProcessOrder
+rails generate cmdx:task ModerateBlogPost
 ```
 
 This creates a new task file with the basic structure:
 
 ```ruby
-# app/tasks/process_order.rb
-class ProcessOrder < CMDx::Task
+# app/tasks/moderate_blog_post.rb
+class ModerateBlogPost < CMDx::Task
   def work
     # Your logic here...
   end
@@ -299,7 +299,7 @@ end
 
 > [!TIP]
 > Use **present tense verbs + noun** for task names, eg:
-> `ProcessOrder`, `SendWelcomeEmail`, `ValidatePaymentDetails`
+> `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ---
 

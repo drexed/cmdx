@@ -15,18 +15,18 @@ CMDx provides robust exception handling that differs between the `execute` and `
 The `execute` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
 
 ```ruby
-class ProcessPayment < CMDx::Task
+class ProcessDocument < CMDx::Task
   def work
-    raise UnknownPaymentMethod, "unsupported payment method"
+    raise UnsupportedFormat, "document format not supported"
   end
 end
 
-result = ProcessPayment.execute
+result = ProcessDocument.execute
 result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.failed?  #=> true
-result.reason   #=> "[UnknownPaymentMethod] unsupported payment method"
-result.cause    #=> <UnknownPaymentMethod>
+result.reason   #=> "[UnsupportedFormat] document format not supported"
+result.cause    #=> <UnsupportedFormat>
 ```
 
 ### Bang execution
@@ -34,15 +34,15 @@ result.cause    #=> <UnknownPaymentMethod>
 The `execute!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
 
 ```ruby
-class ProcessPayment < CMDx::Task
+class ProcessDocument < CMDx::Task
   def work
-    raise UnknownPaymentMethod, "unsupported payment method"
+    raise UnsupportedFormat, "document format not supported"
   end
 end
 
 begin
-  ProcessPayment.execute!
-rescue UnknownPaymentMethod => e
+  ProcessDocument.execute!
+rescue UnsupportedFormat => e
   puts "Handle exception: #{e.message}"
 end
 ```

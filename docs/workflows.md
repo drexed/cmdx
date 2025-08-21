@@ -24,13 +24,13 @@ Tasks execute in declaration order (FIFO). The workflow context propagates to ea
 ### Task
 
 ```ruby
-class NotificationWorkflow < CMDx::Task
+class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task SendNotificationCheck
-  task PrepNotificationTemplate
+  task CreateUserProfile
+  task SetupAccountPreferences
 
-  tasks SendEmail, SendSms, SendPush
+  tasks SendWelcomeEmail, SendWelcomeSms, CreateDashboard
 end
 ```
 
@@ -42,17 +42,17 @@ Group related tasks for better organization and shared configuration:
 > Settings and conditionals for a group apply to all tasks within that group.
 
 ```ruby
-class DataProcessingWorkflow < CMDx::Task
+class ContentModerationWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  # Validation phase
-  tasks ValidateInput, ValidateSchema, ValidateBusinessRules, breakpoints: ["skipped"]
+  # Screening phase
+  tasks ScanForProfanity, CheckForSpam, ValidateImages, breakpoints: ["skipped"]
 
-  # Processing phase
-  tasks TransformData, ApplyRules, CalculateMetrics
+  # Review phase
+  tasks ApplyFilters, ScoreContent, FlagSuspicious
 
-  # Output phase
-  tasks GenerateReport, SaveResults, NotifyStakeholders
+  # Decision phase
+  tasks PublishContent, QueueForReview, NotifyModerators
 end
 ```
 
@@ -61,41 +61,41 @@ end
 Conditionals support multiple syntaxes for flexible execution control:
 
 ```ruby
-class DeliveryCheck
+class ContentAccessCheck
   def call(task)
-    task.context.user.can?(:send_email)
+    task.context.user.can?(:publish_content)
   end
 end
 
-class NotificationWorkflow < CMDx::Task
+class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
   # If and/or Unless
-  task SendEmail, if: :email_available?, unless: :email_temporary?
+  task SendWelcomeEmail, if: :email_configured?, unless: :email_disabled?
 
   # Proc
-  task SendEmail, if: ->(workflow) { Rails.env.production? && workflow.class.name.include?("Zip") }
+  task SendWelcomeEmail, if: ->(workflow) { Rails.env.production? && workflow.class.name.include?("Premium") }
 
   # Lambda
-  task SendEmail, if: proc { |workflow| workflow.context.products_on_backorder? }
+  task SendWelcomeEmail, if: proc { |workflow| workflow.context.features_enabled? }
 
   # Class or Module
-  task SendEmail, unless: AbilityCheck
+  task SendWelcomeEmail, unless: ContentAccessCheck
 
   # Instance
-  task SendEmail, if: AbilityCheck.new
+  task SendWelcomeEmail, if: ContentAccessCheck.new
 
   # Conditional applies to all tasks of this declaration group
-  tasks SendEmail, SendSms, SendPush, if: :email_available?
+  tasks SendWelcomeEmail, CreateDashboard, SetupTutorial, if: :email_configured?
 
   private
 
-  def email_available?
-    context.user.email.present?
+  def email_configured?
+    context.user.email_address.present?
   end
 
-  def email_temporary?
-    context.user.email_service == :temporary
+  def email_disabled?
+    context.user.communication_preference == :disabled
   end
 end
 ```
@@ -107,12 +107,12 @@ This is configurable via global and task level breakpoint settings. Task and gro
 can be used together within a workflow.
 
 ```ruby
-class DataWorkflow < CMDx::Task
+class AnalyticsWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task LoadDataTask      # If fails → workflow stops
-  task ValidateDataTask  # If skipped → workflow continues
-  task SaveDataTask      # Only runs if no failures occurred
+  task CollectMetrics      # If fails → workflow stops
+  task FilterOutliers      # If skipped → workflow continues
+  task GenerateDashboard   # Only runs if no failures occurred
 end
 ```
 
@@ -121,25 +121,25 @@ end
 Configure halt behavior for the entire workflow:
 
 ```ruby
-class CriticalWorkflow < CMDx::Task
+class SecurityWorkflow < CMDx::Task
   include CMDx::Workflow
 
   # Halt on both failed and skipped results
   settings(workflow_breakpoints: ["skipped", "failed"])
 
-  task LoadCriticalDataTask
-  task ValidateCriticalDataTask
+  task PerformSecurityScan
+  task ValidateSecurityRules
 end
 
-class OptionalWorkflow < CMDx::Task
+class OptionalTasksWorkflow < CMDx::Task
   include CMDx::Workflow
 
   # Never halt, always continue
   settings(breakpoints: [])
 
-  task TryLoadDataTask
-  task TryValidateDataTask
-  task TrySaveDataTask
+  task TryBackupData
+  task TryCleanupLogs
+  task TryOptimizeCache
 end
 ```
 
@@ -148,13 +148,13 @@ end
 Different task groups can have different halt behavior:
 
 ```ruby
-class AccountWorkflow < CMDx::Task
+class SubscriptionWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task CreateUser, ValidateUser, workflow_breakpoints: ["skipped", "failed"]
+  task CreateSubscription, ValidatePayment, workflow_breakpoints: ["skipped", "failed"]
 
   # Never halt, always continue
-  task SendWelcomeEmail, CreateProfile, breakpoints: []
+  task SendConfirmationEmail, UpdateBilling, breakpoints: []
 end
 ```
 
@@ -163,25 +163,25 @@ end
 Workflows can task other workflows for hierarchical composition:
 
 ```ruby
-class DataPreProcessingWorkflow < CMDx::Task
+class EmailPreparationWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task ValidateInputTask
-  task SanitizeDataTask
+  task ValidateRecipients
+  task CompileTemplate
 end
 
-class DataProcessingWorkflow < CMDx::Task
+class EmailDeliveryWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  tasks TransformDataTask, ApplyBusinessLogicTask
+  tasks SendEmails, TrackDeliveries
 end
 
-class CompleteDataWorkflow < CMDx::Task
+class CompleteEmailWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task DataPreProcessingWorkflow
-  task DataProcessingWorkflow, if: proc { context.pre_processing_successful? }
-  task GenerateReportTask
+  task EmailPreparationWorkflow
+  task EmailDeliveryWorkflow, if: proc { context.preparation_successful? }
+  task GenerateDeliveryReport
 end
 ```
 

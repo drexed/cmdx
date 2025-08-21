@@ -24,22 +24,22 @@ Sample output:
 
 ```log
 <!-- Success (INFO level) -->
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CreateOrder:
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
-class="CreateOrder" state="complete" status="success" metadata={runtime: 123}
+class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
 
 <!-- Skipped (WARN level) -->
-W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidatePayment:
-index=1 state="interrupted" status="skipped" reason="Order already processed"
+W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
+index=1 state="interrupted" status="skipped" reason="Customer already validated"
 
 <!-- Failed (ERROR level) -->
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- ProcessPayment:
-index=2 state="interrupted" status="failed" metadata={error_code: "INSUFFICIENT_FUNDS"}
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
+index=2 state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
 
 <!-- Failed Chain -->
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- OrderWorkflow:
-caused_failure={index: 2, class: "ProcessPayment", status: "failed"}
-threw_failure={index: 1, class: "ValidatePayment", status: "failed"}
+E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
+caused_failure={index: 2, class: "CalculateTax", status: "failed"}
+threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
 > [!TIP]
@@ -64,9 +64,9 @@ All log entries include comprehensive execution metadata. Field availability dep
 | `index` | Execution sequence position | `0`, `1`, `2` |
 | `chain_id` | Unique execution chain ID | `018c2b95-b764-7615...` |
 | `type` | Execution unit type | `Task`, `Workflow` |
-| `class` | Task class name | `ProcessOrderTask` |
+| `class` | Task class name | `GenerateInvoiceTask` |
 | `id` | Unique task instance ID | `018c2b95-b764-7615...` |
-| `tags` | Custom categorization | `["priority", "payment"]` |
+| `tags` | Custom categorization | `["billing", "financial"]` |
 
 ### Execution Data
 
@@ -91,11 +91,11 @@ All log entries include comprehensive execution metadata. Field availability dep
 Tasks have access to the frameworks logger.
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessSubscription < CMDx::Task
   def work
     logger.debug { "Activated feature flags: #{Features.active_flags}" }
     # Your logic here...
-    logger.info("Order processed")
+    logger.info("Subscription processed")
   end
 end
 ```

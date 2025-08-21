@@ -16,21 +16,21 @@ Attribute naming provides method name customization to prevent conflicts and ena
 Adds a prefix to the generated accessor method name.
 
 ```ruby
-class UpdateCustomer < CMDx::Task
+class GenerateReport < CMDx::Task
   # Dynamic from attribute source
-  attribute :id, prefix: true
+  attribute :template, prefix: true
 
   # Static
-  attribute :name, prefix: "customer_"
+  attribute :format, prefix: "report_"
 
   def work
-    context_id    #=> 123
-    customer_name #=> "Jane Smith"
+    context_template #=> "monthly_sales"
+    report_format    #=> "pdf"
   end
 end
 
 # Attributes passed as original attribute names
-UpdateCustomer.execute(id: 123, name: "Jane Smith")
+GenerateReport.execute(template: "monthly_sales", format: "pdf")
 ```
 
 ## Suffix
@@ -38,21 +38,21 @@ UpdateCustomer.execute(id: 123, name: "Jane Smith")
 Adds a suffix to the generated accessor method name.
 
 ```ruby
-class UpdateCustomer < CMDx::Task
+class DeployApplication < CMDx::Task
   # Dynamic from attribute source
-  attribute :email, suffix: true
+  attribute :branch, suffix: true
 
   # Static
-  attribute :phone, suffix: "_number"
+  attribute :version, suffix: "_tag"
 
   def work
-    email_context #=> "jane@example.com"
-    phone_number  #=> "555-0123"
+    branch_context #=> "main"
+    version_tag    #=> "v1.2.3"
   end
 end
 
 # Attributes passed as original attribute names
-UpdateCustomer.execute(email: "jane@example.com", phone: "555-0123")
+DeployApplication.execute(branch: "main", version: "v1.2.3")
 ```
 
 ## As
@@ -60,16 +60,16 @@ UpdateCustomer.execute(email: "jane@example.com", phone: "555-0123")
 Completely renames the generated accessor method.
 
 ```ruby
-class UpdateCustomer < CMDx::Task
-  attribute :birthday, as: :bday
+class ScheduleMaintenance < CMDx::Task
+  attribute :scheduled_at, as: :when
 
   def work
-    bday #=> <Date>
+    when #=> <DateTime>
   end
 end
 
 # Attributes passed as original attribute names
-UpdateCustomer.execute(birthday: Date.new(2020, 10, 31))
+ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 ```
 
 ---

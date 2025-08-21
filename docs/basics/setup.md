@@ -13,7 +13,7 @@ Tasks are the core building blocks of CMDx, encapsulating business logic within 
 Tasks inherit from `CMDx::Task` and require only a `work` method:
 
 ```ruby
-class ProcessUserOrder < CMDx::Task
+class ValidateDocument < CMDx::Task
   def work
     # Your logic here...
   end
@@ -23,11 +23,11 @@ end
 An exception will be raised if a work method is not defined.
 
 ```ruby
-class InvalidTask < CMDx::Task
+class IncompleteTask < CMDx::Task
   # No `work` method defined
 end
 
-InvalidTask.execute #=> raises CMDx::UndefinedMethodError
+IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 ```
 
 ## Inheritance
@@ -37,20 +37,20 @@ Create a base class to share common configuration across tasks:
 
 ```ruby
 class ApplicationTask < CMDx::Task
-  register :middleware, AuthenticateUserMiddleware
+  register :middleware, SecurityMiddleware
 
-  before_execution :set_correlation_id
+  before_execution :initialize_request_tracking
 
-  attribute :request_id
+  attribute :session_id
 
   private
 
-  def set_correlation_id
-    context.correlation_id ||= SecureRandom.uuid
+  def initialize_request_tracking
+    context.tracking_id ||= SecureRandom.uuid
   end
 end
 
-class ProcessOrder < ApplicationTask
+class SyncInventory < ApplicationTask
   def work
     # Your logic here...
   end

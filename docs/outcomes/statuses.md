@@ -39,7 +39,7 @@ failed → skipped     # ❌ Cannot transition
 Use status predicates to check execution outcomes:
 
 ```ruby
-result = PaymentProcessing.execute
+result = ProcessNotification.execute
 
 # Individual status checks
 result.success? #=> true/false
@@ -56,18 +56,18 @@ result.bad?     #=> true if skipped OR failed (not success)
 Use status-based handlers for business logic branching. The `on_good` and `on_bad` handlers are particularly useful for handling success/skip vs failed outcomes respectively.
 
 ```ruby
-result = OrderFulfillment.execute
+result = ProcessNotification.execute
 
 # Individual status handlers
 result
-  .on_success { |result| schedule_delivery(result) }
-  .on_skipped { |result| notify_backorder(result) }
-  .on_failed { |result| refund_payment(result) }
+  .on_success { |result| mark_notification_sent(result) }
+  .on_skipped { |result| log_notification_skipped(result) }
+  .on_failed { |result| queue_retry_notification(result) }
 
 # Outcome-based handlers
 result
-  .on_good { |result| update_inventory(result) }
-  .on_bad { |result| log_negative_outcome(result) }
+  .on_good { |result| update_message_stats(result) }
+  .on_bad { |result| track_delivery_failure(result) }
 ```
 
 ---

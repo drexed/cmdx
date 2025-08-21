@@ -12,8 +12,8 @@ CMDx provides comprehensive internationalization support for all error messages,
 > CMDx automatically localizes all error messages based on the `I18n.locale` setting.
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  attribute :amount, type: :float
+class ProcessQuote < CMDx::Task
+  attribute :price, type: :float
 
   def work
     # Your logic here...
@@ -21,8 +21,8 @@ class ProcessOrder < CMDx::Task
 end
 
 I18n.with_locale(:fr) do
-  result = ProcessOrder.execute(amount: "invalid")
-  result.metadata[:messages][:amount] #=> ["impossible de contraindre en float"]
+  result = ProcessQuote.execute(price: "invalid")
+  result.metadata[:messages][:price] #=> ["impossible de contraindre en float"]
 end
 ```
 

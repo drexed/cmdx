@@ -17,27 +17,27 @@ Attribute coercions automatically convert task arguments to expected types, ensu
 Define attribute types to enable automatic coercion:
 
 ```ruby
-class ProcessPayment < CMDx::Task
-  # Coerce into a date
-  attribute :paid_with, type: :symbol
+class ParseMetrics < CMDx::Task
+  # Coerce into a symbol
+  attribute :measurement_type, type: :symbol
 
   # Coerce into a rational fallback to big decimal
-  attribute :total, type: [:rational, :big_decimal]
+  attribute :value, type: [:rational, :big_decimal]
 
   # Coerce with options
-  attribute :paid_on, type: :date, strptime: "%m-%d-%Y"
+  attribute :recorded_at, type: :date, strptime: "%m-%d-%Y"
 
   def work
-    paid_with #=> :amex
-    paid_on   #=> <Date 2024-01-23>
-    total     #=> 34.99 (Float)
+    measurement_type #=> :temperature
+    recorded_at      #=> <Date 2024-01-23>
+    value            #=> 98.6 (Float)
   end
 end
 
-ProcessPayment.execute(
-  paid_with: "amex",
-  paid_on: "01-23-2020",
-  total: "34.99"
+ParseMetrics.execute(
+  measurement_type: "temperature",
+  recorded_at: "01-23-2020",
+  value: "98.6"
 )
 ```
 
@@ -72,22 +72,22 @@ ProcessPayment.execute(
 Use anonymous functions for simple coercion logic:
 
 ```ruby
-class FindLocation < CMDx::Task
+class TransformCoordinates < CMDx::Task
   # Proc
-  register :callback, :point, proc do |value, options = {}|
+  register :callback, :geolocation, proc do |value, options = {}|
     begin
-      Point(value)
+      Geolocation(value)
     rescue StandardError
-      raise CMDx::CoercionError, "could not convert into a point"
+      raise CMDx::CoercionError, "could not convert into a geolocation"
     end
   end
 
   # Lambda
-  register :callback, :point, ->(value, options = {}) {
+  register :callback, :geolocation, ->(value, options = {}) {
     begin
-      Point(value)
+      Geolocation(value)
     rescue StandardError
-      raise CMDx::CoercionError, "could not convert into a point"
+      raise CMDx::CoercionError, "could not convert into a geolocation"
     end
   }
 end
@@ -98,18 +98,18 @@ end
 Register custom coercion logic for specialized type handling:
 
 ```ruby
-class PointCoercion
+class GeolocationCoercion
   def self.call(value, options = {})
-    Point(value)
+    Geolocation(value)
   rescue StandardError
-    raise CMDx::CoercionError, "could not convert into a point"
+    raise CMDx::CoercionError, "could not convert into a geolocation"
   end
 end
 
-class FindLocation < CMDx::Task
-  register :coercion, :point, PointCoercion
+class TransformCoordinates < CMDx::Task
+  register :coercion, :geolocation, GeolocationCoercion
 
-  attribute :longitude, type: :point
+  attribute :latitude, type: :geolocation
 end
 ```
 
@@ -121,8 +121,8 @@ Remove custom coercions when no longer needed:
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  deregister :coercion, :point
+class TransformCoordinates < CMDx::Task
+  deregister :coercion, :geolocation
 end
 ```
 
@@ -131,27 +131,27 @@ end
 Coercion failures provide detailed error information including attribute paths, attempted types, and specific failure reasons:
 
 ```ruby
-class ProcessData < CMDx::Task
-  attribute  :count, type: :integer
-  attribute  :amount, type: [:float, :big_decimal]
+class AnalyzePerformance < CMDx::Task
+  attribute  :iterations, type: :integer
+  attribute  :score, type: [:float, :big_decimal]
 
   def work
     # Your logic here...
   end
 end
 
-result = ProcessData.execute(
-  count: "not-a-number",
-  amount: "invalid-float"
+result = AnalyzePerformance.execute(
+  iterations: "not-a-number",
+  score: "invalid-float"
 )
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "count could not coerce into an integer. amount could not coerce into one of: float, big_decimal."
+result.reason   #=> "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal."
 result.metadata #=> {
                 #     messages: {
-                #       count: ["could not coerce into an integer"],
-                #       amount: ["could not coerce into one of: float, big_decimal"]
+                #       iterations: ["could not coerce into an integer"],
+                #       score: ["could not coerce into one of: float, big_decimal"]
                 #     }
                 #   }
 ```

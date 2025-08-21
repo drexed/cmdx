@@ -25,7 +25,7 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
 > Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
 
 ```ruby
-class ProcessLegacyPayment < CMDx::Task
+class ProcessObsoleteAPI < CMDx::Task
   settings(deprecated: :raise)
 
   def work
@@ -33,8 +33,8 @@ class ProcessLegacyPayment < CMDx::Task
   end
 end
 
-result = ProcessLegacyPayment.execute
-#=> raises CMDx::DeprecationError: "ProcessLegacyPayment usage prohibited"
+result = ProcessObsoleteAPI.execute
+#=> raises CMDx::DeprecationError: "ProcessObsoleteAPI usage prohibited"
 ```
 
 ### Log
@@ -42,7 +42,7 @@ result = ProcessLegacyPayment.execute
 `:log` mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.
 
 ```ruby
-class ProcessOldPayment < CMDx::Task
+class ProcessLegacyFormat < CMDx::Task
   settings(deprecated: :log)
 
   # Same
@@ -53,11 +53,11 @@ class ProcessOldPayment < CMDx::Task
   end
 end
 
-result = ProcessOldPayment.execute
+result = ProcessLegacyFormat.execute
 result.successful? #=> true
 
 # Deprecation warning appears in logs:
-# WARN -- : DEPRECATED: ProcessOldPayment - migrate to replacement or discontinue use
+# WARN -- : DEPRECATED: ProcessLegacyFormat - migrate to replacement or discontinue use
 ```
 
 ### Warn
@@ -65,7 +65,7 @@ result.successful? #=> true
 `:warn` mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.
 
 ```ruby
-class ProcessObsoletePayment < CMDx::Task
+class ProcessOldData < CMDx::Task
   settings(deprecated: :warn)
 
   def work
@@ -73,11 +73,11 @@ class ProcessObsoletePayment < CMDx::Task
   end
 end
 
-result = ProcessObsoletePayment.execute
+result = ProcessOldData.execute
 result.successful? #=> true
 
 # Ruby warning appears in stderr:
-# [ProcessObsoletePayment] DEPRECATED: migrate to replacement or discontinue use
+# [ProcessOldData] DEPRECATED: migrate to replacement or discontinue use
 ```
 
 ## Declarations
@@ -85,7 +85,7 @@ result.successful? #=> true
 ### Symbol or String
 
 ```ruby
-class LegacyIntegration < CMDx::Task
+class OutdatedConnector < CMDx::Task
   # Symbol
   settings(deprecated: :raise)
 
@@ -97,7 +97,7 @@ end
 ### Boolean or Nil
 
 ```ruby
-class LegacyIntegration < CMDx::Task
+class OutdatedConnector < CMDx::Task
   # Deprecates with default :log mode
   settings(deprecated: true)
 
@@ -110,7 +110,7 @@ end
 ### Method
 
 ```ruby
-class LegacyIntegration < CMDx::Task
+class OutdatedConnector < CMDx::Task
   # Symbol
   settings(deprecated: :deprecated?)
 
@@ -121,7 +121,7 @@ class LegacyIntegration < CMDx::Task
   private
 
   def deprecated?
-    Time.now.year > 2020 ? :raise : false
+    Time.now.year > 2024 ? :raise : false
   end
 end
 ```
@@ -129,30 +129,30 @@ end
 ### Proc or Lambda
 
 ```ruby
-class LegacyIntegration < CMDx::Task
+class OutdatedConnector < CMDx::Task
   # Proc
-  settings(deprecated: proc { Rails.env.local? ? :raise : :log })
+  settings(deprecated: proc { Rails.env.development? ? :raise : :log })
 
   # Lambda
-  settings(deprecated: -> { Current.user.legacy? ? :warn : :raise })
+  settings(deprecated: -> { Current.tenant.legacy_mode? ? :warn : :raise })
 end
 ```
 
 ### Class or Module
 
 ```ruby
-class LegacyTaskDeprecator
+class OutdatedTaskDeprecator
   def call(task)
-    task.class.name.include?("Legacy")
+    task.class.name.include?("Outdated")
   end
 end
 
-class LegacyIntegration < CMDx::Task
+class OutdatedConnector < CMDx::Task
   # Class or Module
-  settings(deprecated: LegacyTaskDeprecator)
+  settings(deprecated: OutdatedTaskDeprecator)
 
   # Instance
-  settings(deprecated: LegacyTaskDeprecator.new)
+  settings(deprecated: OutdatedTaskDeprecator.new)
 end
 ```
 

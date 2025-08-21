@@ -15,10 +15,10 @@ Context is automatically populated with all inputs passed to a task. All keys ar
 
 ```ruby
 # Direct execution
-ProcessOrder.execute(user_id: 123, currency: "USD")
+CalculateShipping.execute(weight: 2.5, destination: "CA")
 
 # Instance creation
-ProcessOrder.new(user_id: 123, "currency" => "USD")
+CalculateShipping.new(weight: 2.5, "destination" => "CA")
 ```
 
 > [!IMPORTANT]
@@ -29,22 +29,22 @@ ProcessOrder.new(user_id: 123, "currency" => "USD")
 Context provides multiple access patterns with automatic nil safety:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class CalculateShipping < CMDx::Task
   def work
     # Method style access (preferred)
-    user_id = context.user_id
-    amount = context.amount
+    weight = context.weight
+    destination = context.destination
 
     # Hash style access
-    order_id = context[:order_id]
-    metadata = context["metadata"]
+    service_type = context[:service_type]
+    options = context["options"]
 
     # Safe access with defaults
-    priority = context.fetch!(:priority, "normal")
-    source = context.dig(:metadata, :source)
+    rush_delivery = context.fetch!(:rush_delivery, false)
+    carrier = context.dig(:options, :carrier)
 
     # Shorter alias
-    total = ctx.amount * ctx.tax_rate  # ctx aliases context
+    cost = ctx.weight * ctx.rate_per_pound  # ctx aliases context
   end
 end
 ```
@@ -57,35 +57,36 @@ end
 Context supports dynamic modification during task execution:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class CalculateShipping < CMDx::Task
   def work
     # Direct assignment
-    context.user = User.find(context.user_id)
-    context.order = Order.find(context.order_id)
-    context.processed_at = Time.now
+    context.carrier = Carrier.find_by(code: context.carrier_code)
+    context.package = Package.new(weight: context.weight)
+    context.calculated_at = Time.now
 
     # Hash-style assignment
-    context[:status] = "processing"
-    context["result_code"] = "SUCCESS"
+    context[:status] = "calculating"
+    context["tracking_number"] = "SHIP#{SecureRandom.hex(6)}"
 
     # Conditional assignment
-    context.notification_sent ||= false
+    context.insurance_included ||= false
 
     # Batch updates
     context.merge!(
       status: "completed",
-      total_amount: calculate_total,
-      completion_time: Time.now
+      shipping_cost: calculate_cost,
+      estimated_delivery: Time.now + 3.days
     )
 
     # Remove sensitive data
-    context.delete!(:credit_card_number)
+    context.delete!(:credit_card_token)
   end
 
   private
 
-  def calculate_total
-    context.amount + (context.amount * context.tax_rate)
+  def calculate_cost
+    base_rate = context.weight * context.rate_per_pound
+    base_rate + (base_rate * context.tax_percentage)
   end
 end
 ```
@@ -99,28 +100,28 @@ Context enables seamless data flow between related tasks in complex workflows:
 
 ```ruby
 # During execution
-class ProcessOrder < CMDx::Task
+class CalculateShipping < CMDx::Task
   def work
-    # Validate order data
-    validation_result = ValidateOrder.execute(context)
+    # Validate shipping data
+    validation_result = ValidateAddress.execute(context)
 
     # Via context
-    ProcessPayment.execute(context)
+    CalculateInsurance.execute(context)
 
     # Via result
-    NotifyOrderProcessed.execute(validation_result)
+    NotifyShippingCalculated.execute(validation_result)
 
     # Context now contains accumulated data from all tasks
-    context.order_validated    #=> true (from validation)
-    context.payment_processed  #=> true (from payment)
-    context.notification_sent  #=> true (from notification)
+    context.address_validated    #=> true (from validation)
+    context.insurance_calculated #=> true (from insurance)
+    context.notification_sent    #=> true (from notification)
   end
 end
 
 # After execution
-result = ProcessOrder.execute(order_number: 123)
+result = CalculateShipping.execute(destination: "New York, NY")
 
-ShipOrder.execute(result)
+CreateShippingLabel.execute(result)
 ```
 
 ---

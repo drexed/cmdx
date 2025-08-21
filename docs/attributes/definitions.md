@@ -25,29 +25,29 @@ Attributes define the interface between task callers and implementation, enablin
 Optional attributes return `nil` when not provided.
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :email
-  attributes :age, :ssn
+class ScheduleEvent < CMDx::Task
+  attribute :title
+  attributes :duration, :location
 
   # Alias for attributes (preferred)
-  optional :phone
-  optional :sex, :tags
+  optional :description
+  optional :visibility, :attendees
 
   def work
-    email #=> "user@example.com"
-    age   #=> 25
-    ssn   #=> nil
-    phone #=> nil
-    sex   #=> nil
-    tags  #=> ["premium", "beta"]
+    title       #=> "Team Standup"
+    duration    #=> 30
+    location    #=> nil
+    description #=> nil
+    visibility  #=> nil
+    attendees   #=> ["alice@company.com", "bob@company.com"]
   end
 end
 
 # Attributes passed as keyword arguments
-CreateUser.execute(
-  email: "user@example.com",
-  age: 25,
-  tags: ["premium", "beta"]
+ScheduleEvent.execute(
+  title: "Team Standup",
+  duration: 30,
+  attendees: ["alice@company.com", "bob@company.com"]
 )
 ```
 
@@ -56,32 +56,32 @@ CreateUser.execute(
 Required attributes must be provided in call arguments or task execution will fail.
 
 ```ruby
-class CreateUser < CMDx::Task
-  attribute :email, required: true
-  attributes :age, :ssn, required: true
+class PublishArticle < CMDx::Task
+  attribute :title, required: true
+  attributes :content, :author_id, required: true
 
   # Alias for attributes => required: true (preferred)
-  required :phone
-  required :sex, :tags
+  required :category
+  required :status, :tags
 
   def work
-    email #=> "user@example.com"
-    age   #=> 25
-    ssn   #=> "123-456"
-    phone #=> "888-9909"
-    sex   #=> :male
-    tags  #=> ["premium", "beta"]
+    title     #=> "Getting Started with Ruby"
+    content   #=> "This is a comprehensive guide..."
+    author_id #=> 42
+    category  #=> "programming"
+    status    #=> :published
+    tags      #=> ["ruby", "beginner"]
   end
 end
 
 # Attributes passed as keyword arguments
-CreateUser.execute(
-  email: "user@example.com",
-  age: 25,
-  ssn: "123-456",
-  phone: "888-9909",
-  sex: :male,
-  tags: ["premium", "beta"]
+PublishArticle.execute(
+  title: "Getting Started with Ruby",
+  content: "This is a comprehensive guide...",
+  author_id: 42,
+  category: "programming",
+  status: :published,
+  tags: ["ruby", "beginner"]
 )
 ```
 
@@ -92,18 +92,18 @@ Attributes delegate to accessible objects within the task. The default source is
 ### Context
 
 ```ruby
-class UpdateProfile < CMDx::Task
+class BackupDatabase < CMDx::Task
   # Default source is :context
-  required :user_id
-  optional :avatar_url
+  required :database_name
+  optional :compression_level
 
   # Explicitly specify context source
-  attribute :email, source: :context
+  attribute :backup_path, source: :context
 
   def work
-    user_id    #=> context.user_id
-    email      #=> context.email
-    avatar_url #=> context.avatar_url
+    database_name     #=> context.database_name
+    backup_path       #=> context.backup_path
+    compression_level #=> context.compression_level
   end
 end
 ```
@@ -113,11 +113,11 @@ end
 Reference instance methods by symbol for dynamic source values:
 
 ```ruby
-class UpdateProfile < CMDx::Task
-  attributes :email, :settings, source: :user
+class BackupDatabase < CMDx::Task
+  attributes :host, :credentials, source: :database_config
 
   # Access from declared attributes
-  attribute :email_token, source: :settings
+  attribute :connection_string, source: :credentials
 
   def work
     # Your logic here...
@@ -125,8 +125,8 @@ class UpdateProfile < CMDx::Task
 
   private
 
-  def user
-    @user ||= User.find(1)
+  def database_config
+    @database_config ||= DatabaseConfig.find(context.database_name)
   end
 end
 ```
@@ -136,12 +136,12 @@ end
 Use anonymous functions for dynamic source values:
 
 ```ruby
-class UpdateProfile < CMDx::Task
+class BackupDatabase < CMDx::Task
   # Proc
-  attribute :email, source: proc { Current.user }
+  attribute :timestamp, source: proc { Time.current }
 
   # Lambda
-  attribute :email, source: -> { Current.user }
+  attribute :server, source: -> { Current.server }
 end
 ```
 
@@ -150,18 +150,18 @@ end
 For complex source logic, use classes or modules:
 
 ```ruby
-class UserSourcer
+class DatabaseResolver
   def self.call(task)
-    User.find(task.context.user_id)
+    Database.find(task.context.database_name)
   end
 end
 
-class UpdateProfile < CMDx::Task
+class BackupDatabase < CMDx::Task
   # Class or Module
-  attribute :email, source: UserSourcer
+  attribute :schema, source: DatabaseResolver
 
   # Instance
-  attribute :email, source: UserSourcer.new
+  attribute :metadata, source: DatabaseResolver.new
 end
 ```
 
@@ -173,51 +173,51 @@ Nested attributes enable complex attribute structures where child attributes aut
 > All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
 
 ```ruby
-class CreateShipment < CMDx::Task
+class ConfigureServer < CMDx::Task
   # Required parent with required children
-  required :shipping_address do
-    required :street, :city, :state, :zip
-    optional :apartment
-    attribute :instructions
+  required :network_config do
+    required :hostname, :port, :protocol, :subnet
+    optional :load_balancer
+    attribute :firewall_rules
   end
 
   # Optional parent with conditional children
-  optional :billing_address do
-    required :street, :city # Only required if billing_address provided
-    optional :same_as_shipping, prefix: true
+  optional :ssl_config do
+    required :certificate_path, :private_key # Only required if ssl_config provided
+    optional :enable_http2, prefix: true
   end
 
   # Multi-level nesting
-  attribute :special_handling do
-    required :type
+  attribute :monitoring do
+    required :provider
 
-    optional :insurance do
-      required :coverage_amount
-      optional :carrier
+    optional :alerting do
+      required :threshold_percentage
+      optional :notification_channel
     end
   end
 
   def work
-    shipping_address #=> { street: "123 Main St" ... }
-    street           #=> "123 Main St"
-    apartment        #=> nil
+    network_config   #=> { hostname: "api.company.com" ... }
+    hostname         #=> "api.company.com"
+    load_balancer    #=> nil
   end
 end
 
-CreateShipment.execute(
-  order_id: 123,
-  shipping_address: {
-    street: "123 Main St",
-    city: "Miami",
-    state: "FL",
-    zip: "33101",
-    instructions: "Leave at door"
+ConfigureServer.execute(
+  server_id: "srv-001",
+  network_config: {
+    hostname: "api.company.com",
+    port: 443,
+    protocol: "https",
+    subnet: "10.0.1.0/24",
+    firewall_rules: "allow_web_traffic"
   },
-  special_handling: {
-    type: "fragile",
-    insurance: {
-      coverage_amount: 500.00,
-      carrier: "FedEx"
+  monitoring: {
+    provider: "datadog",
+    alerting: {
+      threshold_percentage: 85.0,
+      notification_channel: "slack"
     }
   }
 )
@@ -234,10 +234,10 @@ Attribute validation failures result in structured error information with detail
 > Nested attributes are only ever evaluated when the parent attribute is available and valid.
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  required :user_id, :order_id
-  required :shipping_address do
-    required :street, :city
+class ConfigureServer < CMDx::Task
+  required :server_id, :environment
+  required :network_config do
+    required :hostname, :port
   end
 
   def work
@@ -246,31 +246,31 @@ class ProcessOrder < CMDx::Task
 end
 
 # Missing required top-level attributes
-result = ProcessOrder.execute(user_id: 123)
+result = ConfigureServer.execute(server_id: "srv-001")
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "order_id is required. shipping_address is required."
+result.reason   #=> "environment is required. network_config is required."
 result.metadata #=> {
                 #     messages: {
-                #       order_id: ["is required"],
-                #       shipping_address: ["is required"]
+                #       environment: ["is required"],
+                #       network_config: ["is required"]
                 #     }
                 #   }
 
 # Missing required nested attributes
-result = ProcessOrder.execute(
-  user_id: 123,
-  order_id: 456,
-  shipping_address: { street: "123 Main St" } # Missing city
+result = ConfigureServer.execute(
+  server_id: "srv-001",
+  environment: "production",
+  network_config: { hostname: "api.company.com" } # Missing port
 )
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "city is required."
+result.reason   #=> "port is required."
 result.metadata #=> {
                 #     messages: {
-                #       city: ["is required"]
+                #       port: ["is required"]
                 #     }
                 #   }
 ```

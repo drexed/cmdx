@@ -23,10 +23,10 @@ Every result provides access to essential execution information:
 > Result objects are immutable after task execution completes and reflect the final state.
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 # Object data
-result.task     #=> <ProcessOrder>
+result.task     #=> <BuildApplication>
 result.context  #=> <CMDx::Context>
 result.chain    #=> <CMDx::Chain>
 
@@ -35,9 +35,9 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 
 # Fault data
-result.reason   #=> "Unsupported payment type"
+result.reason   #=> "Build tool not found"
 result.cause    #=> <CMDx::FailFault>
-result.metadata #=> { error_code: "PAYMENT_TYPE.UNSUPPORTED" }
+result.metadata #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 ```
 
 ## Lifecycle Information
@@ -45,7 +45,7 @@ result.metadata #=> { error_code: "PAYMENT_TYPE.UNSUPPORTED" }
 Results provide comprehensive methods for checking execution state and status:
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 # State predicates (execution lifecycle)
 result.complete?    #=> true (successful completion)
@@ -67,7 +67,7 @@ result.bad?         #=> false (skipped or failed)
 Results provide unified outcome determination depending on the fault causal chain:
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 result.outcome #=> "success" (state and status)
 ```
@@ -77,7 +77,7 @@ result.outcome #=> "success" (state and status)
 Use these methods to trace the root cause of faults or trace the cause points.
 
 ```ruby
-result = ProcessOrderWorkflow.execute(order_id: 123)
+result = DeploymentWorkflow.execute(app_name: "webapp")
 
 if result.failed?
   # Find the original cause of failure
@@ -104,7 +104,7 @@ end
 Results track their position within execution chains:
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 # Position in execution sequence
 result.index #=> 0 (first task in chain)
@@ -118,18 +118,18 @@ result.chain.results[result.index] == result #=> true
 Use result handlers for clean, functional-style conditional logic. Handlers return the result object, enabling method chaining and fluent interfaces.
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 # Status-based handlers
 result
-  .on_success { |result| send_confirmation_email(result) }
-  .on_failed { |result| handle_payment_failure(result) }
+  .on_success { |result| notify_deployment_ready(result) }
+  .on_failed { |result| handle_build_failure(result) }
   .on_skipped { |result| log_skip_reason(result) }
 
 # State-based handlers
 result
-  .on_complete { |result| update_order_status(result) }
-  .on_interrupted { |result| cleanup_partial_state(result) }
+  .on_complete { |result| update_build_status(result) }
+  .on_interrupted { |result| cleanup_partial_artifacts(result) }
 
 # Outcome-based handlers
 result
@@ -147,13 +147,13 @@ Results support Ruby's pattern matching through array and hash deconstruction:
 ### Array Pattern
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 case result
 in ["complete", "success"]
-  redirect_to success_page
+  redirect_to build_success_page
 in ["interrupted", "failed"]
-  retry_with_backoff(result)
+  retry_build_with_backoff(result)
 in ["interrupted", "skipped"]
   log_skip_and_continue
 end
@@ -162,15 +162,15 @@ end
 ### Hash Pattern
 
 ```ruby
-result = ProcessOrder.execute(order_id: 123)
+result = BuildApplication.execute(version: "1.2.3")
 
 case result
 in { state: "complete", status: "success" }
-  celebrate_success
+  celebrate_build_success
 in { status: "failed", metadata: { retryable: true } }
-  schedule_retry(result)
+  schedule_build_retry(result)
 in { bad: true, metadata: { reason: String => reason } }
-  escalate_error("Failed: #{reason}")
+  escalate_build_error("Build failed: #{reason}")
 end
 ```
 
@@ -179,11 +179,11 @@ end
 ```ruby
 case result
 in { status: "failed", metadata: { attempts: n } } if n < 3
-  retry_task_with_delay(result, n * 2)
+  retry_build_with_delay(result, n * 2)
 in { status: "failed", metadata: { attempts: n } } if n >= 3
-  mark_permanently_failed(result)
+  mark_build_permanently_failed(result)
 in { runtime: time } if time > performance_threshold
-  investigate_performance_issue(result)
+  investigate_build_performance(result)
 end
 ```
 

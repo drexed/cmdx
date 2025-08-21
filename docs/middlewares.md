@@ -22,10 +22,10 @@ Middleware executes in a nested fashion, creating an onion-like execution patter
 > Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  register :middleware, TimingMiddleware         # 1st: outermost wrapper
-  register :middleware, AuthenticationMiddleware # 2nd: middle wrapper
-  register :middleware, ValidationMiddleware     # 3rd: innermost wrapper
+class ProcessCampaign < CMDx::Task
+  register :middleware, AuditMiddleware         # 1st: outermost wrapper
+  register :middleware, AuthorizationMiddleware # 2nd: middle wrapper
+  register :middleware, CacheMiddleware         # 3rd: innermost wrapper
 
   def work
     # Your logic here...
@@ -33,13 +33,13 @@ class ProcessOrder < CMDx::Task
 end
 
 # Execution flow:
-# 1. TimingMiddleware (before)
-# 2.   AuthenticationMiddleware (before)
-# 3.     ValidationMiddleware (before)
+# 1. AuditMiddleware (before)
+# 2.   AuthorizationMiddleware (before)
+# 3.     CacheMiddleware (before)
 # 4.       [task execution]
-# 5.     ValidationMiddleware (after)
-# 6.   AuthenticationMiddleware (after)
-# 7. TimingMiddleware (after)
+# 5.     CacheMiddleware (after)
+# 6.   AuthorizationMiddleware (after)
+# 7. AuditMiddleware (after)
 ```
 
 ## Declarations
@@ -49,18 +49,18 @@ end
 Use anonymous functions for simple middleware logic:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessCampaign < CMDx::Task
   # Proc
   register :middleware, proc do |task, options, &block|
     result = block.call
-    APM.increment(result.status)
+    Analytics.track(result.status)
     result
   end
 
   # Lambda
   register :middleware, ->(task, options, &block) {
     result = block.call
-    APM.increment(result.status)
+    Analytics.track(result.status)
     result
   }
 end
@@ -71,25 +71,25 @@ end
 For complex middleware logic, use classes or modules:
 
 ```ruby
-class MetricsMiddleware
+class TelemetryMiddleware
   def call(task, options)
     result = yield
-    APM.increment(result.status)
+    Telemetry.record(result.status)
   ensure
     result # Always return result
   end
 end
 
-class ProcessOrder < CMDx::Task
+class ProcessCampaign < CMDx::Task
   # Class or Module
-  register :middleware, MetricsMiddleware
+  register :middleware, TelemetryMiddleware
 
   # Instance
-  register :middleware, MetricsMiddleware.new
+  register :middleware, TelemetryMiddleware.new
 
   # With options
-  register :middleware, AnalyticsMiddleware, api_key: ENV["ANALYTICS_API_KEY"]
-  register :middleware, AnalyticsMiddleware.new(ENV["ANALYTICS_API_KEY"])
+  register :middleware, MonitoringMiddleware, service_key: ENV["MONITORING_KEY"]
+  register :middleware, MonitoringMiddleware.new(ENV["MONITORING_KEY"])
 end
 ```
 
@@ -101,9 +101,9 @@ Class and Module based declarations can be removed at a global and task level.
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessCampaign < CMDx::Task
   # Class or Module (no instances)
-  deregister :middleware, MetricsMiddleware
+  deregister :middleware, TelemetryMiddleware
 end
 ```
 
@@ -114,15 +114,15 @@ end
 Ensures task execution doesn't exceed a specified time limit:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessReport < CMDx::Task
   # Default timeout: 3 seconds
   register :middleware, CMDx::Middlewares::Timeout
 
   # Seconds (takes Numeric, Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Timeout, seconds: :max_execution_time
+  register :middleware, CMDx::Middlewares::Timeout, seconds: :max_processing_time
 
   # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Timeout, unless: -> { self.class.name.include?("Fast") }
+  register :middleware, CMDx::Middlewares::Timeout, unless: -> { self.class.name.include?("Quick") }
 
   def work
     # Your logic here...
@@ -130,13 +130,13 @@ class ProcessOrder < CMDx::Task
 
   private
 
-  def max_execution_time
-    Rails.env.production? ? 1 : 5
+  def max_processing_time
+    Rails.env.production? ? 2 : 10
   end
 end
 
 # Slow task
-result = ProcessOrder.execute
+result = ProcessReport.execute
 
 result.state    #=> "interrupted"
 result.status   #=> "failure"
@@ -150,15 +150,15 @@ result.metadata #=> { limit: 3 }
 Tags tasks with a global correlation ID for distributed tracing:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessExport < CMDx::Task
   # Default correlation ID generation
   register :middleware, CMDx::Middlewares::Correlate
 
   # Seconds (takes Object, Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Correlate, id: proc { |task| task.context.request_id }
+  register :middleware, CMDx::Middlewares::Correlate, id: proc { |task| task.context.session_id }
 
   # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Correlate, if: :tracing_enabled?
+  register :middleware, CMDx::Middlewares::Correlate, if: :correlation_enabled?
 
   def work
     # Your logic here...
@@ -166,12 +166,12 @@ class ProcessOrder < CMDx::Task
 
   private
 
-  def tracing_enabled?
-    ENV["TRACING_ENABLED"] == "true"
+  def correlation_enabled?
+    ENV["CORRELATION_ENABLED"] == "true"
   end
 end
 
-result = ProcessOrder.execute
+result = ProcessExport.execute
 result.metadata #=> { correlation_id: "550e8400-e29b-41d4-a716-446655440000" }
 ```
 
@@ -181,22 +181,22 @@ The runtime middleware tags tasks with how long it took to execute the task.
 The calculation uses a monotonic clock and the time is returned in milliseconds.
 
 ```ruby
-class SlowTaskCheck
+class PerformanceMonitoringCheck
   def call(task)
-    task.context.account.debuggable?
+    task.context.tenant.monitoring_enabled?
   end
 end
 
-class ProcessOrder < CMDx::Task
+class ProcessExport < CMDx::Task
   # Default timeout is 3 seconds
   register :middleware, CMDx::Middlewares::Runtime
 
   # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Runtime, if: SlowTaskCheck
+  register :middleware, CMDx::Middlewares::Runtime, if: PerformanceMonitoringCheck
 end
 
-result = ProcessOrder.execute
-result.metadata #=> { runtime: 543 } (ms)
+result = ProcessExport.execute
+result.metadata #=> { runtime: 1247 } (ms)
 ```
 
 ---

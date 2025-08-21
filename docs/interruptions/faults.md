@@ -30,16 +30,16 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 
 ```ruby
 begin
-  ProcessOrder.execute!(order_id: 123)
+  ProcessTicket.execute!(ticket_id: 456)
 rescue CMDx::SkipFault => e
-  logger.info "Order processing skipped: #{e.message}"
-  schedule_retry(e.context.order_id)
+  logger.info "Ticket processing skipped: #{e.message}"
+  schedule_retry(e.context.ticket_id)
 rescue CMDx::FailFault => e
-  logger.error "Order processing failed: #{e.message}"
-  notify_customer(e.context.customer_email, e.result.metadata[:code])
+  logger.error "Ticket processing failed: #{e.message}"
+  notify_admin(e.context.assigned_agent, e.result.metadata[:error_code])
 rescue CMDx::Fault => e
-  logger.warn "Order processing interrupted: #{e.message}"
-  rollback_transaction
+  logger.warn "Ticket processing interrupted: #{e.message}"
+  rollback_changes
 end
 ```
 
@@ -49,20 +49,20 @@ Faults provide comprehensive access to execution context, eg:
 
 ```ruby
 begin
-  UserRegistration.execute!(email: email, password: password)
+  LicenseActivation.execute!(license_key: key, machine_id: machine)
 rescue CMDx::Fault => e
   # Result information
   e.result.state     #=> "interrupted"
   e.result.status    #=> "failed" or "skipped"
-  e.result.reason    #=> "Email already exists"
+  e.result.reason    #=> "License key already activated"
 
   # Task information
-  e.task.class       #=> <UserRegistration>
+  e.task.class       #=> <LicenseActivation>
   e.task.id          #=> "abc123..."
 
   # Context data
-  e.context.email    #=> "user@example.com"
-  e.context.password #=> "[FILTERED]"
+  e.context.license_key #=> "ABC-123-DEF"
+  e.context.machine_id  #=> "[FILTERED]"
 
   # Chain information
   e.chain.id         #=> "def456..."
@@ -78,13 +78,13 @@ Use `for?` to handle faults only from specific task classes, enabling targeted e
 
 ```ruby
 begin
-  PaymentWorkflow.execute!(payment_data: data)
-rescue CMDx::FailFault.for?(CardValidator, PaymentProcessor) => e
-  # Handle only payment-related failures
-  retry_with_backup_method(e.context)
-rescue CMDx::SkipFault.for?(FraudCheck, RiskAssessment) => e
+  DocumentWorkflow.execute!(document_data: data)
+rescue CMDx::FailFault.for?(FormatValidator, ContentProcessor) => e
+  # Handle only document-related failures
+  retry_with_alternate_parser(e.context)
+rescue CMDx::SkipFault.for?(VirusScanner, ContentFilter) => e
   # Handle security-related skips
-  flag_for_manual_review(e.context.transaction_id)
+  quarantine_for_review(e.context.document_id)
 end
 ```
 
@@ -92,13 +92,13 @@ end
 
 ```ruby
 begin
-  OrderProcessor.execute!(order: order_data)
-rescue CMDx::Fault.matches? { |f| f.context.order_value > 1000 } => e
-  escalate_high_value_failure(e)
-rescue CMDx::FailFault.matches? { |f| f.result.metadata[:retry_count] > 3 } => e
-  abandon_processing(e)
-rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_type] == "timeout" } => e
-  increase_timeout_and_retry(e)
+  ReportGenerator.execute!(report: report_data)
+rescue CMDx::Fault.matches? { |f| f.context.data_size > 10_000 } => e
+  escalate_large_dataset_failure(e)
+rescue CMDx::FailFault.matches? { |f| f.result.metadata[:attempt_count] > 3 } => e
+  abandon_report_generation(e)
+rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_type] == "memory" } => e
+  increase_memory_and_retry(e)
 end
 ```
 
@@ -109,22 +109,22 @@ Use `throw!` to propagate failures while preserving fault context and maintainin
 ### Basic Propagation
 
 ```ruby
-class OrderProcessor < CMDx::Task
+class ReportGenerator < CMDx::Task
   def work
     # Throw if skipped or failed
-    validation_result = OrderValidator.execute(context)
+    validation_result = DataValidator.execute(context)
     throw!(validation_result)
 
     # Only throw if skipped
-    check_inventory = CheckInventory.execute(context)
-    throw!(check_inventory) if check_inventory.skipped?
+    check_permissions = CheckPermissions.execute(context)
+    throw!(check_permissions) if check_permissions.skipped?
 
     # Only throw if failed
-    payment_result = PaymentProcessor.execute(context)
-    throw!(payment_result) if payment_result.failed?
+    data_result = DataProcessor.execute(context)
+    throw!(data_result) if data_result.failed?
 
     # Continue processing
-    complete_order
+    generate_report
   end
 end
 ```
@@ -132,19 +132,19 @@ end
 ### Additional Metadata
 
 ```ruby
-class WorkflowProcessor < CMDx::Task
+class BatchProcessor < CMDx::Task
   def work
-    step_result = DataValidation.execute(context)
+    step_result = FileValidation.execute(context)
 
     if step_result.failed?
       throw!(step_result, {
-        workflow_stage: "validation",
+        batch_stage: "validation",
         can_retry: true,
-        next_step: "data_cleanup"
+        next_step: "file_repair"
       })
     end
 
-    continue_workflow
+    continue_batch
   end
 end
 ```
@@ -154,7 +154,7 @@ end
 Results provide methods to analyze fault propagation and identify original failure sources in complex execution chains.
 
 ```ruby
-result = PaymentWorkflow.execute(invalid_data)
+result = DocumentWorkflow.execute(invalid_data)
 
 if result.failed?
   # Trace the original failure

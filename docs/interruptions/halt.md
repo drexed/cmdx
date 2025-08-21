@@ -21,25 +21,25 @@ The `skip!` method indicates a task did not meet criteria to continue execution.
 > Skipping is not a failure or error. Skipped tasks are considered successful outcomes.
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessInventory < CMDx::Task
   def work
     # Without a reason
-    skip! if Array(ENV["PHASED_OUT_TASKS"]).include?(self.class.name)
+    skip! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
 
     # With a reason
-    skip!("Outside business hours") unless Time.now.hour.between?(9, 17)
+    skip!("Warehouse closed") unless Time.now.hour.between?(8, 18)
 
-    order = Order.find(context.order_id)
+    inventory = Inventory.find(context.inventory_id)
 
-    if order.processed?
-      skip!("Order already processed")
+    if inventory.already_counted?
+      skip!("Inventory already counted today")
     else
-      order.process!
+      inventory.count!
     end
   end
 end
 
-result = ProcessSubscription.execute(user_id: 123)
+result = ProcessInventory.execute(inventory_id: 456)
 
 # Executed
 result.status #=> "skipped"
@@ -48,7 +48,7 @@ result.status #=> "skipped"
 result.reason #=> "no reason given"
 
 # With a reason
-result.reason #=> "Outside business hours"
+result.reason #=> "Warehouse closed"
 ```
 
 ## Failing
@@ -56,25 +56,25 @@ result.reason #=> "Outside business hours"
 The `fail!` method indicates a task encountered an error condition that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
 
 ```ruby
-class ProcessPayment < CMDx::Task
+class ProcessRefund < CMDx::Task
   def work
     # Without a reason
-    skip! if Array(ENV["PHASED_OUT_TASKS"]).include?(self.class.name)
+    skip! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
 
-    payment = Payment.find(context.payment_id)
+    refund = Refund.find(context.refund_id)
 
     # With a reason
-    if payment.unsupported_type?
-      fail!("Unsupported payment type")
-    elsif !payment.amount.positive?
-      fail!("Payment amount must be positive")
+    if refund.expired?
+      fail!("Refund period has expired")
+    elsif !refund.amount.positive?
+      fail!("Refund amount must be positive")
     else
-      payment.charge!
+      refund.process!
     end
   end
 end
 
-result = ProcessSubscription.execute(user_id: 123)
+result = ProcessRefund.execute(refund_id: 789)
 
 # Executed
 result.status #=> "failed"
@@ -83,7 +83,7 @@ result.status #=> "failed"
 result.reason #=> "no reason given"
 
 # With a reason
-result.reason #=> "Unsupported payment type"
+result.reason #=> "Refund period has expired"
 ```
 
 ## Metadata Enrichment
@@ -91,37 +91,37 @@ result.reason #=> "Unsupported payment type"
 Both halt methods accept metadata to provide additional context about the interruption. Metadata is stored as a hash and becomes available through the result object.
 
 ```ruby
-class ProcessSubscription < CMDx::Task
+class ProcessRenewal < CMDx::Task
   def work
-    user = User.find(context.user_id)
+    license = License.find(context.license_id)
 
-    if user.subscription_expired?
+    if license.already_renewed?
       # Without metadata
-      skip!("Subscription expired")
+      skip!("License already renewed")
     end
 
-    unless user.payment_method_valid?
+    unless license.renewal_eligible?
       # With metadata
       fail!(
-        "Invalid payment method",
-        error_code: "PAYMENT_METHOD.INVALID",
-        retry_after: Time.current + 1.hour
+        "License not eligible for renewal",
+        error_code: "LICENSE.NOT_ELIGIBLE",
+        retry_after: Time.current + 30.days
       )
     end
 
-    process_subscription
+    process_renewal
   end
 end
 
-result = ProcessSubscription.execute(user_id: 123)
+result = ProcessRenewal.execute(license_id: 567)
 
 # Without metadata
 result.metadata #=> {}
 
 # With metadata
 result.metadata #=> {
-                #     error_code: "PAYMENT_METHOD.INVALID",
-                #     retry_after: <Time 1 hour from now>
+                #     error_code: "LICENSE.NOT_ELIGIBLE",
+                #     retry_after: <Time 30 days from now>
                 #   }
 ```
 
@@ -135,7 +135,7 @@ Halt methods trigger specific state and status transitions:
 | `fail!` | `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
-result = ProcessSubscription.execute(user_id: 123)
+result = ProcessRenewal.execute(license_id: 567)
 
 # State information
 result.state        #=> "interrupted"
@@ -157,16 +157,16 @@ Halt methods behave differently depending on the call method used:
 Returns result object without raising exceptions:
 
 ```ruby
-result = ProcessPayment.execute(payment_id: 123)
+result = ProcessRefund.execute(refund_id: 789)
 
 case result.status
 when "success"
-  puts "Payment processed: $#{result.context.payment.amount}"
+  puts "Refund processed: $#{result.context.refund.amount}"
 when "skipped"
-  puts "Payment skipped: #{result.reason}"
+  puts "Refund skipped: #{result.reason}"
 when "failed"
-  puts "Payment failed: #{result.reason}"
-  handle_payment_error(result.metadata[:code])
+  puts "Refund failed: #{result.reason}"
+  handle_refund_error(result.metadata[:error_code])
 end
 ```
 
@@ -176,13 +176,13 @@ Raises exceptions for halt conditions based on `task_breakpoints` configuration:
 
 ```ruby
 begin
-  result = ProcessPayment.execute!(payment_id: 123)
-  puts "Success: Payment processed"
+  result = ProcessRefund.execute!(refund_id: 789)
+  puts "Success: Refund processed"
 rescue CMDx::SkipFault => e
   puts "Skipped: #{e.message}"
 rescue CMDx::FailFault => e
   puts "Failed: #{e.message}"
-  handle_payment_failure(e.result.metadata[:code])
+  handle_refund_failure(e.result.metadata[:error_code])
 end
 ```
 
@@ -192,12 +192,12 @@ Always try to provide a `reason` when using halt methods. This provides clear co
 
 ```ruby
 # Good: Clear, specific reason
-skip!("User account suspended until manual review")
-fail!("Credit card declined by issuer", code: "CARD_DECLINED")
+skip!("Document processing paused for compliance review")
+fail!("File format not supported by processor", code: "FORMAT_UNSUPPORTED")
 
 # Acceptable: Generic, non-specific reason
-skip!("Suspended")
-fail!("Declined")
+skip!("Paused")
+fail!("Unsupported")
 
 # Bad: Default, cannot determine reason
 skip! #=> "no reason given"

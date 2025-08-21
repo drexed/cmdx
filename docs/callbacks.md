@@ -38,11 +38,11 @@ Callbacks execute in precise lifecycle order. Here is the complete execution seq
 Reference instance methods by symbol for simple callback logic:
 
 ```ruby
-class ProcessOrder < CMDx::Task
-  before_execution :find_order
+class ProcessBooking < CMDx::Task
+  before_execution :find_reservation
 
   # Batch declarations (works for any type)
-  on_complete :notify_customer, :update_inventory
+  on_complete :notify_guest, :update_availability
 
   def work
     # Your logic here...
@@ -50,16 +50,16 @@ class ProcessOrder < CMDx::Task
 
   private
 
-  def find_order
-    @order ||= Order.find(context.order_id)
+  def find_reservation
+    @reservation ||= Reservation.find(context.reservation_id)
   end
 
-  def notify_customer
-    CustomerNotifier.call(context.user, result)
+  def notify_guest
+    GuestNotifier.call(context.guest, result)
   end
 
-  def update_inventory
-    InventoryService.update(context.product_ids, result)
+  def update_availability
+    AvailabilityService.update(context.room_ids, result)
   end
 end
 ```
@@ -69,12 +69,12 @@ end
 Use anonymous functions for inline callback logic:
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessBooking < CMDx::Task
   # Proc
-  on_interrupted proc { |task| BuildLine.stop! }
+  on_interrupted proc { |task| ReservationSystem.pause! }
 
   # Lambda
-  on_complete -> { BuildLine.resume! }
+  on_complete -> { ReservationSystem.resume! }
 end
 ```
 
@@ -83,22 +83,22 @@ end
 Implement reusable callback logic in dedicated classes:
 
 ```ruby
-class SendNotificationCallback
+class BookingConfirmationCallback
   def call(task)
     if task.result.success?
-      EmailApi.deliver_success_email(task.context.user)
+      MessagingApi.send_confirmation(task.context.guest)
     else
-      EmailApi.deliver_issue_email(task.context.admin)
+      MessagingApi.send_issue_alert(task.context.manager)
     end
   end
 end
 
-class ProcessOrder < CMDx::Task
+class ProcessBooking < CMDx::Task
   # Class or Module
-  on_success SendNotificationCallback
+  on_success BookingConfirmationCallback
 
   # Instance
-  on_interrupted SendNotificationCallback.new
+  on_interrupted BookingConfirmationCallback.new
 end
 ```
 
@@ -107,27 +107,27 @@ end
 Control callback execution with conditional logic:
 
 ```ruby
-class AbilityCheck
+class MessagingPermissionCheck
   def call(task)
-    task.context.user.can?(:send_email)
+    task.context.guest.can?(:receive_messages)
   end
 end
 
-class ProcessOrder < CMDx::Task
+class ProcessBooking < CMDx::Task
   # If and/or Unless
-  before_execution :notify_customer, if: :email_available?, unless: :email_temporary?
+  before_execution :notify_guest, if: :messaging_enabled?, unless: :messaging_blocked?
 
   # Proc
   on_failure :increment_failure, if: ->(task) { Rails.env.production? && task.class.name.include?("Legacy") }
 
   # Lambda
-  on_success :ping_warehouse, if: proc { |task| task.context.products_on_backorder? }
+  on_success :ping_housekeeping, if: proc { |task| task.context.rooms_need_cleaning? }
 
   # Class or Module
-  on_complete :send_notification, unless: AbilityCheck
+  on_complete :send_confirmation, unless: MessagingPermissionCheck
 
   # Instance
-  on_complete :send_notification, if: AbilityCheck.new
+  on_complete :send_confirmation, if: MessagingPermissionCheck.new
 
   def work
     # Your logic here...
@@ -135,12 +135,12 @@ class ProcessOrder < CMDx::Task
 
   private
 
-  def email_available?
-    context.user.email.present?
+  def messaging_enabled?
+    context.guest.messaging_preference.present?
   end
 
-  def email_temporary?
-    context.user.email_service == :temporary
+  def messaging_blocked?
+    context.guest.communication_status == :blocked
   end
 end
 ```
@@ -153,12 +153,12 @@ Remove callbacks at runtime for dynamic behavior control:
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
-class ProcessOrder < CMDx::Task
+class ProcessBooking < CMDx::Task
   # Symbol
-  deregister :callback, :before_execution, :notify_customer
+  deregister :callback, :before_execution, :notify_guest
 
   # Class or Module (no instances)
-  deregister :callback, :on_complete, SendNotificationCallback
+  deregister :callback, :on_complete, BookingConfirmationCallback
 end
 ```
 

@@ -28,7 +28,7 @@ This is the preferred method for most use cases.
 Any unhandled exceptions will be caught and returned as a task failure.
 
 ```ruby
-result = ProcessOrder.execute(order_id: 12345)
+result = CreateAccount.execute(email: "user@example.com")
 
 # Check execution state
 result.success?         #=> true/false
@@ -36,7 +36,7 @@ result.failed?          #=> true/false
 result.skipped?         #=> true/false
 
 # Access result data
-result.context.order_id #=> 12345
+result.context.email    #=> "user@example.com"
 result.state            #=> "complete"
 result.status           #=> "success"
 ```
@@ -57,14 +57,14 @@ It raises any unhandled non-fault exceptions caused during execution.
 
 ```ruby
 begin
-  result = ProcessOrder.execute!(order_id: 12345)
-  SendConfirmation.execute(result.context)
+  result = CreateAccount.execute!(email: "user@example.com")
+  SendWelcomeEmail.execute(result.context)
 rescue CMDx::FailFault => e
-  RetryOrderJob.perform_later(e.result.context.order_id)
+  ScheduleAccountRetryJob.perform_later(e.result.context.email)
 rescue CMDx::SkipFault => e
-  Rails.logger.info("Order skipped: #{e.result.reason}")
+  Rails.logger.info("Account creation skipped: #{e.result.reason}")
 rescue Exception => e
-  BugTracker.notify(unhandled_exception: e)
+  ErrorTracker.capture(unhandled_exception: e)
 end
 ```
 
@@ -74,12 +74,12 @@ Tasks can be instantiated directly for advanced use cases, testing, and custom e
 
 ```ruby
 # Direct instantiation
-task = ProcessOrder.new(order_id: 12345, notify_customer: true)
+task = CreateAccount.new(email: "user@example.com", send_welcome: true)
 
 # Access properties before execution
 task.id                      #=> "abc123..." (unique task ID)
-task.context.order_id        #=> 12345
-task.context.notify_customer #=> true
+task.context.email           #=> "user@example.com"
+task.context.send_welcome    #=> true
 task.result.state            #=> "initialized"
 task.result.status           #=> "success"
 
@@ -96,11 +96,11 @@ task.result.success?         #=> true/false
 The `Result` object provides comprehensive execution information:
 
 ```ruby
-result = ProcessOrder.execute(order_id: 12345)
+result = CreateAccount.execute(email: "user@example.com")
 
 # Execution metadata
 result.id           #=> "abc123..."  (unique execution ID)
-result.task         #=> ProcessOrderTask instance (frozen)
+result.task         #=> CreateAccount instance (frozen)
 result.chain        #=> Task execution chain
 
 # Context and metadata
