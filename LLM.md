@@ -464,6 +464,7 @@ result.chain        #=> Task execution chain
 # Context and metadata
 result.context      #=> Context with all task data
 result.metadata     #=> Hash with execution metadata
+```
 
 ---
 
@@ -587,6 +588,7 @@ end
 result = CalculateShipping.execute(destination: "New York, NY")
 
 CreateShippingLabel.execute(result)
+```
 
 ---
 
@@ -697,6 +699,7 @@ chain.outcome #=> "success"
 chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
+```
 
 ---
 
@@ -896,6 +899,7 @@ fail!("Unsupported")
 # Bad: Default, cannot determine reason
 skip! #=> "no reason given"
 fail! #=> "no reason given"
+```
 
 ---
 
@@ -1082,23 +1086,27 @@ CMDx provides robust exception handling that differs between the `execute` and `
 
 ## Exception Handling
 
+> [!IMPORTANT]
+> When designing tasks, try not to `raise` your own exceptions directly. Instead, use skip! or fail! to signal intent clearly. skip! communicates that the task was intentionally bypassed, while fail! marks it as an expected failure with proper handling. This keeps workflows observable, predictable, and easier to debug.
+
 ### Non-bang execution
 
 The `execute` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
 
 ```ruby
-class ProcessDocument < CMDx::Task
+class CompressDocument < CMDx::Task
   def work
-    raise UnsupportedFormat, "document format not supported"
+    document = Document.find(context.document_id)
+    document.compress!
   end
 end
 
-result = ProcessDocument.execute
+result = CompressDocument.execute(document_id: "unknown-doc-id")
 result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.failed?  #=> true
-result.reason   #=> "[UnsupportedFormat] document format not supported"
-result.cause    #=> <UnsupportedFormat>
+result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
+result.cause    #=> <ActiveRecord::NotFoundError>
 ```
 
 ### Bang execution
@@ -1106,17 +1114,19 @@ result.cause    #=> <UnsupportedFormat>
 The `execute!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
 
 ```ruby
-class ProcessDocument < CMDx::Task
+class CompressDocument < CMDx::Task
   def work
-    raise UnsupportedFormat, "document format not supported"
+    document = Document.find(context.document_id)
+    document.compress!
   end
 end
 
 begin
-  ProcessDocument.execute!
-rescue UnsupportedFormat => e
+  CompressDocument.execute!(document_id: "unknown-doc-id")
+rescue ActiveRecord::NotFoundError => e
   puts "Handle exception: #{e.message}"
 end
+```
 
 ---
 
@@ -1371,6 +1381,7 @@ result
   .on_complete { |result| send_upload_notification(result) }
   .on_interrupted { |result| cleanup_temp_files(result) }
   .on_executed { |result| log_upload_metrics(result) }
+```
 
 ---
 
@@ -1440,6 +1451,7 @@ result
 result
   .on_good { |result| update_message_stats(result) }
   .on_bad { |result| track_delivery_failure(result) }
+```
 
 ---
 
@@ -1708,6 +1720,7 @@ result.metadata #=> {
                 #       port: ["is required"]
                 #     }
                 #   }
+```
 
 ---
 
@@ -1780,6 +1793,7 @@ end
 
 # Attributes passed as original attribute names
 ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
+```
 
 ---
 
@@ -1932,6 +1946,7 @@ result.metadata #=> {
                 #       score: ["could not coerce into one of: float, big_decimal"]
                 #     }
                 #   }
+```
 
 ---
 
