@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Juan Gomez"]
   spec.email = ["drexed@users.noreply.github.com"]
 
-  spec.summary = "Command (aka service) objects with intent"
-  spec.description = "Simplify complex business logic using a tiny command (service) object framework."
+  spec.summary = "CMDx is a framework for building maintainable business processes."
+  spec.description = "A framework that provides structured command execution, attribute management, validation, coercion, callbacks, and workflow orchestration for building maintainable business processes."
   spec.homepage = "https://github.com/drexed/cmdx"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
