@@ -21,8 +21,8 @@ class ProcessPayment < CMDx::Task
   # Coerce into a date
   attribute :paid_with, type: :symbol
 
-  # Coerce into a float fallback to big decimal
-  attribute :total, type: [:float, :big_decimal]
+  # Coerce into a rational fallback to big decimal
+  attribute :total, type: [:rational, :big_decimal]
 
   # Coerce with options
   attribute :paid_on, type: :date, strptime: "%m-%d-%Y"
@@ -42,7 +42,7 @@ ProcessPayment.execute(
 ```
 
 > [!TIP]
-> Specify multiple types for fallback coercion. CMDx attempts each type in order until one succeeds.
+> Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
 
 ## Built-in Coercions
 
@@ -117,7 +117,7 @@ end
 
 Remove custom coercions when no longer needed:
 
-> [!IMPORTANT]
+> [!WARNING]
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby

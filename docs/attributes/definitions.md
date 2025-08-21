@@ -169,7 +169,7 @@ end
 
 Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
-> [!IMPORTANT]
+> [!NOTE]
 > All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
 
 ```ruby
@@ -223,14 +223,14 @@ CreateShipment.execute(
 )
 ```
 
-> [!TIP]
+> [!IMPORTANT]
 > Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
 
 ## Error Handling
 
 Attribute validation failures result in structured error information with details about each failed attribute.
 
-> [!IMPORTANT]
+> [!NOTE]
 > Nested attributes are only ever evaluated when the parent attribute is available and valid.
 
 ```ruby

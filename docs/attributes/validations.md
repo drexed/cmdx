@@ -258,7 +258,7 @@ end
 
 Remove custom validators when no longer needed:
 
-> [!IMPORTANT]
+> [!WARNING]
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby

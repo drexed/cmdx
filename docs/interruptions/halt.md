@@ -17,7 +17,7 @@ Halting stops task execution with explicit intent signaling. Tasks provide two p
 
 The `skip!` method indicates a task did not meet criteria to continue execution. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
 
-> [!NOTE]
+> [!IMPORTANT]
 > Skipping is not a failure or error. Skipped tasks are considered successful outcomes.
 
 ```ruby

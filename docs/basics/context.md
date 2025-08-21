@@ -21,7 +21,7 @@ ProcessOrder.execute(user_id: 123, currency: "USD")
 ProcessOrder.new(user_id: 123, "currency" => "USD")
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > String keys are automatically converted to symbols. Use symbols for consistency in your code.
 
 ## Accessing Data
@@ -49,7 +49,7 @@ class ProcessOrder < CMDx::Task
 end
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > Accessing undefined context attributes returns `nil` instead of raising errors, enabling graceful handling of optional attributes.
 
 ## Modifying Context
@@ -91,7 +91,7 @@ end
 ```
 
 > [!TIP]
-> Use context for both input attributes and intermediate results. This creates natural data flow through your task execution pipeline.
+> Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
 
 ## Data Sharing
 

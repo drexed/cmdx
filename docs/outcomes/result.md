@@ -19,7 +19,7 @@ The result object is the comprehensive return value of task execution, providing
 
 Every result provides access to essential execution information:
 
-> [!NOTE]
+> [!IMPORTANT]
 > Result objects are immutable after task execution completes and reflect the final state.
 
 ```ruby
@@ -141,7 +141,7 @@ result
 
 Results support Ruby's pattern matching through array and hash deconstruction:
 
-> [!NOTE]
+> [!IMPORTANT]
 > Pattern matching requires Ruby 3.0+. The `deconstruct` method returns a `[state, status]` array pattern, while `deconstruct_keys` provides hash access to result attributes.
 
 ### Array Pattern

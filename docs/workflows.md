@@ -17,7 +17,7 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
 
 Tasks execute in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
 
-> [!WARNING]
+> [!IMPORTANT]
 > Do **NOT** define a `work` method in workflow tasks.
 > The included module automatically provides the execution logic.
 
@@ -38,7 +38,7 @@ end
 
 Group related tasks for better organization and shared configuration:
 
-> [!NOTE]
+> [!IMPORTANT]
 > Settings and conditionals for a group apply to all tasks within that group.
 
 ```ruby

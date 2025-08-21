@@ -18,7 +18,7 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
 
 Middleware executes in a nested fashion, creating an onion-like execution pattern:
 
-> [!IMPORTANT]
+> [!NOTE]
 > Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
 
 ```ruby
@@ -97,7 +97,7 @@ end
 
 Class and Module based declarations can be removed at a global and task level.
 
-> [!IMPORTANT]
+> [!WARNING]
 > Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
