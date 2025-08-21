@@ -42,6 +42,9 @@ caused_failure={index: 2, class: "ProcessPayment", status: "failed"}
 threw_failure={index: 1, class: "ValidatePayment", status: "failed"}
 ```
 
+> [!TIP]
+> Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.
+
 ## Structure
 
 All log entries include comprehensive execution metadata. Field availability depends on execution context and outcome.
