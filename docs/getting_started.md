@@ -45,8 +45,7 @@ CMDx follows a two-tier configuration hierarchy:
 2. **Task Settings**: Class-level overrides via `settings`
 
 > [!IMPORTANT]
-> Task-level settings take precedence over global configuration.
-> Settings are inherited from superclasses and can be overridden in subclasses.
+> Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
 
 ## Global Configuration
 
@@ -97,8 +96,7 @@ end
 ```
 
 > [!NOTE]
-> Middlewares are executed in registration order. Each middleware wraps the next,
-> creating an execution chain around task logic.
+> Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
 
 ### Callbacks
 
@@ -258,8 +256,7 @@ end
 ### Resetting
 
 > [!WARNING]
-> Resetting configuration affects the entire application. Use primarily in
-> test environments or during application initialization.
+> Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
 
 ```ruby
 # Reset to framework defaults
@@ -297,8 +294,7 @@ end
 ```
 
 > [!TIP]
-> Use **present tense verbs + noun** for task names, eg:
-> `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+> Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ---
 

@@ -142,7 +142,7 @@ result
 Results support Ruby's pattern matching through array and hash deconstruction:
 
 > [!IMPORTANT]
-> Pattern matching requires Ruby 3.0+. The `deconstruct` method returns a `[state, status]` array pattern, while `deconstruct_keys` provides hash access to result attributes.
+> Pattern matching requires Ruby 3.0+
 
 ### Array Pattern
 

@@ -35,8 +35,7 @@ CMDx follows a two-tier configuration hierarchy:
 2. **Task Settings**: Class-level overrides via `settings`
 
 > [!IMPORTANT]
-> Task-level settings take precedence over global configuration.
-> Settings are inherited from superclasses and can be overridden in subclasses.
+> Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
 
 ## Global Configuration
 
@@ -87,8 +86,7 @@ end
 ```
 
 > [!NOTE]
-> Middlewares are executed in registration order. Each middleware wraps the next,
-> creating an execution chain around task logic.
+> Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
 
 ### Callbacks
 
@@ -248,8 +246,7 @@ end
 ### Resetting
 
 > [!WARNING]
-> Resetting configuration affects the entire application. Use primarily in
-> test environments or during application initialization.
+> Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
 
 ```ruby
 # Reset to framework defaults
@@ -287,8 +284,7 @@ end
 ```
 
 > [!TIP]
-> Use **present tense verbs + noun** for task names, eg:
-> `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+> Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ---
 
@@ -1258,7 +1254,7 @@ result
 Results support Ruby's pattern matching through array and hash deconstruction:
 
 > [!IMPORTANT]
-> Pattern matching requires Ruby 3.0+. The `deconstruct` method returns a `[state, status]` array pattern, while `deconstruct_keys` provides hash access to result attributes.
+> Pattern matching requires Ruby 3.0+
 
 ### Array Pattern
 
@@ -2960,8 +2956,7 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
 Tasks execute in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
 
 > [!IMPORTANT]
-> Do **NOT** define a `work` method in workflow tasks.
-> The included module automatically provides the execution logic.
+> Do **NOT** define a `work` method in workflow tasks. The included module automatically provides the execution logic.
 
 ### Task
 
