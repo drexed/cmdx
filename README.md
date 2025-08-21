@@ -10,7 +10,14 @@
 
 # CMDx
 
-`CMDx` is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control that scales from simple tasks to complex multi-step processes.
+CMDx is a framework for building maintainable business processes. It simplifies building task objects by offering integrated:
+
+- Flow controls
+- Composable workflows
+- Comprehensive logging
+- Attribute definition
+- Validations and coercions
+- And much more...
 
 ## Installation
 
@@ -30,9 +37,11 @@ Or install it yourself as:
 
 ## Quick Example
 
+Here's how a quick 3 step process can open up a world of possibilities:
+
 ```ruby
-# Setup task
-# ---
+# 1. Setup task
+# ---------------------------------
 class SendWelcomeEmail < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
@@ -63,15 +72,15 @@ class SendWelcomeEmail < CMDx::Task
   end
 end
 
-# Execute task
-# ---
+# 2. Execute task
+# ---------------------------------
 result = SendWelcomeEmail.execute(
   user_id: 123,
   "template" => "admin"
 )
 
-# Handle result
-# ---
+# 3. Handle result
+# ---------------------------------
 if result.success?
   puts "Welcome email sent at #{result.context.sent_at}"
 elsif result.skipped?
