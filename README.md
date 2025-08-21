@@ -122,7 +122,7 @@ end
 
 ## Ecosystem
 
-The following gems are under development:
+The following gems are currently under development:
 
 - `cmdx-i18n` I18n locales
 - `cmdx-rspec` RSpec matchers
