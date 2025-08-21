@@ -15,10 +15,10 @@ Halting stops task execution with explicit intent signaling. Tasks provide two p
 
 ## Skipping
 
-The `skip!` method indicates a task did not meet criteria to continue execution. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
+`skip!` communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
 
 > [!IMPORTANT]
-> Skipping is not a failure or error. Skipped tasks are considered successful outcomes.
+> Skipping is a no-op, not a failure or error and are considered successful outcomes.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -53,13 +53,13 @@ result.reason #=> "Warehouse closed"
 
 ## Failing
 
-The `fail!` method indicates a task encountered an error condition that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
+`fail!` communicates that the task encountered an impediment that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
 
 ```ruby
 class ProcessRefund < CMDx::Task
   def work
     # Without a reason
-    skip! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
+    fail! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
 
     refund = Refund.find(context.refund_id)
 

@@ -11,7 +11,7 @@ CMDx provides robust exception handling that differs between the `execute` and `
 ## Exception Handling
 
 > [!IMPORTANT]
-> When designing tasks, try not to `raise` your own exceptions directly. Instead, use skip! or fail! to signal intent clearly. skip! communicates that the task was intentionally bypassed, while fail! marks it as an expected failure with proper handling. This keeps workflows observable, predictable, and easier to debug.
+> When designing tasks try not to `raise` your own exceptions directly, instead use `skip!` or `fail!` to signal intent clearly.
 
 ### Non-bang execution
 
