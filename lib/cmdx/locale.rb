@@ -36,7 +36,7 @@ module CMDx
     #   # => "Custom fallback message"
     def translate(key, **options)
       options[:default] ||= EN.dig("en", *key.to_s.split("."))
-      return I18n.t(key, **options) if defined?(I18n)
+      return ::I18n.t(key, **options) if defined?(::I18n)
 
       case message = options.delete(:default)
       when NilClass then "Translation missing: #{key}"
