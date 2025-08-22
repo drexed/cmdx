@@ -122,13 +122,14 @@ end
 
 ## Ecosystem
 
+- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ I18n locales
+
 The following gems are currently under development:
 
-- `cmdx-i18n` I18n locales
-- `cmdx-rspec` RSpec matchers
-- `cmdx-minitest` Minitest matchers
-- `cmdx-jobs` Background job integrations
-- `cmdx-parallel` Parallel workflow task execution
+- `cmdx-rspec` - RSpec matchers
+- `cmdx-minitest` - Minitest matchers
+- `cmdx-jobs` - Background job integrations
+- `cmdx-parallel` - Parallel workflow task execution
 
 ## Development
 
