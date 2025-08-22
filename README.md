@@ -127,7 +127,6 @@ end
 The following gems are currently under development:
 
 - `cmdx-testing` - RSpec and Minitest matchers
-- `cmdx-jobs` - Background job integrations
 - `cmdx-parallel` - Parallel workflow task execution
 
 ## Development
