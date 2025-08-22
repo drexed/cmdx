@@ -165,13 +165,13 @@ module CMDx
 
     # Finalizes execution by freezing the task and logging results.
     def finalize_execution!
-      Freezer.immute(task)
-
       task.logger.tap do |logger|
         logger.with_level(:info) do
           logger.info { task.result.to_h }
         end
       end
+
+      Freezer.immute(task)
     end
 
   end

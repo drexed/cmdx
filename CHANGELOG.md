@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 
+### Changes
+- Log task results before freezing
+
 ## [1.6.0] - 2025-08-22
 
 ### Changes
