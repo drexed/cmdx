@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changes
 - Rename `Worker` class to `Executor`
+- Move workflow `work` logic into `Pipeline`
+- Add workflow task `:breakpoints`
 
 ## [1.5.2] - 2025-08-22
 

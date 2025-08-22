@@ -107,19 +107,7 @@ module CMDx
     #   workflow = DataProcessingWorkflow.new
     #   workflow.work # Stops on first breakpoint encountered
     def work
-      self.class.pipeline.each do |group|
-        next unless Utils::Condition.evaluate(self, group.options, self)
-
-        breakpoints = group.options[:breakpoints] || self.class.settings[:workflow_breakpoints]
-        breakpoints = Array(breakpoints).map(&:to_s).uniq
-
-        group.tasks.each do |task|
-          task_result = task.execute(context)
-          next unless breakpoints.include?(task_result.status)
-
-          throw!(task_result)
-        end
-      end
+      Pipeline.execute(self)
     end
 
   end
