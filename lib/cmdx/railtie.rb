@@ -23,7 +23,7 @@ module CMDx
     #   # in the CMDx gem's locales directory
     initializer("cmdx.configure_locales") do |app|
       Array(app.config.i18n.available_locales).each do |locale|
-        path = CMDx.gem_path.join("locales/#{locale}.yml")
+        path = CMDx.gem_path.join("lib/locales/#{locale}.yml")
         next unless File.file?(path)
 
         I18n.load_path << path
