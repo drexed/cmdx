@@ -51,15 +51,15 @@ module CMDx
       def call(value, options = {})
         case options
         in within:
-          raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value)
+          raise_within_validation_error!(within.begin, within.end, options) unless within&.cover?(value)
         in not_within:
-          raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within.cover?(value)
+          raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within&.cover?(value)
         in in: xin
-          raise_within_validation_error!(xin.begin, xin.end, options) unless xin.cover?(value)
+          raise_within_validation_error!(xin.begin, xin.end, options) unless xin&.cover?(value)
         in not_in:
-          raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in.cover?(value)
+          raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in&.cover?(value)
         in min:, max:
-          raise_within_validation_error!(min, max, options) unless value.between?(min, max)
+          raise_within_validation_error!(min, max, options) unless value&.between?(min, max)
         in min:
           raise_min_validation_error!(min, options) unless min <= value
         in max:
