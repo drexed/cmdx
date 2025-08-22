@@ -58,4 +58,3 @@ business logic within service/command objects.
   - Keep comments up-to-date with code changes
   - Keep documentation consistent
 - Update CHANGELOG.md with any changes
-

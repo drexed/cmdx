@@ -52,25 +52,27 @@ module CMDx
       #   Length.call("short", not_in: 1..3)
       #   # => nil (validation passes - length 5 is not in excluded range)
       def call(value, options = {})
+        length = value&.length
+
         case options
         in within:
-          raise_within_validation_error!(within.begin, within.end, options) unless within.cover?(value.length)
+          raise_within_validation_error!(within.begin, within.end, options) unless within&.cover?(length)
         in not_within:
-          raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within.cover?(value.length)
+          raise_not_within_validation_error!(not_within.begin, not_within.end, options) if not_within&.cover?(length)
         in in: xin
-          raise_within_validation_error!(xin.begin, xin.end, options) unless xin.cover?(value.length)
+          raise_within_validation_error!(xin.begin, xin.end, options) unless xin&.cover?(length)
         in not_in:
-          raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in.cover?(value.length)
+          raise_not_within_validation_error!(not_in.begin, not_in.end, options) if not_in&.cover?(length)
         in min:, max:
-          raise_within_validation_error!(min, max, options) unless value.length.between?(min, max)
+          raise_within_validation_error!(min, max, options) unless length&.between?(min, max)
         in min:
-          raise_min_validation_error!(min, options) unless min <= value.length
+          raise_min_validation_error!(min, options) unless !length.nil? && (min <= length)
         in max:
-          raise_max_validation_error!(max, options) unless value.length <= max
+          raise_max_validation_error!(max, options) unless !length.nil? && (length <= max)
         in is:
-          raise_is_validation_error!(is, options) unless value.length == is
+          raise_is_validation_error!(is, options) unless !length.nil? && (length == is)
         in is_not:
-          raise_is_not_validation_error!(is_not, options) if value.length == is_not
+          raise_is_not_validation_error!(is_not, options) if !length.nil? && (length == is_not)
         else
           raise ArgumentError, "unknown length validator options given"
         end
