@@ -61,13 +61,13 @@ module CMDx
         in min:, max:
           raise_within_validation_error!(min, max, options) unless value&.between?(min, max)
         in min:
-          raise_min_validation_error!(min, options) unless min <= value
+          raise_min_validation_error!(min, options) unless !value.nil? && (min <= value)
         in max:
-          raise_max_validation_error!(max, options) unless value <= max
+          raise_max_validation_error!(max, options) unless !value.nil? && (value <= max)
         in is:
-          raise_is_validation_error!(is, options) unless value == is
+          raise_is_validation_error!(is, options) unless !value.nil? && (value == is)
         in is_not:
-          raise_is_not_validation_error!(is_not, options) if value == is_not
+          raise_is_not_validation_error!(is_not, options) if !value.nil? && (value == is_not)
         else
           raise ArgumentError, "unknown numeric validator options given"
         end

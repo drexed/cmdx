@@ -66,13 +66,13 @@ module CMDx
         in min:, max:
           raise_within_validation_error!(min, max, options) unless length&.between?(min, max)
         in min:
-          raise_min_validation_error!(min, options) unless min <= length
+          raise_min_validation_error!(min, options) unless !length.nil? && (min <= length)
         in max:
-          raise_max_validation_error!(max, options) unless length <= max
+          raise_max_validation_error!(max, options) unless !length.nil? && (length <= max)
         in is:
-          raise_is_validation_error!(is, options) unless length == is
+          raise_is_validation_error!(is, options) unless !length.nil? && (length == is)
         in is_not:
-          raise_is_not_validation_error!(is_not, options) if length == is_not
+          raise_is_not_validation_error!(is_not, options) if !length.nil? && (length == is_not)
         else
           raise ArgumentError, "unknown length validator options given"
         end
