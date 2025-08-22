@@ -10,7 +10,7 @@ RSpec.describe CMDx::Workflow, type: :unit do
 
   describe "module inclusion" do
     it "extends the class with ClassMethods" do
-      expect(workflow_class).to respond_to(:execution_groups)
+      expect(workflow_class).to respond_to(:pipeline)
       expect(workflow_class).to respond_to(:task)
       expect(workflow_class).to respond_to(:tasks)
     end
@@ -61,15 +61,15 @@ RSpec.describe CMDx::Workflow, type: :unit do
       end
     end
 
-    describe "#execution_groups" do
+    describe "#pipeline" do
       it "initializes as empty array" do
-        expect(workflow_class.execution_groups).to eq([])
+        expect(workflow_class.pipeline).to eq([])
       end
 
-      it "memoizes the execution_groups" do
-        groups = workflow_class.execution_groups
+      it "memoizes the pipeline" do
+        groups = workflow_class.pipeline
 
-        expect(workflow_class.execution_groups).to be(groups)
+        expect(workflow_class.pipeline).to be(groups)
       end
     end
 
@@ -79,12 +79,12 @@ RSpec.describe CMDx::Workflow, type: :unit do
       let(:options) { { if: true, breakpoints: [:failure] } }
 
       context "with valid CMDx::Task classes" do
-        it "adds execution group to execution_groups" do
+        it "adds execution group to pipeline" do
           workflow_class.tasks(task1, task2, **options)
 
-          expect(workflow_class.execution_groups.size).to eq(1)
+          expect(workflow_class.pipeline.size).to eq(1)
 
-          group = workflow_class.execution_groups.first
+          group = workflow_class.pipeline.first
 
           expect(group.tasks).to eq([task1, task2])
           expect(group.options).to eq(options)
@@ -94,9 +94,9 @@ RSpec.describe CMDx::Workflow, type: :unit do
           workflow_class.tasks(task1, **options)
           workflow_class.tasks(task2, if: false)
 
-          expect(workflow_class.execution_groups.size).to eq(2)
-          expect(workflow_class.execution_groups[0].tasks).to eq([task1])
-          expect(workflow_class.execution_groups[1].tasks).to eq([task2])
+          expect(workflow_class.pipeline.size).to eq(2)
+          expect(workflow_class.pipeline[0].tasks).to eq([task1])
+          expect(workflow_class.pipeline[1].tasks).to eq([task2])
         end
       end
 

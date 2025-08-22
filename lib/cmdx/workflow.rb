@@ -35,10 +35,10 @@ module CMDx
       #     include CMDx::Workflow
       #     task Task1
       #     task Task2
-      #     puts execution_groups.size # => 2
+      #     puts pipeline.size # => 2
       #   end
-      def execution_groups
-        @execution_groups ||= []
+      def pipeline
+        @pipeline ||= []
       end
 
       # Adds multiple tasks to the workflow with optional configuration.
@@ -56,7 +56,7 @@ module CMDx
       #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
       #   end
       def tasks(*tasks, **options)
-        execution_groups << ExecutionGroup.new(
+        pipeline << ExecutionGroup.new(
           tasks.map do |task|
             next task if task.is_a?(Class) && (task <= Task)
 
@@ -107,7 +107,7 @@ module CMDx
     #   workflow = DataProcessingWorkflow.new
     #   workflow.work # Stops on first breakpoint encountered
     def work
-      self.class.execution_groups.each do |group|
+      self.class.pipeline.each do |group|
         next unless Utils::Condition.evaluate(self, group.options, self)
 
         breakpoints = group.options[:breakpoints] || self.class.settings[:workflow_breakpoints]
