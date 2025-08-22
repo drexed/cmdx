@@ -200,7 +200,7 @@ module CMDx
     #   result = task.execute
     #   result = task.execute(raise: true)
     def execute(raise: false)
-      Worker.execute(self, raise:)
+      Executor.execute(self, raise:)
     end
 
     # @raise [UndefinedMethodError] Always raised as this method must be overridden

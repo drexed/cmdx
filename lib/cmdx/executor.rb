@@ -3,19 +3,19 @@
 module CMDx
   # Executes CMDx tasks with middleware support, error handling, and lifecycle management.
   #
-  # The Worker class is responsible for orchestrating task execution, including
+  # The Executor class is responsible for orchestrating task execution, including
   # pre-execution validation, execution with middleware, post-execution callbacks,
   # and proper error handling for different types of failures.
-  class Worker
+  class Executor
 
     attr_reader :task
 
     # @param task [CMDx::Task] The task to execute
     #
-    # @return [CMDx::Worker] A new worker instance
+    # @return [CMDx::Executor] A new executor instance
     #
     # @example
-    #   worker = CMDx::Worker.new(my_task)
+    #   executor = CMDx::Executor.new(my_task)
     def initialize(task)
       @task = task
     end
@@ -30,8 +30,8 @@ module CMDx
     # @raise [StandardError] When raise is true and execution fails
     #
     # @example
-    #   CMDx::Worker.execute(my_task)
-    #   CMDx::Worker.execute(my_task, raise: true)
+    #   CMDx::Executor.execute(my_task)
+    #   CMDx::Executor.execute(my_task, raise: true)
     def self.execute(task, raise: false)
       instance = new(task)
       raise ? instance.execute! : instance.execute
@@ -42,8 +42,8 @@ module CMDx
     # @return [CMDx::Result] The execution result
     #
     # @example
-    #   worker = CMDx::Worker.new(my_task)
-    #   result = worker.execute
+    #   executor = CMDx::Executor.new(my_task)
+    #   result = executor.execute
     def execute
       task.class.settings[:middlewares].call!(task) do
         pre_execution!
@@ -69,8 +69,8 @@ module CMDx
     # @raise [StandardError] When execution fails
     #
     # @example
-    #   worker = CMDx::Worker.new(my_task)
-    #   result = worker.execute!
+    #   executor = CMDx::Executor.new(my_task)
+    #   result = executor.execute!
     def execute!
       task.class.settings[:middlewares].call!(task) do
         pre_execution!

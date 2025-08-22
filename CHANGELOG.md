@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 
+## [1.6.0] - 2025-08-22
+
+### Changes
+- Rename `Worker` class to `Executor`
+
 ## [1.5.2] - 2025-08-22
 
 ### Changes
-- Rename the workflow `execution_groups` attribute to `pipeline`
+- Rename workflow `execution_groups` attribute to `pipeline`
 
 ## [1.5.1] - 2025-08-21
 

@@ -304,16 +304,16 @@ RSpec.describe CMDx::Task, type: :unit do
 
   describe "#execute" do
     context "with raise: false" do
-      it "delegates to Worker.execute with raise: false" do
-        expect(CMDx::Worker).to receive(:execute).with(task, raise: false)
+      it "delegates to Executor.execute with raise: false" do
+        expect(CMDx::Executor).to receive(:execute).with(task, raise: false)
 
         task.execute(raise: false)
       end
     end
 
     context "with raise: true" do
-      it "delegates to Worker.execute with raise: true" do
-        expect(CMDx::Worker).to receive(:execute).with(task, raise: true)
+      it "delegates to Executor.execute with raise: true" do
+        expect(CMDx::Executor).to receive(:execute).with(task, raise: true)
 
         task.execute(raise: true)
       end
@@ -321,7 +321,7 @@ RSpec.describe CMDx::Task, type: :unit do
 
     context "with no arguments" do
       it "defaults to raise: false" do
-        expect(CMDx::Worker).to receive(:execute).with(task, raise: false)
+        expect(CMDx::Executor).to receive(:execute).with(task, raise: false)
 
         task.execute
       end
