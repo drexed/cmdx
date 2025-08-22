@@ -54,11 +54,20 @@ Globally these settings are initialized with sensible defaults.
 
 ### Breakpoints
 
-Breakpoints control when `execute!` raises faults.
+Raise `CMDx::Fault` when a task called with `execute!` returns a matching status.
 
 ```ruby
 CMDx.configure do |config|
-  config.task_breakpoints = "skipped"
+  # String or Array[String]
+  config.task_breakpoints = "failed"
+end
+```
+
+Workflow breakpoints stops execution and of workflow pipeline on the first task that returns a matching status and throws its `CMDx::Fault`.
+
+```ruby
+CMDx.configure do |config|
+  # String or Array[String]
   config.workflow_breakpoints = ["skipped", "failed"]
 end
 ```
