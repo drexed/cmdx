@@ -8,8 +8,7 @@ CMDx provides comprehensive internationalization support for all error messages,
 
 ## Localization
 
-> [!NOTE]
-> CMDx automatically localizes all error messages based on the `I18n.locale` setting.
+CMDx automatically localizes all error messages based on the `I18n.locale` setting.
 
 ```ruby
 class ProcessQuote < CMDx::Task
@@ -25,6 +24,9 @@ I18n.with_locale(:fr) do
   result.metadata[:messages][:price] #=> ["impossible de contraindre en float"]
 end
 ```
+
+> [!TIP]
+> CMDx supports 85+ locales via the [cmdx-i18n](https://github.com/drexed/cmdx-i18n) gem.
 
 ---
 
