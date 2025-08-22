@@ -136,8 +136,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     let(:execution_group) { instance_double("ExecutionGroup") }
     let(:breakpoints) { [] }
 
-    it "calls execute_tasks_sequentially with group and breakpoints" do
-      expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group, breakpoints)
+    it "calls execute_tasks_in_sequence with group and breakpoints" do
+      expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, breakpoints)
       pipeline.send(:execute_group_tasks, execution_group, breakpoints)
     end
 
@@ -157,7 +157,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     end
   end
 
-  describe "#execute_tasks_sequentially" do
+  describe "#execute_tasks_in_sequence" do
     let(:execution_group) { instance_double("ExecutionGroup") }
     let(:tasks) { [task1, task2, task3] }
     let(:task1) { instance_double("Task1") }
@@ -185,7 +185,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       expect(task1).to receive(:execute).with(context).and_return(result1)
       expect(task2).to receive(:execute).with(context).and_return(result2)
       expect(task3).to receive(:execute).with(context).and_return(result3)
-      pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+      pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
     end
 
     context "when breakpoint is triggered on first task" do
@@ -200,7 +200,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         expect(task1).to receive(:execute).with(context).and_return(result1)
         expect(task2).to receive(:execute).with(context).and_return(result2)
         expect(task3).to receive(:execute).with(context).and_return(result3)
-        pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+        pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
       end
     end
 
@@ -217,7 +217,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         expect(task1).to receive(:execute).with(context).and_return(result1)
         expect(task2).to receive(:execute).with(context).and_return(result2)
         expect(task3).to receive(:execute).with(context).and_return(result3)
-        pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+        pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
       end
     end
 
@@ -231,7 +231,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       it "matches string breakpoints correctly" do
         expect(workflow).to receive(:throw!).with(result1)
         expect(task1).to receive(:execute).with(context).and_return(result1)
-        pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+        pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
       end
     end
 
@@ -245,7 +245,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       it "matches symbol breakpoints correctly" do
         expect(workflow).to receive(:throw!).with(result1)
         expect(task1).to receive(:execute).with(context).and_return(result1)
-        pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+        pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
       end
     end
 
@@ -259,7 +259,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       it "matches both string breakpoints" do
         expect(workflow).to receive(:throw!).with(result1)
         expect(task1).to receive(:execute).with(context).and_return(result1)
-        pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
+        pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
       end
     end
   end
@@ -295,12 +295,12 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         allow(execution_group).to receive_messages(options: {}, tasks: [task])
         allow(workflow_class).to receive(:pipeline).and_return([execution_group])
         allow(pipeline).to receive(:execute_group_tasks).and_call_original
-        allow(pipeline).to receive(:execute_tasks_sequentially)
+        allow(pipeline).to receive(:execute_tasks_in_sequence)
       end
 
       it "executes the single task" do
         expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
-        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group, [])
+        expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, [])
         pipeline.execute
       end
     end
@@ -314,14 +314,14 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         allow(execution_group2).to receive_messages(options: {}, tasks: [task2])
         allow(workflow_class).to receive(:pipeline).and_return([execution_group, execution_group2])
         allow(pipeline).to receive(:execute_group_tasks).and_call_original
-        allow(pipeline).to receive(:execute_tasks_sequentially)
+        allow(pipeline).to receive(:execute_tasks_in_sequence)
       end
 
       it "executes all groups" do
         expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
         expect(pipeline).to receive(:execute_group_tasks).with(execution_group2, [])
-        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group, [])
-        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group2, [])
+        expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, [])
+        expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group2, [])
         pipeline.execute
       end
     end

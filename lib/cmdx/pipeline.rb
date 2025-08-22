@@ -71,7 +71,7 @@ module CMDx
     #   end
     def execute_group_tasks(group, breakpoints)
       # NOTE: Override this method to introduce alternative execution strategies
-      execute_tasks_sequentially(group, breakpoints)
+      execute_tasks_in_sequence(group, breakpoints)
     end
 
     # Executes tasks sequentially within a group, checking breakpoints after each task.
@@ -85,8 +85,8 @@ module CMDx
     # @raise [HaltError] When a task result status matches a breakpoint
     #
     # @example
-    #   execute_tasks_sequentially(group, ["failed", "skipped"])
-    def execute_tasks_sequentially(group, breakpoints)
+    #   execute_tasks_in_sequence(group, ["failed", "skipped"])
+    def execute_tasks_in_sequence(group, breakpoints)
       group.tasks.each do |task|
         task_result = task.execute(workflow.context)
         next unless breakpoints.include?(task_result.status)
