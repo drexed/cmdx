@@ -87,25 +87,19 @@ module CMDx
       base.extend(ClassMethods)
     end
 
-    # Executes the workflow by processing each execution group sequentially.
-    # Tasks within each group are executed based on conditional logic and breakpoint handling.
-    #
-    # @return [void]
-    #
-    # @raise [CMDx::Fault] If a breakpoint is encountered during execution
+    # Executes the workflow by processing all tasks in the pipeline.
+    # This method delegates execution to the Pipeline class which handles
+    # the processing of tasks with proper error handling and context management.
     #
     # @example
-    #   workflow = MyWorkflow.new
-    #   workflow.work # Executes all tasks in the workflow
-    # @example
-    #   class DataProcessingWorkflow
+    #   class MyWorkflow
     #     include CMDx::Workflow
-    #     task ValidateDataTask, breakpoints: [:failure]
-    #     task ProcessDataTask, breakpoints: [:halt]
-    #     task NotifyCompletionTask
+    #     task ValidateTask
+    #     task ProcessTask
     #   end
-    #   workflow = DataProcessingWorkflow.new
-    #   workflow.work # Stops on first breakpoint encountered
+    #
+    #   workflow = MyWorkflow.new
+    #   result = workflow.work
     def work
       Pipeline.execute(self)
     end
