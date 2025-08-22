@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["drexed@users.noreply.github.com"]
 
   spec.summary = "CMDx is a framework for building maintainable business processes."
-  spec.description = "A framework that provides structured command execution, attribute management, validation, coercion, callbacks, and workflow orchestration for building maintainable business processes."
+  spec.description = spec.summary
   spec.homepage = "https://github.com/drexed/cmdx"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
