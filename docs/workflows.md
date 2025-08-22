@@ -15,7 +15,7 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
 
 ## Declarations
 
-Tasks execute in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
+Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
 
 > [!IMPORTANT]
 > Do **NOT** define a `work` method in workflow tasks. The included module automatically provides the execution logic.
