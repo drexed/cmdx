@@ -122,7 +122,7 @@ end
 
 ## Ecosystem
 
-- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ I18n locales
+- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations
 
 The following gems are currently under development:
 
