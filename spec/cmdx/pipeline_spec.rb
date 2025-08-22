@@ -29,31 +29,28 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     let(:breakpoints) { [] }
 
     before do
-      allow(workflow_class).to receive(:pipeline).and_return([execution_group])
-      allow(execution_group).to receive(:options).and_return(group_options)
-      allow(execution_group).to receive(:tasks).and_return([])
+      allow(execution_group).to receive_messages(options: group_options, tasks: [])
       allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(true)
-      allow(workflow_class).to receive(:settings).and_return({})
-      allow(pipeline).to receive(:execute_group_tasks)
+      allow(workflow_class).to receive_messages(pipeline: [execution_group], settings: {})
     end
 
     it "iterates through workflow pipeline groups" do
+      expect(workflow_class).to receive(:pipeline).and_return([execution_group])
       pipeline.execute
-      expect(workflow_class).to have_received(:pipeline)
     end
 
     context "when condition evaluates to true" do
       it "executes the group tasks" do
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
         pipeline.execute
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, [])
       end
 
       context "with breakpoints in group options" do
         let(:group_options) { { breakpoints: %w[step1 step2] } }
 
         it "uses group breakpoints" do
+          expect(pipeline).to receive(:execute_group_tasks).with(execution_group, %w[step1 step2])
           pipeline.execute
-          expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, %w[step1 step2])
         end
       end
 
@@ -63,8 +60,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         end
 
         it "uses workflow breakpoints" do
+          expect(pipeline).to receive(:execute_group_tasks).with(execution_group, ["workflow_step"])
           pipeline.execute
-          expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, ["workflow_step"])
         end
       end
 
@@ -74,8 +71,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         end
 
         it "uses workflow_breakpoints" do
+          expect(pipeline).to receive(:execute_group_tasks).with(execution_group, ["wf_step"])
           pipeline.execute
-          expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, ["wf_step"])
         end
       end
 
@@ -90,8 +87,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         end
 
         it "prioritizes group breakpoints" do
+          expect(pipeline).to receive(:execute_group_tasks).with(execution_group, ["group_step"])
           pipeline.execute
-          expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, ["group_step"])
         end
       end
 
@@ -99,8 +96,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         let(:group_options) { { breakpoints: ["step1", :step2, "step3"] } }
 
         it "converts all breakpoints to strings and removes duplicates" do
+          expect(pipeline).to receive(:execute_group_tasks).with(execution_group, %w[step1 step2 step3])
           pipeline.execute
-          expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, %w[step1 step2 step3])
         end
       end
     end
@@ -111,8 +108,8 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       end
 
       it "skips the group tasks" do
+        expect(pipeline).not_to receive(:execute_group_tasks)
         pipeline.execute
-        expect(pipeline).not_to have_received(:execute_group_tasks)
       end
     end
 
@@ -122,16 +119,15 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       before do
         allow(workflow_class).to receive(:pipeline).and_return([execution_group, execution_group2])
-        allow(execution_group2).to receive(:options).and_return(group_options2)
-        allow(execution_group2).to receive(:tasks).and_return([])
+        allow(execution_group2).to receive_messages(options: group_options2, tasks: [])
         allow(CMDx::Utils::Condition).to receive(:evaluate).with(workflow, group_options, workflow).and_return(true)
         allow(CMDx::Utils::Condition).to receive(:evaluate).with(workflow, group_options2, workflow).and_return(true)
       end
 
       it "processes each group independently" do
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group2, [])
         pipeline.execute
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, [])
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group2, [])
       end
     end
   end
@@ -148,7 +144,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     context "when overridden in subclass" do
       let(:custom_pipeline) do
         Class.new(described_class) do
-          def execute_group_tasks(group, breakpoints)
+          def execute_group_tasks(_group, _breakpoints)
             :custom_implementation
           end
         end
@@ -186,10 +182,10 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     end
 
     it "executes all tasks in sequence" do
+      expect(task1).to receive(:execute).with(context).and_return(result1)
+      expect(task2).to receive(:execute).with(context).and_return(result2)
+      expect(task3).to receive(:execute).with(context).and_return(result3)
       pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
-      expect(task1).to have_received(:execute).with(context)
-      expect(task2).to have_received(:execute).with(context)
-      expect(task3).to have_received(:execute).with(context)
     end
 
     context "when breakpoint is triggered on first task" do
@@ -201,10 +197,10 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "throws on first task but continues executing remaining tasks" do
         expect(workflow).to receive(:throw!).with(result1)
+        expect(task1).to receive(:execute).with(context).and_return(result1)
+        expect(task2).to receive(:execute).with(context).and_return(result2)
+        expect(task3).to receive(:execute).with(context).and_return(result3)
         pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
-        expect(task1).to have_received(:execute).with(context)
-        expect(task2).to have_received(:execute).with(context)
-        expect(task3).to have_received(:execute).with(context)
       end
     end
 
@@ -218,10 +214,10 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "executes first task, then throws on second and continues with remaining tasks" do
         expect(workflow).to receive(:throw!).with(result2)
+        expect(task1).to receive(:execute).with(context).and_return(result1)
+        expect(task2).to receive(:execute).with(context).and_return(result2)
+        expect(task3).to receive(:execute).with(context).and_return(result3)
         pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
-        expect(task1).to have_received(:execute).with(context)
-        expect(task2).to have_received(:execute).with(context)
-        expect(task3).to have_received(:execute).with(context)
       end
     end
 
@@ -234,6 +230,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "matches string breakpoints correctly" do
         expect(workflow).to receive(:throw!).with(result1)
+        expect(task1).to receive(:execute).with(context).and_return(result1)
         pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
       end
     end
@@ -247,6 +244,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "matches symbol breakpoints correctly" do
         expect(workflow).to receive(:throw!).with(result1)
+        expect(task1).to receive(:execute).with(context).and_return(result1)
         pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
       end
     end
@@ -260,6 +258,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "matches both string breakpoints" do
         expect(workflow).to receive(:throw!).with(result1)
+        expect(task1).to receive(:execute).with(context).and_return(result1)
         pipeline.send(:execute_tasks_sequentially, execution_group, breakpoints)
       end
     end
@@ -293,17 +292,16 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
     context "when workflow has single task" do
       before do
-        allow(execution_group).to receive(:options).and_return({})
-        allow(execution_group).to receive(:tasks).and_return([task])
+        allow(execution_group).to receive_messages(options: {}, tasks: [task])
         allow(workflow_class).to receive(:pipeline).and_return([execution_group])
         allow(pipeline).to receive(:execute_group_tasks).and_call_original
         allow(pipeline).to receive(:execute_tasks_sequentially)
       end
 
       it "executes the single task" do
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
+        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group, [])
         pipeline.execute
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, [])
-        expect(pipeline).to have_received(:execute_tasks_sequentially).with(execution_group, [])
       end
     end
 
@@ -312,21 +310,19 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       let(:task2) { instance_double("Task2") }
 
       before do
-        allow(execution_group).to receive(:options).and_return({})
-        allow(execution_group).to receive(:tasks).and_return([task])
-        allow(execution_group2).to receive(:options).and_return({})
-        allow(execution_group2).to receive(:tasks).and_return([task2])
+        allow(execution_group).to receive_messages(options: {}, tasks: [task])
+        allow(execution_group2).to receive_messages(options: {}, tasks: [task2])
         allow(workflow_class).to receive(:pipeline).and_return([execution_group, execution_group2])
         allow(pipeline).to receive(:execute_group_tasks).and_call_original
         allow(pipeline).to receive(:execute_tasks_sequentially)
       end
 
       it "executes all groups" do
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group, [])
+        expect(pipeline).to receive(:execute_group_tasks).with(execution_group2, [])
+        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group, [])
+        expect(pipeline).to receive(:execute_tasks_sequentially).with(execution_group2, [])
         pipeline.execute
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group, [])
-        expect(pipeline).to have_received(:execute_group_tasks).with(execution_group2, [])
-        expect(pipeline).to have_received(:execute_tasks_sequentially).with(execution_group, [])
-        expect(pipeline).to have_received(:execute_tasks_sequentially).with(execution_group2, [])
       end
     end
   end
