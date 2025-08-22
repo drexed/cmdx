@@ -10,7 +10,7 @@ RSpec.describe CMDx::Validators::Format, type: :unit do
       it "validates value against the regex pattern" do
         expect { validator.call("hello", /\A[a-z]+\z/) }.not_to raise_error
         expect { validator.call("123", /\A\d+\z/) }.not_to raise_error
-        expect { validator.call("test@example.com", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }.not_to raise_error
+        expect { validator.call("test@example.com", /\A[\w+\-.]+@[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\z/i) }.not_to raise_error
       end
 
       it "raises ValidationError when value doesn't match pattern" do
@@ -18,7 +18,7 @@ RSpec.describe CMDx::Validators::Format, type: :unit do
           .to raise_error(CMDx::ValidationError, "is an invalid format")
         expect { validator.call("abc", /\A\d+\z/) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
-        expect { validator.call("invalid-email", /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }
+        expect { validator.call("invalid-email", /\A[\w+\-.]+@[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\z/i) }
           .to raise_error(CMDx::ValidationError, "is an invalid format")
       end
 
@@ -74,7 +74,7 @@ RSpec.describe CMDx::Validators::Format, type: :unit do
       end
 
       context "with email pattern" do
-        let(:options) { { with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i } }
+        let(:options) { { with: /\A[\w+\-.]+@[a-z\d-]+(\.[a-z\d-]+)*\.[a-z]+\z/i } }
 
         it "validates email format correctly" do
           expect { validator.call("user@example.com", options) }.not_to raise_error
