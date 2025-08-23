@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 
+## [1.6.1] - 2025-08-23
+
 ### Changes
 - Log task results before freezing
 - Rename `execute_tasks_sequentially` to `execute_tasks_in_sequence`

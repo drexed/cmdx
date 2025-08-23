@@ -33,6 +33,9 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
+> [!TIP]
+> Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
+
 ### Group
 
 Group related tasks for better organization and shared configuration:

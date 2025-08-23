@@ -123,11 +123,11 @@ end
 ## Ecosystem
 
 - [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations
+- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks
 
 The following gems are currently under development:
 
 - `cmdx-testing` - RSpec and Minitest matchers
-- `cmdx-parallel` - Parallel workflow task execution
 
 ## Development
 
