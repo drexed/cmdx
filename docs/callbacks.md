@@ -2,6 +2,8 @@
 
 Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
 
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#callbacks) docs for global configuration.
+
 > [!IMPORTANT]
 > Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 

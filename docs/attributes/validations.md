@@ -2,6 +2,8 @@
 
 Attribute validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
 
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#validations) docs for global configuration.
+
 ## Table of Contents
 
 - [Usage](#usage)

@@ -72,6 +72,8 @@ end
 
 ### Middlewares
 
+See the [Middelwares](#https://github.com/drexed/cmdx/blob/main/docs/middlewares.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(task, options)`)
@@ -99,6 +101,8 @@ end
 
 ### Callbacks
 
+See the [Callbacks](#https://github.com/drexed/cmdx/blob/main/docs/callbacks.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via method
@@ -123,6 +127,8 @@ end
 
 ### Coercions
 
+See the [Attributes - Coercions](#https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(value, options)`)
@@ -146,6 +152,8 @@ end
 ```
 
 ### Validators
+
+See the [Attributes - Validations](#https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -907,6 +915,7 @@ fail!("Unsupported")
 # Bad: Default, cannot determine reason
 skip! #=> "no reason given"
 fail! #=> "no reason given"
+```
 
 ---
 
@@ -1727,6 +1736,7 @@ result.metadata #=> {
                 #       port: ["is required"]
                 #     }
                 #   }
+```
 
 ---
 
@@ -1809,6 +1819,8 @@ url: https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md
 # Attributes - Coercions
 
 Attribute coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
+
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#coercions) docs for global configuration.
 
 ## Usage
 
@@ -1952,6 +1964,7 @@ result.metadata #=> {
                 #       score: ["could not coerce into one of: float, big_decimal"]
                 #     }
                 #   }
+```
 
 ---
 
@@ -1961,6 +1974,8 @@ url: https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md
 # Attributes - Validations
 
 Attribute validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
+
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#validations) docs for global configuration.
 
 ## Usage
 
@@ -2338,6 +2353,8 @@ url: https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
 
 Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
 
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#callbacks) docs for global configuration.
+
 > [!IMPORTANT]
 > Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
@@ -2496,6 +2513,8 @@ url: https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
 # Middlewares
 
 Middleware provides Rack-style wrappers around task execution for cross-cutting concerns like authentication, logging, caching, and error handling.
+
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#middlewares) docs for global configuration.
 
 ## Order
 

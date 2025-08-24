@@ -31,4 +31,11 @@ CMDx.configure do |config|
     formatter: CMDx::LogFormatters::Line.new,
     level: Logger::INFO
   )
+
+  # Additional global configurations - automatically applied to all tasks
+  #
+  # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
+  # Callbacks - https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
+  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/coercions.md
+  # Validations - https://github.com/drexed/cmdx/blob/main/docs/validations.md
 end

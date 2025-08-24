@@ -2,6 +2,8 @@
 
 Attribute coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
 
+Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#coercions) docs for global configuration.
+
 ## Table of Contents
 
 - [Usage](#usage)

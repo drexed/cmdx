@@ -82,6 +82,8 @@ end
 
 ### Middlewares
 
+See the [Middelwares](#https://github.com/drexed/cmdx/blob/main/docs/middlewares.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(task, options)`)
@@ -109,6 +111,8 @@ end
 
 ### Callbacks
 
+See the [Callbacks](#https://github.com/drexed/cmdx/blob/main/docs/callbacks.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via method
@@ -133,6 +137,8 @@ end
 
 ### Coercions
 
+See the [Attributes - Coercions](#https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md#declarations) docs for task level configurations.
+
 ```ruby
 CMDx.configure do |config|
   # Via callable (must respond to `call(value, options)`)
@@ -156,6 +162,8 @@ end
 ```
 
 ### Validators
+
+See the [Attributes - Validations](#https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
