@@ -26,10 +26,10 @@ module CMDx
         path = CMDx.gem_path.join("lib/locales/#{locale}.yml")
         next unless File.file?(path)
 
-        I18n.load_path << path
+        ::I18n.load_path << path
       end
 
-      I18n.reload!
+      ::I18n.reload!
     end
 
   end

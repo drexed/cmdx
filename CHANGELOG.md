@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 
+## [1.6.2] - 2025-08-24
+
+### Changes
+- Prefix railtie I18n with `::` to play nice with `CMDx::I18n`
+
 ## [1.6.1] - 2025-08-23
 
 ### Changes
@@ -27,7 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [1.5.1] - 2025-08-21
 
 ### Changes
-- Prefix I18n with `::` to play nice with `CMDx::I18n`
+- Prefix locale I18n with `::` to play nice with `CMDx::I18n`
 - Safe navigate length and numeric validators
 - Update railtie file path points to correct directory
 
