@@ -171,10 +171,6 @@ class ApplicationTask < CMDx::Task
 
   private
 
-  # TODO: convert example into a middleware
-  # https://thoughtbot.com/blog/activerecord-query-log-tags-for-graphql
-  # https://api.rubyonrails.org/classes/ActiveRecord/QueryLogs.html
-  # https://build.betterup.com/adding-sidekiq-job-context-to-activerecord-query-log-tags/
   def set_execution_context
     # NOTE: This could easily be made into a middleware
     ActiveSupport::ExecutionContext.set(
