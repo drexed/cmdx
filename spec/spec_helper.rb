@@ -6,6 +6,8 @@ ENV["TZ"] = "UTC"
 require "bundler/setup"
 require "rspec"
 
+require "parallel"
+
 require "cmdx"
 require "cmdx/rspec"
 
