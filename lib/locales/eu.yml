@@ -1,0 +1,49 @@
+eu:
+  cmdx:
+    attributes:
+      required: "iturriaren bidez eskuragarri izan behar du"
+      undefined: "metodo zehaztugabea %{method} delegatzen du"
+    coercions:
+      into_a: "ezin izan da %{type} ra bihurtu"
+      into_an: "ezin izan da %{type} ra bihurtu"
+      into_any: "ezin izan da honetako batera bihurtu: %{types}"
+      unknown: "%{type} bihurtze mota ezezaguna"
+    faults:
+      unspecified: "arrazoirik eman gabe"
+    types:
+      array: "array"
+      big_decimal: "hamartar handia"
+      boolean: "boolearra"
+      complex: "konplexua"
+      date_time: "data eta ordua"
+      date: "data"
+      float: "puntu mugikorra"
+      hash: "hash"
+      integer: "zenbaki osoa"
+      rational: "arrazoizkoa"
+      string: "katea"
+      symbol: "ikurra"
+      time: "ordua"
+    validators:
+      exclusion:
+        of: "ezin da honetako bat izan: %{values}"
+        within: "ezin da %{min} eta %{max} artean izan"
+      format: "formatu baliogabea da"
+      inclusion:
+        of: "honetako bat izan behar du: %{values}"
+        within: "%{min} eta %{max} artean izan behar du"
+      length:
+        is: "luzera %{is} izan behar du"
+        is_not: "luzera ezin da %{is_not} izan"
+        min: "luzera gutxienez %{min} izan behar du"
+        max: "luzera gehienez %{max} izan daiteke"
+        not_within: "luzera ezin da %{min} eta %{max} artean izan"
+        within: "luzera %{min} eta %{max} artean izan behar du"
+      numeric:
+        is: "%{is} izan behar du"
+        is_not: "ezin da %{is_not} izan"
+        min: "gutxienez %{min} izan behar du"
+        max: "gehienez %{max} izan daiteke"
+        not_within: "ezin da %{min} eta %{max} artean izan"
+        within: "%{min} eta %{max} artean izan behar du"
+      presence: "ezin da hutsik izan"

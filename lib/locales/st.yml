@@ -1,0 +1,49 @@
+st:
+  cmdx:
+    attributes:
+      required: "e tlameha ho ba e fihleleha ka mohlodi"
+      undefined: "e fana ka boikarabello ho mokgwa o sa hlaloswang %{method}"
+    coercions:
+      into_a: "ha e ka fetolelwa ho %{type}"
+      into_an: "ha e ka fetolelwa ho %{type}"
+      into_any: "ha e ka fetolelwa ho e mong oa: %{types}"
+      unknown: "mofuta o sa tsejoang oa phetoho %{type}"
+    faults:
+      unspecified: "ha ho na lebaka le fanoeng"
+    types:
+      array: "array"
+      big_decimal: "decimal e kgolo"
+      boolean: "boolean"
+      complex: "e rarahaneng"
+      date_time: "letsatsi le nako"
+      date: "letsatsi"
+      float: "nomoro ea ho fapana"
+      hash: "hash"
+      integer: "nomoro e feletseng"
+      rational: "e rarahaneng"
+      string: "lentsoe"
+      symbol: "mokhoa"
+      time: "nako"
+    validators:
+      exclusion:
+        of: "ha e tlameha ho ba e mong oa: %{values}"
+        within: "ha e tlameha ho ba pakeng tsa %{min} le %{max}"
+      format: "ke foromo e sa sebetseng"
+      inclusion:
+        of: "e tlameha ho ba e mong oa: %{values}"
+        within: "e tlameha ho ba pakeng tsa %{min} le %{max}"
+      length:
+        is: "botelele bo tlameha ho ba %{is}"
+        is_not: "botelele ha bo tlameha ho ba %{is_not}"
+        min: "botelele bo tlameha ho ba bonyane %{min}"
+        max: "botelele bo ka ba ka ho fetisisa %{max}"
+        not_within: "botelele ha bo tlameha ho ba pakeng tsa %{min} le %{max}"
+        within: "botelele bo tlameha ho ba pakeng tsa %{min} le %{max}"
+      numeric:
+        is: "e tlameha ho ba %{is}"
+        is_not: "ha e tlameha ho ba %{is_not}"
+        min: "e tlameha ho ba bonyane %{min}"
+        max: "e ka ba ka ho fetisisa %{max}"
+        not_within: "ha e tlameha ho ba pakeng tsa %{min} le %{max}"
+        within: "e tlameha ho ba pakeng tsa %{min} le %{max}"
+      presence: "ha e ka ba e se na letho"

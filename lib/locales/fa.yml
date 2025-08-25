@@ -1,0 +1,49 @@
+fa:
+  cmdx:
+    attributes:
+      required: "باید از طریق منبع قابل دسترسی باشد"
+      undefined: "به متد تعریف نشده %{method} واگذار می‌کند"
+    coercions:
+      into_a: "نمی‌تواند به %{type} تبدیل شود"
+      into_an: "نمی‌تواند به %{type} تبدیل شود"
+      into_any: "نمی‌تواند به یکی از اینها تبدیل شود: %{types}"
+      unknown: "نوع تبدیل %{type} ناشناخته"
+    faults:
+      unspecified: "دلیلی ارائه نشده"
+    types:
+      array: "آرایه"
+      big_decimal: "اعشاری بزرگ"
+      boolean: "بولین"
+      complex: "مرکب"
+      date_time: "تاریخ و زمان"
+      date: "تاریخ"
+      float: "نقطه شناور"
+      hash: "هش"
+      integer: "عدد صحیح"
+      rational: "گویا"
+      string: "رشته"
+      symbol: "نماد"
+      time: "زمان"
+    validators:
+      exclusion:
+        of: "نباید یکی از اینها باشد: %{values}"
+        within: "نباید بین %{min} و %{max} باشد"
+      format: "فرمت نامعتبر است"
+      inclusion:
+        of: "باید یکی از اینها باشد: %{values}"
+        within: "باید بین %{min} و %{max} باشد"
+      length:
+        is: "طول باید %{is} باشد"
+        is_not: "طول نباید %{is_not} باشد"
+        min: "طول باید حداقل %{min} باشد"
+        max: "طول می‌تواند حداکثر %{max} باشد"
+        not_within: "طول نباید بین %{min} و %{max} باشد"
+        within: "طول باید بین %{min} و %{max} باشد"
+      numeric:
+        is: "باید %{is} باشد"
+        is_not: "نباید %{is_not} باشد"
+        min: "باید حداقل %{min} باشد"
+        max: "می‌تواند حداکثر %{max} باشد"
+        not_within: "نباید بین %{min} و %{max} باشد"
+        within: "باید بین %{min} و %{max} باشد"
+      presence: "نمی‌تواند خالی باشد"

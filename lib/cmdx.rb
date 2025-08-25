@@ -48,6 +48,7 @@ require_relative "cmdx/faults"
 # Conditionally load Rails components if Rails is available
 if defined?(Rails::Generators)
   require_relative "generators/cmdx/install_generator"
+  require_relative "generators/cmdx/locale_generator"
   require_relative "generators/cmdx/task_generator"
 end
 

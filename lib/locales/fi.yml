@@ -1,0 +1,49 @@
+fi:
+  cmdx:
+    attributes:
+      required: "täytyy olla saatavilla lähteen kautta"
+      undefined: "delegoi määrittelemättömälle metodille %{method}"
+    coercions:
+      into_a: "ei voitu muuntaa tyypiksi %{type}"
+      into_an: "ei voitu muuntaa tyypiksi %{type}"
+      into_any: "ei voitu muuntaa yhdeksi seuraavista: %{types}"
+      unknown: "tuntematon %{type} muunnostyyppi"
+    faults:
+      unspecified: "syyä ei annettu"
+    types:
+      array: "taulukko"
+      big_decimal: "iso desimaali"
+      boolean: "totuusarvo"
+      complex: "kompleksi"
+      date_time: "päivämäärä ja aika"
+      date: "päivämäärä"
+      float: "liukuluku"
+      hash: "hajautustaulu"
+      integer: "kokonaisluku"
+      rational: "rationaaliluku"
+      string: "merkkijono"
+      symbol: "symboli"
+      time: "aika"
+    validators:
+      exclusion:
+        of: "ei saa olla yksi seuraavista: %{values}"
+        within: "ei saa olla välillä %{min} ja %{max}"
+      format: "on virheellinen muoto"
+      inclusion:
+        of: "täytyy olla yksi seuraavista: %{values}"
+        within: "täytyy olla välillä %{min} ja %{max}"
+      length:
+        is: "pituuden täytyy olla %{is}"
+        is_not: "pituuden ei saa olla %{is_not}"
+        min: "pituuden täytyy olla vähintään %{min}"
+        max: "pituuden täytyy olla enintään %{max}"
+        not_within: "pituuden ei saa olla välillä %{min} ja %{max}"
+        within: "pituuden täytyy olla välillä %{min} ja %{max}"
+      numeric:
+        is: "täytyy olla %{is}"
+        is_not: "ei saa olla %{is_not}"
+        min: "täytyy olla vähintään %{min}"
+        max: "täytyy olla enintään %{max}"
+        not_within: "ei saa olla välillä %{min} ja %{max}"
+        within: "täytyy olla välillä %{min} ja %{max}"
+      presence: "ei saa olla tyhjä"

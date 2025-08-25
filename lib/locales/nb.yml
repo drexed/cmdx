@@ -1,0 +1,49 @@
+nb:
+  cmdx:
+    attributes:
+      required: "må være tilgjengelig via kilden"
+      undefined: "delegerer til udefinert metode %{method}"
+    coercions:
+      into_a: "kunne ikke konverteres til %{type}"
+      into_an: "kunne ikke konverteres til %{type}"
+      into_any: "kunne ikke konverteres til en av: %{types}"
+      unknown: "ukjent %{type} konverteringstype"
+    faults:
+      unspecified: "ingen grunn gitt"
+    types:
+      array: "array"
+      big_decimal: "stort desimaltall"
+      boolean: "boolsk"
+      complex: "kompleks"
+      date_time: "dato og tid"
+      date: "dato"
+      float: "flyttall"
+      hash: "hash"
+      integer: "heltall"
+      rational: "rasjonalt"
+      string: "streng"
+      symbol: "symbol"
+      time: "tid"
+    validators:
+      exclusion:
+        of: "må ikke være en av: %{values}"
+        within: "må ikke være mellom %{min} og %{max}"
+      format: "er et ugyldig format"
+      inclusion:
+        of: "må være en av: %{values}"
+        within: "må være mellom %{min} og %{max}"
+      length:
+        is: "lengden må være %{is}"
+        is_not: "lengden må ikke være %{is_not}"
+        min: "lengden må være minst %{min}"
+        max: "lengden må høyst være %{max}"
+        not_within: "lengden må ikke være mellom %{min} og %{max}"
+        within: "lengden må være mellom %{min} og %{max}"
+      numeric:
+        is: "må være %{is}"
+        is_not: "må ikke være %{is_not}"
+        min: "må være minst %{min}"
+        max: "må høyst være %{max}"
+        not_within: "må ikke være mellom %{min} og %{max}"
+        within: "må være mellom %{min} og %{max}"
+      presence: "må ikke være tom"

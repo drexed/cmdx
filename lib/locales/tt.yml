@@ -1,0 +1,49 @@
+tt:
+  cmdx:
+    attributes:
+      required: "чыганак аша ирешүе мәҗбүри"
+      undefined: "билгеләнмәгән %{method} методына тапшыра"
+    coercions:
+      into_a: "%{type} төренә күчерә алмады"
+      into_an: "%{type} төренә күчерә алмады"
+      into_any: "боларның берсенә күчерә алмады: %{types}"
+      unknown: "билгесез %{type} күчерү төре"
+    faults:
+      unspecified: "сәбәп күрсәтелмәгән"
+    types:
+      array: "массив"
+      big_decimal: "зур унарлы"
+      boolean: "буль"
+      complex: "комплекс"
+      date_time: "дата һәм вакыт"
+      date: "дата"
+      float: "өзәк ноктасы"
+      hash: "хэш"
+      integer: "бөтен сан"
+      rational: "рациональ"
+      string: "юл"
+      symbol: "символ"
+      time: "вакыт"
+    validators:
+      exclusion:
+        of: "боларның берсе булмасын: %{values}"
+        within: "%{min} һәм %{max} арасында булмасын"
+      format: "дөрес булмаган формат"
+      inclusion:
+        of: "боларның берсе булырга тиеш: %{values}"
+        within: "%{min} һәм %{max} арасында булырга тиеш"
+      length:
+        is: "озынлыгы %{is} булырга тиеш"
+        is_not: "озынлыгы %{is_not} булмасын"
+        min: "озынлыгы ким дигәндә %{min} булырга тиеш"
+        max: "озынлыгы иң күбесеннә %{max} була ала"
+        not_within: "озынлыгы %{min} һәм %{max} арасында булмасын"
+        within: "озынлыгы %{min} һәм %{max} арасында булырга тиеш"
+      numeric:
+        is: "%{is} булырга тиеш"
+        is_not: "%{is_not} булмасын"
+        min: "ким дигәндә %{min} булырга тиеш"
+        max: "иң күбесеннә %{max} була ала"
+        not_within: "%{min} һәм %{max} арасында булмасын"
+        within: "%{min} һәм %{max} арасында булырга тиеш"
+      presence: "буш була алмас"

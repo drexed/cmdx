@@ -1,0 +1,49 @@
+ar:
+  cmdx:
+    attributes:
+      required: "يجب أن يكون قابلاً للوصول عبر المصدر"
+      undefined: "يفوض إلى طريقة غير معرفة %{method}"
+    coercions:
+      into_a: "لا يمكن تحويله إلى %{type}"
+      into_an: "لا يمكن تحويله إلى %{type}"
+      into_any: "لا يمكن تحويله إلى واحد من: %{types}"
+      unknown: "نوع تحويل %{type} غير معروف"
+    faults:
+      unspecified: "لم يتم تقديم سبب"
+    types:
+      array: "مصفوفة"
+      big_decimal: "عدد عشري كبير"
+      boolean: "منطقي"
+      complex: "مركب"
+      date_time: "التاريخ والوقت"
+      date: "التاريخ"
+      float: "رقم عشري"
+      hash: "جدول تجزئة"
+      integer: "عدد صحيح"
+      rational: "عدد نسبي"
+      string: "سلسلة نصية"
+      symbol: "رمز"
+      time: "الوقت"
+    validators:
+      exclusion:
+        of: "يجب ألا يكون واحداً من: %{values}"
+        within: "يجب ألا يكون بين %{min} و %{max}"
+      format: "تنسيق غير صالح"
+      inclusion:
+        of: "يجب أن يكون واحداً من: %{values}"
+        within: "يجب أن يكون بين %{min} و %{max}"
+      length:
+        is: "يجب أن يكون الطول %{is}"
+        is_not: "يجب ألا يكون الطول %{is_not}"
+        min: "يجب أن يكون الطول على الأقل %{min}"
+        max: "يجب أن يكون الطول على الأكثر %{max}"
+        not_within: "يجب ألا يكون الطول بين %{min} و %{max}"
+        within: "يجب أن يكون الطول بين %{min} و %{max}"
+      numeric:
+        is: "يجب أن يكون %{is}"
+        is_not: "يجب ألا يكون %{is_not}"
+        min: "يجب أن يكون على الأقل %{min}"
+        max: "يجب أن يكون على الأكثر %{max}"
+        not_within: "يجب ألا يكون بين %{min} و %{max}"
+        within: "يجب أن يكون بين %{min} و %{max}"
+      presence: "لا يمكن أن يكون فارغاً"

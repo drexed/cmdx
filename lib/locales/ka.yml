@@ -1,0 +1,49 @@
+ka:
+  cmdx:
+    attributes:
+      required: "უნდა იყოს ხელმისაწვდომი წყაროდან"
+      undefined: "აღწერს განუსაზღვრელ მეთოდს %{method}"
+    coercions:
+      into_a: "ვერ გადაიყვანა %{type} ტიპად"
+      into_an: "ვერ გადაიყვანა %{type} ტიპად"
+      into_any: "ვერ გადაიყვანა ერთ-ერთად: %{types}"
+      unknown: "უცნობი %{type} კონვერტაციის ტიპი"
+    faults:
+      unspecified: "მიზეზი არ არის მითითებული"
+    types:
+      array: "მასივი"
+      big_decimal: "დიდი ათწილადი"
+      boolean: "ლოგიკური"
+      complex: "კომპლექსური"
+      date_time: "თარიღი და დრო"
+      date: "თარიღი"
+      float: "მცურავი წერტილის რიცხვი"
+      hash: "ჰეში"
+      integer: "მთელი რიცხვი"
+      rational: "რაციონალური"
+      string: "სტრიქონი"
+      symbol: "სიმბოლო"
+      time: "დრო"
+    validators:
+      exclusion:
+        of: "არ უნდა იყოს ერთ-ერთი: %{values}"
+        within: "არ უნდა იყოს %{min} და %{max} შორის"
+      format: "არის არასწორი ფორმატი"
+      inclusion:
+        of: "უნდა იყოს ერთ-ერთი: %{values}"
+        within: "უნდა იყოს %{min} და %{max} შორის"
+      length:
+        is: "სიგრძე უნდა იყოს %{is}"
+        is_not: "სიგრძე არ უნდა იყოს %{is_not}"
+        min: "სიგრძე უნდა იყოს მინიმუმ %{min}"
+        max: "სიგრძე უნდა იყოს მაქსიმუმ %{max}"
+        not_within: "სიგრძე არ უნდა იყოს %{min} და %{max} შორის"
+        within: "სიგრძე უნდა იყოს %{min} და %{max} შორის"
+      numeric:
+        is: "უნდა იყოს %{is}"
+        is_not: "არ უნდა იყოს %{is_not}"
+        min: "უნდა იყოს მინიმუმ %{min}"
+        max: "უნდა იყოს მაქსიმუმ %{max}"
+        not_within: "არ უნდა იყოს %{min} და %{max} შორის"
+        within: "უნდა იყოს %{min} და %{max} შორის"
+      presence: "არ შეიძლება იყოს ცარიელი"

@@ -1,0 +1,49 @@
+th:
+  cmdx:
+    attributes:
+      required: "ต้องเข้าถึงได้ผ่านแหล่งข้อมูล"
+      undefined: "มอบหมายให้กับเมธอดที่ไม่ได้กำหนด %{method}"
+    coercions:
+      into_a: "ไม่สามารถแปลงเป็น %{type} ได้"
+      into_an: "ไม่สามารถแปลงเป็น %{type} ได้"
+      into_any: "ไม่สามารถแปลงเป็นหนึ่งใน: %{types} ได้"
+      unknown: "ประเภทการแปลง %{type} ที่ไม่รู้จัก"
+    faults:
+      unspecified: "ไม่มีการระบุเหตุผล"
+    types:
+      array: "อาร์เรย์"
+      big_decimal: "ทศนิยมขนาดใหญ่"
+      boolean: "บูลีน"
+      complex: "จำนวนเชิงซ้อน"
+      date_time: "วันที่และเวลา"
+      date: "วันที่"
+      float: "จำนวนทศนิยม"
+      hash: "แฮช"
+      integer: "จำนวนเต็ม"
+      rational: "จำนวนตรรกยะ"
+      string: "สตริง"
+      symbol: "สัญลักษณ์"
+      time: "เวลา"
+    validators:
+      exclusion:
+        of: "ต้องไม่ใช่หนึ่งใน: %{values}"
+        within: "ต้องไม่อยู่ระหว่าง %{min} และ %{max}"
+      format: "เป็นรูปแบบที่ไม่ถูกต้อง"
+      inclusion:
+        of: "ต้องเป็นหนึ่งใน: %{values}"
+        within: "ต้องอยู่ระหว่าง %{min} และ %{max}"
+      length:
+        is: "ความยาวต้องเป็น %{is}"
+        is_not: "ความยาวต้องไม่เป็น %{is_not}"
+        min: "ความยาวต้องอย่างน้อย %{min}"
+        max: "ความยาวต้องไม่เกิน %{max}"
+        not_within: "ความยาวต้องไม่อยู่ระหว่าง %{min} และ %{max}"
+        within: "ความยาวต้องอยู่ระหว่าง %{min} และ %{max}"
+      numeric:
+        is: "ต้องเป็น %{is}"
+        is_not: "ต้องไม่เป็น %{is_not}"
+        min: "ต้องอย่างน้อย %{min}"
+        max: "ต้องไม่เกิน %{max}"
+        not_within: "ต้องไม่อยู่ระหว่าง %{min} และ %{max}"
+        within: "ต้องอยู่ระหว่าง %{min} และ %{max}"
+      presence: "ไม่สามารถเป็นค่าว่างได้"

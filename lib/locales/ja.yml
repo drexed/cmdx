@@ -1,0 +1,49 @@
+ja:
+  cmdx:
+    attributes:
+      required: "ソースからアクセス可能である必要があります"
+      undefined: "未定義のメソッド %{method} に委譲します"
+    coercions:
+      into_a: "%{type} に変換できませんでした"
+      into_an: "%{type} に変換できませんでした"
+      into_any: "次のいずれかに変換できませんでした: %{types}"
+      unknown: "不明な %{type} 変換タイプ"
+    faults:
+      unspecified: "理由が指定されていません"
+    types:
+      array: "配列"
+      big_decimal: "大きな小数"
+      boolean: "ブール値"
+      complex: "複素数"
+      date_time: "日時"
+      date: "日付"
+      float: "浮動小数点数"
+      hash: "ハッシュ"
+      integer: "整数"
+      rational: "有理数"
+      string: "文字列"
+      symbol: "シンボル"
+      time: "時刻"
+    validators:
+      exclusion:
+        of: "次のいずれかであってはなりません: %{values}"
+        within: "%{min} と %{max} の間であってはなりません"
+      format: "無効な形式です"
+      inclusion:
+        of: "次のいずれかである必要があります: %{values}"
+        within: "%{min} と %{max} の間である必要があります"
+      length:
+        is: "長さは %{is} である必要があります"
+        is_not: "長さは %{is_not} であってはなりません"
+        min: "長さは少なくとも %{min} である必要があります"
+        max: "長さは最大 %{max} である必要があります"
+        not_within: "長さは %{min} と %{max} の間であってはなりません"
+        within: "長さは %{min} と %{max} の間である必要があります"
+      numeric:
+        is: "%{is} である必要があります"
+        is_not: "%{is_not} であってはなりません"
+        min: "少なくとも %{min} である必要があります"
+        max: "最大 %{max} である必要があります"
+        not_within: "%{min} と %{max} の間であってはなりません"
+        within: "%{min} と %{max} の間である必要があります"
+      presence: "空であってはなりません"

@@ -1,0 +1,49 @@
+ca:
+  cmdx:
+    attributes:
+      required: "ha de ser accessible a través de la font"
+      undefined: "delega al mètode no definit %{method}"
+    coercions:
+      into_a: "no es va poder convertir a %{type}"
+      into_an: "no es va poder convertir a %{type}"
+      into_any: "no es va poder convertir a un de: %{types}"
+      unknown: "tipus de conversió %{type} desconegut"
+    faults:
+      unspecified: "no s'ha donat cap raó"
+    types:
+      array: "array"
+      big_decimal: "decimal gran"
+      boolean: "booleà"
+      complex: "complex"
+      date_time: "data i hora"
+      date: "data"
+      float: "punt flotant"
+      hash: "hash"
+      integer: "enter"
+      rational: "racional"
+      string: "cadena"
+      symbol: "símbol"
+      time: "temps"
+    validators:
+      exclusion:
+        of: "no ha de ser un de: %{values}"
+        within: "no ha d'estar entre %{min} i %{max}"
+      format: "és un format no vàlid"
+      inclusion:
+        of: "ha de ser un de: %{values}"
+        within: "ha d'estar entre %{min} i %{max}"
+      length:
+        is: "la longitud ha de ser %{is}"
+        is_not: "la longitud no ha de ser %{is_not}"
+        min: "la longitud ha de ser almenys %{min}"
+        max: "la longitud ha de ser com a màxim %{max}"
+        not_within: "la longitud no ha d'estar entre %{min} i %{max}"
+        within: "la longitud ha d'estar entre %{min} i %{max}"
+      numeric:
+        is: "ha de ser %{is}"
+        is_not: "no ha de ser %{is_not}"
+        min: "ha de ser almenys %{min}"
+        max: "ha de ser com a màxim %{max}"
+        not_within: "no ha d'estar entre %{min} i %{max}"
+        within: "ha d'estar entre %{min} i %{max}"
+      presence: "no pot estar buit"

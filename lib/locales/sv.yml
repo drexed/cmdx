@@ -1,0 +1,49 @@
+sv:
+  cmdx:
+    attributes:
+      required: "måste vara tillgänglig via källan"
+      undefined: "delegerar till odefinierad metod %{method}"
+    coercions:
+      into_a: "kunde inte konverteras till %{type}"
+      into_an: "kunde inte konverteras till %{type}"
+      into_any: "kunde inte konverteras till en av: %{types}"
+      unknown: "okänd %{type} konverteringstyp"
+    faults:
+      unspecified: "ingen anledning angiven"
+    types:
+      array: "array"
+      big_decimal: "stort decimaltal"
+      boolean: "boolesk"
+      complex: "komplext"
+      date_time: "datum och tid"
+      date: "datum"
+      float: "flyttal"
+      hash: "hash"
+      integer: "heltal"
+      rational: "rationellt"
+      string: "sträng"
+      symbol: "symbol"
+      time: "tid"
+    validators:
+      exclusion:
+        of: "får inte vara en av: %{values}"
+        within: "får inte vara mellan %{min} och %{max}"
+      format: "är ett ogiltigt format"
+      inclusion:
+        of: "måste vara en av: %{values}"
+        within: "måste vara mellan %{min} och %{max}"
+      length:
+        is: "längden måste vara %{is}"
+        is_not: "längden får inte vara %{is_not}"
+        min: "längden måste vara minst %{min}"
+        max: "längden får högst vara %{max}"
+        not_within: "längden får inte vara mellan %{min} och %{max}"
+        within: "längden måste vara mellan %{min} och %{max}"
+      numeric:
+        is: "måste vara %{is}"
+        is_not: "får inte vara %{is_not}"
+        min: "måste vara minst %{min}"
+        max: "får högst vara %{max}"
+        not_within: "får inte vara mellan %{min} och %{max}"
+        within: "måste vara mellan %{min} och %{max}"
+      presence: "får inte vara tom"

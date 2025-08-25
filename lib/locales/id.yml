@@ -1,0 +1,49 @@
+id:
+  cmdx:
+    attributes:
+      required: "harus dapat diakses melalui sumber"
+      undefined: "mendelegasikan ke metode yang tidak terdefinisi %{method}"
+    coercions:
+      into_a: "tidak dapat dikonversi ke %{type}"
+      into_an: "tidak dapat dikonversi ke %{type}"
+      into_any: "tidak dapat dikonversi ke salah satu dari: %{types}"
+      unknown: "jenis konversi %{type} yang tidak dikenal"
+    faults:
+      unspecified: "tidak ada alasan yang diberikan"
+    types:
+      array: "array"
+      big_decimal: "desimal besar"
+      boolean: "boolean"
+      complex: "kompleks"
+      date_time: "tanggal dan waktu"
+      date: "tanggal"
+      float: "titik mengambang"
+      hash: "hash"
+      integer: "bilangan bulat"
+      rational: "rasional"
+      string: "string"
+      symbol: "simbol"
+      time: "waktu"
+    validators:
+      exclusion:
+        of: "tidak boleh salah satu dari: %{values}"
+        within: "tidak boleh di antara %{min} dan %{max}"
+      format: "adalah format yang tidak valid"
+      inclusion:
+        of: "harus salah satu dari: %{values}"
+        within: "harus di antara %{min} dan %{max}"
+      length:
+        is: "panjang harus %{is}"
+        is_not: "panjang tidak boleh %{is_not}"
+        min: "panjang minimal harus %{min}"
+        max: "panjang maksimal %{max}"
+        not_within: "panjang tidak boleh di antara %{min} dan %{max}"
+        within: "panjang harus di antara %{min} dan %{max}"
+      numeric:
+        is: "harus %{is}"
+        is_not: "tidak boleh %{is_not}"
+        min: "minimal harus %{min}"
+        max: "maksimal %{max}"
+        not_within: "tidak boleh di antara %{min} dan %{max}"
+        within: "harus di antara %{min} dan %{max}"
+      presence: "tidak boleh kosong"

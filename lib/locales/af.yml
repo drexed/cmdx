@@ -1,0 +1,49 @@
+af:
+  cmdx:
+    attributes:
+      required: "moet toeganklik wees via die bron"
+      undefined: "delegeer na ongedefinieerde metode %{method}"
+    coercions:
+      into_a: "kon nie na %{type} omskep word nie"
+      into_an: "kon nie na %{type} omskep word nie"
+      into_any: "kon nie na een van: %{types} omskep word nie"
+      unknown: "onbekende %{type} omskep tipe"
+    faults:
+      unspecified: "geen rede gegee nie"
+    types:
+      array: "skikking"
+      big_decimal: "groot desimale"
+      boolean: "booleaanse"
+      complex: "kompleks"
+      date_time: "datum en tyd"
+      date: "datum"
+      float: "drywende punt"
+      hash: "hash"
+      integer: "heelgetal"
+      rational: "rasionaal"
+      string: "string"
+      symbol: "simbool"
+      time: "tyd"
+    validators:
+      exclusion:
+        of: "moet nie een van wees nie: %{values}"
+        within: "moet nie binne %{min} en %{max} wees nie"
+      format: "is 'n ongeldige formaat"
+      inclusion:
+        of: "moet een van wees: %{values}"
+        within: "moet binne %{min} en %{max} wees"
+      length:
+        is: "lengte moet %{is} wees"
+        is_not: "lengte moet nie %{is_not} wees nie"
+        min: "lengte moet ten minste %{min} wees"
+        max: "lengte kan maksimum %{max} wees"
+        not_within: "lengte moet nie binne %{min} en %{max} wees nie"
+        within: "lengte moet binne %{min} en %{max} wees"
+      numeric:
+        is: "moet %{is} wees"
+        is_not: "moet nie %{is_not} wees nie"
+        min: "moet ten minste %{min} wees"
+        max: "kan maksimum %{max} wees"
+        not_within: "moet nie binne %{min} en %{max} wees nie"
+        within: "moet binne %{min} en %{max} wees"
+      presence: "kan nie leeg wees nie"

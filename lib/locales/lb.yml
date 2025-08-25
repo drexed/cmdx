@@ -1,0 +1,49 @@
+lb:
+  cmdx:
+    attributes:
+      required: "muss iwwer d'Quell zougänglech sinn"
+      undefined: "delegéiert un onbestëmmte Methode %{method}"
+    coercions:
+      into_a: "konnt net an %{type} ëmwandelen"
+      into_an: "konnt net an %{type} ëmwandelen"
+      into_any: "konnt net an ee vun dësen ëmwandelen: %{types}"
+      unknown: "onbekannte %{type} Ëmwandlungstyp"
+    faults:
+      unspecified: "kee Grond uginn"
+    types:
+      array: "Array"
+      big_decimal: "Grouss Dezimal"
+      boolean: "Boolean"
+      complex: "Komplex"
+      date_time: "Datum an Zäit"
+      date: "Datum"
+      float: "Flottpunkt"
+      hash: "Hash"
+      integer: "Ganzzuel"
+      rational: "Rational"
+      string: "String"
+      symbol: "Symbol"
+      time: "Zäit"
+    validators:
+      exclusion:
+        of: "däerf net ee vun dësen sinn: %{values}"
+        within: "däerf net tëscht %{min} an %{max} sinn"
+      format: "ass e net valide Format"
+      inclusion:
+        of: "muss ee vun dësen sinn: %{values}"
+        within: "muss tëscht %{min} an %{max} sinn"
+      length:
+        is: "Längt muss %{is} sinn"
+        is_not: "Längt däerf net %{is_not} sinn"
+        min: "Längt muss mindestens %{min} sinn"
+        max: "Längt ka maximal %{max} sinn"
+        not_within: "Längt däerf net tëscht %{min} an %{max} sinn"
+        within: "Längt muss tëscht %{min} an %{max} sinn"
+      numeric:
+        is: "muss %{is} sinn"
+        is_not: "däerf net %{is_not} sinn"
+        min: "muss mindestens %{min} sinn"
+        max: "ka maximal %{max} sinn"
+        not_within: "däerf net tëscht %{min} an %{max} sinn"
+        within: "muss tëscht %{min} an %{max} sinn"
+      presence: "däerf net eidel sinn"

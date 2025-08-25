@@ -1,0 +1,49 @@
+zh-CN:
+  cmdx:
+    attributes:
+      required: "必须通过源访问"
+      undefined: "委托给未定义的方法 %{method}"
+    coercions:
+      into_a: "无法转换为 %{type}"
+      into_an: "无法转换为 %{type}"
+      into_any: "无法转换为以下之一: %{types}"
+      unknown: "未知的 %{type} 转换类型"
+    faults:
+      unspecified: "未提供原因"
+    types:
+      array: "数组"
+      big_decimal: "大十进制数"
+      boolean: "布尔值"
+      complex: "复数"
+      date_time: "日期时间"
+      date: "日期"
+      float: "浮点数"
+      hash: "哈希"
+      integer: "整数"
+      rational: "有理数"
+      string: "字符串"
+      symbol: "符号"
+      time: "时间"
+    validators:
+      exclusion:
+        of: "不能是以下之一: %{values}"
+        within: "不能在 %{min} 和 %{max} 之间"
+      format: "格式无效"
+      inclusion:
+        of: "必须是以下之一: %{values}"
+        within: "必须在 %{min} 和 %{max} 之间"
+      length:
+        is: "长度必须是 %{is}"
+        is_not: "长度不能是 %{is_not}"
+        min: "长度必须至少为 %{min}"
+        max: "长度最多为 %{max}"
+        not_within: "长度不能在 %{min} 和 %{max} 之间"
+        within: "长度必须在 %{min} 和 %{max} 之间"
+      numeric:
+        is: "必须是 %{is}"
+        is_not: "不能是 %{is_not}"
+        min: "必须至少为 %{min}"
+        max: "最多为 %{max}"
+        not_within: "不能在 %{min} 和 %{max} 之间"
+        within: "必须在 %{min} 和 %{max} 之间"
+      presence: "不能为空"

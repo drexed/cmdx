@@ -1,0 +1,49 @@
+fr:
+  cmdx:
+    attributes:
+      required: "doit être accessible via la source"
+      undefined: "délègue à une méthode non définie %{method}"
+    coercions:
+      into_a: "n'a pas pu être converti en %{type}"
+      into_an: "n'a pas pu être converti en %{type}"
+      into_any: "n'a pas pu être converti en l'un de : %{types}"
+      unknown: "type de conversion %{type} inconnu"
+    faults:
+      unspecified: "aucune raison donnée"
+    types:
+      array: "tableau"
+      big_decimal: "grand décimal"
+      boolean: "booléen"
+      complex: "complexe"
+      date_time: "date et heure"
+      date: "date"
+      float: "flottant"
+      hash: "hash"
+      integer: "entier"
+      rational: "rationnel"
+      string: "chaîne"
+      symbol: "symbole"
+      time: "heure"
+    validators:
+      exclusion:
+        of: "ne doit pas être l'un de : %{values}"
+        within: "ne doit pas être dans %{min} et %{max}"
+      format: "est un format invalide"
+      inclusion:
+        of: "doit être l'un de : %{values}"
+        within: "doit être dans %{min} et %{max}"
+      length:
+        is: "la longueur doit être %{is}"
+        is_not: "la longueur ne doit pas être %{is_not}"
+        min: "la longueur doit être au moins %{min}"
+        max: "la longueur doit être au plus %{max}"
+        not_within: "la longueur ne doit pas être dans %{min} et %{max}"
+        within: "la longueur doit être dans %{min} et %{max}"
+      numeric:
+        is: "doit être %{is}"
+        is_not: "ne doit pas être %{is_not}"
+        min: "doit être au moins %{min}"
+        max: "doit être au plus %{max}"
+        not_within: "ne doit pas être dans %{min} et %{max}"
+        within: "doit être dans %{min} et %{max}"
+      presence: "ne peut pas être vide"

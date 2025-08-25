@@ -1,0 +1,49 @@
+ru:
+  cmdx:
+    attributes:
+      required: "должен быть доступен через источник"
+      undefined: "делегирует неопределенному методу %{method}"
+    coercions:
+      into_a: "не удалось преобразовать в %{type}"
+      into_an: "не удалось преобразовать в %{type}"
+      into_any: "не удалось преобразовать в один из: %{types}"
+      unknown: "неизвестный тип преобразования %{type}"
+    faults:
+      unspecified: "причина не указана"
+    types:
+      array: "массив"
+      big_decimal: "большое десятичное число"
+      boolean: "логический"
+      complex: "комплексный"
+      date_time: "дата и время"
+      date: "дата"
+      float: "число с плавающей точкой"
+      hash: "хэш"
+      integer: "целое число"
+      rational: "рациональное"
+      string: "строка"
+      symbol: "символ"
+      time: "время"
+    validators:
+      exclusion:
+        of: "не должен быть одним из: %{values}"
+        within: "не должен быть между %{min} и %{max}"
+      format: "неверный формат"
+      inclusion:
+        of: "должен быть одним из: %{values}"
+        within: "должен быть между %{min} и %{max}"
+      length:
+        is: "длина должна быть %{is}"
+        is_not: "длина не должна быть %{is_not}"
+        min: "длина должна быть не менее %{min}"
+        max: "длина должна быть не более %{max}"
+        not_within: "длина не должна быть между %{min} и %{max}"
+        within: "длина должна быть между %{min} и %{max}"
+      numeric:
+        is: "должен быть %{is}"
+        is_not: "не должен быть %{is_not}"
+        min: "должен быть не менее %{min}"
+        max: "должен быть не более %{max}"
+        not_within: "не должен быть между %{min} и %{max}"
+        within: "должен быть между %{min} и %{max}"
+      presence: "не может быть пустым"

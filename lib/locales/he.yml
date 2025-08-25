@@ -1,0 +1,49 @@
+he:
+  cmdx:
+    attributes:
+      required: "חייב להיות נגיש דרך המקור"
+      undefined: "מאציל לשיטה לא מוגדרת %{method}"
+    coercions:
+      into_a: "לא ניתן להמיר ל-%{type}"
+      into_an: "לא ניתן להמיר ל-%{type}"
+      into_any: "לא ניתן להמיר לאחד מ: %{types}"
+      unknown: "סוג המרה %{type} לא ידוע"
+    faults:
+      unspecified: "לא ניתנה סיבה"
+    types:
+      array: "מערך"
+      big_decimal: "עשרוני גדול"
+      boolean: "בוליאני"
+      complex: "מורכב"
+      date_time: "תאריך ושעה"
+      date: "תאריך"
+      float: "מספר נקודה צפה"
+      hash: "גיבוב"
+      integer: "מספר שלם"
+      rational: "רציונלי"
+      string: "מחרוזת"
+      symbol: "סמל"
+      time: "זמן"
+    validators:
+      exclusion:
+        of: "לא יכול להיות אחד מ: %{values}"
+        within: "לא יכול להיות בין %{min} ו-%{max}"
+      format: "הוא פורמט לא תקין"
+      inclusion:
+        of: "חייב להיות אחד מ: %{values}"
+        within: "חייב להיות בין %{min} ו-%{max}"
+      length:
+        is: "האורך חייב להיות %{is}"
+        is_not: "האורך לא יכול להיות %{is_not}"
+        min: "האורך חייב להיות לפחות %{min}"
+        max: "האורך יכול להיות לכל היותר %{max}"
+        not_within: "האורך לא יכול להיות בין %{min} ו-%{max}"
+        within: "האורך חייב להיות בין %{min} ו-%{max}"
+      numeric:
+        is: "חייב להיות %{is}"
+        is_not: "לא יכול להיות %{is_not}"
+        min: "חייב להיות לפחות %{min}"
+        max: "יכול להיות לכל היותר %{max}"
+        not_within: "לא יכול להיות בין %{min} ו-%{max}"
+        within: "חייב להיות בין %{min} ו-%{max}"
+      presence: "לא יכול להיות ריק"

@@ -1,0 +1,49 @@
+mg:
+  cmdx:
+    attributes:
+      required: "tsy maintsy azo idirana amin'ny alalan'ny loharanom-baovao"
+      undefined: "ny delegasiona amin'ny fomba tsy voafaritra %{method}"
+    coercions:
+      into_a: "tsy afaka ovaina ho %{type}"
+      into_an: "tsy afaka ovaina ho %{type}"
+      into_any: "tsy afaka ovaina ho iray amin'ireo: %{types}"
+      unknown: "karazana fovana %{type} tsy fantatra"
+    faults:
+      unspecified: "tsy nomena antony"
+    types:
+      array: "array"
+      big_decimal: "desimala lehibe"
+      boolean: "boolean"
+      complex: "sarotra"
+      date_time: "daty sy ora"
+      date: "daty"
+      float: "teboka mitsingevana"
+      hash: "hash"
+      integer: "isa feno"
+      rational: "isa ara-tsaina"
+      string: "string"
+      symbol: "mariky"
+      time: "ora"
+    validators:
+      exclusion:
+        of: "tsy maintsy ho iray amin'ireo: %{values}"
+        within: "tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+      format: "dia endrika tsy manan-kery"
+      inclusion:
+        of: "tsy maintsy ho iray amin'ireo: %{values}"
+        within: "tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+      length:
+        is: "ny halavany tsy maintsy %{is}"
+        is_not: "ny halavany tsy maintsy %{is_not}"
+        min: "ny halavany tsy maintsy farafahakeliny %{min}"
+        max: "ny halavany afaka ho ambony indrindra %{max}"
+        not_within: "ny halavany tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+        within: "ny halavany tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+      numeric:
+        is: "tsy maintsy %{is}"
+        is_not: "tsy maintsy %{is_not}"
+        min: "tsy maintsy farafahakeliny %{min}"
+        max: "afaka ho ambony indrindra %{max}"
+        not_within: "tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+        within: "tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"
+      presence: "tsy afaka ho banga"

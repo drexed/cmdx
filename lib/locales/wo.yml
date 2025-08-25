@@ -1,0 +1,49 @@
+wo:
+  cmdx:
+    attributes:
+      required: "dafa war a nekk ci yokkute ci ndoorte"
+      undefined: "dafa yokkute ci xam-xam bu ñu waxul %{method}"
+    coercions:
+      into_a: "duñu ko man a soppi ci %{type}"
+      into_an: "duñu ko man a soppi ci %{type}"
+      into_any: "duñu ko man a soppi ci benn ci: %{types}"
+      unknown: "xam-xam bu ñu waxul bu soppi %{type}"
+    faults:
+      unspecified: "duñu wax sabab"
+    types:
+      array: "array"
+      big_decimal: "desimal bu góor"
+      boolean: "booleen"
+      complex: "kompleks"
+      date_time: "bëccëg ak jamono"
+      date: "bëccëg"
+      float: "xayma bu dox"
+      hash: "hash"
+      integer: "xayma bu mat"
+      rational: "rasyonel"
+      string: "xel"
+      symbol: "simbol"
+      time: "jamono"
+    validators:
+      exclusion:
+        of: "duñu war a nekk benn ci: %{values}"
+        within: "duñu war a nekk ci digg %{min} ak %{max}"
+      format: "dafa nekk format bu ñu waxul"
+      inclusion:
+        of: "dafa war a nekk benn ci: %{values}"
+        within: "dafa war a nekk ci digg %{min} ak %{max}"
+      length:
+        is: "gudd gi dafa war a nekk %{is}"
+        is_not: "gudd gi duñu war a nekk %{is_not}"
+        min: "gudd gi dafa war a nekk gën %{min}"
+        max: "gudd gi dafa man a nekk gën %{max}"
+        not_within: "gudd gi duñu war a nekk ci digg %{min} ak %{max}"
+        within: "gudd gi dafa war a nekk ci digg %{min} ak %{max}"
+      numeric:
+        is: "dafa war a nekk %{is}"
+        is_not: "duñu war a nekk %{is_not}"
+        min: "dafa war a nekk gën %{min}"
+        max: "dafa man a nekk gën %{max}"
+        not_within: "duñu war a nekk ci digg %{min} ak %{max}"
+        within: "dafa war a nekk ci digg %{min} ak %{max}"
+      presence: "duñu man a nekk lu nekk"

@@ -1,0 +1,49 @@
+cs:
+  cmdx:
+    attributes:
+      required: "musí být přístupné přes zdroj"
+      undefined: "deleguje na nedefinovanou metodu %{method}"
+    coercions:
+      into_a: "nelze převést na %{type}"
+      into_an: "nelze převést na %{type}"
+      into_any: "nelze převést na jeden z: %{types}"
+      unknown: "neznámý typ převodu %{type}"
+    faults:
+      unspecified: "není uveden důvod"
+    types:
+      array: "pole"
+      big_decimal: "velké desetinné číslo"
+      boolean: "logický"
+      complex: "komplexní"
+      date_time: "datum a čas"
+      date: "datum"
+      float: "desetinné číslo"
+      hash: "hash"
+      integer: "celé číslo"
+      rational: "racionální"
+      string: "řetězec"
+      symbol: "symbol"
+      time: "čas"
+    validators:
+      exclusion:
+        of: "nesmí být jedním z: %{values}"
+        within: "nesmí být mezi %{min} a %{max}"
+      format: "je neplatný formát"
+      inclusion:
+        of: "musí být jedním z: %{values}"
+        within: "musí být mezi %{min} a %{max}"
+      length:
+        is: "délka musí být %{is}"
+        is_not: "délka nesmí být %{is_not}"
+        min: "délka musí být alespoň %{min}"
+        max: "délka může být nejvýše %{max}"
+        not_within: "délka nesmí být mezi %{min} a %{max}"
+        within: "délka musí být mezi %{min} a %{max}"
+      numeric:
+        is: "musí být %{is}"
+        is_not: "nesmí být %{is_not}"
+        min: "musí být alespoň %{min}"
+        max: "může být nejvýše %{max}"
+        not_within: "nesmí být mezi %{min} a %{max}"
+        within: "musí být mezi %{min} a %{max}"
+      presence: "nesmí být prázdné"

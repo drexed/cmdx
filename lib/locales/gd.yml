@@ -1,0 +1,49 @@
+gd:
+  cmdx:
+    attributes:
+      required: "feumaidh e a bhith inntinneach tron stòr"
+      undefined: "deileigeas gu modh neo-mhìneachaidh %{method}"
+    coercions:
+      into_a: "cha b' urrainn tionndadh gu %{type}"
+      into_an: "cha b' urrainn tionndadh gu %{type}"
+      into_any: "cha b' urrainn tionndadh gu aon de: %{types}"
+      unknown: "seòrsa tionndaidh %{type} neo-aithnichte"
+    faults:
+      unspecified: "cha deach adhbhar a thoirt seachad"
+    types:
+      array: "sreath"
+      big_decimal: "deicheamh mòr"
+      boolean: "booleach"
+      complex: "iom-fhillte"
+      date_time: "ceann-latha agus àm"
+      date: "ceann-latha"
+      float: "puing air itealaich"
+      hash: "hash"
+      integer: "àireamh shlàn"
+      rational: "reusanta"
+      string: "sreang"
+      symbol: "samhla"
+      time: "àm"
+    validators:
+      exclusion:
+        of: "chan fhaod a bhith aon de: %{values}"
+        within: "chan fhaod a bhith taobh a-staigh %{min} agus %{max}"
+      format: "tha e na chruth neo-dhligheach"
+      inclusion:
+        of: "feumaidh e a bhith aon de: %{values}"
+        within: "feumaidh e a bhith taobh a-staigh %{min} agus %{max}"
+      length:
+        is: "feumaidh an fhad a bhith %{is}"
+        is_not: "chan fhaod an fhad a bhith %{is_not}"
+        min: "feumaidh an fhad a bhith co-dhiù %{min}"
+        max: "faodaidh an fhad a bhith suas ri %{max}"
+        not_within: "chan fhaod an fhad a bhith taobh a-staigh %{min} agus %{max}"
+        within: "feumaidh an fhad a bhith taobh a-staigh %{min} agus %{max}"
+      numeric:
+        is: "feumaidh e a bhith %{is}"
+        is_not: "chan fhaod e a bhith %{is_not}"
+        min: "feumaidh e a bhith co-dhiù %{min}"
+        max: "faodaidh e a bhith suas ri %{max}"
+        not_within: "chan fhaod e a bhith taobh a-staigh %{min} agus %{max}"
+        within: "feumaidh e a bhith taobh a-staigh %{min} agus %{max}"
+      presence: "chan fhaod e a bhith falamh"

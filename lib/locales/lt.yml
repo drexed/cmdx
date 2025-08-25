@@ -1,0 +1,49 @@
+lt:
+  cmdx:
+    attributes:
+      required: "turi būti pasiekiamas per šaltinį"
+      undefined: "deleguoja neapibrėžtą metodą %{method}"
+    coercions:
+      into_a: "nepavyko konvertuoti į %{type}"
+      into_an: "nepavyko konvertuoti į %{type}"
+      into_any: "nepavyko konvertuoti į vieną iš: %{types}"
+      unknown: "nežinomas %{type} konvertavimo tipas"
+    faults:
+      unspecified: "priežastis nenurodyta"
+    types:
+      array: "masyvas"
+      big_decimal: "didelis dešimtainis"
+      boolean: "loginis"
+      complex: "kompleksinis"
+      date_time: "data ir laikas"
+      date: "data"
+      float: "slankusis kablelis"
+      hash: "maišos lentelė"
+      integer: "sveikasis skaičius"
+      rational: "racionalusis"
+      string: "eilutė"
+      symbol: "simbolis"
+      time: "laikas"
+    validators:
+      exclusion:
+        of: "neturi būti vienas iš: %{values}"
+        within: "neturi būti tarp %{min} ir %{max}"
+      format: "yra netinkamas formatas"
+      inclusion:
+        of: "turi būti vienas iš: %{values}"
+        within: "turi būti tarp %{min} ir %{max}"
+      length:
+        is: "ilgis turi būti %{is}"
+        is_not: "ilgis neturi būti %{is_not}"
+        min: "ilgis turi būti bent %{min}"
+        max: "ilgis gali būti daugiausiai %{max}"
+        not_within: "ilgis neturi būti tarp %{min} ir %{max}"
+        within: "ilgis turi būti tarp %{min} ir %{max}"
+      numeric:
+        is: "turi būti %{is}"
+        is_not: "neturi būti %{is_not}"
+        min: "turi būti bent %{min}"
+        max: "gali būti daugiausiai %{max}"
+        not_within: "neturi būti tarp %{min} ir %{max}"
+        within: "turi būti tarp %{min} ir %{max}"
+      presence: "negali būti tuščias"

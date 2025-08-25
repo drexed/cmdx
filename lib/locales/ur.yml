@@ -1,0 +1,49 @@
+ur:
+  cmdx:
+    attributes:
+      required: "ماخذ کے ذریعے قابل رسائی ہونا ضروری ہے"
+      undefined: "غیر متعین طریقہ %{method} کو تفویض کرتا ہے"
+    coercions:
+      into_a: "%{type} میں تبدیل نہیں کر سکا"
+      into_an: "%{type} میں تبدیل نہیں کر سکا"
+      into_any: "ان میں سے کسی ایک میں تبدیل نہیں کر سکا: %{types}"
+      unknown: "نامعلوم %{type} تبدیلی کی قسم"
+    faults:
+      unspecified: "کوئی وجہ نہیں دی گئی"
+    types:
+      array: "آرے"
+      big_decimal: "بڑا اعشاری"
+      boolean: "بولین"
+      complex: "پیچیدہ"
+      date_time: "تاریخ اور وقت"
+      date: "تاریخ"
+      float: "شناور نقطہ"
+      hash: "ہیش"
+      integer: "مکمل عدد"
+      rational: "ناطق"
+      string: "سٹرنگ"
+      symbol: "علامت"
+      time: "وقت"
+    validators:
+      exclusion:
+        of: "ان میں سے کوئی ایک نہیں ہونا چاہیے: %{values}"
+        within: "%{min} اور %{max} کے درمیان نہیں ہونا چاہیے"
+      format: "ایک غلط فارمیٹ ہے"
+      inclusion:
+        of: "ان میں سے کوئی ایک ہونا ضروری ہے: %{values}"
+        within: "%{min} اور %{max} کے درمیان ہونا ضروری ہے"
+      length:
+        is: "لمبائی %{is} ہونی چاہیے"
+        is_not: "لمبائی %{is_not} نہیں ہونی چاہیے"
+        min: "لمبائی کم از کم %{min} ہونی چاہیے"
+        max: "لمبائی زیادہ سے زیادہ %{max} ہو سکتی ہے"
+        not_within: "لمبائی %{min} اور %{max} کے درمیان نہیں ہونی چاہیے"
+        within: "لمبائی %{min} اور %{max} کے درمیان ہونی چاہیے"
+      numeric:
+        is: "%{is} ہونا ضروری ہے"
+        is_not: "%{is_not} نہیں ہونا چاہیے"
+        min: "کم از کم %{min} ہونا ضروری ہے"
+        max: "زیادہ سے زیادہ %{max} ہو سکتا ہے"
+        not_within: "%{min} اور %{max} کے درمیان نہیں ہونا چاہیے"
+        within: "%{min} اور %{max} کے درمیان ہونا ضروری ہے"
+      presence: "خالی نہیں ہو سکتا"

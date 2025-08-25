@@ -1,0 +1,49 @@
+uz:
+  cmdx:
+    attributes:
+      required: "manba orqali kirish imkoniyati bo'lishi kerak"
+      undefined: "aniqlanmagan %{method} metodiga topshiradi"
+    coercions:
+      into_a: "%{type} ga o'tkazib bo'lmadi"
+      into_an: "%{type} ga o'tkazib bo'lmadi"
+      into_any: "bularning biriga o'tkazib bo'lmadi: %{types}"
+      unknown: "noma'lum %{type} o'tkazish turi"
+    faults:
+      unspecified: "sabab ko'rsatilmagan"
+    types:
+      array: "massiv"
+      big_decimal: "katta o'nlik"
+      boolean: "mantiqiy"
+      complex: "murakkab"
+      date_time: "sana va vaqt"
+      date: "sana"
+      float: "suzuvchi nuqta"
+      hash: "xesh"
+      integer: "butun son"
+      rational: "ratsional"
+      string: "qator"
+      symbol: "belgi"
+      time: "vaqt"
+    validators:
+      exclusion:
+        of: "bularning biri bo'lmasligi kerak: %{values}"
+        within: "%{min} va %{max} oralig'ida bo'lmasligi kerak"
+      format: "noto'g'ri format"
+      inclusion:
+        of: "bularning biri bo'lishi kerak: %{values}"
+        within: "%{min} va %{max} oralig'ida bo'lishi kerak"
+      length:
+        is: "uzunligi %{is} bo'lishi kerak"
+        is_not: "uzunligi %{is_not} bo'lmasligi kerak"
+        min: "uzunligi kamida %{min} bo'lishi kerak"
+        max: "uzunligi ko'pi bilan %{max} bo'lishi mumkin"
+        not_within: "uzunligi %{min} va %{max} oralig'ida bo'lmasligi kerak"
+        within: "uzunligi %{min} va %{max} oralig'ida bo'lishi kerak"
+      numeric:
+        is: "%{is} bo'lishi kerak"
+        is_not: "%{is_not} bo'lmasligi kerak"
+        min: "kamida %{min} bo'lishi kerak"
+        max: "ko'pi bilan %{max} bo'lishi mumkin"
+        not_within: "%{min} va %{max} oralig'ida bo'lmasligi kerak"
+        within: "%{min} va %{max} oralig'ida bo'lishi kerak"
+      presence: "bo'sh bo'lishi mumkin emas"

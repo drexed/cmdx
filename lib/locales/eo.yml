@@ -1,0 +1,49 @@
+eo:
+  cmdx:
+    attributes:
+      required: "devas esti alirebla tra la fonto"
+      undefined: "delegas al nedifinita metodo %{method}"
+    coercions:
+      into_a: "ne povis esti konvertita al %{type}"
+      into_an: "ne povis esti konvertita al %{type}"
+      into_any: "ne povis esti konvertita al unu el: %{types}"
+      unknown: "nekonata %{type} konverta tipo"
+    faults:
+      unspecified: "neniu kialo donita"
+    types:
+      array: "tabelo"
+      big_decimal: "granda dekuma"
+      boolean: "bulea"
+      complex: "kompleksa"
+      date_time: "dato kaj tempo"
+      date: "dato"
+      float: "flosanta punkto"
+      hash: "hash"
+      integer: "entjero"
+      rational: "racia"
+      string: "ĉeno"
+      symbol: "simbolo"
+      time: "tempo"
+    validators:
+      exclusion:
+        of: "ne devas esti unu el: %{values}"
+        within: "ne devas esti inter %{min} kaj %{max}"
+      format: "estas nevalida formato"
+      inclusion:
+        of: "devas esti unu el: %{values}"
+        within: "devas esti inter %{min} kaj %{max}"
+      length:
+        is: "longo devas esti %{is}"
+        is_not: "longo ne devas esti %{is_not}"
+        min: "longo devas esti almenaŭ %{min}"
+        max: "longo povas esti maksimume %{max}"
+        not_within: "longo ne devas esti inter %{min} kaj %{max}"
+        within: "longo devas esti inter %{min} kaj %{max}"
+      numeric:
+        is: "devas esti %{is}"
+        is_not: "ne devas esti %{is_not}"
+        min: "devas esti almenaŭ %{min}"
+        max: "povas esti maksimume %{max}"
+        not_within: "ne devas esti inter %{min} kaj %{max}"
+        within: "devas esti inter %{min} kaj %{max}"
+      presence: "ne povas esti malplena"

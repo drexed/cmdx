@@ -1,0 +1,49 @@
+is:
+  cmdx:
+    attributes:
+      required: "verður að vera aðgengilegt gegnum uppsprettuna"
+      undefined: "fela óskilgreindri aðferð %{method}"
+    coercions:
+      into_a: "gat ekki breytt í %{type}"
+      into_an: "gat ekki breytt í %{type}"
+      into_any: "gat ekki breytt í einn af: %{types}"
+      unknown: "óþekktur %{type} breytingargerð"
+    faults:
+      unspecified: "engin ástæða gefin"
+    types:
+      array: "fylki"
+      big_decimal: "stór tugabrot"
+      boolean: "rökvísindi"
+      complex: "flókið"
+      date_time: "dagsetning og tími"
+      date: "dagsetning"
+      float: "kommutala"
+      hash: "hash"
+      integer: "heiltala"
+      rational: "ræða"
+      string: "strengur"
+      symbol: "tákn"
+      time: "tími"
+    validators:
+      exclusion:
+        of: "má ekki vera einn af: %{values}"
+        within: "má ekki vera á milli %{min} og %{max}"
+      format: "er ógild form"
+      inclusion:
+        of: "verður að vera einn af: %{values}"
+        within: "verður að vera á milli %{min} og %{max}"
+      length:
+        is: "lengdin verður að vera %{is}"
+        is_not: "lengdin má ekki vera %{is_not}"
+        min: "lengdin verður að vera að minnsta kosti %{min}"
+        max: "lengdin má að hámarki vera %{max}"
+        not_within: "lengdin má ekki vera á milli %{min} og %{max}"
+        within: "lengdin verður að vera á milli %{min} og %{max}"
+      numeric:
+        is: "verður að vera %{is}"
+        is_not: "má ekki vera %{is_not}"
+        min: "verður að vera að minnsta kosti %{min}"
+        max: "má að hámarki vera %{max}"
+        not_within: "má ekki vera á milli %{min} og %{max}"
+        within: "verður að vera á milli %{min} og %{max}"
+      presence: "má ekki vera tómur"

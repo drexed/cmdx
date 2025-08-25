@@ -1,0 +1,49 @@
+uk:
+  cmdx:
+    attributes:
+      required: "має бути доступним через джерело"
+      undefined: "делегує невизначеному методу %{method}"
+    coercions:
+      into_a: "не вдалося перетворити на %{type}"
+      into_an: "не вдалося перетворити на %{type}"
+      into_any: "не вдалося перетворити на один з: %{types}"
+      unknown: "невідомий тип перетворення %{type}"
+    faults:
+      unspecified: "причина не вказана"
+    types:
+      array: "масив"
+      big_decimal: "велике десяткове число"
+      boolean: "логічний"
+      complex: "комплексний"
+      date_time: "дата та час"
+      date: "дата"
+      float: "число з плаваючою комою"
+      hash: "хеш"
+      integer: "ціле число"
+      rational: "раціональне"
+      string: "рядок"
+      symbol: "символ"
+      time: "час"
+    validators:
+      exclusion:
+        of: "не може бути одним з: %{values}"
+        within: "не може бути між %{min} та %{max}"
+      format: "є недійсним форматом"
+      inclusion:
+        of: "має бути одним з: %{values}"
+        within: "має бути між %{min} та %{max}"
+      length:
+        is: "довжина має бути %{is}"
+        is_not: "довжина не може бути %{is_not}"
+        min: "довжина має бути не менше %{min}"
+        max: "довжина має бути не більше %{max}"
+        not_within: "довжина не може бути між %{min} та %{max}"
+        within: "довжина має бути між %{min} та %{max}"
+      numeric:
+        is: "має бути %{is}"
+        is_not: "не може бути %{is_not}"
+        min: "має бути не менше %{min}"
+        max: "має бути не більше %{max}"
+        not_within: "не може бути між %{min} та %{max}"
+        within: "має бути між %{min} та %{max}"
+      presence: "не може бути порожнім"

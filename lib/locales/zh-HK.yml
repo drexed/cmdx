@@ -1,0 +1,49 @@
+zh-HK:
+  cmdx:
+    attributes:
+      required: "必須可以透過來源存取"
+      undefined: "委託給未定義的方法 %{method}"
+    coercions:
+      into_a: "無法強制轉換成 %{type}"
+      into_an: "無法強制轉換成 %{type}"
+      into_any: "無法強制轉換成其中一個：%{types}"
+      unknown: "未知的 %{type} 強制轉換類型"
+    faults:
+      unspecified: "沒有提供原因"
+    types:
+      array: "陣列"
+      big_decimal: "大十進位"
+      boolean: "布林值"
+      complex: "複數"
+      date_time: "日期和時間"
+      date: "日期"
+      float: "浮點數"
+      hash: "雜湊"
+      integer: "整數"
+      rational: "有理數"
+      string: "字串"
+      symbol: "符號"
+      time: "時間"
+    validators:
+      exclusion:
+        of: "不可以是其中一個：%{values}"
+        within: "不可以在 %{min} 和 %{max} 之間"
+      format: "是無效的格式"
+      inclusion:
+        of: "必須是其中一個：%{values}"
+        within: "必須在 %{min} 和 %{max} 之間"
+      length:
+        is: "長度必須是 %{is}"
+        is_not: "長度不可以是 %{is_not}"
+        min: "長度至少必須是 %{min}"
+        max: "長度最多可以是 %{max}"
+        not_within: "長度不可以在 %{min} 和 %{max} 之間"
+        within: "長度必須在 %{min} 和 %{max} 之間"
+      numeric:
+        is: "必須是 %{is}"
+        is_not: "不可以是 %{is_not}"
+        min: "至少必須是 %{min}"
+        max: "最多可以是 %{max}"
+        not_within: "不可以在 %{min} 和 %{max} 之間"
+        within: "必須在 %{min} 和 %{max} 之間"
+      presence: "不可以是空白"

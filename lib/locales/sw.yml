@@ -1,0 +1,49 @@
+sw:
+  cmdx:
+    attributes:
+      required: "lazima iwe inapatikana kupitia chanzo"
+      undefined: "inakabidhi kwa njia isiyofafanuliwa %{method}"
+    coercions:
+      into_a: "haikuweza kubadilishwa kuwa %{type}"
+      into_an: "haikuweza kubadilishwa kuwa %{type}"
+      into_any: "haikuweza kubadilishwa kuwa moja ya: %{types}"
+      unknown: "aina isiyojulikana ya mabadiliko %{type}"
+    faults:
+      unspecified: "hakuna sababu iliyotolewa"
+    types:
+      array: "safu"
+      big_decimal: "desimali kubwa"
+      boolean: "booleani"
+      complex: "tata"
+      date_time: "tarehe na wakati"
+      date: "tarehe"
+      float: "nambari ya sehemu"
+      hash: "hash"
+      integer: "nambari kamili"
+      rational: "ya busara"
+      string: "mstari"
+      symbol: "ishara"
+      time: "wakati"
+    validators:
+      exclusion:
+        of: "haipaswi kuwa moja ya: %{values}"
+        within: "haipaswi kuwa kati ya %{min} na %{max}"
+      format: "ni muundo batili"
+      inclusion:
+        of: "lazima iwe moja ya: %{values}"
+        within: "lazima iwe kati ya %{min} na %{max}"
+      length:
+        is: "urefu lazima uwe %{is}"
+        is_not: "urefu haupaswi kuwa %{is_not}"
+        min: "urefu lazima uwe angalau %{min}"
+        max: "urefu unaweza kuwa zaidi ya %{max}"
+        not_within: "urefu haupaswi kuwa kati ya %{min} na %{max}"
+        within: "urefu lazima uwe kati ya %{min} na %{max}"
+      numeric:
+        is: "lazima iwe %{is}"
+        is_not: "haipaswi kuwa %{is_not}"
+        min: "lazima iwe angalau %{min}"
+        max: "inaweza kuwa zaidi ya %{max}"
+        not_within: "haipaswi kuwa kati ya %{min} na %{max}"
+        within: "lazima iwe kati ya %{min} na %{max}"
+      presence: "haiwezi kuwa tupu"

@@ -1,0 +1,49 @@
+pl:
+  cmdx:
+    attributes:
+      required: "musi być dostępny przez źródło"
+      undefined: "deleguje do niezdefiniowanej metody %{method}"
+    coercions:
+      into_a: "nie można przekonwertować na %{type}"
+      into_an: "nie można przekonwertować na %{type}"
+      into_any: "nie można przekonwertować na jeden z: %{types}"
+      unknown: "nieznany typ konwersji %{type}"
+    faults:
+      unspecified: "nie podano powodu"
+    types:
+      array: "tablica"
+      big_decimal: "duża liczba dziesiętna"
+      boolean: "logiczny"
+      complex: "zespolony"
+      date_time: "data i czas"
+      date: "data"
+      float: "liczba zmiennoprzecinkowa"
+      hash: "hash"
+      integer: "liczba całkowita"
+      rational: "wymierny"
+      string: "ciąg znaków"
+      symbol: "symbol"
+      time: "czas"
+    validators:
+      exclusion:
+        of: "nie może być jednym z: %{values}"
+        within: "nie może być między %{min} a %{max}"
+      format: "jest nieprawidłowym formatem"
+      inclusion:
+        of: "musi być jednym z: %{values}"
+        within: "musi być między %{min} a %{max}"
+      length:
+        is: "długość musi być %{is}"
+        is_not: "długość nie może być %{is_not}"
+        min: "długość musi być co najmniej %{min}"
+        max: "długość może być co najwyżej %{max}"
+        not_within: "długość nie może być między %{min} a %{max}"
+        within: "długość musi być między %{min} a %{max}"
+      numeric:
+        is: "musi być %{is}"
+        is_not: "nie może być %{is_not}"
+        min: "musi być co najmniej %{min}"
+        max: "może być co najwyżej %{max}"
+        not_within: "nie może być między %{min} a %{max}"
+        within: "musi być między %{min} a %{max}"
+      presence: "nie może być puste"

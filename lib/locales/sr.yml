@@ -1,0 +1,49 @@
+sr:
+  cmdx:
+    attributes:
+      required: "мора бити доступан преко извора"
+      undefined: "делегира недефинисаној методи %{method}"
+    coercions:
+      into_a: "није могао да се конвертује у %{type}"
+      into_an: "није могао да се конвертује у %{type}"
+      into_any: "није могао да се конвертује у један од: %{types}"
+      unknown: "непознат тип конверзије %{type}"
+    faults:
+      unspecified: "разлог није наведен"
+    types:
+      array: "низ"
+      big_decimal: "велики децимални број"
+      boolean: "логички"
+      complex: "комплексан"
+      date_time: "датум и време"
+      date: "датум"
+      float: "број са покретном зарезом"
+      hash: "хаш"
+      integer: "цео број"
+      rational: "рационалан"
+      string: "низ знакова"
+      symbol: "симбол"
+      time: "време"
+    validators:
+      exclusion:
+        of: "не сме бити један од: %{values}"
+        within: "не сме бити између %{min} и %{max}"
+      format: "је неважећи формат"
+      inclusion:
+        of: "мора бити један од: %{values}"
+        within: "мора бити између %{min} и %{max}"
+      length:
+        is: "дужина мора бити %{is}"
+        is_not: "дужина не сме бити %{is_not}"
+        min: "дужина мора бити најмање %{min}"
+        max: "дужина може бити највише %{max}"
+        not_within: "дужина не сме бити између %{min} и %{max}"
+        within: "дужина мора бити између %{min} и %{max}"
+      numeric:
+        is: "мора бити %{is}"
+        is_not: "не сме бити %{is_not}"
+        min: "мора бити најмање %{min}"
+        max: "може бити највише %{max}"
+        not_within: "не сме бити између %{min} и %{max}"
+        within: "мора бити између %{min} и %{max}"
+      presence: "не може бити празно"

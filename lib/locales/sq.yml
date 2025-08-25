@@ -1,0 +1,49 @@
+sq:
+  cmdx:
+    attributes:
+      required: "duhet të jetë i aksesueshëm përmes burimit"
+      undefined: "delegon metodën e padefinuar %{method}"
+    coercions:
+      into_a: "nuk mund të konvertohet në %{type}"
+      into_an: "nuk mund të konvertohet në %{type}"
+      into_any: "nuk mund të konvertohet në një nga: %{types}"
+      unknown: "tip i panjohur konvertimi %{type}"
+    faults:
+      unspecified: "nuk është dhënë arsye"
+    types:
+      array: "array"
+      big_decimal: "decimal i madh"
+      boolean: "boolean"
+      complex: "kompleks"
+      date_time: "data dhe koha"
+      date: "data"
+      float: "numër me pikë lundruese"
+      hash: "hash"
+      integer: "numër i plotë"
+      rational: "racional"
+      string: "varg"
+      symbol: "simbol"
+      time: "koha"
+    validators:
+      exclusion:
+        of: "nuk duhet të jetë një nga: %{values}"
+        within: "nuk duhet të jetë mes %{min} dhe %{max}"
+      format: "është një format i pavlefshëm"
+      inclusion:
+        of: "duhet të jetë një nga: %{values}"
+        within: "duhet të jetë mes %{min} dhe %{max}"
+      length:
+        is: "gjatësia duhet të jetë %{is}"
+        is_not: "gjatësia nuk duhet të jetë %{is_not}"
+        min: "gjatësia duhet të jetë të paktën %{min}"
+        max: "gjatësia duhet të jetë më së shumti %{max}"
+        not_within: "gjatësia nuk duhet të jetë mes %{min} dhe %{max}"
+        within: "gjatësia duhet të jetë mes %{min} dhe %{max}"
+      numeric:
+        is: "duhet të jetë %{is}"
+        is_not: "nuk duhet të jetë %{is_not}"
+        min: "duhet të jetë të paktën %{min}"
+        max: "duhet të jetë më së shumti %{max}"
+        not_within: "nuk duhet të jetë mes %{min} dhe %{max}"
+        within: "duhet të jetë mes %{min} dhe %{max}"
+      presence: "nuk mund të jetë bosh"

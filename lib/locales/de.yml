@@ -1,0 +1,49 @@
+de:
+  cmdx:
+    attributes:
+      required: "muss über die Quelle zugänglich sein"
+      undefined: "delegiert an undefinierte Methode %{method}"
+    coercions:
+      into_a: "konnte nicht in %{type} umgewandelt werden"
+      into_an: "konnte nicht in %{type} umgewandelt werden"
+      into_any: "konnte nicht in einen von: %{types} umgewandelt werden"
+      unknown: "unbekannter %{type} Umwandlungstyp"
+    faults:
+      unspecified: "kein Grund angegeben"
+    types:
+      array: "Array"
+      big_decimal: "große Dezimalzahl"
+      boolean: "Boolean"
+      complex: "komplex"
+      date_time: "Datum und Zeit"
+      date: "Datum"
+      float: "Gleitkommazahl"
+      hash: "Hash"
+      integer: "Ganzzahl"
+      rational: "rational"
+      string: "Zeichenkette"
+      symbol: "Symbol"
+      time: "Zeit"
+    validators:
+      exclusion:
+        of: "darf nicht einer von sein: %{values}"
+        within: "darf nicht zwischen %{min} und %{max} liegen"
+      format: "ist ein ungültiges Format"
+      inclusion:
+        of: "muss einer von sein: %{values}"
+        within: "muss zwischen %{min} und %{max} liegen"
+      length:
+        is: "Länge muss %{is} sein"
+        is_not: "Länge darf nicht %{is_not} sein"
+        min: "Länge muss mindestens %{min} sein"
+        max: "Länge darf höchstens %{max} sein"
+        not_within: "Länge darf nicht zwischen %{min} und %{max} liegen"
+        within: "Länge muss zwischen %{min} und %{max} liegen"
+      numeric:
+        is: "muss %{is} sein"
+        is_not: "darf nicht %{is_not} sein"
+        min: "muss mindestens %{min} sein"
+        max: "darf höchstens %{max} sein"
+        not_within: "darf nicht zwischen %{min} und %{max} liegen"
+        within: "muss zwischen %{min} und %{max} liegen"
+      presence: "darf nicht leer sein"

@@ -1,0 +1,49 @@
+tl:
+  cmdx:
+    attributes:
+      required: "dapat na ma-access sa pamamagitan ng source"
+      undefined: "nag-delegate sa hindi tinukoy na method %{method}"
+    coercions:
+      into_a: "hindi ma-convert sa %{type}"
+      into_an: "hindi ma-convert sa %{type}"
+      into_any: "hindi ma-convert sa isa sa: %{types}"
+      unknown: "hindi kilalang %{type} conversion type"
+    faults:
+      unspecified: "walang dahilan na binigay"
+    types:
+      array: "array"
+      big_decimal: "malaking decimal"
+      boolean: "boolean"
+      complex: "complex"
+      date_time: "petsa at oras"
+      date: "petsa"
+      float: "floating point"
+      hash: "hash"
+      integer: "integer"
+      rational: "rational"
+      string: "string"
+      symbol: "symbol"
+      time: "oras"
+    validators:
+      exclusion:
+        of: "hindi dapat na isa sa: %{values}"
+        within: "hindi dapat na nasa pagitan ng %{min} at %{max}"
+      format: "ay hindi wastong format"
+      inclusion:
+        of: "dapat na isa sa: %{values}"
+        within: "dapat na nasa pagitan ng %{min} at %{max}"
+      length:
+        is: "ang haba ay dapat na %{is}"
+        is_not: "ang haba ay hindi dapat na %{is_not}"
+        min: "ang haba ay dapat na hindi bababa sa %{min}"
+        max: "ang haba ay dapat na hindi hihigit sa %{max}"
+        not_within: "ang haba ay hindi dapat na nasa pagitan ng %{min} at %{max}"
+        within: "ang haba ay dapat na nasa pagitan ng %{min} at %{max}"
+      numeric:
+        is: "dapat na %{is}"
+        is_not: "hindi dapat na %{is_not}"
+        min: "dapat na hindi bababa sa %{min}"
+        max: "dapat na hindi hihigit sa %{max}"
+        not_within: "hindi dapat na nasa pagitan ng %{min} at %{max}"
+        within: "dapat na nasa pagitan ng %{min} at %{max}"
+      presence: "hindi maaaring walang laman"

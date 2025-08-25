@@ -1,0 +1,49 @@
+nl:
+  cmdx:
+    attributes:
+      required: "moet toegankelijk zijn via de bron"
+      undefined: "delegeert naar ongedefinieerde methode %{method}"
+    coercions:
+      into_a: "kon niet worden geconverteerd naar %{type}"
+      into_an: "kon niet worden geconverteerd naar %{type}"
+      into_any: "kon niet worden geconverteerd naar een van: %{types}"
+      unknown: "onbekend %{type} conversietype"
+    faults:
+      unspecified: "geen reden opgegeven"
+    types:
+      array: "array"
+      big_decimal: "grote decimaal"
+      boolean: "booleaans"
+      complex: "complex"
+      date_time: "datum en tijd"
+      date: "datum"
+      float: "zwevend punt"
+      hash: "hash"
+      integer: "geheel getal"
+      rational: "rationaal"
+      string: "tekenreeks"
+      symbol: "symbool"
+      time: "tijd"
+    validators:
+      exclusion:
+        of: "mag niet een van zijn: %{values}"
+        within: "mag niet tussen %{min} en %{max} liggen"
+      format: "is een ongeldig formaat"
+      inclusion:
+        of: "moet een van zijn: %{values}"
+        within: "moet tussen %{min} en %{max} liggen"
+      length:
+        is: "lengte moet %{is} zijn"
+        is_not: "lengte mag niet %{is_not} zijn"
+        min: "lengte moet minimaal %{min} zijn"
+        max: "lengte mag maximaal %{max} zijn"
+        not_within: "lengte mag niet tussen %{min} en %{max} liggen"
+        within: "lengte moet tussen %{min} en %{max} liggen"
+      numeric:
+        is: "moet %{is} zijn"
+        is_not: "mag niet %{is_not} zijn"
+        min: "moet minimaal %{min} zijn"
+        max: "mag maximaal %{max} zijn"
+        not_within: "mag niet tussen %{min} en %{max} liggen"
+        within: "moet tussen %{min} en %{max} liggen"
+      presence: "mag niet leeg zijn"

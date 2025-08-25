@@ -1,0 +1,49 @@
+kk:
+  cmdx:
+    attributes:
+      required: "көзге арқылы қол жетімді болуы керек"
+      undefined: "анықталмаған %{method} әдісіне тапсырады"
+    coercions:
+      into_a: "%{type} түріне айналдыра алмады"
+      into_an: "%{type} түріне айналдыра алмады"
+      into_any: "бұлардың біріне айналдыра алмады: %{types}"
+      unknown: "белгісіз %{type} айналдыру түрі"
+    faults:
+      unspecified: "себеп көрсетілмеген"
+    types:
+      array: "массив"
+      big_decimal: "үлкен ондық"
+      boolean: "буль"
+      complex: "күрделі"
+      date_time: "күні мен уақыты"
+      date: "күні"
+      float: "өзек нүктесі"
+      hash: "хэш"
+      integer: "бүтін сан"
+      rational: "рационал"
+      string: "жол"
+      symbol: "символ"
+      time: "уақыт"
+    validators:
+      exclusion:
+        of: "бұлардың бірі болмасын: %{values}"
+        within: "%{min} және %{max} арасында болмасын"
+      format: "дұрыс емес формат"
+      inclusion:
+        of: "бұлардың бірі болуы керек: %{values}"
+        within: "%{min} және %{max} арасында болуы керек"
+      length:
+        is: "ұзындығы %{is} болуы керек"
+        is_not: "ұзындығы %{is_not} болмасын"
+        min: "ұзындығы кемінде %{min} болуы керек"
+        max: "ұзындығы ең көбінде %{max} бола алады"
+        not_within: "ұзындығы %{min} және %{max} арасында болмасын"
+        within: "ұзындығы %{min} және %{max} арасында болуы керек"
+      numeric:
+        is: "%{is} болуы керек"
+        is_not: "%{is_not} болмасын"
+        min: "кемінде %{min} болуы керек"
+        max: "ең көбінде %{max} бола алады"
+        not_within: "%{min} және %{max} арасында болмасын"
+        within: "%{min} және %{max} арасында болуы керек"
+      presence: "бос болмауы керек"

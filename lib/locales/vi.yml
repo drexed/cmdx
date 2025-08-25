@@ -1,0 +1,49 @@
+vi:
+  cmdx:
+    attributes:
+      required: "phải có thể truy cập thông qua nguồn"
+      undefined: "ủy quyền cho phương thức không xác định %{method}"
+    coercions:
+      into_a: "không thể chuyển đổi thành %{type}"
+      into_an: "không thể chuyển đổi thành %{type}"
+      into_any: "không thể chuyển đổi thành một trong: %{types}"
+      unknown: "kiểu chuyển đổi %{type} không xác định"
+    faults:
+      unspecified: "không có lý do được cung cấp"
+    types:
+      array: "mảng"
+      big_decimal: "số thập phân lớn"
+      boolean: "boolean"
+      complex: "phức"
+      date_time: "ngày và giờ"
+      date: "ngày"
+      float: "số thực"
+      hash: "bảng băm"
+      integer: "số nguyên"
+      rational: "số hữu tỷ"
+      string: "chuỗi"
+      symbol: "ký hiệu"
+      time: "thời gian"
+    validators:
+      exclusion:
+        of: "không được là một trong: %{values}"
+        within: "không được nằm giữa %{min} và %{max}"
+      format: "là định dạng không hợp lệ"
+      inclusion:
+        of: "phải là một trong: %{values}"
+        within: "phải nằm giữa %{min} và %{max}"
+      length:
+        is: "độ dài phải là %{is}"
+        is_not: "độ dài không được là %{is_not}"
+        min: "độ dài phải ít nhất là %{min}"
+        max: "độ dài phải nhiều nhất là %{max}"
+        not_within: "độ dài không được nằm giữa %{min} và %{max}"
+        within: "độ dài phải nằm giữa %{min} và %{max}"
+      numeric:
+        is: "phải là %{is}"
+        is_not: "không được là %{is_not}"
+        min: "phải ít nhất là %{min}"
+        max: "phải nhiều nhất là %{max}"
+        not_within: "không được nằm giữa %{min} và %{max}"
+        within: "phải nằm giữa %{min} và %{max}"
+      presence: "không thể để trống"

@@ -1,0 +1,49 @@
+tr:
+  cmdx:
+    attributes:
+      required: "kaynak üzerinden erişilebilir olmalıdır"
+      undefined: "tanımlanmamış metoda %{method} devreder"
+    coercions:
+      into_a: "%{type} türüne dönüştürülemedi"
+      into_an: "%{type} türüne dönüştürülemedi"
+      into_any: "şunlardan birine dönüştürülemedi: %{types}"
+      unknown: "bilinmeyen %{type} dönüştürme türü"
+    faults:
+      unspecified: "neden belirtilmedi"
+    types:
+      array: "dizi"
+      big_decimal: "büyük ondalık"
+      boolean: "boole"
+      complex: "karmaşık"
+      date_time: "tarih ve saat"
+      date: "tarih"
+      float: "kayan nokta"
+      hash: "hash"
+      integer: "tam sayı"
+      rational: "rasyonel"
+      string: "dize"
+      symbol: "sembol"
+      time: "zaman"
+    validators:
+      exclusion:
+        of: "şunlardan biri olmamalıdır: %{values}"
+        within: "%{min} ve %{max} arasında olmamalıdır"
+      format: "geçersiz bir formattır"
+      inclusion:
+        of: "şunlardan biri olmalıdır: %{values}"
+        within: "%{min} ve %{max} arasında olmalıdır"
+      length:
+        is: "uzunluk %{is} olmalıdır"
+        is_not: "uzunluk %{is_not} olmamalıdır"
+        min: "uzunluk en az %{min} olmalıdır"
+        max: "uzunluk en fazla %{max} olmalıdır"
+        not_within: "uzunluk %{min} ve %{max} arasında olmamalıdır"
+        within: "uzunluk %{min} ve %{max} arasında olmalıdır"
+      numeric:
+        is: "%{is} olmalıdır"
+        is_not: "%{is_not} olmamalıdır"
+        min: "en az %{min} olmalıdır"
+        max: "en fazla %{max} olmalıdır"
+        not_within: "%{min} ve %{max} arasında olmamalıdır"
+        within: "%{min} ve %{max} arasında olmalıdır"
+      presence: "boş olamaz"

@@ -1,0 +1,49 @@
+gl:
+  cmdx:
+    attributes:
+      required: "debe ser accesible a través da fonte"
+      undefined: "delega ao método non definido %{method}"
+    coercions:
+      into_a: "non se puido converter a %{type}"
+      into_an: "non se puido converter a %{type}"
+      into_any: "non se puido converter a un de: %{types}"
+      unknown: "tipo de conversión %{type} descoñecido"
+    faults:
+      unspecified: "non se deu ningunha razón"
+    types:
+      array: "array"
+      big_decimal: "decimal grande"
+      boolean: "booleano"
+      complex: "complexo"
+      date_time: "data e hora"
+      date: "data"
+      float: "punto flotante"
+      hash: "hash"
+      integer: "enteiro"
+      rational: "racional"
+      string: "cadea"
+      symbol: "símbolo"
+      time: "tempo"
+    validators:
+      exclusion:
+        of: "non debe ser un de: %{values}"
+        within: "non debe estar entre %{min} e %{max}"
+      format: "é un formato non válido"
+      inclusion:
+        of: "debe ser un de: %{values}"
+        within: "debe estar entre %{min} e %{max}"
+      length:
+        is: "a lonxitude debe ser %{is}"
+        is_not: "a lonxitude non debe ser %{is_not}"
+        min: "a lonxitude debe ser polo menos %{min}"
+        max: "a lonxitude pode ser como máximo %{max}"
+        not_within: "a lonxitude non debe estar entre %{min} e %{max}"
+        within: "a lonxitude debe estar entre %{min} e %{max}"
+      numeric:
+        is: "debe ser %{is}"
+        is_not: "non debe ser %{is_not}"
+        min: "debe ser polo menos %{min}"
+        max: "pode ser como máximo %{max}"
+        not_within: "non debe estar entre %{min} e %{max}"
+        within: "debe estar entre %{min} e %{max}"
+      presence: "non pode estar baleiro"

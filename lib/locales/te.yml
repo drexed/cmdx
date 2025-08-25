@@ -1,0 +1,49 @@
+te:
+  cmdx:
+    attributes:
+      required: "మూలం ద్వారా ప్రాప్యత ఉండాలి"
+      undefined: "నిర్వచించబడని పద్ధతికి %{method} అప్పగిస్తుంది"
+    coercions:
+      into_a: "%{type} గా మార్చలేకపోయింది"
+      into_an: "%{type} గా మార్చలేకపోయింది"
+      into_any: "ఈ క్రింది వాటిలో ఒకటిగా మార్చలేకపోయింది: %{types}"
+      unknown: "తెలియని %{type} మార్పు రకం"
+    faults:
+      unspecified: "ఎలాంటి కారణం ఇవ్వలేదు"
+    types:
+      array: "అరే"
+      big_decimal: "పెద్ద దశాంశం"
+      boolean: "బూలియన్"
+      complex: "సంక్లిష్టం"
+      date_time: "తేదీ మరియు సమయం"
+      date: "తేదీ"
+      float: "తేలే బిందువు"
+      hash: "హాష్"
+      integer: "పూర్ణాంకం"
+      rational: "భిన్నరాశి"
+      string: "స్ట్రింగ్"
+      symbol: "చిహ్నం"
+      time: "సమయం"
+    validators:
+      exclusion:
+        of: "ఈ క్రింది వాటిలో ఒకటి కాకూడదు: %{values}"
+        within: "%{min} మరియు %{max} మధ్య ఉండకూడదు"
+      format: "చెల్లని ఫార్మాట్"
+      inclusion:
+        of: "ఈ క్రింది వాటిలో ఒకటి అయి ఉండాలి: %{values}"
+        within: "%{min} మరియు %{max} మధ్య ఉండాలి"
+      length:
+        is: "పొడవు %{is} అయి ఉండాలి"
+        is_not: "పొడవు %{is_not} కాకూడదు"
+        min: "పొడవు కనీసం %{min} అయి ఉండాలి"
+        max: "పొడవు గరిష్టంగా %{max} అయి ఉండవచ్చు"
+        not_within: "పొడవు %{min} మరియు %{max} మధ్య ఉండకూడదు"
+        within: "పొడవు %{min} మరియు %{max} మధ్య ఉండాలి"
+      numeric:
+        is: "%{is} అయి ఉండాలి"
+        is_not: "%{is_not} కాకూడదు"
+        min: "కనీసం %{min} అయి ఉండాలి"
+        max: "గరిష్టంగా %{max} అయి ఉండవచ్చు"
+        not_within: "%{min} మరియు %{max} మధ్య ఉండకూడదు"
+        within: "%{min} మరియు %{max} మధ్య ఉండాలి"
+      presence: "ఖాళీగా ఉండకూడదు"

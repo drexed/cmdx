@@ -1,0 +1,49 @@
+ms:
+  cmdx:
+    attributes:
+      required: "mesti boleh diakses melalui sumber"
+      undefined: "delegasi kepada kaedah yang tidak ditakrifkan %{method}"
+    coercions:
+      into_a: "tidak boleh ditukar kepada %{type}"
+      into_an: "tidak boleh ditukar kepada %{type}"
+      into_any: "tidak boleh ditukar kepada salah satu daripada: %{types}"
+      unknown: "jenis penukaran %{type} yang tidak diketahui"
+    faults:
+      unspecified: "tiada sebab diberikan"
+    types:
+      array: "array"
+      big_decimal: "perpuluhan besar"
+      boolean: "boolean"
+      complex: "kompleks"
+      date_time: "tarikh dan masa"
+      date: "tarikh"
+      float: "titik terapung"
+      hash: "hash"
+      integer: "integer"
+      rational: "rasional"
+      string: "rentetan"
+      symbol: "simbol"
+      time: "masa"
+    validators:
+      exclusion:
+        of: "tidak boleh menjadi salah satu daripada: %{values}"
+        within: "tidak boleh berada di antara %{min} dan %{max}"
+      format: "adalah format yang tidak sah"
+      inclusion:
+        of: "mesti menjadi salah satu daripada: %{values}"
+        within: "mesti berada di antara %{min} dan %{max}"
+      length:
+        is: "panjang mesti %{is}"
+        is_not: "panjang tidak boleh %{is_not}"
+        min: "panjang mesti sekurang-kurangnya %{min}"
+        max: "panjang boleh paling banyak %{max}"
+        not_within: "panjang tidak boleh berada di antara %{min} dan %{max}"
+        within: "panjang mesti berada di antara %{min} dan %{max}"
+      numeric:
+        is: "mesti %{is}"
+        is_not: "tidak boleh %{is_not}"
+        min: "mesti sekurang-kurangnya %{min}"
+        max: "boleh paling banyak %{max}"
+        not_within: "tidak boleh berada di antara %{min} dan %{max}"
+        within: "mesti berada di antara %{min} dan %{max}"
+      presence: "tidak boleh kosong"

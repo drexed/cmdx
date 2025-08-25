@@ -1,0 +1,49 @@
+lv:
+  cmdx:
+    attributes:
+      required: "jābūt pieejamam caur avotu"
+      undefined: "deleģē nedefinētai metodei %{method}"
+    coercions:
+      into_a: "nevarēja konvertēt uz %{type}"
+      into_an: "nevarēja konvertēt uz %{type}"
+      into_any: "nevarēja konvertēt uz vienu no: %{types}"
+      unknown: "nezināms %{type} konvertēšanas tips"
+    faults:
+      unspecified: "nav norādīts iemesls"
+    types:
+      array: "masīvs"
+      big_decimal: "liels decimāls"
+      boolean: "loģiskais"
+      complex: "komplekss"
+      date_time: "datums un laiks"
+      date: "datums"
+      float: "peldošā komata skaitlis"
+      hash: "hash"
+      integer: "vesels skaitlis"
+      rational: "racionāls"
+      string: "virkne"
+      symbol: "simbols"
+      time: "laiks"
+    validators:
+      exclusion:
+        of: "nedrīkst būt viens no: %{values}"
+        within: "nedrīkst būt starp %{min} un %{max}"
+      format: "ir nederīgs formāts"
+      inclusion:
+        of: "jābūt vienam no: %{values}"
+        within: "jābūt starp %{min} un %{max}"
+      length:
+        is: "garumam jābūt %{is}"
+        is_not: "garumam nedrīkst būt %{is_not}"
+        min: "garumam jābūt vismaz %{min}"
+        max: "garumam drīkst būt maksimāli %{max}"
+        not_within: "garumam nedrīkst būt starp %{min} un %{max}"
+        within: "garumam jābūt starp %{min} un %{max}"
+      numeric:
+        is: "jābūt %{is}"
+        is_not: "nedrīkst būt %{is_not}"
+        min: "jābūt vismaz %{min}"
+        max: "drīkst būt maksimāli %{max}"
+        not_within: "nedrīkst būt starp %{min} un %{max}"
+        within: "jābūt starp %{min} un %{max}"
+      presence: "nedrīkst būt tukšs"

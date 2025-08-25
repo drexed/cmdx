@@ -8,18 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [1.7.0] - 2025-08-25
 
-### Added
-- Comprehensive test coverage for Pipeline parallel execution functionality
-- Tests for parallel task execution with various options (in_threads, in_processes)
-- Tests for breakpoint handling and exception scenarios
-- Tests for both parallel and sequential execution modes
-- Tests for workflow integration scenarios
-
-### Changed
-- Updated pipeline specs to match current implementation
-- Improved test organization and readability following RSpec best practices
-- Enhanced test coverage for edge cases and error conditions
-
 ### Changes
 - Port over `cmdx-parallel` changes
 - Port over `cmdx-i18n` changes

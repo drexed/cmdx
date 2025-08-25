@@ -1,0 +1,49 @@
+ro:
+  cmdx:
+    attributes:
+      required: "trebuie să fie accesibil prin sursă"
+      undefined: "delegează la metoda nedefinită %{method}"
+    coercions:
+      into_a: "nu a putut fi convertit în %{type}"
+      into_an: "nu a putut fi convertit în %{type}"
+      into_any: "nu a putut fi convertit în unul din: %{types}"
+      unknown: "tip de conversie %{type} necunoscut"
+    faults:
+      unspecified: "nu s-a dat niciun motiv"
+    types:
+      array: "array"
+      big_decimal: "decimal mare"
+      boolean: "boolean"
+      complex: "complex"
+      date_time: "dată și oră"
+      date: "dată"
+      float: "număr cu virgulă mobilă"
+      hash: "hash"
+      integer: "întreg"
+      rational: "rațional"
+      string: "șir"
+      symbol: "simbol"
+      time: "timp"
+    validators:
+      exclusion:
+        of: "nu trebuie să fie unul din: %{values}"
+        within: "nu trebuie să fie între %{min} și %{max}"
+      format: "este un format invalid"
+      inclusion:
+        of: "trebuie să fie unul din: %{values}"
+        within: "trebuie să fie între %{min} și %{max}"
+      length:
+        is: "lungimea trebuie să fie %{is}"
+        is_not: "lungimea nu trebuie să fie %{is_not}"
+        min: "lungimea trebuie să fie cel puțin %{min}"
+        max: "lungimea trebuie să fie cel mult %{max}"
+        not_within: "lungimea nu trebuie să fie între %{min} și %{max}"
+        within: "lungimea trebuie să fie între %{min} și %{max}"
+      numeric:
+        is: "trebuie să fie %{is}"
+        is_not: "nu trebuie să fie %{is_not}"
+        min: "trebuie să fie cel puțin %{min}"
+        max: "trebuie să fie cel mult %{max}"
+        not_within: "nu trebuie să fie între %{min} și %{max}"
+        within: "trebuie să fie între %{min} și %{max}"
+      presence: "nu poate fi gol"

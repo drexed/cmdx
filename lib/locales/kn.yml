@@ -1,0 +1,49 @@
+kn:
+  cmdx:
+    attributes:
+      required: "ಮೂಲದ ಮೂಲಕ ಪ್ರವೇಶಿಸಬಹುದಾಗಿರಬೇಕು"
+      undefined: "ವ್ಯಾಖ್ಯಾನಿಸದ ವಿಧಾನಕ್ಕೆ %{method} ನಿಯೋಜಿಸುತ್ತದೆ"
+    coercions:
+      into_a: "%{type} ಗೆ ಪರಿವರ್ತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
+      into_an: "%{type} ಗೆ ಪರಿವರ್ತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
+      into_any: "ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಒಂದಕ್ಕೆ ಪರಿವರ್ತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: %{types}"
+      unknown: "ಅಜ್ಞಾತ %{type} ಪರಿವರ್ತನೆ ಪ್ರಕಾರ"
+    faults:
+      unspecified: "ಯಾವುದೇ ಕಾರಣ ನೀಡಲಾಗಿಲ್ಲ"
+    types:
+      array: "ಅರೇ"
+      big_decimal: "ದೊಡ್ಡ ದಶಮಾಂಶ"
+      boolean: "ಬೂಲಿಯನ್"
+      complex: "ಸಂಕೀರ್ಣ"
+      date_time: "ದಿನಾಂಕ ಮತ್ತು ಸಮಯ"
+      date: "ದಿನಾಂಕ"
+      float: "ತೇಲುವ ಬಿಂದು"
+      hash: "ಹ್ಯಾಶ್"
+      integer: "ಪೂರ್ಣಾಂಕ"
+      rational: "ತರ್ಕಬದ್ಧ"
+      string: "ಸ್ಟ್ರಿಂಗ್"
+      symbol: "ಚಿಹ್ನೆ"
+      time: "ಸಮಯ"
+    validators:
+      exclusion:
+        of: "ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಒಂದಾಗಿರಬಾರದು: %{values}"
+        within: "%{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬಾರದು"
+      format: "ಅಮಾನ್ಯ ಫಾರ್ಮ್ಯಾಟ್ ಆಗಿದೆ"
+      inclusion:
+        of: "ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಒಂದಾಗಿರಬೇಕು: %{values}"
+        within: "%{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬೇಕು"
+      length:
+        is: "ಉದ್ದ %{is} ಆಗಿರಬೇಕು"
+        is_not: "ಉದ್ದ %{is_not} ಆಗಿರಬಾರದು"
+        min: "ಉದ್ದ ಕನಿಷ್ಠ %{min} ಆಗಿರಬೇಕು"
+        max: "ಉದ್ದ ಗರಿಷ್ಠ %{max} ಆಗಿರಬಹುದು"
+        not_within: "ಉದ್ದ %{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬಾರದು"
+        within: "ಉದ್ದ %{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬೇಕು"
+      numeric:
+        is: "%{is} ಆಗಿರಬೇಕು"
+        is_not: "%{is_not} ಆಗಿರಬಾರದು"
+        min: "ಕನಿಷ್ಠ %{min} ಆಗಿರಬೇಕು"
+        max: "ಗರಿಷ್ಠ %{max} ಆಗಿರಬಹುದು"
+        not_within: "%{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬಾರದು"
+        within: "%{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬೇಕು"
+      presence: "ಖಾಲಿಯಾಗಿರಬಾರದು"

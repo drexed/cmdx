@@ -1,0 +1,49 @@
+sc:
+  cmdx:
+    attributes:
+      required: "deve èssere accessìbile a traessu sa fonte"
+      undefined: "delegat a su metodu non definidu %{method}"
+    coercions:
+      into_a: "no s'est podidu cunvertire in %{type}"
+      into_an: "no s'est podidu cunvertire in %{type}"
+      into_any: "no s'est podidu cunvertire in unu de: %{types}"
+      unknown: "tipu de cunversione %{type} disconnotu"
+    faults:
+      unspecified: "perunu motivu dadu"
+    types:
+      array: "array"
+      big_decimal: "decimale mannu"
+      boolean: "booleanu"
+      complex: "cumpressu"
+      date_time: "data e ora"
+      date: "data"
+      float: "puntu flotante"
+      hash: "hash"
+      integer: "interu"
+      rational: "razionale"
+      string: "corda"
+      symbol: "sìmbulu"
+      time: "ora"
+    validators:
+      exclusion:
+        of: "non deve èssere unu de: %{values}"
+        within: "non deve èssere intre %{min} e %{max}"
+      format: "est unu formatu non vàlidu"
+      inclusion:
+        of: "deve èssere unu de: %{values}"
+        within: "deve èssere intre %{min} e %{max}"
+      length:
+        is: "sa longària deve èssere %{is}"
+        is_not: "sa longària non deve èssere %{is_not}"
+        min: "sa longària deve èssere a su mancu %{min}"
+        max: "sa longària potet èssere a su màssimu %{max}"
+        not_within: "sa longària non deve èssere intre %{min} e %{max}"
+        within: "sa longària deve èssere intre %{min} e %{max}"
+      numeric:
+        is: "deve èssere %{is}"
+        is_not: "non deve èssere %{is_not}"
+        min: "deve èssere a su mancu %{min}"
+        max: "potet èssere a su màssimu %{max}"
+        not_within: "non deve èssere intre %{min} e %{max}"
+        within: "deve èssere intre %{min} e %{max}"
+      presence: "non potet èssere bòidu"

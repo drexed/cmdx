@@ -1,0 +1,49 @@
+nn:
+  cmdx:
+    attributes:
+      required: "må vere tilgjengeleg via kjelda"
+      undefined: "delegerer til udefinert metode %{method}"
+    coercions:
+      into_a: "kunne ikkje konvertere til %{type}"
+      into_an: "kunne ikkje konvertere til %{type}"
+      into_any: "kunne ikkje konvertere til ein av: %{types}"
+      unknown: "ukjend %{type} konverteringstype"
+    faults:
+      unspecified: "ingen grunn gitt"
+    types:
+      array: "array"
+      big_decimal: "stor desimal"
+      boolean: "boolean"
+      complex: "kompleks"
+      date_time: "dato og tid"
+      date: "dato"
+      float: "flyttal"
+      hash: "hash"
+      integer: "heiltal"
+      rational: "rasjonal"
+      string: "streng"
+      symbol: "symbol"
+      time: "tid"
+    validators:
+      exclusion:
+        of: "må ikkje vere ein av: %{values}"
+        within: "må ikkje vere innanfor %{min} og %{max}"
+      format: "er eit ugyldig format"
+      inclusion:
+        of: "må vere ein av: %{values}"
+        within: "må vere innanfor %{min} og %{max}"
+      length:
+        is: "lengda må vere %{is}"
+        is_not: "lengda må ikkje vere %{is_not}"
+        min: "lengda må vere minst %{min}"
+        max: "lengda kan vere maksimalt %{max}"
+        not_within: "lengda må ikkje vere innanfor %{min} og %{max}"
+        within: "lengda må vere innanfor %{min} og %{max}"
+      numeric:
+        is: "må vere %{is}"
+        is_not: "må ikkje vere %{is_not}"
+        min: "må vere minst %{min}"
+        max: "kan vere maksimalt %{max}"
+        not_within: "må ikkje vere innanfor %{min} og %{max}"
+        within: "må vere innanfor %{min} og %{max}"
+      presence: "kan ikkje vere tom"

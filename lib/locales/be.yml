@@ -1,0 +1,49 @@
+be:
+  cmdx:
+    attributes:
+      required: "павінна быць даступна праз крыніцу"
+      undefined: "дэлегуе невызначанаму метаду %{method}"
+    coercions:
+      into_a: "не ўдалося пераўтварыць у %{type}"
+      into_an: "не ўдалося пераўтварыць у %{type}"
+      into_any: "не ўдалося пераўтварыць у адзін з: %{types}"
+      unknown: "невядомы тып пераўтварэння %{type}"
+    faults:
+      unspecified: "прычына не паказана"
+    types:
+      array: "масіў"
+      big_decimal: "вялікае дзесятковае лік"
+      boolean: "лагічны"
+      complex: "камплексны"
+      date_time: "дата і час"
+      date: "дата"
+      float: "лік з плаваючай коскай"
+      hash: "хэш"
+      integer: "цэлы лік"
+      rational: "рацыянальны"
+      string: "радок"
+      symbol: "сімвал"
+      time: "час"
+    validators:
+      exclusion:
+        of: "не можа быць адным з: %{values}"
+        within: "не можа быць паміж %{min} і %{max}"
+      format: "з'яўляецца несапраўдным фарматам"
+      inclusion:
+        of: "павінна быць адным з: %{values}"
+        within: "павінна быць паміж %{min} і %{max}"
+      length:
+        is: "даўжыня павінна быць %{is}"
+        is_not: "даўжыня не можа быць %{is_not}"
+        min: "даўжыня павінна быць не менш %{min}"
+        max: "даўжыня можа быць не больш %{max}"
+        not_within: "даўжыня не можа быць паміж %{min} і %{max}"
+        within: "даўжыня павінна быць паміж %{min} і %{max}"
+      numeric:
+        is: "павінна быць %{is}"
+        is_not: "не можа быць %{is_not}"
+        min: "павінна быць не менш %{min}"
+        max: "можа быць не больш %{max}"
+        not_within: "не можа быць паміж %{min} і %{max}"
+        within: "павінна быць паміж %{min} і %{max}"
+      presence: "не можа быць пустым"

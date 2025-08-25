@@ -1,0 +1,49 @@
+az:
+  cmdx:
+    attributes:
+      required: "mənbə vasitəsilə əlçatan olmalıdır"
+      undefined: "müəyyən edilməmiş metoda %{method} təyin edir"
+    coercions:
+      into_a: "%{type} tipinə çevrilə bilmədi"
+      into_an: "%{type} tipinə çevrilə bilmədi"
+      into_any: "aşağıdakılardan birinə çevrilə bilmədi: %{types}"
+      unknown: "naməlum %{type} çevrilmə tipi"
+    faults:
+      unspecified: "səbəb göstərilməyib"
+    types:
+      array: "massiv"
+      big_decimal: "böyük onluq"
+      boolean: "məntiqi"
+      complex: "mürəkkəb"
+      date_time: "tarix və vaxt"
+      date: "tarix"
+      float: "üzən nöqtə"
+      hash: "haş"
+      integer: "tam ədəd"
+      rational: "rasional"
+      string: "sətir"
+      symbol: "simvol"
+      time: "vaxt"
+    validators:
+      exclusion:
+        of: "aşağıdakılardan biri ola bilməz: %{values}"
+        within: "%{min} və %{max} arasında ola bilməz"
+      format: "etibarsız formatdır"
+      inclusion:
+        of: "aşağıdakılardan biri olmalıdır: %{values}"
+        within: "%{min} və %{max} arasında olmalıdır"
+      length:
+        is: "uzunluq %{is} olmalıdır"
+        is_not: "uzunluq %{is_not} ola bilməz"
+        min: "uzunluq ən azı %{min} olmalıdır"
+        max: "uzunluq ən çoxu %{max} ola bilər"
+        not_within: "uzunluq %{min} və %{max} arasında ola bilməz"
+        within: "uzunluq %{min} və %{max} arasında olmalıdır"
+      numeric:
+        is: "%{is} olmalıdır"
+        is_not: "%{is_not} ola bilməz"
+        min: "ən azı %{min} olmalıdır"
+        max: "ən çoxu %{max} ola bilər"
+        not_within: "%{min} və %{max} arasında ola bilməz"
+        within: "%{min} və %{max} arasında olmalıdır"
+      presence: "boş ola bilməz"

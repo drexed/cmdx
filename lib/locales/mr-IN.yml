@@ -1,0 +1,49 @@
+mr-IN:
+  cmdx:
+    attributes:
+      required: "स्रोताद्वारे प्रवेश करण्यायोग्य असणे आवश्यक आहे"
+      undefined: "अपरिभाषित पद्धतीला %{method} नियुक्त करते"
+    coercions:
+      into_a: "%{type} मध्ये रूपांतर करता आले नाही"
+      into_an: "%{type} मध्ये रूपांतर करता आले नाही"
+      into_any: "खालीलपैकी एकामध्ये रूपांतर करता आले नाही: %{types}"
+      unknown: "अज्ञात %{type} रूपांतरण प्रकार"
+    faults:
+      unspecified: "कारण दिलेले नाही"
+    types:
+      array: "अॅरे"
+      big_decimal: "मोठे दशांश"
+      boolean: "बुलियन"
+      complex: "जटिल"
+      date_time: "तारीख आणि वेळ"
+      date: "तारीख"
+      float: "फ्लोटिंग पॉइंट"
+      hash: "हॅश"
+      integer: "पूर्णांक"
+      rational: "परिमेय"
+      string: "स्ट्रिंग"
+      symbol: "चिन्ह"
+      time: "वेळ"
+    validators:
+      exclusion:
+        of: "खालीलपैकी एक असू शकत नाही: %{values}"
+        within: "%{min} आणि %{max} दरम्यान असू शकत नाही"
+      format: "अवैध स्वरूप आहे"
+      inclusion:
+        of: "खालीलपैकी एक असणे आवश्यक आहे: %{values}"
+        within: "%{min} आणि %{max} दरम्यान असणे आवश्यक आहे"
+      length:
+        is: "लांबी %{is} असणे आवश्यक आहे"
+        is_not: "लांबी %{is_not} असू शकत नाही"
+        min: "लांबी किमान %{min} असणे आवश्यक आहे"
+        max: "लांबी कमाल %{max} असू शकते"
+        not_within: "लांबी %{min} आणि %{max} दरम्यान असू शकत नाही"
+        within: "लांबी %{min} आणि %{max} दरम्यान असणे आवश्यक आहे"
+      numeric:
+        is: "%{is} असणे आवश्यक आहे"
+        is_not: "%{is_not} असू शकत नाही"
+        min: "किमान %{min} असणे आवश्यक आहे"
+        max: "कमाल %{max} असू शकते"
+        not_within: "%{min} आणि %{max} दरम्यान असू शकत नाही"
+        within: "%{min} आणि %{max} दरम्यान असणे आवश्यक आहे"
+      presence: "रिक्त असू शकत नाही"

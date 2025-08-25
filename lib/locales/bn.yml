@@ -1,0 +1,49 @@
+bn:
+  cmdx:
+    attributes:
+      required: "উৎসের মাধ্যমে অ্যাক্সেসযোগ্য হতে হবে"
+      undefined: "অসংজ্ঞায়িত পদ্ধতিতে %{method} অর্পণ করে"
+    coercions:
+      into_a: "%{type} এ রূপান্তর করা যায়নি"
+      into_an: "%{type} এ রূপান্তর করা যায়নি"
+      into_any: "নিম্নলিখিতগুলির মধ্যে একটিতে রূপান্তর করা যায়নি: %{types}"
+      unknown: "অজানা %{type} রূপান্তর প্রকার"
+    faults:
+      unspecified: "কোন কারণ দেওয়া হয়নি"
+    types:
+      array: "অ্যারে"
+      big_decimal: "বড় দশমিক"
+      boolean: "বুলিয়ান"
+      complex: "জটিল"
+      date_time: "তারিখ এবং সময়"
+      date: "তারিখ"
+      float: "ভাসমান বিন্দু"
+      hash: "হ্যাশ"
+      integer: "পূর্ণসংখ্যা"
+      rational: "মূলদ"
+      string: "স্ট্রিং"
+      symbol: "প্রতীক"
+      time: "সময়"
+    validators:
+      exclusion:
+        of: "নিম্নলিখিতগুলির মধ্যে একটি হতে পারবে না: %{values}"
+        within: "%{min} এবং %{max} এর মধ্যে থাকতে পারবে না"
+      format: "একটি অবৈধ ফরম্যাট"
+      inclusion:
+        of: "নিম্নলিখিতগুলির মধ্যে একটি হতে হবে: %{values}"
+        within: "%{min} এবং %{max} এর মধ্যে থাকতে হবে"
+      length:
+        is: "দৈর্ঘ্য %{is} হতে হবে"
+        is_not: "দৈর্ঘ্য %{is_not} হতে পারবে না"
+        min: "দৈর্ঘ্য কমপক্ষে %{min} হতে হবে"
+        max: "দৈর্ঘ্য সর্বোচ্চ %{max} হতে পারবে"
+        not_within: "দৈর্ঘ্য %{min} এবং %{max} এর মধ্যে থাকতে পারবে না"
+        within: "দৈর্ঘ্য %{min} এবং %{max} এর মধ্যে থাকতে হবে"
+      numeric:
+        is: "%{is} হতে হবে"
+        is_not: "%{is_not} হতে পারবে না"
+        min: "কমপক্ষে %{min} হতে হবে"
+        max: "সর্বোচ্চ %{max} হতে পারবে"
+        not_within: "%{min} এবং %{max} এর মধ্যে থাকতে পারবে না"
+        within: "%{min} এবং %{max} এর মধ্যে থাকতে হবে"
+      presence: "খালি হতে পারবে না"

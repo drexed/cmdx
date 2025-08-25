@@ -1,0 +1,49 @@
+hi:
+  cmdx:
+    attributes:
+      required: "स्रोत के माध्यम से सुलभ होना चाहिए"
+      undefined: "अपरिभाषित विधि %{method} को सौंपता है"
+    coercions:
+      into_a: "%{type} में परिवर्तित नहीं किया जा सका"
+      into_an: "%{type} में परिवर्तित नहीं किया जा सका"
+      into_any: "निम्नलिखित में से किसी में परिवर्तित नहीं किया जा सका: %{types}"
+      unknown: "अज्ञात %{type} रूपांतरण प्रकार"
+    faults:
+      unspecified: "कोई कारण नहीं दिया गया"
+    types:
+      array: "सरणी"
+      big_decimal: "बड़ा दशमलव"
+      boolean: "बूलियन"
+      complex: "जटिल"
+      date_time: "दिनांक और समय"
+      date: "दिनांक"
+      float: "फ्लोट"
+      hash: "हैश"
+      integer: "पूर्णांक"
+      rational: "परिमेय"
+      string: "स्ट्रिंग"
+      symbol: "प्रतीक"
+      time: "समय"
+    validators:
+      exclusion:
+        of: "निम्नलिखित में से कोई नहीं होना चाहिए: %{values}"
+        within: "%{min} और %{max} के बीच नहीं होना चाहिए"
+      format: "एक अमान्य प्रारूप है"
+      inclusion:
+        of: "निम्नलिखित में से कोई होना चाहिए: %{values}"
+        within: "%{min} और %{max} के बीच होना चाहिए"
+      length:
+        is: "लंबाई %{is} होनी चाहिए"
+        is_not: "लंबाई %{is_not} नहीं होनी चाहिए"
+        min: "लंबाई कम से कम %{min} होनी चाहिए"
+        max: "लंबाई अधिकतम %{max} होनी चाहिए"
+        not_within: "लंबाई %{min} और %{max} के बीच नहीं होनी चाहिए"
+        within: "लंबाई %{min} और %{max} के बीच होनी चाहिए"
+      numeric:
+        is: "%{is} होना चाहिए"
+        is_not: "%{is_not} नहीं होना चाहिए"
+        min: "कम से कम %{min} होना चाहिए"
+        max: "अधिकतम %{max} होना चाहिए"
+        not_within: "%{min} और %{max} के बीच नहीं होना चाहिए"
+        within: "%{min} और %{max} के बीच होना चाहिए"
+      presence: "खाली नहीं हो सकता"

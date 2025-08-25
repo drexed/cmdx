@@ -1,0 +1,49 @@
+fy:
+  cmdx:
+    attributes:
+      required: "moat tagong hawwe fia de boarne"
+      undefined: "delegearret nei ûndefiniearre metoade %{method}"
+    coercions:
+      into_a: "koe net nei %{type} konvertearje"
+      into_an: "koe net nei %{type} konvertearje"
+      into_any: "koe net nei ien fan: %{types} konvertearje"
+      unknown: "ûnbekende %{type} konverzje type"
+    faults:
+      unspecified: "gjin reden jûn"
+    types:
+      array: "array"
+      big_decimal: "grutte desimaal"
+      boolean: "booleaansk"
+      complex: "kompleks"
+      date_time: "datum en tiid"
+      date: "datum"
+      float: "driuwpunt"
+      hash: "hash"
+      integer: "hielgetal"
+      rational: "rasjonaal"
+      string: "string"
+      symbol: "symboal"
+      time: "tiid"
+    validators:
+      exclusion:
+        of: "moat net ien fan wêze: %{values}"
+        within: "moat net binnen %{min} en %{max} wêze"
+      format: "is in ûnjildich formaat"
+      inclusion:
+        of: "moat ien fan wêze: %{values}"
+        within: "moat binnen %{min} en %{max} wêze"
+      length:
+        is: "lingte moat %{is} wêze"
+        is_not: "lingte moat net %{is_not} wêze"
+        min: "lingte moat op syn minst %{min} wêze"
+        max: "lingte kin maksimaal %{max} wêze"
+        not_within: "lingte moat net binnen %{min} en %{max} wêze"
+        within: "lingte moat binnen %{min} en %{max} wêze"
+      numeric:
+        is: "moat %{is} wêze"
+        is_not: "moat net %{is_not} wêze"
+        min: "moat op syn minst %{min} wêze"
+        max: "kin maksimaal %{max} wêze"
+        not_within: "moat net binnen %{min} en %{max} wêze"
+        within: "moat binnen %{min} en %{max} wêze"
+      presence: "kin net leech wêze"

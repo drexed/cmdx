@@ -1,0 +1,49 @@
+cy:
+  cmdx:
+    attributes:
+      required: "rhaid iddo fod yn hygyrch drwy'r ffynhonnell"
+      undefined: "delegio i'r dull amhendant %{method}"
+    coercions:
+      into_a: "ni allwyd ei drawsnewid i %{type}"
+      into_an: "ni allwyd ei drawsnewid i %{type}"
+      into_any: "ni allwyd ei drawsnewid i un o: %{types}"
+      unknown: "math anhysbys o drawsnewid %{type}"
+    faults:
+      unspecified: "dim rheswm wedi'i roi"
+    types:
+      array: "arae"
+      big_decimal: "degol mawr"
+      boolean: "booleaidd"
+      complex: "cymhleth"
+      date_time: "dyddiad ac amser"
+      date: "dyddiad"
+      float: "rhif pwynt arnofio"
+      hash: "hash"
+      integer: "cyfanrif"
+      rational: "rhesymegol"
+      string: "llinyn"
+      symbol: "symbol"
+      time: "amser"
+    validators:
+      exclusion:
+        of: "ni all fod yn un o: %{values}"
+        within: "ni all fod rhwng %{min} a %{max}"
+      format: "yn fformat annilys"
+      inclusion:
+        of: "rhaid iddo fod yn un o: %{values}"
+        within: "rhaid iddo fod rhwng %{min} a %{max}"
+      length:
+        is: "rhaid i'r hyd fod yn %{is}"
+        is_not: "ni all y hyd fod yn %{is_not}"
+        min: "rhaid i'r hyd fod o leiaf %{min}"
+        max: "gall y hyd fod yn fwyaf %{max}"
+        not_within: "ni all y hyd fod rhwng %{min} a %{max}"
+        within: "rhaid i'r hyd fod rhwng %{min} a %{max}"
+      numeric:
+        is: "rhaid iddo fod yn %{is}"
+        is_not: "ni all fod yn %{is_not}"
+        min: "rhaid iddo fod o leiaf %{min}"
+        max: "gall fod yn fwyaf %{max}"
+        not_within: "ni all fod rhwng %{min} a %{max}"
+        within: "rhaid iddo fod rhwng %{min} a %{max}"
+      presence: "ni all fod yn wag"

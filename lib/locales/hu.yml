@@ -1,0 +1,49 @@
+hu:
+  cmdx:
+    attributes:
+      required: "elérhetőnek kell lennie a forráson keresztül"
+      undefined: "delegál a nem definiált metódusra %{method}"
+    coercions:
+      into_a: "nem sikerült %{type} típusra konvertálni"
+      into_an: "nem sikerült %{type} típusra konvertálni"
+      into_any: "nem sikerült konvertálni a következők egyikére: %{types}"
+      unknown: "ismeretlen %{type} konverziós típus"
+    faults:
+      unspecified: "nincs megadva ok"
+    types:
+      array: "tömb"
+      big_decimal: "nagy decimális"
+      boolean: "logikai"
+      complex: "komplex"
+      date_time: "dátum és idő"
+      date: "dátum"
+      float: "lebegőpontos"
+      hash: "hash"
+      integer: "egész szám"
+      rational: "racionális"
+      string: "karakterlánc"
+      symbol: "szimbólum"
+      time: "idő"
+    validators:
+      exclusion:
+        of: "nem lehet egyike a következőknek: %{values}"
+        within: "nem lehet %{min} és %{max} között"
+      format: "érvénytelen formátum"
+      inclusion:
+        of: "egyike kell legyen a következőknek: %{values}"
+        within: "%{min} és %{max} között kell lennie"
+      length:
+        is: "a hossz %{is} kell legyen"
+        is_not: "a hossz nem lehet %{is_not}"
+        min: "a hossz legalább %{min} kell legyen"
+        max: "a hossz legfeljebb %{max} lehet"
+        not_within: "a hossz nem lehet %{min} és %{max} között"
+        within: "a hossz %{min} és %{max} között kell legyen"
+      numeric:
+        is: "%{is} kell legyen"
+        is_not: "nem lehet %{is_not}"
+        min: "legalább %{min} kell legyen"
+        max: "legfeljebb %{max} lehet"
+        not_within: "nem lehet %{min} és %{max} között"
+        within: "%{min} és %{max} között kell lennie"
+      presence: "nem lehet üres"

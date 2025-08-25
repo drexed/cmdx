@@ -1,0 +1,49 @@
+oc:
+  cmdx:
+    attributes:
+      required: "deu èsser accessible via la font"
+      undefined: "delegar a la metòda non definida %{method}"
+    coercions:
+      into_a: "poguèt pas èsser convertit en %{type}"
+      into_an: "poguèt pas èsser convertit en %{type}"
+      into_any: "poguèt pas èsser convertit en un de: %{types}"
+      unknown: "tipe de conversion %{type} desconegut"
+    faults:
+      unspecified: "cap de rason donada"
+    types:
+      array: "array"
+      big_decimal: "decimal grand"
+      boolean: "booleen"
+      complex: "complexe"
+      date_time: "data e ora"
+      date: "data"
+      float: "punt flotant"
+      hash: "hash"
+      integer: "entier"
+      rational: "racional"
+      string: "cadena"
+      symbol: "simbol"
+      time: "ora"
+    validators:
+      exclusion:
+        of: "deu pas èsser un de: %{values}"
+        within: "deu pas èsser entre %{min} e %{max}"
+      format: "es un format invalid"
+      inclusion:
+        of: "deu èsser un de: %{values}"
+        within: "deu èsser entre %{min} e %{max}"
+      length:
+        is: "la longor deu èsser %{is}"
+        is_not: "la longor deu pas èsser %{is_not}"
+        min: "la longor deu èsser almens %{min}"
+        max: "la longor pòt èsser al màger %{max}"
+        not_within: "la longor deu pas èsser entre %{min} e %{max}"
+        within: "la longor deu èsser entre %{min} e %{max}"
+      numeric:
+        is: "deu èsser %{is}"
+        is_not: "deu pas èsser %{is_not}"
+        min: "deu èsser almens %{min}"
+        max: "pòt èsser al màger %{max}"
+        not_within: "deu pas èsser entre %{min} e %{max}"
+        within: "deu èsser entre %{min} e %{max}"
+      presence: "pòt pas èsser void"

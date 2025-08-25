@@ -1,0 +1,49 @@
+lo:
+  cmdx:
+    attributes:
+      required: "ຕ້ອງເຂົ້າເຖິງໄດ້ຜ່ານແຫຼ່ງຂໍ້ມູນ"
+      undefined: "ມອບໝາຍໃຫ້ກັບວິທີທີ່ບໍ່ໄດ້ກຳນົດ %{method}"
+    coercions:
+      into_a: "ບໍ່ສາມາດປ່ຽນເປັນ %{type} ໄດ້"
+      into_an: "ບໍ່ສາມາດປ່ຽນເປັນ %{type} ໄດ້"
+      into_any: "ບໍ່ສາມາດປ່ຽນເປັນອັນໃດອັນໜຶ່ງໃນ: %{types} ໄດ້"
+      unknown: "ປະເພດການປ່ຽນ %{type} ທີ່ບໍ່ຮູ້"
+    faults:
+      unspecified: "ບໍ່ໄດ້ໃຫ້ເຫດຜົນ"
+    types:
+      array: "ອາເຣ"
+      big_decimal: "ທົດສະນິຍະສູງ"
+      boolean: "ບູລຽນ"
+      complex: "ສັບສົນ"
+      date_time: "ວັນທີ ແລະ ເວລາ"
+      date: "ວັນທີ"
+      float: "ຈຸດລອຍ"
+      hash: "ແຮຊ"
+      integer: "ຈຳນວນເຕັມ"
+      rational: "ຈຳນວນປົກກະຕິ"
+      string: "ສະຕຣິງ"
+      symbol: "ສັນຍະລັກ"
+      time: "ເວລາ"
+    validators:
+      exclusion:
+        of: "ບໍ່ຕ້ອງເປັນອັນໃດອັນໜຶ່ງໃນ: %{values}"
+        within: "ບໍ່ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+      format: "ເປັນຮູບແບບທີ່ບໍ່ຖືກຕ້ອງ"
+      inclusion:
+        of: "ຕ້ອງເປັນອັນໃດອັນໜຶ່ງໃນ: %{values}"
+        within: "ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+      length:
+        is: "ຄວາມຍາວຕ້ອງເປັນ %{is}"
+        is_not: "ຄວາມຍາວບໍ່ຕ້ອງເປັນ %{is_not}"
+        min: "ຄວາມຍາວຕ້ອງຢ່າງໜ້ອຍ %{min}"
+        max: "ຄວາມຍາວສາມາດສູງສຸດ %{max}"
+        not_within: "ຄວາມຍາວບໍ່ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+        within: "ຄວາມຍາວຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+      numeric:
+        is: "ຕ້ອງເປັນ %{is}"
+        is_not: "ບໍ່ຕ້ອງເປັນ %{is_not}"
+        min: "ຕ້ອງຢ່າງໜ້ອຍ %{min}"
+        max: "ສາມາດສູງສຸດ %{max}"
+        not_within: "ບໍ່ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+        within: "ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"
+      presence: "ບໍ່ສາມາດເປັນຄ່າວ່າງໄດ້"

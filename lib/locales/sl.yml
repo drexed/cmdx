@@ -1,0 +1,49 @@
+sl:
+  cmdx:
+    attributes:
+      required: "mora biti dostopen preko vira"
+      undefined: "delegira nedefinirani metodi %{method}"
+    coercions:
+      into_a: "ni bilo mogoče pretvoriti v %{type}"
+      into_an: "ni bilo mogoče pretvoriti v %{type}"
+      into_any: "ni bilo mogoče pretvoriti v enega od: %{types}"
+      unknown: "neznan tip pretvorbe %{type}"
+    faults:
+      unspecified: "razlog ni naveden"
+    types:
+      array: "matrika"
+      big_decimal: "veliko decimalno število"
+      boolean: "logično"
+      complex: "kompleksno"
+      date_time: "datum in čas"
+      date: "datum"
+      float: "število s plavajočo vejico"
+      hash: "hash"
+      integer: "celo število"
+      rational: "racionalno"
+      string: "niz"
+      symbol: "simbol"
+      time: "čas"
+    validators:
+      exclusion:
+        of: "ne sme biti eden od: %{values}"
+        within: "ne sme biti med %{min} in %{max}"
+      format: "je neveljaven format"
+      inclusion:
+        of: "mora biti eden od: %{values}"
+        within: "mora biti med %{min} in %{max}"
+      length:
+        is: "dolžina mora biti %{is}"
+        is_not: "dolžina ne sme biti %{is_not}"
+        min: "dolžina mora biti vsaj %{min}"
+        max: "dolžina lahko znaša največ %{max}"
+        not_within: "dolžina ne sme biti med %{min} in %{max}"
+        within: "dolžina mora biti med %{min} in %{max}"
+      numeric:
+        is: "mora biti %{is}"
+        is_not: "ne sme biti %{is_not}"
+        min: "mora biti vsaj %{min}"
+        max: "lahko znaša največ %{max}"
+        not_within: "ne sme biti med %{min} in %{max}"
+        within: "mora biti med %{min} in %{max}"
+      presence: "ne sme biti prazno"
