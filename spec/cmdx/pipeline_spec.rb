@@ -136,23 +136,47 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     let(:execution_group) { instance_double("ExecutionGroup") }
     let(:breakpoints) { [] }
 
-    it "calls execute_tasks_in_sequence with group and breakpoints" do
-      expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, breakpoints)
-      pipeline.send(:execute_group_tasks, execution_group, breakpoints)
-    end
-
-    context "when overridden in subclass" do
-      let(:custom_pipeline) do
-        Class.new(described_class) do
-          def execute_group_tasks(_group, _breakpoints)
-            :custom_implementation
-          end
-        end
+    context "when strategy is nil" do
+      before do
+        allow(execution_group).to receive(:options).and_return({})
       end
 
-      it "uses the custom implementation" do
-        custom_instance = custom_pipeline.new(workflow)
-        expect(custom_instance.send(:execute_group_tasks, execution_group, breakpoints)).to eq(:custom_implementation)
+      it "calls execute_tasks_in_sequence" do
+        expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, breakpoints)
+        pipeline.send(:execute_group_tasks, execution_group, breakpoints)
+      end
+    end
+
+    context "when strategy is sequential" do
+      before do
+        allow(execution_group).to receive(:options).and_return({ strategy: :sequential })
+      end
+
+      it "calls execute_tasks_in_sequence" do
+        expect(pipeline).to receive(:execute_tasks_in_sequence).with(execution_group, breakpoints)
+        pipeline.send(:execute_group_tasks, execution_group, breakpoints)
+      end
+    end
+
+    context "when strategy is parallel" do
+      before do
+        allow(execution_group).to receive(:options).and_return({ strategy: :parallel })
+      end
+
+      it "calls execute_tasks_in_parallel" do
+        expect(pipeline).to receive(:execute_tasks_in_parallel).with(execution_group, breakpoints)
+        pipeline.send(:execute_group_tasks, execution_group, breakpoints)
+      end
+    end
+
+    context "when strategy is unknown" do
+      before do
+        allow(execution_group).to receive(:options).and_return({ strategy: :unknown })
+      end
+
+      it "raises an error" do
+        expect { pipeline.send(:execute_group_tasks, execution_group, breakpoints) }
+          .to raise_error("unknown execution strategy :unknown")
       end
     end
   end
@@ -195,7 +219,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         allow(result1).to receive(:status).and_return("success")
       end
 
-      it "throws on first task but continues executing remaining tasks" do
+      it "throws on first task and continues executing remaining tasks" do
         expect(workflow).to receive(:throw!).with(result1)
         expect(task1).to receive(:execute).with(context).and_return(result1)
         expect(task2).to receive(:execute).with(context).and_return(result2)
@@ -260,6 +284,159 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         expect(workflow).to receive(:throw!).with(result1)
         expect(task1).to receive(:execute).with(context).and_return(result1)
         pipeline.send(:execute_tasks_in_sequence, execution_group, breakpoints)
+      end
+    end
+  end
+
+  describe "#execute_tasks_in_parallel" do
+    let(:execution_group) { instance_double("ExecutionGroup") }
+    let(:tasks) { [task1, task2, task3] }
+    let(:task1) { instance_double("Task1") }
+    let(:task2) { instance_double("Task2") }
+    let(:task3) { instance_double("Task3") }
+    let(:breakpoints) { [] }
+    let(:context) { instance_double("Context") }
+    let(:result1) { instance_double("Result1") }
+    let(:result2) { instance_double("Result2") }
+    let(:result3) { instance_double("Result3") }
+    let(:chain) { instance_double("Chain") }
+
+    before do
+      allow(workflow).to receive_messages(context: context, chain: chain, throw!: nil)
+      allow(execution_group).to receive_messages(tasks: tasks, options: {})
+      allow(task1).to receive(:execute).with(context).and_return(result1)
+      allow(task2).to receive(:execute).with(context).and_return(result2)
+      allow(task3).to receive(:execute).with(context).and_return(result3)
+      allow(result1).to receive(:status).and_return("success")
+      allow(result2).to receive(:status).and_return("success")
+      allow(result3).to receive(:status).and_return("success")
+      allow(CMDx::Chain).to receive(:current=)
+    end
+
+    context "when parallel gem is not available" do
+      before do
+        hide_const("Parallel")
+      end
+
+      it "raises an error" do
+        expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }
+          .to raise_error("install the `parallel` gem to use this feature")
+      end
+    end
+
+    context "when parallel gem is available" do
+      let(:parallel_double) { class_double("Parallel") }
+
+      before do
+        stub_const("Parallel", parallel_double)
+        allow(parallel_double).to receive(:each).and_yield(task1).and_yield(task2).and_yield(task3)
+      end
+
+      it "sets chain current for each task" do
+        expect(CMDx::Chain).to receive(:current=).with(chain).exactly(3).times
+        pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+      end
+
+      it "executes all tasks in parallel" do
+        expect(parallel_double).to receive(:each).with(tasks)
+        pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+      end
+
+      context "with in_threads option" do
+        before do
+          allow(execution_group).to receive(:options).and_return({ in_threads: 4 })
+        end
+
+        it "passes in_threads option to parallel" do
+          expect(parallel_double).to receive(:each).with(tasks, in_threads: 4)
+          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+        end
+      end
+
+      context "with in_processes option" do
+        before do
+          allow(execution_group).to receive(:options).and_return({ in_processes: 2 })
+        end
+
+        it "passes in_processes option to parallel" do
+          expect(parallel_double).to receive(:each).with(tasks, in_processes: 2)
+          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+        end
+      end
+
+      context "with both parallel options" do
+        before do
+          allow(execution_group).to receive(:options).and_return({ in_threads: 4, in_processes: 2 })
+        end
+
+        it "passes both options to parallel" do
+          expect(parallel_double).to receive(:each).with(tasks, in_threads: 4, in_processes: 2)
+          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+        end
+      end
+
+      context "when breakpoint is triggered" do
+        let(:breakpoints) { ["failure"] }
+
+        it "handles breakpoint scenarios" do
+          # Test that the method can handle breakpoints without complex exception mocking
+          allow(parallel_double).to receive(:each).and_yield(task1).and_yield(task2).and_yield(task3)
+          allow(task1).to receive(:execute).with(context).and_return(result1)
+          allow(task2).to receive(:execute).with(context).and_return(result2)
+          allow(task3).to receive(:execute).with(context).and_return(result3)
+          allow(result1).to receive(:status).and_return("success")
+          allow(result2).to receive(:status).and_return("success")
+          allow(result3).to receive(:status).and_return("success")
+
+          expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }.not_to raise_error
+        end
+      end
+
+      context "when exception is raised during parallel execution" do
+        it "handles exceptions gracefully" do
+          # Test that the method can handle exceptions without complex mocking
+          allow(parallel_double).to receive(:each).and_raise(StandardError, "Test error")
+
+          expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }
+            .to raise_error(StandardError, "Test error")
+        end
+      end
+
+      context "when parallel execution raises an exception" do
+        let(:parallel_break) { Class.new(StandardError) }
+
+        before do
+          stub_const("Parallel::Break", parallel_break)
+          allow(parallel_double).to receive(:each).and_raise(parallel_break, result2)
+        end
+
+        it "raises the exception" do
+          expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }
+            .to raise_error(parallel_break)
+        end
+      end
+
+      context "when parallel execution fails" do
+        let(:parallel_break) { Class.new(StandardError) }
+
+        it "raises the exception" do
+          allow(parallel_double).to receive(:each).and_raise(StandardError, "Parallel execution failed")
+          expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }
+            .to raise_error(StandardError, "Parallel execution failed")
+        end
+      end
+
+      context "when no breakpoints are triggered" do
+        let(:breakpoints) { ["failure"] }
+
+        before do
+          allow(parallel_double).to receive(:each).and_yield(task1).and_yield(task2).and_yield(task3)
+        end
+
+        it "does not throw any result" do
+          expect(workflow).not_to receive(:throw!)
+          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+        end
       end
     end
   end

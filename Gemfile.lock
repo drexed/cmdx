@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (1.6.2)
+    cmdx (1.7.0)
       bigdecimal
       logger
       zeitwerk
@@ -83,6 +83,7 @@ DEPENDENCIES
   cmdx!
   cmdx-rspec
   i18n
+  parallel
   rake
   rspec
   rubocop

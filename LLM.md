@@ -3166,6 +3166,30 @@ class CompleteEmailWorkflow < CMDx::Task
 end
 ```
 
+## Parallel Execution
+
+Parallel task execution leverages the [Parallel](https://github.com/grosser/parallel) gem, which automatically detects the number of available processors to maximize concurrent task execution.
+
+> [!IMPORTANT]
+> Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.
+
+```ruby
+class SendWelcomeNotifications < CMDx::Task
+  include CMDx::Workflow
+
+  # Default options (dynamically calculated to available processors)
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel
+
+  # Fix number of threads
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_threads: 2
+
+  # Fix number of forked processes
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_processes: 2
+
+  # NOTE: Reactors are not supported
+end
+```
+
 ---
 
 url: https://github.com/drexed/cmdx/blob/main/docs/tips_and_tricks.md

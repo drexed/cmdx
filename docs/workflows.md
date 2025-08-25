@@ -12,6 +12,7 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
   - [Task Configuration](#task-configuration)
   - [Group Configuration](#group-configuration)
 - [Nested Workflows](#nested-workflows)
+- [Parallel Execution](#parallel-execution)
 
 ## Declarations
 
@@ -184,6 +185,30 @@ class CompleteEmailWorkflow < CMDx::Task
   task EmailPreparationWorkflow
   task EmailDeliveryWorkflow, if: proc { context.preparation_successful? }
   task GenerateDeliveryReport
+end
+```
+
+## Parallel Execution
+
+Parallel task execution leverages the [Parallel](https://github.com/grosser/parallel) gem, which automatically detects the number of available processors to maximize concurrent task execution.
+
+> [!IMPORTANT]
+> Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.
+
+```ruby
+class SendWelcomeNotifications < CMDx::Task
+  include CMDx::Workflow
+
+  # Default options (dynamically calculated to available processors)
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel
+
+  # Fix number of threads
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_threads: 2
+
+  # Fix number of forked processes
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_processes: 2
+
+  # NOTE: Reactors are not supported
 end
 ```
 

@@ -55,23 +55,22 @@ module CMDx
 
     private
 
-    # Executes tasks within a group using the configured execution strategy.
-    # Override this method to implement custom execution strategies like parallel
-    # processing or conditional task execution.
+    # Executes a group of tasks using the specified execution strategy.
     #
-    # @param group [ExecutionGroup] The group of tasks to execute
-    # @param breakpoints [Array<String>] Breakpoint statuses that trigger workflow interruption
+    # @param group [CMDx::Group] The task group to execute
+    # @param breakpoints [Array<Symbol>] Status values that trigger execution breaks
+    # @option group.options [Symbol, String] :strategy Execution strategy (:sequential, :parallel, or nil for default)
     #
     # @return [void]
     #
     # @example
-    #   def execute_group_tasks(group, breakpoints)
-    #     # Custom parallel execution strategy
-    #     group.tasks.map { |task| Thread.new { task.execute(workflow.context) } }
-    #   end
+    #   execute_group_tasks(group, ["failed", "skipped"])
     def execute_group_tasks(group, breakpoints)
-      # NOTE: Override this method to introduce alternative execution strategies
-      execute_tasks_in_sequence(group, breakpoints)
+      case strategy = group.options[:strategy]
+      when NilClass, /sequential/ then execute_tasks_in_sequence(group, breakpoints)
+      when /parallel/ then execute_tasks_in_parallel(group, breakpoints)
+      else raise "unknown execution strategy #{strategy.inspect}"
+      end
     end
 
     # Executes tasks sequentially within a group, checking breakpoints after each task.
@@ -93,6 +92,39 @@ module CMDx
 
         workflow.throw!(task_result)
       end
+    end
+
+    # Executes tasks in parallel using the parallel gem.
+    #
+    # @param group [CMDx::Group] The task group to execute in parallel
+    # @param breakpoints [Array<Symbol>] Status values that trigger execution breaks
+    # @option group.options [Integer] :in_threads Number of threads to use
+    # @option group.options [Integer] :in_processes Number of processes to use
+    #
+    # @return [void]
+    #
+    # @raise [HaltError] When a task result status matches a breakpoint
+    #
+    # @example
+    #   execute_tasks_in_parallel(group, ["failed"])
+    def execute_tasks_in_parallel(group, breakpoints)
+      raise "install the `parallel` gem to use this feature" unless defined?(::Parallel)
+
+      parallel_options = group.options.slice(:in_threads, :in_processes)
+      throwable_result = nil
+
+      ::Parallel.each(group.tasks, **parallel_options) do |task|
+        Chain.current = workflow.chain
+
+        task_result = task.execute(workflow.context)
+        next unless breakpoints.include?(task_result.status)
+
+        raise ::Parallel::Break, throwable_result = task_result
+      end
+
+      return if throwable_result.nil?
+
+      workflow.throw!(throwable_result)
     end
 
   end
