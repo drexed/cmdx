@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changes
 - Prefix railtie I18n with `::` to play nice with `CMDx::I18n`
+- Use `cmdx-rspec` for matchers support
 
 ## [1.6.1] - 2025-08-23
 

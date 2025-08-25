@@ -10,8 +10,8 @@ Follow the official Ruby gem guides for best practices.
 Reference the guides outlined in https://guides.rubygems.org
 
 ## Project Context
-CMDx provides a framework for designing and executing complex
-business logic within service/command objects.
+CMDx provides a framework for designing and executing complex business logic within service/command objects.
+Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM.md
 
 ## Technology Stack
 - Ruby 3.4+

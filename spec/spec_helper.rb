@@ -7,10 +7,11 @@ require "bundler/setup"
 require "rspec"
 
 require "cmdx"
+require "cmdx/rspec"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
-%w[config helpers matchers].each do |dir|
+%w[config helpers].each do |dir|
   Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
      .sort_by { |f| [f.split("/").size, f] }
      .each { |f| load(f) }
@@ -47,10 +48,5 @@ RSpec.configure do |config|
     CMDx.reset_configuration!
     CMDx::Chain.clear
     CMDx::Middlewares::Correlate.clear
-  end
-
-  config.after(:all) do
-    temp_path = spec_path.join("generators/tmp")
-    FileUtils.remove_dir(temp_path) if File.directory?(temp_path)
   end
 end
