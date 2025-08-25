@@ -10,9 +10,9 @@ module Cmdx
 
     source_root File.expand_path("../../locales", __dir__)
 
-    desc "Copies CMDx locale files into app"
+    desc "Copies the locale with the given alpha-2 code"
 
-    argument :locale, type: :string, default: "en", banner: "Locale to copy"
+    argument :locale, type: :string, default: "en", banner: "locale: en, es, fr, etc"
 
     # Copies the locale template to the Rails application
     #

@@ -13,6 +13,7 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
   - [Group Configuration](#group-configuration)
 - [Nested Workflows](#nested-workflows)
 - [Parallel Execution](#parallel-execution)
+- [Task Generator](#task-generator)
 
 ## Declarations
 
@@ -211,6 +212,28 @@ class SendWelcomeNotifications < CMDx::Task
   # NOTE: Reactors are not supported
 end
 ```
+
+## Task Generator
+
+Generate new CMDx workflow tasks quickly using the built-in generator:
+
+```bash
+rails generate cmdx:workflow SendNotifications
+```
+
+This creates a new workflow task file with the basic structure:
+
+```ruby
+# app/tasks/send_notifications.rb
+class SendNotifications < CMDx::Task
+  include CMDx::Workflow
+
+  tasks Task1, Task2
+end
+```
+
+> [!TIP]
+> Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
 
 ---
 

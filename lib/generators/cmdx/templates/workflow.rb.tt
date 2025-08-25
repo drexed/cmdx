@@ -1,0 +1,8 @@
+<% module_namespacing do -%>
+  class <%= class_name %> < <%= parent_class_name %>
+    include CMDx::Workflow
+
+    tasks Task1, Task2
+    # Docs: https://github.com/drexed/cmdx/docs/workflows.md
+  end
+<% end -%>
