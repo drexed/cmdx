@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe "Task execution", type: :feature do
-  context "when non-blocking" do
+  context "when non-bang" do
     subject(:result) { task.execute }
 
     context "when simple task" do
@@ -327,7 +327,7 @@ RSpec.describe "Task execution", type: :feature do
     end
   end
 
-  context "when blocking" do
+  context "when bang" do
     subject(:result) { task.execute! }
 
     context "when simple task" do
