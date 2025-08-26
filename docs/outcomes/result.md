@@ -9,6 +9,7 @@ The result object is the comprehensive return value of task execution, providing
 - [Outcome Analysis](#outcome-analysis)
 - [Chain Analysis](#chain-analysis)
 - [Index and Position](#index-and-position)
+- [Block Yield](#block-yield)
 - [Handlers](#handlers)
 - [Pattern Matching](#pattern-matching)
   - [Array Pattern](#array-pattern)
@@ -111,6 +112,22 @@ result.index #=> 0 (first task in chain)
 
 # Access via chain
 result.chain.results[result.index] == result #=> true
+```
+
+## Block Yield
+
+Implement conditional logic using a block expression that yields a result for complete encapsulation.
+
+```ruby
+BuildApplication.execute(version: "1.2.3") do |result|
+  if result.success?
+    notify_deployment_ready(result)
+  elsif result.failed?
+    handle_build_failure(result)
+  else
+    log_skip_reason(result)
+  end
+end
 ```
 
 ## Handlers

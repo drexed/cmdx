@@ -169,10 +169,10 @@ module CMDx
       #   if result.success?
       #     puts "Task completed successfully"
       #   end
-      def execute(...)
-        task = new(...)
+      def execute(*args, **kwargs)
+        task = new(*args, **kwargs)
         task.execute(raise: false)
-        task.result
+        block_given? ? yield(task.result) : task.result
       end
 
       # @param args [Array] Arguments to pass to the task constructor
@@ -184,10 +184,10 @@ module CMDx
       # @example
       #   result = MyTask.execute!(name: "example")
       #   # Will raise an exception if execution fails
-      def execute!(...)
-        task = new(...)
+      def execute!(*args, **kwargs)
+        task = new(*args, **kwargs)
         task.execute(raise: true)
-        task.result
+        block_given? ? yield(task.result) : task.result
       end
 
     end
@@ -201,6 +201,7 @@ module CMDx
     #   result = task.execute(raise: true)
     def execute(raise: false)
       Executor.execute(self, raise:)
+      block_given? ? yield(result) : result
     end
 
     # @raise [UndefinedMethodError] Always raised as this method must be overridden

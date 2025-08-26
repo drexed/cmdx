@@ -601,4 +601,28 @@ RSpec.describe "Task execution", type: :feature do
       end
     end
   end
+
+  context "when using block" do
+    context "when class method" do
+      let(:task) { create_successful_task }
+
+      it "yields the result" do
+        task.execute do |result|
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(executed: %i[success])
+        end
+      end
+    end
+
+    context "when instance method" do
+      let(:task) { create_successful_task.new }
+
+      it "yields the result" do
+        task.execute do |result|
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(executed: %i[success])
+        end
+      end
+    end
+  end
 end
