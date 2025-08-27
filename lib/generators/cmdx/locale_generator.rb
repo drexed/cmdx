@@ -10,7 +10,7 @@ module Cmdx
 
     source_root File.expand_path("../../locales", __dir__)
 
-    desc "Copies the locale with the given alpha-2 code"
+    desc "Copies the locale with the given ISO 639 code"
 
     argument :locale, type: :string, default: "en", banner: "locale: en, es, fr, etc"
 
