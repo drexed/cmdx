@@ -8,16 +8,15 @@
   <img alt="License" src="https://img.shields.io/github/license/drexed/cmdx">
 </p>
 
-# CMDx
+# 🚀 CMDx — Business logic without the chaos
 
-CMDx is a framework for building maintainable business processes. It simplifies building task objects by offering integrated:
+Stop wrestling with messy service objects. CMDx gives you a clean, consistent way to design business processes:
 
-- Flow controls
-- Composable workflows
-- Comprehensive logging
-- Attribute definition
-- Validations and coercions
-- And much more...
+- Start small with a single `work` method
+- Scale to complex tasks and multi-step workflows
+- Get built-in flow control, logging, validations, and more...
+
+*Build faster. Debug easier. Stay sane.*
 
 ## Installation
 
@@ -40,8 +39,18 @@ Or install it yourself as:
 Here's how a quick 3 step process can open up a world of possibilities:
 
 ```ruby
-# 1. Setup task
+# 1. Setup tasks
 # ---------------------------------
+
+# Bare minimum
+class SendAnalyzedEmail < CMDx::Task
+  def work
+    user = User.find(context.user_id)
+    MetricsMailer.analyzed(user).deliver_now
+  end
+end
+
+# Kitchen sink
 class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
@@ -56,8 +65,10 @@ class AnalyzeMetrics < CMDx::Task
     elsif dataset.unprocessed?
       skip!("Dataset not ready for analysis")
     else
-      context.result = PValueAnalyzer.analyze(dataset, analysis_type)
+      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
       context.analyzed_at = Time.now
+
+      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
     end
   end
 

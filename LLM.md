@@ -11,6 +11,22 @@ url: https://github.com/drexed/cmdx/blob/main/docs/getting_started.md
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control.
 
+**Common Challenges:**
+
+- Inconsistent patterns across implementations
+- Minimal or no logging, making debugging painful
+- Fragile designs that erode developer confidence
+
+**CMDx Solutions:**
+
+- Establishes a consistent, standardized design
+- Provides flow control and error handling
+- Supports composable, reusable workflows
+- Includes detailed logging for observability
+- Defines input attributes with fallback defaults
+- Adds validations and type coercions
+- Plus many other developer-friendly tools
+
 ## Installation
 
 Add CMDx to your Gemfile:
