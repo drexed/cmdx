@@ -38,19 +38,22 @@ Or install it yourself as:
 
 Here's how a quick 3 step process can open up a world of possibilities:
 
-```ruby
-# 1. Setup tasks
-# ---------------------------------
+### 1. Setup tasks
 
-# Bare minimum
+#### Minimum Viable Task
+
+```ruby
 class SendAnalyzedEmail < CMDx::Task
   def work
     user = User.find(context.user_id)
     MetricsMailer.analyzed(user).deliver_now
   end
 end
+```
 
-# Kitchen sink
+#### Fully Featured Task
+
+```ruby
 class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
@@ -82,16 +85,20 @@ class AnalyzeMetrics < CMDx::Task
     dataset.update!(analysis_result_id: context.result.id)
   end
 end
+```
 
-# 2. Execute task
-# ---------------------------------
+### 2. Execute task
+
+```ruby
 result = AnalyzeMetrics.execute(
   dataset_id: 123,
   "analysis_type" => "advanced"
 )
+```
 
-# 3. Handle result
-# ---------------------------------
+### 3. Handle result
+
+```ruby
 if result.success?
   puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
@@ -137,8 +144,8 @@ end
 
 For backwards compatibility of certain functionality:
 
-- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0 - v1.6.2`
-- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1 - v1.6.2`
+- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0` - `v1.6.2`
+- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1` - `v1.6.2`
 
 ## Development
 
