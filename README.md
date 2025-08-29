@@ -135,7 +135,7 @@ end
 
 - [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
 
-For backwards compatibility for versions before `1.7.0`
+For backwards compatibility for versions between versions `1.5.0` and `1.7.0` use these:
 
 - [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations
 - [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks
