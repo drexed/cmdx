@@ -133,7 +133,7 @@ end
 
 ## Ecosystem
 
-- `cmdx-rspec` - RSpec test matchers
+- [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
 
 For backwards compatibility for versions before `1.7.0`
 
