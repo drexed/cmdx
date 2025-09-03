@@ -95,7 +95,8 @@ module CMDx
       def call(task, **options, &)
         return yield unless Utils::Condition.evaluate(task, options)
 
-        correlation_id =
+        correlation_id = task.result.metadata[:correlation_id] ||=
+          id ||
           case callable = options[:id]
           when Symbol then task.send(callable)
           when Proc then task.instance_eval(&callable)
@@ -107,9 +108,7 @@ module CMDx
             end
           end
 
-        result = use(correlation_id, &)
-        task.result.metadata[:correlation_id] = correlation_id
-        result
+        use(correlation_id, &)
       end
 
     end
