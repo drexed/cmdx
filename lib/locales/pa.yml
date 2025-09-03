@@ -9,6 +9,7 @@ pa:
       into_any: "ਹੇਠਾਂ ਦਿੱਤੇ ਗਏ ਵਿੱਚੋਂ ਕਿਸੇ ਇੱਕ ਵਿੱਚ ਬਦਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ: %{types}"
       unknown: "ਅਣਜਾਣ %{type} ਬਦਲਾਅ ਕਿਸਮ"
     faults:
+      invalid: "ਅਵੈਧ ਇਨਪੁੱਟ"
       unspecified: "ਕੋਈ ਕਾਰਨ ਨਹੀਂ ਦਿੱਤਾ ਗਿਆ"
     types:
       array: "ਐਰੇ"

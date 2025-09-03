@@ -9,7 +9,8 @@ az:
       into_any: "aşağıdakılardan birinə çevrilə bilmədi: %{types}"
       unknown: "naməlum %{type} çevrilmə tipi"
     faults:
-      unspecified: "səbəb göstərilməyib"
+      invalid: "Etibarsız girişlər"
+      unspecified: "Səbəb göstərilməyib"
     types:
       array: "massiv"
       big_decimal: "böyük onluq"

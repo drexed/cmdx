@@ -9,6 +9,7 @@ bn:
       into_any: "নিম্নলিখিতগুলির মধ্যে একটিতে রূপান্তর করা যায়নি: %{types}"
       unknown: "অজানা %{type} রূপান্তর প্রকার"
     faults:
+      invalid: "অবৈধ ইনপুট"
       unspecified: "কোন কারণ দেওয়া হয়নি"
     types:
       array: "অ্যারে"

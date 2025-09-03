@@ -9,7 +9,8 @@ fr:
       into_any: "n'a pas pu être converti en l'un de : %{types}"
       unknown: "type de conversion %{type} inconnu"
     faults:
-      unspecified: "aucune raison donnée"
+      invalid: "Entrées invalides"
+      unspecified: "Aucune raison donnée"
     types:
       array: "tableau"
       big_decimal: "grand décimal"

@@ -9,7 +9,8 @@ eu:
       into_any: "ezin izan da honetako batera bihurtu: %{types}"
       unknown: "%{type} bihurtze mota ezezaguna"
     faults:
-      unspecified: "arrazoirik eman gabe"
+      invalid: "Sarrera baliogabeak"
+      unspecified: "Arrazoirik eman gabe"
     types:
       array: "array"
       big_decimal: "hamartar handia"

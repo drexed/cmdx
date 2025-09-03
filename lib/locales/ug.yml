@@ -9,6 +9,7 @@ ug:
       into_any: "بۇلارنىڭ بىرىگە ئايلاندۇرالمايدۇ: %{types}"
       unknown: "نامەلۇم %{type} ئايلاندۇرۇش تىپى"
     faults:
+      invalid: "ئىناۋەتسىز كىرگۈزۈش"
       unspecified: "سەۋەب كۆرسىتىلمىگەن"
     types:
       array: "تىزىملىك"

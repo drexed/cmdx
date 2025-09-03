@@ -9,7 +9,8 @@ uk:
       into_any: "не вдалося перетворити на один з: %{types}"
       unknown: "невідомий тип перетворення %{type}"
     faults:
-      unspecified: "причина не вказана"
+      invalid: "Невірні вхідні дані"
+      unspecified: "Причина не вказана"
     types:
       array: "масив"
       big_decimal: "велике десяткове число"

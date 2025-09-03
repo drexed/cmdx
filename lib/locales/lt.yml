@@ -9,7 +9,8 @@ lt:
       into_any: "nepavyko konvertuoti į vieną iš: %{types}"
       unknown: "nežinomas %{type} konvertavimo tipas"
     faults:
-      unspecified: "priežastis nenurodyta"
+      invalid: "Neteisingi įvesties duomenys"
+      unspecified: "Priežastis nenurodyta"
     types:
       array: "masyvas"
       big_decimal: "didelis dešimtainis"

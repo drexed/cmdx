@@ -9,6 +9,7 @@ te:
       into_any: "ఈ క్రింది వాటిలో ఒకటిగా మార్చలేకపోయింది: %{types}"
       unknown: "తెలియని %{type} మార్పు రకం"
     faults:
+      invalid: "చెల్లని ఇన్పుట్"
       unspecified: "ఎలాంటి కారణం ఇవ్వలేదు"
     types:
       array: "అరే"

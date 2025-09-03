@@ -9,7 +9,8 @@ sv:
       into_any: "kunde inte konverteras till en av: %{types}"
       unknown: "okänd %{type} konverteringstyp"
     faults:
-      unspecified: "ingen anledning angiven"
+      invalid: "Ogiltiga indata"
+      unspecified: "Ingen anledning angiven"
     types:
       array: "array"
       big_decimal: "stort decimaltal"

@@ -9,6 +9,7 @@ mr-IN:
       into_any: "खालीलपैकी एकामध्ये रूपांतर करता आले नाही: %{types}"
       unknown: "अज्ञात %{type} रूपांतरण प्रकार"
     faults:
+      invalid: "अवैध इनपुट"
       unspecified: "कारण दिलेले नाही"
     types:
       array: "अॅरे"

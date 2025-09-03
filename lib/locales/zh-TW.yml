@@ -9,6 +9,7 @@ zh-TW:
       into_any: "無法強制轉換成其中一個：%{types}"
       unknown: "未知的 %{type} 強制轉換類型"
     faults:
+      invalid: "無效輸入"
       unspecified: "沒有提供原因"
     types:
       array: "陣列"

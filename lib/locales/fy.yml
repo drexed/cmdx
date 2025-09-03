@@ -9,7 +9,8 @@ fy:
       into_any: "koe net nei ien fan: %{types} konvertearje"
       unknown: "ûnbekende %{type} konverzje type"
     faults:
-      unspecified: "gjin reden jûn"
+      invalid: "Ûnjildige ynfier"
+      unspecified: "Gjin reden jûn"
     types:
       array: "array"
       big_decimal: "grutte desimaal"

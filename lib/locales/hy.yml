@@ -9,7 +9,8 @@ hy:
       into_any: "չհաջողվեց վերածել հետևյալներից մեկի: %{types}"
       unknown: "անհայտ %{type} փոխակերպման տիպ"
     faults:
-      unspecified: "պատճառ չի նշված"
+      invalid: "Անվավեր մուտքեր"
+      unspecified: "Պատճառ չի նշված"
     types:
       array: "զանգված"
       big_decimal: "մեծ տասնորդական"

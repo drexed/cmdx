@@ -9,7 +9,8 @@ tl:
       into_any: "hindi ma-convert sa isa sa: %{types}"
       unknown: "hindi kilalang %{type} conversion type"
     faults:
-      unspecified: "walang dahilan na binigay"
+      invalid: "Hindi wastong input"
+      unspecified: "Walang dahilan na binigay"
     types:
       array: "array"
       big_decimal: "malaking decimal"

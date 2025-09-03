@@ -9,7 +9,8 @@ vi:
       into_any: "không thể chuyển đổi thành một trong: %{types}"
       unknown: "kiểu chuyển đổi %{type} không xác định"
     faults:
-      unspecified: "không có lý do được cung cấp"
+      invalid: "Đầu vào không hợp lệ"
+      unspecified: "Không có lý do được cung cấp"
     types:
       array: "mảng"
       big_decimal: "số thập phân lớn"

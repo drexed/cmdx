@@ -9,7 +9,8 @@ eo:
       into_any: "ne povis esti konvertita al unu el: %{types}"
       unknown: "nekonata %{type} konverta tipo"
     faults:
-      unspecified: "neniu kialo donita"
+      invalid: "Nevalidaj enigoj"
+      unspecified: "Neniu kialo donita"
     types:
       array: "tabelo"
       big_decimal: "granda dekuma"

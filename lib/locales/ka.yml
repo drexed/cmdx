@@ -9,6 +9,7 @@ ka:
       into_any: "ვერ გადაიყვანა ერთ-ერთად: %{types}"
       unknown: "უცნობი %{type} კონვერტაციის ტიპი"
     faults:
+      invalid: "არასწორი შეყვანა"
       unspecified: "მიზეზი არ არის მითითებული"
     types:
       array: "მასივი"

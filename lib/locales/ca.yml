@@ -9,7 +9,8 @@ ca:
       into_any: "no es va poder convertir a un de: %{types}"
       unknown: "tipus de conversió %{type} desconegut"
     faults:
-      unspecified: "no s'ha donat cap raó"
+      invalid: "Entrades no vàlides"
+      unspecified: "No s'ha donat cap raó"
     types:
       array: "array"
       big_decimal: "decimal gran"

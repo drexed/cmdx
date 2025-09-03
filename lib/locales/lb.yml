@@ -9,7 +9,8 @@ lb:
       into_any: "konnt net an ee vun dësen ëmwandelen: %{types}"
       unknown: "onbekannte %{type} Ëmwandlungstyp"
     faults:
-      unspecified: "kee Grond uginn"
+      invalid: "Ongëlteg Input"
+      unspecified: "Kee Grond uginn"
     types:
       array: "Array"
       big_decimal: "Grouss Dezimal"

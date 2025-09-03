@@ -9,7 +9,8 @@ cy:
       into_any: "ni allwyd ei drawsnewid i un o: %{types}"
       unknown: "math anhysbys o drawsnewid %{type}"
     faults:
-      unspecified: "dim rheswm wedi'i roi"
+      invalid: "Mewnbynnau annilys"
+      unspecified: "Dim rheswm wedi'i roi"
     types:
       array: "arae"
       big_decimal: "degol mawr"

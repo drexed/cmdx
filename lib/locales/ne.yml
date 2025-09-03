@@ -9,6 +9,7 @@ ne:
       into_any: "निम्न मध्ये एउटामा रूपान्तरण गर्न सकिएन: %{types}"
       unknown: "अज्ञात %{type} रूपान्तरण प्रकार"
     faults:
+      invalid: "अवैध इनपुट"
       unspecified: "कुनै कारण दिइएको छैन"
     types:
       array: "एरे"

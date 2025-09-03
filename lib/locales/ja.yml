@@ -9,6 +9,7 @@ ja:
       into_any: "次のいずれかに変換できませんでした: %{types}"
       unknown: "不明な %{type} 変換タイプ"
     faults:
+      invalid: "無効な入力"
       unspecified: "理由が指定されていません"
     types:
       array: "配列"

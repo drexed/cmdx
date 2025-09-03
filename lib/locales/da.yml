@@ -9,7 +9,8 @@ da:
       into_any: "kunne ikke konverteres til en af: %{types}"
       unknown: "ukendt %{type} konverteringstype"
     faults:
-      unspecified: "ingen grund givet"
+      invalid: "Ugyldige input"
+      unspecified: "Ingen grund givet"
     types:
       array: "array"
       big_decimal: "stort decimaltal"

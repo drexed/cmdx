@@ -9,7 +9,8 @@ cnr:
       into_any: "nije mogao konvertovati u jedan od: %{types}"
       unknown: "nepoznati %{type} tip konverzije"
     faults:
-      unspecified: "nije dat razlog"
+      invalid: "Neispravni ulazi"
+      unspecified: "Nije dat razlog"
     types:
       array: "niz"
       big_decimal: "veliki decimalni"

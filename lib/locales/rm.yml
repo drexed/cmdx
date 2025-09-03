@@ -9,7 +9,8 @@ rm:
       into_any: "na pudeva betg vegnir convertì en in da: %{types}"
       unknown: "tip da conversiun %{type} nunenconuschent"
     faults:
-      unspecified: "nagin motiv dà"
+      invalid: "Inputs nunvalidas"
+      unspecified: "Nagin motiv dà"
     types:
       array: "array"
       big_decimal: "decimal grond"

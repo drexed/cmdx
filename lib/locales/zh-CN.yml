@@ -9,6 +9,7 @@ zh-CN:
       into_any: "无法转换为以下之一: %{types}"
       unknown: "未知的 %{type} 转换类型"
     faults:
+      invalid: "无效输入"
       unspecified: "未提供原因"
     types:
       array: "数组"

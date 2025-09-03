@@ -9,7 +9,8 @@ gd:
       into_any: "cha b' urrainn tionndadh gu aon de: %{types}"
       unknown: "seòrsa tionndaidh %{type} neo-aithnichte"
     faults:
-      unspecified: "cha deach adhbhar a thoirt seachad"
+      invalid: "Cuir a-steach neo-dhligheach"
+      unspecified: "Cha deach adhbhar a thoirt seachad"
     types:
       array: "sreath"
       big_decimal: "deicheamh mòr"

@@ -9,7 +9,8 @@ lv:
       into_any: "nevarēja konvertēt uz vienu no: %{types}"
       unknown: "nezināms %{type} konvertēšanas tips"
     faults:
-      unspecified: "nav norādīts iemesls"
+      invalid: "Nederīgi ievades dati"
+      unspecified: "Nav norādīts iemesls"
     types:
       array: "masīvs"
       big_decimal: "liels decimāls"

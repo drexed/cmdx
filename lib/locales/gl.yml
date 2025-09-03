@@ -9,7 +9,8 @@ gl:
       into_any: "non se puido converter a un de: %{types}"
       unknown: "tipo de conversión %{type} descoñecido"
     faults:
-      unspecified: "non se deu ningunha razón"
+      invalid: "Entradas non válidas"
+      unspecified: "Non se deu ningunha razón"
     types:
       array: "array"
       big_decimal: "decimal grande"

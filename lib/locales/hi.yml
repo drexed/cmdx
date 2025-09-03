@@ -9,6 +9,7 @@ hi:
       into_any: "निम्नलिखित में से किसी में परिवर्तित नहीं किया जा सका: %{types}"
       unknown: "अज्ञात %{type} रूपांतरण प्रकार"
     faults:
+      invalid: "अमान्य इनपुट"
       unspecified: "कोई कारण नहीं दिया गया"
     types:
       array: "सरणी"

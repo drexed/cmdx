@@ -9,7 +9,8 @@ pt:
       into_any: "não foi possível converter em um de: %{types}"
       unknown: "tipo de conversão %{type} desconhecido"
     faults:
-      unspecified: "nenhuma razão fornecida"
+      invalid: "Entradas inválidas"
+      unspecified: "Nenhuma razão fornecida"
     types:
       array: "array"
       big_decimal: "decimal grande"

@@ -9,7 +9,8 @@ st:
       into_any: "ha e ka fetolelwa ho e mong oa: %{types}"
       unknown: "mofuta o sa tsejoang oa phetoho %{type}"
     faults:
-      unspecified: "ha ho na lebaka le fanoeng"
+      invalid: "Litekanyetso tse sa sebetseng"
+      unspecified: "Ha ho na lebaka le fanoeng"
     types:
       array: "array"
       big_decimal: "decimal e kgolo"
