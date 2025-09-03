@@ -31,10 +31,10 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
 
-- *Compose* → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
-- *Execute* → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
-- *React* → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
-- *Observe* → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
+- **Compose** → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
+- **Execute** → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
+- **React** → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
+- **Observe** → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
 
 ## Installation
 
