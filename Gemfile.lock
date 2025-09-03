@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (1.7.1)
+    cmdx (1.7.2)
       bigdecimal
       logger
       zeitwerk
@@ -10,7 +10,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.3)
-    bigdecimal (3.2.2)
+    bigdecimal (3.2.3)
     cmdx-rspec (0.1.0)
       cmdx (>= 1.5.0)
       rspec
