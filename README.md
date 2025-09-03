@@ -121,11 +121,10 @@ end
 
 ```log
 I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task"
-class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
-class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
 ## Table of contents
