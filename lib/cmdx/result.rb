@@ -33,7 +33,7 @@ module CMDx
 
     attr_reader :task, :state, :status, :metadata, :reason, :cause
 
-    def_delegators :task, :context, :chain
+    def_delegators :task, :context, :chain, :errors
 
     # @param task [CMDx::Task] The task instance this result represents
     #
