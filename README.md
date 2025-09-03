@@ -18,6 +18,15 @@ Stop wrestling with messy service objects. CMDx gives you a clean, consistent wa
 
 *Build faster. Debug easier. Stay sane.*
 
+## Compose, Execute, React, Observe pattern
+
+CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
+
+- *Compose* → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
+- *Execute* → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
+- *React* → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
+- *Observe* → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -36,9 +45,9 @@ Or install it yourself as:
 
 ## Quick Example
 
-Here's how a quick 3 step process can open up a world of possibilities:
+Here's how a quick 4 step process can open up a world of possibilities:
 
-### 1. Setup tasks
+### 1. Compose
 
 #### Minimum Viable Task
 
@@ -87,7 +96,7 @@ class AnalyzeMetrics < CMDx::Task
 end
 ```
 
-### 2. Execute task
+### 2. Execute
 
 ```ruby
 result = AnalyzeMetrics.execute(
@@ -96,7 +105,7 @@ result = AnalyzeMetrics.execute(
 )
 ```
 
-### 3. Handle result
+### 3. React
 
 ```ruby
 if result.success?
@@ -106,6 +115,17 @@ elsif result.skipped?
 elsif result.failed?
   puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
 end
+```
+
+### 4. Observe
+
+```log
+I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
+index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task"
+class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
+class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
 ## Table of contents

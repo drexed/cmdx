@@ -27,6 +27,15 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - Adds validations and type coercions
 - Plus many other developer-friendly tools
 
+## Compose, Execute, React, Observe pattern
+
+CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
+
+- *Compose* → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
+- *Execute* → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
+- *React* → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
+- *Observe* → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
+
 ## Installation
 
 Add CMDx to your Gemfile:
@@ -2759,21 +2768,19 @@ Sample output:
 ```log
 <!-- Success (INFO level) -->
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
-class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
 
 <!-- Skipped (WARN level) -->
 W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
-index=1 state="interrupted" status="skipped" reason="Customer already validated"
+index=1 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="ValidateCustomer" state="interrupted" status="skipped" reason="Customer already validated"
 
 <!-- Failed (ERROR level) -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
-index=2 state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
+index=2 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="CalculateTax"  state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
 
 <!-- Failed Chain -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
-caused_failure={index: 2, class: "CalculateTax", status: "failed"}
-threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
+index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
 > [!TIP]

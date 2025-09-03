@@ -25,21 +25,19 @@ Sample output:
 ```log
 <!-- Success (INFO level) -->
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task"
-class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
 
 <!-- Skipped (WARN level) -->
 W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
-index=1 state="interrupted" status="skipped" reason="Customer already validated"
+index=1 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="ValidateCustomer" state="interrupted" status="skipped" reason="Customer already validated"
 
 <!-- Failed (ERROR level) -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
-index=2 state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
+index=2 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="CalculateTax"  state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
 
 <!-- Failed Chain -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
-caused_failure={index: 2, class: "CalculateTax", status: "failed"}
-threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
+index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
 > [!TIP]
