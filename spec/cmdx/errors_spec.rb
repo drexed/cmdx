@@ -169,6 +169,144 @@ RSpec.describe CMDx::Errors, type: :unit do
     end
   end
 
+  describe "#full_messages" do
+    context "when there are no errors" do
+      it "returns an empty hash" do
+        expect(errors.full_messages).to eq({})
+      end
+    end
+
+    context "when there are errors" do
+      before do
+        errors.add(:name, "is required")
+        errors.add(:name, "is too short")
+        errors.add(:email, "is invalid")
+      end
+
+      it "returns a hash with full messages as values" do
+        result = errors.full_messages
+
+        expect(result[:name]).to be_a(Array)
+        expect(result[:email]).to be_a(Array)
+      end
+
+      it "includes attribute names in the messages" do
+        result = errors.full_messages
+
+        expect(result[:name]).to contain_exactly("name is required", "name is too short")
+        expect(result[:email]).to contain_exactly("email is invalid")
+      end
+
+      it "preserves all error messages" do
+        result = errors.full_messages
+
+        expect(result[:name].size).to eq(2)
+        expect(result[:email].size).to eq(1)
+      end
+    end
+
+    context "when there are mixed attribute types" do
+      before do
+        errors.add(:symbol_attr, "symbol error")
+        errors.add("string_attr", "string error")
+      end
+
+      it "handles both string and symbol attributes" do
+        result = errors.full_messages
+
+        expect(result[:symbol_attr]).to contain_exactly("symbol_attr symbol error")
+        expect(result["string_attr"]).to contain_exactly("string_attr string error")
+      end
+    end
+  end
+
+  describe "#to_hash" do
+    context "when there are no errors" do
+      it "returns an empty hash when full is false" do
+        expect(errors.to_hash).to eq({})
+      end
+
+      it "returns an empty hash when full is true" do
+        expect(errors.to_hash(true)).to eq({})
+      end
+    end
+
+    context "when there are errors" do
+      before do
+        errors.add(:name, "is required")
+        errors.add(:name, "is too short")
+        errors.add(:email, "is invalid")
+      end
+
+      context "when full is false (default)" do
+        it "returns a hash with arrays as values" do
+          result = errors.to_hash
+
+          expect(result[:name]).to be_a(Array)
+          expect(result[:email]).to be_a(Array)
+        end
+
+        it "converts Sets to Arrays for each attribute" do
+          result = errors.to_hash
+
+          expect(result[:name]).to contain_exactly("is required", "is too short")
+          expect(result[:email]).to contain_exactly("is invalid")
+        end
+
+        it "preserves all error messages" do
+          result = errors.to_hash
+
+          expect(result[:name].size).to eq(2)
+          expect(result[:email].size).to eq(1)
+        end
+      end
+
+      context "when full is true" do
+        it "returns a hash with full messages as values" do
+          result = errors.to_hash(true)
+
+          expect(result[:name]).to be_a(Array)
+          expect(result[:email]).to be_a(Array)
+        end
+
+        it "includes attribute names in the messages" do
+          result = errors.to_hash(true)
+
+          expect(result[:name]).to contain_exactly("name is required", "name is too short")
+          expect(result[:email]).to contain_exactly("email is invalid")
+        end
+
+        it "preserves all error messages" do
+          result = errors.to_hash(true)
+
+          expect(result[:name].size).to eq(2)
+          expect(result[:email].size).to eq(1)
+        end
+      end
+    end
+
+    context "when there are mixed attribute types" do
+      before do
+        errors.add(:symbol_attr, "symbol error")
+        errors.add("string_attr", "string error")
+      end
+
+      it "handles both string and symbol attributes when full is false" do
+        result = errors.to_hash
+
+        expect(result[:symbol_attr]).to contain_exactly("symbol error")
+        expect(result["string_attr"]).to contain_exactly("string error")
+      end
+
+      it "handles both string and symbol attributes when full is true" do
+        result = errors.to_hash(true)
+
+        expect(result[:symbol_attr]).to contain_exactly("symbol_attr symbol error")
+        expect(result["string_attr"]).to contain_exactly("string_attr string error")
+      end
+    end
+  end
+
   describe "#to_s" do
     context "when there are no errors" do
       it "returns an empty string" do

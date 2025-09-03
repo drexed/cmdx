@@ -48,6 +48,18 @@ module CMDx
       !messages[attribute].empty?
     end
 
+    # Convert errors to a hash format with arrays of fullmessages.
+    #
+    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
+    #
+    # @example
+    #   errors.full_messages # => { email: ["email must be valid format", "email cannot be blank"] }
+    def full_messages
+      messages.each_with_object({}) do |(attribute, messages), hash|
+        hash[attribute] = messages.map { |message| "#{attribute} #{message}" }
+      end
+    end
+
     # Convert errors to a hash format with arrays of messages.
     #
     # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
@@ -58,6 +70,18 @@ module CMDx
       messages.transform_values(&:to_a)
     end
 
+    # Convert errors to a hash format with optional full messages.
+    #
+    # @param full [Boolean] Whether to include full messages with attribute names
+    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
+    #
+    # @example
+    #   errors.to_hash # => { email: ["must be valid format", "cannot be blank"] }
+    #   errors.to_hash(true) # => { email: ["email must be valid format", "email cannot be blank"] }
+    def to_hash(full = false)
+      full ? full_messages : to_h
+    end
+
     # Convert errors to a human-readable string format.
     #
     # @return [String] Formatted error messages joined with periods
@@ -65,9 +89,7 @@ module CMDx
     # @example
     #   errors.to_s # => "email must be valid format. email cannot be blank"
     def to_s
-      messages.each_with_object([]) do |(attribute, messages), memo|
-        messages.each { |message| memo << "#{attribute} #{message}" }
-      end.join(". ")
+      full_messages.values.flatten.join(". ")
     end
 
   end
