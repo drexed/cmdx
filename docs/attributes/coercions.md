@@ -149,8 +149,9 @@ result = AnalyzePerformance.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal."
+result.reason   #=> "Invalid inputs"
 result.metadata #=> {
+                #     full_message: "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal.",
                 #     messages: {
                 #       iterations: ["could not coerce into an integer"],
                 #       score: ["could not coerce into one of: float, big_decimal"]

@@ -358,11 +358,11 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("no reason given")
+        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("No reason given")
 
         result.skip!(halt: false)
 
-        expect(result.reason).to eq("no reason given")
+        expect(result.reason).to eq("No reason given")
       end
 
       it "calls halt! by default" do
@@ -419,11 +419,11 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("no reason given")
+        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("No reason given")
 
         result.fail!(halt: false)
 
-        expect(result.reason).to eq("no reason given")
+        expect(result.reason).to eq("No reason given")
       end
 
       it "calls halt! by default" do

@@ -294,8 +294,9 @@ result = CreateProject.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid."
+result.reason   #=> "Invalid inputs"
 result.metadata #=> {
+                #     full_message: "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid.",
                 #     messages: {
                 #       project_name: ["is too short (minimum is 3 characters)"],
                 #       budget: ["must be greater than 1000"],

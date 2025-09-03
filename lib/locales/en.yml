@@ -9,7 +9,8 @@ en:
       into_any: "could not coerce into one of: %{types}"
       unknown: "unknown %{type} coercion type"
     faults:
-      unspecified: "no reason given"
+      invalid: "Invalid inputs"
+      unspecified: "No reason given"
     types:
       array: "array"
       big_decimal: "big decimal"

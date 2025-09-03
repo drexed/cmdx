@@ -250,8 +250,9 @@ result = ConfigureServer.execute(server_id: "srv-001")
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "environment is required. network_config is required."
+result.reason   #=> "Invalid inputs"
 result.metadata #=> {
+                #     full_message: "environment is required. network_config is required.",
                 #     messages: {
                 #       environment: ["is required"],
                 #       network_config: ["is required"]
@@ -267,8 +268,9 @@ result = ConfigureServer.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "port is required."
+result.reason   #=> "Invalid inputs"
 result.metadata #=> {
+                #     full_message: "port is required.",
                 #     messages: {
                 #       port: ["is required"]
                 #     }

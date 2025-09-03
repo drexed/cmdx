@@ -90,7 +90,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_failing_workflow }
 
       it "returns failure" do
-        expect { result }.to raise_error(CMDx::FailFault, "no reason given")
+        expect { result }.to raise_error(CMDx::FailFault, "No reason given")
       end
     end
 

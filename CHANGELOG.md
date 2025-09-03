@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 
+## [1.7.3] - 2025-09-03
+
+### Changes
+- Return generic validation reason
+- Move validation full message string to `:full_message` within metadata
+
 ## [1.7.2] - 2025-09-03
 
 ### Changes

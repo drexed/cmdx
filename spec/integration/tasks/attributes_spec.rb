@@ -21,8 +21,9 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
+            reason: "Invalid inputs",
             metadata: {
+              full_message: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
               messages: {
                 plain_required_attr: ["must be accessible via the source"],
                 required_attr: ["must be accessible via the source"]
@@ -94,8 +95,11 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "raw_attr delegates to undefined method not_a_method",
-            metadata: { messages: { raw_attr: ["delegates to undefined method not_a_method"] } },
+            reason: "Invalid inputs",
+            metadata: {
+              full_message: "raw_attr delegates to undefined method not_a_method",
+              messages: { raw_attr: ["delegates to undefined method not_a_method"] }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end
@@ -114,8 +118,11 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "raw_attr could not coerce into an integer",
-            metadata: { messages: { raw_attr: ["could not coerce into an integer"] } },
+            reason: "Invalid inputs",
+            metadata: {
+              full_message: "raw_attr could not coerce into an integer",
+              messages: { raw_attr: ["could not coerce into an integer"] }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end
@@ -132,8 +139,11 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "raw_attr could not coerce into one of: float, integer",
-            metadata: { messages: { raw_attr: ["could not coerce into one of: float, integer"] } },
+            reason: "Invalid inputs",
+            metadata: {
+              full_message: "raw_attr could not coerce into one of: float, integer",
+              messages: { raw_attr: ["could not coerce into one of: float, integer"] }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end
@@ -203,8 +213,11 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "raw_attr could not coerce into an integer",
-            metadata: { messages: { raw_attr: ["could not coerce into an integer"] } },
+            reason: "Invalid inputs",
+            metadata: {
+              full_message: "raw_attr could not coerce into an integer",
+              messages: { raw_attr: ["could not coerce into an integer"] }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end
@@ -223,8 +236,11 @@ RSpec.describe "Task attributes", type: :feature do
           result = task.execute
 
           expect(result).to have_been_failure(
-            reason: "raw_attr is an invalid format",
-            metadata: { messages: { raw_attr: ["is an invalid format"] } },
+            reason: "Invalid inputs",
+            metadata: {
+              full_message: "raw_attr is an invalid format",
+              messages: { raw_attr: ["is an invalid format"] }
+            },
             cause: be_a(CMDx::FailFault)
           )
         end

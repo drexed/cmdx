@@ -142,7 +142,11 @@ module CMDx
       task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
 
-      task.result.fail!(task.errors.to_s, messages: task.errors.to_h)
+      task.result.fail!(
+        Locale.t("cmdx.faults.invalid"),
+        full_message: task.errors.to_s,
+        messages: task.errors.to_h
+      )
     end
 
     # Executes the main task logic.
