@@ -34,6 +34,7 @@ module CMDx
     attr_reader :task, :state, :status, :metadata, :reason, :cause
 
     def_delegators :task, :context, :chain, :errors
+    alias ctx context
 
     # @param task [CMDx::Task] The task instance this result represents
     #
