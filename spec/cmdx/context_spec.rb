@@ -187,6 +187,63 @@ RSpec.describe CMDx::Context, type: :unit do
     end
   end
 
+  describe "#fetch_or_store" do
+    it "returns existing value when key exists" do
+      result = context.fetch_or_store(:name, "Default")
+
+      expect(result).to eq("John")
+      expect(context.table).to include(name: "John")
+    end
+
+    it "stores and returns default value when key does not exist" do
+      result = context.fetch_or_store(:email, "john@example.com")
+
+      expect(result).to eq("john@example.com")
+      expect(context.table).to include(email: "john@example.com")
+    end
+
+    it "converts string key to symbol" do
+      result = context.fetch_or_store("phone", "555-1234")
+
+      expect(result).to eq("555-1234")
+      expect(context.table).to include(phone: "555-1234")
+    end
+
+    it "returns existing value and does not execute block when key exists" do
+      block_called = false
+      result = context.fetch_or_store(:name) do
+        block_called = true
+        "Default"
+      end
+
+      expect(result).to eq("John")
+      expect(block_called).to be(false)
+    end
+
+    it "stores nil when no value or block provided" do
+      result = context.fetch_or_store(:status)
+
+      expect(result).to be_nil
+      expect(context.table).to include(status: nil)
+    end
+
+    it "overwrites existing value when block is provided and key exists" do
+      context[:counter] = 5
+      result = context.fetch_or_store(:counter) { 10 }
+
+      expect(result).to eq(5)
+      expect(context.table).to include(counter: 5)
+    end
+
+    it "handles complex default values" do
+      default_hash = { active: true, role: "admin" }
+      result = context.fetch_or_store(:settings, default_hash)
+
+      expect(result).to eq(default_hash)
+      expect(context.table).to include(settings: default_hash)
+    end
+  end
+
   describe "#merge!" do
     context "when given a hash" do
       it "merges new data and returns self" do

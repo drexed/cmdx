@@ -108,6 +108,26 @@ module CMDx
       table.fetch(key.to_sym, ...)
     end
 
+    # Fetches a value from the context by key, or stores and returns a default value if not found.
+    #
+    # @param key [String, Symbol] the key to fetch or store
+    # @param value [Object] the default value to store if key is not found
+    #
+    # @yield [key] a block to compute the default value to store
+    #
+    # @return [Object] the existing value if key is found, otherwise the stored default value
+    #
+    # @example
+    #   context = Context.new(name: "John")
+    #   context.fetch_or_store(:name, "Default") # => "John" (existing value)
+    #   context.fetch_or_store(:age, 25) # => 25 (stored and returned)
+    #   context.fetch_or_store(:city) { |key| "Unknown #{key}" } # => "Unknown city" (stored and returned)
+    def fetch_or_store(key, value = nil)
+      table.fetch(key.to_sym) do
+        table[key.to_sym] = block_given? ? yield : value
+      end
+    end
+
     # Merges the given arguments into the current context, modifying it in place.
     #
     # @param args [Hash, Object] arguments to merge into the context

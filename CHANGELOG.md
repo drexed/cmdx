@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [1.7.5] - 2025-09-07
+
 ### Added
 - Added `ctx` alias for context in result
+- Added `fetch_or_store` method to context
 
 ## [1.7.4] - 2025-09-03
 
