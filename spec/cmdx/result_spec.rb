@@ -742,11 +742,27 @@ RSpec.describe CMDx::Result, type: :unit do
 
   describe "#deconstruct" do
     it "returns state and status as array" do
-      expect(result.deconstruct).to eq([result.state, result.status])
+      expect(result.deconstruct).to eq(
+        [
+          result.state,
+          result.status,
+          result.reason,
+          result.cause,
+          result.metadata
+        ]
+      )
     end
 
     it "ignores arguments" do
-      expect(result.deconstruct(:anything, :here)).to eq([result.state, result.status])
+      expect(result.deconstruct(:anything, :here)).to eq(
+        [
+          result.state,
+          result.status,
+          result.reason,
+          result.cause,
+          result.metadata
+        ]
+      )
     end
   end
 
@@ -755,7 +771,10 @@ RSpec.describe CMDx::Result, type: :unit do
       expected = {
         state: result.state,
         status: result.status,
+        reason: result.reason,
+        cause: result.cause,
         metadata: result.metadata,
+        outcome: result.outcome,
         executed: result.executed?,
         good: result.good?,
         bad: result.bad?

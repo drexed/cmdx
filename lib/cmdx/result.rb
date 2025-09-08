@@ -431,13 +431,13 @@ module CMDx
 
     # @param keys [Array] Array of keys to deconstruct
     #
-    # @return [Array] Array containing state and status
+    # @return [Array] Array containing state, status, reason, cause, and metadata
     #
     # @example
     #   state, status = result.deconstruct
     #   puts "State: #{state}, Status: #{status}"
     def deconstruct(*)
-      [state, status]
+      [state, status, reason, cause, metadata]
     end
 
     # @param keys [Array] Array of keys to deconstruct
@@ -455,7 +455,10 @@ module CMDx
       {
         state: state,
         status: status,
+        reason: reason,
+        cause: cause,
         metadata: metadata,
+        outcome: outcome,
         executed: executed?,
         good: good?,
         bad: bad?

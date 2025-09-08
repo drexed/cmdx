@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - Added `ctx` alias for context in result
 - Added `fetch_or_store` method to context
+- Added more values to the result deconstruction methods
 
 ## [1.7.4] - 2025-09-03
 
