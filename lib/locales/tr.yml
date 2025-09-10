@@ -9,8 +9,8 @@ tr:
       into_any: "şunlardan birine dönüştürülemedi: %{types}"
       unknown: "bilinmeyen %{type} dönüştürme türü"
     faults:
-      invalid: "Geçersiz girdi"
-      unspecified: "Neden belirtilmedi"
+      invalid: "Geçersiz"
+      unspecified: "Belirtilmemiş"
     types:
       array: "dizi"
       big_decimal: "büyük ondalık"

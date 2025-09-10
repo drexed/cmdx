@@ -9,8 +9,8 @@ uz:
       into_any: "bularning biriga o'tkazib bo'lmadi: %{types}"
       unknown: "noma'lum %{type} o'tkazish turi"
     faults:
-      invalid: "Noto'g'ri kiritish"
-      unspecified: "Sabab ko'rsatilmagan"
+      invalid: "Noto'g'ri"
+      unspecified: "Ko'rsatilmagan"
     types:
       array: "massiv"
       big_decimal: "katta o'nlik"

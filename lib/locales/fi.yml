@@ -9,8 +9,8 @@ fi:
       into_any: "ei voitu muuntaa yhdeksi seuraavista: %{types}"
       unknown: "tuntematon %{type} muunnostyyppi"
     faults:
-      invalid: "Virheelliset syötteet"
-      unspecified: "Syyä ei annettu"
+      invalid: "Virheelliset"
+      unspecified: "Määrittämätön"
     types:
       array: "taulukko"
       big_decimal: "iso desimaali"

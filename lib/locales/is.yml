@@ -9,8 +9,8 @@ is:
       into_any: "gat ekki breytt í einn af: %{types}"
       unknown: "óþekktur %{type} breytingargerð"
     faults:
-      invalid: "Ógild inntak"
-      unspecified: "Engin ástæða gefin"
+      invalid: "Ógild"
+      unspecified: "Ótilgreind"
     types:
       array: "fylki"
       big_decimal: "stór tugabrot"

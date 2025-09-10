@@ -9,8 +9,8 @@ de:
       into_any: "konnte nicht in einen von: %{types} umgewandelt werden"
       unknown: "unbekannter %{type} Umwandlungstyp"
     faults:
-      invalid: "Ungültige Eingaben"
-      unspecified: "Kein Grund angegeben"
+      invalid: "Ungültig"
+      unspecified: "Nicht angegeben"
     types:
       array: "Array"
       big_decimal: "große Dezimalzahl"

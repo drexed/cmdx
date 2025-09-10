@@ -9,8 +9,8 @@ hu:
       into_any: "nem sikerült konvertálni a következők egyikére: %{types}"
       unknown: "ismeretlen %{type} konverziós típus"
     faults:
-      invalid: "Érvénytelen bemenetek"
-      unspecified: "Nincs megadva ok"
+      invalid: "Érvénytelen"
+      unspecified: "Nincs megadva"
     types:
       array: "tömb"
       big_decimal: "nagy decimális"

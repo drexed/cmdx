@@ -9,8 +9,8 @@ ms:
       into_any: "tidak boleh ditukar kepada salah satu daripada: %{types}"
       unknown: "jenis penukaran %{type} yang tidak diketahui"
     faults:
-      invalid: "Input tidak sah"
-      unspecified: "Tiada sebab diberikan"
+      invalid: "Tidak sah"
+      unspecified: "Tidak ditentukan"
     types:
       array: "array"
       big_decimal: "perpuluhan besar"

@@ -9,8 +9,8 @@ zh-CN:
       into_any: "无法转换为以下之一: %{types}"
       unknown: "未知的 %{type} 转换类型"
     faults:
-      invalid: "无效输入"
-      unspecified: "未提供原因"
+      invalid: "无效"
+      unspecified: "未指定"
     types:
       array: "数组"
       big_decimal: "大十进制数"

@@ -9,8 +9,8 @@ mn:
       into_any: "дараах зүйлсийн аль нэг болгон хөрвүүлэх боломжгүй: %{types}"
       unknown: "үл мэдэгдэх %{type} хөрвүүлэлтийн төрөл"
     faults:
-      invalid: "Буруу оролт"
-      unspecified: "Ямар ч шалтгаан өгөөгүй"
+      invalid: "Буруу"
+      unspecified: "Тодорхойлогдоогүй"
     types:
       array: "массив"
       big_decimal: "том аравтын"

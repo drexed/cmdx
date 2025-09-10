@@ -9,8 +9,8 @@ bg:
       into_any: "не може да бъде преобразуван в един от: %{types}"
       unknown: "неизвестен тип преобразуване %{type}"
     faults:
-      invalid: "Невалидни входни данни"
-      unspecified: "Не е посочена причина"
+      invalid: "Невалидни"
+      unspecified: "Не е посочена"
     types:
       array: "масив"
       big_decimal: "голямо десетично число"

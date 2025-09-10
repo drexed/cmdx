@@ -9,8 +9,8 @@ sr:
       into_any: "није могао да се конвертује у један од: %{types}"
       unknown: "непознат тип конверзије %{type}"
     faults:
-      invalid: "Неисправни улази"
-      unspecified: "Разлог није наведен"
+      invalid: "Неисправни"
+      unspecified: "Није наведен"
     types:
       array: "низ"
       big_decimal: "велики децимални број"

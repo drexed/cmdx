@@ -353,7 +353,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_failing_task }
 
         it "raise a CMDx::FailFault" do
-          expect { result }.to raise_error(CMDx::FailFault, "No reason given")
+          expect { result }.to raise_error(CMDx::FailFault, "Unspecified")
         end
       end
 
@@ -428,7 +428,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw, status: :failure) }
 
           it "raise a CMDx::FailFault" do
-            expect { result }.to raise_error(CMDx::FailFault, "No reason given")
+            expect { result }.to raise_error(CMDx::FailFault, "Unspecified")
           end
         end
 
@@ -464,7 +464,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise, status: :failure) }
 
           it "raise a CMDx::FailFault" do
-            expect { result }.to raise_error(CMDx::FailFault, "No reason given")
+            expect { result }.to raise_error(CMDx::FailFault, "Unspecified")
           end
         end
 
@@ -500,7 +500,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise, status: :failure) }
 
           it "raise a CMDx::FailFault" do
-            expect { result }.to raise_error(CMDx::FailFault, "No reason given")
+            expect { result }.to raise_error(CMDx::FailFault, "Unspecified")
           end
         end
 
@@ -536,7 +536,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw, status: :failure) }
 
           it "raise a CMDx::FailFault" do
-            expect { result }.to raise_error(CMDx::FailFault, "No reason given")
+            expect { result }.to raise_error(CMDx::FailFault, "Unspecified")
           end
         end
 

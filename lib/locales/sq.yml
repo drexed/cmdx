@@ -9,8 +9,8 @@ sq:
       into_any: "nuk mund të konvertohet në një nga: %{types}"
       unknown: "tip i panjohur konvertimi %{type}"
     faults:
-      invalid: "Hyrje të pavlefshme"
-      unspecified: "Nuk është dhënë arsye"
+      invalid: "Të pavlefshme"
+      unspecified: "E papërcaktuar"
     types:
       array: "array"
       big_decimal: "decimal i madh"

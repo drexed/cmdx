@@ -9,8 +9,8 @@ zh-HK:
       into_any: "無法強制轉換成其中一個：%{types}"
       unknown: "未知的 %{type} 強制轉換類型"
     faults:
-      invalid: "無效輸入"
-      unspecified: "沒有提供原因"
+      invalid: "無效"
+      unspecified: "未指定"
     types:
       array: "陣列"
       big_decimal: "大十進位"

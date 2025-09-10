@@ -9,8 +9,8 @@ fa:
       into_any: "نمی‌تواند به یکی از اینها تبدیل شود: %{types}"
       unknown: "نوع تبدیل %{type} ناشناخته"
     faults:
-      invalid: "ورودی‌های نامعتبر"
-      unspecified: "دلیلی ارائه نشده"
+      invalid: "نامعتبر"
+      unspecified: "نامشخص"
     types:
       array: "آرایه"
       big_decimal: "اعشاری بزرگ"

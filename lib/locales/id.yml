@@ -9,8 +9,8 @@ id:
       into_any: "tidak dapat dikonversi ke salah satu dari: %{types}"
       unknown: "jenis konversi %{type} yang tidak dikenal"
     faults:
-      invalid: "Input tidak valid"
-      unspecified: "Tidak ada alasan yang diberikan"
+      invalid: "Tidak valid"
+      unspecified: "Tidak ditentukan"
     types:
       array: "array"
       big_decimal: "desimal besar"

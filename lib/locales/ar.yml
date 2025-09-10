@@ -9,8 +9,8 @@ ar:
       into_any: "لا يمكن تحويله إلى واحد من: %{types}"
       unknown: "نوع تحويل %{type} غير معروف"
     faults:
-      invalid: "مدخلات غير صالحة"
-      unspecified: "لم يتم تقديم سبب"
+      invalid: "غير صالح"
+      unspecified: "غير محدد"
     types:
       array: "مصفوفة"
       big_decimal: "عدد عشري كبير"

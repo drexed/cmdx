@@ -9,8 +9,8 @@ kk:
       into_any: "бұлардың біріне айналдыра алмады: %{types}"
       unknown: "белгісіз %{type} айналдыру түрі"
     faults:
-      invalid: "Жарамсыз кіріс"
-      unspecified: "Себеп көрсетілмеген"
+      invalid: "Жарамсыз"
+      unspecified: "Көрсетілмеген"
     types:
       array: "массив"
       big_decimal: "үлкен ондық"

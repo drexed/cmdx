@@ -9,8 +9,8 @@ cs:
       into_any: "nelze převést na jeden z: %{types}"
       unknown: "neznámý typ převodu %{type}"
     faults:
-      invalid: "Neplatné vstupy"
-      unspecified: "Není uveden důvod"
+      invalid: "Neplatné"
+      unspecified: "Neurčeno"
     types:
       array: "pole"
       big_decimal: "velké desetinné číslo"

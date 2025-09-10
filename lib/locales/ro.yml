@@ -9,8 +9,8 @@ ro:
       into_any: "nu a putut fi convertit în unul din: %{types}"
       unknown: "tip de conversie %{type} necunoscut"
     faults:
-      invalid: "Intrări invalide"
-      unspecified: "Nu s-a dat niciun motiv"
+      invalid: "Invalide"
+      unspecified: "Nespecificat"
     types:
       array: "array"
       big_decimal: "decimal mare"

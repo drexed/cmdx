@@ -9,8 +9,8 @@ es:
       into_any: "no se pudo convertir en uno de: %{types}"
       unknown: "tipo de conversión %{type} desconocido"
     faults:
-      invalid: "Entradas inválidas"
-      unspecified: "Sin razón especificada"
+      invalid: "Inválidas"
+      unspecified: "No especificada"
     types:
       array: "array"
       big_decimal: "decimal grande"

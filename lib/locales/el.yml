@@ -9,8 +9,8 @@ el:
       into_any: "δεν μπόρεσε να μετατραπεί σε ένα από: %{types}"
       unknown: "άγνωστος τύπος μετατροπής %{type}"
     faults:
-      invalid: "Μη έγκυρες εισόδους"
-      unspecified: "Δεν δόθηκε λόγος"
+      invalid: "Μη έγκυρες"
+      unspecified: "Απροσδιόριστο"
     types:
       array: "πίνακας"
       big_decimal: "μεγάλος δεκαδικός"

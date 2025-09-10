@@ -9,8 +9,8 @@ sk:
       into_any: "nepodarilo sa previesť na jeden z: %{types}"
       unknown: "neznámy typ konverzie %{type}"
     faults:
-      invalid: "Neplatné vstupy"
-      unspecified: "Nie je uvedený dôvod"
+      invalid: "Neplatné"
+      unspecified: "Nešpecifikované"
     types:
       array: "pole"
       big_decimal: "veľké desatinné číslo"

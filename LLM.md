@@ -783,7 +783,7 @@ result = ProcessInventory.execute(inventory_id: 456)
 result.status #=> "skipped"
 
 # Without a reason
-result.reason #=> "No reason given"
+result.reason #=> "Unspecified"
 
 # With a reason
 result.reason #=> "Warehouse closed"
@@ -818,7 +818,7 @@ result = ProcessRefund.execute(refund_id: 789)
 result.status #=> "failed"
 
 # Without a reason
-result.reason #=> "No reason given"
+result.reason #=> "Unspecified"
 
 # With a reason
 result.reason #=> "Refund period has expired"
@@ -938,8 +938,8 @@ skip!("Paused")
 fail!("Unsupported")
 
 # Bad: Default, cannot determine reason
-skip! #=> "No reason given"
-fail! #=> "No reason given"
+skip! #=> "Unspecified"
+fail! #=> "Unspecified"
 ```
 
 ---
@@ -1754,7 +1754,7 @@ result = ConfigureServer.execute(server_id: "srv-001")
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "Invalid inputs"
+result.reason   #=> "Invalid"
 result.metadata #=> {
                 #     full_message: "environment is required. network_config is required.",
                 #     messages: {
@@ -1772,7 +1772,7 @@ result = ConfigureServer.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "Invalid inputs"
+result.reason   #=> "Invalid"
 result.metadata #=> {
                 #     full_message: "port is required.",
                 #     messages: {
@@ -2000,7 +2000,7 @@ result = AnalyzePerformance.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "Invalid inputs"
+result.reason   #=> "Invalid"
 result.metadata #=> {
                 #     full_message: "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal.",
                 #     messages: {
@@ -2294,7 +2294,7 @@ result = CreateProject.execute(
 
 result.state    #=> "interrupted"
 result.status   #=> "failed"
-result.reason   #=> "Invalid inputs"
+result.reason   #=> "Invalid"
 result.metadata #=> {
                 #     full_message: "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid.",
                 #     messages: {

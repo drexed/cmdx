@@ -9,8 +9,8 @@ nn:
       into_any: "kunne ikkje konvertere til ein av: %{types}"
       unknown: "ukjend %{type} konverteringstype"
     faults:
-      invalid: "Ugyldig inndata"
-      unspecified: "Ingen grunn gitt"
+      invalid: "Ugyldig"
+      unspecified: "Uspesifisert"
     types:
       array: "array"
       big_decimal: "stor desimal"

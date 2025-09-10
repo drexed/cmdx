@@ -9,8 +9,8 @@ km:
       into_any: "មិនអាចបំប្លែងទៅជាមួយក្នុងចំណោម: %{types} បានទេ"
       unknown: "ប្រភេទបំប្លែង %{type} ដែលមិនស្គាល់"
     faults:
-      invalid: "ការបញ្ចូលមិនត្រឹមត្រូវ"
-      unspecified: "គ្មានមូលហេតុត្រូវបានផ្តល់ឱ្យ"
+      invalid: "មិនត្រឹមត្រូវ"
+      unspecified: "មិនបានបញ្ជាក់"
     types:
       array: "អារេ"
       big_decimal: "ទសភាគធំ"

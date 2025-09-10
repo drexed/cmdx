@@ -9,8 +9,8 @@ ru:
       into_any: "не удалось преобразовать в один из: %{types}"
       unknown: "неизвестный тип преобразования %{type}"
     faults:
-      invalid: "Неверные входные данные"
-      unspecified: "Причина не указана"
+      invalid: "Неверные"
+      unspecified: "Не указано"
     types:
       array: "массив"
       big_decimal: "большое десятичное число"

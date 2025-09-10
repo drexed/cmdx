@@ -9,8 +9,8 @@ wo:
       into_any: "duñu ko man a soppi ci benn ci: %{types}"
       unknown: "xam-xam bu ñu waxul bu soppi %{type}"
     faults:
-      invalid: "Dugg yi ñu waxul"
-      unspecified: "Duñu wax sabab"
+      invalid: "Ñu waxul"
+      unspecified: "Duñu wax"
     types:
       array: "array"
       big_decimal: "desimal bu góor"

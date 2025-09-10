@@ -9,8 +9,8 @@ pl:
       into_any: "nie można przekonwertować na jeden z: %{types}"
       unknown: "nieznany typ konwersji %{type}"
     faults:
-      invalid: "Nieprawidłowe dane wejściowe"
-      unspecified: "Nie podano powodu"
+      invalid: "Nieprawidłowe"
+      unspecified: "Nieokreślone"
     types:
       array: "tablica"
       big_decimal: "duża liczba dziesiętna"

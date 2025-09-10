@@ -9,8 +9,8 @@ ta:
       into_any: "பின்வருவனவற்றில் ஒன்றாக மாற்ற முடியவில்லை: %{types}"
       unknown: "தெரியாத %{type} மாற்ற வகை"
     faults:
-      invalid: "தவறான உள்ளீடு"
-      unspecified: "எந்த காரணமும் கொடுக்கப்படவில்லை"
+      invalid: "தவறான"
+      unspecified: "குறிப்பிடப்படாத"
     types:
       array: "வரிசை"
       big_decimal: "பெரிய தசமம்"

@@ -9,8 +9,8 @@ af:
       into_any: "kon nie na een van: %{types} omskep word nie"
       unknown: "onbekende %{type} omskep tipe"
     faults:
-      invalid: "Ongeldige insette"
-      unspecified: "Geen rede gegee nie"
+      invalid: "Ongeldig"
+      unspecified: "Ongespesifiseer"
     types:
       array: "skikking"
       big_decimal: "groot desimale"

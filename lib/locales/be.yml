@@ -9,8 +9,8 @@ be:
       into_any: "не ўдалося пераўтварыць у адзін з: %{types}"
       unknown: "невядомы тып пераўтварэння %{type}"
     faults:
-      invalid: "Няправільныя ўваходныя даныя"
-      unspecified: "Прычына не паказана"
+      invalid: "Няправільныя"
+      unspecified: "Не паказана"
     types:
       array: "масіў"
       big_decimal: "вялікае дзесятковае лік"

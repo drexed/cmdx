@@ -9,8 +9,8 @@ dz:
       into_any: "འདི་ཚོའི་ནང་ནས་གཅིག་ལ་བསྒྱུར་མ་ཐུབ། %{types}"
       unknown: "མ་ཤེས་པའི་ %{type} བསྒྱུར་པའི་རིགས།"
     faults:
-      invalid: "ཆ་རྐྱེན་མི་ཆོག་པའི་འཇུག་ཆོག"
-      unspecified: "རྒྱུ་མཚན་མ་བཟུང་།"
+      invalid: "ཆ་རྐྱེན་མི་ཆོག"
+      unspecified: "མ་བཟུང་།"
     types:
       array: "ཐིག་ཕྲེང་།"
       big_decimal: "ཆེ་བའི་བཅུ་ཆ།"

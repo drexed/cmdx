@@ -9,8 +9,8 @@ mg:
       into_any: "tsy afaka ovaina ho iray amin'ireo: %{types}"
       unknown: "karazana fovana %{type} tsy fantatra"
     faults:
-      invalid: "Fampidirana tsy mety"
-      unspecified: "Tsy nomena antony"
+      invalid: "Tsy mety"
+      unspecified: "Tsy voafaritra"
     types:
       array: "array"
       big_decimal: "desimala lehibe"

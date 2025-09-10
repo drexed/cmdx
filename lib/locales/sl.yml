@@ -9,8 +9,8 @@ sl:
       into_any: "ni bilo mogoče pretvoriti v enega od: %{types}"
       unknown: "neznan tip pretvorbe %{type}"
     faults:
-      invalid: "Neveljavni vnosi"
-      unspecified: "Razlog ni naveden"
+      invalid: "Neveljavni"
+      unspecified: "Nedoločeno"
     types:
       array: "matrika"
       big_decimal: "veliko decimalno število"

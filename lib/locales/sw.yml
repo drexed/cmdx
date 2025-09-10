@@ -9,8 +9,8 @@ sw:
       into_any: "haikuweza kubadilishwa kuwa moja ya: %{types}"
       unknown: "aina isiyojulikana ya mabadiliko %{type}"
     faults:
-      invalid: "Ingizo zisizofaa"
-      unspecified: "Hakuna sababu iliyotolewa"
+      invalid: "Zisizofaa"
+      unspecified: "Haijaspecifikwa"
     types:
       array: "safu"
       big_decimal: "desimali kubwa"

@@ -9,8 +9,8 @@ oc:
       into_any: "poguèt pas èsser convertit en un de: %{types}"
       unknown: "tipe de conversion %{type} desconegut"
     faults:
-      invalid: "Entradas invalidas"
-      unspecified: "Cap de rason donada"
+      invalid: "Invalidas"
+      unspecified: "Non especificada"
     types:
       array: "array"
       big_decimal: "decimal grand"

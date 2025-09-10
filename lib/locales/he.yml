@@ -9,8 +9,8 @@ he:
       into_any: "לא ניתן להמיר לאחד מ: %{types}"
       unknown: "סוג המרה %{type} לא ידוע"
     faults:
-      invalid: "קלטים לא תקינים"
-      unspecified: "לא ניתנה סיבה"
+      invalid: "לא תקינים"
+      unspecified: "לא מוגדר"
     types:
       array: "מערך"
       big_decimal: "עשרוני גדול"

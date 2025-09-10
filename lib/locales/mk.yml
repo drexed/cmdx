@@ -9,8 +9,8 @@ mk:
       into_any: "не можеше да се конвертира во еден од: %{types}"
       unknown: "непознат тип на конверзија %{type}"
     faults:
-      invalid: "Невалидни влезови"
-      unspecified: "Не е дадена причина"
+      invalid: "Невалидни"
+      unspecified: "Не е дадена"
     types:
       array: "низа"
       big_decimal: "голем децимален"

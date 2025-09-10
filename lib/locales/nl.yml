@@ -9,8 +9,8 @@ nl:
       into_any: "kon niet worden geconverteerd naar een van: %{types}"
       unknown: "onbekend %{type} conversietype"
     faults:
-      invalid: "Ongeldige invoer"
-      unspecified: "Geen reden opgegeven"
+      invalid: "Ongeldig"
+      unspecified: "Niet gespecificeerd"
     types:
       array: "array"
       big_decimal: "grote decimaal"

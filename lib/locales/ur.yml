@@ -9,8 +9,8 @@ ur:
       into_any: "ان میں سے کسی ایک میں تبدیل نہیں کر سکا: %{types}"
       unknown: "نامعلوم %{type} تبدیلی کی قسم"
     faults:
-      invalid: "غلط ان پٹ"
-      unspecified: "کوئی وجہ نہیں دی گئی"
+      invalid: "غلط"
+      unspecified: "غیر متعین"
     types:
       array: "آرے"
       big_decimal: "بڑا اعشاری"

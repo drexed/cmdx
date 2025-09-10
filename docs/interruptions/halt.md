@@ -45,7 +45,7 @@ result = ProcessInventory.execute(inventory_id: 456)
 result.status #=> "skipped"
 
 # Without a reason
-result.reason #=> "No reason given"
+result.reason #=> "Unspecified"
 
 # With a reason
 result.reason #=> "Warehouse closed"
@@ -80,7 +80,7 @@ result = ProcessRefund.execute(refund_id: 789)
 result.status #=> "failed"
 
 # Without a reason
-result.reason #=> "No reason given"
+result.reason #=> "Unspecified"
 
 # With a reason
 result.reason #=> "Refund period has expired"
@@ -200,8 +200,8 @@ skip!("Paused")
 fail!("Unsupported")
 
 # Bad: Default, cannot determine reason
-skip! #=> "No reason given"
-fail! #=> "No reason given"
+skip! #=> "Unspecified"
+fail! #=> "Unspecified"
 ```
 
 ---

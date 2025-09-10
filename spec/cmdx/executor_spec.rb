@@ -428,7 +428,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       it "calls fail! on result with error information" do
         expect(task.result).to receive(:fail!).with(
-          "Invalid inputs",
+          "Invalid",
           full_message: "Validation failed",
           messages: { name: ["is required"] }
         )

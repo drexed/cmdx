@@ -9,8 +9,8 @@ et:
       into_any: "ei õnnestunud teisendada üheks järgmistest: %{types}"
       unknown: "tundmatu %{type} teisendustüüp"
     faults:
-      invalid: "Kehtetud sisendid"
-      unspecified: "Põhjust pole antud"
+      invalid: "Kehtetud"
+      unspecified: "Määramata"
     types:
       array: "massiiv"
       big_decimal: "suur kümnendmurd"

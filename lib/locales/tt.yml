@@ -9,8 +9,8 @@ tt:
       into_any: "боларның берсенә күчерә алмады: %{types}"
       unknown: "билгесез %{type} күчерү төре"
     faults:
-      invalid: "Дөрес булмаган кертү"
-      unspecified: "Сәбәп күрсәтелмәгән"
+      invalid: "Дөрес булмаган"
+      unspecified: "Күрсәтелмәгән"
     types:
       array: "массив"
       big_decimal: "зур унарлы"

@@ -9,8 +9,8 @@ sc:
       into_any: "no s'est podidu cunvertire in unu de: %{types}"
       unknown: "tipu de cunversione %{type} disconnotu"
     faults:
-      invalid: "Inputs non vàlidos"
-      unspecified: "Perunu motivu dadu"
+      invalid: "Non vàlidos"
+      unspecified: "Non specificadu"
     types:
       array: "array"
       big_decimal: "decimale mannu"

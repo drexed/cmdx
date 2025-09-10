@@ -9,8 +9,8 @@ lo:
       into_any: "ບໍ່ສາມາດປ່ຽນເປັນອັນໃດອັນໜຶ່ງໃນ: %{types} ໄດ້"
       unknown: "ປະເພດການປ່ຽນ %{type} ທີ່ບໍ່ຮູ້"
     faults:
-      invalid: "ການປ້ອນຂໍ້ມູນທີ່ບໍ່ຖືກຕ້ອງ"
-      unspecified: "ບໍ່ໄດ້ໃຫ້ເຫດຜົນ"
+      invalid: "ບໍ່ຖືກຕ້ອງ"
+      unspecified: "ບໍ່ໄດ້ກຳນົດ"
     types:
       array: "ອາເຣ"
       big_decimal: "ທົດສະນິຍະສູງ"
