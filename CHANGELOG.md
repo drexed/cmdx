@@ -9,9 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [1.7.5] - 2025-09-07
 
 ### Added
-- Added `ctx` alias for context in result
 - Added `fetch_or_store` method to context
-- Added more values to the result deconstruction methods
+- Added `ctx` alias for context in result
+- Added `ok?` alias for `good?` in result
+- Added deconstruction values in result
 
 ## [1.7.4] - 2025-09-03
 

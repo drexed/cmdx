@@ -186,6 +186,7 @@ module CMDx
     def good?
       !failed?
     end
+    alias ok? good?
 
     # @param block [Proc] Block to execute conditionally
     #
