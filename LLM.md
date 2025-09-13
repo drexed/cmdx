@@ -942,6 +942,26 @@ skip! #=> "Unspecified"
 fail! #=> "Unspecified"
 ```
 
+## Manual Errors
+
+There are rare cases where you need to manually assign errors.
+
+> [!IMPORTANT]
+> Keep in mind you will still need to initiate a fault if a stoppage of work is required.
+
+```ruby
+class ProcessRenewal < CMDx::Task
+  def work
+    if document.nonrenewable?
+      errors.add(:document, "not renewable")
+      fail!("document could not be renewed")
+    else
+      document.renew!
+    end
+  end
+end
+```
+
 ---
 
 url: https://github.com/drexed/cmdx/blob/main/docs/interruptions/faults.md

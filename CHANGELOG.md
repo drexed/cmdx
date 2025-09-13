@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### TODO:
+- Add durability (retries) to execution
+ - N-retries (3 default)
+ - Backoff strategy
+ - On specific errors
+
 ### Changes
 - Generalize locale values for fault `invalid` and `unspecified`
 

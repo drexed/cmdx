@@ -12,6 +12,7 @@ Halting stops task execution with explicit intent signaling. Tasks provide two p
   - [Non-bang execution](#non-bang-execution)
   - [Bang execution](#bang-execution)
 - [Best Practices](#best-practices)
+- [Manual Errors](#manual-errors)
 
 ## Skipping
 
@@ -202,6 +203,26 @@ fail!("Unsupported")
 # Bad: Default, cannot determine reason
 skip! #=> "Unspecified"
 fail! #=> "Unspecified"
+```
+
+## Manual Errors
+
+There are rare cases where you need to manually assign errors.
+
+> [!IMPORTANT]
+> Keep in mind you will still need to initiate a fault if a stoppage of work is required.
+
+```ruby
+class ProcessRenewal < CMDx::Task
+  def work
+    if document.nonrenewable?
+      errors.add(:document, "not renewable")
+      fail!("document could not be renewed")
+    else
+      document.renew!
+    end
+  end
+end
 ```
 
 ---
