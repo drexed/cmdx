@@ -22,14 +22,14 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
-              messages: {
-                plain_required_attr: ["must be accessible via the source"],
-                required_attr: ["must be accessible via the source"]
-              }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
+            messages: {
+              plain_required_attr: ["must be accessible via the source"],
+              required_attr: ["must be accessible via the source"]
+            }
           )
         end
       end
@@ -96,11 +96,11 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "raw_attr delegates to undefined method not_a_method",
-              messages: { raw_attr: ["delegates to undefined method not_a_method"] }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "raw_attr delegates to undefined method not_a_method",
+            messages: { raw_attr: ["delegates to undefined method not_a_method"] }
           )
         end
       end
@@ -119,11 +119,11 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "raw_attr could not coerce into an integer",
-              messages: { raw_attr: ["could not coerce into an integer"] }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "raw_attr could not coerce into an integer",
+            messages: { raw_attr: ["could not coerce into an integer"] }
           )
         end
       end
@@ -140,11 +140,11 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "raw_attr could not coerce into one of: float, integer",
-              messages: { raw_attr: ["could not coerce into one of: float, integer"] }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "raw_attr could not coerce into one of: float, integer",
+            messages: { raw_attr: ["could not coerce into one of: float, integer"] }
           )
         end
       end
@@ -214,11 +214,11 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "raw_attr could not coerce into an integer",
-              messages: { raw_attr: ["could not coerce into an integer"] }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "raw_attr could not coerce into an integer",
+            messages: { raw_attr: ["could not coerce into an integer"] }
           )
         end
       end
@@ -237,11 +237,11 @@ RSpec.describe "Task attributes", type: :feature do
 
           expect(result).to have_been_failure(
             reason: "Invalid",
-            metadata: {
-              full_message: "raw_attr is an invalid format",
-              messages: { raw_attr: ["is an invalid format"] }
-            },
             cause: be_a(CMDx::FailFault)
+          )
+          expect(result).to have_matching_metadata(
+            full_message: "raw_attr is an invalid format",
+            messages: { raw_attr: ["is an invalid format"] }
           )
         end
       end
