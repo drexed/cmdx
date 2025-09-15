@@ -1776,10 +1776,12 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.reason   #=> "Invalid"
 result.metadata #=> {
-                #     full_message: "environment is required. network_config is required.",
-                #     messages: {
-                #       environment: ["is required"],
-                #       network_config: ["is required"]
+                #     errors: {
+                #       full_message: "environment is required. network_config is required.",
+                #       messages: {
+                #         environment: ["is required"],
+                #         network_config: ["is required"]
+                #       }
                 #     }
                 #   }
 
@@ -1794,9 +1796,11 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.reason   #=> "Invalid"
 result.metadata #=> {
-                #     full_message: "port is required.",
-                #     messages: {
-                #       port: ["is required"]
+                #     errors: {
+                #       full_message: "port is required.",
+                #       messages: {
+                #         port: ["is required"]
+                #       }
                 #     }
                 #   }
 ```
@@ -2022,10 +2026,12 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.reason   #=> "Invalid"
 result.metadata #=> {
-                #     full_message: "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal.",
-                #     messages: {
-                #       iterations: ["could not coerce into an integer"],
-                #       score: ["could not coerce into one of: float, big_decimal"]
+                #     errors: {
+                #       full_message: "iterations could not coerce into an integer. score could not coerce into one of: float, big_decimal.",
+                #       messages: {
+                #         iterations: ["could not coerce into an integer"],
+                #         score: ["could not coerce into one of: float, big_decimal"]
+                #       }
                 #     }
                 #   }
 ```
@@ -2316,12 +2322,14 @@ result.state    #=> "interrupted"
 result.status   #=> "failed"
 result.reason   #=> "Invalid"
 result.metadata #=> {
-                #     full_message: "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid.",
-                #     messages: {
-                #       project_name: ["is too short (minimum is 3 characters)"],
-                #       budget: ["must be greater than 1000"],
-                #       priority: ["is not included in the list"],
-                #       contact_email: ["is invalid"]
+                #     errors: {
+                #       full_message: "project_name is too short (minimum is 3 characters). budget must be greater than 1000. priority is not included in the list. contact_email is invalid.",
+                #       messages: {
+                #         project_name: ["is too short (minimum is 3 characters)"],
+                #         budget: ["must be greater than 1000"],
+                #         priority: ["is not included in the list"],
+                #         contact_email: ["is invalid"]
+                #       }
                 #     }
                 #   }
 ```
