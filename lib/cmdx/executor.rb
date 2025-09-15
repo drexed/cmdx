@@ -144,8 +144,10 @@ module CMDx
 
       task.result.fail!(
         Locale.t("cmdx.faults.invalid"),
-        full_message: task.errors.to_s,
-        messages: task.errors.to_h
+        errors: {
+          full_message: task.errors.to_s,
+          messages: task.errors.to_h
+        }
       )
     end
 

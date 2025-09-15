@@ -48,7 +48,7 @@ module CMDx
       !messages[attribute].empty?
     end
 
-    # Convert errors to a hash format with arrays of fullmessages.
+    # Convert errors to a hash format with arrays of full messages.
     #
     # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
     #
