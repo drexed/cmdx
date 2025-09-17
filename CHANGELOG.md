@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changes
 - Generalize locale values for fault `invalid` and `unspecified`
 - Nest attribute error messages under `error` key within metadata
+- Reordered logstash formatter keys
 
 ## [1.7.5] - 2025-09-10
 

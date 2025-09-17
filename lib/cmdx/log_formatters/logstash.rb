@@ -21,15 +21,15 @@ module CMDx
       #
       # @example Basic usage
       #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
-      #   # => '{"@version":"1","@timestamp":"2024-01-15T10:30:45.123456Z","severity":"INFO","progname":"MyApp","pid":12345,"message":"User logged in"}\n'
+      #   # => '{"severity":"INFO","progname":"MyApp","pid":12345,"message":"User logged in","@version":"1","@timestamp":"2024-01-15T10:30:45.123456Z"}\n'
       def call(severity, time, progname, message)
         hash = {
-          "@version" => "1",
-          "@timestamp" => time.utc.iso8601(6),
           severity:,
           progname:,
           pid: Process.pid,
-          message: Utils::Format.to_log(message)
+          message: Utils::Format.to_log(message),
+          "@version" => "1",
+          "@timestamp" => time.utc.iso8601(6)
         }
 
         ::JSON.dump(hash) << "\n"
