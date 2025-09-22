@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Nest attribute error messages under `error` key within metadata
 - Reordered logstash formatter keys
 - Improved already defined error message
+- Hash coercion for `nil` returns `{}`
 
 ## [1.7.5] - 2025-09-10
 

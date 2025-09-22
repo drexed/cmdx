@@ -5,6 +5,7 @@ module CMDx
     # Coerces various input types into Hash objects
     #
     # Supports conversion from:
+    # - Nil values (converted to empty Hash)
     # - Hash objects (returned as-is)
     # - Array objects (converted using Hash[*array])
     # - JSON strings starting with "{" (parsed into Hash)
@@ -30,7 +31,9 @@ module CMDx
       # @example Coerce from JSON string
       #   Hash.call('{"key": "value"}') # => {"key" => "value"}
       def call(value, options = {})
-        if value.is_a?(::Hash)
+        if value.nil?
+          {}
+        elsif value.is_a?(::Hash)
           value
         elsif value.is_a?(::Array)
           ::Hash[*value]

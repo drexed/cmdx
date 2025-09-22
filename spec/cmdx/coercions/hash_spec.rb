@@ -6,6 +6,17 @@ RSpec.describe CMDx::Coercions::Hash, type: :unit do
   subject(:coercion) { described_class }
 
   describe ".call" do
+    context "when value is nil" do
+      it "returns an empty hash" do
+        hash = {}
+
+        result = coercion.call(nil)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(hash)
+      end
+    end
+
     context "when value is already a Hash" do
       it "returns the hash unchanged" do
         hash = { key: "value", nested: { inner: "data" } }
@@ -126,11 +137,6 @@ RSpec.describe CMDx::Coercions::Hash, type: :unit do
     end
 
     context "when value is invalid" do
-      it "raises CoercionError for nil" do
-        expect { coercion.call(nil) }
-          .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
-      end
-
       it "raises CoercionError for string not starting with '{'" do
         expect { coercion.call("not json") }
           .to raise_error(CMDx::CoercionError, "could not coerce into a hash")
