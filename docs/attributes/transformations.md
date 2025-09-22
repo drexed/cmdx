@@ -1,12 +1,13 @@
 # Attributes - Transformations
 
-Attribute transformations allow you to alter values on the fly. This allows for value alterations and normalizations.
+Transformations allow you to modify attribute values after they are derived from their source but before type coercion and validation. This enables data normalization, formatting, and conditional processing within the attribute pipeline.
 
 ## Table of Contents
 
 - [Declarations](#declarations)
   - [Symbol References](#symbol-references)
   - [Proc or Lambda](#proc-or-lambda)
+  - [Class or Module](#class-or-module)
 - [Coercions and Validations](#coercions-and-validations)
 
 ## Declarations
@@ -35,6 +36,26 @@ class CacheContent < CMDx::Task
 end
 ```
 
+### Class or Module
+
+Use any object that responds to `call` for reusable transformation logic:
+
+```ruby
+class EmailNormalizer
+  def call(value)
+    value.to_s.downcase.strip
+  end
+end
+
+class ProcessContacts < CMDx::Task
+  # Class or Module
+  attribute :email, transform: EmailNormalizer
+
+  # Instance
+  attribute :email, transform: EmailNormalizer.new
+end
+```
+
 ## Coercions and Validations
 
 Transformed values are subject to the same coercion and validation rules as untransformed values, ensuring consistency and catching configuration errors early.
@@ -51,5 +72,5 @@ end
 
 ---
 
-- **Prev:** [Attributes - Transformations](transformations.md)
+- **Prev:** [Attributes - Defaults](defaults.md)
 - **Next:** [Callbacks](../callbacks.md)
