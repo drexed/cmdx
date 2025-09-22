@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### TODO:
+- Update exceptions with more info on how to fix the issue
 - Add option to output failure backtraces
 - Add durability (retries) to execution
  - N-retries (3 default)
