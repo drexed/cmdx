@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### TODO:
+- Add option to output failure backtraces
 - Add durability (retries) to execution
  - N-retries (3 default)
  - Backoff strategy
@@ -16,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Generalize locale values for fault `invalid` and `unspecified`
 - Nest attribute error messages under `error` key within metadata
 - Reordered logstash formatter keys
+- Improved already defined error message
 
 ## [1.7.5] - 2025-09-10
 

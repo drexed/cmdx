@@ -212,7 +212,13 @@ module CMDx
     #
     # @raise [RuntimeError] When the method name is already defined on the task
     def define_and_verify
-      raise "#{task.class.name}##{method_name} already defined" if task.respond_to?(method_name, true)
+      if task.respond_to?(method_name, true)
+        raise <<~MESSAGE.gsub!(/[[:space:]]+/, " ").strip!
+          #{task.class.name}##{method_name} already defined.
+          Use :as, :prefix, or :suffix option to avoid
+          conflicts with existing methods
+        MESSAGE
+      end
 
       attribute_value = AttributeValue.new(self)
       attribute_value.generate

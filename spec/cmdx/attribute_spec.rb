@@ -501,7 +501,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
         it "raises error" do
           expect do
             attribute.send(:define_and_verify)
-          end.to raise_error("TestTask#test_method already defined")
+          end.to raise_error("TestTask#test_method already defined. Use :as, :prefix, or :suffix option to avoid conflicts with existing methods")
         end
       end
     end
