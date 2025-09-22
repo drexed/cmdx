@@ -4,9 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
-
-### TODO:
+## [TODO]
 - Update exceptions with more info on how to fix the issue
 - Add trnasform option to attributes
 - Add option to output failure backtraces
@@ -14,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
  - N-retries (3 default)
  - Backoff strategy
  - On specific errors
+
+## [UNRELEASED]
+
+- N/A
+
+## [1.8.0] - 2025-09-22
 
 ### Changes
 - Generalize locale values for fault `invalid` and `unspecified`
