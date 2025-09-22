@@ -87,4 +87,4 @@ end
 ---
 
 - **Prev:** [Attributes - Validations](validations.md)
-- **Next:** [Callbacks](../callbacks.md)
+- **Next:** [Attributes - Transformations](transformations.md)

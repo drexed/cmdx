@@ -149,6 +149,7 @@ index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="Analy
   - [Coercions](docs/attributes/coercions.md)
   - [Validations](docs/attributes/validations.md)
   - [Defaults](docs/attributes/defaults.md)
+  - [Transformations](docs/attributes/transformations.md)
 - [Callbacks](docs/callbacks.md)
 - [Middlewares](docs/middlewares.md)
 - [Logging](docs/logging.md)

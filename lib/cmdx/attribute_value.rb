@@ -50,7 +50,8 @@ module CMDx
       derived_value = derive_value(sourced_value)
       return if errors.for?(method_name)
 
-      coerced_value = coerce_value(derived_value)
+      transformed_value = transform_value(derived_value)
+      coerced_value     = coerce_value(transformed_value)
       return if errors.for?(method_name)
 
       attributes[method_name] = coerced_value
@@ -113,7 +114,7 @@ module CMDx
     #
     # @example
     #   # Default can be symbol, proc, or direct value
-    #   default_value # => "default_value"
+    #   -> { rand(100) } # => 23
     def default_value
       default = options[:default]
 
@@ -138,7 +139,7 @@ module CMDx
     #
     # @example
     #   # Derives from hash key, method call, or proc execution
-    #   derive_value({user_id: 42}) # => 42
+    #   context.user_id # => 42
     def derive_value(source_value)
       derived_value =
         case source_value
@@ -154,9 +155,31 @@ module CMDx
       nil
     end
 
+    # Transforms the derived value using the transform option.
+    #
+    # @param derived_value [Object] The value to transform
+    #
+    # @return [Object, nil] The transformed value or nil if transformation failed
+    #
+    # @example
+    #   :downcase # => "hello"
+    def transform_value(derived_value)
+      transform = options[:transform]
+
+      if transform.is_a?(Symbol) && derived_value.respond_to?(transform, true)
+        derived_value.send(transform)
+      elsif transform.is_a?(Proc)
+        task.instance_eval(derived_value, &transform)
+      elsif transform.respond_to?(:call)
+        transform.call(derived_value)
+      else
+        derived_value
+      end
+    end
+
     # Coerces the derived value to the expected type(s) using the coercion registry.
     #
-    # @param derived_value [Object] The value to coerce
+    # @param transformed_value [Object] The value to coerce
     #
     # @return [Object, nil] The coerced value or nil if coercion failed
     #
@@ -165,14 +188,14 @@ module CMDx
     # @example
     #   # Coerces "42" to Integer, "true" to Boolean, etc.
     #   coerce_value("42") # => 42
-    def coerce_value(derived_value)
-      return derived_value if attribute.types.empty?
+    def coerce_value(transformed_value)
+      return transformed_value if types.empty?
 
       registry = task.class.settings[:coercions]
-      last_idx = attribute.types.size - 1
+      last_idx = types.size - 1
 
-      attribute.types.find.with_index do |type, i|
-        break registry.coerce(type, task, derived_value, options)
+      types.find.with_index do |type, i|
+        break registry.coerce(type, task, transformed_value, options)
       rescue CoercionError => e
         next if i != last_idx
 
@@ -180,7 +203,7 @@ module CMDx
           if last_idx.zero?
             e.message
           else
-            tl = attribute.types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
+            tl = types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
             Locale.t("cmdx.coercions.into_any", types: tl)
           end
 

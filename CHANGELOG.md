@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 - Update exceptions with more info on how to fix the issue
-- Add trnasform option to attributes
+- Add an examples lib showing of use cases (point to them in the docs)
 - Add option to output failure backtraces
 - Add durability (retries) to execution
  - N-retries (3 default)
@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
-- N/A
+- Add `transform` option to attributes
 
 ## [1.8.0] - 2025-09-22
 

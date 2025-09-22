@@ -502,6 +502,75 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
       end
     end
 
+    describe "#transform_value" do
+      let(:attribute_options) { { transform: transform_option } }
+      let(:transform_option) { :upcase }
+      let(:derived_value) { "hello" }
+
+      context "when transform is a symbol and value responds to it" do
+        let(:transform_option) { :upcase }
+
+        it "calls method on derived value" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("HELLO")
+        end
+      end
+
+      context "when transform is a symbol but value doesn't respond to it" do
+        let(:transform_option) { :nonexistent_method }
+
+        it "returns derived value unchanged" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("hello")
+        end
+      end
+
+      context "when transform is a proc" do
+        let(:transform_option) { proc { |v| "transformed_#{v}" } }
+
+        before { allow(task).to receive(:instance_eval).with(derived_value, &transform_option).and_return("transformed_hello") }
+
+        it "evaluates proc with derived value in task context" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("transformed_hello")
+        end
+      end
+
+      context "when transform is callable" do
+        let(:callable) { instance_double("MockCallable", call: "callable_transformed") }
+        let(:transform_option) { callable }
+
+        before { allow(transform_option).to receive(:respond_to?).with(:call).and_return(true) }
+
+        it "calls object with derived value" do
+          allow(transform_option).to receive(:call).with(derived_value).and_return("callable_transformed")
+
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("callable_transformed")
+        end
+      end
+
+      context "when transform is not callable" do
+        let(:transform_option) { "string_transform" }
+
+        it "returns derived value unchanged" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("hello")
+        end
+      end
+
+      context "when no transform option" do
+        let(:attribute_options) { {} }
+
+        it "returns derived value unchanged" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("hello")
+        end
+      end
+
+      context "when transform is nil" do
+        let(:transform_option) { nil }
+
+        it "returns derived value unchanged" do
+          expect(attribute_value.send(:transform_value, derived_value)).to eq("hello")
+        end
+      end
+    end
+
     describe "#coerce_value" do
       let(:method_name) { :test_method }
       let(:coercion_registry) { instance_double(CMDx::CoercionRegistry) }
