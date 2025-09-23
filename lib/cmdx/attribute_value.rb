@@ -51,7 +51,7 @@ module CMDx
       return if errors.for?(method_name)
 
       transformed_value = transform_value(derived_value)
-      coerced_value     = coerce_value(transformed_value)
+      coerced_value = coerce_value(transformed_value)
       return if errors.for?(method_name)
 
       attributes[method_name] = coerced_value
