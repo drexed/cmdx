@@ -14,8 +14,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
 - Add `transform` option to attributes
 - Add option to output failure backtraces
+
+### Changes
+- Clean halt backtrace frames
 
 ## [1.8.0] - 2025-09-22
 
