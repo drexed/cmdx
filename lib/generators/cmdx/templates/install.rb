@@ -32,6 +32,10 @@ CMDx.configure do |config|
     level: Logger::INFO
   )
 
+  # Backtrace configuration - controls whether to log backtraces on faults and exceptions
+  # config.backtrace = false
+  # config.backtrace_cleaner = nil
+
   # Additional global configurations - automatically applied to all tasks
   #
   # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
