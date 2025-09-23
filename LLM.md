@@ -230,6 +230,8 @@ class GenerateInvoice < CMDx::Task
     # Global configuration overrides
     task_breakpoints: ["failed"],                # Breakpoint override
     workflow_breakpoints: [],                    # Breakpoint override
+    backtrace: true,                             # Toggle backtrace
+    backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
     logger: CustomLogger.new($stdout),           # Custom logger
 
     # Task configuration settings
