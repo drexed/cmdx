@@ -169,24 +169,34 @@ module CMDx
       invoke_callbacks(:on_bad) if task.result.bad?
     end
 
+    # Logs the execution result at the configured log level.
+    def log_execution(logger)
+      logger.info { task.result.to_h }
+    end
+
+    # Logs the backtrace of the exception if the task failed.
+    def log_backtrace(logger)
+      return unless task.result.failed?
+
+      exception = task.result.caused_failure.cause
+      return if exception.is_a?(Fault)
+
+      logger.error do
+        "[#{exception.class}] #{exception.message}\n" <<
+          if (cleaner = task.class.settings[:backtrace_cleaner])
+            cleaner.call(exception.backtrace).join("\n\t")
+          else
+            exception.full_message(highlight: false)
+          end
+      end
+    end
+
     # Finalizes execution by freezing the task and logging results.
     def finalize_execution!
       task.logger.tap do |logger|
-        logger.with_level(:info) do
-          logger.info { task.result.to_h }
-
-          if task.class.settings[:backtrace] && task.result.failed?
-            logger.error do
-              exception = task.result.caused_failure.cause
-
-              "[#{exception.class}] #{exception.message}\n" <<
-                if (cleaner = task.class.settings[:backtrace_cleaner])
-                  cleaner.call(exception.backtrace).join("\n\t")
-                else
-                  exception.full_message(highlight: false)
-                end
-            end
-          end
+        logger.with_level(task.class.settings[:log_level] || logger.level) do
+          log_execution(logger)
+          log_backtrace(logger) if task.class.settings[:backtrace]
         end
       end
 

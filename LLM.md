@@ -89,7 +89,7 @@ end
 
 ### Backtraces
 
-Enable backtraces to be logged on any fault or exception for improved debugging context. Run them through a cleaner remove stack trace noise.
+Enable backtraces to be logged on any non-fault exceptions for improved debugging context. Run them through a cleaner to remove unwanted stack trace noise.
 
 > [!NOTE]
 > The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
