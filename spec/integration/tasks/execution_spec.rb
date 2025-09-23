@@ -625,4 +625,33 @@ RSpec.describe "Task execution", type: :feature do
       end
     end
   end
+
+  # rubocop:disable Style/GlobalVars
+  describe "durability" do
+    it "retries the task n times after first issue without rerunning the middlewares" do
+      $correlation_id = nil
+
+      task = create_task_class do
+        settings retries: 2
+        register :middleware, CMDx::Middlewares::Correlate, id: proc {
+          $correlation_id = "id-#{rand(9999)}"
+        }
+
+        def work
+          context.retries ||= 0
+          context.retries += 1
+          raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
+
+          (context.executed ||= []) << :success
+        end
+      end
+
+      result = task.execute
+
+      expect(result).to have_been_success
+      expect(result).to have_matching_context(retries: 3, executed: %i[success])
+      expect(result).to have_matching_metadata(correlation_id: $correlation_id, retries: 2)
+    end
+  end
+  # rubocop:enable Style/GlobalVars
 end

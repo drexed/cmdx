@@ -51,8 +51,10 @@ module CMDx
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
+        retry if e.is_a?(FailFault) && retry_execution?
         task.result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
+        retry if retry_execution?
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
       ensure
         task.result.executed!
@@ -78,9 +80,11 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
+        retry if e.is_a?(FailFault) && retry_execution?
         task.result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
+        retry if retry_execution?
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
@@ -106,6 +110,16 @@ module CMDx
       breakpoints = Array(breakpoints).map(&:to_s).uniq
 
       breakpoints.include?(exception.result.status)
+    end
+
+    def retry_execution?
+      max_retries = task.class.settings[:retries].to_i
+      return false if max_retries.zero?
+
+      current_retries = task.result.metadata[:retries] ||= 0
+      return false if current_retries > max_retries
+
+      task.result.metadata[:retries] += 1
     end
 
     # Raises an exception and clears the chain.
