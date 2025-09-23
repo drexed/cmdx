@@ -627,32 +627,67 @@ RSpec.describe "Task execution", type: :feature do
   end
 
   describe "durability" do
-    it "retries the task n times after first issue without rerunning the middlewares" do
-      counter = instance_double("counter", incr: nil)
+    context "with any exception" do
+      it "retries the task n times after first issue without rerunning the middlewares" do
+        counter = instance_double("counter", incr: nil)
 
-      task = create_task_class do
-        settings retries: 2
-        register :middleware, CMDx::Middlewares::Correlate, id: proc {
-          counter.incr
-          "abc-123"
-        }
+        task = create_task_class do
+          settings retries: 2
+          register :middleware, CMDx::Middlewares::Correlate, id: proc {
+            counter.incr
+            "abc-123"
+          }
 
-        def work
-          context.retries ||= 0
-          context.retries += 1
-          raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
+          def work
+            context.retries ||= 0
+            context.retries += 1
+            raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
 
-          (context.executed ||= []) << :success
+            (context.executed ||= []) << :success
+          end
         end
+
+        expect(counter).to receive(:incr).once
+
+        result = task.execute
+
+        expect(result).to have_been_success
+        expect(result).to have_matching_context(retries: 3, executed: %i[success])
+        expect(result).to have_matching_metadata(retries: 2)
       end
+    end
 
-      expect(counter).to receive(:incr).once
+    context "with a specific exception" do
+      it "skips retries if the exception is not in the retry_on setting" do
+        counter = instance_double("counter", incr: nil)
 
-      result = task.execute
+        task = create_task_class do
+          settings retries: 2, retry_on: RuntimeError
+          register :middleware, CMDx::Middlewares::Correlate, id: proc {
+            counter.incr
+            "abc-123"
+          }
 
-      expect(result).to have_been_success
-      expect(result).to have_matching_context(retries: 3, executed: %i[success])
-      expect(result).to have_matching_metadata(retries: 2)
+          def work
+            context.retries ||= 0
+            context.retries += 1
+            raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
+
+            (context.executed ||= []) << :success
+          end
+        end
+
+        expect(counter).to receive(:incr).once
+
+        result = task.execute
+
+        expect(result).to have_been_failure(
+          reason: "[CMDx::TestError] borked error",
+          cause: be_a(CMDx::TestError)
+        )
+        expect(result).to have_matching_context(retries: 1)
+        expect(result).to have_matching_metadata({})
+      end
     end
   end
 end

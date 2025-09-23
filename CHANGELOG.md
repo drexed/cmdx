@@ -7,9 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [TODO]
 - Add an examples lib showing of use cases (point to them in the docs)
 - Add durability (retries) to execution
- - N-retries (3 default)
  - Backoff strategy
- - On specific errors
 
 ## [UNRELEASED]
 

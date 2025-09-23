@@ -46,15 +46,14 @@ module CMDx
     #   result = executor.execute
     def execute
       task.class.settings[:middlewares].call!(task) do
-        pre_execution!
+        pre_execution! unless @pre_execution
         execution!
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
-        retry if e.is_a?(FailFault) && retry_execution?
         task.result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
-        retry if retry_execution?
+        retry if retry_execution?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
       ensure
         task.result.executed!
@@ -75,16 +74,15 @@ module CMDx
     #   result = executor.execute!
     def execute!
       task.class.settings[:middlewares].call!(task) do
-        pre_execution!
+        pre_execution! unless @pre_execution
         execution!
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
-        retry if e.is_a?(FailFault) && retry_execution?
         task.result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
-        retry if retry_execution?
+        retry if retry_execution?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
@@ -112,9 +110,12 @@ module CMDx
       breakpoints.include?(exception.result.status)
     end
 
-    def retry_execution?
+    def retry_execution?(exception)
       max_retries = task.class.settings[:retries].to_i
       return false if max_retries.zero?
+
+      exceptions = Array(task.class.settings[:retry_on] || StandardError)
+      return false if exceptions.none? { |e| exception.class <= e }
 
       current_retries = task.result.metadata[:retries] ||= 0
       return false if current_retries > max_retries
@@ -151,6 +152,8 @@ module CMDx
 
     # Performs pre-execution tasks including validation and attribute verification.
     def pre_execution!
+      @pre_execution = true
+
       invoke_callbacks(:before_validation)
 
       task.class.settings[:attributes].define_and_verify(task)
