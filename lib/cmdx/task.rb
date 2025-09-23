@@ -40,9 +40,6 @@ module CMDx
     class << self
 
       # @param options [Hash] Configuration options to merge with existing settings
-      # @option options [AttributeRegistry] :attributes Registry for task attributes
-      # @option options [Boolean] :deprecate Whether the task is deprecated
-      # @option options [Array<Symbol>] :tags Tags associated with the task
       #
       # @return [Hash] The merged settings hash
       #
@@ -56,9 +53,11 @@ module CMDx
             if superclass.respond_to?(:settings)
               superclass.settings
             else
-              CMDx.configuration.to_h.except(:logger)
-            end.transform_values(&:dup)
+              CMDx.configuration.to_h
+            end
 
+          hash = hash.except(:logger, :backtrace_cleaner).transform_values(&:dup)
+          hash[:backtrace_cleaner] ||= CMDx.configuration.backtrace_cleaner
           hash[:attributes] ||= AttributeRegistry.new
           hash[:deprecate] ||= false
           hash[:tags] ||= []

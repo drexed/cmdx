@@ -87,6 +87,23 @@ CMDx.configure do |config|
 end
 ```
 
+### Backtraces
+
+Enable backtraces to be logged on any fault or exception for improved debugging context. Run them through a cleaner remove stack trace noise.
+
+> [!NOTE]
+> The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
+
+```ruby
+CMDx.configure do |config|
+  # Truthy
+  config.backtrace = true
+
+  # Via callable, proc or lambda
+  config.backtrace_cleaner = ->(backtrace) { backtrace[0..5] }
+end
+```
+
 ### Logging
 
 ```ruby

@@ -32,5 +32,14 @@ module CMDx
       ::I18n.reload!
     end
 
+    # Configures the backtrace cleaner for CMDx in a Rails environment.
+    #
+    # Sets the backtrace cleaner to the Rails backtrace cleaner.
+    initializer("cmdx.backtrace_cleaner") do
+      CMDx.configuration.backtrace_cleaner = lambda do |backtrace|
+        Rails.backtrace_cleaner.clean(backtrace)
+      end
+    end
+
   end
 end

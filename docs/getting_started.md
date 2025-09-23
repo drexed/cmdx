@@ -26,6 +26,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - [Global Configuration](#global-configuration)
   - [Breakpoints](#breakpoints)
   - [Logging](#logging)
+  - [Backtraces](#backtraces)
   - [Middlewares](#middlewares)
   - [Callbacks](#callbacks)
   - [Coercions](#coercions)
@@ -95,6 +96,23 @@ Workflow breakpoints stops execution and of workflow pipeline on the first task 
 CMDx.configure do |config|
   # String or Array[String]
   config.workflow_breakpoints = ["skipped", "failed"]
+end
+```
+
+### Backtraces
+
+Enable backtraces to be logged on any fault or exception for improved debugging context. Run them through a cleaner remove stack trace noise.
+
+> [!NOTE]
+> The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
+
+```ruby
+CMDx.configure do |config|
+  # Truthy
+  config.backtrace = true
+
+  # Via callable, proc or lambda
+  config.backtrace_cleaner = ->(backtrace) { backtrace[0..5] }
 end
 ```
 

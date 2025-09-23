@@ -3,13 +3,14 @@
 module CMDx
 
   # Configuration class that manages global settings for CMDx including middlewares,
-  # callbacks, coercions, validators, breakpoints, and logging.
+  # callbacks, coercions, validators, breakpoints, backtraces, and logging.
   class Configuration
 
     DEFAULT_BREAKPOINTS = %w[failed].freeze
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
-                  :task_breakpoints, :workflow_breakpoints, :logger
+                  :task_breakpoints, :workflow_breakpoints, :logger,
+                  :backtrace, :backtrace_cleaner
 
     # Initializes a new Configuration instance with default values.
     #
@@ -30,6 +31,9 @@ module CMDx
 
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
+
+      @backtrace = false
+      @backtrace_cleaner = nil
 
       @logger = Logger.new(
         $stdout,
@@ -55,6 +59,8 @@ module CMDx
         validators: @validators,
         task_breakpoints: @task_breakpoints,
         workflow_breakpoints: @workflow_breakpoints,
+        backtrace: @backtrace,
+        backtrace_cleaner: @backtrace_cleaner,
         logger: @logger
       }
     end

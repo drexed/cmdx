@@ -174,6 +174,19 @@ module CMDx
       task.logger.tap do |logger|
         logger.with_level(:info) do
           logger.info { task.result.to_h }
+
+          if task.class.settings[:backtrace] && task.result.bad?
+            logger.error do
+              exception = task.result.caused_failure.cause
+
+              "[#{exception.class}] #{exception.message}\n" <<
+                if (cleaner = task.class.settings[:backtrace_cleaner])
+                  cleaner.call(exception.backtrace).join("\n\t")
+                else
+                  exception.full_message(highlight: false)
+                end
+            end
+          end
         end
       end
 
