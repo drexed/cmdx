@@ -168,8 +168,6 @@ module CMDx
 
       if transform.is_a?(Symbol) && derived_value.respond_to?(transform, true)
         derived_value.send(transform)
-      elsif transform.is_a?(Proc)
-        task.instance_eval(derived_value, &transform)
       elsif transform.respond_to?(:call)
         transform.call(derived_value)
       else
