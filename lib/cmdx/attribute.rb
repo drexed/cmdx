@@ -66,7 +66,7 @@ module CMDx
         if names.none?
           raise ArgumentError, "no attributes given"
         elsif (names.size > 1) && options.key?(:as)
-          raise ArgumentError, ":as option only supports one attribute per definition"
+          raise ArgumentError, "the :as option only supports one attribute per definition"
         end
 
         names.filter_map { |name| new(name, **options, &) }
@@ -213,10 +213,11 @@ module CMDx
     # @raise [RuntimeError] When the method name is already defined on the task
     def define_and_verify
       if task.respond_to?(method_name, true)
-        raise <<~MESSAGE.gsub!(/[[:space:]]+/, " ").strip!
-          #{task.class.name}##{method_name} already defined.
-          Use :as, :prefix, or :suffix option to avoid
-          conflicts with existing methods
+        raise <<~MESSAGE
+          The method #{method_name.inspect} is already defined on the #{task.class.name} task.
+          This may be due conflicts with one of the task's user defined or internal methods/attributes.
+
+          Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
         MESSAGE
       end
 

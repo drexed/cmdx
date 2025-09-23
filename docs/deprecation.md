@@ -77,7 +77,7 @@ result = ProcessOldData.execute
 result.successful? #=> true
 
 # Ruby warning appears in stderr:
-# [ProcessOldData] DEPRECATED: migrate to replacement or discontinue use
+# [ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use
 ```
 
 ## Declarations

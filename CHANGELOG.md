@@ -5,7 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [TODO]
-- Update exceptions with more info on how to fix the issue
 - Add an examples lib showing of use cases (point to them in the docs)
 - Add durability (retries) to execution
  - N-retries (3 default)
@@ -20,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changes
 - Clean halt backtrace frames
+- Improve raised errors messages
 
 ## [1.8.0] - 2025-09-22
 

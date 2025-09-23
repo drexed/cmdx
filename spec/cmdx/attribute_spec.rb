@@ -132,7 +132,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       let(:attribute_options) { { as: :custom_name } }
 
       it "raises ArgumentError" do
-        expect { defined_attributes }.to raise_error(ArgumentError, ":as option only supports one attribute per definition")
+        expect { defined_attributes }.to raise_error(ArgumentError, "the :as option only supports one attribute per definition")
       end
     end
 
@@ -501,7 +501,12 @@ RSpec.describe CMDx::Attribute, type: :unit do
         it "raises error" do
           expect do
             attribute.send(:define_and_verify)
-          end.to raise_error("TestTask#test_method already defined. Use :as, :prefix, or :suffix option to avoid conflicts with existing methods")
+          end.to raise_error(<<~MESSAGE)
+            The method :test_method is already defined on the TestTask task.
+            This may be due conflicts with one of the task's user defined or internal methods/attributes.
+
+            Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
+          MESSAGE
         end
       end
     end

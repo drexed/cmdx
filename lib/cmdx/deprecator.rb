@@ -44,15 +44,15 @@ module CMDx
     #     settings(deprecate: :warn)
     #   end
     #
-    #   MyTask.new # => [MyTask] DEPRECATED: migrate to replacement or discontinue use
+    #   MyTask.new # => [MyTask] DEPRECATED: migrate to a replacement or discontinue use
     def restrict(task)
       type = EVAL.call(task, task.class.settings[:deprecate])
 
       case type
       when NilClass, FalseClass # Do nothing
       when TrueClass, /raise/ then raise DeprecationError, "#{task.class.name} usage prohibited"
-      when /log/ then task.logger.warn { "DEPRECATED: migrate to replacement or discontinue use" }
-      when /warn/ then warn("[#{task.class.name}] DEPRECATED: migrate to replacement or discontinue use", category: :deprecated)
+      when /log/ then task.logger.warn { "DEPRECATED: migrate to a replacement or discontinue use" }
+      when /warn/ then warn("[#{task.class.name}] DEPRECATED: migrate to a replacement or discontinue use", category: :deprecated)
       else raise "unknown deprecation type #{type.inspect}"
       end
     end

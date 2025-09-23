@@ -108,18 +108,18 @@ module CMDx
     # @example
     #   execute_tasks_in_parallel(group, ["failed"])
     def execute_tasks_in_parallel(group, breakpoints)
-      raise "install the `parallel` gem to use this feature" unless defined?(::Parallel)
+      raise "install the `parallel` gem to use this feature" unless defined?(Parallel)
 
       parallel_options = group.options.slice(:in_threads, :in_processes)
       throwable_result = nil
 
-      ::Parallel.each(group.tasks, **parallel_options) do |task|
+      Parallel.each(group.tasks, **parallel_options) do |task|
         Chain.current = workflow.chain
 
         task_result = task.execute(workflow.context)
         next unless breakpoints.include?(task_result.status)
 
-        raise ::Parallel::Break, throwable_result = task_result
+        raise Parallel::Break, throwable_result = task_result
       end
 
       return if throwable_result.nil?

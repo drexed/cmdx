@@ -87,7 +87,7 @@ RSpec.describe CMDx::Deprecator, type: :unit do
 
       it "calls warn with deprecation message" do
         expect(described_class).to receive(:warn).with(
-          "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
+          "[TestTask] DEPRECATED: migrate to a replacement or discontinue use",
           category: :deprecated
         )
 
@@ -99,7 +99,7 @@ RSpec.describe CMDx::Deprecator, type: :unit do
 
         it "calls warn with deprecation message" do
           expect(described_class).to receive(:warn).with(
-            "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
+            "[TestTask] DEPRECATED: migrate to a replacement or discontinue use",
             category: :deprecated
           )
 
@@ -147,7 +147,7 @@ RSpec.describe CMDx::Deprecator, type: :unit do
       it "calls the object and processes the result" do
         allow(callable_object).to receive(:call).with(mock_task).and_return("warn")
         expect(described_class).to receive(:warn).with(
-          "[TestTask] DEPRECATED: migrate to replacement or discontinue use",
+          "[TestTask] DEPRECATED: migrate to a replacement or discontinue use",
           category: :deprecated
         )
 
