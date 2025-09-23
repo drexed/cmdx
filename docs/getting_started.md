@@ -251,7 +251,10 @@ class GenerateInvoice < CMDx::Task
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
     tags: ["billing", "financial"],              # Logging tags
-    deprecated: true                             # Task deprecations
+    deprecated: true,                            # Task deprecations
+    retries: 3,                                  # Non-fault exception retries
+    retry_on: [External::ApiError],              # List of exceptions to retry on
+    retry_jitter: 1                              # Space between retry iteration, eg: current retry num + 1
   )
 
   def work
@@ -260,8 +263,8 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-> [!TIP]
-> Use task-level settings for tasks that require special handling, such as financial reporting, external API integrations, or critical system operations.
+> [!IMPORTANT]
+> Retries reuse the same context when executing its work. By default all `StandardErrors` will be retried if no `retry_on` option is passed.
 
 ### Registrations
 

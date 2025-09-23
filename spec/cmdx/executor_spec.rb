@@ -60,8 +60,6 @@ RSpec.describe CMDx::Executor, type: :unit do
       allow(callbacks).to receive(:invoke)
       allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:tap).and_yield(logger)
-      allow(logger).to receive(:with_level).with(:info).and_yield
       allow(logger).to receive(:info)
       allow(CMDx::Freezer).to receive(:immute)
 
@@ -91,8 +89,6 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
-        expect(logger).to receive(:tap).and_yield(logger)
-        expect(logger).to receive(:with_level).with(:info).and_yield
         expect(logger).to receive(:info)
 
         worker.execute
@@ -207,8 +203,6 @@ RSpec.describe CMDx::Executor, type: :unit do
       allow(callbacks).to receive(:invoke)
       allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:tap).and_yield(logger)
-      allow(logger).to receive(:with_level).with(:info).and_yield
       allow(logger).to receive(:info)
       allow(CMDx::Freezer).to receive(:immute)
 
@@ -537,8 +531,6 @@ RSpec.describe CMDx::Executor, type: :unit do
     before do
       allow(CMDx::Freezer).to receive(:immute)
       allow(task).to receive(:logger).and_return(logger)
-      allow(logger).to receive(:tap).and_yield(logger)
-      allow(logger).to receive(:with_level).with(:info).and_yield
       allow(logger).to receive(:info)
       allow(task.result).to receive(:to_h).and_return({ id: "123", status: "success" })
     end
@@ -551,8 +543,6 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     it "logs the result information at info level" do
       expect(task).to receive(:logger)
-      expect(logger).to receive(:tap)
-      expect(logger).to receive(:with_level).with(:info)
       expect(logger).to receive(:info)
 
       worker.send(:finalize_execution!)

@@ -53,7 +53,7 @@ module CMDx
       rescue Fault => e
         task.result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
-        retry if retry_execution?(e)
+        retry if repeator.retry?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
       ensure
         task.result.executed!
@@ -82,7 +82,7 @@ module CMDx
         task.result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
-        retry if retry_execution?(e)
+        retry if repeator.retry?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
@@ -108,19 +108,6 @@ module CMDx
       breakpoints = Array(breakpoints).map(&:to_s).uniq
 
       breakpoints.include?(exception.result.status)
-    end
-
-    def retry_execution?(exception)
-      max_retries = task.class.settings[:retries].to_i
-      return false if max_retries.zero?
-
-      exceptions = Array(task.class.settings[:retry_on] || StandardError)
-      return false if exceptions.none? { |e| exception.class <= e }
-
-      current_retries = task.result.metadata[:retries] ||= 0
-      return false if current_retries > max_retries
-
-      task.result.metadata[:retries] += 1
     end
 
     # Raises an exception and clears the chain.
@@ -149,6 +136,11 @@ module CMDx
     end
 
     private
+
+    # Lazy loaded repeator instance to handle retries.
+    def repeator
+      @repeator ||= Repeator.new(task)
+    end
 
     # Performs pre-execution tasks including validation and attribute verification.
     def pre_execution!
@@ -188,29 +180,25 @@ module CMDx
 
     # Finalizes execution by freezing the task and logging results.
     def finalize_execution!
-      task.logger.tap do |logger|
-        logger.with_level(task.class.settings[:log_level] || logger.level) do
-          log_execution(logger)
-          log_backtrace(logger) if task.class.settings[:backtrace]
-        end
-      end
+      log_execution!
+      log_backtrace! if task.class.settings[:backtrace]
 
       Freezer.immute(task)
     end
 
     # Logs the execution result at the configured log level.
-    def log_execution(logger)
-      logger.info { task.result.to_h }
+    def log_execution!
+      task.logger.info { task.result.to_h }
     end
 
     # Logs the backtrace of the exception if the task failed.
-    def log_backtrace(logger)
+    def log_backtrace!
       return unless task.result.failed?
 
       exception = task.result.caused_failure.cause
       return if exception.is_a?(Fault)
 
-      logger.error do
+      task.logger.error do
         "[#{exception.class}] #{exception.message}\n" <<
           if (cleaner = task.class.settings[:backtrace_cleaner])
             cleaner.call(exception.backtrace).join("\n\t")

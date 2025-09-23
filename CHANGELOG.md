@@ -6,14 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [TODO]
 - Add an examples lib showing of use cases (point to them in the docs)
-- Add durability (retries) to execution
- - Backoff strategy
 
 ## [UNRELEASED]
 
 ### Added
 - Add `transform` option to attributes
 - Add option to output failure backtraces
+- Add durability (retries) to execution
 
 ### Changes
 - Clean halt backtrace frames
