@@ -169,6 +169,18 @@ module CMDx
       invoke_callbacks(:on_bad) if task.result.bad?
     end
 
+    # Finalizes execution by freezing the task and logging results.
+    def finalize_execution!
+      task.logger.tap do |logger|
+        logger.with_level(task.class.settings[:log_level] || logger.level) do
+          log_execution(logger)
+          log_backtrace(logger) if task.class.settings[:backtrace]
+        end
+      end
+
+      Freezer.immute(task)
+    end
+
     # Logs the execution result at the configured log level.
     def log_execution(logger)
       logger.info { task.result.to_h }
@@ -189,18 +201,6 @@ module CMDx
             exception.full_message(highlight: false)
           end
       end
-    end
-
-    # Finalizes execution by freezing the task and logging results.
-    def finalize_execution!
-      task.logger.tap do |logger|
-        logger.with_level(task.class.settings[:log_level] || logger.level) do
-          log_execution(logger)
-          log_backtrace(logger) if task.class.settings[:backtrace]
-        end
-      end
-
-      Freezer.immute(task)
     end
 
   end
