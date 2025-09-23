@@ -175,7 +175,7 @@ module CMDx
         logger.with_level(:info) do
           logger.info { task.result.to_h }
 
-          if task.class.settings[:backtrace] && task.result.bad?
+          if task.class.settings[:backtrace] && task.result.failed?
             logger.error do
               exception = task.result.caused_failure.cause
 
