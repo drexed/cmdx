@@ -55,6 +55,7 @@ module CMDx
       rescue StandardError => e
         retry if repeator.retry?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
+        task.class.settings[:exception_handler]&.call(task, e)
       ensure
         task.result.executed!
         post_execution!

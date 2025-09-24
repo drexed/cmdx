@@ -33,6 +33,9 @@ result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
 result.cause    #=> <ActiveRecord::NotFoundError>
 ```
 
+> [!NOTE]
+> The `exception_handler` setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.
+
 ### Bang execution
 
 The `execute!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.

@@ -27,6 +27,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
   - [Breakpoints](#breakpoints)
   - [Logging](#logging)
   - [Backtraces](#backtraces)
+  - [Exception Handlers](#exception-handlers)
   - [Middlewares](#middlewares)
   - [Callbacks](#callbacks)
   - [Coercions](#coercions)
@@ -111,8 +112,30 @@ CMDx.configure do |config|
   # Truthy
   config.backtrace = true
 
-  # Via callable, proc or lambda
+  # Via callable (must respond to `call(backtrace)`)
+  config.backtrace_cleaner = AdvanceCleaner.new
+
+  # Via proc or lambda
   config.backtrace_cleaner = ->(backtrace) { backtrace[0..5] }
+end
+```
+
+### Exception Handlers
+
+Use exception handlers are called on non-fault standard error based exceptions.
+
+> [!TIP]
+> Use exception handlers to send errors to your APM of choice.
+
+```ruby
+CMDx.configure do |config|
+  # Via callable (must respond to `call(task, exception)`)
+  config.exception_handler = NewRelicReporter
+
+  # Via proc or lambda
+  config.exception_handler = proc do |task, exception|
+    APMService.report(exception, extra_data: { task: task.name, id: task.id })
+  end
 end
 ```
 

@@ -99,8 +99,30 @@ CMDx.configure do |config|
   # Truthy
   config.backtrace = true
 
-  # Via callable, proc or lambda
+  # Via callable (must respond to `call(backtrace)`)
+  config.backtrace_cleaner = AdvanceCleaner.new
+
+  # Via proc or lambda
   config.backtrace_cleaner = ->(backtrace) { backtrace[0..5] }
+end
+```
+
+### Exception Handlers
+
+Use exception handlers are called on non-fault standard error based exceptions.
+
+> [!TIP]
+> Use exception handlers to send errors to your APM of choice.
+
+```ruby
+CMDx.configure do |config|
+  # Via callable (must respond to `call(task, exception)`)
+  config.exception_handler = NewRelicReporter
+
+  # Via proc or lambda
+  config.exception_handler = proc do |task, exception|
+    APMService.report(exception, extra_data: { task: task.name, id: task.id })
+  end
 end
 ```
 
@@ -1191,6 +1213,9 @@ result.failed?  #=> true
 result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
 result.cause    #=> <ActiveRecord::NotFoundError>
 ```
+
+> [!NOTE]
+> The `exception_handler` setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.
 
 ### Bang execution
 

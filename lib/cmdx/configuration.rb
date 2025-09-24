@@ -10,7 +10,7 @@ module CMDx
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
                   :task_breakpoints, :workflow_breakpoints, :logger,
-                  :backtrace, :backtrace_cleaner
+                  :backtrace, :backtrace_cleaner, :exception_handler
 
     # Initializes a new Configuration instance with default values.
     #
@@ -34,6 +34,7 @@ module CMDx
 
       @backtrace = false
       @backtrace_cleaner = nil
+      @exception_handler = nil
 
       @logger = Logger.new(
         $stdout,
@@ -61,6 +62,7 @@ module CMDx
         workflow_breakpoints: @workflow_breakpoints,
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,
+        exception_handler: @exception_handler,
         logger: @logger
       }
     end

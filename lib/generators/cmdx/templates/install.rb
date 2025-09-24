@@ -33,8 +33,13 @@ CMDx.configure do |config|
   )
 
   # Backtrace configuration - controls whether to log backtraces on faults and exceptions
+  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#backtraces
   # config.backtrace = false
   # config.backtrace_cleaner = nil
+
+  # Exception handler configuration - called when non-fault exceptions are raised
+  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#exception-handler
+  # config.exception_handler = nil
 
   # Additional global configurations - automatically applied to all tasks
   #
