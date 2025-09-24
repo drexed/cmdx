@@ -58,16 +58,16 @@ RSpec.describe CMDx::Fault, type: :unit do
 
       it "matches faults from specified task class" do
         allow(fault_a).to receive(:task).and_return(fault_a.result.task)
-        expect(custom_fault_class === fault_a).to be true
+        expect(custom_fault_class === fault_a).to be(true)
       end
 
       it "does not match faults from other task classes" do
         allow(fault_b).to receive(:task).and_return(fault_b.result.task)
-        expect(custom_fault_class === fault_b).to be false
+        expect(custom_fault_class === fault_b).to be(false)
       end
 
       it "does not match non-fault objects" do
-        expect(custom_fault_class === "not a fault").to be false
+        expect(custom_fault_class === "not a fault").to be(false)
       end
 
       it "stores task classes in instance variable" do
@@ -82,8 +82,8 @@ RSpec.describe CMDx::Fault, type: :unit do
         allow(fault_a).to receive(:task).and_return(fault_a.result.task)
         allow(fault_b).to receive(:task).and_return(fault_b.result.task)
 
-        expect(custom_fault_class === fault_a).to be true
-        expect(custom_fault_class === fault_b).to be true
+        expect(custom_fault_class === fault_a).to be(true)
+        expect(custom_fault_class === fault_b).to be(true)
       end
 
       it "stores all task classes in instance variable" do
@@ -98,8 +98,8 @@ RSpec.describe CMDx::Fault, type: :unit do
         allow(fault_a).to receive(:task).and_return(fault_a.result.task)
         allow(fault_b).to receive(:task).and_return(fault_b.result.task)
 
-        expect(custom_fault_class === fault_a).to be false
-        expect(custom_fault_class === fault_b).to be false
+        expect(custom_fault_class === fault_a).to be(false)
+        expect(custom_fault_class === fault_b).to be(false)
       end
 
       it "stores empty array in instance variable" do
@@ -132,11 +132,11 @@ RSpec.describe CMDx::Fault, type: :unit do
 
       it "does not match faults that don't satisfy the block condition" do
         simple_fault = described_class.new(result)
-        expect(custom_fault_class === simple_fault).to be false
+        expect(custom_fault_class === simple_fault).to be(false)
       end
 
       it "does not match non-fault objects" do
-        expect(custom_fault_class === "not a fault").to be false
+        expect(custom_fault_class === "not a fault").to be(false)
       end
 
       it "stores block in instance variable" do

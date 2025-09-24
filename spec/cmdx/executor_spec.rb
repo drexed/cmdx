@@ -303,7 +303,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when exception result status is in breakpoints" do
         it "returns true" do
-          expect(worker.send(:halt_execution?, fault)).to be true
+          expect(worker.send(:halt_execution?, fault)).to be(true)
         end
       end
 
@@ -312,7 +312,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         let(:success_fault) { CMDx::SkipFault.new(success_result) }
 
         it "returns false" do
-          expect(worker.send(:halt_execution?, success_fault)).to be false
+          expect(worker.send(:halt_execution?, success_fault)).to be(false)
         end
       end
     end
@@ -323,7 +323,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "converts symbols to strings and checks inclusion" do
-        expect(worker.send(:halt_execution?, fault)).to be true
+        expect(worker.send(:halt_execution?, fault)).to be(true)
       end
     end
 
@@ -333,7 +333,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "returns false" do
-        expect(worker.send(:halt_execution?, fault)).to be false
+        expect(worker.send(:halt_execution?, fault)).to be(false)
       end
     end
 
@@ -343,7 +343,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "returns false" do
-        expect(worker.send(:halt_execution?, fault)).to be false
+        expect(worker.send(:halt_execution?, fault)).to be(false)
       end
     end
 
@@ -353,7 +353,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "removes duplicates after string conversion" do
-        expect(worker.send(:halt_execution?, fault)).to be true
+        expect(worker.send(:halt_execution?, fault)).to be(true)
       end
     end
   end

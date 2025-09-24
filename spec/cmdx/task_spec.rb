@@ -101,8 +101,6 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(settings).to be_a(Hash)
         expect(settings).to have_key(:attributes)
         expect(settings[:attributes]).to be_a(CMDx::AttributeRegistry)
-        expect(settings).to have_key(:deprecate)
-        expect(settings[:deprecate]).to be false
         expect(settings).to have_key(:tags)
         expect(settings[:tags]).to eq([])
       end
@@ -135,7 +133,6 @@ RSpec.describe CMDx::Task, type: :unit do
 
         expect(settings[:custom_key]).to eq("custom_value")
         expect(settings[:tags]).to eq(["tag1"])
-        expect(settings[:deprecate]).to be false
       end
     end
 

@@ -161,7 +161,7 @@ RSpec.describe CMDx::Middlewares::Runtime, type: :unit do
 
         expect(metadata[:runtime]).to eq(50)
 
-        expect(result).to be false
+        expect(result).to be(false)
       end
     end
   end

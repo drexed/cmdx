@@ -28,7 +28,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns false" do
-        expect(check).to be false
+        expect(check).to be(false)
       end
 
       it "sets the exception" do
@@ -45,7 +45,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns false" do
-        expect(check).to be false
+        expect(check).to be(false)
       end
     end
 
@@ -60,7 +60,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns true" do
-        expect(check).to be true
+        expect(check).to be(true)
       end
 
       it "sets the exception" do
@@ -91,7 +91,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns false" do
-        expect(check).to be false
+        expect(check).to be(false)
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns true for matching exception" do
-        expect(check).to be true
+        expect(check).to be(true)
       end
     end
 
@@ -119,7 +119,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "returns true for matching exception" do
-        expect(check).to be true
+        expect(check).to be(true)
       end
     end
 
@@ -133,7 +133,7 @@ RSpec.describe CMDx::Repeator, type: :unit do
       end
 
       it "defaults to StandardError" do
-        expect(check).to be true
+        expect(check).to be(true)
       end
     end
   end

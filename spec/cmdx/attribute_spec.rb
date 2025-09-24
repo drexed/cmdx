@@ -30,7 +30,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       end
 
       it "sets required to false by default" do
-        expect(new_attribute.required?).to be false
+        expect(new_attribute.required?).to be(false)
       end
 
       it "sets empty types array" do
@@ -55,7 +55,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       let(:attribute_options) { { required: true } }
 
       it "sets required to true" do
-        expect(new_attribute.required?).to be true
+        expect(new_attribute.required?).to be(true)
       end
 
       it "removes required from options" do
@@ -197,17 +197,17 @@ RSpec.describe CMDx::Attribute, type: :unit do
     context "when required is false" do
       let(:attribute_options) { { required: false } }
 
-      it { is_expected.to be false }
+      it { is_expected.to be(false) }
     end
 
     context "when required is true" do
       let(:attribute_options) { { required: true } }
 
-      it { is_expected.to be true }
+      it { is_expected.to be(true) }
     end
 
     context "when required is nil" do
-      it { is_expected.to be false }
+      it { is_expected.to be(false) }
     end
   end
 
@@ -410,7 +410,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       end
 
       it "merges parent option with provided options" do
-        expect(attribute.children.first.required?).to be true
+        expect(attribute.children.first.required?).to be(true)
       end
     end
 

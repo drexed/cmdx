@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changes
 - Clean halt backtrace frames
+- Improve performance of task settings setup
 - Improve raised errors messages
 
 ## [1.8.0] - 2025-09-22

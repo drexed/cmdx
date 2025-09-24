@@ -51,15 +51,19 @@ module CMDx
         @settings ||= begin
           hash =
             if superclass.respond_to?(:settings)
-              superclass.settings
+              hash = superclass.settings
+
+              hash = hash.except(:backtrace_cleaner, :exception_handler, :logger, :deprecate)
+              hash.transform_values!(&:dup)
+
+              hash[:backtrace_cleaner] ||= CMDx.configuration.backtrace_cleaner
+              hash[:exception_handler] ||= CMDx.configuration.exception_handler
+              hash
             else
               CMDx.configuration.to_h
             end
 
-          hash = hash.except(:logger, :backtrace_cleaner).transform_values(&:dup)
-          hash[:backtrace_cleaner] ||= CMDx.configuration.backtrace_cleaner
           hash[:attributes] ||= AttributeRegistry.new
-          hash[:deprecate] ||= false
           hash[:tags] ||= []
 
           hash.merge!(options)

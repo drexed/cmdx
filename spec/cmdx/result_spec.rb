@@ -34,51 +34,51 @@ RSpec.describe CMDx::Result, type: :unit do
   describe "state predicates" do
     describe "#initialized?" do
       it "returns true when state is initialized" do
-        expect(result.initialized?).to be true
+        expect(result.initialized?).to be(true)
       end
 
       it "returns false when state is not initialized" do
         result.executing!
 
-        expect(result.initialized?).to be false
+        expect(result.initialized?).to be(false)
       end
     end
 
     describe "#executing?" do
       it "returns false when state is initialized" do
-        expect(result.executing?).to be false
+        expect(result.executing?).to be(false)
       end
 
       it "returns true when state is executing" do
         result.executing!
 
-        expect(result.executing?).to be true
+        expect(result.executing?).to be(true)
       end
     end
 
     describe "#complete?" do
       it "returns false when state is not complete" do
-        expect(result.complete?).to be false
+        expect(result.complete?).to be(false)
       end
 
       it "returns true when state is complete" do
         result.executing!
         result.complete!
 
-        expect(result.complete?).to be true
+        expect(result.complete?).to be(true)
       end
     end
 
     describe "#interrupted?" do
       it "returns false when state is not interrupted" do
-        expect(result.interrupted?).to be false
+        expect(result.interrupted?).to be(false)
       end
 
       it "returns true when state is interrupted" do
         result.executing!
         result.interrupt!
 
-        expect(result.interrupted?).to be true
+        expect(result.interrupted?).to be(true)
       end
     end
   end
@@ -182,79 +182,79 @@ RSpec.describe CMDx::Result, type: :unit do
   describe "status predicates" do
     describe "#success?" do
       it "returns true by default" do
-        expect(result.success?).to be true
+        expect(result.success?).to be(true)
       end
 
       it "returns false after skip!" do
         result.skip!("test reason", halt: false)
 
-        expect(result.success?).to be false
+        expect(result.success?).to be(false)
       end
 
       it "returns false after fail!" do
         result.fail!("test reason", halt: false)
 
-        expect(result.success?).to be false
+        expect(result.success?).to be(false)
       end
     end
 
     describe "#skipped?" do
       it "returns false by default" do
-        expect(result.skipped?).to be false
+        expect(result.skipped?).to be(false)
       end
 
       it "returns true after skip!" do
         result.skip!("test reason", halt: false)
 
-        expect(result.skipped?).to be true
+        expect(result.skipped?).to be(true)
       end
     end
 
     describe "#failed?" do
       it "returns false by default" do
-        expect(result.failed?).to be false
+        expect(result.failed?).to be(false)
       end
 
       it "returns true after fail!" do
         result.fail!("test reason", halt: false)
 
-        expect(result.failed?).to be true
+        expect(result.failed?).to be(true)
       end
     end
 
     describe "#good?" do
       it "returns true when not failed" do
-        expect(result.good?).to be true
+        expect(result.good?).to be(true)
       end
 
       it "returns true when skipped" do
         result.skip!("test reason", halt: false)
 
-        expect(result.good?).to be true
+        expect(result.good?).to be(true)
       end
 
       it "returns false when failed" do
         result.fail!("test reason", halt: false)
 
-        expect(result.good?).to be false
+        expect(result.good?).to be(false)
       end
     end
 
     describe "#bad?" do
       it "returns false when successful" do
-        expect(result.bad?).to be false
+        expect(result.bad?).to be(false)
       end
 
       it "returns true when skipped" do
         result.skip!("test reason", halt: false)
 
-        expect(result.bad?).to be true
+        expect(result.bad?).to be(true)
       end
 
       it "returns true when failed" do
         result.fail!("test reason", halt: false)
 
-        expect(result.bad?).to be true
+        expect(result.bad?).to be(true)
       end
     end
   end
@@ -266,7 +266,7 @@ RSpec.describe CMDx::Result, type: :unit do
           result.executing!
           result.executed!
 
-          expect(result.complete?).to be true
+          expect(result.complete?).to be(true)
         end
       end
 
@@ -275,34 +275,34 @@ RSpec.describe CMDx::Result, type: :unit do
           result.skip!("test reason", halt: false)
           result.executed!
 
-          expect(result.interrupted?).to be true
+          expect(result.interrupted?).to be(true)
         end
 
         it "calls interrupt! when failed" do
           result.fail!("test reason", halt: false)
           result.executed!
 
-          expect(result.interrupted?).to be true
+          expect(result.interrupted?).to be(true)
         end
       end
     end
 
     describe "#executed?" do
       it "returns false when not executed" do
-        expect(result.executed?).to be false
+        expect(result.executed?).to be(false)
       end
 
       it "returns true when complete" do
         result.executing!
         result.complete!
 
-        expect(result.executed?).to be true
+        expect(result.executed?).to be(true)
       end
 
       it "returns true when interrupted" do
         result.interrupt!
 
-        expect(result.executed?).to be true
+        expect(result.executed?).to be(true)
       end
     end
 
@@ -316,14 +316,14 @@ RSpec.describe CMDx::Result, type: :unit do
         called = false
         result.handle_executed { |_r| called = true }
 
-        expect(called).to be true
+        expect(called).to be(true)
       end
 
       it "does not call block when not executed" do
         called = false
         result.handle_executed { |_r| called = true }
 
-        expect(called).to be false
+        expect(called).to be(false)
       end
 
       it "returns self" do
@@ -584,15 +584,15 @@ RSpec.describe CMDx::Result, type: :unit do
 
     describe "#caused_failure?" do
       it "returns true for the causing failure" do
-        expect(second_result.caused_failure?).to be true
+        expect(second_result.caused_failure?).to be(true)
       end
 
       it "returns false for non-failing results" do
-        expect(first_result.caused_failure?).to be false
+        expect(first_result.caused_failure?).to be(false)
       end
 
       it "returns false for non-failed results" do
-        expect(third_result.caused_failure?).to be false
+        expect(third_result.caused_failure?).to be(false)
       end
     end
 
@@ -626,21 +626,21 @@ RSpec.describe CMDx::Result, type: :unit do
 
     describe "#threw_failure?" do
       it "returns true when the result is the last failure" do
-        expect(second_result.threw_failure?).to be true
+        expect(second_result.threw_failure?).to be(true)
       end
 
       it "returns false for non-failing results" do
-        expect(first_result.threw_failure?).to be false
+        expect(first_result.threw_failure?).to be(false)
       end
     end
 
     describe "#thrown_failure?" do
       it "returns false when result caused the failure" do
-        expect(second_result.thrown_failure?).to be false
+        expect(second_result.thrown_failure?).to be(false)
       end
 
       it "returns false for non-failed results" do
-        expect(first_result.thrown_failure?).to be false
+        expect(first_result.thrown_failure?).to be(false)
       end
     end
   end
@@ -817,7 +817,7 @@ RSpec.describe CMDx::Result, type: :unit do
               called = false
               result.send(:"handle_#{state}") { |_r| called = true }
 
-              expect(called).to be true
+              expect(called).to be(true)
             end
 
             it "passes result to block" do
@@ -846,7 +846,7 @@ RSpec.describe CMDx::Result, type: :unit do
               called = false
               result.send(:"handle_#{state}") { |_r| called = true }
 
-              expect(called).to be false
+              expect(called).to be(false)
             end
           end
 
@@ -880,7 +880,7 @@ RSpec.describe CMDx::Result, type: :unit do
               called = false
               result.send(:"handle_#{status}") { |_r| called = true }
 
-              expect(called).to be true
+              expect(called).to be(true)
             end
 
             it "passes result to block" do
@@ -907,7 +907,7 @@ RSpec.describe CMDx::Result, type: :unit do
               called = false
               result.send(:"handle_#{status}") { |_r| called = true }
 
-              expect(called).to be false
+              expect(called).to be(false)
             end
           end
 
@@ -928,7 +928,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_good { |_r| called = true }
 
-          expect(called).to be true
+          expect(called).to be(true)
         end
 
         it "calls the block for skipped" do
@@ -936,7 +936,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_good { |_r| called = true }
 
-          expect(called).to be true
+          expect(called).to be(true)
         end
       end
 
@@ -946,7 +946,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_good { |_r| called = true }
 
-          expect(called).to be false
+          expect(called).to be(false)
         end
       end
 
@@ -966,7 +966,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_bad { |_r| called = true }
 
-          expect(called).to be true
+          expect(called).to be(true)
         end
 
         it "calls the block for failed" do
@@ -974,7 +974,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_bad { |_r| called = true }
 
-          expect(called).to be true
+          expect(called).to be(true)
         end
       end
 
@@ -983,7 +983,7 @@ RSpec.describe CMDx::Result, type: :unit do
           called = false
           result.handle_bad { |_r| called = true }
 
-          expect(called).to be false
+          expect(called).to be(false)
         end
       end
 

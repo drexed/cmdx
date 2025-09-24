@@ -168,7 +168,7 @@ RSpec.describe CMDx::Middlewares::Timeout, type: :unit do
 
         result = timeout_middleware.call(task, seconds: 5, &false_block)
 
-        expect(result).to be false
+        expect(result).to be(false)
       end
     end
 
