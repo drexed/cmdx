@@ -53,7 +53,7 @@ module CMDx
       rescue Fault => e
         task.result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
-        retry if repeator.retry?(e)
+        retry if retry_execution?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         task.class.settings[:exception_handler]&.call(task, e)
       ensure
@@ -83,7 +83,7 @@ module CMDx
         task.result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
-        retry if repeator.retry?(e)
+        retry if retry_execution?(e)
         task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
@@ -109,6 +109,38 @@ module CMDx
       breakpoints = Array(breakpoints).map(&:to_s).uniq
 
       breakpoints.include?(exception.result.status)
+    end
+
+    # Determines if execution should be retried based on retry configuration.
+    #
+    # @param exception [Exception] The exception that occurred
+    #
+    # @return [Boolean] Whether execution should be retried
+    #
+    # @example
+    #   retry_execution?(standard_error)
+    def retry_execution?(exception)
+      available_retries = (task.class.settings[:retries] || 0).to_i
+      return false unless available_retries.positive?
+
+      current_retries = (task.result.metadata[:retries] ||= 0).to_i
+      remaining_retries = available_retries - current_retries
+      return false unless remaining_retries.positive?
+
+      exceptions = Array(task.class.settings[:retry_on] || StandardError)
+      return false unless exceptions.any? { |e| exception.class <= e }
+
+      task.result.metadata[:retries] += 1
+
+      task.logger.warn do
+        reason = "[#{exception.class}] #{exception.message}"
+        task.to_h.merge!(reason:, remaining_retries:)
+      end
+
+      jitter = task.class.settings[:retry_jitter].to_f * current_retries
+      sleep(jitter) if jitter.positive?
+
+      true
     end
 
     # Raises an exception and clears the chain.
