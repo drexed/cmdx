@@ -153,6 +153,7 @@ module CMDx
     #   raise_exception(standard_error)
     def raise_exception(exception)
       Chain.clear
+
       raise(exception)
     end
 
@@ -216,7 +217,7 @@ module CMDx
       log_execution!
       log_backtrace! if task.class.settings[:backtrace]
 
-      Freezer.immute(task)
+      freeze_execution!
     end
 
     # Logs the execution result at the configured log level.
@@ -239,6 +240,25 @@ module CMDx
             exception.full_message(highlight: false)
           end
       end
+    end
+
+    # Freezes the task and its associated objects to prevent modifications.
+    def freeze_execution!
+      # Stubbing on frozen objects is not allowed in most test environments.
+      skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)
+      return if Coercions::Boolean.call(skip_freezing)
+
+      task.freeze
+      task.result.freeze
+
+      # Freezing the context and chain can only be done
+      # once the outer-most task has completed.
+      return unless task.result.index.zero?
+
+      task.context.freeze
+      task.chain.freeze
+
+      Chain.clear
     end
 
   end

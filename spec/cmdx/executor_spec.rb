@@ -3,9 +3,10 @@
 require "spec_helper"
 
 RSpec.describe CMDx::Executor, type: :unit do
+  subject(:worker) { described_class.new(task) }
+
   let(:task_class) { create_successful_task(name: "TestTask") }
   let(:task) { task_class.new }
-  let(:worker) { described_class.new(task) }
 
   describe "#initialize" do
     it "assigns the task" do
@@ -61,7 +62,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
-      allow(CMDx::Freezer).to receive(:immute)
+      allow(worker).to receive(:freeze_execution!)
 
       # Setup result state to support proper transitions
       allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
@@ -76,7 +77,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(worker).to receive(:execution!)
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
-        expect(CMDx::Freezer).to receive(:immute).with(task)
+        expect(worker).to receive(:freeze_execution!)
 
         worker.execute
       end
@@ -137,7 +138,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
-        expect(CMDx::Freezer).to receive(:immute).with(task)
+        expect(worker).to receive(:freeze_execution!)
 
         worker.execute
       end
@@ -169,7 +170,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
-        expect(CMDx::Freezer).to receive(:immute).with(task)
+        expect(worker).to receive(:freeze_execution!)
 
         worker.execute
       end
@@ -204,7 +205,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
-      allow(CMDx::Freezer).to receive(:immute)
+      allow(worker).to receive(:freeze_execution!)
 
       # Setup result state to support proper transitions
       allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
@@ -219,7 +220,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(worker).to receive(:execution!)
         expect(task.result).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
-        expect(CMDx::Freezer).to receive(:immute).with(task)
+        expect(worker).to receive(:freeze_execution!)
 
         worker.execute!
       end
@@ -529,14 +530,14 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:logger) { instance_double(Logger) }
 
     before do
-      allow(CMDx::Freezer).to receive(:immute)
+      allow(worker).to receive(:freeze_execution!)
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
       allow(task.result).to receive(:to_h).and_return({ id: "123", status: "success" })
     end
 
-    it "immutes the task with Freezer" do
-      expect(CMDx::Freezer).to receive(:immute).with(task)
+    it "freezes the task" do
+      expect(worker).to receive(:freeze_execution!)
 
       worker.send(:finalize_execution!)
     end
