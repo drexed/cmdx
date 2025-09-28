@@ -1,24 +1,22 @@
-<p align="center">
+<div align="center">
   <img src="./src/cmdx-logo.png" width="200" alt="CMDx Logo">
-</p>
 
-<p align="center">
+  <h1>CMDx</h1>
+
+  The CMDx frameworks guides building business logic without the chaos
+
+  [Documents](./docs/getting_started.md) · [Changelog](./CHANGELOG.md) · [Report Bug][github-issues-link] · [Request Feature][github-issues-link]
+
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
   <img alt="License" src="https://img.shields.io/github/license/drexed/cmdx">
-</p>
+</div>
 
-# 🚀 CMDx — Business logic without the chaos
+## Framework Philosophy
 
-Stop wrestling with messy service objects. CMDx gives you a clean, consistent way to design business processes:
+Ditch the messy service objects. CMDx helps you design business processes with clarity and consistency—build faster, debug easier, and keep your sanity.
 
-- Start small with a single `work` method
-- Scale to complex tasks and multi-step workflows
-- Get built-in flow control, logging, validations, and more...
-
-*Build faster. Debug easier. Stay sane.*
-
-## Compose, Execute, React, Observe pattern
+#### Compose, Execute, React, Observe (CERO) pattern
 
 CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
 
