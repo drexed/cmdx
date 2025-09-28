@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="./src/cmdx-logo.png" width="200" alt="CMDx Logo">
+  <img src="./src/cmdx-light-logo.png#gh-light-mode-only" width="200" alt="CMDx Logo">
+  <img src="./src/cmdx-dark-logo.png#gh-dark-mode-only" width="200" alt="CMDx Logo">
 
   <h1>CMDx</h1>
 
