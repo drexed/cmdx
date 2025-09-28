@@ -2,7 +2,7 @@
   <img src="./src/cmdx-light-logo.png#gh-light-mode-only" width="200" alt="CMDx Logo">
   <img src="./src/cmdx-dark-logo.png#gh-dark-mode-only" width="200" alt="CMDx Logo">
 
-  <h1>CMDx</h1>
+  ---
 
   The CMDx frameworks guides building business logic without the chaos
 
@@ -13,7 +13,7 @@
   <img alt="License" src="https://img.shields.io/github/license/drexed/cmdx">
 </div>
 
-## Framework Philosophy
+# CMDx
 
 Ditch the messy service objects. CMDx helps you design business processes with clarity and consistency—build faster, debug easier, and keep your sanity.
 
