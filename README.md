@@ -4,7 +4,7 @@
 
   ---
 
-  The CMDx frameworks guides building business logic without the chaos
+  Build business logic that’s powerful, predictable, and chaos-free.
 
   [Documents](./docs/getting_started.md) · [Changelog](./CHANGELOG.md) · [Report Bug](https://github.com/drexed/cmdx/issues) · [Request Feature](https://github.com/drexed/cmdx/issues)
 
