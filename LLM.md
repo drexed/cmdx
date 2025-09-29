@@ -3657,33 +3657,8 @@ class ConfigureCompany < CMDx::Task
 end
 ```
 
-## ActiveRecord Query Tagging
+## Advance Examples
 
-Automatically tag SQL queries for better debugging:
-
-```ruby
-# config/application.rb
-config.active_record.query_log_tags_enabled = true
-config.active_record.query_log_tags << :cmdx_task_class
-config.active_record.query_log_tags << :cmdx_chain_id
-
-# app/tasks/application_task.rb
-class ApplicationTask < CMDx::Task
-  before_execution :set_execution_context
-
-  private
-
-  def set_execution_context
-    # NOTE: This could easily be made into a middleware
-    ActiveSupport::ExecutionContext.set(
-      cmdx_task_class: self.class.name,
-      cmdx_chain_id: chain.id
-    )
-  end
-end
-
-# SQL queries will now include comments like:
-# /*cmdx_task_class:ExportReportTask,cmdx_chain_id:018c2b95-b764-7615*/ SELECT * FROM reports WHERE id = 1
-```
+- [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 
 ---
