@@ -51,20 +51,18 @@ Here's how a quick 4 step process can open up a world of possibilities:
 
 ### 1. Compose
 
-#### Minimum Viable Task
-
 ```ruby
+# Minimum Viable Task
+
 class SendAnalyzedEmail < CMDx::Task
   def work
     user = User.find(context.user_id)
     MetricsMailer.analyzed(user).deliver_now
   end
 end
-```
 
-#### Fully Featured Task
+# Full Featured Task
 
-```ruby
 class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
