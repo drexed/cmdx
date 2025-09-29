@@ -158,6 +158,7 @@ end
 ## Advance Examples
 
 - [Active Record Query Tagging](../examples/active_record_query_tagging.md)
+- [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
 
 ---
 
