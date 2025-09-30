@@ -78,10 +78,10 @@ class OnboardingWorkflow < CMDx::Task
   task SendWelcomeEmail, if: :email_configured?, unless: :email_disabled?
 
   # Proc
-  task SendWelcomeEmail, if: ->(workflow) { Rails.env.production? && workflow.class.name.include?("Premium") }
+  task SendWelcomeEmail, if: -> { Rails.env.production? && self.class.name.include?("Premium") }
 
   # Lambda
-  task SendWelcomeEmail, if: proc { |workflow| workflow.context.features_enabled? }
+  task SendWelcomeEmail, if: proc { context.features_enabled? }
 
   # Class or Module
   task SendWelcomeEmail, unless: ContentAccessCheck

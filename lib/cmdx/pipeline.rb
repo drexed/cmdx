@@ -42,7 +42,7 @@ module CMDx
     #   pipeline.execute
     def execute
       workflow.class.pipeline.each do |group|
-        next unless Utils::Condition.evaluate(workflow, group.options, workflow)
+        next unless Utils::Condition.evaluate(workflow, group.options)
 
         breakpoints = group.options[:breakpoints] ||
                       workflow.class.settings[:breakpoints] ||
