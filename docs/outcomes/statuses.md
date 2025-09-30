@@ -60,14 +60,14 @@ result = ProcessNotification.execute
 
 # Individual status handlers
 result
-  .on_success { |result| mark_notification_sent(result) }
-  .on_skipped { |result| log_notification_skipped(result) }
-  .on_failed { |result| queue_retry_notification(result) }
+  .handle_success { |result| mark_notification_sent(result) }
+  .handle_skipped { |result| log_notification_skipped(result) }
+  .handle_failed { |result| queue_retry_notification(result) }
 
 # Outcome-based handlers
 result
-  .on_good { |result| update_message_stats(result) }
-  .on_bad { |result| track_delivery_failure(result) }
+  .handle_good { |result| update_message_stats(result) }
+  .handle_bad { |result| track_delivery_failure(result) }
 ```
 
 ---

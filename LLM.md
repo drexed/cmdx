@@ -1368,19 +1368,19 @@ result = BuildApplication.execute(version: "1.2.3")
 
 # Status-based handlers
 result
-  .on_success { |result| notify_deployment_ready(result) }
-  .on_failed { |result| handle_build_failure(result) }
-  .on_skipped { |result| log_skip_reason(result) }
+  .handle_success { |result| notify_deployment_ready(result) }
+  .handle_failed { |result| handle_build_failure(result) }
+  .handle_skipped { |result| log_skip_reason(result) }
 
 # State-based handlers
 result
-  .on_complete { |result| update_build_status(result) }
-  .on_interrupted { |result| cleanup_partial_artifacts(result) }
+  .handle_complete { |result| update_build_status(result) }
+  .handle_interrupted { |result| cleanup_partial_artifacts(result) }
 
 # Outcome-based handlers
 result
-  .on_good { |result| increment_success_counter(result) }
-  .on_bad { |result| alert_operations_team(result) }
+  .handle_good { |result| increment_success_counter(result) }
+  .handle_bad { |result| alert_operations_team(result) }
 ```
 
 ## Pattern Matching
@@ -1502,9 +1502,9 @@ result = ProcessVideoUpload.execute
 
 # Individual state handlers
 result
-  .on_complete { |result| send_upload_notification(result) }
-  .on_interrupted { |result| cleanup_temp_files(result) }
-  .on_executed { |result| log_upload_metrics(result) }
+  .handle_complete { |result| send_upload_notification(result) }
+  .handle_interrupted { |result| cleanup_temp_files(result) }
+  .handle_executed { |result| log_upload_metrics(result) }
 ```
 
 ---
@@ -1567,14 +1567,14 @@ result = ProcessNotification.execute
 
 # Individual status handlers
 result
-  .on_success { |result| mark_notification_sent(result) }
-  .on_skipped { |result| log_notification_skipped(result) }
-  .on_failed { |result| queue_retry_notification(result) }
+  .handle_success { |result| mark_notification_sent(result) }
+  .handle_skipped { |result| log_notification_skipped(result) }
+  .handle_failed { |result| queue_retry_notification(result) }
 
 # Outcome-based handlers
 result
-  .on_good { |result| update_message_stats(result) }
-  .on_bad { |result| track_delivery_failure(result) }
+  .handle_good { |result| update_message_stats(result) }
+  .handle_bad { |result| track_delivery_failure(result) }
 ```
 
 ---

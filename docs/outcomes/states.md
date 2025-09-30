@@ -69,9 +69,9 @@ result = ProcessVideoUpload.execute
 
 # Individual state handlers
 result
-  .on_complete { |result| send_upload_notification(result) }
-  .on_interrupted { |result| cleanup_temp_files(result) }
-  .on_executed { |result| log_upload_metrics(result) }
+  .handle_complete { |result| send_upload_notification(result) }
+  .handle_interrupted { |result| cleanup_temp_files(result) }
+  .handle_executed { |result| log_upload_metrics(result) }
 ```
 
 ---
