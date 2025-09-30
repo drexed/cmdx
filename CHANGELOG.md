@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Improve raised errors messages
 - Removed the `Freezer` module and moved the logic into the executor `freeze_execution!`
 - Remove passing the task to callback signature
+- Remove task/workflow arguments from conditional checks
+- Properly clear chain after ever execution in specs
 
 ## [1.8.0] - 2025-09-22
 

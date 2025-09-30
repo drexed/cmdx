@@ -15,10 +15,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         end
       end
 
-      enabled_result = workflow.new(execute_task: true).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(execute_task: false).execute
+      enabled_result = workflow.execute(execute_task: true)
+      disabled_result = workflow.execute(execute_task: false)
 
       expect(enabled_result).to have_been_success
       expect(enabled_result.chain.results.size).to eq(2)
@@ -34,10 +32,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         task task1, if: -> { context.enabled == true }
       end
 
-      enabled_result = workflow.new(enabled: true).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(enabled: false).execute
+      enabled_result = workflow.execute(enabled: true)
+      disabled_result = workflow.execute(enabled: false)
 
       expect(enabled_result.chain.results.size).to eq(2)
       expect(disabled_result.chain.results.size).to eq(1)
@@ -50,10 +46,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         task task1, if: proc { context.enabled == true }
       end
 
-      enabled_result = workflow.new(enabled: true).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(enabled: false).execute
+      enabled_result = workflow.execute(enabled: true)
+      disabled_result = workflow.execute(enabled: false)
 
       expect(enabled_result.chain.results.size).to eq(2)
       expect(disabled_result.chain.results.size).to eq(1)
@@ -72,10 +66,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         end
       end
 
-      enabled_result = workflow.new(skip_task: false).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(skip_task: true).execute
+      enabled_result = workflow.execute(skip_task: false)
+      disabled_result = workflow.execute(skip_task: true)
 
       expect(enabled_result.chain.results.size).to eq(2)
       expect(disabled_result.chain.results.size).to eq(1)
@@ -88,10 +80,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         task task1, unless: -> { context.disabled == true }
       end
 
-      enabled_result = workflow.new(disabled: false).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(disabled: true).execute
+      enabled_result = workflow.execute(disabled: false)
+      disabled_result = workflow.execute(disabled: true)
 
       expect(enabled_result.chain.results.size).to eq(2)
       expect(disabled_result.chain.results.size).to eq(1)
@@ -116,13 +106,9 @@ RSpec.describe "Workflow conditionals", type: :feature do
         end
       end
 
-      both_satisfied = workflow.new(enabled: true, override: false).execute
-      CMDx::Chain.clear
-
-      if_false = workflow.new(enabled: false, override: false).execute
-      CMDx::Chain.clear
-
-      unless_false = workflow.new(enabled: true, override: true).execute
+      both_satisfied = workflow.execute(enabled: true, override: false)
+      if_false = workflow.execute(enabled: false, override: false)
+      unless_false = workflow.execute(enabled: true, override: true)
 
       expect(both_satisfied.chain.results.size).to eq(2)
       expect(if_false.chain.results.size).to eq(1)
@@ -144,10 +130,8 @@ RSpec.describe "Workflow conditionals", type: :feature do
         end
       end
 
-      enabled_result = workflow.new(enable_group: true).execute
-      CMDx::Chain.clear
-
-      disabled_result = workflow.new(enable_group: false).execute
+      enabled_result = workflow.execute(enable_group: true)
+      disabled_result = workflow.execute(enable_group: false)
 
       expect(enabled_result.chain.results.size).to eq(4)
       expect(disabled_result.chain.results.size).to eq(1)
@@ -170,7 +154,7 @@ RSpec.describe "Workflow conditionals", type: :feature do
         task final_task
       end
 
-      result = workflow.new.execute
+      result = workflow.execute
 
       expect(result).to have_been_success
       expect(result.chain.results.size).to eq(4)
@@ -188,13 +172,9 @@ RSpec.describe "Workflow conditionals", type: :feature do
         }
       end
 
-      prod_enabled = workflow.new(env: "production", feature_enabled: true).execute
-      CMDx::Chain.clear
-
-      prod_disabled = workflow.new(env: "production", feature_enabled: false).execute
-      CMDx::Chain.clear
-
-      dev_enabled = workflow.new(env: "development", feature_enabled: true).execute
+      prod_enabled = workflow.execute(env: "production", feature_enabled: true)
+      prod_disabled = workflow.execute(env: "production", feature_enabled: false)
+      dev_enabled = workflow.execute(env: "development", feature_enabled: true)
 
       expect(prod_enabled.chain.results.size).to eq(2)
       expect(prod_disabled.chain.results.size).to eq(1)

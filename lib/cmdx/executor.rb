@@ -218,6 +218,7 @@ module CMDx
       log_backtrace! if task.class.settings[:backtrace]
 
       freeze_execution!
+      clear_chain!
     end
 
     # Logs the execution result at the configured log level.
@@ -257,6 +258,10 @@ module CMDx
 
       task.context.freeze
       task.chain.freeze
+    end
+
+    def clear_chain!
+      return unless task.result.index.zero?
 
       Chain.clear
     end
