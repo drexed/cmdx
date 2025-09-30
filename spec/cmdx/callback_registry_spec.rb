@@ -272,30 +272,61 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
     context "when type is valid" do
       before do
         allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(true)
-        allow(CMDx::Utils::Call).to receive(:invoke)
-        registry.register(:before_execution, callable_proc, callable_symbol)
       end
 
-      it "evaluates conditions for each callback entry" do
-        expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, {}, mock_task)
+      context "with symbol callbacks" do
+        before do
+          registry.register(:before_execution, callable_symbol)
+        end
 
-        registry.invoke(:before_execution, mock_task)
+        it "evaluates conditions for each callback entry" do
+          allow(mock_task).to receive(:send).with(callable_symbol)
+          expect(CMDx::Utils::Condition).to receive(:evaluate).with(mock_task, {})
+
+          registry.invoke(:before_execution, mock_task)
+        end
+
+        it "invokes the symbol via task.send" do
+          expect(mock_task).to receive(:send).with(callable_symbol)
+
+          registry.invoke(:before_execution, mock_task)
+        end
       end
 
-      it "invokes each callable when conditions are met" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc, mock_task)
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_symbol, mock_task)
+      context "with proc callbacks" do
+        before do
+          registry.register(:before_execution, callable_proc)
+        end
 
-        registry.invoke(:before_execution, mock_task)
+        it "invokes the proc via task.instance_exec" do
+          expect(mock_task).to receive(:instance_exec) do |&block|
+            expect(block).to eq(callable_proc)
+          end
+
+          registry.invoke(:before_execution, mock_task)
+        end
+      end
+
+      context "with callable object callbacks" do
+        before do
+          registry.register(:before_execution, callable_object)
+        end
+
+        it "invokes the callable via .call" do
+          expect(callable_object).to receive(:call).with(mock_task)
+
+          registry.invoke(:before_execution, mock_task)
+        end
       end
 
       context "when conditions are not met" do
         before do
           allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(false)
+          registry.register(:before_execution, callable_symbol)
         end
 
         it "does not invoke the callables" do
-          expect(CMDx::Utils::Call).not_to receive(:invoke)
+          expect(mock_task).not_to receive(:send)
 
           registry.invoke(:before_execution, mock_task)
         end
@@ -305,10 +336,12 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
         before do
           registry.register(:before_execution, callable_proc, if: :active?)
           registry.register(:before_execution, callable_symbol, unless: :disabled?)
+          allow(mock_task).to receive(:send).with(callable_symbol)
+          allow(mock_task).to receive(:instance_exec)
         end
 
         it "processes all entries" do
-          expect(CMDx::Utils::Condition).to receive(:evaluate).exactly(3).times
+          expect(CMDx::Utils::Condition).to receive(:evaluate).twice
 
           registry.invoke(:before_execution, mock_task)
         end
@@ -328,7 +361,8 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
       end
 
       it "does not attempt to invoke any callables" do
-        expect(CMDx::Utils::Call).not_to receive(:invoke)
+        expect(mock_task).not_to receive(:send)
+        expect(mock_task).not_to receive(:instance_exec)
 
         registry.invoke(:before_execution, mock_task)
       end
@@ -336,13 +370,14 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
 
     context "when registry value is not a Set" do
       before do
-        allow(CMDx::Utils::Call).to receive(:invoke)
-
+        allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(true)
         registry.registry[:before_execution] = [[callable_proc], {}]
       end
 
       it "handles Array conversion gracefully" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(mock_task, callable_proc, mock_task)
+        expect(mock_task).to receive(:instance_exec) do |&block|
+          expect(block).to eq(callable_proc)
+        end
 
         expect { registry.invoke(:before_execution, mock_task) }.not_to raise_error
       end

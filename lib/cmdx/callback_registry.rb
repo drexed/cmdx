@@ -95,9 +95,19 @@ module CMDx
       raise TypeError, "unknown callback type #{type.inspect}" unless TYPES.include?(type)
 
       Array(registry[type]).each do |callables, options|
-        next unless Utils::Condition.evaluate(task, options, task)
+        next unless Utils::Condition.evaluate(task, options)
 
-        Array(callables).each { |callable| Utils::Call.invoke(task, callable, task) }
+        Array(callables).each do |callable|
+          if callable.is_a?(Symbol)
+            task.send(callable)
+          elsif callable.is_a?(Proc)
+            task.instance_exec(&callable)
+          elsif callable.respond_to?(:call)
+            callable.call(task)
+          else
+            raise "cannot invoke #{callable}"
+          end
+        end
       end
     end
 

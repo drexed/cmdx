@@ -2608,7 +2608,7 @@ Use anonymous functions for inline callback logic:
 ```ruby
 class ProcessBooking < CMDx::Task
   # Proc
-  on_interrupted proc { |task| ReservationSystem.pause! }
+  on_interrupted proc { ReservationSystem.pause! }
 
   # Lambda
   on_complete -> { ReservationSystem.resume! }
@@ -2655,10 +2655,10 @@ class ProcessBooking < CMDx::Task
   before_execution :notify_guest, if: :messaging_enabled?, unless: :messaging_blocked?
 
   # Proc
-  on_failure :increment_failure, if: ->(task) { Rails.env.production? && task.class.name.include?("Legacy") }
+  on_failure :increment_failure, if: -> { Rails.env.production? && self.class.name.include?("Legacy") }
 
   # Lambda
-  on_success :ping_housekeeping, if: proc { |task| task.context.rooms_need_cleaning? }
+  on_success :ping_housekeeping, if: proc { context.rooms_need_cleaning? }
 
   # Class or Module
   on_complete :send_confirmation, unless: MessagingPermissionCheck
