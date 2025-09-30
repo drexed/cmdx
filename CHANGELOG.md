@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Clean halt backtrace frames
 - Improve performance of task settings setup
 - Improve raised errors messages
-- Removed the `Freezer` module and moved the loginc into the executor `freeze_execution!`
+- Removed the `Freezer` module and moved the logic into the executor `freeze_execution!`
 
 ## [1.8.0] - 2025-09-22
 
