@@ -234,6 +234,42 @@ RSpec.describe "Task attributes", type: :feature do
       end
     end
 
+    context "with transformation options" do
+      context "when value is not valid" do
+        it "succeeds but does not transform the value" do
+          task = create_task_class do
+            attribute :raw_attr, transform: :downcase
+
+            def work
+              context.attr = raw_attr
+            end
+          end
+
+          result = task.execute(raw_attr: 123)
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attr: 123)
+        end
+      end
+
+      context "when value is valid" do
+        it "succeeds and transforms the value" do
+          task = create_task_class do
+            attribute :raw_attr, transform: :upcase
+
+            def work
+              context.attr = raw_attr
+            end
+          end
+
+          result = task.execute(raw_attr: "abc")
+
+          expect(result).to have_been_success
+          expect(result).to have_matching_context(attr: "ABC")
+        end
+      end
+    end
+
     context "with validation options" do
       context "when value is not valid" do
         it "fails with validation error message" do

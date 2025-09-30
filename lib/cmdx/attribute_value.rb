@@ -50,11 +50,11 @@ module CMDx
       derived_value = derive_value(sourced_value)
       return if errors.for?(method_name)
 
-      transformed_value = transform_value(derived_value)
-      coerced_value = coerce_value(transformed_value)
+      coerced_value = coerce_value(derived_value)
+      transformed_value = transform_value(coerced_value)
       return if errors.for?(method_name)
 
-      attributes[method_name] = coerced_value
+      attributes[method_name] = transformed_value
     end
 
     # Validates the current attribute value against configured validators.

@@ -1,6 +1,6 @@
 # Attributes - Transformations
 
-Transformations allow you to modify attribute values after they are derived from their source but before type coercion and validation. This enables data normalization, formatting, and conditional processing within the attribute pipeline.
+Transformations allow you to modify attribute values after they are derived and coerced from their source but before any validations. This enables data normalization, formatting, and conditional processing within the attribute pipeline.
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@ Transformations allow you to modify attribute values after they are derived from
   - [Symbol References](#symbol-references)
   - [Proc or Lambda](#proc-or-lambda)
   - [Class or Module](#class-or-module)
-- [Coercions and Validations](#coercions-and-validations)
+- [Validations](#validations)
 
 ## Declarations
 
@@ -56,9 +56,9 @@ class ProcessContacts < CMDx::Task
 end
 ```
 
-## Coercions and Validations
+## Validations
 
-Transformed values are subject to the same coercion and validation rules as untransformed values, ensuring consistency and catching configuration errors early.
+Transformed values are subject to the same validation rules as untransformed values, ensuring consistency and catching configuration errors early.
 
 ```ruby
 class ScheduleBackup < CMDx::Task
