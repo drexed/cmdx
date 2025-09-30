@@ -2673,7 +2673,7 @@ class ProcessBooking < CMDx::Task
   private
 
   def messaging_enabled?
-    context.guest.messaging_preference.present?
+    context.guest.messaging_preference == true
   end
 
   def messaging_blocked?
@@ -3365,7 +3365,7 @@ class OnboardingWorkflow < CMDx::Task
   private
 
   def email_configured?
-    context.user.email_address.present?
+    context.user.email_address == true
   end
 
   def email_disabled?

@@ -138,7 +138,7 @@ class ProcessBooking < CMDx::Task
   private
 
   def messaging_enabled?
-    context.guest.messaging_preference.present?
+    context.guest.messaging_preference == true
   end
 
   def messaging_blocked?
