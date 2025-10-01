@@ -1,10 +1,16 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "benchmark/ips"
-require_relative "../lib/cmdx"
+begin
+  require "benchmark/ips"
+rescue LoadError
+  puts "benchmark/ips is not installed, please install it with `gem install benchmark-ips`"
+  exit 1
+end
 
 # rubocop:disable Style/MixinUsage
+require_relative "../lib/cmdx"
+
 require_relative "../spec/support/helpers/task_builders"
 require_relative "../spec/support/helpers/workflow_builders"
 include CMDx::Testing::TaskBuilders
