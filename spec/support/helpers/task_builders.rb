@@ -18,15 +18,15 @@ module CMDx
 
       # Simple
 
-      def create_successful_task(name: "SuccessfulTask", &)
-        task_class = create_task_class(name:)
+      def create_successful_task(base: CMDx::Task, name: "SuccessfulTask", &)
+        task_class = create_task_class(base:, name:)
         task_class.class_eval(&) if block_given?
         task_class.define_method(:work) { (context.executed ||= []) << :success }
         task_class
       end
 
-      def create_skipping_task(name: "SkippingTask", reason: nil, **metadata, &)
-        task_class = create_task_class(name:)
+      def create_skipping_task(base: CMDx::Task, name: "SkippingTask", reason: nil, **metadata, &)
+        task_class = create_task_class(base:, name:)
         task_class.class_eval(&) if block_given?
         task_class.define_method(:work) do
           skip!(reason, **metadata)
@@ -35,8 +35,8 @@ module CMDx
         task_class
       end
 
-      def create_failing_task(name: "FailingTask", reason: nil, **metadata, &)
-        task_class = create_task_class(name:)
+      def create_failing_task(base: CMDx::Task, name: "FailingTask", reason: nil, **metadata, &)
+        task_class = create_task_class(base:, name:)
         task_class.class_eval(&) if block_given?
         task_class.define_method(:work) do
           fail!(reason, **metadata)
@@ -45,8 +45,8 @@ module CMDx
         task_class
       end
 
-      def create_erroring_task(name: "ErroringTask", reason: nil, **_metadata, &)
-        task_class = create_task_class(name:)
+      def create_erroring_task(base: CMDx::Task, name: "ErroringTask", reason: nil, **_metadata, &)
+        task_class = create_task_class(base:, name:)
         task_class.class_eval(&) if block_given?
         task_class.define_method(:work) do
           raise TestError, reason || "borked error"
@@ -57,8 +57,8 @@ module CMDx
 
       # Nested
 
-      def create_nested_task(strategy: :swallow, status: :success, reason: nil, **metadata, &)
-        inner_task = create_task_class(name: "InnerTask")
+      def create_nested_task(base: CMDx::Task, strategy: :swallow, status: :success, reason: nil, **metadata, &)
+        inner_task = create_task_class(base:, name: "InnerTask")
         inner_task.class_eval(&) if block_given?
         inner_task.define_method(:work) do
           case status
@@ -70,7 +70,7 @@ module CMDx
           end
         end
 
-        middle_task = create_task_class(name: "MiddleTask")
+        middle_task = create_task_class(base:, name: "MiddleTask")
         middle_task.class_eval(&) if block_given?
         middle_task.define_method(:work) do
           case strategy
@@ -83,7 +83,7 @@ module CMDx
           (context.executed ||= []) << :middle
         end
 
-        outer_task = create_task_class(name: "OuterTask")
+        outer_task = create_task_class(base:, name: "OuterTask")
         outer_task.class_eval(&) if block_given?
         outer_task.define_method(:work) do
           case strategy

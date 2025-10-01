@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Clean halt backtrace frames
 - Improve performance of task settings setup
 - Improve raised errors messages
+- Improve inheritance of parent settings
 - Removed the `Freezer` module and moved the logic into the executor `freeze_execution!`
 - Remove passing the task to callback signature
 - Remove task/workflow arguments from conditional checks

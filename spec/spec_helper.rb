@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 ENV["SKIP_CMDX_FREEZING"] = "1"
-ENV["TZ"] = "UTC"
+ENV["TZ"] = "Etc/UTC"
 
 require "bundler/setup"
 require "rspec"

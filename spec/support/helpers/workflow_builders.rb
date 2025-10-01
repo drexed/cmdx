@@ -16,48 +16,48 @@ module CMDx
 
       # Simple
 
-      def create_successful_workflow(name: "SuccessfulWorkflow", &block)
-        task1 = create_successful_task(name: "SuccessfulTask1")
-        task2 = create_nested_task(strategy: :throw, status: :success)
-        task3 = create_successful_task(name: "SuccessfulTask3")
+      def create_successful_workflow(base: CMDx::Task, name: "SuccessfulWorkflow", &block)
+        task1 = create_successful_task(base:, name: "SuccessfulTask1")
+        task2 = create_nested_task(base:, strategy: :throw, status: :success)
+        task3 = create_successful_task(base:, name: "SuccessfulTask3")
 
-        create_workflow_class(name:) do
+        create_workflow_class(base:, name:) do
           tasks task1, task2, task3
 
           class_eval(&block) if block_given?
         end
       end
 
-      def create_skipping_workflow(name: "SkippingWorkflow", &block)
-        pre_skip_task = create_successful_task(name: "PreSkipTask")
-        skipping_task = create_nested_task(strategy: :throw, status: :skipped)
-        post_skip_task = create_successful_task(name: "PostSkipTask")
+      def create_skipping_workflow(base: CMDx::Task, name: "SkippingWorkflow", &block)
+        pre_skip_task = create_successful_task(base:, name: "PreSkipTask")
+        skipping_task = create_nested_task(base:, strategy: :throw, status: :skipped)
+        post_skip_task = create_successful_task(base:, name: "PostSkipTask")
 
-        create_workflow_class(name:) do
+        create_workflow_class(base:, name:) do
           tasks pre_skip_task, skipping_task, post_skip_task
 
           class_eval(&block) if block_given?
         end
       end
 
-      def create_failing_workflow(name: "FailingWorkflow", &block)
-        pre_fail_task = create_successful_task(name: "PreFailTask")
-        failing_task = create_nested_task(strategy: :throw, status: :failure)
-        post_fail_task = create_successful_task(name: "PostFailTask")
+      def create_failing_workflow(base: CMDx::Task, name: "FailingWorkflow", &block)
+        pre_fail_task = create_successful_task(base:, name: "PreFailTask")
+        failing_task = create_nested_task(base:, strategy: :throw, status: :failure)
+        post_fail_task = create_successful_task(base:, name: "PostFailTask")
 
-        create_workflow_class(name:) do
+        create_workflow_class(base:, name:) do
           tasks pre_fail_task, failing_task, post_fail_task
 
           class_eval(&block) if block_given?
         end
       end
 
-      def create_erroring_workflow(name: "ErroringWorkflow", &block)
-        pre_error_task = create_successful_task(name: "PreErrorTask")
-        erroring_task = create_nested_task(strategy: :raise, status: :error)
-        post_error_task = create_successful_task(name: "PostErrorTask")
+      def create_erroring_workflow(base: CMDx::Task, name: "ErroringWorkflow", &block)
+        pre_error_task = create_successful_task(base:, name: "PreErrorTask")
+        erroring_task = create_nested_task(base:, strategy: :raise, status: :error)
+        post_error_task = create_successful_task(base:, name: "PostErrorTask")
 
-        create_workflow_class(name:) do
+        create_workflow_class(base:, name:) do
           tasks pre_error_task, erroring_task, post_error_task
 
           class_eval(&block) if block_given?
