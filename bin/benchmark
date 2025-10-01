@@ -23,6 +23,10 @@ class BaseTask < CMDx::Task
 
 end
 
+# While not the best setup for benchmarking raw performance
+# since there is some metaprogramming going on with the task
+# creators, its a good baseline to compare against each type
+# of halting scenario.
 successful_task = create_successful_task(base: BaseTask)
 skipping_task = create_skipping_task(base: BaseTask)
 failing_task = create_failing_task(base: BaseTask)
