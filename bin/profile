@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# USAGE: RUBY_YJIT_ENABLE=1 bin/benchmark
+# USAGE: RUBY_YJIT_ENABLE=1 bin/profile
 
 begin
-  require "benchmark/ips"
+  require "ruby-prof"
 rescue LoadError
-  puts "benchmark/ips is not installed, please install it with `gem install benchmark-ips`"
+  puts "ruby-prof is not installed, please install it with `gem install ruby-prof`"
   exit 1
 end
 
@@ -22,18 +22,12 @@ include CMDx::Testing::WorkflowBuilders
 CMDx.reset_configuration!
 CMDx.configuration.logger = Logger.new(nil)
 
-# While not the best setup for benchmarking raw performance
+# While not the best setup for profiling real world usage
 # since there is some metaprogramming going on with the task
 # creators, its a good baseline to compare against each type
 # of halting scenario.
-successful_task = create_successful_task
-skipping_task   = create_skipping_task
-failing_task    = create_failing_task
-erroring_task   = create_erroring_task
+task = create_successful_task
 
-Benchmark.ips do |x|
-  x.report("success") { successful_task.execute }
-  x.report("skipped") { skipping_task.execute }
-  x.report("failed") { failing_task.execute }
-  x.report("errored") { erroring_task.execute }
-end
+result  = RubyProf::Profile.profile { task.execute }
+printer = RubyProf::GraphPrinter.new(result)
+printer.print($stdout, min_percent: 1)
