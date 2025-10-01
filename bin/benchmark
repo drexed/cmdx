@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "benchmark/ips"
+require_relative "../lib/cmdx"
+
+# rubocop:disable Style/MixinUsage
+require_relative "../spec/support/helpers/task_builders"
+require_relative "../spec/support/helpers/workflow_builders"
+include CMDx::Testing::TaskBuilders
+include CMDx::Testing::WorkflowBuilders
+# rubocop:enable Style/MixinUsage
+
+class BaseTask < CMDx::Task
+
+  settings(logger: Logger.new(nil))
+
+end
+
+successful_task = create_successful_task(base: BaseTask)
+skipping_task = create_skipping_task(base: BaseTask)
+failing_task = create_failing_task(base: BaseTask)
+erroring_task = create_erroring_task(base: BaseTask)
+
+Benchmark.ips do |x|
+  x.report("success") { successful_task.execute }
+  x.report("skipped") { skipping_task.execute }
+  x.report("failed") { failing_task.execute }
+  x.report("errored") { erroring_task.execute }
+end
