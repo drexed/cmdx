@@ -136,6 +136,20 @@ RSpec.describe CMDx::Coercions::Hash, type: :unit do
       end
     end
 
+    context "when value is an object that responds to to_h" do
+      it "converts the object to a hash" do
+        object = Object.new
+        def object.to_h
+          { key: "value" }
+        end
+
+        result = coercion.call(object)
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq(key: "value")
+      end
+    end
+
     context "when value is invalid" do
       it "raises CoercionError for string not starting with '{'" do
         expect { coercion.call("not json") }
