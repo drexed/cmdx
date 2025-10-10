@@ -39,6 +39,8 @@ module CMDx
           ::Hash[*value]
         elsif value.is_a?(::String) && value.start_with?("{")
           JSON.parse(value)
+        elsif value.respond_to?(:to_h)
+          value.to_h
         else
           raise_coercion_error!
         end
