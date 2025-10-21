@@ -1608,7 +1608,7 @@ Globally these settings are initialized with sensible defaults.</p>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">&para;</a></h3>
-<p>See the <a href="#https://github.com/drexed/cmdx/blob/main/docs/middlewares.md#declarations">Middelwares</a> docs for task level configurations.</p>
+<p>See the <a href="../middlewares/#declarations">Middlewares</a> docs for task level configurations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(task, options)`)</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
@@ -1634,7 +1634,7 @@ Globally these settings are initialized with sensible defaults.</p>
 <p>Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.</p>
 </div>
 <h3 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h3>
-<p>See the <a href="#https://github.com/drexed/cmdx/blob/main/docs/callbacks.md#declarations">Callbacks</a> docs for task level configurations.</p>
+<p>See the <a href="../callbacks/#declarations">Callbacks</a> docs for task level configurations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="c1"># Via method</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:initialize_user_session</span>
@@ -1656,7 +1656,7 @@ Globally these settings are initialized with sensible defaults.</p>
 </span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="coercions">Coercions<a class="headerlink" href="#coercions" title="Permanent link">&para;</a></h3>
-<p>See the <a href="#https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md#declarations">Attributes - Coercions</a> docs for task level configurations.</p>
+<p>See the <a href="../attributes/coercions/#declarations">Attributes - Coercions</a> docs for task level configurations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(value, options)`)</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:currency</span><span class="p">,</span><span class="w"> </span><span class="no">CurrencyCoercion</span>
@@ -1678,7 +1678,7 @@ Globally these settings are initialized with sensible defaults.</p>
 </span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="validators">Validators<a class="headerlink" href="#validators" title="Permanent link">&para;</a></h3>
-<p>See the <a href="#https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md#declarations">Attributes - Validations</a> docs for task level configurations.</p>
+<p>See the <a href="../attributes/validations/#declarations">Attributes - Validations</a> docs for task level configurations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(value, options)`)</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:username</span><span class="p">,</span><span class="w"> </span><span class="no">UsernameValidator</span>
@@ -1812,7 +1812,7 @@ Deregister options that should not be available.</p>
 </div>
 <hr />
 <ul>
-<li><strong>Prev:</strong> <a href="../tips_and_tricks/">Tips and Tricks</a></li>
+<li><strong>Prev:</strong> <a href="../">Home</a></li>
 <li><strong>Next:</strong> <a href="../basics/setup/">Basics - Setup</a></li>
 </ul>
 
