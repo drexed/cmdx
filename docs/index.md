@@ -46,50 +46,52 @@ Here's how a quick 4 step process can open up a world of possibilities:
 
 ### 1. Compose
 
-```ruby
-# Minimum Viable Task
+=== "Minimum Viable Task"
 
-class SendAnalyzedEmail < CMDx::Task
-  def work
-    user = User.find(context.user_id)
-    MetricsMailer.analyzed(user).deliver_now
-  end
-end
-
-# Full Featured Task
-
-class AnalyzeMetrics < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
-
-  on_success :track_analysis_completion!
-
-  required :dataset_id, type: :integer, numeric: { min: 1 }
-  optional :analysis_type, default: "standard"
-
-  def work
-    if dataset.nil?
-      fail!("Dataset not found", code: 404)
-    elsif dataset.unprocessed?
-      skip!("Dataset not ready for analysis")
-    else
-      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
-      context.analyzed_at = Time.now
-
-      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+    ```ruby
+    class SendAnalyzedEmail < CMDx::Task
+      def work
+        user = User.find(context.user_id)
+        MetricsMailer.analyzed(user).deliver_now
+      end
     end
-  end
+    ```
 
-  private
+=== "Full Featured Task"
 
-  def dataset
-    @dataset ||= Dataset.find_by(id: dataset_id)
-  end
+    ```ruby
+    class AnalyzeMetrics < CMDx::Task
+      register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
-  def track_analysis_completion!
-    dataset.update!(analysis_result_id: context.result.id)
-  end
-end
-```
+      on_success :track_analysis_completion!
+
+      required :dataset_id, type: :integer, numeric: { min: 1 }
+      optional :analysis_type, default: "standard"
+
+      def work
+        if dataset.nil?
+          fail!("Dataset not found", code: 404)
+        elsif dataset.unprocessed?
+          skip!("Dataset not ready for analysis")
+        else
+          context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
+          context.analyzed_at = Time.now
+
+          SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+        end
+      end
+
+      private
+
+      def dataset
+        @dataset ||= Dataset.find_by(id: dataset_id)
+      end
+
+      def track_analysis_completion!
+        dataset.update!(analysis_result_id: context.result.id)
+      end
+    end
+    ```
 
 ### 2. Execute
 
