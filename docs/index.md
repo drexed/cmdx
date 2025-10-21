@@ -8,18 +8,6 @@ Build business logic that's powerful, predictable, and chaos-free.
 
 Ditch the messy service objects. CMDx helps you design business processes with clarity and consistency—build faster, debug easier, and keep your sanity.
 
-## Compose, Execute, React, Observe (CERO) pattern
-
-CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
-
-🧩 **Compose** → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
-
-⚡ **Execute** → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
-
-🔄 **React** → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
-
-🔍 **Observe** → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -45,17 +33,6 @@ gem install cmdx
 Here's how a quick 4 step process can open up a world of possibilities:
 
 ### 1. Compose
-
-=== "Minimum Viable Task"
-
-    ```ruby
-    class SendAnalyzedEmail < CMDx::Task
-      def work
-        user = User.find(context.user_id)
-        MetricsMailer.analyzed(user).deliver_now
-      end
-    end
-    ```
 
 === "Full Featured Task"
 
@@ -89,6 +66,17 @@ Here's how a quick 4 step process can open up a world of possibilities:
 
       def track_analysis_completion!
         dataset.update!(analysis_result_id: context.result.id)
+      end
+    end
+    ```
+
+=== "Minimum Viable Task"
+
+    ```ruby
+    class SendAnalyzedEmail < CMDx::Task
+      def work
+        user = User.find(context.user_id)
+        MetricsMailer.analyzed(user).deliver_now
       end
     end
     ```
