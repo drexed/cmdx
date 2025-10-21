@@ -74,7 +74,6 @@ markdown_extensions:
 
 plugins:
   - offline
-  - optimize
   - search
 
 nav:
