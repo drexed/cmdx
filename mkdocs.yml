@@ -81,25 +81,25 @@ nav:
   - Home: index.md
   - Getting Started: getting_started.md
   - Basics:
-      - Setup: basics/setup.md
-      - Execution: basics/execution.md
-      - Context: basics/context.md
-      - Chain: basics/chain.md
+    - Setup: basics/setup.md
+    - Execution: basics/execution.md
+    - Context: basics/context.md
+    - Chain: basics/chain.md
   - Interruptions:
-      - Halt: interruptions/halt.md
-      - Faults: interruptions/faults.md
-      - Exceptions: interruptions/exceptions.md
+    - Halt: interruptions/halt.md
+    - Faults: interruptions/faults.md
+    - Exceptions: interruptions/exceptions.md
   - Outcomes:
-      - Result: outcomes/result.md
-      - States: outcomes/states.md
-      - Statuses: outcomes/statuses.md
+    - Result: outcomes/result.md
+    - States: outcomes/states.md
+    - Statuses: outcomes/statuses.md
   - Attributes:
-      - Definitions: attributes/definitions.md
-      - Naming: attributes/naming.md
-      - Coercions: attributes/coercions.md
-      - Validations: attributes/validations.md
-      - Defaults: attributes/defaults.md
-      - Transformations: attributes/transformations.md
+    - Definitions: attributes/definitions.md
+    - Naming: attributes/naming.md
+    - Coercions: attributes/coercions.md
+    - Validations: attributes/validations.md
+    - Defaults: attributes/defaults.md
+    - Transformations: attributes/transformations.md
   - Callbacks: callbacks.md
   - Middlewares: middlewares.md
   - Logging: logging.md
