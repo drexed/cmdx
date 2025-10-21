@@ -43,10 +43,12 @@ theme:
         name: Switch to system preference
   features:
     - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
     - navigation.tracking
-    - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.path
     - navigation.top
     - search.share
     - search.suggest
