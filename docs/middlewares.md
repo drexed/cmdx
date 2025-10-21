@@ -2,7 +2,7 @@
 
 Middleware provides Rack-style wrappers around task execution for cross-cutting concerns like authentication, logging, caching, and error handling.
 
-Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#middlewares) docs for global configuration.
+Check out the [Getting Started](getting_started.md#middlewares) docs for global configuration.
 
 ## Order
 

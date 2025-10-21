@@ -130,7 +130,7 @@ end
 
 ### Middlewares
 
-See the [Middelwares](#https://github.com/drexed/cmdx/blob/main/docs/middlewares.md#declarations) docs for task level configurations.
+See the [Middlewares](middlewares.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -160,7 +160,7 @@ end
 
 ### Callbacks
 
-See the [Callbacks](#https://github.com/drexed/cmdx/blob/main/docs/callbacks.md#declarations) docs for task level configurations.
+See the [Callbacks](callbacks.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -186,7 +186,7 @@ end
 
 ### Coercions
 
-See the [Attributes - Coercions](#https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md#declarations) docs for task level configurations.
+See the [Attributes - Coercions](attributes/coercions.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -212,7 +212,7 @@ end
 
 ### Validators
 
-See the [Attributes - Validations](#https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md#declarations) docs for task level configurations.
+See the [Attributes - Validations](attributes/validations.md#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -372,5 +372,5 @@ end
 
 ---
 
-- **Prev:** [Tips and Tricks](tips_and_tricks.md)
+- **Prev:** [Home](index.md)
 - **Next:** [Basics - Setup](basics/setup.md)

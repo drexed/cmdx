@@ -2,7 +2,7 @@
 
 Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
 
-Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#callbacks) docs for global configuration.
+Check out the [Getting Started](getting_started.md#callbacks) docs for global configuration.
 
 !!! warning "Important"
 

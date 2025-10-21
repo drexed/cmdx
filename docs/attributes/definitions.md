@@ -274,5 +274,5 @@ result.metadata #=> {
 
 ---
 
-- **Prev:** [Outcomes - States](../outcomes/states.md)
+- **Prev:** [Outcomes - Statuses](../outcomes/statuses.md)
 - **Next:** [Attributes - Naming](naming.md)
