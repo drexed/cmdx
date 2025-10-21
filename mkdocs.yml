@@ -7,7 +7,7 @@ site_author: drexed
 repo_name: drexed/cmdx
 repo_url: https://github.com/drexed/cmdx
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2025 - EoT | Drexed, Inc.
+copyright: Drexed, Inc. &copy; 2025 - EoT
 
 theme:
   name: material
