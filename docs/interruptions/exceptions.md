@@ -1,16 +1,16 @@
 # Interruptions - Exceptions
 
-CMDx provides robust exception handling that differs between the `execute` and `execute!` methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.
+Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy.
 
 ## Exception Handling
 
 !!! warning "Important"
 
-    When designing tasks try not to `raise` your own exceptions directly, instead use `skip!` or `fail!` to signal intent clearly.
+    Prefer `skip!` and `fail!` over raising exceptions—they signal intent more clearly.
 
 ### Non-bang execution
 
-The `execute` method captures **all** unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.
+Captures all exceptions and returns them as failed results:
 
 ```ruby
 class CompressDocument < CMDx::Task
@@ -30,11 +30,11 @@ result.cause    #=> <ActiveRecord::NotFoundError>
 
 !!! note
 
-    The `exception_handler` setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.
+    Use `exception_handler` with `execute` to send exceptions to APM tools before they become failed results.
 
 ### Bang execution
 
-The `execute!` method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.
+Lets exceptions propagate naturally for standard Ruby error handling:
 
 ```ruby
 class CompressDocument < CMDx::Task

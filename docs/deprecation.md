@@ -1,16 +1,16 @@
 # Task Deprecation
 
-Task deprecation provides a systematic approach to managing legacy tasks in CMDx applications. The deprecation system enables controlled migration paths by issuing warnings, logging messages, or preventing execution of deprecated tasks entirely, helping teams maintain code quality while providing clear upgrade paths.
+Manage legacy tasks gracefully with built-in deprecation support. Choose how to handle deprecated tasks—log warnings for awareness, issue Ruby warnings for development, or prevent execution entirely.
 
 ## Modes
 
 ### Raise
 
-`:raise` mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.
+Prevent task execution completely. Perfect for tasks that must no longer run.
 
 !!! warning
 
-    Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
+    Use `:raise` mode carefully—it will break existing workflows immediately.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task
@@ -27,7 +27,7 @@ result = ProcessObsoleteAPI.execute
 
 ### Log
 
-`:log` mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.
+Allow execution while tracking deprecation in logs. Ideal for gradual migrations.
 
 ```ruby
 class ProcessLegacyFormat < CMDx::Task
@@ -50,7 +50,7 @@ result.successful? #=> true
 
 ### Warn
 
-`:warn` mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.
+Issue Ruby warnings visible during development and testing. Keeps production logs clean while alerting developers.
 
 ```ruby
 class ProcessOldData < CMDx::Task

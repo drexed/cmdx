@@ -1,9 +1,6 @@
 # Outcomes - States
 
-States represent the execution lifecycle condition of task execution, tracking
-the progress of tasks through their complete execution journey. States provide
-insight into where a task is in its lifecycle and enable lifecycle-based
-decision making and monitoring.
+States track where a task is in its execution lifecycle—from creation through completion or interruption.
 
 ## Definitions
 
@@ -29,7 +26,7 @@ State-Status combinations:
 
 !!! danger "Caution"
 
-    States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
+    States are managed automatically—never modify them manually.
 
 ```ruby
 # Valid state transition flow
@@ -56,7 +53,7 @@ result.executed?    #=> true (complete OR interrupted)
 
 ## Handlers
 
-Use state-based handlers for lifecycle event handling. The `on_executed` handler is particularly useful for cleanup operations that should run regardless of success, skipped, or failure.
+Handle lifecycle events with state-based handlers. Use `handle_executed` for cleanup that runs regardless of outcome:
 
 ```ruby
 result = ProcessVideoUpload.execute

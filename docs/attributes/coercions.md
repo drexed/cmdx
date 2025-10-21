@@ -1,8 +1,8 @@
 # Attributes - Coercions
 
-Attribute coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.
+Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-Check out the [Getting Started](../getting_started.md#coercions) docs for global configuration.
+See [Global Configuration](../getting_started.md#coercions) for custom coercion setup.
 
 ## Usage
 
@@ -59,7 +59,7 @@ ParseMetrics.execute(
 
 !!! warning "Important"
 
-    Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
+    Custom coercions must raise `CMDx::CoercionError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -109,11 +109,11 @@ end
 
 ## Removals
 
-Remove custom coercions when no longer needed:
+Remove unwanted coercions:
 
 !!! warning
 
-    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+    Each `deregister` call removes one coercion. Use multiple calls for batch removals.
 
 ```ruby
 class TransformCoordinates < CMDx::Task

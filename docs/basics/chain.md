@@ -1,14 +1,14 @@
 # Basics - Chain
 
-Chains automatically group related task executions within a thread, providing unified tracking, correlation, and execution context management. Each thread maintains its own chain through thread-local storage, eliminating the need for manual coordination.
+Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.
 
 ## Management
 
-Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.
+Each thread maintains its own isolated chain using thread-local storage.
 
 !!! warning
 
-    Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.
+    Chains are thread-local. Don't share chain references across threads—it causes race conditions.
 
 ```ruby
 # Thread A
@@ -30,11 +30,11 @@ CMDx::Chain.clear    #=> Clears current thread's chain
 
 ## Links
 
-Every task execution automatically creates or joins the current thread's chain:
+Tasks automatically create or join the current thread's chain:
 
 !!! warning "Important"
 
-    Chain creation is automatic and transparent. You don't need to manually manage chain lifecycle.
+    Chain management is automatic—no manual lifecycle handling needed.
 
 ```ruby
 class ImportDataset < CMDx::Task
@@ -57,7 +57,7 @@ end
 
 ## Inheritance
 
-When tasks call subtasks within the same thread, all executions automatically inherit the current chain, creating a unified execution trail.
+Subtasks automatically inherit the current thread's chain, building a unified execution trail:
 
 ```ruby
 class ImportDataset < CMDx::Task
@@ -82,11 +82,11 @@ chain.results.map { |r| r.task.class }
 
 ## Structure
 
-Chains provide comprehensive execution information with state delegation:
+Chains expose comprehensive execution information:
 
 !!! warning "Important"
 
-    Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.
+    Chain state reflects the first (outermost) task result. Subtasks maintain their own states.
 
 ```ruby
 result = ImportDataset.execute(dataset_id: 456)

@@ -1,8 +1,8 @@
 # Attributes - Validations
 
-Attribute validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.
+Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-Check out the [Getting Started](../getting_started.md#validators) docs for global configuration.
+See [Global Configuration](../getting_started.md#validators) for custom validator setup.
 
 ## Usage
 
@@ -197,7 +197,7 @@ end
 
 !!! warning "Important"
 
-    Custom validators must raise a `CMDx::ValidationError` and its message is used as part of the fault reason and metadata.
+    Custom validators must raise `CMDx::ValidationError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -243,11 +243,11 @@ end
 
 ## Removals
 
-Remove custom validators when no longer needed:
+Remove unwanted validators:
 
 !!! warning
 
-    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+    Each `deregister` call removes one validator. Use multiple calls for batch removals.
 
 ```ruby
 class SetupApplication < CMDx::Task
@@ -257,7 +257,7 @@ end
 
 ## Error Handling
 
-Validation failures provide detailed error information including attribute paths, validation rules, and specific failure reasons:
+Validation failures provide detailed, structured error messages:
 
 ```ruby
 class CreateProject < CMDx::Task

@@ -1,6 +1,6 @@
 # Outcomes - Statuses
 
-Statuses represent the business outcome of task execution logic, indicating how the task's business logic concluded. Statuses differ from execution states by focusing on the business outcome rather than the technical execution lifecycle. Understanding statuses is crucial for implementing proper business logic branching and error handling.
+Statuses represent the business outcome—did the task succeed, skip, or fail? This differs from state, which tracks the execution lifecycle.
 
 ## Definitions
 
@@ -14,7 +14,7 @@ Statuses represent the business outcome of task execution logic, indicating how 
 
 !!! warning "Important"
 
-    Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.
+    Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
 
 ```ruby
 # Valid status transitions
@@ -47,7 +47,7 @@ result.bad?     #=> true if skipped OR failed (not success)
 
 ## Handlers
 
-Use status-based handlers for business logic branching. The `on_good` and `on_bad` handlers are particularly useful for handling success/skip vs failed outcomes respectively.
+Branch business logic with status-based handlers. Use `handle_good` and `handle_bad` for success/skip vs failed outcomes:
 
 ```ruby
 result = ProcessNotification.execute

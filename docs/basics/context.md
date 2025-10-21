@@ -1,10 +1,10 @@
 # Basics - Context
 
-Task context provides flexible data storage, access, and sharing within task execution. It serves as the primary data container for all task inputs, intermediate results, and outputs.
+Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.
 
 ## Assigning Data
 
-Context is automatically populated with all inputs passed to a task. All keys are normalized to symbols for consistent access:
+Context automatically captures all task inputs, normalizing keys to symbols:
 
 ```ruby
 # Direct execution
@@ -16,11 +16,11 @@ CalculateShipping.new(weight: 2.5, "destination" => "CA")
 
 !!! warning "Important"
 
-    String keys are automatically converted to symbols. Use symbols for consistency in your code.
+    String keys convert to symbols automatically. Prefer symbols for consistency.
 
 ## Accessing Data
 
-Context provides multiple access patterns with automatic nil safety:
+Access context data using method notation, hash keys, or safe accessors:
 
 ```ruby
 class CalculateShipping < CMDx::Task
@@ -45,7 +45,7 @@ end
 
 !!! warning "Important"
 
-    Accessing undefined context attributes returns `nil` instead of raising errors, enabling graceful handling of optional attributes.
+    Undefined attributes return `nil` instead of raising errors—perfect for optional data.
 
 ## Modifying Context
 
@@ -92,7 +92,7 @@ end
 
 ## Data Sharing
 
-Context enables seamless data flow between related tasks in complex workflows:
+Share context across tasks for seamless data flow:
 
 ```ruby
 # During execution

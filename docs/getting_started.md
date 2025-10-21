@@ -1,34 +1,33 @@
 # Getting Started
 
-CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control.
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
-**Common challenges:**
+**Common challenges it solves:**
 
-- Inconsistent patterns across implementations
-- Minimal or no logging, making debugging painful
-- Fragile designs that erode developer confidence
+- Inconsistent service object patterns across your codebase
+- Limited logging makes debugging a nightmare
+- Fragile error handling erodes confidence
 
-**Practical solutions:**
+**What you get:**
 
-- Establishes a consistent, standardized design
-- Provides flow control and error handling
-- Supports composable, reusable workflows
-- Includes detailed logging for observability
-- Defines input attributes with fallback defaults
-- Adds validations and type coercions
-- Plus many other developer-friendly tools
+- Consistent, standardized architecture
+- Built-in flow control and error handling
+- Composable, reusable workflows
+- Comprehensive logging for observability
+- Attribute validation with type coercions
+- Sensible defaults and developer-friendly APIs
 
-## Compose, Execute, React, Observe (CERO) pattern
+## The CERO Pattern
 
-CMDx encourages breaking business logic into composable tasks. Each task can be combined into larger workflows, executed with standardized flow control, and fully observed through logging, validations, and context.
+CMDx embraces the Compose, Execute, React, Observe (CERO) pattern—a simple yet powerful approach to building reliable business logic.
 
-🧩 **Compose** → Define small, contract-driven tasks with typed attributes, validations, and natural workflow composition.
+🧩 **Compose** — Define small, focused tasks with typed attributes and validations
 
-⚡ **Execute** → Run tasks with clear outcomes, intentional halts, and pluggable behaviors via middlewares and callbacks.
+⚡ **Execute** — Run tasks with clear outcomes and pluggable behaviors
 
-🔄 **React** → Adapt to outcomes by chaining follow-up tasks, handling faults, or shaping future flows.
+🔄 **React** — Adapt to outcomes by chaining follow-up tasks or handling faults
 
-🔍 **Observe** → Capture immutable results, structured logs, and full execution chains for reliable tracing and insight.
+🔍 **Observe** — Capture structured logs and execution chains for debugging
 
 ## Installation
 
@@ -48,47 +47,44 @@ This creates `config/initializers/cmdx.rb` file.
 
 ## Configuration Hierarchy
 
-CMDx follows a two-tier configuration hierarchy:
+CMDx uses a straightforward two-tier configuration system:
 
-1. **Global Configuration**: Framework-wide defaults
-2. **Task Settings**: Class-level overrides via `settings`
+1. **Global Configuration** — Framework-wide defaults
+2. **Task Settings** — Class-level overrides using `settings`
 
 !!! warning "Important"
 
-    Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
+    Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.
 
 ## Global Configuration
 
-Global configuration settings apply to all tasks inherited from `CMDx::Task`.
-Globally these settings are initialized with sensible defaults.
+Configure framework-wide defaults that apply to all tasks. These settings come with sensible defaults out of the box.
 
 ### Breakpoints
 
-Raise `CMDx::Fault` when a task called with `execute!` returns a matching status.
+Control when `execute!` raises a `CMDx::Fault` based on task status.
 
 ```ruby
 CMDx.configure do |config|
-  # String or Array[String]
-  config.task_breakpoints = "failed"
+  config.task_breakpoints = "failed" # String or Array[String]
 end
 ```
 
-Workflow breakpoints stops execution and of workflow pipeline on the first task that returns a matching status and throws its `CMDx::Fault`.
+For workflows, configure which statuses halt the execution pipeline:
 
 ```ruby
 CMDx.configure do |config|
-  # String or Array[String]
   config.workflow_breakpoints = ["skipped", "failed"]
 end
 ```
 
 ### Backtraces
 
-Enable backtraces to be logged on any non-fault exceptions for improved debugging context. Run them through a cleaner to remove unwanted stack trace noise.
+Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
 
 !!! note
 
-    The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
+    In Rails environments, `backtrace_cleaner` defaults to `Rails.backtrace_cleaner.clean`.
 
 ```ruby
 CMDx.configure do |config|
@@ -105,7 +101,7 @@ end
 
 ### Exception Handlers
 
-Use exception handlers are called on non-fault standard error based exceptions.
+Register handlers that run when non-fault exceptions occur.
 
 !!! tip
 
@@ -273,12 +269,11 @@ end
 
 !!! warning "Important"
 
-    Retries reuse the same context when executing its work. By default all `StandardErrors` will be retried if no `retry_on` option is passed.
+    Retries reuse the same context. By default, all `StandardError` exceptions are retried unless you specify `retry_on`.
 
 ### Registrations
 
-Register middlewares, callbacks, coercions, and validators on a specific task.
-Deregister options that should not be available.
+Register or deregister middlewares, callbacks, coercions, and validators for specific tasks:
 
 ```ruby
 class SendCampaignEmail < CMDx::Task
@@ -332,7 +327,7 @@ end
 
 !!! warning
 
-    Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
+    Resetting affects your entire application. Use this primarily in test environments.
 
 ```ruby
 # Reset to framework defaults

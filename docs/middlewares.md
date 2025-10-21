@@ -1,16 +1,16 @@
 # Middlewares
 
-Middleware provides Rack-style wrappers around task execution for cross-cutting concerns like authentication, logging, caching, and error handling.
+Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-Check out the [Getting Started](getting_started.md#middlewares) docs for global configuration.
+See [Global Configuration](getting_started.md#middlewares) for framework-wide setup.
 
-## Order
+## Execution Order
 
-Middleware executes in a nested fashion, creating an onion-like execution pattern:
+Middleware wraps task execution in layers, like an onion:
 
 !!! note
 
-    Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
+    First registered = outermost wrapper. They execute in registration order.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -86,11 +86,11 @@ end
 
 ## Removals
 
-Class and Module based declarations can be removed at a global and task level.
+Remove class or module-based middleware globally or per-task:
 
 !!! warning
 
-    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+    Each `deregister` call removes one middleware. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -103,7 +103,7 @@ end
 
 ### Timeout
 
-Ensures task execution doesn't exceed a specified time limit:
+Prevent tasks from running too long:
 
 ```ruby
 class ProcessReport < CMDx::Task
@@ -139,7 +139,7 @@ result.metadata #=> { limit: 3 }
 
 ### Correlate
 
-Tags tasks with a global correlation ID for distributed tracing:
+Add correlation IDs for distributed tracing and request tracking:
 
 ```ruby
 class ProcessExport < CMDx::Task
@@ -169,8 +169,7 @@ result.metadata #=> { correlation_id: "550e8400-e29b-41d4-a716-446655440000" }
 
 ### Runtime
 
-The runtime middleware tags tasks with how long it took to execute the task.
-The calculation uses a monotonic clock and the time is returned in milliseconds.
+Track task execution time in milliseconds using a monotonic clock:
 
 ```ruby
 class PerformanceMonitoringCheck

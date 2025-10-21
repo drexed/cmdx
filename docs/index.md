@@ -1,12 +1,12 @@
 # CMDx
 
-Build business logic that's powerful, predictable, and chaos-free.
+Build business logic that's powerful, predictable, and maintainable.
 
 [![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
 [![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/drexed/cmdx)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
 
-Ditch the messy service objects. CMDx helps you design business processes with clarity and consistency—build faster, debug easier, and keep your sanity.
+Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 ## Installation
 
@@ -30,7 +30,7 @@ gem install cmdx
 
 ## Quick Example
 
-Here's how a quick 4 step process can open up a world of possibilities:
+Build powerful business logic in four simple steps:
 
 ### 1. Compose
 
@@ -111,6 +111,8 @@ index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendA
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
+
+Ready to dive in? Check out the [Getting Started](getting_started.md) guide to learn more.
 
 ## Ecosystem
 

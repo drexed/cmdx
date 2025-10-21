@@ -1,10 +1,10 @@
 # Attributes - Defaults
 
-Attribute defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.
+Provide fallback values for optional attributes. Defaults kick in when values aren't provided or are `nil`.
 
 ## Declarations
 
-Defaults apply when attributes are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested attributes.
+Defaults work seamlessly with coercions, validations, and nested attributes:
 
 ### Static Values
 
@@ -64,7 +64,7 @@ end
 
 ## Coercions and Validations
 
-Defaults are subject to the same coercion and validation rules as provided values, ensuring consistency and catching configuration errors early.
+Defaults follow the same coercion and validation rules as provided values:
 
 ```ruby
 class ScheduleBackup < CMDx::Task

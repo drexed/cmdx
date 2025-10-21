@@ -1,6 +1,6 @@
 # Interruptions - Faults
 
-Faults are exception mechanisms that halt task execution via `skip!` and `fail!` methods. When tasks execute with the `execute!` method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.
+Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.
 
 ## Fault Types
 
@@ -12,7 +12,7 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 
 !!! warning "Important"
 
-    All fault exceptions inherit from `CMDx::Fault` and provide access to the complete task execution context including result, task, context, and chain information.
+    All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
 
 ## Fault Handling
 
@@ -33,7 +33,7 @@ end
 
 ## Data Access
 
-Faults provide comprehensive access to execution context, eg:
+Access rich execution data from fault exceptions:
 
 ```ruby
 begin
@@ -62,7 +62,7 @@ end
 
 ### Task-Specific Matching
 
-Use `for?` to handle faults only from specific task classes, enabling targeted exception handling in complex workflows.
+Handle faults only from specific tasks using `for?`:
 
 ```ruby
 begin
@@ -92,7 +92,7 @@ end
 
 ## Fault Propagation
 
-Use `throw!` to propagate failures while preserving fault context and maintaining the error chain for debugging.
+Propagate failures with `throw!` to preserve context and maintain the error chain:
 
 ### Basic Propagation
 
@@ -139,7 +139,7 @@ end
 
 ## Chain Analysis
 
-Results provide methods to analyze fault propagation and identify original failure sources in complex execution chains.
+Trace fault origins and propagation through the execution chain:
 
 ```ruby
 result = DocumentWorkflow.execute(invalid_data)

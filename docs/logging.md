@@ -1,10 +1,10 @@
 # Logging
 
-CMDx provides comprehensive automatic logging for task execution with structured data, customizable formatters, and intelligent severity mapping. All task results are logged after completion with rich metadata for debugging and monitoring.
+CMDx automatically logs every task execution with structured data, making debugging and monitoring effortless. Choose from multiple formatters to match your logging infrastructure.
 
 ## Formatters
 
-CMDx supports multiple log formatters to integrate with various logging systems:
+Choose the format that works best for your logging system:
 
 | Formatter | Use Case | Output Style |
 |-----------|----------|--------------|
@@ -36,11 +36,11 @@ index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="Billi
 
 !!! tip
 
-    Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.
+    Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.
 
 ## Structure
 
-All log entries include comprehensive execution metadata. Field availability depends on execution context and outcome.
+Every log entry includes rich metadata. Available fields depend on execution context and outcome.
 
 ### Core Fields
 
@@ -81,7 +81,7 @@ All log entries include comprehensive execution metadata. Field availability dep
 
 ## Usage
 
-Tasks have access to the frameworks logger.
+Access the framework logger directly within tasks:
 
 ```ruby
 class ProcessSubscription < CMDx::Task

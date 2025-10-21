@@ -1,6 +1,6 @@
 # Attributes - Definitions
 
-Attributes define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.
+Attributes define your task's interface with automatic validation, type coercion, and accessor generation. They're the contract between callers and your business logic.
 
 ## Declarations
 
@@ -75,7 +75,7 @@ PublishArticle.execute(
 
 ## Sources
 
-Attributes delegate to accessible objects within the task. The default source is `:context`, but any accessible method or object can serve as an attribute source.
+Attributes read from any accessible object—not just context. Use sources to pull data from models, services, or any callable:
 
 ### Context
 
@@ -155,11 +155,11 @@ end
 
 ## Nesting
 
-Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
+Build complex structures with nested attributes. Children inherit their parent as source and support all attribute options:
 
 !!! note
 
-    All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
+    Nested attributes support all features: naming, coercions, validations, defaults, and more.
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -214,15 +214,15 @@ ConfigureServer.execute(
 
 !!! warning "Important"
 
-    Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
+    Child requirements only apply when the parent is provided—perfect for optional structures.
 
 ## Error Handling
 
-Attribute validation failures result in structured error information with details about each failed attribute.
+Validation failures provide detailed, structured error messages:
 
 !!! note
 
-    Nested attributes are only ever evaluated when the parent attribute is available and valid.
+    Nested attributes are only validated when their parent is present and valid.
 
 ```ruby
 class ConfigureServer < CMDx::Task

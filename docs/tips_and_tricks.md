@@ -1,6 +1,6 @@
 # Tips and Tricks
 
-This guide covers advanced patterns and optimization techniques for getting the most out of CMDx in production applications.
+Best practices, patterns, and techniques to build maintainable CMDx applications.
 
 ## Project Organization
 
@@ -44,7 +44,7 @@ class TokenGeneration < CMDx::Task; end    # ❌ Avoid
 
 ### Story Telling
 
-Consider using descriptive methods to express the task’s flow, rather than concentrating all logic inside the `work` method.
+Break down complex logic into descriptive methods that read like a narrative:
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -76,7 +76,7 @@ end
 
 ### Style Guide
 
-Follow a style pattern for consistent task design:
+Follow this order for consistent, readable tasks:
 
 ```ruby
 class ExportReport < CMDx::Task
@@ -119,7 +119,7 @@ end
 
 ## Attribute Options
 
-Use Rails `with_options` to reduce duplication and improve readability:
+Use `with_options` to reduce duplication:
 
 ```ruby
 class ConfigureCompany < CMDx::Task

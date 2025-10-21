@@ -1,14 +1,14 @@
 # Outcomes - Result
 
-The result object is the comprehensive return value of task execution, providing complete information about the execution outcome, state, timing, and any data produced during the task lifecycle. Results serve as the primary interface for inspecting task execution outcomes and chaining task operations.
+Results are your window into task execution. They expose everything: outcome, state, timing, context, and metadata.
 
 ## Result Attributes
 
-Every result provides access to essential execution information:
+Access essential execution information:
 
 !!! warning "Important"
 
-    Result objects are immutable after task execution completes and reflect the final state.
+    Results are immutable after execution completes.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -30,7 +30,7 @@ result.metadata #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 
 ## Lifecycle Information
 
-Results provide comprehensive methods for checking execution state and status:
+Check execution state and status with predicate methods:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -52,7 +52,7 @@ result.bad?         #=> false (skipped or failed)
 
 ## Outcome Analysis
 
-Results provide unified outcome determination depending on the fault causal chain:
+Get a unified outcome string combining state and status:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -62,7 +62,7 @@ result.outcome #=> "success" (state and status)
 
 ## Chain Analysis
 
-Use these methods to trace the root cause of faults or trace the cause points.
+Trace fault origins and propagation:
 
 ```ruby
 result = DeploymentWorkflow.execute(app_name: "webapp")
@@ -103,7 +103,7 @@ result.chain.results[result.index] == result #=> true
 
 ## Block Yield
 
-Implement conditional logic using a block expression that yields a result for complete encapsulation.
+Execute code with direct result access:
 
 ```ruby
 BuildApplication.execute(version: "1.2.3") do |result|
@@ -119,7 +119,7 @@ end
 
 ## Handlers
 
-Use result handlers for clean, functional-style conditional logic. Handlers return the result object, enabling method chaining and fluent interfaces.
+Handle outcomes with functional-style methods. Handlers return the result for chaining:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -143,11 +143,11 @@ result
 
 ## Pattern Matching
 
-Results support Ruby's pattern matching through array and hash deconstruction:
+Use Ruby 3.0+ pattern matching for elegant outcome handling:
 
 !!! warning "Important"
 
-    Pattern matching requires Ruby 3.0+
+    Pattern matching works with both array and hash deconstruction.
 
 ### Array Pattern
 

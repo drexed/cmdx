@@ -1,10 +1,10 @@
 # Basics - Setup
 
-Tasks are the core building blocks of CMDx, encapsulating business logic within structured, reusable objects. Each task represents a unit of work with automatic attribute validation, error handling, and execution tracking.
+Tasks are the heart of CMDx—self-contained units of business logic with built-in validation, error handling, and execution tracking.
 
 ## Structure
 
-Tasks inherit from `CMDx::Task` and require only a `work` method:
+Tasks need only two things: inherit from `CMDx::Task` and define a `work` method:
 
 ```ruby
 class ValidateDocument < CMDx::Task
@@ -14,7 +14,7 @@ class ValidateDocument < CMDx::Task
 end
 ```
 
-An exception will be raised if a work method is not defined.
+Without a `work` method, execution raises `CMDx::UndefinedMethodError`.
 
 ```ruby
 class IncompleteTask < CMDx::Task
@@ -26,8 +26,7 @@ IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 
 ## Inheritance
 
-All configuration options are inheritable by any child classes.
-Create a base class to share common configuration across tasks:
+Share configuration across tasks using inheritance:
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -53,11 +52,11 @@ end
 
 ## Lifecycle
 
-Tasks follow a predictable call pattern with specific states and statuses:
+Tasks follow a predictable execution pattern:
 
 !!! danger "Caution"
 
-    Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
+    Tasks are single-use objects. Once executed, they're frozen and immutable.
 
 | Stage | State | Status | Description |
 |-------|-------|--------|-------------|

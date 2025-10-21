@@ -1,11 +1,10 @@
 # Basics - Execution
 
-Task execution in CMDx provides two distinct methods that handle success and halt scenarios differently. Understanding when to use each method is crucial for proper error handling and control flow in your application workflows.
+CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow.
 
-## Methods Overview
+## Execution Methods
 
-Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
-Create a new instance for subsequent executions.
+Both methods return results, but handle failures differently:
 
 | Method | Returns | Exceptions | Use Case |
 |--------|---------|------------|----------|
@@ -14,10 +13,7 @@ Create a new instance for subsequent executions.
 
 ## Non-bang Execution
 
-The `execute` method always returns a `CMDx::Result` object regardless of execution outcome.
-This is the preferred method for most use cases.
-
-Any unhandled exceptions will be caught and returned as a task failure.
+Always returns a `CMDx::Result`, never raises exceptions. Perfect for most use cases.
 
 ```ruby
 result = CreateAccount.execute(email: "user@example.com")
@@ -35,9 +31,7 @@ result.status           #=> "success"
 
 ## Bang Execution
 
-The bang `execute!` method raises a `CMDx::Fault` based exception when tasks fail or are skipped, and returns a `CMDx::Result` object only on success.
-
-It raises any unhandled non-fault exceptions caused during execution.
+Raises `CMDx::Fault` exceptions on failure or skip. Returns results only on success.
 
 | Exception | Raised When |
 |-----------|-------------|
@@ -46,7 +40,7 @@ It raises any unhandled non-fault exceptions caused during execution.
 
 !!! warning "Important"
 
-    `execute!` behavior depends on the `task_breakpoints` or `workflow_breakpoints` configuration. By default, it raises exceptions only on failures.
+    Behavior depends on `task_breakpoints` or `workflow_breakpoints` config. Default: only failures raise exceptions.
 
 ```ruby
 begin

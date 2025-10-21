@@ -1,14 +1,14 @@
 # Workflows
 
-Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
+Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.
 
 ## Declarations
 
-Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
+Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
 
-!!! warning "Important"
+!!! warning
 
-    Do **NOT** define a `work` method in workflow tasks. The included module automatically provides the execution logic.
+    Don't define a `work` method in workflows—the module handles execution automatically.
 
 ### Task
 
@@ -29,11 +29,11 @@ end
 
 ### Group
 
-Group related tasks for better organization and shared configuration:
+Group related tasks to share configuration:
 
 !!! warning "Important"
 
-    Settings and conditionals for a group apply to all tasks within that group.
+    Settings and conditionals apply to all tasks in the group.
 
 ```ruby
 class ContentModerationWorkflow < CMDx::Task
@@ -96,9 +96,7 @@ end
 
 ## Halt Behavior
 
-By default skipped tasks are considered no-op executions and does not stop workflow execution.
-This is configurable via global and task level breakpoint settings. Task and group configurations
-can be used together within a workflow.
+By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally or per-task to customize this behavior.
 
 ```ruby
 class AnalyticsWorkflow < CMDx::Task
@@ -154,7 +152,7 @@ end
 
 ## Nested Workflows
 
-Workflows can task other workflows for hierarchical composition:
+Build hierarchical workflows by composing workflows within workflows:
 
 ```ruby
 class EmailPreparationWorkflow < CMDx::Task
@@ -181,11 +179,11 @@ end
 
 ## Parallel Execution
 
-Parallel task execution leverages the [Parallel](https://github.com/grosser/parallel) gem, which automatically detects the number of available processors to maximize concurrent task execution.
+Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem. It automatically uses all available processors for maximum throughput.
 
-!!! warning "Important"
+!!! warning
 
-    Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.
+    Context is read-only during parallel execution. Load all required data beforehand.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task

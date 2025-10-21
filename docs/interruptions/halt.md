@@ -1,14 +1,14 @@
 # Interruptions - Halt
 
-Halting stops task execution with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes.
+Stop task execution intentionally using `skip!` or `fail!`. Both methods signal clear intent about why execution stopped.
 
 ## Skipping
 
-`skip!` communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
+Use `skip!` when the task doesn't need to run. It's a no-op, not an error.
 
 !!! warning "Important"
 
-    Skipping is a no-op, not a failure or error and are considered successful outcomes.
+    Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -43,7 +43,7 @@ result.reason #=> "Warehouse closed"
 
 ## Failing
 
-`fail!` communicates that the task encountered an impediment that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.
+Use `fail!` when the task can't complete successfully. It signals controlled, intentional failure:
 
 ```ruby
 class ProcessRefund < CMDx::Task
@@ -78,7 +78,7 @@ result.reason #=> "Refund period has expired"
 
 ## Metadata Enrichment
 
-Both halt methods accept metadata to provide additional context about the interruption. Metadata is stored as a hash and becomes available through the result object.
+Enrich halt calls with metadata for better debugging and error handling:
 
 ```ruby
 class ProcessRenewal < CMDx::Task
@@ -178,7 +178,7 @@ end
 
 ## Best Practices
 
-Always try to provide a `reason` when using halt methods. This provides clear context for debugging and creates meaningful exception messages.
+Always provide a reason for better debugging and clearer exception messages:
 
 ```ruby
 # Good: Clear, specific reason
@@ -196,11 +196,11 @@ fail! #=> "Unspecified"
 
 ## Manual Errors
 
-There are rare cases where you need to manually assign errors.
+For rare cases, manually add errors before halting:
 
 !!! warning "Important"
 
-    Keep in mind you will still need to initiate a fault if a stoppage of work is required.
+    Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
 
 ```ruby
 class ProcessRenewal < CMDx::Task

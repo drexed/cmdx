@@ -1,10 +1,10 @@
 # Internationalization (i18n)
 
-CMDx provides comprehensive internationalization support for all error messages, attribute validation failures, coercion errors, and fault messages. All user-facing text is automatically localized based on the current `I18n.locale`, ensuring your applications can serve global audiences with native-language error reporting.
+CMDx supports 90+ languages out of the box for all error messages, validations, coercions, and faults. Error messages automatically adapt to the current `I18n.locale`, making it easy to build applications for global audiences.
 
-## Localization
+## Usage
 
-CMDx automatically localizes all error messages based on the `I18n.locale` setting.
+All error messages are automatically localized based on your current locale:
 
 ```ruby
 class ProcessQuote < CMDx::Task
@@ -23,11 +23,11 @@ end
 
 ## Configuration
 
-Localization is handled by the `I18n` gem. In Rails applications, locales are loaded automatically and managed via the `I18n.available_locales` setting.
+CMDx uses the `I18n` gem for localization. In Rails, locales load automatically.
 
-### Local Copies
+### Copy Locale Files
 
-Execute the following command to copy any locale into the Rails applications `config/locales` directory:
+Copy locale files to your Rails application's `config/locales` directory:
 
 ```bash
 rails generate cmdx:locale [LOCALE]

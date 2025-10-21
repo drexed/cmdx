@@ -1,27 +1,27 @@
 # Callbacks
 
-Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the `execute` method, enabling rich integration patterns.
+Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-Check out the [Getting Started](getting_started.md#callbacks) docs for global configuration.
+See [Global Configuration](getting_started.md#callbacks) for framework-wide callback setup.
 
 !!! warning "Important"
 
-    Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
+    Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
 
 ## Available Callbacks
 
-Callbacks execute in precise lifecycle order. Here is the complete execution sequence:
+Callbacks execute in a predictable lifecycle order:
 
 ```ruby
 1. before_validation           # Pre-validation setup
-2. before_execution            # Setup and preparation
+2. before_execution            # Prepare for execution
 
-# --- Task#work executed ---
+# --- Task#work executes ---
 
-3. on_[complete|interrupted]   # Based on execution state
-4. on_executed                 # Task finished (any outcome)
-5. on_[success|skipped|failed] # Based on execution status
-6. on_[good|bad]               # Based on outcome classification
+3. on_[complete|interrupted]   # State-based (execution lifecycle)
+4. on_executed                 # Always runs after work completes
+5. on_[success|skipped|failed] # Status-based (business outcome)
+6. on_[good|bad]               # Outcome-based (success/skip vs fail)
 ```
 
 ## Declarations
@@ -140,11 +140,11 @@ end
 
 ## Callback Removal
 
-Remove callbacks at runtime for dynamic behavior control:
+Remove unwanted callbacks dynamically:
 
 !!! warning "Important"
 
-    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+    Each `deregister` call removes one callback. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessBooking < CMDx::Task

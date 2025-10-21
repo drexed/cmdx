@@ -1,10 +1,10 @@
 # Attributes - Naming
 
-Attribute naming provides method name customization to prevent conflicts and enable flexible attribute access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, affixing ensures clean method resolution within tasks.
+Customize accessor method names to avoid conflicts and improve clarity. Affixing changes only the generated methods—not the original attribute names.
 
 !!! note
 
-    Affixing modifies only the generated accessor method names within tasks.
+    Use naming when attributes conflict with existing methods or need better clarity in your code.
 
 ## Prefix
 

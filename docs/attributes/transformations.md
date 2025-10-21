@@ -1,6 +1,6 @@
 # Attributes - Transformations
 
-Transformations allow you to modify attribute values after they are derived and coerced from their source but before any validations. This enables data normalization, formatting, and conditional processing within the attribute pipeline.
+Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.
 
 ## Declarations
 
@@ -50,7 +50,7 @@ end
 
 ## Validations
 
-Transformed values are subject to the same validation rules as untransformed values, ensuring consistency and catching configuration errors early.
+Validations run on transformed values, ensuring data consistency:
 
 ```ruby
 class ScheduleBackup < CMDx::Task
