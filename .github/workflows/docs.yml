@@ -19,15 +19,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      # - name: Set cache ID
-      #   run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      # - name: Cache dependencies
-      #   uses: actions/cache@v4
-      #   with:
-      #     key: mkdocs-shadcn-${{ env.cache_id }}
-      #     path: ~/.cache
-      #     restore-keys: |
-      #       mkdocs-shadcn-
+      - name: Set cache ID
+        run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          key: mkdocs-shadcn-${{ env.cache_id }}
+          path: ~/.cache
+          restore-keys: |
+            mkdocs-shadcn-
       - name: Install dependencies
         run: pip install mkdocs-shadcn pymdown-extensions
       - name: Deploy documentation
