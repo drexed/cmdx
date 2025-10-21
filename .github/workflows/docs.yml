@@ -29,6 +29,6 @@ jobs:
           restore-keys: |
             mkdocs-shadcn-
       - name: Install dependencies
-        run: pip install mkdocs-shadcn
+        run: pip install mkdocs-shadcn pymdown-extensions
       - name: Deploy documentation
         run: mkdocs gh-deploy --force
