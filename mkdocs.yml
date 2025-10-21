@@ -9,6 +9,7 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   logo: assets/logo.svg
+  favicon: assets/favicon.png
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
