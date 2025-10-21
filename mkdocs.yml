@@ -37,8 +37,8 @@ markdown_extensions:
 
 plugins:
   - search
-  - excalidraw
-  - mkdocstrings
+  # - excalidraw
+  # - mkdocstrings
 
 nav:
   - Home: index.md
