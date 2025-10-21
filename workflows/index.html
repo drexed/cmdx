@@ -1339,10 +1339,10 @@
 <p>Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <p>Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.</p>
-<blockquote>
-<p>[!IMPORTANT]
-Do <strong>NOT</strong> define a <code>work</code> method in workflow tasks. The included module automatically provides the execution logic.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Do <strong>NOT</strong> define a <code>work</code> method in workflow tasks. The included module automatically provides the execution logic.</p>
+</div>
 <h3 id="task">Task<a class="headerlink" href="#task" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
@@ -1353,16 +1353,16 @@ Do <strong>NOT</strong> define a <code>work</code> method in workflow tasks. The
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">CreateDashboard</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Execute tasks in parallel via the <a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> gem.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Execute tasks in parallel via the <a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> gem.</p>
+</div>
 <h3 id="group">Group<a class="headerlink" href="#group" title="Permanent link">&para;</a></h3>
 <p>Group related tasks for better organization and shared configuration:</p>
-<blockquote>
-<p>[!IMPORTANT]
-Settings and conditionals for a group apply to all tasks within that group.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Settings and conditionals for a group apply to all tasks within that group.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ContentModerationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1487,10 +1487,10 @@ can be used together within a workflow.</p>
 </span></code></pre></div>
 <h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
 <p>Parallel task execution leverages the <a href="https://github.com/grosser/parallel">Parallel</a> gem, which automatically detects the number of available processors to maximize concurrent task execution.</p>
-<blockquote>
-<p>[!IMPORTANT]
-Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
@@ -1518,10 +1518,10 @@ Context cannot be modified during parallel execution. Ensure that all required d
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">Task1</span><span class="p">,</span><span class="w"> </span><span class="no">Task2</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">end</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Use <strong>present tense verbs + pluralized noun</strong> for workflow task names, eg: <code>SendNotifications</code>, <code>DownloadFiles</code>, <code>ValidateDocuments</code></p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use <strong>present tense verbs + pluralized noun</strong> for workflow task names, eg: <code>SendNotifications</code>, <code>DownloadFiles</code>, <code>ValidateDocuments</code></p>
+</div>
 <hr />
 <ul>
 <li><strong>Prev:</strong> <a href="../deprecation/">Deprecation</a></li>

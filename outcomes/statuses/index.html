@@ -1229,10 +1229,10 @@
 </tbody>
 </table>
 <h2 id="transitions">Transitions<a class="headerlink" href="#transitions" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>[!IMPORTANT]
-Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Valid status transitions</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">success</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">skipped</span><span class="w">    </span><span class="c1"># via skip!</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">success</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">failed</span><span class="w">     </span><span class="c1"># via fail! or exception</span>

@@ -1345,10 +1345,10 @@
 <p>The result object is the comprehensive return value of task execution, providing complete information about the execution outcome, state, timing, and any data produced during the task lifecycle. Results serve as the primary interface for inspecting task execution outcomes and chaining task operations.</p>
 <h2 id="result-attributes">Result Attributes<a class="headerlink" href="#result-attributes" title="Permanent link">&para;</a></h2>
 <p>Every result provides access to essential execution information:</p>
-<blockquote>
-<p>[!IMPORTANT]
-Result objects are immutable after task execution completes and reflect the final state.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Result objects are immutable after task execution completes and reflect the final state.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">)</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Object data</span>
@@ -1456,10 +1456,10 @@ Result objects are immutable after task execution completes and reflect the fina
 </span></code></pre></div>
 <h2 id="pattern-matching">Pattern Matching<a class="headerlink" href="#pattern-matching" title="Permanent link">&para;</a></h2>
 <p>Results support Ruby's pattern matching through array and hash deconstruction:</p>
-<blockquote>
-<p>[!IMPORTANT]
-Pattern matching requires Ruby 3.0+</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Pattern matching requires Ruby 3.0+</p>
+</div>
 <h3 id="array-pattern">Array Pattern<a class="headerlink" href="#array-pattern" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">)</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>

@@ -1309,10 +1309,10 @@
 <p>Halting stops task execution with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes.</p>
 <h2 id="skipping">Skipping<a class="headerlink" href="#skipping" title="Permanent link">&para;</a></h2>
 <p><code>skip!</code> communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.</p>
-<blockquote>
-<p>[!IMPORTANT]
-Skipping is a no-op, not a failure or error and are considered successful outcomes.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Skipping is a no-op, not a failure or error and are considered successful outcomes.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="c1"># Without a reason</span>
@@ -1490,10 +1490,10 @@ Skipping is a no-op, not a failure or error and are considered successful outcom
 </span></code></pre></div>
 <h2 id="manual-errors">Manual Errors<a class="headerlink" href="#manual-errors" title="Permanent link">&para;</a></h2>
 <p>There are rare cases where you need to manually assign errors.</p>
-<blockquote>
-<p>[!IMPORTANT]
-Keep in mind you will still need to initiate a fault if a stoppage of work is required.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Keep in mind you will still need to initiate a fault if a stoppage of work is required.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">document</span><span class="o">.</span><span class="n">nonrenewable?</span>

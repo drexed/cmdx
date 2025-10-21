@@ -1338,10 +1338,10 @@
 <h1 id="attributes-definitions">Attributes - Definitions<a class="headerlink" href="#attributes-definitions" title="Permanent link">&para;</a></h1>
 <p>Attributes define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>[!TIP]
-Prefer using the <code>required</code> and <code>optional</code> alias for <code>attributes</code> for brevity and to clearly signal intent.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Prefer using the <code>required</code> and <code>optional</code> alias for <code>attributes</code> for brevity and to clearly signal intent.</p>
+</div>
 <h3 id="optional">Optional<a class="headerlink" href="#optional" title="Permanent link">&para;</a></h3>
 <p>Optional attributes return <code>nil</code> when not provided.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ScheduleEvent</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1464,10 +1464,10 @@ Prefer using the <code>required</code> and <code>optional</code> alias for <code
 </span></code></pre></div>
 <h2 id="nesting">Nesting<a class="headerlink" href="#nesting" title="Permanent link">&para;</a></h2>
 <p>Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.</p>
-<blockquote>
-<p>[!NOTE]
-All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureServer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Required parent with required children</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:network_config</span><span class="w"> </span><span class="k">do</span>
@@ -1517,16 +1517,16 @@ All options available to top-level attributes are available to nested attributes
 </span><span id="__span-6-47"><a id="__codelineno-6-47" name="__codelineno-6-47" href="#__codelineno-6-47"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-6-48"><a id="__codelineno-6-48" name="__codelineno-6-48" href="#__codelineno-6-48"></a><span class="p">)</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!IMPORTANT]
-Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.</p>
+</div>
 <h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
 <p>Attribute validation failures result in structured error information with details about each failed attribute.</p>
-<blockquote>
-<p>[!NOTE]
-Nested attributes are only ever evaluated when the parent attribute is available and valid.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Nested attributes are only ever evaluated when the parent attribute is available and valid.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureServer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:server_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:environment</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:network_config</span><span class="w"> </span><span class="k">do</span>

@@ -1213,10 +1213,10 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Instance creation</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;destination&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!IMPORTANT]
-String keys are automatically converted to symbols. Use symbols for consistency in your code.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>String keys are automatically converted to symbols. Use symbols for consistency in your code.</p>
+</div>
 <h2 id="accessing-data">Accessing Data<a class="headerlink" href="#accessing-data" title="Permanent link">&para;</a></h2>
 <p>Context provides multiple access patterns with automatic nil safety:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1238,10 +1238,10 @@ String keys are automatically converted to symbols. Use symbols for consistency 
 </span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">end</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!IMPORTANT]
-Accessing undefined context attributes returns <code>nil</code> instead of raising errors, enabling graceful handling of optional attributes.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Accessing undefined context attributes returns <code>nil</code> instead of raising errors, enabling graceful handling of optional attributes.</p>
+</div>
 <h2 id="modifying-context">Modifying Context<a class="headerlink" href="#modifying-context" title="Permanent link">&para;</a></h2>
 <p>Context supports dynamic modification during task execution:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1277,10 +1277,10 @@ Accessing undefined context attributes returns <code>nil</code> instead of raisi
 </span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="k">end</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.</p>
+</div>
 <h2 id="data-sharing">Data Sharing<a class="headerlink" href="#data-sharing" title="Permanent link">&para;</a></h2>
 <p>Context enables seamless data flow between related tasks in complex workflows:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># During execution</span>

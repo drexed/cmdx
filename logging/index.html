@@ -1326,10 +1326,10 @@
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>index=3 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;BillingWorkflow&quot;  state=&quot;interrupted&quot; status=&quot;failed&quot; caused_failure={index: 2, class: &quot;CalculateTax&quot;, status: &quot;failed&quot;} threw_failure={index: 1, class: &quot;ValidateCustomer&quot;, status: &quot;failed&quot;}
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.</p>
+</div>
 <h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
 <p>All log entries include comprehensive execution metadata. Field availability depends on execution context and outcome.</p>
 <h3 id="core-fields">Core Fields<a class="headerlink" href="#core-fields" title="Permanent link">&para;</a></h3>

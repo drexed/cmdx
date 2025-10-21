@@ -1440,10 +1440,10 @@
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">  </span><span class="ss">contact_email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user@company.com&quot;</span>
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="p">)</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Validations run after coercions, so you can validate the final coerced values rather than raw input.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Validations run after coercions, so you can validate the final coerced values rather than raw input.</p>
+</div>
 <h2 id="built-in-validators">Built-in Validators<a class="headerlink" href="#built-in-validators" title="Permanent link">&para;</a></h2>
 <h3 id="common-options">Common Options<a class="headerlink" href="#common-options" title="Permanent link">&para;</a></h3>
 <p>This list of options is available to all validators:</p>
@@ -1768,10 +1768,10 @@ Validations run after coercions, so you can validate the final coerced values ra
 </tbody>
 </table>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>[!IMPORTANT]
-Custom validators must raise a <code>CMDx::ValidationError</code> and its message is used as part of the fault reason and metadata.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Custom validators must raise a <code>CMDx::ValidationError</code> and its message is used as part of the fault reason and metadata.</p>
+</div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
 <p>Use anonymous functions for simple validation logic:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SetupApplication</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1808,10 +1808,10 @@ Custom validators must raise a <code>CMDx::ValidationError</code> and its messag
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
 <p>Remove custom validators when no longer needed:</p>
-<blockquote>
-<p>[!WARNING]
-Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SetupApplication</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:api_key</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">end</span>

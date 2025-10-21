@@ -1278,10 +1278,10 @@ decision making and monitoring.</p>
 </tbody>
 </table>
 <h2 id="transitions">Transitions<a class="headerlink" href="#transitions" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>[!CAUTION]
-States are automatically managed during task execution and should <strong>never</strong> be modified manually. State transitions are handled internally by the CMDx framework.</p>
-</blockquote>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>States are automatically managed during task execution and should <strong>never</strong> be modified manually. State transitions are handled internally by the CMDx framework.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Valid state transition flow</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">initialized</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">complete</span><span class="w">    </span><span class="p">(</span><span class="n">successful</span><span class="w"> </span><span class="n">execution</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">initialized</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">interrupted</span><span class="w"> </span><span class="p">(</span><span class="n">skipped</span><span class="o">/</span><span class="n">failed</span><span class="w"> </span><span class="n">execution</span><span class="p">)</span>

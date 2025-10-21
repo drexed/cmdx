@@ -1187,10 +1187,10 @@
 
 <h1 id="attributes-naming">Attributes - Naming<a class="headerlink" href="#attributes-naming" title="Permanent link">&para;</a></h1>
 <p>Attribute naming provides method name customization to prevent conflicts and enable flexible attribute access patterns. When attributes share names with existing methods or when multiple attributes from different sources have the same name, affixing ensures clean method resolution within tasks.</p>
-<blockquote>
-<p>[!NOTE]
-Affixing modifies only the generated accessor method names within tasks.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Affixing modifies only the generated accessor method names within tasks.</p>
+</div>
 <h2 id="prefix">Prefix<a class="headerlink" href="#prefix" title="Permanent link">&para;</a></h2>
 <p>Adds a prefix to the generated accessor method name.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">GenerateReport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>

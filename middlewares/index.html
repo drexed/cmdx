@@ -1322,10 +1322,10 @@
 <p>Check out the <a href="https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#middlewares">Getting Started</a> docs for global configuration.</p>
 <h2 id="order">Order<a class="headerlink" href="#order" title="Permanent link">&para;</a></h2>
 <p>Middleware executes in a nested fashion, creating an onion-like execution pattern:</p>
-<blockquote>
-<p>[!NOTE]
-Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.</p>
-</blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="w">         </span><span class="c1"># 1st: outermost wrapper</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuthorizationMiddleware</span><span class="w"> </span><span class="c1"># 2nd: middle wrapper</span>
@@ -1389,10 +1389,10 @@ Middleware executes in the order they are registered, with the first registered 
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
 <p>Class and Module based declarations can be removed at a global and task level.</p>
-<blockquote>
-<p>[!WARNING]
-Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Class or Module (no instances)</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span>

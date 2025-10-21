@@ -1272,10 +1272,10 @@
 <h1 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h1>
 <p>Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the <code>execute</code> method, enabling rich integration patterns.</p>
 <p>Check out the <a href="https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#callbacks">Getting Started</a> docs for global configuration.</p>
-<blockquote>
-<p>[!IMPORTANT]
-Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).</p>
+</div>
 <h2 id="available-callbacks">Available Callbacks<a class="headerlink" href="#available-callbacks" title="Permanent link">&para;</a></h2>
 <p>Callbacks execute in precise lifecycle order. Here is the complete execution sequence:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="n">before_validation</span><span class="w">           </span><span class="c1"># Pre-validation setup</span>
@@ -1387,10 +1387,10 @@ Callbacks execute in the order they are declared within each hook type. Multiple
 </span></code></pre></div>
 <h2 id="callback-removal">Callback Removal<a class="headerlink" href="#callback-removal" title="Permanent link">&para;</a></h2>
 <p>Remove callbacks at runtime for dynamic behavior control:</p>
-<blockquote>
-<p>[!IMPORTANT]
-Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Symbol</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:notify_guest</span>

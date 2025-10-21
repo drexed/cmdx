@@ -1340,10 +1340,10 @@
 <h2 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h2>
 <h3 id="raise">Raise<a class="headerlink" href="#raise" title="Permanent link">&para;</a></h3>
 <p><code>:raise</code> mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.</p>
-<blockquote>
-<p>[!WARNING]
-Use <code>:raise</code> mode carefully in production environments as it will break existing workflows immediately.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use <code>:raise</code> mode carefully in production environments as it will break existing workflows immediately.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessObsoleteAPI</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecated</span><span class="p">:</span><span class="w"> </span><span class="ss">:raise</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>

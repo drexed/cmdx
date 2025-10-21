@@ -1297,10 +1297,10 @@
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="ss">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;98.6&quot;</span>
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="p">)</span>
 </span></code></pre></div>
-<blockquote>
-<p>[!TIP]
-Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.</p>
-</blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.</p>
+</div>
 <h2 id="built-in-coercions">Built-in Coercions<a class="headerlink" href="#built-in-coercions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1393,10 +1393,10 @@ Specify multiple coercion types for attributes that could be a variety of value 
 </tbody>
 </table>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>[!IMPORTANT]
-Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.</p>
+</div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
 <p>Use anonymous functions for simple coercion logic:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1437,10 +1437,10 @@ Coercions must raise a CMDx::CoercionError and its message is used as part of th
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
 <p>Remove custom coercions when no longer needed:</p>
-<blockquote>
-<p>[!WARNING]
-Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:geolocation</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
