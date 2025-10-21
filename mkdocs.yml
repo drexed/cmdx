@@ -1,3 +1,95 @@
 site_name: CMDx
 site_url: https://drexed.github.io/cmdx/
-theme: readthedocs
+site_description: Build business logic that's powerful, predictable, and chaos-free.
+site_author: drexed
+repo_name: drexed/cmdx
+repo_url: https://github.com/drexed/cmdx
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Basics:
+      - Setup: basics/setup.md
+      - Execution: basics/execution.md
+      - Context: basics/context.md
+      - Chain: basics/chain.md
+  - Interruptions:
+      - Halt: interruptions/halt.md
+      - Faults: interruptions/faults.md
+      - Exceptions: interruptions/exceptions.md
+  - Outcomes:
+      - Result: outcomes/result.md
+      - States: outcomes/states.md
+      - Statuses: outcomes/statuses.md
+  - Attributes:
+      - Definitions: attributes/definitions.md
+      - Naming: attributes/naming.md
+      - Coercions: attributes/coercions.md
+      - Validations: attributes/validations.md
+      - Defaults: attributes/defaults.md
+      - Transformations: attributes/transformations.md
+  - Callbacks: callbacks.md
+  - Middlewares: middlewares.md
+  - Logging: logging.md
+  - Internationalization: internationalization.md
+  - Deprecation: deprecation.md
+  - Workflows: workflows.md
+  - Tips and Tricks: tips_and_tricks.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/drexed/cmdx
