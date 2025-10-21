@@ -11,24 +11,24 @@ theme:
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
-      primary: custom
-      accent: custom
+      primary: red
+      accent: red
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: custom
-      accent: custom
+      primary: red
+      accent: red
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: custom
-      accent: custom
+      primary: red
+      accent: red
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
@@ -100,6 +100,3 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/drexed/cmdx
-
-extra_css:
-  - docs/stylesheets/extra.css
