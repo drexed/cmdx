@@ -10,7 +10,7 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  logo: assets/logo.svg
+  logo: assets/favicon.svg
   favicon: assets/favicon.ico
   icon:
     repo: fontawesome/brands/github
