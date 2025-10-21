@@ -105,6 +105,8 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
+Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/) guide to learn more.
+
 ## Ecosystem
 
 - [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
@@ -116,7 +118,7 @@ For backwards compatibility of certain functionality:
 
 ## Contributing
 
-Bug reports and pull requests are welcome at https://github.com/drexed/cmdx. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
