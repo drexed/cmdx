@@ -102,4 +102,4 @@ extra:
       link: https://github.com/drexed/cmdx
 
 extra_css:
-  - docs/stylesheets/extra.css
+  - stylesheets/extra.css
