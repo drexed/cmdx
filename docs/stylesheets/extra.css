@@ -7,32 +7,36 @@
   /* Accent color shades */
   --md-accent-fg-color:                hsla(#{hex2hsl(#fe1817)}, 1);
   --md-accent-fg-color--transparent:   hsla(#{hex2hsl(#fe1817)}, 0.1);
-
-  /* Vibrant syntax highlighting colors */
-  --md-code-hl-keyword-color:        #fe1817;
-  --md-code-hl-name-color:           #ff6b00;
-  --md-code-hl-function-color:       #ff6b00;
-  --md-code-hl-string-color:         #00d084;
-  --md-code-hl-number-color:         #ff00ff;
-  --md-code-hl-constant-color:       #ff00ff;
-  --md-code-hl-comment-color:        #888888;
-  --md-code-hl-operator-color:       #fe1817;
-  --md-code-hl-punctuation-color:    #ffaa00;
-  --md-code-hl-variable-color:       #0090ff;
-  --md-code-hl-generic-color:        #ff6b00;
 }
 
+/* Atom One Light syntax highlighting */
+[data-md-color-scheme="default"] {
+  --md-code-hl-color:            #383a42;
+  --md-code-hl-keyword-color:    #a626a4;
+  --md-code-hl-string-color:     #50a14f;
+  --md-code-hl-name-color:       #e45649;
+  --md-code-hl-function-color:   #4078f2;
+  --md-code-hl-number-color:     #986801;
+  --md-code-hl-constant-color:   #c18401;
+  --md-code-hl-comment-color:    #a0a1a7;
+  --md-code-hl-operator-color:   #383a42;
+  --md-code-hl-punctuation-color:#383a42;
+  --md-code-hl-variable-color:   #e45649;
+  --md-code-hl-generic-color:    #e45649;
+}
+
+/* Atom One Dark syntax highlighting */
 [data-md-color-scheme="slate"] {
-  /* Enhanced vibrant colors for dark mode */
-  --md-code-hl-keyword-color:        #ff3d3c;
-  --md-code-hl-name-color:           #ff8533;
-  --md-code-hl-function-color:       #ff8533;
-  --md-code-hl-string-color:         #00e68a;
-  --md-code-hl-number-color:         #ff33ff;
-  --md-code-hl-constant-color:       #ff33ff;
-  --md-code-hl-comment-color:        #999999;
-  --md-code-hl-operator-color:       #ff3d3c;
-  --md-code-hl-punctuation-color:    #ffbb33;
-  --md-code-hl-variable-color:       #33a6ff;
-  --md-code-hl-generic-color:        #ff8533;
+  --md-code-hl-color:            #abb2bf;
+  --md-code-hl-keyword-color:    #c678dd;
+  --md-code-hl-string-color:     #98c379;
+  --md-code-hl-name-color:       #e06c75;
+  --md-code-hl-function-color:   #61afef;
+  --md-code-hl-number-color:     #d19a66;
+  --md-code-hl-constant-color:   #e5c07b;
+  --md-code-hl-comment-color:    #5c6370;
+  --md-code-hl-operator-color:   #abb2bf;
+  --md-code-hl-punctuation-color:#abb2bf;
+  --md-code-hl-variable-color:   #e06c75;
+  --md-code-hl-generic-color:    #e06c75;
 }
