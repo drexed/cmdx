@@ -4,18 +4,6 @@ Middleware provides Rack-style wrappers around task execution for cross-cutting 
 
 Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#middlewares) docs for global configuration.
 
-## Table of Contents
-
-- [Order](#order)
-- [Declarations](#declarations)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-- [Removals](#removals)
-- [Built-in](#built-in)
-  - [Timeout](#timeout)
-  - [Correlate](#correlate)
-  - [Runtime](#runtime)
-
 ## Order
 
 Middleware executes in a nested fashion, creating an onion-like execution pattern:

@@ -2,12 +2,6 @@
 
 CMDx provides robust exception handling that differs between the `execute` and `execute!` methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.
 
-## Table of Contents
-
-- [Exception Handling](#exception-handling)
-  - [Non-bang execution](#non-bang-execution)
-  - [Bang execution](#bang-execution)
-
 ## Exception Handling
 
 > [!IMPORTANT]

@@ -2,13 +2,6 @@
 
 Task context provides flexible data storage, access, and sharing within task execution. It serves as the primary data container for all task inputs, intermediate results, and outputs.
 
-## Table of Contents
-
-- [Assigning Data](#assigning-data)
-- [Accessing Data](#accessing-data)
-- [Modifying Context](#modifying-context)
-- [Data Sharing](#data-sharing)
-
 ## Assigning Data
 
 Context is automatically populated with all inputs passed to a task. All keys are normalized to symbols for consistent access:

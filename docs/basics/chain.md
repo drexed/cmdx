@@ -2,13 +2,6 @@
 
 Chains automatically group related task executions within a thread, providing unified tracking, correlation, and execution context management. Each thread maintains its own chain through thread-local storage, eliminating the need for manual coordination.
 
-## Table of Contents
-
-- [Management](#management)
-- [Links](#links)
-- [Inheritance](#inheritance)
-- [Structure](#structure)
-
 ## Management
 
 Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.

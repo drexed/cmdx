@@ -2,19 +2,6 @@
 
 Task deprecation provides a systematic approach to managing legacy tasks in CMDx applications. The deprecation system enables controlled migration paths by issuing warnings, logging messages, or preventing execution of deprecated tasks entirely, helping teams maintain code quality while providing clear upgrade paths.
 
-## Table of Contents
-
-- [Modes](#modes)
-  - [Raise](#raise)
-  - [Log](#log)
-  - [Warn](#warn)
-- [Declarations](#declarations)
-  - [Symbol or String](#symbol-or-string)
-  - [Boolean or Nil](#boolean-or-nil)
-  - [Method](#method)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-
 ## Modes
 
 ### Raise

@@ -4,16 +4,6 @@ Attribute coercions automatically convert task arguments to expected types, ensu
 
 Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#coercions) docs for global configuration.
 
-## Table of Contents
-
-- [Usage](#usage)
-- [Built-in Coercions](#built-in-coercions)
-- [Declarations](#declarations)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-- [Removals](#removals)
-- [Error Handling](#error-handling)
-
 ## Usage
 
 Define attribute types to enable automatic coercion:

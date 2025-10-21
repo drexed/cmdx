@@ -4,23 +4,6 @@ Attribute validations ensure task arguments meet specified requirements before e
 
 Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#validations) docs for global configuration.
 
-## Table of Contents
-
-- [Usage](#usage)
-- [Built-in Validators](#built-in-validators)
-  - [Common Options](#common-options)
-  - [Exclusion](#exclusion)
-  - [Format](#format)
-  - [Inclusion](#inclusion)
-  - [Length](#length)
-  - [Numeric](#numeric)
-  - [Presence](#presence)
-- [Declarations](#declarations)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-- [Removals](#removals)
-- [Error Handling](#error-handling)
-
 ## Usage
 
 Define validation rules on attributes to enforce data requirements:

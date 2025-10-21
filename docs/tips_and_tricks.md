@@ -2,16 +2,6 @@
 
 This guide covers advanced patterns and optimization techniques for getting the most out of CMDx in production applications.
 
-## Table of Contents
-
-- [Project Organization](#project-organization)
-  - [Directory Structure](#directory-structure)
-  - [Naming Conventions](#naming-conventions)
-  - [Story Telling](#story-telling)
-  - [Style Guide](#style-guide)
-- [Attribute Options](#attribute-options)
-- [Advance Examples](#advance-examples)
-
 ## Project Organization
 
 ### Directory Structure

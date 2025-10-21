@@ -2,14 +2,6 @@
 
 Transformations allow you to modify attribute values after they are derived and coerced from their source but before any validations. This enables data normalization, formatting, and conditional processing within the attribute pipeline.
 
-## Table of Contents
-
-- [Declarations](#declarations)
-  - [Symbol References](#symbol-references)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-- [Validations](#validations)
-
 ## Declarations
 
 ### Symbol References

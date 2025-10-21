@@ -2,18 +2,6 @@
 
 Halting stops task execution with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes.
 
-## Table of Contents
-
-- [Skipping](#skipping)
-- [Failing](#failing)
-- [Metadata Enrichment](#metadata-enrichment)
-- [State Transitions](#state-transitions)
-- [Execution Behavior](#execution-behavior)
-  - [Non-bang execution](#non-bang-execution)
-  - [Bang execution](#bang-execution)
-- [Best Practices](#best-practices)
-- [Manual Errors](#manual-errors)
-
 ## Skipping
 
 `skip!` communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.

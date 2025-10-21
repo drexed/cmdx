@@ -2,12 +2,6 @@
 
 CMDx provides comprehensive automatic logging for task execution with structured data, customizable formatters, and intelligent severity mapping. All task results are logged after completion with rich metadata for debugging and monitoring.
 
-## Table of Contents
-
-- [Formatters](#formatters)
-- [Structure](#structure)
-- [Usage](#usage)
-
 ## Formatters
 
 CMDx supports multiple log formatters to integrate with various logging systems:

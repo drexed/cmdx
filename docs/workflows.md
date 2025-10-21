@@ -2,19 +2,6 @@
 
 Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.
 
-## Table of Contents
-
-- [Declarations](#declarations)
-  - [Task](#task)
-  - [Group](#group)
-  - [Conditionals](#conditionals)
-- [Halt Behavior](#halt-behavior)
-  - [Task Configuration](#task-configuration)
-  - [Group Configuration](#group-configuration)
-- [Nested Workflows](#nested-workflows)
-- [Parallel Execution](#parallel-execution)
-- [Task Generator](#task-generator)
-
 ## Declarations
 
 Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.

@@ -5,12 +5,6 @@ Attribute naming provides method name customization to prevent conflicts and ena
 > [!NOTE]
 > Affixing modifies only the generated accessor method names within tasks.
 
-## Table of Contents
-
-- [Prefix](#prefix)
-- [Suffix](#suffix)
-- [As](#as)
-
 ## Prefix
 
 Adds a prefix to the generated accessor method name.

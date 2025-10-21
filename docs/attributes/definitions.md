@@ -2,19 +2,6 @@
 
 Attributes define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.
 
-## Table of Contents
-
-- [Declarations](#declarations)
-  - [Optional](#optional)
-  - [Required](#required)
-- [Sources](#sources)
-  - [Context](#context)
-  - [Symbol References](#symbol-references)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-- [Nesting](#nesting)
-- [Error Handling](#error-handling)
-
 ## Declarations
 
 > [!TIP]

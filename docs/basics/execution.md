@@ -2,14 +2,6 @@
 
 Task execution in CMDx provides two distinct methods that handle success and halt scenarios differently. Understanding when to use each method is crucial for proper error handling and control flow in your application workflows.
 
-## Table of Contents
-
-- [Methods Overview](#methods-overview)
-- [Non-bang Execution](#non-bang-execution)
-- [Bang Execution](#bang-execution)
-- [Direct Instantiation](#direct-instantiation)
-- [Result Details](#result-details)
-
 ## Methods Overview
 
 Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.

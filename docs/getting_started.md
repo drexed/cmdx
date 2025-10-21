@@ -2,13 +2,13 @@
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Design robust workflows with automatic attribute validation, structured error handling, comprehensive logging, and intelligent execution flow control.
 
-**Common Challenges:**
+**Common challenges:**
 
 - Inconsistent patterns across implementations
 - Minimal or no logging, making debugging painful
 - Fragile designs that erode developer confidence
 
-**CMDx Solutions:**
+**Practical solutions:**
 
 - Establishes a consistent, standardized design
 - Provides flow control and error handling
@@ -17,28 +17,6 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - Defines input attributes with fallback defaults
 - Adds validations and type coercions
 - Plus many other developer-friendly tools
-
-## Table of Contents
-
-- [Compose, Execute, React, Observe pattern](#compose-execute-react-observe-pattern)
-- [Installation](#installation)
-- [Configuration Hierarchy](#configuration-hierarchy)
-- [Global Configuration](#global-configuration)
-  - [Breakpoints](#breakpoints)
-  - [Logging](#logging)
-  - [Backtraces](#backtraces)
-  - [Exception Handlers](#exception-handlers)
-  - [Middlewares](#middlewares)
-  - [Callbacks](#callbacks)
-  - [Coercions](#coercions)
-  - [Validators](#validators)
-- [Task Configuration](#task-configuration)
-  - [Settings](#settings)
-  - [Registrations](#registrations)
-- [Configuration Management](#configuration-management)
-  - [Access](#access)
-  - [Resetting](#resetting)
-- [Task Generator](#task-generator)
 
 ## Compose, Execute, React, Observe pattern
 

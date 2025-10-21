@@ -2,13 +2,6 @@
 
 Statuses represent the business outcome of task execution logic, indicating how the task's business logic concluded. Statuses differ from execution states by focusing on the business outcome rather than the technical execution lifecycle. Understanding statuses is crucial for implementing proper business logic branching and error handling.
 
-## Table of Contents
-
-- [Definitions](#definitions)
-- [Transitions](#transitions)
-- [Predicates](#predicates)
-- [Handlers](#handlers)
-
 ## Definitions
 
 | Status | Description |

@@ -2,20 +2,6 @@
 
 The result object is the comprehensive return value of task execution, providing complete information about the execution outcome, state, timing, and any data produced during the task lifecycle. Results serve as the primary interface for inspecting task execution outcomes and chaining task operations.
 
-## Table of Contents
-
-- [Result Attributes](#result-attributes)
-- [Lifecycle Information](#lifecycle-information)
-- [Outcome Analysis](#outcome-analysis)
-- [Chain Analysis](#chain-analysis)
-- [Index and Position](#index-and-position)
-- [Block Yield](#block-yield)
-- [Handlers](#handlers)
-- [Pattern Matching](#pattern-matching)
-  - [Array Pattern](#array-pattern)
-  - [Hash Pattern](#hash-pattern)
-  - [Pattern Guards](#pattern-guards)
-
 ## Result Attributes
 
 Every result provides access to essential execution information:

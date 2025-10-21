@@ -2,19 +2,6 @@
 
 Faults are exception mechanisms that halt task execution via `skip!` and `fail!` methods. When tasks execute with the `execute!` method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.
 
-## Table of Contents
-
-- [Fault Types](#fault-types)
-- [Fault Handling](#fault-handling)
-- [Data Access](#data-access)
-- [Advanced Matching](#advanced-matching)
-  - [Task-Specific Matching](#task-specific-matching)
-  - [Custom Logic Matching](#custom-logic-matching)
-- [Fault Propagation](#fault-propagation)
-  - [Basic Propagation](#basic-propagation)
-  - [Additional Metadata](#additional-metadata)
-- [Chain Analysis](#chain-analysis)
-
 ## Fault Types
 
 | Type | Triggered By | Use Case |

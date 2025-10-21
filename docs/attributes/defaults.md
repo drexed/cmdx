@@ -2,14 +2,6 @@
 
 Attribute defaults provide fallback values when arguments are not provided or resolve to `nil`. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.
 
-## Table of Contents
-
-- [Declarations](#declarations)
-  - [Static Values](#static-values)
-  - [Symbol References](#symbol-references)
-  - [Proc or Lambda](#proc-or-lambda)
-- [Coercions and Validations](#coercions-and-validations)
-
 ## Declarations
 
 Defaults apply when attributes are not provided or resolve to `nil`. They work seamlessly with coercion, validation, and nested attributes.

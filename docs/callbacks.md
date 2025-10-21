@@ -7,16 +7,6 @@ Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/ge
 > [!IMPORTANT]
 > Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
-## Table of Contents
-
-- [Available Callbacks](#available-callbacks)
-- [Declarations](#declarations)
-  - [Symbol References](#symbol-references)
-  - [Proc or Lambda](#proc-or-lambda)
-  - [Class or Module](#class-or-module)
-  - [Conditional Execution](#conditional-execution)
-- [Callback Removal](#callback-removal)
-
 ## Available Callbacks
 
 Callbacks execute in precise lifecycle order. Here is the complete execution sequence:

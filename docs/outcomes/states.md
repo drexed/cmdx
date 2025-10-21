@@ -5,13 +5,6 @@ the progress of tasks through their complete execution journey. States provide
 insight into where a task is in its lifecycle and enable lifecycle-based
 decision making and monitoring.
 
-## Table of Contents
-
-- [Definitions](#definitions)
-- [Transitions](#transitions)
-- [Predicates](#predicates)
-- [Handlers](#handlers)
-
 ## Definitions
 
 | State | Description |
