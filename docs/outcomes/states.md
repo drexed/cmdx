@@ -67,8 +67,3 @@ result
   .handle_interrupted { |result| cleanup_temp_files(result) }
   .handle_executed { |result| log_upload_metrics(result) }
 ```
-
----
-
-- **Prev:** [Outcomes - Result](result.md)
-- **Next:** [Outcomes - Statuses](statuses.md)

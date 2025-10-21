@@ -369,8 +369,3 @@ end
 !!! tip
 
     Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
-
----
-
-- **Prev:** [Home](index.md)
-- **Next:** [Basics - Setup](basics/setup.md)

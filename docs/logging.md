@@ -92,8 +92,3 @@ class ProcessSubscription < CMDx::Task
   end
 end
 ```
-
----
-
-- **Prev:** [Middlewares](middlewares.md)
-- **Next:** [Internationalization (i18n)](internationalization.md)

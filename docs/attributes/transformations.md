@@ -61,8 +61,3 @@ class ScheduleBackup < CMDx::Task
   optional :frequency, transform: :downcase, inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
-
----
-
-- **Prev:** [Attributes - Defaults](defaults.md)
-- **Next:** [Callbacks](../callbacks.md)

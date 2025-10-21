@@ -143,8 +143,3 @@ class OutdatedConnector < CMDx::Task
   settings(deprecated: OutdatedTaskDeprecator.new)
 end
 ```
-
----
-
-- **Prev:** [Internationalization (i18n)](internationalization.md)
-- **Next:** [Workflows](workflows.md)

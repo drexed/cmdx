@@ -63,8 +63,3 @@ result
   .handle_good { |result| update_message_stats(result) }
   .handle_bad { |result| track_delivery_failure(result) }
 ```
-
----
-
-- **Prev:** [Outcomes - States](states.md)
-- **Next:** [Attributes - Definitions](../attributes/definitions.md)

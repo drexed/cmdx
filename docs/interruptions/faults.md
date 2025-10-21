@@ -167,8 +167,3 @@ if result.failed?
   end
 end
 ```
-
----
-
-- **Prev:** [Interruptions - Halt](halt.md)
-- **Next:** [Interruptions - Exceptions](exceptions.md)

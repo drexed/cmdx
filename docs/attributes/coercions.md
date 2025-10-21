@@ -153,8 +153,3 @@ result.metadata #=> {
                 #     }
                 #   }
 ```
-
----
-
-- **Prev:** [Attributes - Naming](naming.md)
-- **Next:** [Attributes - Validations](validations.md)

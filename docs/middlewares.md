@@ -190,8 +190,3 @@ end
 result = ProcessExport.execute
 result.metadata #=> { runtime: 1247 } (ms)
 ```
-
----
-
-- **Prev:** [Callbacks](callbacks.md)
-- **Next:** [Logging](logging.md)

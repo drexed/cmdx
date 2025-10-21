@@ -66,8 +66,3 @@ Tasks follow a predictable call pattern with specific states and statuses:
 | **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
 | **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
 | **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
-
----
-
-- **Prev:** [Getting Started](../getting_started.md)
-- **Next:** [Basics - Execution](execution.md)

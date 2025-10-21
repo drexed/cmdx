@@ -124,8 +124,3 @@ rails generate cmdx:locale fr
 - zh-HK - Chinese (Hong Kong)
 - zh-TW - Chinese (Traditional)
 - zh-YUE - Chinese (Yue)
-
----
-
-- **Prev:** [Logging](logging.md)
-- **Next:** [Deprecation](deprecation.md)

@@ -191,8 +191,3 @@ in { runtime: time } if time > performance_threshold
   investigate_build_performance(result)
 end
 ```
-
----
-
-- **Prev:** [Interruptions - Exceptions](../interruptions/exceptions.md)
-- **Next:** [Outcomes - States](states.md)

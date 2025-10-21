@@ -75,8 +75,3 @@ class ScheduleBackup < CMDx::Task
   optional :frequency, default: "daily", inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
-
----
-
-- **Prev:** [Attributes - Validations](validations.md)
-- **Next:** [Attributes - Transformations](transformations.md)

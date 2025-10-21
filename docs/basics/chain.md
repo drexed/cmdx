@@ -106,8 +106,3 @@ chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
 ```
-
----
-
-- **Prev:** [Basics - Context](context.md)
-- **Next:** [Interruptions - Halt](../interruptions/halt.md)

@@ -271,8 +271,3 @@ result.metadata #=> {
                 #     }
                 #   }
 ```
-
----
-
-- **Prev:** [Outcomes - Statuses](../outcomes/statuses.md)
-- **Next:** [Attributes - Naming](naming.md)

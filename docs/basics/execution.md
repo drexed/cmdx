@@ -100,8 +100,3 @@ result.chain        #=> Task execution chain
 result.context      #=> Context with all task data
 result.metadata     #=> Hash with execution metadata
 ```
-
----
-
-- **Prev:** [Basics - Setup](setup.md)
-- **Next:** [Basics - Context](context.md)

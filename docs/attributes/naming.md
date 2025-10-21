@@ -66,8 +66,3 @@ end
 # Attributes passed as original attribute names
 ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 ```
-
----
-
-- **Prev:** [Attributes - Definitions](definitions.md)
-- **Next:** [Attributes - Coercions](coercions.md)

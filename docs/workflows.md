@@ -226,8 +226,3 @@ end
 !!! tip
 
     Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
-
----
-
-- **Prev:** [Deprecation](deprecation.md)
-- **Next:** [Tips and Tricks](tips_and_tricks.md)

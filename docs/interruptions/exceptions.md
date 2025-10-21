@@ -50,8 +50,3 @@ rescue ActiveRecord::NotFoundError => e
   puts "Handle exception: #{e.message}"
 end
 ```
-
----
-
-- **Prev:** [Interruptions - Faults](faults.md)
-- **Next:** [Outcomes - Result](../outcomes/result.md)

@@ -214,8 +214,3 @@ class ProcessRenewal < CMDx::Task
   end
 end
 ```
-
----
-
-- **Prev:** [Basics - Chain](../basics/chain.md)
-- **Next:** [Interruptions - Faults](faults.md)

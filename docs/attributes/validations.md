@@ -293,8 +293,3 @@ result.metadata #=> {
                 #     }
                 #   }
 ```
-
----
-
-- **Prev:** [Attributes - Coercions](coercions.md)
-- **Next:** [Attributes - Defaults](defaults.md)

@@ -119,8 +119,3 @@ result = CalculateShipping.execute(destination: "New York, NY")
 
 CreateShippingLabel.execute(result)
 ```
-
----
-
-- **Prev:** [Basics - Execution](execution.md)
-- **Next:** [Basics - Chain](chain.md)

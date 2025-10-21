@@ -155,8 +155,3 @@ class ProcessBooking < CMDx::Task
   deregister :callback, :on_complete, BookingConfirmationCallback
 end
 ```
-
----
-
-- **Prev:** [Attributes - Transformations](attributes/transformations.md)
-- **Next:** [Middlewares](middlewares.md)
