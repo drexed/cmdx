@@ -11,7 +11,7 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   logo: assets/logo.svg
-  favicon: assets/favicon.png
+  favicon: assets/favicon.ico
   icon:
     repo: fontawesome/brands/github
   font:
@@ -73,7 +73,6 @@ markdown_extensions:
       permalink: true
 
 plugins:
-  - offline
   - search
 
 nav:
