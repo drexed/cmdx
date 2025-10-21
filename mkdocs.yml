@@ -1,3 +1,5 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
 site_name: CMDx
 site_url: https://drexed.github.io/cmdx/
 site_description: Build business logic that's powerful, predictable, and chaos-free.
@@ -12,11 +14,9 @@ theme:
   favicon: assets/favicon.png
   icon:
     repo: fontawesome/brands/github
-  features:
-    - search.share
   font:
     text: Inter
-    code: Google Sans Code
+    code: IBM Plex Mono
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -48,6 +48,7 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - search.share
     - search.suggest
     - search.highlight
     - content.code.copy
