@@ -10,22 +10,10 @@ Say goodbye to messy service objects. CMDx helps you design business logic with 
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem "cmdx"
-```
-
-And then execute:
-
-```bash
-bundle
-```
-
-Or install it yourself as:
-
-```bash
+```sh
 gem install cmdx
+# - or -
+bundle add cmdx
 ```
 
 ## Quick Example
@@ -125,12 +113,8 @@ For backwards compatibility of certain functionality:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at [https://github.com/drexed/cmdx](https://github.com/drexed/cmdx). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome at https://github.com/drexed/cmdx. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the CMDx project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
