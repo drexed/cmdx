@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
-## [1.9.0] - 2025-10-20
+## [1.9.0] - 2025-10-21
 
 ### Added
 - Add `transform` option to attributes
@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add option to handle exceptions for non bang exceptions
 - Add durability (retries) to execution
 - Added `to_h` hash coercion
-- Add comprehensive MkDocs configuration with shadcn theme
+- Add comprehensive MkDocs configuration with material theme
 
 ### Changes
 - Clean halt backtrace frames
