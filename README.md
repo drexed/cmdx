@@ -21,7 +21,7 @@ Say goodbye to messy service objects. CMDx helps you design business logic with 
 
 - Ruby: MRI 3.1+ or JRuby 9.4+.
 
-CMDx does not require any framework. It supports Rails out of the box, but can be used with any framework.
+CMDx works with any Ruby framework. Rails support is built-in, but it's framework-agnostic at its core.
 
 ## Installation
 
@@ -33,13 +33,13 @@ bundle add cmdx
 
 ## Quick Example
 
-Here's how a quick 4 step process can open up a world of possibilities:
+Build powerful business logic in four simple steps:
 
 ### 1. Compose
 
 ```ruby
-# Example represents a kitchen-sink task
-# (checkout docs for minimum viable task example)
+# Full-featured task example
+# See docs for minimum viable task examples
 
 class AnalyzeMetrics < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
@@ -116,12 +116,8 @@ For backwards compatibility of certain functionality:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/drexed/cmdx. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome at https://github.com/drexed/cmdx. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the CMDx project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
