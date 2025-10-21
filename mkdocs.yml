@@ -4,10 +4,18 @@ site_description: Build business logic that's powerful, predictable, and chaos-f
 site_author: drexed
 repo_name: drexed/cmdx
 repo_url: https://github.com/drexed/cmdx
-edit_uri: edit/main/docs/
+# edit_uri: edit/main/docs/
 
 theme:
   name: shadcn
+  icon: null
+  pygments_style:
+    light: shadcn-light
+    dark: github-dark
+  katex_options:
+    macros:
+      "\\dx": "\\mathrm{d}x"
+  show_datetime: true
 
 markdown_extensions:
   - admonition
@@ -29,6 +37,8 @@ markdown_extensions:
 
 plugins:
   - search
+  - excalidraw
+  - mkdocstrings
 
 nav:
   - Home: index.md
@@ -61,7 +71,7 @@ nav:
   - Workflows: workflows.md
   - Tips and Tricks: tips_and_tricks.md
 
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/drexed/cmdx
+# extra:
+#   social:
+#     - icon: fontawesome/brands/github
+#       link: https://github.com/drexed/cmdx
