@@ -859,7 +859,19 @@
       
     </div>
     <div class="flex justify-end items-center">
-       
+        <div class="grow text-muted-foreground pt-4 flex flex-row justify-end items-center">
+    <span id="updated_at" class="text-sm opacity-50 hover:opacity-100 transition-opacity duration-200"
+        title="last update (local time)"></span>
+</div>
+
+<script>
+    const updatedAt = document.getElementById("updated_at");
+    if (updatedAt) {
+        const date = new Date('2025-09-22T17:26:30-04:00');
+        updatedAt.textContent = date.toLocaleDateString();
+    }
+</script>
+ 
     </div>
   </div>
   <div class="typography w-full flex-1 *:data-[slot=alert]:first:mt-0">
