@@ -1336,12 +1336,12 @@
 
 
 <h1 id="workflows">Workflows<a class="headerlink" href="#workflows" title="Permanent link">&para;</a></h1>
-<p>Workflow orchestrates sequential execution of multiple tasks in a linear pipeline. Workflows provide a declarative DSL for composing complex business logic from individual task components, with support for conditional execution, context propagation, and configurable halt behavior.</p>
+<p>Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<p>Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.</p>
+<p>Tasks run in declaration order (FIFO), sharing a common context across the pipeline.</p>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Do <strong>NOT</strong> define a <code>work</code> method in workflow tasks. The included module automatically provides the execution logic.</p>
+<p class="admonition-title">Warning</p>
+<p>Don't define a <code>work</code> method in workflows—the module handles execution automatically.</p>
 </div>
 <h3 id="task">Task<a class="headerlink" href="#task" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1358,10 +1358,10 @@
 <p>Execute tasks in parallel via the <a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> gem.</p>
 </div>
 <h3 id="group">Group<a class="headerlink" href="#group" title="Permanent link">&para;</a></h3>
-<p>Group related tasks for better organization and shared configuration:</p>
+<p>Group related tasks to share configuration:</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Settings and conditionals for a group apply to all tasks within that group.</p>
+<p>Settings and conditionals apply to all tasks in the group.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ContentModerationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
@@ -1417,9 +1417,7 @@
 </span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="halt-behavior">Halt Behavior<a class="headerlink" href="#halt-behavior" title="Permanent link">&para;</a></h2>
-<p>By default skipped tasks are considered no-op executions and does not stop workflow execution.
-This is configurable via global and task level breakpoint settings. Task and group configurations
-can be used together within a workflow.</p>
+<p>By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally or per-task to customize this behavior.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AnalyticsWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1463,7 +1461,7 @@ can be used together within a workflow.</p>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="nested-workflows">Nested Workflows<a class="headerlink" href="#nested-workflows" title="Permanent link">&para;</a></h2>
-<p>Workflows can task other workflows for hierarchical composition:</p>
+<p>Build hierarchical workflows by composing workflows within workflows:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailPreparationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
@@ -1486,10 +1484,10 @@ can be used together within a workflow.</p>
 </span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
-<p>Parallel task execution leverages the <a href="https://github.com/grosser/parallel">Parallel</a> gem, which automatically detects the number of available processors to maximize concurrent task execution.</p>
+<p>Run tasks concurrently using the <a href="https://github.com/grosser/parallel">Parallel</a> gem. It automatically uses all available processors for maximum throughput.</p>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.</p>
+<p class="admonition-title">Warning</p>
+<p>Context is read-only during parallel execution. Load all required data beforehand.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>

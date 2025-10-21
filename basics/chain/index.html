@@ -1204,12 +1204,12 @@
 
 
 <h1 id="basics-chain">Basics - Chain<a class="headerlink" href="#basics-chain" title="Permanent link">&para;</a></h1>
-<p>Chains automatically group related task executions within a thread, providing unified tracking, correlation, and execution context management. Each thread maintains its own chain through thread-local storage, eliminating the need for manual coordination.</p>
+<p>Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.</p>
 <h2 id="management">Management<a class="headerlink" href="#management" title="Permanent link">&para;</a></h2>
-<p>Each thread maintains its own chain context through thread-local storage, providing automatic isolation without manual coordination.</p>
+<p>Each thread maintains its own isolated chain using thread-local storage.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Chain operations are thread-local. Never share chain references across threads as this can lead to race conditions and data corruption.</p>
+<p>Chains are thread-local. Don't share chain references across threads—it causes race conditions.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Thread A</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
@@ -1228,10 +1228,10 @@
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span><span class="w">    </span><span class="c1">#=&gt; Clears current thread&#39;s chain</span>
 </span></code></pre></div>
 <h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
-<p>Every task execution automatically creates or joins the current thread's chain:</p>
+<p>Tasks automatically create or join the current thread's chain:</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Chain creation is automatic and transparent. You don't need to manually manage chain lifecycle.</p>
+<p>Chain management is automatic—no manual lifecycle handling needed.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -1251,7 +1251,7 @@
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>When tasks call subtasks within the same thread, all executions automatically inherit the current chain, creating a unified execution trail.</p>
+<p>Subtasks automatically inherit the current thread's chain, building a unified execution trail:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Dataset</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
@@ -1272,10 +1272,10 @@
 </span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1">#=&gt; [ImportDataset, ValidateSchema, TransformData, SaveToDatabase]</span>
 </span></code></pre></div>
 <h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Chains provide comprehensive execution information with state delegation:</p>
+<p>Chains expose comprehensive execution information:</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Chain state always reflects the first (outer-most) task result, not individual subtask outcomes. Subtasks maintain their own success/failure states.</p>
+<p>Chain state reflects the first (outermost) task result. Subtasks maintain their own states.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span>

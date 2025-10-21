@@ -1336,7 +1336,7 @@
 
 
 <h1 id="attributes-definitions">Attributes - Definitions<a class="headerlink" href="#attributes-definitions" title="Permanent link">&para;</a></h1>
-<p>Attributes define the interface between task callers and implementation, enabling automatic validation, type coercion, and method generation. They provide a contract to verify that task execution arguments match expected requirements and structure.</p>
+<p>Attributes define your task's interface with automatic validation, type coercion, and accessor generation. They're the contract between callers and your business logic.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -1400,7 +1400,7 @@
 </span><span id="__span-1-27"><a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
-<p>Attributes delegate to accessible objects within the task. The default source is <code>:context</code>, but any accessible method or object can serve as an attribute source.</p>
+<p>Attributes read from any accessible object—not just context. Use sources to pull data from models, services, or any callable:</p>
 <h3 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BackupDatabase</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="c1"># Default source is :context</span>
@@ -1463,10 +1463,10 @@
 </span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="nesting">Nesting<a class="headerlink" href="#nesting" title="Permanent link">&para;</a></h2>
-<p>Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.</p>
+<p>Build complex structures with nested attributes. Children inherit their parent as source and support all attribute options:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations</p>
+<p>Nested attributes support all features: naming, coercions, validations, defaults, and more.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureServer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Required parent with required children</span>
@@ -1519,13 +1519,13 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.</p>
+<p>Child requirements only apply when the parent is provided—perfect for optional structures.</p>
 </div>
 <h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>Attribute validation failures result in structured error information with details about each failed attribute.</p>
+<p>Validation failures provide detailed, structured error messages:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Nested attributes are only ever evaluated when the parent attribute is available and valid.</p>
+<p>Nested attributes are only validated when their parent is present and valid.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureServer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:server_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:environment</span>

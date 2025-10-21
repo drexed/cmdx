@@ -1336,7 +1336,7 @@
 
 
 <h1 id="interruptions-faults">Interruptions - Faults<a class="headerlink" href="#interruptions-faults" title="Permanent link">&para;</a></h1>
-<p>Faults are exception mechanisms that halt task execution via <code>skip!</code> and <code>fail!</code> methods. When tasks execute with the <code>execute!</code> method, fault exceptions matching the task's interruption status are raised, enabling sophisticated exception handling and control flow patterns.</p>
+<p>Faults are exceptions raised by <code>execute!</code> when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.</p>
 <h2 id="fault-types">Fault Types<a class="headerlink" href="#fault-types" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1366,7 +1366,7 @@
 </table>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>All fault exceptions inherit from <code>CMDx::Fault</code> and provide access to the complete task execution context including result, task, context, and chain information.</p>
+<p>All faults inherit from <code>CMDx::Fault</code> and expose result, task, context, and chain data.</p>
 </div>
 <h2 id="fault-handling">Fault Handling<a class="headerlink" href="#fault-handling" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>
@@ -1383,7 +1383,7 @@
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="data-access">Data Access<a class="headerlink" href="#data-access" title="Permanent link">&para;</a></h2>
-<p>Faults provide comprehensive access to execution context, eg:</p>
+<p>Access rich execution data from fault exceptions:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">begin</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="no">LicenseActivation</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">license_key</span><span class="p">:</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">machine_id</span><span class="p">:</span><span class="w"> </span><span class="n">machine</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -1407,7 +1407,7 @@
 </span></code></pre></div>
 <h2 id="advanced-matching">Advanced Matching<a class="headerlink" href="#advanced-matching" title="Permanent link">&para;</a></h2>
 <h3 id="task-specific-matching">Task-Specific Matching<a class="headerlink" href="#task-specific-matching" title="Permanent link">&para;</a></h3>
-<p>Use <code>for?</code> to handle faults only from specific task classes, enabling targeted exception handling in complex workflows.</p>
+<p>Handle faults only from specific tasks using <code>for?</code>:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">begin</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">FormatValidator</span><span class="p">,</span><span class="w"> </span><span class="no">ContentProcessor</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
@@ -1430,7 +1430,7 @@
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="fault-propagation">Fault Propagation<a class="headerlink" href="#fault-propagation" title="Permanent link">&para;</a></h2>
-<p>Use <code>throw!</code> to propagate failures while preserving fault context and maintaining the error chain for debugging.</p>
+<p>Propagate failures with <code>throw!</code> to preserve context and maintain the error chain:</p>
 <h3 id="basic-propagation">Basic Propagation<a class="headerlink" href="#basic-propagation" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportGenerator</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -1469,7 +1469,7 @@
 </span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="chain-analysis">Chain Analysis<a class="headerlink" href="#chain-analysis" title="Permanent link">&para;</a></h2>
-<p>Results provide methods to analyze fault propagation and identify original failure sources in complex execution chains.</p>
+<p>Trace fault origins and propagation through the execution chain:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">invalid_data</span><span class="p">)</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">failed?</span>

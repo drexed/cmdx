@@ -1270,23 +1270,23 @@
 
 
 <h1 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h1>
-<p>Callbacks provide precise control over task execution lifecycle, running custom logic at specific transition points. Callback callables have access to the same context and result information as the <code>execute</code> method, enabling rich integration patterns.</p>
-<p>Check out the <a href="../getting_started/#callbacks">Getting Started</a> docs for global configuration.</p>
+<p>Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.</p>
+<p>See <a href="../getting_started/#callbacks">Global Configuration</a> for framework-wide callback setup.</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).</p>
+<p>Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.</p>
 </div>
 <h2 id="available-callbacks">Available Callbacks<a class="headerlink" href="#available-callbacks" title="Permanent link">&para;</a></h2>
-<p>Callbacks execute in precise lifecycle order. Here is the complete execution sequence:</p>
+<p>Callbacks execute in a predictable lifecycle order:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="n">before_validation</span><span class="w">           </span><span class="c1"># Pre-validation setup</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">before_execution</span><span class="w">            </span><span class="c1"># Setup and preparation</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">before_execution</span><span class="w">            </span><span class="c1"># Prepare for execution</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># --- Task#work executed ---</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># --- Task#work executes ---</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">complete</span><span class="o">|</span><span class="n">interrupted</span><span class="o">]</span><span class="w">   </span><span class="c1"># Based on execution state</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="n">on_executed</span><span class="w">                 </span><span class="c1"># Task finished (any outcome)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="mi">5</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">success</span><span class="o">|</span><span class="n">skipped</span><span class="o">|</span><span class="n">failed</span><span class="o">]</span><span class="w"> </span><span class="c1"># Based on execution status</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="mi">6</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">good</span><span class="o">|</span><span class="n">bad</span><span class="o">]</span><span class="w">               </span><span class="c1"># Based on outcome classification</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">complete</span><span class="o">|</span><span class="n">interrupted</span><span class="o">]</span><span class="w">   </span><span class="c1"># State-based (execution lifecycle)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="n">on_executed</span><span class="w">                 </span><span class="c1"># Always runs after work completes</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="mi">5</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">success</span><span class="o">|</span><span class="n">skipped</span><span class="o">|</span><span class="n">failed</span><span class="o">]</span><span class="w"> </span><span class="c1"># Status-based (business outcome)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="mi">6</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">good</span><span class="o">|</span><span class="n">bad</span><span class="o">]</span><span class="w">               </span><span class="c1"># Outcome-based (success/skip vs fail)</span>
 </span></code></pre></div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
@@ -1386,10 +1386,10 @@
 </span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="callback-removal">Callback Removal<a class="headerlink" href="#callback-removal" title="Permanent link">&para;</a></h2>
-<p>Remove callbacks at runtime for dynamic behavior control:</p>
+<p>Remove unwanted callbacks dynamically:</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+<p>Each <code>deregister</code> call removes one callback. Use multiple calls for batch removals.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Symbol</span>

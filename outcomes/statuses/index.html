@@ -1204,7 +1204,7 @@
 
 
 <h1 id="outcomes-statuses">Outcomes - Statuses<a class="headerlink" href="#outcomes-statuses" title="Permanent link">&para;</a></h1>
-<p>Statuses represent the business outcome of task execution logic, indicating how the task's business logic concluded. Statuses differ from execution states by focusing on the business outcome rather than the technical execution lifecycle. Understanding statuses is crucial for implementing proper business logic branching and error handling.</p>
+<p>Statuses represent the business outcome—did the task succeed, skip, or fail? This differs from state, which tracks the execution lifecycle.</p>
 <h2 id="definitions">Definitions<a class="headerlink" href="#definitions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1231,7 +1231,7 @@
 <h2 id="transitions">Transitions<a class="headerlink" href="#transitions" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.</p>
+<p>Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Valid status transitions</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">success</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">skipped</span><span class="w">    </span><span class="c1"># via skip!</span>
@@ -1257,7 +1257,7 @@
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">     </span><span class="c1">#=&gt; true if skipped OR failed (not success)</span>
 </span></code></pre></div>
 <h2 id="handlers">Handlers<a class="headerlink" href="#handlers" title="Permanent link">&para;</a></h2>
-<p>Use status-based handlers for business logic branching. The <code>on_good</code> and <code>on_bad</code> handlers are particularly useful for handling success/skip vs failed outcomes respectively.</p>
+<p>Branch business logic with status-based handlers. Use <code>handle_good</code> and <code>handle_bad</code> for success/skip vs failed outcomes:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessNotification</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Individual status handlers</span>

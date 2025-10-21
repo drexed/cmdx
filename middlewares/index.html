@@ -969,9 +969,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#order" class="md-nav__link">
+  <a href="#execution-order" class="md-nav__link">
     <span class="md-ellipsis">
-      Order
+      Execution Order
     </span>
   </a>
   
@@ -1206,9 +1206,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#order" class="md-nav__link">
+  <a href="#execution-order" class="md-nav__link">
     <span class="md-ellipsis">
-      Order
+      Execution Order
     </span>
   </a>
   
@@ -1318,13 +1318,13 @@
 
 
 <h1 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">&para;</a></h1>
-<p>Middleware provides Rack-style wrappers around task execution for cross-cutting concerns like authentication, logging, caching, and error handling.</p>
-<p>Check out the <a href="../getting_started/#middlewares">Getting Started</a> docs for global configuration.</p>
-<h2 id="order">Order<a class="headerlink" href="#order" title="Permanent link">&para;</a></h2>
-<p>Middleware executes in a nested fashion, creating an onion-like execution pattern:</p>
+<p>Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.</p>
+<p>See <a href="../getting_started/#middlewares">Global Configuration</a> for framework-wide setup.</p>
+<h2 id="execution-order">Execution Order<a class="headerlink" href="#execution-order" title="Permanent link">&para;</a></h2>
+<p>Middleware wraps task execution in layers, like an onion:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.</p>
+<p>First registered = outermost wrapper. They execute in registration order.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="w">         </span><span class="c1"># 1st: outermost wrapper</span>
@@ -1388,10 +1388,10 @@
 </span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
-<p>Class and Module based declarations can be removed at a global and task level.</p>
+<p>Remove class or module-based middleware globally or per-task:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+<p>Each <code>deregister</code> call removes one middleware. Use multiple calls for batch removals.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Class or Module (no instances)</span>
@@ -1400,7 +1400,7 @@
 </span></code></pre></div>
 <h2 id="built-in">Built-in<a class="headerlink" href="#built-in" title="Permanent link">&para;</a></h2>
 <h3 id="timeout">Timeout<a class="headerlink" href="#timeout" title="Permanent link">&para;</a></h3>
-<p>Ensures task execution doesn't exceed a specified time limit:</p>
+<p>Prevent tasks from running too long:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessReport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Default timeout: 3 seconds</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
@@ -1432,7 +1432,7 @@
 </span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { limit: 3 }</span>
 </span></code></pre></div>
 <h3 id="correlate">Correlate<a class="headerlink" href="#correlate" title="Permanent link">&para;</a></h3>
-<p>Tags tasks with a global correlation ID for distributed tracing:</p>
+<p>Add correlation IDs for distributed tracing and request tracking:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessExport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Default correlation ID generation</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span>
@@ -1458,8 +1458,7 @@
 </span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { correlation_id: &quot;550e8400-e29b-41d4-a716-446655440000&quot; }</span>
 </span></code></pre></div>
 <h3 id="runtime">Runtime<a class="headerlink" href="#runtime" title="Permanent link">&para;</a></h3>
-<p>The runtime middleware tags tasks with how long it took to execute the task.
-The calculation uses a monotonic clock and the time is returned in milliseconds.</p>
+<p>Track task execution time in milliseconds using a monotonic clock:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PerformanceMonitoringCheck</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">monitoring_enabled?</span>

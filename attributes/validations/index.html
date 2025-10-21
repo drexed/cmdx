@@ -1408,8 +1408,8 @@
 
 
 <h1 id="attributes-validations">Attributes - Validations<a class="headerlink" href="#attributes-validations" title="Permanent link">&para;</a></h1>
-<p>Attribute validations ensure task arguments meet specified requirements before execution begins. Validations run after coercions and provide declarative rules for data integrity, supporting both built-in validators and custom validation logic.</p>
-<p>Check out the <a href="../../getting_started/#validators">Getting Started</a> docs for global configuration.</p>
+<p>Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.</p>
+<p>See <a href="../../getting_started/#validators">Global Configuration</a> for custom validator setup.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <p>Define validation rules on attributes to enforce data requirements:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessSubscription</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1770,7 +1770,7 @@
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Custom validators must raise a <code>CMDx::ValidationError</code> and its message is used as part of the fault reason and metadata.</p>
+<p>Custom validators must raise <code>CMDx::ValidationError</code> with a descriptive message.</p>
 </div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
 <p>Use anonymous functions for simple validation logic:</p>
@@ -1807,17 +1807,17 @@
 </span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
-<p>Remove custom validators when no longer needed:</p>
+<p>Remove unwanted validators:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+<p>Each <code>deregister</code> call removes one validator. Use multiple calls for batch removals.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SetupApplication</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:api_key</span>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>Validation failures provide detailed error information including attribute paths, validation rules, and specific failure reasons:</p>
+<p>Validation failures provide detailed, structured error messages:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CreateProject</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">attribute</span><span class="w"> </span><span class="ss">:project_name</span><span class="p">,</span><span class="w"> </span><span class="ss">presence</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">,</span><span class="w"> </span><span class="ss">length</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">minimum</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">maximum</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="n">attribute</span><span class="w"> </span><span class="ss">:budget</span><span class="p">,</span><span class="w"> </span><span class="ss">numeric</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">greater_than</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="ss">less_than</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000</span><span class="w"> </span><span class="p">}</span>

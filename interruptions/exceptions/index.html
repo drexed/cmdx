@@ -1198,14 +1198,14 @@
 
 
 <h1 id="interruptions-exceptions">Interruptions - Exceptions<a class="headerlink" href="#interruptions-exceptions" title="Permanent link">&para;</a></h1>
-<p>CMDx provides robust exception handling that differs between the <code>execute</code> and <code>execute!</code> methods. Understanding how unhandled exceptions are processed is crucial for building reliable task execution flows and implementing proper error handling strategies.</p>
+<p>Exception handling differs between <code>execute</code> and <code>execute!</code>. Choose the method that matches your error handling strategy.</p>
 <h2 id="exception-handling">Exception Handling<a class="headerlink" href="#exception-handling" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>When designing tasks try not to <code>raise</code> your own exceptions directly, instead use <code>skip!</code> or <code>fail!</code> to signal intent clearly.</p>
+<p>Prefer <code>skip!</code> and <code>fail!</code> over raising exceptions—they signal intent more clearly.</p>
 </div>
 <h3 id="non-bang-execution">Non-bang execution<a class="headerlink" href="#non-bang-execution" title="Permanent link">&para;</a></h3>
-<p>The <code>execute</code> method captures <strong>all</strong> unhandled exceptions and converts them to failed results, ensuring predictable behavior and consistent result processing.</p>
+<p>Captures all exceptions and returns them as failed results:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
@@ -1222,10 +1222,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>exception_handler</code> setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.</p>
+<p>Use <code>exception_handler</code> with <code>execute</code> to send exceptions to APM tools before they become failed results.</p>
 </div>
 <h3 id="bang-execution">Bang execution<a class="headerlink" href="#bang-execution" title="Permanent link">&para;</a></h3>
-<p>The <code>execute!</code> method allows unhandled exceptions to propagate, enabling standard Ruby exception handling while respecting CMDx fault configuration.</p>
+<p>Lets exceptions propagate naturally for standard Ruby error handling:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>

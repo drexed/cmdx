@@ -1336,13 +1336,13 @@
 
 
 <h1 id="task-deprecation">Task Deprecation<a class="headerlink" href="#task-deprecation" title="Permanent link">&para;</a></h1>
-<p>Task deprecation provides a systematic approach to managing legacy tasks in CMDx applications. The deprecation system enables controlled migration paths by issuing warnings, logging messages, or preventing execution of deprecated tasks entirely, helping teams maintain code quality while providing clear upgrade paths.</p>
+<p>Manage legacy tasks gracefully with built-in deprecation support. Choose how to handle deprecated tasks—log warnings for awareness, issue Ruby warnings for development, or prevent execution entirely.</p>
 <h2 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h2>
 <h3 id="raise">Raise<a class="headerlink" href="#raise" title="Permanent link">&para;</a></h3>
-<p><code>:raise</code> mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.</p>
+<p>Prevent task execution completely. Perfect for tasks that must no longer run.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Use <code>:raise</code> mode carefully in production environments as it will break existing workflows immediately.</p>
+<p>Use <code>:raise</code> mode carefully—it will break existing workflows immediately.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessObsoleteAPI</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecated</span><span class="p">:</span><span class="w"> </span><span class="ss">:raise</span><span class="p">)</span>
@@ -1356,7 +1356,7 @@
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">#=&gt; raises CMDx::DeprecationError: &quot;ProcessObsoleteAPI usage prohibited&quot;</span>
 </span></code></pre></div>
 <h3 id="log">Log<a class="headerlink" href="#log" title="Permanent link">&para;</a></h3>
-<p><code>:log</code> mode allows continued usage while tracking deprecation warnings. Perfect for gradual migration scenarios where immediate replacement isn't feasible.</p>
+<p>Allow execution while tracking deprecation in logs. Ideal for gradual migrations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessLegacyFormat</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecated</span><span class="p">:</span><span class="w"> </span><span class="ss">:log</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1375,7 +1375,7 @@
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># WARN -- : DEPRECATED: ProcessLegacyFormat - migrate to replacement or discontinue use</span>
 </span></code></pre></div>
 <h3 id="warn">Warn<a class="headerlink" href="#warn" title="Permanent link">&para;</a></h3>
-<p><code>:warn</code> mode issues Ruby warnings visible in development and testing environments. Useful for alerting developers without affecting production logging.</p>
+<p>Issue Ruby warnings visible during development and testing. Keeps production logs clean while alerting developers.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOldData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecated</span><span class="p">:</span><span class="w"> </span><span class="ss">:warn</span><span class="p">)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>

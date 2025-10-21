@@ -1204,9 +1204,9 @@
 
 
 <h1 id="basics-context">Basics - Context<a class="headerlink" href="#basics-context" title="Permanent link">&para;</a></h1>
-<p>Task context provides flexible data storage, access, and sharing within task execution. It serves as the primary data container for all task inputs, intermediate results, and outputs.</p>
+<p>Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.</p>
 <h2 id="assigning-data">Assigning Data<a class="headerlink" href="#assigning-data" title="Permanent link">&para;</a></h2>
-<p>Context is automatically populated with all inputs passed to a task. All keys are normalized to symbols for consistent access:</p>
+<p>Context automatically captures all task inputs, normalizing keys to symbols:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Direct execution</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1215,10 +1215,10 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>String keys are automatically converted to symbols. Use symbols for consistency in your code.</p>
+<p>String keys convert to symbols automatically. Prefer symbols for consistency.</p>
 </div>
 <h2 id="accessing-data">Accessing Data<a class="headerlink" href="#accessing-data" title="Permanent link">&para;</a></h2>
-<p>Context provides multiple access patterns with automatic nil safety:</p>
+<p>Access context data using method notation, hash keys, or safe accessors:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># Method style access (preferred)</span>
@@ -1240,7 +1240,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Accessing undefined context attributes returns <code>nil</code> instead of raising errors, enabling graceful handling of optional attributes.</p>
+<p>Undefined attributes return <code>nil</code> instead of raising errors—perfect for optional data.</p>
 </div>
 <h2 id="modifying-context">Modifying Context<a class="headerlink" href="#modifying-context" title="Permanent link">&para;</a></h2>
 <p>Context supports dynamic modification during task execution:</p>
@@ -1282,7 +1282,7 @@
 <p>Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.</p>
 </div>
 <h2 id="data-sharing">Data Sharing<a class="headerlink" href="#data-sharing" title="Permanent link">&para;</a></h2>
-<p>Context enables seamless data flow between related tasks in complex workflows:</p>
+<p>Share context across tasks for seamless data flow:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># During execution</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>

@@ -1270,8 +1270,8 @@
 
 
 <h1 id="attributes-coercions">Attributes - Coercions<a class="headerlink" href="#attributes-coercions" title="Permanent link">&para;</a></h1>
-<p>Attribute coercions automatically convert task arguments to expected types, ensuring type safety while providing flexible input handling. Coercions transform raw input values into the specified types, supporting simple conversions like string-to-integer and complex operations like JSON parsing.</p>
-<p>Check out the <a href="../../getting_started/#coercions">Getting Started</a> docs for global configuration.</p>
+<p>Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.</p>
+<p>See <a href="../../getting_started/#coercions">Global Configuration</a> for custom coercion setup.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <p>Define attribute types to enable automatic coercion:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ParseMetrics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -1395,7 +1395,7 @@
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.</p>
+<p>Custom coercions must raise <code>CMDx::CoercionError</code> with a descriptive message.</p>
 </div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
 <p>Use anonymous functions for simple coercion logic:</p>
@@ -1436,10 +1436,10 @@
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
-<p>Remove custom coercions when no longer needed:</p>
+<p>Remove unwanted coercions:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Only one removal operation is allowed per <code>deregister</code> call. Multiple removals require separate calls.</p>
+<p>Each <code>deregister</code> call removes one coercion. Use multiple calls for batch removals.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TransformCoordinates</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:geolocation</span>

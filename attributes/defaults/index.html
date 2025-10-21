@@ -1234,9 +1234,9 @@
 
 
 <h1 id="attributes-defaults">Attributes - Defaults<a class="headerlink" href="#attributes-defaults" title="Permanent link">&para;</a></h1>
-<p>Attribute defaults provide fallback values when arguments are not provided or resolve to <code>nil</code>. Defaults ensure tasks have sensible values for optional attributes while maintaining flexibility for callers to override when needed.</p>
+<p>Provide fallback values for optional attributes. Defaults kick in when values aren't provided or are <code>nil</code>.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<p>Defaults apply when attributes are not provided or resolve to <code>nil</code>. They work seamlessly with coercion, validation, and nested attributes.</p>
+<p>Defaults work seamlessly with coercions, validations, and nested attributes:</p>
 <h3 id="static-values">Static Values<a class="headerlink" href="#static-values" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OptimizeDatabase</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">attribute</span><span class="w"> </span><span class="ss">:strategy</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="ss">:incremental</span>
@@ -1283,7 +1283,7 @@
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="coercions-and-validations">Coercions and Validations<a class="headerlink" href="#coercions-and-validations" title="Permanent link">&para;</a></h2>
-<p>Defaults are subject to the same coercion and validation rules as provided values, ensuring consistency and catching configuration errors early.</p>
+<p>Defaults follow the same coercion and validation rules as provided values:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ScheduleBackup</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Coercions</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">attribute</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">default</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>

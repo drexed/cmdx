@@ -1234,7 +1234,7 @@
 
 
 <h1 id="attributes-transformations">Attributes - Transformations<a class="headerlink" href="#attributes-transformations" title="Permanent link">&para;</a></h1>
-<p>Transformations allow you to modify attribute values after they are derived and coerced from their source but before any validations. This enables data normalization, formatting, and conditional processing within the attribute pipeline.</p>
+<p>Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
 <p>Reference instance methods by symbol for dynamic value transformations:</p>
@@ -1269,7 +1269,7 @@
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="validations">Validations<a class="headerlink" href="#validations" title="Permanent link">&para;</a></h2>
-<p>Transformed values are subject to the same validation rules as untransformed values, ensuring consistency and catching configuration errors early.</p>
+<p>Validations run on transformed values, ensuring data consistency:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ScheduleBackup</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Coercions</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">attribute</span><span class="w"> </span><span class="ss">:retention_days</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span><span class="p">,</span><span class="w"> </span><span class="ss">transform</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">v</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>

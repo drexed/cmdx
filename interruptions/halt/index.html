@@ -1306,12 +1306,12 @@
 
 
 <h1 id="interruptions-halt">Interruptions - Halt<a class="headerlink" href="#interruptions-halt" title="Permanent link">&para;</a></h1>
-<p>Halting stops task execution with explicit intent signaling. Tasks provide two primary halt methods that control execution flow and result in different outcomes.</p>
+<p>Stop task execution intentionally using <code>skip!</code> or <code>fail!</code>. Both methods signal clear intent about why execution stopped.</p>
 <h2 id="skipping">Skipping<a class="headerlink" href="#skipping" title="Permanent link">&para;</a></h2>
-<p><code>skip!</code> communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.</p>
+<p>Use <code>skip!</code> when the task doesn't need to run. It's a no-op, not an error.</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Skipping is a no-op, not a failure or error and are considered successful outcomes.</p>
+<p>Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
@@ -1343,7 +1343,7 @@
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w"> </span><span class="c1">#=&gt; &quot;Warehouse closed&quot;</span>
 </span></code></pre></div>
 <h2 id="failing">Failing<a class="headerlink" href="#failing" title="Permanent link">&para;</a></h2>
-<p><code>fail!</code> communicates that the task encountered an impediment that prevents successful completion. This represents controlled failure where the task explicitly determines that execution cannot continue.</p>
+<p>Use <code>fail!</code> when the task can't complete successfully. It signals controlled, intentional failure:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRefund</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># Without a reason</span>
@@ -1374,7 +1374,7 @@
 </span><span id="__span-1-28"><a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w"> </span><span class="c1">#=&gt; &quot;Refund period has expired&quot;</span>
 </span></code></pre></div>
 <h2 id="metadata-enrichment">Metadata Enrichment<a class="headerlink" href="#metadata-enrichment" title="Permanent link">&para;</a></h2>
-<p>Both halt methods accept metadata to provide additional context about the interruption. Metadata is stored as a hash and becomes available through the result object.</p>
+<p>Enrich halt calls with metadata for better debugging and error handling:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">License</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">license_id</span><span class="p">)</span>
@@ -1475,7 +1475,7 @@
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
-<p>Always try to provide a <code>reason</code> when using halt methods. This provides clear context for debugging and creates meaningful exception messages.</p>
+<p>Always provide a reason for better debugging and clearer exception messages:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Good: Clear, specific reason</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Document processing paused for compliance review&quot;</span><span class="p">)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;File format not supported by processor&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORMAT_UNSUPPORTED&quot;</span><span class="p">)</span>
@@ -1489,10 +1489,10 @@
 </span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">fail</span><span class="o">!</span><span class="w"> </span><span class="c1">#=&gt; &quot;Unspecified&quot;</span>
 </span></code></pre></div>
 <h2 id="manual-errors">Manual Errors<a class="headerlink" href="#manual-errors" title="Permanent link">&para;</a></h2>
-<p>There are rare cases where you need to manually assign errors.</p>
+<p>For rare cases, manually add errors before halting:</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Keep in mind you will still need to initiate a fault if a stoppage of work is required.</p>
+<p>Manual errors don't stop execution—you still need to call <code>fail!</code> or <code>skip!</code>.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>

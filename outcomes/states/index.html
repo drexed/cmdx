@@ -1204,10 +1204,7 @@
 
 
 <h1 id="outcomes-states">Outcomes - States<a class="headerlink" href="#outcomes-states" title="Permanent link">&para;</a></h1>
-<p>States represent the execution lifecycle condition of task execution, tracking
-the progress of tasks through their complete execution journey. States provide
-insight into where a task is in its lifecycle and enable lifecycle-based
-decision making and monitoring.</p>
+<p>States track where a task is in its execution lifecycle—from creation through completion or interruption.</p>
 <h2 id="definitions">Definitions<a class="headerlink" href="#definitions" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1280,7 +1277,7 @@ decision making and monitoring.</p>
 <h2 id="transitions">Transitions<a class="headerlink" href="#transitions" title="Permanent link">&para;</a></h2>
 <div class="admonition danger">
 <p class="admonition-title">Caution</p>
-<p>States are automatically managed during task execution and should <strong>never</strong> be modified manually. State transitions are handled internally by the CMDx framework.</p>
+<p>States are managed automatically—never modify them manually.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Valid state transition flow</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">initialized</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">executing</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">complete</span><span class="w">    </span><span class="p">(</span><span class="n">successful</span><span class="w"> </span><span class="n">execution</span><span class="p">)</span>
@@ -1300,7 +1297,7 @@ decision making and monitoring.</p>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span><span class="o">.</span><span class="n">executed?</span><span class="w">    </span><span class="c1">#=&gt; true (complete OR interrupted)</span>
 </span></code></pre></div>
 <h2 id="handlers">Handlers<a class="headerlink" href="#handlers" title="Permanent link">&para;</a></h2>
-<p>Use state-based handlers for lifecycle event handling. The <code>on_executed</code> handler is particularly useful for cleanup operations that should run regardless of success, skipped, or failure.</p>
+<p>Handle lifecycle events with state-based handlers. Use <code>handle_executed</code> for cleanup that runs regardless of outcome:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessVideoUpload</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Individual state handlers</span>
