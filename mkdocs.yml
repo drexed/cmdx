@@ -8,16 +8,7 @@ edit_uri: edit/main/docs/
 
 theme:
   name: material
-  logo: assets/cmdx-logo.svg
-  # logo_width: 200
-  # logo_height: 200
-  # logo_alt: CMDx
-  # logo_text: CMDx
-  # logo_text_width: 200
-  # logo_text_height: 200
-  # logo_text_alt: CMDx
-  # logo_text_width: 200
-  # logo_text_height: 200
+  logo: assets/logo.svg
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
