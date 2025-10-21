@@ -12,6 +12,11 @@ theme:
   favicon: assets/favicon.png
   icon:
     repo: fontawesome/brands/github
+  features:
+    - search.share
+  font:
+    text: Inter
+    code: Google Sans Code
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -67,6 +72,8 @@ markdown_extensions:
       permalink: true
 
 plugins:
+  - offline
+  - optimize
   - search
 
 nav:
