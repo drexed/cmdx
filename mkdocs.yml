@@ -8,14 +8,18 @@ repo_url: https://github.com/drexed/cmdx
 
 theme:
   name: shadcn
-  icon: null
+  show_title: true
+  show_stargazers: true
   pygments_style:
     light: shadcn-light
-    dark: github-dark
-  katex_options:
-    macros:
-      "\\dx": "\\mathrm{d}x"
-  show_datetime: true
+    dark: shadcn-light
+  icon: https://github.com/drexed/cmdx/blob/9c4c010e2891793cab109ffd70a75d838e9e9e75/src/cmdx-light-logo.png
+  # topbar_sections: false
+  # katex_options:
+  #   macros:
+  #     "\\RR": "\\mathbb{R}"
+  #     "\\dx": "\\mathrm{d}x"
+  show_datetime: false
 
 markdown_extensions:
   - admonition
