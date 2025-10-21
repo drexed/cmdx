@@ -10,8 +10,9 @@ Faults are exception mechanisms that halt task execution via `skip!` and `fail!`
 | `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
 | `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
 
-> [!IMPORTANT]
-> All fault exceptions inherit from `CMDx::Fault` and provide access to the complete task execution context including result, task, context, and chain information.
+!!! warning "Important"
+
+    All fault exceptions inherit from `CMDx::Fault` and provide access to the complete task execution context including result, task, context, and chain information.
 
 ## Fault Handling
 

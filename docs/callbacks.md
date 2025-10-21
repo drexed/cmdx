@@ -4,8 +4,9 @@ Callbacks provide precise control over task execution lifecycle, running custom 
 
 Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#callbacks) docs for global configuration.
 
-> [!IMPORTANT]
-> Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
+!!! warning "Important"
+
+    Callbacks execute in the order they are declared within each hook type. Multiple callbacks of the same type execute in declaration order (FIFO: first in, first out).
 
 ## Available Callbacks
 
@@ -141,8 +142,9 @@ end
 
 Remove callbacks at runtime for dynamic behavior control:
 
-> [!IMPORTANT]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+!!! warning "Important"
+
+    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
 class ProcessBooking < CMDx::Task

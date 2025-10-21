@@ -12,8 +12,9 @@ Statuses represent the business outcome of task execution logic, indicating how 
 
 ## Transitions
 
-> [!IMPORTANT]
-> Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.
+!!! warning "Important"
+
+    Status transitions are unidirectional and final. Once a task is marked as skipped or failed, it cannot return to success status. Design your business logic accordingly.
 
 ```ruby
 # Valid status transitions

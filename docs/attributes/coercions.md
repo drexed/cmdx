@@ -33,8 +33,9 @@ ParseMetrics.execute(
 )
 ```
 
-> [!TIP]
-> Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
+!!! tip
+
+    Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
 
 ## Built-in Coercions
 
@@ -56,8 +57,9 @@ ParseMetrics.execute(
 
 ## Declarations
 
-> [!IMPORTANT]
-> Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
+!!! warning "Important"
+
+    Coercions must raise a CMDx::CoercionError and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 
@@ -109,8 +111,9 @@ end
 
 Remove custom coercions when no longer needed:
 
-> [!WARNING]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+!!! warning
+
+    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
 class TransformCoordinates < CMDx::Task

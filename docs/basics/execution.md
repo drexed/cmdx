@@ -44,8 +44,9 @@ It raises any unhandled non-fault exceptions caused during execution.
 | `CMDx::FailFault` | Task execution fails |
 | `CMDx::SkipFault` | Task execution is skipped |
 
-> [!IMPORTANT]
-> `execute!` behavior depends on the `task_breakpoints` or `workflow_breakpoints` configuration. By default, it raises exceptions only on failures.
+!!! warning "Important"
+
+    `execute!` behavior depends on the `task_breakpoints` or `workflow_breakpoints` configuration. By default, it raises exceptions only on failures.
 
 ```ruby
 begin

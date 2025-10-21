@@ -6,8 +6,9 @@ Halting stops task execution with explicit intent signaling. Tasks provide two p
 
 `skip!` communicates that the task is to be intentionally bypassed. This represents a controlled, intentional interruption where the task determines that execution is not necessary or appropriate.
 
-> [!IMPORTANT]
-> Skipping is a no-op, not a failure or error and are considered successful outcomes.
+!!! warning "Important"
+
+    Skipping is a no-op, not a failure or error and are considered successful outcomes.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -197,8 +198,9 @@ fail! #=> "Unspecified"
 
 There are rare cases where you need to manually assign errors.
 
-> [!IMPORTANT]
-> Keep in mind you will still need to initiate a fault if a stoppage of work is required.
+!!! warning "Important"
+
+    Keep in mind you will still need to initiate a fault if a stoppage of work is required.
 
 ```ruby
 class ProcessRenewal < CMDx::Task

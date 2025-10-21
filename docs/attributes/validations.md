@@ -38,8 +38,9 @@ ProcessSubscription.execute(
 )
 ```
 
-> [!TIP]
-> Validations run after coercions, so you can validate the final coerced values rather than raw input.
+!!! tip
+
+    Validations run after coercions, so you can validate the final coerced values rather than raw input.
 
 ## Built-in Validators
 
@@ -194,8 +195,9 @@ end
 
 ## Declarations
 
-> [!IMPORTANT]
-> Custom validators must raise a `CMDx::ValidationError` and its message is used as part of the fault reason and metadata.
+!!! warning "Important"
+
+    Custom validators must raise a `CMDx::ValidationError` and its message is used as part of the fault reason and metadata.
 
 ### Proc or Lambda
 
@@ -243,8 +245,9 @@ end
 
 Remove custom validators when no longer needed:
 
-> [!WARNING]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+!!! warning
+
+    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
 class SetupApplication < CMDx::Task

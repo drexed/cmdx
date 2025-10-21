@@ -6,8 +6,9 @@ Workflow orchestrates sequential execution of multiple tasks in a linear pipelin
 
 Tasks execute sequentially in declaration order (FIFO). The workflow context propagates to each task, allowing access to data from previous executions.
 
-> [!IMPORTANT]
-> Do **NOT** define a `work` method in workflow tasks. The included module automatically provides the execution logic.
+!!! warning "Important"
+
+    Do **NOT** define a `work` method in workflow tasks. The included module automatically provides the execution logic.
 
 ### Task
 
@@ -22,15 +23,17 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-> [!TIP]
-> Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
+!!! tip
+
+    Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
 
 ### Group
 
 Group related tasks for better organization and shared configuration:
 
-> [!IMPORTANT]
-> Settings and conditionals for a group apply to all tasks within that group.
+!!! warning "Important"
+
+    Settings and conditionals for a group apply to all tasks within that group.
 
 ```ruby
 class ContentModerationWorkflow < CMDx::Task
@@ -180,8 +183,9 @@ end
 
 Parallel task execution leverages the [Parallel](https://github.com/grosser/parallel) gem, which automatically detects the number of available processors to maximize concurrent task execution.
 
-> [!IMPORTANT]
-> Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.
+!!! warning "Important"
+
+    Context cannot be modified during parallel execution. Ensure that all required data is preloaded into the context before parallelization begins.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -219,8 +223,9 @@ class SendNotifications < CMDx::Task
 end
 ```
 
-> [!TIP]
-> Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
+!!! tip
+
+    Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
 
 ---
 

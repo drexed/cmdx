@@ -8,8 +8,9 @@ Task deprecation provides a systematic approach to managing legacy tasks in CMDx
 
 `:raise` mode prevents task execution entirely. Use this for tasks that should no longer be used under any circumstances.
 
-> [!WARNING]
-> Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
+!!! warning
+
+    Use `:raise` mode carefully in production environments as it will break existing workflows immediately.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task

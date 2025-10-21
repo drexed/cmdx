@@ -4,8 +4,9 @@ CMDx provides robust exception handling that differs between the `execute` and `
 
 ## Exception Handling
 
-> [!IMPORTANT]
-> When designing tasks try not to `raise` your own exceptions directly, instead use `skip!` or `fail!` to signal intent clearly.
+!!! warning "Important"
+
+    When designing tasks try not to `raise` your own exceptions directly, instead use `skip!` or `fail!` to signal intent clearly.
 
 ### Non-bang execution
 
@@ -27,8 +28,9 @@ result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
 result.cause    #=> <ActiveRecord::NotFoundError>
 ```
 
-> [!NOTE]
-> The `exception_handler` setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.
+!!! note
+
+    The `exception_handler` setting only works with non-bang execution as it catches all exceptions preventing them from reaching your apps global error handler.
 
 ### Bang execution
 

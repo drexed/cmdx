@@ -34,8 +34,9 @@ E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
 index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
-> [!TIP]
-> Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.
+!!! tip
+
+    Logging can be used as low-level eventing system, ingesting all tasks performed within a small action or long running request. This ie where correlation is especially handy.
 
 ## Structure
 

@@ -4,8 +4,9 @@ Attributes define the interface between task callers and implementation, enablin
 
 ## Declarations
 
-> [!TIP]
-> Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
+!!! tip
+
+    Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
 
 ### Optional
 
@@ -156,8 +157,9 @@ end
 
 Nested attributes enable complex attribute structures where child attributes automatically inherit their parent as the source. This allows validation and access of structured data.
 
-> [!NOTE]
-> All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
+!!! note
+
+    All options available to top-level attributes are available to nested attributes, eg: naming, coercions, and validations
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -210,15 +212,17 @@ ConfigureServer.execute(
 )
 ```
 
-> [!IMPORTANT]
-> Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
+!!! warning "Important"
+
+    Child attributes are only required when their parent attribute is provided, enabling flexible optional structures.
 
 ## Error Handling
 
 Attribute validation failures result in structured error information with details about each failed attribute.
 
-> [!NOTE]
-> Nested attributes are only ever evaluated when the parent attribute is available and valid.
+!!! note
+
+    Nested attributes are only ever evaluated when the parent attribute is available and valid.
 
 ```ruby
 class ConfigureServer < CMDx::Task

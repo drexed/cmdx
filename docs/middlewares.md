@@ -8,8 +8,9 @@ Check out the [Getting Started](https://github.com/drexed/cmdx/blob/main/docs/ge
 
 Middleware executes in a nested fashion, creating an onion-like execution pattern:
 
-> [!NOTE]
-> Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
+!!! note
+
+    Middleware executes in the order they are registered, with the first registered middleware being the outermost wrapper.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -87,8 +88,9 @@ end
 
 Class and Module based declarations can be removed at a global and task level.
 
-> [!WARNING]
-> Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
+!!! warning
+
+    Only one removal operation is allowed per `deregister` call. Multiple removals require separate calls.
 
 ```ruby
 class ProcessCampaign < CMDx::Task

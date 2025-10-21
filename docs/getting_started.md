@@ -50,8 +50,9 @@ CMDx follows a two-tier configuration hierarchy:
 1. **Global Configuration**: Framework-wide defaults
 2. **Task Settings**: Class-level overrides via `settings`
 
-> [!IMPORTANT]
-> Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
+!!! warning "Important"
+
+    Task-level settings take precedence over global configuration. Settings are inherited from superclasses and can be overridden in subclasses.
 
 ## Global Configuration
 
@@ -82,8 +83,9 @@ end
 
 Enable backtraces to be logged on any non-fault exceptions for improved debugging context. Run them through a cleaner to remove unwanted stack trace noise.
 
-> [!NOTE]
-> The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
+!!! note
+
+    The `backtrace_cleaner` is set to `Rails.backtrace_cleaner.clean` in a Rails env by default.
 
 ```ruby
 CMDx.configure do |config|
@@ -102,8 +104,9 @@ end
 
 Use exception handlers are called on non-fault standard error based exceptions.
 
-> [!TIP]
-> Use exception handlers to send errors to your APM of choice.
+!!! tip
+
+    Use exception handlers to send errors to your APM of choice.
 
 ```ruby
 CMDx.configure do |config|
@@ -151,8 +154,9 @@ CMDx.configure do |config|
 end
 ```
 
-> [!NOTE]
-> Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
+!!! note
+
+    Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
 
 ### Callbacks
 
@@ -264,8 +268,9 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-> [!IMPORTANT]
-> Retries reuse the same context when executing its work. By default all `StandardErrors` will be retried if no `retry_on` option is passed.
+!!! warning "Important"
+
+    Retries reuse the same context when executing its work. By default all `StandardErrors` will be retried if no `retry_on` option is passed.
 
 ### Registrations
 
@@ -322,8 +327,9 @@ end
 
 ### Resetting
 
-> [!WARNING]
-> Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
+!!! warning
+
+    Resetting configuration affects the entire application. Use primarily in test environments or during application initialization.
 
 ```ruby
 # Reset to framework defaults
@@ -360,8 +366,9 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-> [!TIP]
-> Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+!!! tip
+
+    Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ---
 

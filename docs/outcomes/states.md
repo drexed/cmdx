@@ -27,8 +27,9 @@ State-Status combinations:
 
 ## Transitions
 
-> [!CAUTION]
-> States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
+!!! danger "Caution"
+
+    States are automatically managed during task execution and should **never** be modified manually. State transitions are handled internally by the CMDx framework.
 
 ```ruby
 # Valid state transition flow

@@ -6,8 +6,9 @@ The result object is the comprehensive return value of task execution, providing
 
 Every result provides access to essential execution information:
 
-> [!IMPORTANT]
-> Result objects are immutable after task execution completes and reflect the final state.
+!!! warning "Important"
+
+    Result objects are immutable after task execution completes and reflect the final state.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -144,8 +145,9 @@ result
 
 Results support Ruby's pattern matching through array and hash deconstruction:
 
-> [!IMPORTANT]
-> Pattern matching requires Ruby 3.0+
+!!! warning "Important"
+
+    Pattern matching requires Ruby 3.0+
 
 ### Array Pattern
 

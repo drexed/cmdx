@@ -55,8 +55,9 @@ end
 
 Tasks follow a predictable call pattern with specific states and statuses:
 
-> [!CAUTION]
-> Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
+!!! danger "Caution"
+
+    Tasks are single-use objects. Once executed, they are frozen and cannot be executed again.
 
 | Stage | State | Status | Description |
 |-------|-------|--------|-------------|
