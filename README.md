@@ -4,7 +4,7 @@
 
   ---
 
-  Build business logic that’s powerful, predictable, and chaos-free.
+  Build business logic that’s powerful, predictable, and maintainable.
 
   [Documentation](https://drexed.github.io/cmdx) · [Changelog](./CHANGELOG.md) · [Report Bug](https://github.com/drexed/cmdx/issues) · [Request Feature](https://github.com/drexed/cmdx/issues)
 
@@ -15,13 +15,13 @@
 
 # CMDx
 
-Ditch the messy service objects. CMDx helps you design business processes with clarity and consistency—build faster, debug easier, and keep your sanity.
+Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 ## Requirements
 
 - Ruby: MRI 3.1+ or JRuby 9.4+.
 
-CMDx supports Rails out of the box, but can be used with any framework.
+CMDx does not require any framework. It supports Rails out of the box, but can be used with any framework.
 
 ## Installation
 
