@@ -100,3 +100,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/drexed/cmdx
+
+extra_css:
+  - docs/stylesheets/extra.css
