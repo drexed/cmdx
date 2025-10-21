@@ -7,7 +7,7 @@ site_author: drexed
 repo_name: drexed/cmdx
 repo_url: https://github.com/drexed/cmdx
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2025 - EoT Drexed, Inc.
+copyright: Copyright &copy; 2025 - EoT | Drexed, Inc.
 
 theme:
   name: material
@@ -43,6 +43,7 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
   features:
+    - navigation.footer
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.instant.progress
