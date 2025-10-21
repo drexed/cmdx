@@ -13,7 +13,7 @@ theme:
   pygments_style:
     light: shadcn-light
     dark: shadcn-light
-  icon: https://github.com/drexed/cmdx/blob/9c4c010e2891793cab109ffd70a75d838e9e9e75/src/cmdx-light-logo.png
+  icon: https://raw.githubusercontent.com/drexed/cmdx/refs/heads/main/src/cmdx-dark-logo.png
   # topbar_sections: false
   # katex_options:
   #   macros:
