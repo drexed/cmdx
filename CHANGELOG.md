@@ -9,31 +9,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [1.9.0] - 2025-10-21
 
 ### Added
-- Add `transform` option to attributes
-- Add option to output failure backtraces
-- Add option to handle exceptions for non bang exceptions
-- Add durability (retries) to execution
-- Added `to_h` hash coercion
-- Add comprehensive MkDocs configuration with material theme
+- Added `transform` option to attributes
+- Added option to output failure backtraces
+- Added exception handling for non-bang methods
+- Added durability with automatic retries to execution
+- Added `to_h` hash coercion support
+- Added comprehensive MkDocs configuration with material theme
 
-### Changes
-- Clean halt backtrace frames
-- Improve performance of task settings setup
-- Improve raised errors messages
-- Improve inheritance of parent settings
-- Removed the `Freezer` module and moved the logic into the executor `freeze_execution!`
-- Remove passing the task to callback signature
-- Remove task/workflow arguments from conditional checks
-- Properly clear chain after ever execution in specs
+### Changed
+- Improved performance of task settings setup
+- Improved error messages for raised exceptions
+- Improved inheritance of parent settings
+- Cleaned halt backtrace frames for better readability
+
+### Removed
+- Removed `Freezer` module and moved logic into executor `freeze_execution!` method
+- Removed task parameter from callback signature
+- Removed task and workflow arguments from conditional checks
+- Removed chain persistence after execution in specs
 
 ## [1.8.0] - 2025-09-22
 
-### Changes
-- Generalize locale values for fault `invalid` and `unspecified`
-- Nest attribute error messages under `error` key within metadata
-- Reordered logstash formatter keys
-- Improved already defined error message
-- Hash coercion for `nil` returns `{}`
+### Changed
+- Generalized locale values for fault `invalid` and `unspecified`
+- Nested attribute error messages under `error` key within metadata
+- Reordered logstash formatter keys for consistency
+- Improved error message for already defined items
+- Changed hash coercion for `nil` to return `{}`
 
 ## [1.7.5] - 2025-09-10
 
@@ -51,69 +53,71 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [1.7.3] - 2025-09-03
 
-### Changes
-- Return generic validation reason
-- Move validation full message string to `:full_message` within metadata
+### Changed
+- Changed validation reasons to use generic values
+- Moved validation full message string to `:full_message` key within metadata
 
 ## [1.7.2] - 2025-09-03
 
-### Changes
-- Correlation ID is set before continuing to further steps
+### Changed
+- Changed correlation ID to be set before continuing to further steps
 
 ## [1.7.1] - 2025-08-26
 
 ### Added
-- Yield result if block given to `execute` and `execute!` methods
+- Added result yielding when block is given to `execute` and `execute!` methods
 
 ## [1.7.0] - 2025-08-25
 
 ### Added
-- Workflow generator
+- Added workflow generator
 
-### Changes
-- Port over `cmdx-parallel` changes
-- Port over `cmdx-i18n` changes
+### Changed
+- Ported `cmdx-parallel` changes into core
+- Ported `cmdx-i18n` changes into core
 
 ## [1.6.2] - 2025-08-24
 
-### Changes
-- Prefix railtie I18n with `::` to play nice with `CMDx::I18n`
-- Use `cmdx-rspec` for matchers support
+### Changed
+- Prefixed railtie I18n with `::` for compatibility with `CMDx::I18n`
+- Changed to use `cmdx-rspec` for matchers support
 
 ## [1.6.1] - 2025-08-23
 
-### Changes
-- Log task results before freezing
-- Rename `execute_tasks_sequentially` to `execute_tasks_in_sequence`
+### Changed
+- Changed task results to be logged before freezing
+- Renamed `execute_tasks_sequentially` to `execute_tasks_in_sequence`
 
 ## [1.6.0] - 2025-08-22
 
-### Changes
-- Rename `Worker` class to `Executor`
-- Move workflow `work` logic into `Pipeline`
-- Add workflow task `:breakpoints`
+### Added
+- Added workflow task `:breakpoints` support
+
+### Changed
+- Renamed `Worker` class to `Executor`
+- Moved workflow `work` logic into `Pipeline`
 
 ## [1.5.2] - 2025-08-22
 
-### Changes
-- Rename workflow `execution_groups` attribute to `pipeline`
+### Changed
+- Renamed workflow `execution_groups` attribute to `pipeline`
 
 ## [1.5.1] - 2025-08-21
 
-### Changes
-- Prefix locale I18n with `::` to play nice with `CMDx::I18n`
-- Safe navigate length and numeric validators
-- Update railtie file path points to correct directory
+### Changed
+- Prefixed locale I18n with `::` for compatibility with `CMDx::I18n`
+- Added safe navigation to length and numeric validators
+- Updated railtie file path to point to correct directory
 
 ## [1.5.0] - 2025-08-21
 
-### Changes
-- BREAKING - Revamp CMDx for clarity, transparency, and higher performance
+### Changed
+- **BREAKING**: Revamped CMDx for improved clarity, transparency, and higher performance
 
 ## [1.1.2] - 2025-07-20
 
 ### Changed
-- All items between versions `0.1.0` and `1.1.2` should be reviewed within its own tag
+- All changes between versions `0.1.0` and `1.1.2` should be reviewed within their respective git tags
 
 ## [0.1.0] - 2025-03-07
 
