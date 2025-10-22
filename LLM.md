@@ -372,6 +372,15 @@ end
 > [!TIP]
 > Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
+## Type safety
+
+CMDx includes built-in RBS (Ruby Type Signature) inline annotations throughout the codebase, providing type information for static analysis and editor support.
+
+- **Type checking** — Catch type errors before runtime using tools like Steep or TypeProf
+- **Better IDE support** — Enhanced autocomplete, navigation, and inline documentation
+- **Self-documenting code** — Clear method signatures and return types
+- **Refactoring confidence** — Type-aware refactoring reduces bugs
+
 ---
 
 url: https://github.com/drexed/cmdx/blob/main/docs/basics/setup.md
