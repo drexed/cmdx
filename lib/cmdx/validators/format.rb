@@ -38,6 +38,8 @@ module CMDx
       # @example Validate with custom message
       #   Format.call("invalid", with: /\A\d+\z/, message: "Must contain only digits")
       #   # => raises ValidationError with custom message
+      #
+      # @rbs (untyped value, (Hash[Symbol, untyped] | Regexp) options) -> nil
       def call(value, options = {})
         match =
           if options.is_a?(Regexp)

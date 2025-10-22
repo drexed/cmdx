@@ -8,6 +8,7 @@ module CMDx
 
       extend self
 
+      # @rbs FORMATTER: Proc
       FORMATTER = proc do |key, value|
         "#{key}=#{value.inspect}"
       end.freeze
@@ -28,6 +29,8 @@ module CMDx
       # @example CMDx object
       #   Format.to_log(CMDx::Task.new(name: "task1"))
       #   # => {name: "task1"}
+      #
+      # @rbs (untyped message) -> untyped
       def to_log(message)
         if message.respond_to?(:to_h) && message.class.ancestors.any? { |a| a.to_s.start_with?("CMDx") }
           message.to_h
@@ -51,6 +54,8 @@ module CMDx
       # @example Custom formatter
       #   Format.to_str({count: 5, total: 100}) { |k, v| "#{k}:#{v}" }
       #   # => "count:5 total:100"
+      #
+      # @rbs (Hash[untyped, untyped] hash) ?{ (untyped, untyped) -> String } -> String
       def to_str(hash, &block)
         block ||= FORMATTER
         hash.map(&block).join(" ")

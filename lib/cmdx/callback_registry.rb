@@ -7,6 +7,7 @@ module CMDx
   # Each callback type represents a specific execution phase or outcome.
   class CallbackRegistry
 
+    # @rbs TYPES: Array[Symbol]
     TYPES = %i[
       before_validation
       before_execution
@@ -20,10 +21,13 @@ module CMDx
       on_bad
     ].freeze
 
+    # @rbs @registry: Hash[Symbol, Set[Array[untyped]]]
     attr_reader :registry
     alias to_h registry
 
     # @param registry [Hash] Initial registry hash, defaults to empty
+    #
+    # @rbs (?Hash[Symbol, Set[Array[untyped]]] registry) -> void
     def initialize(registry = {})
       @registry = registry
     end
@@ -31,6 +35,8 @@ module CMDx
     # Creates a deep copy of the registry with duplicated callable sets
     #
     # @return [CallbackRegistry] A new instance with duplicated registry contents
+    #
+    # @rbs () -> CallbackRegistry
     def dup
       self.class.new(registry.transform_values(&:dup))
     end
@@ -54,6 +60,8 @@ module CMDx
     #   registry.register(:on_success, if: { status: :completed }) do |task|
     #     task.log("Success callback executed")
     #   end
+    #
+    # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
     def register(type, *callables, **options, &block)
       callables << block if block_given?
 
@@ -73,6 +81,8 @@ module CMDx
     #
     # @example Remove a specific callback
     #   registry.deregister(:before_execution, :validate_inputs)
+    #
+    # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
     def deregister(type, *callables, **options, &block)
       callables << block if block_given?
       return self unless registry[type]
@@ -91,6 +101,8 @@ module CMDx
     #
     # @example Invoke all before_execution callbacks
     #   registry.invoke(:before_execution, task)
+    #
+    # @rbs (Symbol type, Task task) -> void
     def invoke(type, task)
       raise TypeError, "unknown callback type #{type.inspect}" unless TYPES.include?(type)
 

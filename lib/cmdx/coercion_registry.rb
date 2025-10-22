@@ -7,6 +7,7 @@ module CMDx
   # for various data types including arrays, numbers, dates, and other primitives.
   class CoercionRegistry
 
+    # @rbs @registry: Hash[Symbol, Class]
     attr_reader :registry
     alias to_h registry
 
@@ -17,6 +18,8 @@ module CMDx
     # @example
     #   registry = CoercionRegistry.new
     #   registry = CoercionRegistry.new(custom: CustomCoercion)
+    #
+    # @rbs (?Hash[Symbol, Class]? registry) -> void
     def initialize(registry = nil)
       @registry = registry || {
         array: Coercions::Array,
@@ -40,6 +43,8 @@ module CMDx
     #
     # @example
     #   new_registry = registry.dup
+    #
+    # @rbs () -> CoercionRegistry
     def dup
       self.class.new(registry.dup)
     end
@@ -54,6 +59,8 @@ module CMDx
     # @example
     #   registry.register(:custom_type, CustomCoercion)
     #   registry.register("another_type", AnotherCoercion)
+    #
+    # @rbs ((Symbol | String) name, Class coercion) -> self
     def register(name, coercion)
       registry[name.to_sym] = coercion
       self
@@ -68,6 +75,8 @@ module CMDx
     # @example
     #   registry.deregister(:custom_type)
     #   registry.deregister("another_type")
+    #
+    # @rbs ((Symbol | String) name) -> self
     def deregister(name)
       registry.delete(name.to_sym)
       self
@@ -87,6 +96,8 @@ module CMDx
     # @example
     #   result = registry.coerce(:integer, task, "42")
     #   result = registry.coerce(:boolean, task, "true", strict: true)
+    #
+    # @rbs (Symbol type, untyped task, untyped value, ?Hash[Symbol, untyped] options) -> untyped
     def coerce(type, task, value, options = {})
       raise TypeError, "unknown coercion type #{type.inspect}" unless registry.key?(type)
 

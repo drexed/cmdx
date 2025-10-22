@@ -34,6 +34,8 @@ module CMDx
       #   # => nil (validation passes - 5 is within 1..10)
       # @example Include with custom message
       #   Inclusion.call("test", in: ["admin", "user"], message: "must be one of: %{values}")
+      #
+      # @rbs (untyped value, Hash[Symbol, untyped] options) -> nil
       def call(value, options = {})
         values = options[:in] || options[:within]
 

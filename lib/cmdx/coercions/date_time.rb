@@ -11,6 +11,9 @@ module CMDx
 
       extend self
 
+      # Types that are already date-time-like and don't need conversion
+      #
+      # @rbs ANALOG_TYPES: Array[String]
       ANALOG_TYPES = %w[Date DateTime Time].freeze
 
       # Converts a value to a DateTime
@@ -32,6 +35,8 @@ module CMDx
       # @example Convert existing date objects
       #   DateTime.call(Date.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
       #   DateTime.call(Time.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> DateTime
       def call(value, options = {})
         return value if ANALOG_TYPES.include?(value.class.name)
         return ::DateTime.strptime(value, options[:strptime]) if options[:strptime]

@@ -32,6 +32,8 @@ module CMDx
       #   Runtime.call(task, if: :enable_profiling, &block)
       # @example Disable runtime measurement
       #   Runtime.call(task, unless: :skip_profiling, &block)
+      #
+      # @rbs (Task task, **untyped options) { () -> untyped } -> untyped
       def call(task, **options)
         return yield unless Utils::Condition.evaluate(task, options)
 
@@ -49,6 +51,8 @@ module CMDx
       # timing measurements that are not affected by system clock changes.
       #
       # @return [Integer] Current monotonic time in milliseconds
+      #
+      # @rbs () -> Integer
       def monotonic_time
         Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
       end

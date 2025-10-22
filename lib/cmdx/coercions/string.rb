@@ -26,6 +26,8 @@ module CMDx
       #   String.call([1, 2, 3])         # => "[1, 2, 3]"
       #   String.call(nil)               # => ""
       #   String.call(true)              # => "true"
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> String
       def call(value, options = {})
         String(value)
       end

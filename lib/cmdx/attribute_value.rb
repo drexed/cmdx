@@ -8,6 +8,7 @@ module CMDx
 
     extend Forwardable
 
+    # @rbs @attribute: Attribute
     attr_reader :attribute
 
     def_delegators :attribute, :task, :parent, :name, :options, :types, :source, :method_name, :required?
@@ -20,6 +21,8 @@ module CMDx
     # @example
     #   attr = Attribute.new(:user_id, required: true)
     #   attr_value = AttributeValue.new(attr)
+    #
+    # @rbs (Attribute attribute) -> void
     def initialize(attribute)
       @attribute = attribute
     end
@@ -30,6 +33,8 @@ module CMDx
     #
     # @example
     #   attr_value.value # => "john_doe"
+    #
+    # @rbs () -> untyped
     def value
       attributes[method_name]
     end
@@ -41,6 +46,8 @@ module CMDx
     #
     # @example
     #   attr_value.generate # => 42
+    #
+    # @rbs () -> untyped
     def generate
       return value if attributes.key?(method_name)
 
@@ -64,6 +71,8 @@ module CMDx
     # @example
     #   attr_value.validate
     #   # Validates value against :presence, :format, etc.
+    #
+    # @rbs () -> void
     def validate
       registry = task.class.settings[:validators]
 
@@ -86,6 +95,7 @@ module CMDx
     # @example
     #   # Sources from task method, proc, or direct value
     #   source_value # => "raw_value"
+    # @rbs () -> untyped
     def source_value
       sourced_value =
         case source
@@ -115,6 +125,8 @@ module CMDx
     # @example
     #   # Default can be symbol, proc, or direct value
     #   -> { rand(100) } # => 23
+    #
+    # @rbs () -> untyped
     def default_value
       default = options[:default]
 
@@ -140,6 +152,8 @@ module CMDx
     # @example
     #   # Derives from hash key, method call, or proc execution
     #   context.user_id # => 42
+    #
+    # @rbs (untyped source_value) -> untyped
     def derive_value(source_value)
       derived_value =
         case source_value
@@ -163,6 +177,8 @@ module CMDx
     #
     # @example
     #   :downcase # => "hello"
+    #
+    # @rbs (untyped derived_value) -> untyped
     def transform_value(derived_value)
       transform = options[:transform]
 
@@ -186,6 +202,8 @@ module CMDx
     # @example
     #   # Coerces "42" to Integer, "true" to Boolean, etc.
     #   coerce_value("42") # => 42
+    #
+    # @rbs (untyped transformed_value) -> untyped
     def coerce_value(transformed_value)
       return transformed_value if types.empty?
 

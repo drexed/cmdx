@@ -22,6 +22,8 @@ module CMDx
       # @example Basic usage
       #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
       #   # => "User logged in\n"
+      #
+      # @rbs (String severity, Time time, String? progname, String message) -> String
       def call(severity, time, progname, message)
         "#{message}\n"
       end

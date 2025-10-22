@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
+- Added RBS inlines type signatures
+
 ## [1.9.0] - 2025-10-21
 
 ### Added

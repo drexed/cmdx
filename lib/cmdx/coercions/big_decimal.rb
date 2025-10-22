@@ -10,6 +10,7 @@ module CMDx
 
       extend self
 
+      # @rbs DEFAULT_PRECISION: Integer
       DEFAULT_PRECISION = 14
 
       # Converts a value to a BigDecimal
@@ -28,6 +29,8 @@ module CMDx
       # @example Convert other numeric types
       #   BigDecimal.call(42)                         # => #<BigDecimal:7f8b8c0d8e0f '0.42E2',9(18)>
       #   BigDecimal.call(3.14159)                    # => #<BigDecimal:7f8b8c0d8e0f '0.314159E1',9(18)>
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> BigDecimal
       def call(value, options = {})
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError

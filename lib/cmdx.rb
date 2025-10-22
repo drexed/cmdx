@@ -17,6 +17,14 @@ module CMDx
 
   extend self
 
+  # Returns the path to the CMDx gem.
+  #
+  # @return [Pathname] the path to the CMDx gem
+  #
+  # @example
+  #   CMDx.gem_path # => Pathname.new("/path/to/cmdx")
+  #
+  # @rbs return: Pathname
   def gem_path
     @gem_path ||= Pathname.new(__dir__).parent
   end

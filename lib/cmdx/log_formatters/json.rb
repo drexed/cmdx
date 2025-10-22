@@ -21,6 +21,8 @@ module CMDx
       # @example Basic usage
       #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
       #   # => '{"severity":"INFO","timestamp":"2024-01-15T10:30:45.123456Z","progname":"MyApp","pid":12345,"message":"User logged in"}\n'
+      #
+      # @rbs (String severity, Time time, String? progname, String message) -> String
       def call(severity, time, progname, message)
         hash = {
           severity:,

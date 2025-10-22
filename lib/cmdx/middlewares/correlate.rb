@@ -12,6 +12,7 @@ module CMDx
 
       extend self
 
+      # @rbs THREAD_KEY: Symbol
       THREAD_KEY = :cmdx_correlate
 
       # Retrieves the current correlation ID from thread-local storage.
@@ -20,6 +21,8 @@ module CMDx
       #
       # @example Get current correlation ID
       #   Correlate.id # => "550e8400-e29b-41d4-a716-446655440000"
+      #
+      # @rbs () -> String?
       def id
         Thread.current[THREAD_KEY]
       end
@@ -31,6 +34,8 @@ module CMDx
       #
       # @example Set correlation ID
       #   Correlate.id = "abc-123-def"
+      #
+      # @rbs (String id) -> String
       def id=(id)
         Thread.current[THREAD_KEY] = id
       end
@@ -41,6 +46,8 @@ module CMDx
       #
       # @example Clear correlation ID
       #   Correlate.clear
+      #
+      # @rbs () -> nil
       def clear
         Thread.current[THREAD_KEY] = nil
       end
@@ -58,6 +65,8 @@ module CMDx
       #     perform_operation
       #   end
       #   # Previous ID is restored
+      #
+      # @rbs (String new_id) { () -> untyped } -> untyped
       def use(new_id)
         old_id = id
         self.id = new_id
@@ -92,6 +101,8 @@ module CMDx
       #   Correlate.call(task, id: -> { "dynamic-#{Time.now.to_i}" }, &block)
       # @example Conditional correlation
       #   Correlate.call(task, if: :enable_correlation, &block)
+      #
+      # @rbs (Task task, **untyped options) { () -> untyped } -> untyped
       def call(task, **options, &)
         return yield unless Utils::Condition.evaluate(task, options)
 

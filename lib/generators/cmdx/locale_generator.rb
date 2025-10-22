@@ -30,7 +30,6 @@ module Cmdx
     #   # Copy Spanish locale file
     #   rails generate cmdx:locale es
     #   # => Creates config/locales/es.yml
-    #
     def copy_locale_files
       copy_file("#{locale}.yml", "config/locales/#{locale}.yml")
     end

@@ -20,6 +20,8 @@ module CMDx
       #     # This would raise an error:
       #     # def work; end
       #   end
+      #
+      # @rbs (Symbol method_name) -> void
       def method_added(method_name)
         raise "cannot redefine #{name}##{method_name} method" if method_name == :work
 
@@ -37,6 +39,8 @@ module CMDx
       #     task Task2
       #     puts pipeline.size # => 2
       #   end
+      #
+      # @rbs () -> Array[ExecutionGroup]
       def pipeline
         @pipeline ||= []
       end
@@ -55,6 +59,8 @@ module CMDx
       #     include CMDx::Workflow
       #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
       #   end
+      #
+      # @rbs (*untyped tasks, **untyped options) -> void
       def tasks(*tasks, **options)
         pipeline << ExecutionGroup.new(
           tasks.map do |task|
@@ -83,6 +89,8 @@ module CMDx
     #     include CMDx::Workflow
     #     # Now has access to task, tasks, and work methods
     #   end
+    #
+    # @rbs (Class base) -> void
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -100,6 +108,8 @@ module CMDx
     #
     #   workflow = MyWorkflow.new
     #   result = workflow.work
+    #
+    # @rbs () -> void
     def work
       Pipeline.execute(self)
     end

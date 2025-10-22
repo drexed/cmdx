@@ -8,6 +8,7 @@ module CMDx
 
     extend self
 
+    # @rbs EN: Hash[String, untyped]
     EN = YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml")).freeze
     private_constant :EN
 
@@ -34,6 +35,8 @@ module CMDx
     # @example With fallback
     #   Locale.translate("missing.key", default: "Custom fallback message")
     #   # => "Custom fallback message"
+    #
+    # @rbs ((String | Symbol) key, **untyped options) -> String
     def translate(key, **options)
       options[:default] ||= EN.dig("en", *key.to_s.split("."))
       return ::I18n.t(key, **options) if defined?(::I18n)

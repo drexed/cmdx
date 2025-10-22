@@ -30,6 +30,8 @@ module CMDx
       #   Hash.call([:a, 1, :b, 2]) # => {a: 1, b: 2}
       # @example Coerce from JSON string
       #   Hash.call('{"key": "value"}') # => {"key" => "value"}
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Hash[untyped, untyped]
       def call(value, options = {})
         if value.nil?
           {}
