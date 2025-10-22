@@ -8,6 +8,13 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the internal hash of error messages by attribute.
+    #
+    # @return [Hash{Symbol => Set<String>}] Hash mapping attribute names to error message sets
+    #
+    # @example
+    #   errors.messages # => { email: #<Set: ["must be valid", "is required"]> }
+    #
     # @rbs @messages: Hash[Symbol, Set[String]]
     attr_reader :messages
 

@@ -9,31 +9,94 @@ module CMDx
     # @rbs DEFAULT_BREAKPOINTS: Array[String]
     DEFAULT_BREAKPOINTS = %w[failed].freeze
 
+    # Returns the middleware registry for task execution.
+    #
+    # @return [MiddlewareRegistry] The middleware registry
+    #
+    # @example
+    #   config.middlewares.register(CustomMiddleware)
+    #
     # @rbs @middlewares: MiddlewareRegistry
     attr_accessor :middlewares
 
+    # Returns the callback registry for task lifecycle hooks.
+    #
+    # @return [CallbackRegistry] The callback registry
+    #
+    # @example
+    #   config.callbacks.register(:before_execution, :log_start)
+    #
     # @rbs @callbacks: CallbackRegistry
     attr_accessor :callbacks
 
+    # Returns the coercion registry for type conversions.
+    #
+    # @return [CoercionRegistry] The coercion registry
+    #
+    # @example
+    #   config.coercions.register(:custom, CustomCoercion)
+    #
     # @rbs @coercions: CoercionRegistry
     attr_accessor :coercions
 
+    # Returns the validator registry for attribute validation.
+    #
+    # @return [ValidatorRegistry] The validator registry
+    #
+    # @example
+    #   config.validators.register(:email, EmailValidator)
+    #
     # @rbs @validators: ValidatorRegistry
     attr_accessor :validators
 
+    # Returns breakpoint statuses for workflow execution interruption.
+    #
+    # @return [Array<String>] Array of status names that trigger breakpoints
+    #
+    # @example
+    #   config.workflow_breakpoints = ["failed", "skipped"]
+    #
     # @rbs @task_breakpoints: Array[String]
     # @rbs @workflow_breakpoints: Array[String]
     attr_accessor :workflow_breakpoints
 
+    # Returns the logger instance for CMDx operations.
+    #
+    # @return [Logger] The logger instance
+    #
+    # @example
+    #   config.logger.level = Logger::DEBUG
+    #
     # @rbs @logger: Logger
     attr_accessor :logger
 
+    # Returns whether to log backtraces for failed tasks.
+    #
+    # @return [Boolean] true if backtraces should be logged
+    #
+    # @example
+    #   config.backtrace = true
+    #
     # @rbs @backtrace: bool
     attr_accessor :backtrace
 
+    # Returns the proc used to clean backtraces before logging.
+    #
+    # @return [Proc, nil] The backtrace cleaner proc, or nil if not set
+    #
+    # @example
+    #   config.backtrace_cleaner = ->(bt) { bt.first(5) }
+    #
     # @rbs @backtrace_cleaner: (Proc | nil)
     attr_accessor :backtrace_cleaner
 
+    # Returns the proc called when exceptions occur during execution.
+    #
+    # @return [Proc, nil] The exception handler proc, or nil if not set
+    #
+    # @example
+    #   config.exception_handler = ->(task, error) { Sentry.capture_exception(error) }
+    #
     # @rbs @exception_handler: (Proc | nil)
     attr_accessor :exception_handler
 

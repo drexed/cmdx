@@ -8,6 +8,13 @@ module CMDx
   # and proper error handling for different types of failures.
   class Executor
 
+    # Returns the task being executed.
+    #
+    # @return [Task] The task instance
+    #
+    # @example
+    #   executor.task.id # => "abc123"
+    #
     # @rbs @task: Task
     attr_reader :task
 

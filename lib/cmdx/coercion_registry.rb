@@ -7,6 +7,13 @@ module CMDx
   # for various data types including arrays, numbers, dates, and other primitives.
   class CoercionRegistry
 
+    # Returns the internal registry mapping coercion types to handler classes.
+    #
+    # @return [Hash{Symbol => Class}] Hash of coercion type names to coercion classes
+    #
+    # @example
+    #   registry.registry # => { integer: Coercions::Integer, boolean: Coercions::Boolean }
+    #
     # @rbs @registry: Hash[Symbol, Class]
     attr_reader :registry
     alias to_h registry

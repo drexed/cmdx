@@ -12,21 +12,63 @@ module CMDx
     end.freeze
     private_constant :AFFIX
 
+    # Returns the task instance associated with this attribute.
+    #
+    # @return [CMDx::Task] The task instance
+    #
+    # @example
+    #   attribute.task.context[:user_id] # => 42
+    #
     # @rbs @task: Task
     attr_accessor :task
 
+    # Returns the name of this attribute.
+    #
+    # @return [Symbol] The attribute name
+    #
+    # @example
+    #   attribute.name # => :user_id
+    #
     # @rbs @name: Symbol
     attr_reader :name
 
+    # Returns the configuration options for this attribute.
+    #
+    # @return [Hash{Symbol => Object}] Configuration options hash
+    #
+    # @example
+    #   attribute.options # => { required: true, default: 0 }
+    #
     # @rbs @options: Hash[Symbol, untyped]
     attr_reader :options
 
+    # Returns the child attributes for nested structures.
+    #
+    # @return [Array<Attribute>] Array of child attributes
+    #
+    # @example
+    #   attribute.children # => [#<Attribute @name=:street>, #<Attribute @name=:city>]
+    #
     # @rbs @children: Array[Attribute]
     attr_reader :children
 
+    # Returns the parent attribute if this is a nested attribute.
+    #
+    # @return [Attribute, nil] The parent attribute, or nil if root-level
+    #
+    # @example
+    #   attribute.parent # => #<Attribute @name=:address>
+    #
     # @rbs @parent: (Attribute | nil)
     attr_reader :parent
 
+    # Returns the expected type(s) for this attribute's value.
+    #
+    # @return [Array<Class>] Array of expected type classes
+    #
+    # @example
+    #   attribute.types # => [Integer, String]
+    #
     # @rbs @types: Array[Class]
     attr_reader :types
 

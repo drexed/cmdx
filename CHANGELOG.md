@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - Added RBS inlines type signatures
+- Added YARDocs for `attr_reader` and `attr_accessor` methods
 
 ## [1.9.0] - 2025-10-21
 

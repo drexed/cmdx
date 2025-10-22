@@ -11,9 +11,23 @@ module CMDx
     # @rbs THREAD_KEY: Symbol
     THREAD_KEY = :cmdx_chain
 
+    # Returns the unique identifier for this chain.
+    #
+    # @return [String] The chain identifier
+    #
+    # @example
+    #   chain.id # => "abc123xyz"
+    #
     # @rbs @id: String
     attr_reader :id
 
+    # Returns the collection of execution results in this chain.
+    #
+    # @return [Array<Result>] Array of task results
+    #
+    # @example
+    #   chain.results # => [#<Result>, #<Result>]
+    #
     # @rbs @results: Array[Result]
     attr_reader :results
 

@@ -8,6 +8,13 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the attribute managed by this value handler.
+    #
+    # @return [Attribute] The attribute instance
+    #
+    # @example
+    #   attr_value.attribute.name # => :user_id
+    #
     # @rbs @attribute: Attribute
     attr_reader :attribute
 

@@ -11,6 +11,13 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the internal hash storing context data.
+    #
+    # @return [Hash{Symbol => Object}] The internal hash table
+    #
+    # @example
+    #   context.table # => { name: "John", age: 30 }
+    #
     # @rbs @table: Hash[Symbol, untyped]
     attr_reader :table
     alias to_h table

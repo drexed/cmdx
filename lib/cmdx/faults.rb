@@ -11,6 +11,13 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the result that caused this fault.
+    #
+    # @return [Result] The result instance
+    #
+    # @example
+    #   fault.result.reason # => "Validation failed"
+    #
     # @rbs @result: Result
     attr_reader :result
 

@@ -35,21 +35,63 @@ module CMDx
     end.freeze
     private_constant :STRIP_FAILURE
 
+    # Returns the task instance associated with this result.
+    #
+    # @return [CMDx::Task] The task instance
+    #
+    # @example
+    #   result.task.id # => "users/create"
+    #
     # @rbs @task: Task
     attr_reader :task
 
+    # Returns the current execution state of the result.
+    #
+    # @return [String] One of: "initialized", "executing", "complete", "interrupted"
+    #
+    # @example
+    #   result.state # => "complete"
+    #
     # @rbs @state: String
     attr_reader :state
 
+    # Returns the execution status of the result.
+    #
+    # @return [String] One of: "success", "skipped", "failed"
+    #
+    # @example
+    #   result.status # => "success"
+    #
     # @rbs @status: String
     attr_reader :status
 
+    # Returns additional metadata about the result.
+    #
+    # @return [Hash{Symbol => Object}] Metadata hash
+    #
+    # @example
+    #   result.metadata # => { duration: 1.5, retries: 2 }
+    #
     # @rbs @metadata: Hash[Symbol, untyped]
     attr_reader :metadata
 
+    # Returns the reason for interruption (skip or failure).
+    #
+    # @return [String, nil] The reason message, or nil if not interrupted
+    #
+    # @example
+    #   result.reason # => "Validation failed"
+    #
     # @rbs @reason: (String | nil)
     attr_reader :reason
 
+    # Returns the exception that caused the interruption.
+    #
+    # @return [Exception, nil] The causing exception, or nil if not interrupted
+    #
+    # @example
+    #   result.cause # => #<StandardError: Connection timeout>
+    #
     # @rbs @cause: (Exception | nil)
     attr_reader :cause
 

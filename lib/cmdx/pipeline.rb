@@ -6,7 +6,13 @@ module CMDx
   # and handling breakpoints that can interrupt execution at specific task statuses.
   class Pipeline
 
-    # @return [Workflow] The workflow instance being executed
+    # Returns the workflow being executed by this pipeline.
+    #
+    # @return [Workflow] The workflow instance
+    #
+    # @example
+    #   pipeline.workflow.context[:status] # => "processing"
+    #
     # @rbs @workflow: Workflow
     attr_reader :workflow
 

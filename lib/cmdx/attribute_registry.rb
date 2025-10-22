@@ -6,6 +6,13 @@ module CMDx
   # in a hierarchical structure, supporting nested attribute definitions.
   class AttributeRegistry
 
+    # Returns the collection of registered attributes.
+    #
+    # @return [Array<Attribute>] Array of registered attributes
+    #
+    # @example
+    #   registry.registry # => [#<Attribute @name=:name>, #<Attribute @name=:email>]
+    #
     # @rbs @registry: Array[Attribute]
     attr_reader :registry
     alias to_a registry

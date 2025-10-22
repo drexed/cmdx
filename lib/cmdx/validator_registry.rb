@@ -7,6 +7,13 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the internal registry mapping validator types to classes.
+    #
+    # @return [Hash{Symbol => Class}] Hash of validator type names to validator classes
+    #
+    # @example
+    #   registry.registry # => { presence: Validators::Presence, format: Validators::Format }
+    #
     # @rbs @registry: Hash[Symbol, Class]
     attr_reader :registry
     alias to_h registry

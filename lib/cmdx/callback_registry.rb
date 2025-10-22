@@ -21,6 +21,13 @@ module CMDx
       on_bad
     ].freeze
 
+    # Returns the internal registry of callbacks organized by type.
+    #
+    # @return [Hash{Symbol => Set<Array>}] Hash mapping callback types to their registered callables
+    #
+    # @example
+    #   registry.registry # => { before_execution: #<Set: [[[:validate], {}]]> }
+    #
     # @rbs @registry: Hash[Symbol, Set[Array[untyped]]]
     attr_reader :registry
     alias to_h registry

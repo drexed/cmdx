@@ -9,6 +9,13 @@ module CMDx
   # they were registered.
   class MiddlewareRegistry
 
+    # Returns the ordered collection of middleware entries.
+    #
+    # @return [Array<Array>] Array of middleware-options pairs
+    #
+    # @example
+    #   registry.registry # => [[LoggingMiddleware, {level: :debug}], [AuthMiddleware, {}]]
+    #
     # @rbs @registry: Array[Array[untyped]]
     attr_reader :registry
     alias to_a registry

@@ -8,23 +8,65 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the hash of processed attribute values for this task.
+    #
+    # @return [Hash{Symbol => Object}] Hash of attribute names to their values
+    #
+    # @example
+    #   task.attributes # => { user_id: 42, user_name: "John" }
+    #
     # @rbs @attributes: Hash[Symbol, untyped]
     attr_reader :attributes
 
+    # Returns the collection of validation and execution errors.
+    #
+    # @return [Errors] The errors collection
+    #
+    # @example
+    #   task.errors.to_h # => { email: ["must be valid"] }
+    #
     # @rbs @errors: Errors
     attr_reader :errors
 
+    # Returns the unique identifier for this task instance.
+    #
+    # @return [String] The task identifier
+    #
+    # @example
+    #   task.id # => "abc123xyz"
+    #
     # @rbs @id: String
     attr_reader :id
 
+    # Returns the execution context for this task.
+    #
+    # @return [Context] The context instance
+    #
+    # @example
+    #   task.context[:user_id] # => 42
+    #
     # @rbs @context: Context
     attr_reader :context
     alias ctx context
 
+    # Returns the execution result for this task.
+    #
+    # @return [Result] The result instance
+    #
+    # @example
+    #   task.result.status # => "success"
+    #
     # @rbs @result: Result
     attr_reader :result
     alias res result
 
+    # Returns the execution chain containing all task results.
+    #
+    # @return [Chain] The chain instance
+    #
+    # @example
+    #   task.chain.results.size # => 3
+    #
     # @rbs @chain: Chain
     attr_reader :chain
 
