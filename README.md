@@ -6,7 +6,7 @@
 
   Build business logic that’s powerful, predictable, and maintainable.
 
-  [Documentation](https://drexed.github.io/cmdx) · [Changelog](./CHANGELOG.md) · [Report Bug](https://github.com/drexed/cmdx/issues) · [Request Feature](https://github.com/drexed/cmdx/issues)
+  [Documentation](https://drexed.github.io/cmdx) · [Changelog](./CHANGELOG.md) · [Report Bug](https://github.com/drexed/cmdx/issues) · [Request Feature](https://github.com/drexed/cmdx/issues) · [LLM.md](https://raw.githubusercontent.com/drexed/cmdx/refs/heads/main/LLM.md)
 
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
