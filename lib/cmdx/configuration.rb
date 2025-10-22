@@ -49,7 +49,17 @@ module CMDx
     # @rbs @validators: ValidatorRegistry
     attr_accessor :validators
 
-    # Returns breakpoint statuses for workflow execution interruption.
+    # Returns the breakpoint statuses for task execution interruption.
+    #
+    # @return [Array<String>] Array of status names that trigger breakpoints
+    #
+    # @example
+    #   config.task_breakpoints = ["failed", "skipped"]
+    #
+    # @rbs @task_breakpoints: Array[String]
+    attr_accessor :task_breakpoints
+
+    # Returns the breakpoint statuses for workflow execution interruption.
     #
     # @return [Array<String>] Array of status names that trigger breakpoints
     #
