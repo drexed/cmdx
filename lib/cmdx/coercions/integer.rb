@@ -34,6 +34,8 @@ module CMDx
       #   Integer.call(nil)       # => 0
       #   Integer.call(false)     # => 0
       #   Integer.call(true)      # => 1
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Integer
       def call(value, options = {})
         Integer(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError

@@ -11,6 +11,14 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the result that caused this fault.
+    #
+    # @return [Result] The result instance
+    #
+    # @example
+    #   fault.result.reason # => "Validation failed"
+    #
+    # @rbs @result: Result
     attr_reader :result
 
     def_delegators :result, :task, :context, :chain
@@ -24,6 +32,8 @@ module CMDx
     # @example
     #   fault = Fault.new(task_result)
     #   fault.result.reason # => "Task validation failed"
+    #
+    # @rbs (Result result) -> void
     def initialize(result)
       @result = result
 
@@ -41,6 +51,8 @@ module CMDx
       # @example
       #   Fault.for?(UserTask, AdminUserTask)
       #   # => true if fault.task is a UserTask or AdminUserTask
+      #
+      # @rbs (*Class tasks) -> Class
       def for?(*tasks)
         temp_fault = Class.new(self) do
           def self.===(other)
@@ -62,6 +74,8 @@ module CMDx
       # @example
       #   Fault.matches? { |fault| fault.result.metadata[:critical] }
       #   # => true if fault has critical metadata
+      #
+      # @rbs () { (Fault) -> bool } -> Class
       def matches?(&block)
         raise ArgumentError, "block required" unless block_given?
 

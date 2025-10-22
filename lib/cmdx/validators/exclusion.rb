@@ -32,6 +32,8 @@ module CMDx
       #   # => raises ValidationError if value is 5 (within 1..10)
       # @example Exclude with custom message
       #   Exclusion.call("test", in: ["test", "demo"], message: "value %{values} is forbidden")
+      #
+      # @rbs (untyped value, Hash[Symbol, untyped] options) -> nil
       def call(value, options = {})
         values = options[:in] || options[:within]
 

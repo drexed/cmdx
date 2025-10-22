@@ -10,6 +10,7 @@ module CMDx
 
     extend self
 
+    # @rbs EVAL: Proc
     EVAL = proc do |target, callable|
       case callable
       when /raise|log|warn/ then callable
@@ -45,6 +46,8 @@ module CMDx
     #   end
     #
     #   MyTask.new # => [MyTask] DEPRECATED: migrate to a replacement or discontinue use
+    #
+    # @rbs (Task task) -> void
     def restrict(task)
       type = EVAL.call(task, task.class.settings[:deprecate])
 

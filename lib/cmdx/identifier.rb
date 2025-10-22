@@ -18,6 +18,8 @@ module CMDx
     # @example Generate a unique identifier
     #   CMDx::Identifier.generate
     #   # => "01890b2c-1234-5678-9abc-def123456789"
+    #
+    # @rbs () -> String
     def generate
       if SecureRandom.respond_to?(:uuid_v7)
         SecureRandom.uuid_v7

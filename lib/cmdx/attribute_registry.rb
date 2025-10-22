@@ -6,6 +6,14 @@ module CMDx
   # in a hierarchical structure, supporting nested attribute definitions.
   class AttributeRegistry
 
+    # Returns the collection of registered attributes.
+    #
+    # @return [Array<Attribute>] Array of registered attributes
+    #
+    # @example
+    #   registry.registry # => [#<Attribute @name=:name>, #<Attribute @name=:email>]
+    #
+    # @rbs @registry: Array[Attribute]
     attr_reader :registry
     alias to_a registry
 
@@ -18,6 +26,8 @@ module CMDx
     # @example
     #   registry = AttributeRegistry.new
     #   registry = AttributeRegistry.new([attr1, attr2])
+    #
+    # @rbs (?Array[Attribute] registry) -> void
     def initialize(registry = [])
       @registry = registry
     end
@@ -28,6 +38,8 @@ module CMDx
     #
     # @example
     #   new_registry = registry.dup
+    #
+    # @rbs () -> AttributeRegistry
     def dup
       self.class.new(registry.dup)
     end
@@ -41,6 +53,8 @@ module CMDx
     # @example
     #   registry.register(attribute)
     #   registry.register([attr1, attr2])
+    #
+    # @rbs (Attribute | Array[Attribute] attributes) -> self
     def register(attributes)
       @registry.concat(Array(attributes))
       self
@@ -56,6 +70,8 @@ module CMDx
     # @example
     #   registry.deregister(:name)
     #   registry.deregister(['name1', 'name2'])
+    #
+    # @rbs ((Symbol | String | Array[Symbol | String]) names) -> self
     def deregister(names)
       Array(names).each do |name|
         @registry.reject! { |attribute| matches_attribute_tree?(attribute, name.to_sym) }
@@ -69,6 +85,8 @@ module CMDx
     # and validate the attribute hierarchy.
     #
     # @param task [Task] The task to associate with all attributes
+    #
+    # @rbs (Task task) -> void
     def define_and_verify(task)
       registry.each do |attribute|
         attribute.task = task
@@ -84,6 +102,8 @@ module CMDx
     # @param name [Symbol] The name to match against
     #
     # @return [Boolean] True if the attribute or any child matches the name
+    #
+    # @rbs (Attribute attribute, Symbol name) -> bool
     def matches_attribute_tree?(attribute, name)
       return true if attribute.method_name == name
 

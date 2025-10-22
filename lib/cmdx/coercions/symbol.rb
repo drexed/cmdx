@@ -25,6 +25,8 @@ module CMDx
       #   Symbol.call("user_id")         # => :user_id
       #   Symbol.call("")                # => :""
       #   Symbol.call(:existing)         # => :existing
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Symbol
       def call(value, options = {})
         value.to_sym
       rescue NoMethodError

@@ -12,3 +12,4 @@ Add yardoc to the active tab using the following guidelines:
 - Method level docs should include `@example`, `param`, `@options`, `@return`, and any `@raise`
 - Hash `@params` should expand with possible `@option`
 - Module and method level docs should NOT include `@since`
+- Add RBS inline comments after YARDoc block

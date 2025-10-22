@@ -11,6 +11,7 @@ module CMDx
 
       extend self
 
+      # @rbs EVAL: Proc
       EVAL = proc do |target, callable, *args, **kwargs, &block|
         case callable
         when NilClass, FalseClass, TrueClass then !!callable
@@ -53,6 +54,8 @@ module CMDx
       # @example With arguments and block
       #   Condition.evaluate(user, if: ->(u) { u.has_permission?(:admin) }, :admin)
       #   # => true if the proc returns true when called with user and :admin
+      #
+      # @rbs (untyped target, Hash[Symbol, untyped] options, *untyped) ?{ () -> untyped } -> bool
       def evaluate(target, options, ...)
         case options
         in if: if_cond, unless: unless_cond

@@ -21,6 +21,8 @@ module CMDx
       extend self
 
       # Default timeout limit in seconds when none is specified.
+      #
+      # @rbs DEFAULT_LIMIT: Integer
       DEFAULT_LIMIT = 3
 
       # Middleware entry point that enforces execution time limits.
@@ -51,6 +53,8 @@ module CMDx
       #   Timeout.call(task, seconds: -> { calculate_timeout }, &block)
       # @example Conditional timeout control
       #   Timeout.call(task, if: :enable_timeout, &block)
+      #
+      # @rbs (Task task, **untyped options) { () -> untyped } -> untyped
       def call(task, **options, &)
         return yield unless Utils::Condition.evaluate(task, options)
 

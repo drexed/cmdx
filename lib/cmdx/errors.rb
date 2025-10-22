@@ -8,11 +8,21 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the internal hash of error messages by attribute.
+    #
+    # @return [Hash{Symbol => Set<String>}] Hash mapping attribute names to error message sets
+    #
+    # @example
+    #   errors.messages # => { email: #<Set: ["must be valid", "is required"]> }
+    #
+    # @rbs @messages: Hash[Symbol, Set[String]]
     attr_reader :messages
 
     def_delegators :messages, :empty?
 
     # Initialize a new error collection.
+    #
+    # @rbs () -> void
     def initialize
       @messages = {}
     end
@@ -26,6 +36,8 @@ module CMDx
     #   errors = CMDx::Errors.new
     #   errors.add(:email, "must be valid format")
     #   errors.add(:email, "cannot be blank")
+    #
+    # @rbs (Symbol attribute, String message) -> void
     def add(attribute, message)
       return if message.empty?
 
@@ -42,6 +54,8 @@ module CMDx
     # @example
     #   errors.for?(:email) # => true
     #   errors.for?(:name)  # => false
+    #
+    # @rbs (Symbol attribute) -> bool
     def for?(attribute)
       return false unless messages.key?(attribute)
 
@@ -54,6 +68,8 @@ module CMDx
     #
     # @example
     #   errors.full_messages # => { email: ["email must be valid format", "email cannot be blank"] }
+    #
+    # @rbs () -> Hash[Symbol, Array[String]]
     def full_messages
       messages.each_with_object({}) do |(attribute, messages), hash|
         hash[attribute] = messages.map { |message| "#{attribute} #{message}" }
@@ -66,6 +82,8 @@ module CMDx
     #
     # @example
     #   errors.to_h # => { email: ["must be valid format", "cannot be blank"] }
+    #
+    # @rbs () -> Hash[Symbol, Array[String]]
     def to_h
       messages.transform_values(&:to_a)
     end
@@ -78,6 +96,8 @@ module CMDx
     # @example
     #   errors.to_hash # => { email: ["must be valid format", "cannot be blank"] }
     #   errors.to_hash(true) # => { email: ["email must be valid format", "email cannot be blank"] }
+    #
+    # @rbs (?bool full) -> Hash[Symbol, Array[String]]
     def to_hash(full = false)
       full ? full_messages : to_h
     end
@@ -88,6 +108,8 @@ module CMDx
     #
     # @example
     #   errors.to_s # => "email must be valid format. email cannot be blank"
+    #
+    # @rbs () -> String
     def to_s
       full_messages.values.flatten.join(". ")
     end

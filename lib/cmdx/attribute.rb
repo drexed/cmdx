@@ -6,14 +6,71 @@ module CMDx
   # They can be nested to create complex hierarchical data structures.
   class Attribute
 
+    # @rbs AFFIX: Proc
     AFFIX = proc do |value, &block|
       value == true ? block.call : value
     end.freeze
     private_constant :AFFIX
 
+    # Returns the task instance associated with this attribute.
+    #
+    # @return [CMDx::Task] The task instance
+    #
+    # @example
+    #   attribute.task.context[:user_id] # => 42
+    #
+    # @rbs @task: Task
     attr_accessor :task
 
-    attr_reader :name, :options, :children, :parent, :types
+    # Returns the name of this attribute.
+    #
+    # @return [Symbol] The attribute name
+    #
+    # @example
+    #   attribute.name # => :user_id
+    #
+    # @rbs @name: Symbol
+    attr_reader :name
+
+    # Returns the configuration options for this attribute.
+    #
+    # @return [Hash{Symbol => Object}] Configuration options hash
+    #
+    # @example
+    #   attribute.options # => { required: true, default: 0 }
+    #
+    # @rbs @options: Hash[Symbol, untyped]
+    attr_reader :options
+
+    # Returns the child attributes for nested structures.
+    #
+    # @return [Array<Attribute>] Array of child attributes
+    #
+    # @example
+    #   attribute.children # => [#<Attribute @name=:street>, #<Attribute @name=:city>]
+    #
+    # @rbs @children: Array[Attribute]
+    attr_reader :children
+
+    # Returns the parent attribute if this is a nested attribute.
+    #
+    # @return [Attribute, nil] The parent attribute, or nil if root-level
+    #
+    # @example
+    #   attribute.parent # => #<Attribute @name=:address>
+    #
+    # @rbs @parent: (Attribute | nil)
+    attr_reader :parent
+
+    # Returns the expected type(s) for this attribute's value.
+    #
+    # @return [Array<Class>] Array of expected type classes
+    #
+    # @example
+    #   attribute.types # => [Integer, String]
+    #
+    # @rbs @types: Array[Class]
+    attr_reader :types
 
     # Creates a new attribute with the specified name and configuration.
     #
@@ -35,6 +92,8 @@ module CMDx
     #     required :name, types: String
     #     optional :email, types: String
     #   end
+    #
+    # @rbs ((Symbol | String) name, ?Hash[Symbol, untyped] options) ?{ () -> void } -> void
     def initialize(name, options = {}, &)
       @parent = options.delete(:parent)
       @required = options.delete(:required) || false
@@ -62,6 +121,8 @@ module CMDx
       #
       # @example
       #   Attribute.build(:first_name, :last_name, required: true, types: String)
+      #
+      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
       def build(*names, **options, &)
         if names.none?
           raise ArgumentError, "no attributes given"
@@ -83,6 +144,8 @@ module CMDx
       #
       # @example
       #   Attribute.optional(:description, :tags, types: String)
+      #
+      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
       def optional(*names, **options, &)
         build(*names, **options.merge(required: false), &)
       end
@@ -98,6 +161,8 @@ module CMDx
       #
       # @example
       #   Attribute.required(:id, :name, types: [Integer, String])
+      #
+      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
       def required(*names, **options, &)
         build(*names, **options.merge(required: true), &)
       end
@@ -110,6 +175,8 @@ module CMDx
     #
     # @example
     #   attribute.required? # => true
+    #
+    # @rbs () -> bool
     def required?
       !!@required
     end
@@ -120,6 +187,8 @@ module CMDx
     #
     # @example
     #   attribute.source # => :context
+    #
+    # @rbs () -> untyped
     def source
       @source ||= parent&.method_name || begin
         value = options[:source]
@@ -140,6 +209,8 @@ module CMDx
     #
     # @example
     #   attribute.method_name # => :user_name
+    #
+    # @rbs () -> Symbol
     def method_name
       @method_name ||= options[:as] || begin
         prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
@@ -150,6 +221,8 @@ module CMDx
     end
 
     # Defines and verifies the entire attribute tree including nested children.
+    #
+    # @rbs () -> void
     def define_and_verify_tree
       define_and_verify
 
@@ -172,6 +245,8 @@ module CMDx
     #
     # @example
     #   attributes :street, :city, :zip, types: String
+    #
+    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
     def attributes(*names, **options, &)
       attrs = self.class.build(*names, **options.merge(parent: self), &)
       children.concat(attrs)
@@ -189,6 +264,8 @@ module CMDx
     #
     # @example
     #   optional :middle_name, :nickname, types: String
+    #
+    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
     def optional(*names, **options, &)
       attributes(*names, **options.merge(required: false), &)
     end
@@ -204,6 +281,8 @@ module CMDx
     #
     # @example
     #   required :first_name, :last_name, types: String
+    #
+    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
     def required(*names, **options, &)
       attributes(*names, **options.merge(required: true), &)
     end
@@ -211,6 +290,8 @@ module CMDx
     # Defines the attribute method on the task and validates the configuration.
     #
     # @raise [RuntimeError] When the method name is already defined on the task
+    #
+    # @rbs () -> void
     def define_and_verify
       if task.respond_to?(method_name, true)
         raise <<~MESSAGE

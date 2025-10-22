@@ -8,9 +8,67 @@ module CMDx
 
     extend Forwardable
 
-    attr_reader :attributes, :errors, :id, :context, :result, :chain
+    # Returns the hash of processed attribute values for this task.
+    #
+    # @return [Hash{Symbol => Object}] Hash of attribute names to their values
+    #
+    # @example
+    #   task.attributes # => { user_id: 42, user_name: "John" }
+    #
+    # @rbs @attributes: Hash[Symbol, untyped]
+    attr_reader :attributes
+
+    # Returns the collection of validation and execution errors.
+    #
+    # @return [Errors] The errors collection
+    #
+    # @example
+    #   task.errors.to_h # => { email: ["must be valid"] }
+    #
+    # @rbs @errors: Errors
+    attr_reader :errors
+
+    # Returns the unique identifier for this task instance.
+    #
+    # @return [String] The task identifier
+    #
+    # @example
+    #   task.id # => "abc123xyz"
+    #
+    # @rbs @id: String
+    attr_reader :id
+
+    # Returns the execution context for this task.
+    #
+    # @return [Context] The context instance
+    #
+    # @example
+    #   task.context[:user_id] # => 42
+    #
+    # @rbs @context: Context
+    attr_reader :context
     alias ctx context
+
+    # Returns the execution result for this task.
+    #
+    # @return [Result] The result instance
+    #
+    # @example
+    #   task.result.status # => "success"
+    #
+    # @rbs @result: Result
+    attr_reader :result
     alias res result
+
+    # Returns the execution chain containing all task results.
+    #
+    # @return [Chain] The chain instance
+    #
+    # @example
+    #   task.chain.results.size # => 3
+    #
+    # @rbs @chain: Chain
+    attr_reader :chain
 
     def_delegators :result, :skip!, :fail!, :throw!
 
@@ -25,6 +83,8 @@ module CMDx
     # @example
     #   task = MyTask.new(name: "example", priority: :high)
     #   task = MyTask.new(Context.build(name: "example"))
+    #
+    # @rbs (untyped context) -> void
     def initialize(context = {})
       Deprecator.restrict(self)
 
@@ -47,6 +107,8 @@ module CMDx
       #   class MyTask < Task
       #     settings deprecate: true, tags: [:experimental]
       #   end
+      #
+      # @rbs (**untyped options) -> Hash[Symbol, untyped]
       def settings(**options)
         @settings ||= begin
           hash =
@@ -81,6 +143,8 @@ module CMDx
       # @example
       #   register(:attribute, MyAttribute.new)
       #   register(:callback, :before, -> { puts "before" })
+      #
+      # @rbs (Symbol type, untyped object, *untyped) -> void
       def register(type, object, ...)
         case type
         when :attribute then settings[:attributes].register(object, ...)
@@ -101,6 +165,8 @@ module CMDx
       # @example
       #   deregister(:attribute, :name)
       #   deregister(:callback, :before, MyCallback)
+      #
+      # @rbs (Symbol type, untyped object, *untyped) -> void
       def deregister(type, object, ...)
         case type
         when :attribute then settings[:attributes].deregister(object, ...)
@@ -117,6 +183,8 @@ module CMDx
       # @example
       #   attributes :name, :email
       #   attributes :age, type: Integer, default: 18
+      #
+      # @rbs (*untyped) -> void
       def attributes(...)
         register(:attribute, Attribute.build(...))
       end
@@ -127,6 +195,8 @@ module CMDx
       # @example
       #   optional :description, :notes
       #   optional :priority, type: Symbol, default: :normal
+      #
+      # @rbs (*untyped) -> void
       def optional(...)
         register(:attribute, Attribute.optional(...))
       end
@@ -136,6 +206,8 @@ module CMDx
       # @example
       #   required :name, :email
       #   required :age, type: Integer, min: 0
+      #
+      # @rbs (*untyped) -> void
       def required(...)
         register(:attribute, Attribute.required(...))
       end
@@ -144,6 +216,8 @@ module CMDx
       #
       # @example
       #   remove_attributes :old_field, :deprecated_field
+      #
+      # @rbs (*Symbol names) -> void
       def remove_attributes(*names)
         deregister(:attribute, names)
       end
@@ -160,6 +234,8 @@ module CMDx
         #   before { puts "before execution" }
         #   after :cleanup, priority: :high
         #   around ->(task) { task.logger.info("starting") }
+        #
+        # @rbs (*untyped callables, **untyped options) ?{ () -> void } -> void
         define_method(callback) do |*callables, **options, &block|
           register(:callback, callback, *callables, **options, &block)
         end
@@ -174,6 +250,8 @@ module CMDx
       #   if result.success?
       #     puts "Task completed successfully"
       #   end
+      #
+      # @rbs (*untyped args, **untyped kwargs) ?{ (Result) -> void } -> Result
       def execute(*args, **kwargs)
         task = new(*args, **kwargs)
         task.execute(raise: false)
@@ -189,6 +267,8 @@ module CMDx
       # @example
       #   result = MyTask.execute!(name: "example")
       #   # Will raise an exception if execution fails
+      #
+      # @rbs (*untyped args, **untyped kwargs) ?{ (Result) -> void } -> Result
       def execute!(*args, **kwargs)
         task = new(*args, **kwargs)
         task.execute(raise: true)
@@ -204,6 +284,8 @@ module CMDx
     # @example
     #   result = task.execute
     #   result = task.execute(raise: true)
+    #
+    # @rbs (raise: bool) ?{ (Result) -> void } -> Result
     def execute(raise: false)
       Executor.execute(self, raise:)
       block_given? ? yield(result) : result
@@ -218,6 +300,8 @@ module CMDx
     #       puts "Performing work..."
     #     end
     #   end
+    #
+    # @rbs () -> void
     def work
       raise UndefinedMethodError, "undefined method #{self.class.name}#work"
     end
@@ -227,6 +311,8 @@ module CMDx
     # @example
     #   logger.info "Starting task execution"
     #   logger.error "Task failed", error: exception
+    #
+    # @rbs () -> Logger
     def logger
       @logger ||= begin
         logger = self.class.settings[:logger] || CMDx.configuration.logger
@@ -249,6 +335,8 @@ module CMDx
     #   task_hash = task.to_h
     #   puts "Task type: #{task_hash[:type]}"
     #   puts "Task tags: #{task_hash[:tags].join(', ')}"
+    #
+    # @rbs () -> Hash[Symbol, untyped]
     def to_h
       {
         index: result.index,
@@ -265,6 +353,8 @@ module CMDx
     # @example
     #   puts task.to_s
     #   # Output: "Task[MyTask] tags: [:important] id: abc123"
+    #
+    # @rbs () -> String
     def to_s
       Utils::Format.to_str(to_h)
     end

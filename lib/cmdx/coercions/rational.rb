@@ -33,6 +33,8 @@ module CMDx
       #   Rational.call("")        # => (0/1)
       #   Rational.call(nil)       # => (0/1)
       #   Rational.call(0)         # => (0/1)
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Rational
       def call(value, options = {})
         Rational(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError, ZeroDivisionError

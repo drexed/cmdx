@@ -26,6 +26,8 @@ module CMDx
       #   Complex.call(5)                          # => (5+0i)
       #   Complex.call(3.14)                       # => (3.14+0i)
       #   Complex.call(Complex(1, 2))              # => (1+2i)
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Complex
       def call(value, options = {})
         Complex(value)
       rescue ArgumentError, TypeError

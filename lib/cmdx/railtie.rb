@@ -21,6 +21,8 @@ module CMDx
     #   # This initializer runs automatically when Rails starts
     #   # It will load locales like en.yml, es.yml, fr.yml if they exist
     #   # in the CMDx gem's locales directory
+    #
+    # @rbs (untyped app) -> void
     initializer("cmdx.configure_locales") do |app|
       Array(app.config.i18n.available_locales).each do |locale|
         path = CMDx.gem_path.join("lib/locales/#{locale}.yml")
@@ -35,6 +37,8 @@ module CMDx
     # Configures the backtrace cleaner for CMDx in a Rails environment.
     #
     # Sets the backtrace cleaner to the Rails backtrace cleaner.
+    #
+    # @rbs () -> void
     initializer("cmdx.backtrace_cleaner") do
       CMDx.configuration.backtrace_cleaner = lambda do |backtrace|
         Rails.backtrace_cleaner.clean(backtrace)

@@ -32,6 +32,8 @@ module CMDx
       # @example Invoking a callable object
       #   callable = MyCallable.new
       #   Call.invoke(user, callable, 'data')
+      #
+      # @rbs (untyped target, (Symbol | Proc | untyped) callable, *untyped args, **untyped kwargs) ?{ () -> untyped } -> untyped
       def invoke(target, callable, *args, **kwargs, &)
         if callable.is_a?(Symbol)
           target.send(callable, *args, **kwargs, &)

@@ -26,6 +26,8 @@ module CMDx
       #   Array.call("hello")     # => ["hello"]
       #   Array.call(42)          # => [42]
       #   Array.call(nil)         # => []
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
       def call(value, options = {})
         if value.is_a?(::String) && value.start_with?("[")
           JSON.parse(value)

@@ -11,18 +11,22 @@ module CMDx
 
     extend Forwardable
 
+    # @rbs STATES: Array[String]
     STATES = [
       INITIALIZED = "initialized",  # Initial state before execution
       EXECUTING = "executing",      # Currently executing task logic
       COMPLETE = "complete",        # Successfully completed execution
       INTERRUPTED = "interrupted"   # Execution was halted due to failure
     ].freeze
+
+    # @rbs STATUSES: Array[String]
     STATUSES = [
       SUCCESS = "success",  # Task completed successfully
       SKIPPED = "skipped",  # Task was skipped intentionally
       FAILED = "failed"     # Task failed due to error or validation
     ].freeze
 
+    # @rbs STRIP_FAILURE: Proc
     STRIP_FAILURE = proc do |hash, result, key|
       unless result.send(:"#{key}?")
         # Strip caused/threw failures since its the same info as the log line
@@ -31,7 +35,65 @@ module CMDx
     end.freeze
     private_constant :STRIP_FAILURE
 
-    attr_reader :task, :state, :status, :metadata, :reason, :cause
+    # Returns the task instance associated with this result.
+    #
+    # @return [CMDx::Task] The task instance
+    #
+    # @example
+    #   result.task.id # => "users/create"
+    #
+    # @rbs @task: Task
+    attr_reader :task
+
+    # Returns the current execution state of the result.
+    #
+    # @return [String] One of: "initialized", "executing", "complete", "interrupted"
+    #
+    # @example
+    #   result.state # => "complete"
+    #
+    # @rbs @state: String
+    attr_reader :state
+
+    # Returns the execution status of the result.
+    #
+    # @return [String] One of: "success", "skipped", "failed"
+    #
+    # @example
+    #   result.status # => "success"
+    #
+    # @rbs @status: String
+    attr_reader :status
+
+    # Returns additional metadata about the result.
+    #
+    # @return [Hash{Symbol => Object}] Metadata hash
+    #
+    # @example
+    #   result.metadata # => { duration: 1.5, retries: 2 }
+    #
+    # @rbs @metadata: Hash[Symbol, untyped]
+    attr_reader :metadata
+
+    # Returns the reason for interruption (skip or failure).
+    #
+    # @return [String, nil] The reason message, or nil if not interrupted
+    #
+    # @example
+    #   result.reason # => "Validation failed"
+    #
+    # @rbs @reason: (String | nil)
+    attr_reader :reason
+
+    # Returns the exception that caused the interruption.
+    #
+    # @return [Exception, nil] The causing exception, or nil if not interrupted
+    #
+    # @example
+    #   result.cause # => #<StandardError: Connection timeout>
+    #
+    # @rbs @cause: (Exception | nil)
+    attr_reader :cause
 
     def_delegators :task, :context, :chain, :errors
     alias ctx context
@@ -45,6 +107,8 @@ module CMDx
     # @example
     #   result = CMDx::Result.new(my_task)
     #   result.state # => "initialized"
+    #
+    # @rbs (Task) -> void
     def initialize(task)
       raise TypeError, "must be a CMDx::Task" unless task.is_a?(CMDx::Task)
 
@@ -62,6 +126,8 @@ module CMDx
       # @example
       #   result.initialized? # => true
       #   result.executing?   # => false
+      #
+      # @rbs () -> bool
       define_method(:"#{s}?") { state == s }
 
       # @param block [Proc] Block to execute conditionally
@@ -75,6 +141,8 @@ module CMDx
       # @example
       #   result.handle_initialized { |r| puts "Starting execution" }
       #   result.handle_complete { |r| puts "Task completed" }
+      #
+      # @rbs () { (Result) -> void } -> self
       define_method(:"handle_#{s}") do |&block|
         raise ArgumentError, "block required" unless block
 
@@ -87,6 +155,8 @@ module CMDx
     #
     # @example
     #   result.executed! # Transitions to complete or interrupted
+    #
+    # @rbs () -> self
     def executed!
       success? ? complete! : interrupt!
     end
@@ -95,6 +165,8 @@ module CMDx
     #
     # @example
     #   result.executed? # => true if complete? || interrupted?
+    #
+    # @rbs () -> bool
     def executed?
       complete? || interrupted?
     end
@@ -109,6 +181,8 @@ module CMDx
     #
     # @example
     #   result.handle_executed { |r| puts "Task finished: #{r.outcome}" }
+    #
+    # @rbs () { (Result) -> void } -> self
     def handle_executed(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -120,6 +194,8 @@ module CMDx
     #
     # @example
     #   result.executing! # Transitions from initialized to executing
+    #
+    # @rbs () -> void
     def executing!
       return if executing?
 
@@ -132,6 +208,8 @@ module CMDx
     #
     # @example
     #   result.complete! # Transitions from executing to complete
+    #
+    # @rbs () -> void
     def complete!
       return if complete?
 
@@ -144,6 +222,8 @@ module CMDx
     #
     # @example
     #   result.interrupt! # Transitions from executing to interrupted
+    #
+    # @rbs () -> void
     def interrupt!
       return if interrupted?
 
@@ -158,6 +238,8 @@ module CMDx
       # @example
       #   result.success? # => true
       #   result.failed?  # => false
+      #
+      # @rbs () -> bool
       define_method(:"#{s}?") { status == s }
 
       # @param block [Proc] Block to execute conditionally
@@ -171,6 +253,8 @@ module CMDx
       # @example
       #   result.handle_success { |r| puts "Task succeeded" }
       #   result.handle_failed { |r| puts "Task failed: #{r.reason}" }
+      #
+      # @rbs () { (Result) -> void } -> self
       define_method(:"handle_#{s}") do |&block|
         raise ArgumentError, "block required" unless block
 
@@ -183,6 +267,8 @@ module CMDx
     #
     # @example
     #   result.good? # => true if !failed?
+    #
+    # @rbs () -> bool
     def good?
       !failed?
     end
@@ -198,6 +284,8 @@ module CMDx
     #
     # @example
     #   result.handle_good { |r| puts "Task completed successfully" }
+    #
+    # @rbs () { (Result) -> void } -> self
     def handle_good(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -209,6 +297,8 @@ module CMDx
     #
     # @example
     #   result.bad? # => true if !success?
+    #
+    # @rbs () -> bool
     def bad?
       !success?
     end
@@ -223,6 +313,8 @@ module CMDx
     #
     # @example
     #   result.handle_bad { |r| puts "Task had issues: #{r.reason}" }
+    #
+    # @rbs () { (Result) -> void } -> self
     def handle_bad(&)
       raise ArgumentError, "block required" unless block_given?
 
@@ -240,6 +332,8 @@ module CMDx
     # @example
     #   result.skip!("Dependencies not met", cause: dependency_error)
     #   result.skip!("Already processed", halt: false)
+    #
+    # @rbs (?String? reason, halt: bool, cause: Exception?, **untyped metadata) -> void
     def skip!(reason = nil, halt: true, cause: nil, **metadata)
       return if skipped?
 
@@ -264,6 +358,8 @@ module CMDx
     # @example
     #   result.fail!("Validation failed", cause: validation_error)
     #   result.fail!("Network timeout", halt: false, timeout: 30)
+    #
+    # @rbs (?String? reason, halt: bool, cause: Exception?, **untyped metadata) -> void
     def fail!(reason = nil, halt: true, cause: nil, **metadata)
       return if failed?
 
@@ -283,6 +379,8 @@ module CMDx
     #
     # @example
     #   result.halt! # Raises appropriate fault based on status
+    #
+    # @rbs () -> void
     def halt!
       return if success?
 
@@ -315,6 +413,8 @@ module CMDx
     # @example
     #   other_result = OtherTask.execute
     #   result.throw!(other_result, cause: upstream_error)
+    #
+    # @rbs (Result result, halt: bool, cause: Exception?, **untyped metadata) -> void
     def throw!(result, halt: true, cause: nil, **metadata)
       raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
@@ -332,6 +432,8 @@ module CMDx
     # @example
     #   cause = result.caused_failure
     #   puts "Caused by: #{cause.task.id}" if cause
+    #
+    # @rbs () -> Result?
     def caused_failure
       return unless failed?
 
@@ -344,6 +446,8 @@ module CMDx
     #   if result.caused_failure?
     #     puts "This task caused the failure"
     #   end
+    #
+    # @rbs () -> bool
     def caused_failure?
       return false unless failed?
 
@@ -355,6 +459,8 @@ module CMDx
     # @example
     #   thrown = result.threw_failure
     #   puts "Thrown by: #{thrown.task.id}" if thrown
+    #
+    # @rbs () -> Result?
     def threw_failure
       return unless failed?
 
@@ -369,6 +475,8 @@ module CMDx
     #   if result.threw_failure?
     #     puts "This task threw the failure"
     #   end
+    #
+    # @rbs () -> bool
     def threw_failure?
       return false unless failed?
 
@@ -381,6 +489,8 @@ module CMDx
     #   if result.thrown_failure?
     #     puts "This failure was thrown from another task"
     #   end
+    #
+    # @rbs () -> bool
     def thrown_failure?
       failed? && !caused_failure?
     end
@@ -390,6 +500,8 @@ module CMDx
     # @example
     #   position = result.index
     #   puts "Task #{position + 1} of #{chain.results.count}"
+    #
+    # @rbs () -> Integer
     def index
       chain.index(self)
     end
@@ -398,6 +510,8 @@ module CMDx
     #
     # @example
     #   result.outcome # => "success" or "interrupted"
+    #
+    # @rbs () -> String
     def outcome
       initialized? || thrown_failure? ? state : status
     end
@@ -407,6 +521,8 @@ module CMDx
     # @example
     #   result.to_h
     #   # => {state: "complete", status: "success", outcome: "success", metadata: {}}
+    #
+    # @rbs () -> Hash[Symbol, untyped]
     def to_h
       task.to_h.merge!(
         state:,
@@ -430,6 +546,8 @@ module CMDx
     #
     # @example
     #   result.to_s # => "task_id=my_task state=complete status=success"
+    #
+    # @rbs () -> String
     def to_s
       Utils::Format.to_str(to_h) do |key, value|
         case key
@@ -446,6 +564,8 @@ module CMDx
     # @example
     #   state, status = result.deconstruct
     #   puts "State: #{state}, Status: #{status}"
+    #
+    # @rbs (*untyped) -> Array[untyped]
     def deconstruct(*)
       [state, status, reason, cause, metadata]
     end
@@ -461,6 +581,8 @@ module CMDx
     #   in {bad: true}
     #     puts "Task had issues"
     #   end
+    #
+    # @rbs (*untyped) -> Hash[Symbol, untyped]
     def deconstruct_keys(*)
       {
         state: state,

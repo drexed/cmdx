@@ -48,6 +48,8 @@ module CMDx
       # @example Validate value exclusion
       #   Numeric.call(5, not_in: 1..10)
       #   # => nil (validation passes - 5 is not in 1..10)
+      #
+      # @rbs (Numeric value, Hash[Symbol, untyped] options) -> nil
       def call(value, options = {})
         case options
         in within:
@@ -82,6 +84,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric min, Numeric max, Hash[Symbol, untyped] options) -> void
       def raise_within_validation_error!(min, max, options)
         message = options[:within_message] || options[:in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
@@ -96,6 +100,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric min, Numeric max, Hash[Symbol, untyped] options) -> void
       def raise_not_within_validation_error!(min, max, options)
         message = options[:not_within_message] || options[:not_in_message] || options[:message]
         message %= { min:, max: } unless message.nil?
@@ -109,6 +115,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric min, Hash[Symbol, untyped] options) -> void
       def raise_min_validation_error!(min, options)
         message = options[:min_message] || options[:message]
         message %= { min: } unless message.nil?
@@ -122,6 +130,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric max, Hash[Symbol, untyped] options) -> void
       def raise_max_validation_error!(max, options)
         message = options[:max_message] || options[:message]
         message %= { max: } unless message.nil?
@@ -135,6 +145,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric is, Hash[Symbol, untyped] options) -> void
       def raise_is_validation_error!(is, options)
         message = options[:is_message] || options[:message]
         message %= { is: } unless message.nil?
@@ -148,6 +160,8 @@ module CMDx
       # @param options [Hash] Validation options containing custom messages
       #
       # @raise [ValidationError] With appropriate error message
+      #
+      # @rbs (Numeric is_not, Hash[Symbol, untyped] options) -> void
       def raise_is_not_validation_error!(is_not, options)
         message = options[:is_not_message] || options[:message]
         message %= { is_not: } unless message.nil?

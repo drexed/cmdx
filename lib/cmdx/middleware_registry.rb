@@ -9,6 +9,14 @@ module CMDx
   # they were registered.
   class MiddlewareRegistry
 
+    # Returns the ordered collection of middleware entries.
+    #
+    # @return [Array<Array>] Array of middleware-options pairs
+    #
+    # @example
+    #   registry.registry # => [[LoggingMiddleware, {level: :debug}], [AuthMiddleware, {}]]
+    #
+    # @rbs @registry: Array[Array[untyped]]
     attr_reader :registry
     alias to_a registry
 
@@ -19,6 +27,8 @@ module CMDx
     # @example
     #   registry = MiddlewareRegistry.new
     #   registry = MiddlewareRegistry.new([[MyMiddleware, {option: 'value'}]])
+    #
+    # @rbs (?Array[Array[untyped]] registry) -> void
     def initialize(registry = [])
       @registry = registry
     end
@@ -29,6 +39,8 @@ module CMDx
     #
     # @example
     #   new_registry = registry.dup
+    #
+    # @rbs () -> MiddlewareRegistry
     def dup
       self.class.new(registry.map(&:dup))
     end
@@ -46,6 +58,8 @@ module CMDx
     # @example
     #   registry.register(LoggingMiddleware, at: 0, log_level: :debug)
     #   registry.register(AuthMiddleware, at: -1, timeout: 30)
+    #
+    # @rbs (untyped middleware, ?at: Integer, **untyped options) -> self
     def register(middleware, at: -1, **options)
       registry.insert(at, [middleware, options])
       self
@@ -59,6 +73,8 @@ module CMDx
     #
     # @example
     #   registry.deregister(LoggingMiddleware)
+    #
+    # @rbs (untyped middleware) -> self
     def deregister(middleware)
       registry.reject! { |mw, _opts| mw == middleware }
       self
@@ -79,6 +95,8 @@ module CMDx
     #   result = registry.call!(my_task) do |processed_task|
     #     processed_task.execute
     #   end
+    #
+    # @rbs (untyped task) { (untyped) -> untyped } -> untyped
     def call!(task, &)
       raise ArgumentError, "block required" unless block_given?
 
@@ -96,6 +114,8 @@ module CMDx
     # @yieldparam task [Object] The processed task object
     #
     # @return [Object] Result of the block execution or next middleware call
+    #
+    # @rbs (Integer index, untyped task) { (untyped) -> untyped } -> untyped
     def recursively_call_middleware(index, task, &block)
       return yield(task) if index >= registry.size
 

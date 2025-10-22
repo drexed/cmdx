@@ -6,7 +6,14 @@ module CMDx
   # and handling breakpoints that can interrupt execution at specific task statuses.
   class Pipeline
 
-    # @return [Workflow] The workflow instance being executed
+    # Returns the workflow being executed by this pipeline.
+    #
+    # @return [Workflow] The workflow instance
+    #
+    # @example
+    #   pipeline.workflow.context[:status] # => "processing"
+    #
+    # @rbs @workflow: Workflow
     attr_reader :workflow
 
     # @param workflow [Workflow] The workflow to execute
@@ -15,6 +22,8 @@ module CMDx
     #
     # @example
     #   pipeline = Pipeline.new(my_workflow)
+    #
+    # @rbs (Workflow workflow) -> void
     def initialize(workflow)
       @workflow = workflow
     end
@@ -27,6 +36,8 @@ module CMDx
     #
     # @example
     #   Pipeline.execute(my_workflow)
+    #
+    # @rbs (Workflow workflow) -> void
     def self.execute(workflow)
       new(workflow).execute
     end
@@ -40,6 +51,8 @@ module CMDx
     # @example
     #   pipeline = Pipeline.new(my_workflow)
     #   pipeline.execute
+    #
+    # @rbs () -> void
     def execute
       workflow.class.pipeline.each do |group|
         next unless Utils::Condition.evaluate(workflow, group.options)
@@ -65,6 +78,8 @@ module CMDx
     #
     # @example
     #   execute_group_tasks(group, ["failed", "skipped"])
+    #
+    # @rbs (untyped group, Array[String] breakpoints) -> void
     def execute_group_tasks(group, breakpoints)
       case strategy = group.options[:strategy]
       when NilClass, /sequential/ then execute_tasks_in_sequence(group, breakpoints)
@@ -85,6 +100,8 @@ module CMDx
     #
     # @example
     #   execute_tasks_in_sequence(group, ["failed", "skipped"])
+    #
+    # @rbs (untyped group, Array[String] breakpoints) -> void
     def execute_tasks_in_sequence(group, breakpoints)
       group.tasks.each do |task|
         task_result = task.execute(workflow.context)
@@ -107,6 +124,8 @@ module CMDx
     #
     # @example
     #   execute_tasks_in_parallel(group, ["failed"])
+    #
+    # @rbs (untyped group, Array[String] breakpoints) -> void
     def execute_tasks_in_parallel(group, breakpoints)
       raise "install the `parallel` gem to use this feature" unless defined?(Parallel)
 

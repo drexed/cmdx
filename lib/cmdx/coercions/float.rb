@@ -30,6 +30,8 @@ module CMDx
       #   Float.call(BigDecimal("123.456")) # => 123.456
       #   Float.call(Rational(3, 4))       # => 0.75
       #   Float.call(Complex(5.0, 0))      # => 5.0
+      #
+      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Float
       def call(value, options = {})
         Float(value)
       rescue ArgumentError, RangeError, TypeError

@@ -8,6 +8,14 @@ module CMDx
   # and proper error handling for different types of failures.
   class Executor
 
+    # Returns the task being executed.
+    #
+    # @return [Task] The task instance
+    #
+    # @example
+    #   executor.task.id # => "abc123"
+    #
+    # @rbs @task: Task
     attr_reader :task
 
     # @param task [CMDx::Task] The task to execute
@@ -16,6 +24,8 @@ module CMDx
     #
     # @example
     #   executor = CMDx::Executor.new(my_task)
+    #
+    # @rbs (Task task) -> void
     def initialize(task)
       @task = task
     end
@@ -32,6 +42,8 @@ module CMDx
     # @example
     #   CMDx::Executor.execute(my_task)
     #   CMDx::Executor.execute(my_task, raise: true)
+    #
+    # @rbs (Task task, raise: bool) -> Result
     def self.execute(task, raise: false)
       instance = new(task)
       raise ? instance.execute! : instance.execute
@@ -44,6 +56,8 @@ module CMDx
     # @example
     #   executor = CMDx::Executor.new(my_task)
     #   result = executor.execute
+    #
+    # @rbs () -> Result
     def execute
       task.class.settings[:middlewares].call!(task) do
         pre_execution! unless @pre_execution
@@ -73,6 +87,8 @@ module CMDx
     # @example
     #   executor = CMDx::Executor.new(my_task)
     #   result = executor.execute!
+    #
+    # @rbs () -> Result
     def execute!
       task.class.settings[:middlewares].call!(task) do
         pre_execution! unless @pre_execution
@@ -104,6 +120,8 @@ module CMDx
     #
     # @example
     #   halt_execution?(fault_exception)
+    #
+    # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
       breakpoints = task.class.settings[:breakpoints] || task.class.settings[:task_breakpoints]
       breakpoints = Array(breakpoints).map(&:to_s).uniq
@@ -119,6 +137,8 @@ module CMDx
     #
     # @example
     #   retry_execution?(standard_error)
+    #
+    # @rbs (Exception exception) -> bool
     def retry_execution?(exception)
       available_retries = (task.class.settings[:retries] || 0).to_i
       return false unless available_retries.positive?
@@ -151,6 +171,8 @@ module CMDx
     #
     # @example
     #   raise_exception(standard_error)
+    #
+    # @rbs (Exception exception) -> void
     def raise_exception(exception)
       Chain.clear
 
@@ -165,6 +187,8 @@ module CMDx
     #
     # @example
     #   invoke_callbacks(:before_execution)
+    #
+    # @rbs (Symbol type) -> void
     def invoke_callbacks(type)
       task.class.settings[:callbacks].invoke(type, task)
     end
@@ -172,11 +196,15 @@ module CMDx
     private
 
     # Lazy loaded repeator instance to handle retries.
+    #
+    # @rbs () -> untyped
     def repeator
       @repeator ||= Repeator.new(task)
     end
 
     # Performs pre-execution tasks including validation and attribute verification.
+    #
+    # @rbs () -> void
     def pre_execution!
       @pre_execution = true
 
@@ -195,6 +223,8 @@ module CMDx
     end
 
     # Executes the main task logic.
+    #
+    # @rbs () -> void
     def execution!
       invoke_callbacks(:before_execution)
 
@@ -203,6 +233,8 @@ module CMDx
     end
 
     # Performs post-execution tasks including callback invocation.
+    #
+    # @rbs () -> void
     def post_execution!
       invoke_callbacks(:"on_#{task.result.state}")
       invoke_callbacks(:on_executed) if task.result.executed?
@@ -213,6 +245,8 @@ module CMDx
     end
 
     # Finalizes execution by freezing the task and logging results.
+    #
+    # @rbs () -> Result
     def finalize_execution!
       log_execution!
       log_backtrace! if task.class.settings[:backtrace]
@@ -222,11 +256,15 @@ module CMDx
     end
 
     # Logs the execution result at the configured log level.
+    #
+    # @rbs () -> void
     def log_execution!
       task.logger.info { task.result.to_h }
     end
 
     # Logs the backtrace of the exception if the task failed.
+    #
+    # @rbs () -> void
     def log_backtrace!
       return unless task.result.failed?
 
@@ -244,6 +282,8 @@ module CMDx
     end
 
     # Freezes the task and its associated objects to prevent modifications.
+    #
+    # @rbs () -> void
     def freeze_execution!
       # Stubbing on frozen objects is not allowed in most test environments.
       skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)
@@ -260,6 +300,9 @@ module CMDx
       task.chain.freeze
     end
 
+    # Clears the chain if the task is the outermost (top-level) task.
+    #
+    # @rbs () -> void
     def clear_chain!
       return unless task.result.index.zero?
 

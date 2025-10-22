@@ -7,6 +7,14 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the internal registry mapping validator types to classes.
+    #
+    # @return [Hash{Symbol => Class}] Hash of validator type names to validator classes
+    #
+    # @example
+    #   registry.registry # => { presence: Validators::Presence, format: Validators::Format }
+    #
+    # @rbs @registry: Hash[Symbol, Class]
     attr_reader :registry
     alias to_h registry
 
@@ -17,6 +25,8 @@ module CMDx
     # @param registry [Hash, nil] Optional hash mapping validator names to validator classes
     #
     # @return [ValidatorRegistry] A new validator registry instance
+    #
+    # @rbs (?Hash[Symbol, Class]? registry) -> void
     def initialize(registry = nil)
       @registry = registry || {
         exclusion: Validators::Exclusion,
@@ -31,6 +41,8 @@ module CMDx
     # Create a duplicate of the registry with copied internal state.
     #
     # @return [ValidatorRegistry] A new validator registry with duplicated registry hash
+    #
+    # @rbs () -> ValidatorRegistry
     def dup
       self.class.new(registry.dup)
     end
@@ -45,6 +57,8 @@ module CMDx
     # @example
     #   registry.register(:custom, CustomValidator)
     #   registry.register("email", EmailValidator)
+    #
+    # @rbs ((String | Symbol) name, Class validator) -> self
     def register(name, validator)
       registry[name.to_sym] = validator
       self
@@ -59,6 +73,8 @@ module CMDx
     # @example
     #   registry.deregister(:format)
     #   registry.deregister("presence")
+    #
+    # @rbs ((String | Symbol) name) -> self
     def deregister(name)
       registry.delete(name.to_sym)
       self
@@ -77,6 +93,8 @@ module CMDx
     # @example
     #   registry.validate(:presence, task, user.name, presence: true)
     #   registry.validate(:length, task, password, { min: 8, allow_nil: false })
+    #
+    # @rbs (Symbol type, Task task, untyped value, untyped options) -> untyped
     def validate(type, task, value, options = {})
       raise TypeError, "unknown validator type #{type.inspect}" unless registry.key?(type)
 
