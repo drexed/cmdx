@@ -18,6 +18,7 @@ module CMDx
       COMPLETE = "complete",        # Successfully completed execution
       INTERRUPTED = "interrupted"   # Execution was halted due to failure
     ].freeze
+
     # @rbs STATUSES: Array[String]
     STATUSES = [
       SUCCESS = "success",  # Task completed successfully
@@ -35,12 +36,22 @@ module CMDx
     private_constant :STRIP_FAILURE
 
     # @rbs @task: Task
+    attr_reader :task
+
     # @rbs @state: String
+    attr_reader :state
+
     # @rbs @status: String
+    attr_reader :status
+
     # @rbs @metadata: Hash[Symbol, untyped]
+    attr_reader :metadata
+
     # @rbs @reason: (String | nil)
+    attr_reader :reason
+
     # @rbs @cause: (Exception | nil)
-    attr_reader :task, :state, :status, :metadata, :reason, :cause
+    attr_reader :cause
 
     def_delegators :task, :context, :chain, :errors
     alias ctx context
