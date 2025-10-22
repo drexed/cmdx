@@ -17,6 +17,9 @@
 
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
+> [!NOTE]
+> Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+
 ## Requirements
 
 - Ruby: MRI 3.1+ or JRuby 9.4+.

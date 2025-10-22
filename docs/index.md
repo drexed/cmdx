@@ -6,7 +6,13 @@ Build business logic that's powerful, predictable, and maintainable.
 [![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/drexed/cmdx)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
 
+---
+
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
+
+!!! note
+
+    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Installation
 
