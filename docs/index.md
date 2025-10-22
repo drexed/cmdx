@@ -14,6 +14,12 @@ Say goodbye to messy service objects. CMDx helps you design business logic with 
 
     Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
+## Requirements
+
+- Ruby: MRI 3.1+ or JRuby 9.4+.
+
+CMDx works with any Ruby framework. Rails support is built-in, but it's framework-agnostic at its core.
+
 ## Installation
 
 ```sh
