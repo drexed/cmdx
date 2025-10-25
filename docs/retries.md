@@ -47,7 +47,6 @@ Use a numeric value to calculate linear delay (`jitter * current_retry`):
 
 ```ruby
 class ImportRecords < CMDx::Task
-  # Fixed
   settings retries: 3, retry_jitter: 0.5
 
   def work
