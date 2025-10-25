@@ -151,7 +151,18 @@ module CMDx
         task.to_h.merge!(reason:, remaining_retries:)
       end
 
-      jitter = task.class.settings[:retry_jitter].to_f * current_retries
+      jitter = task.class.settings[:retry_jitter]
+      jitter =
+        if jitter.is_a?(Symbol)
+          task.send(jitter, current_retries)
+        elsif jitter.is_a?(Proc)
+          task.instance_exec(current_retries, &jitter)
+        elsif jitter.respond_to?(:call)
+          jitter.call(task, current_retries)
+        else
+          jitter.to_f * current_retries
+        end
+
       sleep(jitter) if jitter.positive?
 
       true

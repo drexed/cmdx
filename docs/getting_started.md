@@ -281,7 +281,7 @@ end
 
 !!! warning "Important"
 
-    Retries reuse the same context. By default, all `StandardError` exceptions are retried unless you specify `retry_on`.
+    Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
 
 ### Registrations
 

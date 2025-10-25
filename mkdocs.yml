@@ -108,6 +108,7 @@ nav:
   - Middlewares: middlewares.md
   - Logging: logging.md
   - Internationalization: internationalization.md
+  - Retries: retries.md
   - Deprecation: deprecation.md
   - Workflows: workflows.md
   - Tips and Tricks: tips_and_tricks.md

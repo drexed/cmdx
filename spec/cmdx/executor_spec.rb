@@ -359,6 +359,252 @@ RSpec.describe CMDx::Executor, type: :unit do
     end
   end
 
+  describe "#retry_execution?" do
+    let(:exception) { StandardError.new("test error") }
+    let(:logger) { instance_double(Logger) }
+
+    before do
+      allow(logger).to receive(:warn)
+      allow(task).to receive_messages(logger: logger, to_h: { id: "123" })
+    end
+
+    context "when retries is not configured" do
+      before do
+        allow(task.class).to receive(:settings).and_return({})
+      end
+
+      it "returns false" do
+        expect(worker.send(:retry_execution?, exception)).to be(false)
+      end
+    end
+
+    context "when retries is 0" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 0 })
+      end
+
+      it "returns false" do
+        expect(worker.send(:retry_execution?, exception)).to be(false)
+      end
+    end
+
+    context "when retries are exhausted" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 2 })
+        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+      end
+
+      it "returns false" do
+        expect(worker.send(:retry_execution?, exception)).to be(false)
+      end
+    end
+
+    context "when exception type does not match retry_on" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_on: [ArgumentError] })
+        allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+      end
+
+      it "returns false" do
+        expect(worker.send(:retry_execution?, exception)).to be(false)
+      end
+    end
+
+    context "when retry should happen" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3 })
+        allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+      end
+
+      it "returns true" do
+        expect(worker.send(:retry_execution?, exception)).to be(true)
+      end
+
+      it "increments retry count in metadata" do
+        metadata = { retries: 1 }
+        allow(task.result).to receive(:metadata).and_return(metadata)
+
+        worker.send(:retry_execution?, exception)
+
+        expect(metadata[:retries]).to eq(2)
+      end
+
+      it "logs warning with reason and remaining retries" do
+        expect(logger).to receive(:warn) do |&block|
+          result = block.call
+          expect(result[:reason]).to eq("[StandardError] test error")
+          expect(result[:remaining_retries]).to eq(3)
+        end
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+
+    context "with retry_on configuration" do
+      context "when exception matches configured type" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
+          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        end
+
+        it "returns true" do
+          expect(worker.send(:retry_execution?, exception)).to be(true)
+        end
+      end
+
+      context "when exception is subclass of configured type" do
+        let(:custom_error) { CMDx::TestError.new("test error") }
+
+        before do
+          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
+          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        end
+
+        it "returns true" do
+          expect(worker.send(:retry_execution?, custom_error)).to be(true)
+        end
+      end
+
+      context "when multiple exception types are configured" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [ArgumentError, StandardError] })
+          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        end
+
+        it "returns true if exception matches any type" do
+          expect(worker.send(:retry_execution?, exception)).to be(true)
+        end
+      end
+    end
+
+    context "with retry_jitter as numeric value" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0.5 })
+        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+      end
+
+      it "sleeps for jitter multiplied by current retries" do
+        expect(worker).to receive(:sleep).with(0.5)
+
+        worker.send(:retry_execution?, exception)
+      end
+
+      context "when first retry" do
+        before do
+          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        end
+
+        it "does not sleep when jitter calculation is 0" do
+          expect(worker).not_to receive(:sleep)
+
+          worker.send(:retry_execution?, exception)
+        end
+      end
+
+      context "when second retry" do
+        before do
+          allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        end
+
+        it "sleeps for jitter * 1" do
+          expect(worker).to receive(:sleep).with(0.5)
+
+          worker.send(:retry_execution?, exception)
+        end
+      end
+
+      context "when third retry" do
+        before do
+          allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+        end
+
+        it "sleeps for jitter * 2" do
+          expect(worker).to receive(:sleep).with(1.0)
+
+          worker.send(:retry_execution?, exception)
+        end
+      end
+    end
+
+    context "with retry_jitter as symbol" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: :custom_jitter })
+        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        allow(task).to receive(:custom_jitter).with(1).and_return(2.5)
+      end
+
+      it "calls method on task with current retries" do
+        expect(task).to receive(:custom_jitter).with(1).and_return(2.5)
+        expect(worker).to receive(:sleep).with(2.5)
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+
+    context "with retry_jitter as proc" do
+      let(:jitter_proc) { ->(retries) { retries * 0.75 } }
+
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_proc })
+        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+      end
+
+      it "instance_execs proc with current retries" do
+        expect(worker).to receive(:sleep).with(1.5)
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+
+    context "with retry_jitter as callable object" do
+      let(:jitter_callable) do
+        Class.new do
+          def call(_task, retries)
+            retries * 1.25
+          end
+        end.new
+      end
+
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_callable })
+        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+      end
+
+      it "calls object with task and current retries" do
+        expect(jitter_callable).to receive(:call).with(task, 2).and_return(2.5)
+        expect(worker).to receive(:sleep).with(2.5)
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+
+    context "when jitter calculation returns negative value" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: -0.5 })
+        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+      end
+
+      it "does not sleep" do
+        expect(worker).not_to receive(:sleep)
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+
+    context "when jitter calculation returns zero" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0 })
+        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+      end
+
+      it "does not sleep" do
+        expect(worker).not_to receive(:sleep)
+
+        worker.send(:retry_execution?, exception)
+      end
+    end
+  end
+
   describe "#raise_exception" do
     let(:exception) { StandardError.new("test error") }
 
