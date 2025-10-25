@@ -24,6 +24,22 @@ end
 IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 ```
 
+## Rollback
+
+Undo any operations linked to the given status, helping to restore a pristine state.
+
+```ruby
+class ValidateDocument < CMDx::Task
+  def work
+    # Your logic here...
+  end
+
+  def rollback
+    # Your undo logic...
+  end
+end
+```
+
 ## Inheritance
 
 Share configuration across tasks using inheritance:
@@ -65,3 +81,4 @@ Tasks follow a predictable execution pattern:
 | **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
 | **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
 | **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
+| **Rollback** | `executed` | `failed`/`skipped` | Work undone |

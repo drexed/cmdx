@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
+- Added `rollback` ability to undo on matching status
+
 ## [1.9.1] - 2025-10-22
 
 ### Added
