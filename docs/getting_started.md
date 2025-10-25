@@ -254,7 +254,7 @@ Override global configuration for specific tasks using `settings`:
 class GenerateInvoice < CMDx::Task
   settings(
     # Global configuration overrides
-    task_breakpoints: ["failed"],                # Breakpoint override\
+    task_breakpoints: ["failed"],                # Breakpoint override
     workflow_breakpoints: [],                    # Breakpoint override
     backtrace: true,                             # Toggle backtrace
     backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
