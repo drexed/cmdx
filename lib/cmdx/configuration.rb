@@ -62,16 +62,6 @@ module CMDx
     # @rbs @task_breakpoints: Array[String]
     attr_accessor :task_breakpoints
 
-    # Returns the statuses that trigger a task execution rollback.
-    #
-    # @return [Array<String>] Array of status names that trigger rollback
-    #
-    # @example
-    #   config.task_rollpoints = ["failed", "skipped"]
-    #
-    # @rbs @task_rollpoints: Array[String]
-    attr_accessor :task_rollpoints
-
     # Returns the breakpoint statuses for workflow execution interruption.
     #
     # @return [Array<String>] Array of status names that trigger breakpoints
@@ -123,6 +113,16 @@ module CMDx
     # @rbs @exception_handler: (Proc | nil)
     attr_accessor :exception_handler
 
+    # Returns the statuses that trigger a task execution rollback.
+    #
+    # @return [Array<String>] Array of status names that trigger rollback
+    #
+    # @example
+    #   config.rollback_on = ["failed", "skipped"]
+    #
+    # @rbs @rollback_on: Array[String]
+    attr_accessor :rollback_on
+
     # Initializes a new Configuration instance with default values.
     #
     # Creates new registry instances for middlewares, callbacks, coercions, and
@@ -143,8 +143,8 @@ module CMDx
       @validators = ValidatorRegistry.new
 
       @task_breakpoints = DEFAULT_BREAKPOINTS
-      @task_rollpoints = DEFAULT_ROLLPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
+      @rollback_on = DEFAULT_ROLLPOINTS
 
       @backtrace = false
       @backtrace_cleaner = nil
@@ -175,8 +175,8 @@ module CMDx
         coercions: @coercions,
         validators: @validators,
         task_breakpoints: @task_breakpoints,
-        task_rollpoints: @task_rollpoints,
         workflow_breakpoints: @workflow_breakpoints,
+        rollback_on: @rollback_on,
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,
         exception_handler: @exception_handler,

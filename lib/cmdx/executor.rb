@@ -319,7 +319,7 @@ module CMDx
     def rollback_execution!
       return unless task.respond_to?(:rollback)
 
-      statuses = task.class.settings[:rollpoints] || task.class.settings[:task_rollpoints]
+      statuses = task.class.settings[:rollback_on]
       statuses = Array(statuses).map(&:to_s).uniq
       return unless statuses.include?(task.result.status)
 

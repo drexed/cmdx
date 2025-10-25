@@ -78,13 +78,13 @@ CMDx.configure do |config|
 end
 ```
 
-### Rollpoints
+### Rollback
 
 Control when a `rollback` of task execution is called.
 
 ```ruby
 CMDx.configure do |config|
-  config.task_rollpoints = ["failed"] # String or Array[String]
+  config.rollback_on = ["failed"] # String or Array[String]
 end
 ```
 
@@ -254,8 +254,7 @@ Override global configuration for specific tasks using `settings`:
 class GenerateInvoice < CMDx::Task
   settings(
     # Global configuration overrides
-    task_breakpoints: ["failed"],                # Breakpoint override
-    task_rollpoints: ["failed", "skipped"],      # Rollpoint override
+    task_breakpoints: ["failed"],                # Breakpoint override\
     workflow_breakpoints: [],                    # Breakpoint override
     backtrace: true,                             # Toggle backtrace
     backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
@@ -263,14 +262,14 @@ class GenerateInvoice < CMDx::Task
 
     # Task configuration settings
     breakpoints: ["failed"],                     # Contextual pointer for :task_breakpoints and :workflow_breakpoints
-    rollpoints: ["failed", "skipped"],           # Contextual pointer for :task_rollpoints
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
     tags: ["billing", "financial"],              # Logging tags
     deprecated: true,                            # Task deprecations
     retries: 3,                                  # Non-fault exception retries
     retry_on: [External::ApiError],              # List of exceptions to retry on
-    retry_jitter: 1                              # Space between retry iteration, eg: current retry num + 1
+    retry_jitter: 1,                             # Space between retry iteration, eg: current retry num + 1
+    rollback_on: ["failed", "skipped"],          # Rollback on override
   )
 
   def work

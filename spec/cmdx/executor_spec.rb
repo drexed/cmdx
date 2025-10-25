@@ -831,7 +831,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when rollpoints setting exists" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollpoints: %w[failed skipped] })
+          allow(task.class).to receive(:settings).and_return({ rollback_on: %w[failed skipped] })
         end
 
         context "when result status is in rollpoints" do
@@ -859,20 +859,6 @@ RSpec.describe CMDx::Executor, type: :unit do
         end
       end
 
-      context "when task_rollpoints setting exists" do
-        before do
-          allow(task.class).to receive(:settings).and_return({ task_rollpoints: [:failed] })
-        end
-
-        it "converts symbols to strings and calls rollback" do
-          allow(task.result).to receive(:status).and_return("failed")
-
-          expect(task).to receive(:rollback)
-
-          worker.send(:rollback_execution!)
-        end
-      end
-
       context "when no rollpoints are configured" do
         before do
           allow(task.class).to receive(:settings).and_return({})
@@ -888,7 +874,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when rollpoints is nil" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollpoints: nil })
+          allow(task.class).to receive(:settings).and_return({ rollback_on: nil })
           allow(task.result).to receive(:status).and_return("failed")
         end
 
@@ -901,7 +887,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "with duplicate rollpoints" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollpoints: ["failed", "failed", :failed] })
+          allow(task.class).to receive(:settings).and_return({ rollback_on: ["failed", "failed", :failed] })
           allow(task.result).to receive(:status).and_return("failed")
         end
 
@@ -914,7 +900,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "with multiple statuses in rollpoints" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollpoints: %w[failed skipped] })
+          allow(task.class).to receive(:settings).and_return({ rollback_on: %w[failed skipped] })
         end
 
         it "calls rollback when status is failed" do
