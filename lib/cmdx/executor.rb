@@ -118,15 +118,12 @@ module CMDx
     #
     # @return [Boolean] Whether execution should halt
     #
-    # @example
-    #   halt_execution?(fault_exception)
-    #
     # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
-      breakpoints = task.class.settings[:breakpoints] || task.class.settings[:task_breakpoints]
-      breakpoints = Array(breakpoints).map(&:to_s).uniq
+      statuses = task.class.settings[:breakpoints] || task.class.settings[:task_breakpoints]
+      statuses = Array(statuses).map(&:to_s).uniq
 
-      breakpoints.include?(exception.result.status)
+      statuses.include?(exception.result.status)
     end
 
     # Determines if execution should be retried based on retry configuration.
@@ -134,9 +131,6 @@ module CMDx
     # @param exception [Exception] The exception that occurred
     #
     # @return [Boolean] Whether execution should be retried
-    #
-    # @example
-    #   retry_execution?(standard_error)
     #
     # @rbs (Exception exception) -> bool
     def retry_execution?(exception)
@@ -168,9 +162,6 @@ module CMDx
     # @param exception [Exception] The exception to raise
     #
     # @raise [Exception] The provided exception
-    #
-    # @example
-    #   raise_exception(standard_error)
     #
     # @rbs (Exception exception) -> void
     def raise_exception(exception)
@@ -244,7 +235,7 @@ module CMDx
       invoke_callbacks(:on_bad) if task.result.bad?
     end
 
-    # Finalizes execution by freezing the task and logging results.
+    # Finalizes execution by freezing the task, logging results, and rolling back work.
     #
     # @rbs () -> Result
     def finalize_execution!
@@ -253,6 +244,8 @@ module CMDx
 
       freeze_execution!
       clear_chain!
+
+      rollback_execution!
     end
 
     # Logs the execution result at the configured log level.
@@ -307,6 +300,19 @@ module CMDx
       return unless task.result.index.zero?
 
       Chain.clear
+    end
+
+    # Rolls back the work of a task.
+    #
+    # @rbs () -> void
+    def rollback_execution!
+      return unless task.respond_to?(:rollback)
+
+      statuses = task.class.settings[:rollpoints] || task.class.settings[:task_rollpoints]
+      statuses = Array(statuses).map(&:to_s).uniq
+      return unless statuses.include?(task.result.status)
+
+      task.rollback
     end
 
   end

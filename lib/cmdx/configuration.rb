@@ -9,6 +9,9 @@ module CMDx
     # @rbs DEFAULT_BREAKPOINTS: Array[String]
     DEFAULT_BREAKPOINTS = %w[failed].freeze
 
+    # @rbs DEFAULT_ROLLPOINTS: Array[String]
+    DEFAULT_ROLLPOINTS = %w[failed].freeze
+
     # Returns the middleware registry for task execution.
     #
     # @return [MiddlewareRegistry] The middleware registry
@@ -58,6 +61,16 @@ module CMDx
     #
     # @rbs @task_breakpoints: Array[String]
     attr_accessor :task_breakpoints
+
+    # Returns the statuses that trigger a task execution rollback.
+    #
+    # @return [Array<String>] Array of status names that trigger rollback
+    #
+    # @example
+    #   config.task_rollpoints = ["failed", "skipped"]
+    #
+    # @rbs @task_rollpoints: Array[String]
+    attr_accessor :task_rollpoints
 
     # Returns the breakpoint statuses for workflow execution interruption.
     #
@@ -130,6 +143,7 @@ module CMDx
       @validators = ValidatorRegistry.new
 
       @task_breakpoints = DEFAULT_BREAKPOINTS
+      @task_rollpoints = DEFAULT_ROLLPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
 
       @backtrace = false
@@ -161,6 +175,7 @@ module CMDx
         coercions: @coercions,
         validators: @validators,
         task_breakpoints: @task_breakpoints,
+        task_rollpoints: @task_rollpoints,
         workflow_breakpoints: @workflow_breakpoints,
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,

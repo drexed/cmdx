@@ -562,4 +562,131 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
     end
   end
+
+  describe "#rollback_execution!" do
+    context "when task does not respond to rollback" do
+      before do
+        allow(task).to receive(:respond_to?).with(:rollback).and_return(false)
+        allow(task.result).to receive(:status).and_return("failed")
+      end
+
+      it "does not call rollback" do
+        expect(task).not_to receive(:rollback)
+
+        worker.send(:rollback_execution!)
+      end
+    end
+
+    context "when task responds to rollback" do
+      before do
+        allow(task).to receive(:respond_to?).with(:rollback).and_return(true)
+        allow(task).to receive(:rollback)
+      end
+
+      context "when rollpoints setting exists" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ rollpoints: %w[failed skipped] })
+        end
+
+        context "when result status is in rollpoints" do
+          before do
+            allow(task.result).to receive(:status).and_return("failed")
+          end
+
+          it "calls rollback" do
+            expect(task).to receive(:rollback)
+
+            worker.send(:rollback_execution!)
+          end
+        end
+
+        context "when result status is not in rollpoints" do
+          before do
+            allow(task.result).to receive(:status).and_return("success")
+          end
+
+          it "does not call rollback" do
+            expect(task).not_to receive(:rollback)
+
+            worker.send(:rollback_execution!)
+          end
+        end
+      end
+
+      context "when task_rollpoints setting exists" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ task_rollpoints: [:failed] })
+        end
+
+        it "converts symbols to strings and calls rollback" do
+          allow(task.result).to receive(:status).and_return("failed")
+
+          expect(task).to receive(:rollback)
+
+          worker.send(:rollback_execution!)
+        end
+      end
+
+      context "when no rollpoints are configured" do
+        before do
+          allow(task.class).to receive(:settings).and_return({})
+          allow(task.result).to receive(:status).and_return("failed")
+        end
+
+        it "does not call rollback" do
+          expect(task).not_to receive(:rollback)
+
+          worker.send(:rollback_execution!)
+        end
+      end
+
+      context "when rollpoints is nil" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ rollpoints: nil })
+          allow(task.result).to receive(:status).and_return("failed")
+        end
+
+        it "does not call rollback" do
+          expect(task).not_to receive(:rollback)
+
+          worker.send(:rollback_execution!)
+        end
+      end
+
+      context "with duplicate rollpoints" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ rollpoints: ["failed", "failed", :failed] })
+          allow(task.result).to receive(:status).and_return("failed")
+        end
+
+        it "removes duplicates after string conversion and calls rollback" do
+          expect(task).to receive(:rollback).once
+
+          worker.send(:rollback_execution!)
+        end
+      end
+
+      context "with multiple statuses in rollpoints" do
+        before do
+          allow(task.class).to receive(:settings).and_return({ rollpoints: %w[failed skipped] })
+        end
+
+        it "calls rollback when status is failed" do
+          allow(task.result).to receive(:status).and_return("failed")
+
+          expect(task).to receive(:rollback)
+
+          worker.send(:rollback_execution!)
+        end
+
+        it "calls rollback when status is skipped" do
+          allow(task.result).to receive(:status).and_return("skipped")
+
+          expect(task).to receive(:rollback)
+
+          worker.send(:rollback_execution!)
+        end
+      end
+    end
+  end
 end

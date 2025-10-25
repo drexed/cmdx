@@ -78,6 +78,16 @@ CMDx.configure do |config|
 end
 ```
 
+### Rollpoints
+
+Control when a `rollback` of task execution is called.
+
+```ruby
+CMDx.configure do |config|
+  config.task_rollpoints = ["failed"] # String or Array[String]
+end
+```
+
 ### Backtraces
 
 Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
@@ -245,6 +255,7 @@ class GenerateInvoice < CMDx::Task
   settings(
     # Global configuration overrides
     task_breakpoints: ["failed"],                # Breakpoint override
+    task_rollpoints: ["failed", "skipped"],      # Rollpoint override
     workflow_breakpoints: [],                    # Breakpoint override
     backtrace: true,                             # Toggle backtrace
     backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
@@ -252,6 +263,7 @@ class GenerateInvoice < CMDx::Task
 
     # Task configuration settings
     breakpoints: ["failed"],                     # Contextual pointer for :task_breakpoints and :workflow_breakpoints
+    rollpoints: ["failed", "skipped"],           # Contextual pointer for :task_rollpoints
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
     tags: ["billing", "financial"],              # Logging tags
