@@ -73,7 +73,7 @@ end
 
 ### Class or Module
 
-Implement reusable callback logic in dedicated classes:
+Implement reusable callback logic in dedicated modules and classes:
 
 ```ruby
 class BookingConfirmationCallback
