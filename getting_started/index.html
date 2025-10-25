@@ -1234,6 +1234,28 @@
   
   
     <li class="md-nav__item">
+      <a href="../retries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Retries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../deprecation/" class="md-nav__link">
         
   
@@ -1788,7 +1810,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Retries reuse the same context. By default, all <code>StandardError</code> exceptions are retried unless you specify <code>retry_on</code>.</p>
+<p>Retries reuse the same context. By default, all <code>StandardError</code> exceptions (including faults) are retried unless you specify <code>retry_on</code> option for specific matches.</p>
 </div>
 <h3 id="registrations">Registrations<a class="headerlink" href="#registrations" title="Permanent link">&para;</a></h3>
 <p>Register or deregister middlewares, callbacks, coercions, and validators for specific tasks:</p>

@@ -12,13 +12,13 @@
         <meta name="author" content="drexed">
       
       
-        <link rel="canonical" href="https://drexed.github.io/cmdx/logging/">
+        <link rel="canonical" href="https://drexed.github.io/cmdx/retries/">
       
       
-        <link rel="prev" href="../middlewares/">
+        <link rel="prev" href="../internationalization/">
       
       
-        <link rel="next" href="../internationalization/">
+        <link rel="next" href="../deprecation/">
       
       
       <link rel="icon" href="../assets/favicon.ico">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Logging - CMDx</title>
+        <title>Retries - CMDx</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#logging" class="md-skip">
+        <a href="#retries" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Logging
+              Retries
             
           </span>
         </div>
@@ -938,32 +938,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Logging
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../logging/" class="md-nav__link">
         
   
   
@@ -974,95 +952,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#formatters" class="md-nav__link">
-    <span class="md-ellipsis">
-      Formatters
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Structure
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Structure">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#core-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Fields
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#task-information" class="md-nav__link">
-    <span class="md-ellipsis">
-      Task Information
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#execution-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Execution Data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#failure-chain" class="md-nav__link">
-    <span class="md-ellipsis">
-      Failure Chain
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Usage
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1093,10 +982,32 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../retries/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Retries
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1107,6 +1018,95 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selective-retries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Selective Retries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-jitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry Jitter
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retry Jitter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fixed Value
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symbol-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      Symbol References
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proc-or-lambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proc or Lambda
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#class-or-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      Class or Module
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1226,55 +1226,64 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#formatters" class="md-nav__link">
+  <a href="#basic-usage" class="md-nav__link">
     <span class="md-ellipsis">
-      Formatters
+      Basic Usage
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#selective-retries" class="md-nav__link">
     <span class="md-ellipsis">
-      Structure
+      Selective Retries
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Structure">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-jitter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry Jitter
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retry Jitter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-fields" class="md-nav__link">
+  <a href="#fixed-value" class="md-nav__link">
     <span class="md-ellipsis">
-      Core Fields
+      Fixed Value
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-information" class="md-nav__link">
+  <a href="#symbol-references" class="md-nav__link">
     <span class="md-ellipsis">
-      Task Information
+      Symbol References
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#execution-data" class="md-nav__link">
+  <a href="#proc-or-lambda" class="md-nav__link">
     <span class="md-ellipsis">
-      Execution Data
+      Proc or Lambda
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#failure-chain" class="md-nav__link">
+  <a href="#class-or-module" class="md-nav__link">
     <span class="md-ellipsis">
-      Failure Chain
+      Class or Module
     </span>
   </a>
   
@@ -1282,15 +1291,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Usage
-    </span>
-  </a>
   
 </li>
       
@@ -1313,206 +1313,99 @@
   
 
 
-<h1 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h1>
-<p>CMDx automatically logs every task execution with structured data, making debugging and monitoring effortless. Choose from multiple formatters to match your logging infrastructure.</p>
-<h2 id="formatters">Formatters<a class="headerlink" href="#formatters" title="Permanent link">&para;</a></h2>
-<p>Choose the format that works best for your logging system:</p>
-<table>
-<thead>
-<tr>
-<th>Formatter</th>
-<th>Use Case</th>
-<th>Output Style</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Line</code></td>
-<td>Traditional logging</td>
-<td>Single-line format</td>
-</tr>
-<tr>
-<td><code>Json</code></td>
-<td>Structured systems</td>
-<td>Compact JSON</td>
-</tr>
-<tr>
-<td><code>KeyValue</code></td>
-<td>Log parsing</td>
-<td><code>key=value</code> pairs</td>
-</tr>
-<tr>
-<td><code>Logstash</code></td>
-<td>ELK stack</td>
-<td>JSON with @version/@timestamp</td>
-</tr>
-<tr>
-<td><code>Raw</code></td>
-<td>Minimal output</td>
-<td>Message content only</td>
-</tr>
-</tbody>
-</table>
-<p>Sample output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;!-- Success (INFO level) --&gt;
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>index=0 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;GenerateInvoice&quot; state=&quot;complete&quot; status=&quot;success&quot; metadata={runtime: 187}
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>&lt;!-- Skipped (WARN level) --&gt;
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>index=1 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;ValidateCustomer&quot; state=&quot;interrupted&quot; status=&quot;skipped&quot; reason=&quot;Customer already validated&quot;
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>&lt;!-- Failed (ERROR level) --&gt;
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>index=2 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;CalculateTax&quot;  state=&quot;interrupted&quot; status=&quot;failed&quot; metadata={error_code: &quot;TAX_SERVICE_UNAVAILABLE&quot;}
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>&lt;!-- Failed Chain --&gt;
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>index=3 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;BillingWorkflow&quot;  state=&quot;interrupted&quot; status=&quot;failed&quot; caused_failure={index: 2, class: &quot;CalculateTax&quot;, status: &quot;failed&quot;} threw_failure={index: 1, class: &quot;ValidateCustomer&quot;, status: &quot;failed&quot;}
+<h1 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h1>
+<p>CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.</p>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
+<p>Configure retries upto n attempts without any delay.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchExternalData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">HTTParty</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">parsed_response</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.</p>
-</div>
-<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Every log entry includes rich metadata. Available fields depend on execution context and outcome.</p>
-<h3 id="core-fields">Core Fields<a class="headerlink" href="#core-fields" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>severity</code></td>
-<td>Log level</td>
-<td><code>INFO</code>, <code>WARN</code>, <code>ERROR</code></td>
-</tr>
-<tr>
-<td><code>timestamp</code></td>
-<td>ISO 8601 execution time</td>
-<td><code>2022-07-17T18:43:15.000000</code></td>
-</tr>
-<tr>
-<td><code>pid</code></td>
-<td>Process ID</td>
-<td><code>3784</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="task-information">Task Information<a class="headerlink" href="#task-information" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>index</code></td>
-<td>Execution sequence position</td>
-<td><code>0</code>, <code>1</code>, <code>2</code></td>
-</tr>
-<tr>
-<td><code>chain_id</code></td>
-<td>Unique execution chain ID</td>
-<td><code>018c2b95-b764-7615...</code></td>
-</tr>
-<tr>
-<td><code>type</code></td>
-<td>Execution unit type</td>
-<td><code>Task</code>, <code>Workflow</code></td>
-</tr>
-<tr>
-<td><code>class</code></td>
-<td>Task class name</td>
-<td><code>GenerateInvoiceTask</code></td>
-</tr>
-<tr>
-<td><code>id</code></td>
-<td>Unique task instance ID</td>
-<td><code>018c2b95-b764-7615...</code></td>
-</tr>
-<tr>
-<td><code>tags</code></td>
-<td>Custom categorization</td>
-<td><code>["billing", "financial"]</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="execution-data">Execution Data<a class="headerlink" href="#execution-data" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-<th>Example</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>state</code></td>
-<td>Lifecycle state</td>
-<td><code>complete</code>, <code>interrupted</code></td>
-</tr>
-<tr>
-<td><code>status</code></td>
-<td>Business outcome</td>
-<td><code>success</code>, <code>skipped</code>, <code>failed</code></td>
-</tr>
-<tr>
-<td><code>outcome</code></td>
-<td>Final classification</td>
-<td><code>success</code>, <code>interrupted</code></td>
-</tr>
-<tr>
-<td><code>metadata</code></td>
-<td>Custom task data</td>
-<td><code>{order_id: 123, amount: 99.99}</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="failure-chain">Failure Chain<a class="headerlink" href="#failure-chain" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>reason</code></td>
-<td>Reason given for the stoppage</td>
-</tr>
-<tr>
-<td><code>caused</code></td>
-<td>Cause exception details</td>
-</tr>
-<tr>
-<td><code>caused_failure</code></td>
-<td>Original failing task details</td>
-</tr>
-<tr>
-<td><code>threw_failure</code></td>
-<td>Task that propagated the failure</td>
-</tr>
-</tbody>
-</table>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>Access the framework logger directly within tasks:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessSubscription</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;Activated feature flags: </span><span class="si">#{</span><span class="no">Features</span><span class="o">.</span><span class="n">active_flags</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Subscription processed&quot;</span><span class="p">)</span>
+<p>When an exception occurs during execution, CMDx automatically retries up to the configured limit.</p>
+<h2 id="selective-retries">Selective Retries<a class="headerlink" href="#selective-retries" title="Permanent link">&para;</a></h2>
+<p>By default, CMDx retries on <code>StandardError</code> and its subclasses. Narrow this to specific exception types:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessPayment</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_on</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="no">Stripe</span><span class="o">::</span><span class="no">RateLimitError</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="o">]</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Only exceptions matching the <code>retry_on</code> configuration will trigger retries. Uncaught exceptions immediately fail the task.</p>
+</div>
+<h2 id="retry-jitter">Retry Jitter<a class="headerlink" href="#retry-jitter" title="Permanent link">&para;</a></h2>
+<p>Add delays between retry attempts to avoid overwhelming external services or to implement exponential backoff strategies.</p>
+<h3 id="fixed-value">Fixed Value<a class="headerlink" href="#fixed-value" title="Permanent link">&para;</a></h3>
+<p>Use a numeric value to calculate linear delay (<code>jitter * current_retry</code>):</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportRecords</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="c1"># Fixed</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="c1"># Delays: 0s, 0.5s (retry 1), 1.0s (retry 2), 1.5s (retry 3)</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">records</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ExternalAPI</span><span class="o">.</span><span class="n">fetch_records</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
+<p>Define an instance method for custom delay logic:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SyncInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential_backoff</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">inventory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">InventoryAPI</span><span class="o">.</span><span class="n">sync</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">exponential_backoff</span><span class="p">(</span><span class="n">current_retry</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="mi">2</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">current_retry</span><span class="w"> </span><span class="c1"># 2s, 4s, 8s, 16s, 32s</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
+<p>Pass a proc for inline delay calculations:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PollJobStatus</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Proc</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">retry_count</span><span class="o">|</span><span class="w"> </span><span class="o">[</span><span class="n">retry_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="c1"># Lambda</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">retry_count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[</span><span class="n">retry_count</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="c1"># Delays: 0.5s, 1.0s, 1.5s, 2.0s, 2.5s, 3.0s, 3.5s, 4.0s, 4.5s, 5.0s (capped)</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JobAPI</span><span class="o">.</span><span class="n">check_status</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
+<p>Implement reusable delay logic in dedicated modules and classes:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExponentialBackoff</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">retry_count</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">base_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">base_delay</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="o">[</span><span class="n">base_delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">retry_count</span><span class="p">),</span><span class="w"> </span><span class="mi">60</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">end</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchUserProfile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="c1"># Class or Module</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="no">ExponentialBackoff</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="c1"># Instance</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="no">ExponentialBackoff</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="k">end</span>
 </span></code></pre></div>
 
 
@@ -1551,7 +1444,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../middlewares/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Middlewares">
+          <a href="../internationalization/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Internationalization">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1561,20 +1454,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Middlewares
+                Internationalization
               </div>
             </div>
           </a>
         
         
           
-          <a href="../internationalization/" class="md-footer__link md-footer__link--next" aria-label="Next: Internationalization">
+          <a href="../deprecation/" class="md-footer__link md-footer__link--next" aria-label="Next: Deprecation">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Internationalization
+                Deprecation
               </div>
             </div>
             <div class="md-footer__button md-icon">
