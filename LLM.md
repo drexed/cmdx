@@ -87,6 +87,16 @@ CMDx.configure do |config|
 end
 ```
 
+### Rollback
+
+Control when a `rollback` of task execution is called.
+
+```ruby
+CMDx.configure do |config|
+  config.rollback_on = ["failed"] # String or Array[String]
+end
+```
+
 ### Backtraces
 
 Enable backtraces to be logged on any non-fault exceptions for improved debugging context. Run them through a cleaner to remove unwanted stack trace noise.
@@ -264,7 +274,8 @@ class GenerateInvoice < CMDx::Task
     deprecated: true,                            # Task deprecations
     retries: 3,                                  # Non-fault exception retries
     retry_on: [External::ApiError],              # List of exceptions to retry on
-    retry_jitter: 1                              # Space between retry iteration, eg: current retry num + 1
+    retry_jitter: 1,                             # Space between retry iteration, eg: current retry num + 1
+    rollback_on: ["failed", "skipped"],          # Rollback on override
   )
 
   def work
@@ -410,6 +421,22 @@ class IncompleteTask < CMDx::Task
 end
 
 IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
+```
+
+## Rollback
+
+Undo any operations linked to the given status, helping to restore a pristine state.
+
+```ruby
+class ValidateDocument < CMDx::Task
+  def work
+    # Your logic here...
+  end
+
+  def rollback
+    # Your undo logic...
+  end
+end
 ```
 
 ## Inheritance
