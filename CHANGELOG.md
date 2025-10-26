@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added Stoplight circuit breaker integration example
 
 ### Updated
-- Added `retry_jitter` option to support symbol, proc, and callables
+- Updated `retry_jitter` option to support symbol, proc, and callables on top of fixed values
 
 ## [1.9.1] - 2025-10-22
 
