@@ -3096,7 +3096,7 @@ class FetchExternalData < CMDx::Task
 end
 ```
 
-When an exception occurs during execution, CMDx automatically retries up to the configured limit.
+When an exception occurs during execution, CMDx automatically retries up to the configured limit. Each retry attempt is logged at the `warn` level with retry metadata. If all retries are exhausted, the task fails with the original exception.
 
 ## Selective Retries
 
