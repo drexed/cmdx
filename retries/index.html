@@ -1326,7 +1326,7 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>When an exception occurs during execution, CMDx automatically retries up to the configured limit.</p>
+<p>When an exception occurs during execution, CMDx automatically retries up to the configured limit. Each retry attempt is logged at the <code>warn</code> level with retry metadata. If all retries are exhausted, the task fails with the original exception.</p>
 <h2 id="selective-retries">Selective Retries<a class="headerlink" href="#selective-retries" title="Permanent link">&para;</a></h2>
 <p>By default, CMDx retries on <code>StandardError</code> and its subclasses. Narrow this to specific exception types:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessPayment</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
