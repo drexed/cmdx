@@ -197,13 +197,6 @@ module CMDx
 
     private
 
-    # Lazy loaded repeator instance to handle retries.
-    #
-    # @rbs () -> untyped
-    def repeator
-      @repeator ||= Repeator.new(task)
-    end
-
     # Performs pre-execution tasks including validation and attribute verification.
     #
     # @rbs () -> void

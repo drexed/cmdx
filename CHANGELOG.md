@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - Added Sidekiq async integration example
 
+### Removed
+- Removed `Executor#repeator` method (never used)
+
 ## [1.10.0] - 2025-10-26
 
 ### Added
