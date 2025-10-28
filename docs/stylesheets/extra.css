@@ -9,34 +9,34 @@
   --md-accent-fg-color--transparent:   hsla(#{hex2hsl(#fe1817)}, 0.1);
 }
 
-/* GitHub Light syntax highlighting */
+/* GitHub High Contrast Light syntax highlighting */
 [data-md-color-scheme="default"] {
-  --md-code-hl-color:            #24292f;
-  --md-code-hl-keyword-color:    #cf222e;
-  --md-code-hl-string-color:     #0a3069;
-  --md-code-hl-name-color:       #8250df;
-  --md-code-hl-function-color:   #6639ba;
-  --md-code-hl-number-color:     #0550ae;
-  --md-code-hl-constant-color:   #953800;
-  --md-code-hl-comment-color:    #6e7781;
-  --md-code-hl-operator-color:   #cf222e;
-  --md-code-hl-punctuation-color:#24292f;
-  --md-code-hl-variable-color:   #953800;
-  --md-code-hl-generic-color:    #8250df;
+  --md-code-hl-color:            #0e1116;
+  --md-code-hl-keyword-color:    #a0095d;
+  --md-code-hl-string-color:     #024c1a;
+  --md-code-hl-name-color:       #622cbc;
+  --md-code-hl-function-color:   #622cbc;
+  --md-code-hl-number-color:     #0349b4;
+  --md-code-hl-constant-color:   #702c00;
+  --md-code-hl-comment-color:    #66707b;
+  --md-code-hl-operator-color:   #a0095d;
+  --md-code-hl-punctuation-color:#0e1116;
+  --md-code-hl-variable-color:   #702c00;
+  --md-code-hl-generic-color:    #622cbc;
 }
 
-/* GitHub Dark syntax highlighting */
+/* GitHub High Contrast Dark syntax highlighting */
 [data-md-color-scheme="slate"] {
-  --md-code-hl-color:            #e6edf3;
-  --md-code-hl-keyword-color:    #ff7b72;
-  --md-code-hl-string-color:     #a5d6ff;
-  --md-code-hl-name-color:       #d2a8ff;
-  --md-code-hl-function-color:   #d2a8ff;
-  --md-code-hl-number-color:     #79c0ff;
-  --md-code-hl-constant-color:   #ffa657;
-  --md-code-hl-comment-color:    #8b949e;
-  --md-code-hl-operator-color:   #ff7b72;
-  --md-code-hl-punctuation-color:#e6edf3;
-  --md-code-hl-variable-color:   #ffa657;
-  --md-code-hl-generic-color:    #d2a8ff;
+  --md-code-hl-color:            #f0f3f6;
+  --md-code-hl-keyword-color:    #ff9492;
+  --md-code-hl-string-color:     #addcff;
+  --md-code-hl-name-color:       #dbb7ff;
+  --md-code-hl-function-color:   #dbb7ff;
+  --md-code-hl-number-color:     #91cbff;
+  --md-code-hl-constant-color:   #ffb757;
+  --md-code-hl-comment-color:    #9ea7b3;
+  --md-code-hl-operator-color:   #ff9492;
+  --md-code-hl-punctuation-color:#f0f3f6;
+  --md-code-hl-variable-color:   #ffb757;
+  --md-code-hl-generic-color:    #dbb7ff;
 }
