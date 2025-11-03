@@ -70,15 +70,15 @@ end
 
 Tasks follow a predictable execution pattern:
 
-!!! danger "Caution"
+Caution
 
-    Tasks are single-use objects. Once executed, they're frozen and immutable.
+Tasks are single-use objects. Once executed, they're frozen and immutable.
 
-| Stage | State | Status | Description |
-|-------|-------|--------|-------------|
-| **Instantiation** | `initialized` | `success` | Task created with context |
-| **Validation** | `executing` | `success`/`failed` | Attributes validated |
-| **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
-| **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
-| **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
-| **Rollback** | `executed` | `failed`/`skipped` | Work undone |
+| Stage             | State         | Status                       | Description               |
+| ----------------- | ------------- | ---------------------------- | ------------------------- |
+| **Instantiation** | `initialized` | `success`                    | Task created with context |
+| **Validation**    | `executing`   | `success`/`failed`           | Attributes validated      |
+| **Execution**     | `executing`   | `success`/`failed`/`skipped` | `work` method runs        |
+| **Completion**    | `executed`    | `success`/`failed`/`skipped` | Result finalized          |
+| **Freezing**      | `executed`    | `success`/`failed`/`skipped` | Task becomes immutable    |
+| **Rollback**      | `executed`    | `failed`/`skipped`           | Work undone               |

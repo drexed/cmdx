@@ -2,7 +2,7 @@
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](../getting_started.md#coercions) for custom coercion setup.
+See [Global Configuration](../../getting_started/#coercions) for custom coercion setup.
 
 ## Usage
 
@@ -33,33 +33,33 @@ ParseMetrics.execute(
 )
 ```
 
-!!! tip
+Tip
 
-    Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
+Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
 
 ## Built-in Coercions
 
-| Type | Options | Description | Examples |
-|------|---------|-------------|----------|
-| `:array` | | Array conversion with JSON support | `"val"` → `["val"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
-| `:big_decimal` | `:precision` | High-precision decimal | `"123.456"` → `BigDecimal("123.456")` |
-| `:boolean` | | Boolean with text patterns | `"yes"` → `true`, `"no"` → `false` |
-| `:complex` | | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
-| `:date` | `:strptime` | Date objects | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
-| `:datetime` | `:strptime` | DateTime objects | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
-| `:float` | | Floating-point numbers | `"123.45"` → `123.45` |
-| `:hash` | | Hash conversion with JSON support | `'{"a":1}'` → `{"a" => 1}` |
-| `:integer` | | Integer with hex/octal support | `"0xFF"` → `255`, `"077"` → `63` |
-| `:rational` | | Rational numbers | `"1/2"` → `Rational(1, 2)` |
-| `:string` | | String conversion | `123` → `"123"` |
-| `:symbol` | | Symbol conversion | `"abc"` → `:abc` |
-| `:time` | `:strptime` | Time objects | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)` |
+| Type           | Options      | Description                        | Examples                                                   |
+| -------------- | ------------ | ---------------------------------- | ---------------------------------------------------------- |
+| `:array`       |              | Array conversion with JSON support | `"val"` → `["val"]` `"[1,2,3]"` → `[1, 2, 3]`              |
+| `:big_decimal` | `:precision` | High-precision decimal             | `"123.456"` → `BigDecimal("123.456")`                      |
+| `:boolean`     |              | Boolean with text patterns         | `"yes"` → `true`, `"no"` → `false`                         |
+| `:complex`     |              | Complex numbers                    | `"1+2i"` → `Complex(1, 2)`                                 |
+| `:date`        | `:strptime`  | Date objects                       | `"2024-01-23"` → `Date.new(2024, 1, 23)`                   |
+| `:datetime`    | `:strptime`  | DateTime objects                   | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
+| `:float`       |              | Floating-point numbers             | `"123.45"` → `123.45`                                      |
+| `:hash`        |              | Hash conversion with JSON support  | `'{"a":1}'` → `{"a" => 1}`                                 |
+| `:integer`     |              | Integer with hex/octal support     | `"0xFF"` → `255`, `"077"` → `63`                           |
+| `:rational`    |              | Rational numbers                   | `"1/2"` → `Rational(1, 2)`                                 |
+| `:string`      |              | String conversion                  | `123` → `"123"`                                            |
+| `:symbol`      |              | Symbol conversion                  | `"abc"` → `:abc`                                           |
+| `:time`        | `:strptime`  | Time objects                       | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)`             |
 
 ## Declarations
 
-!!! warning "Important"
+Important
 
-    Custom coercions must raise `CMDx::CoercionError` with a descriptive message.
+Custom coercions must raise `CMDx::CoercionError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -111,9 +111,9 @@ end
 
 Remove unwanted coercions:
 
-!!! warning
+Warning
 
-    Each `deregister` call removes one coercion. Use multiple calls for batch removals.
+Each `deregister` call removes one coercion. Use multiple calls for batch removals.
 
 ```ruby
 class TransformCoordinates < CMDx::Task

@@ -1702,38 +1702,6 @@
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
 </span></code></pre></div>
-        <div id="llms-copy-button" style="position: fixed; z-index: 1100; top: 80px; right: 20px;">
-            <button onclick="copyMarkdownToClipboard()" style="cursor: pointer; background: #fe1817;">Copy Markdown</button>
-        </div>
-        <script>
-        async function copyMarkdownToClipboard() {
-            try {
-                const currentPath = window.location.pathname;
-                const mdPath = currentPath.endsWith('/') ? currentPath + 'index.md' : currentPath.replace(/\.html$/, '.md');
-
-                const response = await fetch(mdPath);
-                if (response.ok) {
-                    const markdown = await response.text();
-                    await navigator.clipboard.writeText(markdown);
-                    // Show feedback
-                    const button = document.querySelector('#llms-copy-button button');
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-                    button.style.background = '#28a745';
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '#007acc';
-                    }, 2000);
-                } else {
-                    throw new Error('Markdown file not found');
-                }
-            } catch (err) {
-                console.error('Failed to copy markdown:', err);
-                alert('Failed to copy markdown content');
-            }
-        }
-        </script>
-        
 
 
 

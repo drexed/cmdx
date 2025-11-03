@@ -2,9 +2,9 @@
 
 Customize accessor method names to avoid conflicts and improve clarity. Affixing changes only the generated methods—not the original attribute names.
 
-!!! note
+Note
 
-    Use naming when attributes conflict with existing methods or need better clarity in your code.
+Use naming when attributes conflict with existing methods or need better clarity in your code.
 
 ## Prefix
 

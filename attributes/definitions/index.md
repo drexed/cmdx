@@ -4,9 +4,9 @@ Attributes define your task's interface with automatic validation, type coercion
 
 ## Declarations
 
-!!! tip
+Tip
 
-    Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
+Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
 
 ### Optional
 
@@ -157,9 +157,9 @@ end
 
 Build complex structures with nested attributes. Children inherit their parent as source and support all attribute options:
 
-!!! note
+Note
 
-    Nested attributes support all features: naming, coercions, validations, defaults, and more.
+Nested attributes support all features: naming, coercions, validations, defaults, and more.
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -212,17 +212,17 @@ ConfigureServer.execute(
 )
 ```
 
-!!! warning "Important"
+Important
 
-    Child requirements only apply when the parent is provided—perfect for optional structures.
+Child requirements only apply when the parent is provided—perfect for optional structures.
 
 ## Error Handling
 
 Validation failures provide detailed, structured error messages:
 
-!!! note
+Note
 
-    Nested attributes are only validated when their parent is present and valid.
+Nested attributes are only validated when their parent is present and valid.
 
 ```ruby
 class ConfigureServer < CMDx::Task

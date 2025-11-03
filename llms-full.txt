@@ -6,23 +6,17 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 # Getting Started
 
-## Home
-
 # CMDx
 
 Build business logic that's powerful, predictable, and maintainable.
 
-[![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
-[![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/drexed/cmdx)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
-
----
+______________________________________________________________________
 
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
-!!! note
+Note
 
-    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Requirements
 
@@ -44,52 +38,48 @@ Build powerful business logic in four simple steps:
 
 ### 1. Compose
 
-=== "Full Featured Task"
+```ruby
+class AnalyzeMetrics < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
-    ```ruby
-    class AnalyzeMetrics < CMDx::Task
-      register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+  on_success :track_analysis_completion!
 
-      on_success :track_analysis_completion!
+  required :dataset_id, type: :integer, numeric: { min: 1 }
+  optional :analysis_type, default: "standard"
 
-      required :dataset_id, type: :integer, numeric: { min: 1 }
-      optional :analysis_type, default: "standard"
+  def work
+    if dataset.nil?
+      fail!("Dataset not found", code: 404)
+    elsif dataset.unprocessed?
+      skip!("Dataset not ready for analysis")
+    else
+      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
+      context.analyzed_at = Time.now
 
-      def work
-        if dataset.nil?
-          fail!("Dataset not found", code: 404)
-        elsif dataset.unprocessed?
-          skip!("Dataset not ready for analysis")
-        else
-          context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
-          context.analyzed_at = Time.now
-
-          SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
-        end
-      end
-
-      private
-
-      def dataset
-        @dataset ||= Dataset.find_by(id: dataset_id)
-      end
-
-      def track_analysis_completion!
-        dataset.update!(analysis_result_id: context.result.id)
-      end
+      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
     end
-    ```
+  end
 
-=== "Minimum Viable Task"
+  private
 
-    ```ruby
-    class SendAnalyzedEmail < CMDx::Task
-      def work
-        user = User.find(context.user_id)
-        MetricsMailer.analyzed(user).deliver_now
-      end
-    end
-    ```
+  def dataset
+    @dataset ||= Dataset.find_by(id: dataset_id)
+  end
+
+  def track_analysis_completion!
+    dataset.update!(analysis_result_id: context.result.id)
+  end
+end
+```
+
+```ruby
+class SendAnalyzedEmail < CMDx::Task
+  def work
+    user = User.find(context.user_id)
+    MetricsMailer.analyzed(user).deliver_now
+  end
+end
+```
 
 ### 2. Execute
 
@@ -114,7 +104,7 @@ end
 
 ### 4. Observe
 
-```log
+```text
 I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
 index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
 
@@ -122,7 +112,7 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
-Ready to dive in? Check out the [Getting Started](getting_started.md) guide to learn more.
+Ready to dive in? Check out the [Getting Started](getting_started/) guide to learn more.
 
 ## Ecosystem
 
@@ -140,9 +130,6 @@ Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. W
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-
-## Getting Started
 
 # Getting Started
 
@@ -196,11 +183,11 @@ This creates `config/initializers/cmdx.rb` file.
 CMDx uses a straightforward two-tier configuration system:
 
 1. **Global Configuration** — Framework-wide defaults
-2. **Task Settings** — Class-level overrides using `settings`
+1. **Task Settings** — Class-level overrides using `settings`
 
-!!! warning "Important"
+Important
 
-    Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.
+Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.
 
 ## Global Configuration
 
@@ -238,9 +225,9 @@ end
 
 Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
 
-!!! note
+Note
 
-    In Rails environments, `backtrace_cleaner` defaults to `Rails.backtrace_cleaner.clean`.
+In Rails environments, `backtrace_cleaner` defaults to `Rails.backtrace_cleaner.clean`.
 
 ```ruby
 CMDx.configure do |config|
@@ -259,9 +246,9 @@ end
 
 Register handlers that run when non-fault exceptions occur.
 
-!!! tip
+Tip
 
-    Use exception handlers to send errors to your APM of choice.
+Use exception handlers to send errors to your APM of choice.
 
 ```ruby
 CMDx.configure do |config|
@@ -285,7 +272,7 @@ end
 
 ### Middlewares
 
-See the [Middlewares](middlewares.md#declarations) docs for task level configurations.
+See the [Middlewares](../middlewares/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -309,13 +296,13 @@ CMDx.configure do |config|
 end
 ```
 
-!!! note
+Note
 
-    Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
+Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
 
 ### Callbacks
 
-See the [Callbacks](callbacks.md#declarations) docs for task level configurations.
+See the [Callbacks](../callbacks/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -341,7 +328,7 @@ end
 
 ### Coercions
 
-See the [Attributes - Coercions](attributes/coercions.md#declarations) docs for task level configurations.
+See the [Attributes - Coercions](../attributes/coercions/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -367,7 +354,7 @@ end
 
 ### Validators
 
-See the [Attributes - Validations](attributes/validations.md#declarations) docs for task level configurations.
+See the [Attributes - Validations](../attributes/validations/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -424,9 +411,9 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
+Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
 
 ### Registrations
 
@@ -482,9 +469,9 @@ end
 
 ### Resetting
 
-!!! warning
+Warning
 
-    Resetting affects your entire application. Use this primarily in test environments.
+Resetting affects your entire application. Use this primarily in test environments.
 
 ```ruby
 # Reset to framework defaults
@@ -521,9 +508,9 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ## Type safety
 
@@ -533,11 +520,7 @@ CMDx includes built-in RBS (Ruby Type Signature) inline annotations throughout t
 - **Better IDE support** — Enhanced autocomplete, navigation, and inline documentation
 - **Self-documenting code** — Clear method signatures and return types
 - **Refactoring confidence** — Type-aware refactoring reduces bugs
-
-
 # Basics
-
-## Setup
 
 # Basics - Setup
 
@@ -611,21 +594,18 @@ end
 
 Tasks follow a predictable execution pattern:
 
-!!! danger "Caution"
+Caution
 
-    Tasks are single-use objects. Once executed, they're frozen and immutable.
+Tasks are single-use objects. Once executed, they're frozen and immutable.
 
-| Stage | State | Status | Description |
-|-------|-------|--------|-------------|
-| **Instantiation** | `initialized` | `success` | Task created with context |
-| **Validation** | `executing` | `success`/`failed` | Attributes validated |
-| **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
-| **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
-| **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
-| **Rollback** | `executed` | `failed`/`skipped` | Work undone |
-
-
-## Execution
+| Stage             | State         | Status                       | Description               |
+| ----------------- | ------------- | ---------------------------- | ------------------------- |
+| **Instantiation** | `initialized` | `success`                    | Task created with context |
+| **Validation**    | `executing`   | `success`/`failed`           | Attributes validated      |
+| **Execution**     | `executing`   | `success`/`failed`/`skipped` | `work` method runs        |
+| **Completion**    | `executed`    | `success`/`failed`/`skipped` | Result finalized          |
+| **Freezing**      | `executed`    | `success`/`failed`/`skipped` | Task becomes immutable    |
+| **Rollback**      | `executed`    | `failed`/`skipped`           | Work undone               |
 
 # Basics - Execution
 
@@ -635,9 +615,9 @@ CMDx offers two execution methods with different error handling approaches. Choo
 
 Both methods return results, but handle failures differently:
 
-| Method | Returns | Exceptions | Use Case |
-|--------|---------|------------|----------|
-| `execute` | Always returns `CMDx::Result` | Never raises | Predictable result handling |
+| Method     | Returns                           | Exceptions                                  | Use Case                     |
+| ---------- | --------------------------------- | ------------------------------------------- | ---------------------------- |
+| `execute`  | Always returns `CMDx::Result`     | Never raises                                | Predictable result handling  |
 | `execute!` | Returns `CMDx::Result` on success | Raises `CMDx::Fault` when skipped or failed | Exception-based control flow |
 
 ## Non-bang Execution
@@ -662,14 +642,14 @@ result.status           #=> "success"
 
 Raises `CMDx::Fault` exceptions on failure or skip. Returns results only on success.
 
-| Exception | Raised When |
-|-----------|-------------|
-| `CMDx::FailFault` | Task execution fails |
+| Exception         | Raised When               |
+| ----------------- | ------------------------- |
+| `CMDx::FailFault` | Task execution fails      |
 | `CMDx::SkipFault` | Task execution is skipped |
 
-!!! warning "Important"
+Important
 
-    Behavior depends on `task_breakpoints` or `workflow_breakpoints` config. Default: only failures raise exceptions.
+Behavior depends on `task_breakpoints` or `workflow_breakpoints` config. Default: only failures raise exceptions.
 
 ```ruby
 begin
@@ -724,9 +704,6 @@ result.context      #=> Context with all task data
 result.metadata     #=> Hash with execution metadata
 ```
 
-
-## Context
-
 # Basics - Context
 
 Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.
@@ -743,9 +720,9 @@ CalculateShipping.execute(weight: 2.5, destination: "CA")
 CalculateShipping.new(weight: 2.5, "destination" => "CA")
 ```
 
-!!! warning "Important"
+Important
 
-    String keys convert to symbols automatically. Prefer symbols for consistency.
+String keys convert to symbols automatically. Prefer symbols for consistency.
 
 ## Accessing Data
 
@@ -772,9 +749,9 @@ class CalculateShipping < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Undefined attributes return `nil` instead of raising errors—perfect for optional data.
+Undefined attributes return `nil` instead of raising errors—perfect for optional data.
 
 ## Modifying Context
 
@@ -815,9 +792,9 @@ class CalculateShipping < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
+Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
 
 ## Data Sharing
 
@@ -849,9 +826,6 @@ result = CalculateShipping.execute(destination: "New York, NY")
 CreateShippingLabel.execute(result)
 ```
 
-
-## Chain
-
 # Basics - Chain
 
 Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.
@@ -860,9 +834,9 @@ Chains automatically track related task executions within a thread. Think of the
 
 Each thread maintains its own isolated chain using thread-local storage.
 
-!!! warning
+Warning
 
-    Chains are thread-local. Don't share chain references across threads—it causes race conditions.
+Chains are thread-local. Don't share chain references across threads—it causes race conditions.
 
 ```ruby
 # Thread A
@@ -886,9 +860,9 @@ CMDx::Chain.clear    #=> Clears current thread's chain
 
 Tasks automatically create or join the current thread's chain:
 
-!!! warning "Important"
+Important
 
-    Chain management is automatic—no manual lifecycle handling needed.
+Chain management is automatic—no manual lifecycle handling needed.
 
 ```ruby
 class ImportDataset < CMDx::Task
@@ -938,9 +912,9 @@ chain.results.map { |r| r.task.class }
 
 Chains expose comprehensive execution information:
 
-!!! warning "Important"
+Important
 
-    Chain state reflects the first (outermost) task result. Subtasks maintain their own states.
+Chain state reflects the first (outermost) task result. Subtasks maintain their own states.
 
 ```ruby
 result = ImportDataset.execute(dataset_id: 456)
@@ -960,11 +934,7 @@ chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
 ```
-
-
 # Interruptions
-
-## Halt
 
 # Interruptions - Halt
 
@@ -974,9 +944,9 @@ Stop task execution intentionally using `skip!` or `fail!`. Both methods signal 
 
 Use `skip!` when the task doesn't need to run. It's a no-op, not an error.
 
-!!! warning "Important"
+Important
 
-    Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.
+Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -1087,10 +1057,10 @@ result.metadata #=> {
 
 Halt methods trigger specific state and status transitions:
 
-| Method | State | Status | Outcome |
-|--------|-------|--------|---------|
-| `skip!` | `interrupted` | `skipped` | `good? = true`, `bad? = true` |
-| `fail!` | `interrupted` | `failed` | `good? = false`, `bad? = true` |
+| Method  | State         | Status    | Outcome                        |
+| ------- | ------------- | --------- | ------------------------------ |
+| `skip!` | `interrupted` | `skipped` | `good? = true`, `bad? = true`  |
+| `fail!` | `interrupted` | `failed`  | `good? = false`, `bad? = true` |
 
 ```ruby
 result = ProcessRenewal.execute(license_id: 567)
@@ -1166,9 +1136,9 @@ fail! #=> "Unspecified"
 
 For rare cases, manually add errors before halting:
 
-!!! warning "Important"
+Important
 
-    Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
+Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
 
 ```ruby
 class ProcessRenewal < CMDx::Task
@@ -1183,24 +1153,21 @@ class ProcessRenewal < CMDx::Task
 end
 ```
 
-
-## Faults
-
 # Interruptions - Faults
 
 Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.
 
 ## Fault Types
 
-| Type | Triggered By | Use Case |
-|------|--------------|----------|
-| `CMDx::Fault` | Base class | Catch-all for any interruption |
-| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
+| Type              | Triggered By   | Use Case                               |
+| ----------------- | -------------- | -------------------------------------- |
+| `CMDx::Fault`     | Base class     | Catch-all for any interruption         |
+| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns     |
 | `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
 
-!!! warning "Important"
+Important
 
-    All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
+All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
 
 ## Fault Handling
 
@@ -1356,18 +1323,15 @@ if result.failed?
 end
 ```
 
-
-## Exceptions
-
 # Interruptions - Exceptions
 
 Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy.
 
 ## Exception Handling
 
-!!! warning "Important"
+Important
 
-    Prefer `skip!` and `fail!` over raising exceptions—they signal intent more clearly.
+Prefer `skip!` and `fail!` over raising exceptions—they signal intent more clearly.
 
 ### Non-bang execution
 
@@ -1389,9 +1353,9 @@ result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
 result.cause    #=> <ActiveRecord::NotFoundError>
 ```
 
-!!! note
+Note
 
-    Use `exception_handler` with `execute` to send exceptions to APM tools before they become failed results.
+Use `exception_handler` with `execute` to send exceptions to APM tools before they become failed results.
 
 ### Bang execution
 
@@ -1411,11 +1375,7 @@ rescue ActiveRecord::NotFoundError => e
   puts "Handle exception: #{e.message}"
 end
 ```
-
-
 # Outcomes
-
-## Result
 
 # Outcomes - Result
 
@@ -1425,9 +1385,9 @@ Results are your window into task execution. They expose everything: outcome, st
 
 Access essential execution information:
 
-!!! warning "Important"
+Important
 
-    Results are immutable after execution completes.
+Results are immutable after execution completes.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -1564,9 +1524,9 @@ result
 
 Use Ruby 3.0+ pattern matching for elegant outcome handling:
 
-!!! warning "Important"
+Important
 
-    Pattern matching works with both array and hash deconstruction.
+Pattern matching works with both array and hash deconstruction.
 
 ### Array Pattern
 
@@ -1611,38 +1571,35 @@ in { runtime: time } if time > performance_threshold
 end
 ```
 
-
-## States
-
 # Outcomes - States
 
 States track where a task is in its execution lifecycle—from creation through completion or interruption.
 
 ## Definitions
 
-| State | Description |
-| ----- | ----------- |
-| `initialized` | Task created but execution not yet started. Default state for new tasks. |
-| `executing` | Task is actively running its business logic. Transient state during execution. |
-| `complete` | Task finished execution successfully without any interruption or halt. |
-| `interrupted` | Task execution was stopped due to a fault, exception, or explicit halt. |
+| State         | Description                                                                    |
+| ------------- | ------------------------------------------------------------------------------ |
+| `initialized` | Task created but execution not yet started. Default state for new tasks.       |
+| `executing`   | Task is actively running its business logic. Transient state during execution. |
+| `complete`    | Task finished execution successfully without any interruption or halt.         |
+| `interrupted` | Task execution was stopped due to a fault, exception, or explicit halt.        |
 
 State-Status combinations:
 
-| State | Status | Meaning |
-| ----- | ------ | ------- |
-| `initialized` | `success` | Task created, not yet executed |
-| `executing` | `success` | Task currently running |
-| `complete` | `success` | Task finished successfully |
-| `complete` | `skipped` | Task finished by skipping execution |
-| `interrupted` | `failed` | Task stopped due to failure |
-| `interrupted` | `skipped` | Task stopped by skip condition |
+| State         | Status    | Meaning                             |
+| ------------- | --------- | ----------------------------------- |
+| `initialized` | `success` | Task created, not yet executed      |
+| `executing`   | `success` | Task currently running              |
+| `complete`    | `success` | Task finished successfully          |
+| `complete`    | `skipped` | Task finished by skipping execution |
+| `interrupted` | `failed`  | Task stopped due to failure         |
+| `interrupted` | `skipped` | Task stopped by skip condition      |
 
 ## Transitions
 
-!!! danger "Caution"
+Caution
 
-    States are managed automatically—never modify them manually.
+States are managed automatically—never modify them manually.
 
 ```ruby
 # Valid state transition flow
@@ -1681,26 +1638,23 @@ result
   .handle_executed { |result| log_upload_metrics(result) }
 ```
 
-
-## Statuses
-
 # Outcomes - Statuses
 
 Statuses represent the business outcome—did the task succeed, skip, or fail? This differs from state, which tracks the execution lifecycle.
 
 ## Definitions
 
-| Status | Description |
-| ------ | ----------- |
-| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks. |
+| Status    | Description                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------------- |
+| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks.  |
 | `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary. |
-| `failed` | Task stopped execution due to business rule violations, validation errors, or exceptions. |
+| `failed`  | Task stopped execution due to business rule violations, validation errors, or exceptions.            |
 
 ## Transitions
 
-!!! warning "Important"
+Important
 
-    Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
+Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
 
 ```ruby
 # Valid status transitions
@@ -1749,11 +1703,7 @@ result
   .handle_good { |result| update_message_stats(result) }
   .handle_bad { |result| track_delivery_failure(result) }
 ```
-
-
 # Attributes
-
-## Definitions
 
 # Attributes - Definitions
 
@@ -1761,9 +1711,9 @@ Attributes define your task's interface with automatic validation, type coercion
 
 ## Declarations
 
-!!! tip
+Tip
 
-    Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
+Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
 
 ### Optional
 
@@ -1914,9 +1864,9 @@ end
 
 Build complex structures with nested attributes. Children inherit their parent as source and support all attribute options:
 
-!!! note
+Note
 
-    Nested attributes support all features: naming, coercions, validations, defaults, and more.
+Nested attributes support all features: naming, coercions, validations, defaults, and more.
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -1969,17 +1919,17 @@ ConfigureServer.execute(
 )
 ```
 
-!!! warning "Important"
+Important
 
-    Child requirements only apply when the parent is provided—perfect for optional structures.
+Child requirements only apply when the parent is provided—perfect for optional structures.
 
 ## Error Handling
 
 Validation failures provide detailed, structured error messages:
 
-!!! note
+Note
 
-    Nested attributes are only validated when their parent is present and valid.
+Nested attributes are only validated when their parent is present and valid.
 
 ```ruby
 class ConfigureServer < CMDx::Task
@@ -2029,16 +1979,13 @@ result.metadata #=> {
                 #   }
 ```
 
-
-## Naming
-
 # Attributes - Naming
 
 Customize accessor method names to avoid conflicts and improve clarity. Affixing changes only the generated methods—not the original attribute names.
 
-!!! note
+Note
 
-    Use naming when attributes conflict with existing methods or need better clarity in your code.
+Use naming when attributes conflict with existing methods or need better clarity in your code.
 
 ## Prefix
 
@@ -2101,14 +2048,11 @@ end
 ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 ```
 
-
-## Coercions
-
 # Attributes - Coercions
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](../getting_started.md#coercions) for custom coercion setup.
+See [Global Configuration](../../getting_started/#coercions) for custom coercion setup.
 
 ## Usage
 
@@ -2139,33 +2083,33 @@ ParseMetrics.execute(
 )
 ```
 
-!!! tip
+Tip
 
-    Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
+Specify multiple coercion types for attributes that could be a variety of value formats. CMDx attempts each type in order until one succeeds.
 
 ## Built-in Coercions
 
-| Type | Options | Description | Examples |
-|------|---------|-------------|----------|
-| `:array` | | Array conversion with JSON support | `"val"` → `["val"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
-| `:big_decimal` | `:precision` | High-precision decimal | `"123.456"` → `BigDecimal("123.456")` |
-| `:boolean` | | Boolean with text patterns | `"yes"` → `true`, `"no"` → `false` |
-| `:complex` | | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
-| `:date` | `:strptime` | Date objects | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
-| `:datetime` | `:strptime` | DateTime objects | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
-| `:float` | | Floating-point numbers | `"123.45"` → `123.45` |
-| `:hash` | | Hash conversion with JSON support | `'{"a":1}'` → `{"a" => 1}` |
-| `:integer` | | Integer with hex/octal support | `"0xFF"` → `255`, `"077"` → `63` |
-| `:rational` | | Rational numbers | `"1/2"` → `Rational(1, 2)` |
-| `:string` | | String conversion | `123` → `"123"` |
-| `:symbol` | | Symbol conversion | `"abc"` → `:abc` |
-| `:time` | `:strptime` | Time objects | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)` |
+| Type           | Options      | Description                        | Examples                                                   |
+| -------------- | ------------ | ---------------------------------- | ---------------------------------------------------------- |
+| `:array`       |              | Array conversion with JSON support | `"val"` → `["val"]` `"[1,2,3]"` → `[1, 2, 3]`              |
+| `:big_decimal` | `:precision` | High-precision decimal             | `"123.456"` → `BigDecimal("123.456")`                      |
+| `:boolean`     |              | Boolean with text patterns         | `"yes"` → `true`, `"no"` → `false`                         |
+| `:complex`     |              | Complex numbers                    | `"1+2i"` → `Complex(1, 2)`                                 |
+| `:date`        | `:strptime`  | Date objects                       | `"2024-01-23"` → `Date.new(2024, 1, 23)`                   |
+| `:datetime`    | `:strptime`  | DateTime objects                   | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
+| `:float`       |              | Floating-point numbers             | `"123.45"` → `123.45`                                      |
+| `:hash`        |              | Hash conversion with JSON support  | `'{"a":1}'` → `{"a" => 1}`                                 |
+| `:integer`     |              | Integer with hex/octal support     | `"0xFF"` → `255`, `"077"` → `63`                           |
+| `:rational`    |              | Rational numbers                   | `"1/2"` → `Rational(1, 2)`                                 |
+| `:string`      |              | String conversion                  | `123` → `"123"`                                            |
+| `:symbol`      |              | Symbol conversion                  | `"abc"` → `:abc`                                           |
+| `:time`        | `:strptime`  | Time objects                       | `"10:30:00"` → `Time.new(2024, 1, 23, 10, 30)`             |
 
 ## Declarations
 
-!!! warning "Important"
+Important
 
-    Custom coercions must raise `CMDx::CoercionError` with a descriptive message.
+Custom coercions must raise `CMDx::CoercionError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -2217,9 +2161,9 @@ end
 
 Remove unwanted coercions:
 
-!!! warning
+Warning
 
-    Each `deregister` call removes one coercion. Use multiple calls for batch removals.
+Each `deregister` call removes one coercion. Use multiple calls for batch removals.
 
 ```ruby
 class TransformCoordinates < CMDx::Task
@@ -2260,14 +2204,11 @@ result.metadata #=> {
                 #   }
 ```
 
-
-## Validations
-
 # Attributes - Validations
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](../getting_started.md#validators) for custom validator setup.
+See [Global Configuration](../../getting_started/#validators) for custom validator setup.
 
 ## Usage
 
@@ -2303,9 +2244,9 @@ ProcessSubscription.execute(
 )
 ```
 
-!!! tip
+Tip
 
-    Validations run after coercions, so you can validate the final coerced values rather than raw input.
+Validations run after coercions, so you can validate the final coerced values rather than raw input.
 
 ## Built-in Validators
 
@@ -2313,12 +2254,12 @@ ProcessSubscription.execute(
 
 This list of options is available to all validators:
 
-| Option | Description |
-|--------|-------------|
-| `:allow_nil` | Skip validation when value is `nil` |
-| `:if` | Symbol, proc, lambda, or callable determining when to validate |
-| `:unless` | Symbol, proc, lambda, or callable determining when to skip validation |
-| `:message` | Custom error message for validation failures |
+| Option       | Description                                                           |
+| ------------ | --------------------------------------------------------------------- |
+| `:allow_nil` | Skip validation when value is `nil`                                   |
+| `:if`        | Symbol, proc, lambda, or callable determining when to validate        |
+| `:unless`    | Symbol, proc, lambda, or callable determining when to skip validation |
+| `:message`   | Custom error message for validation failures                          |
 
 ### Exclusion
 
@@ -2332,13 +2273,13 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:in` | The collection of forbidden values or range |
-| `:within` | Alias for :in option |
-| `:of_message` | Custom message for discrete value exclusions |
-| `:in_message` | Custom message for range-based exclusions |
-| `:within_message` | Alias for :in_message option |
+| Options           | Description                                  |
+| ----------------- | -------------------------------------------- |
+| `:in`             | The collection of forbidden values or range  |
+| `:within`         | Alias for :in option                         |
+| `:of_message`     | Custom message for discrete value exclusions |
+| `:in_message`     | Custom message for range-based exclusions    |
+| `:within_message` | Alias for :in_message option                 |
 
 ### Format
 
@@ -2354,10 +2295,10 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `regexp` | Alias for :with option |
-| `:with` | Regex pattern that the value must match |
+| Options    | Description                                 |
+| ---------- | ------------------------------------------- |
+| `regexp`   | Alias for :with option                      |
+| `:with`    | Regex pattern that the value must match     |
 | `:without` | Regex pattern that the value must not match |
 
 ### Inclusion
@@ -2372,13 +2313,13 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:in` | The collection of allowed values or range |
-| `:within` | Alias for :in option |
-| `:of_message` | Custom message for discrete value inclusions |
-| `:in_message` | Custom message for range-based inclusions |
-| `:within_message` | Alias for :in_message option |
+| Options           | Description                                  |
+| ----------------- | -------------------------------------------- |
+| `:in`             | The collection of allowed values or range    |
+| `:within`         | Alias for :in option                         |
+| `:of_message`     | Custom message for discrete value inclusions |
+| `:in_message`     | Custom message for range-based inclusions    |
+| `:within_message` | Alias for :in_message option                 |
 
 ### Length
 
@@ -2392,24 +2333,24 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:within` | Range that the length must fall within (inclusive) |
-| `:not_within` | Range that the length must not fall within |
-| `:in` | Alias for :within |
-| `:not_in` | Range that the length must not fall within |
-| `:min` | Minimum allowed length |
-| `:max` | Maximum allowed length |
-| `:is` | Exact required length |
-| `:is_not` | Length that is not allowed |
-| `:within_message` | Custom message for within/range validations |
-| `:in_message` | Custom message for :in validation |
-| `:not_within_message` | Custom message for not_within validation |
-| `:not_in_message` | Custom message for not_in validation |
-| `:min_message` | Custom message for minimum length validation |
-| `:max_message` | Custom message for maximum length validation |
-| `:is_message` | Custom message for exact length validation |
-| `:is_not_message` | Custom message for is_not validation |
+| Options               | Description                                        |
+| --------------------- | -------------------------------------------------- |
+| `:within`             | Range that the length must fall within (inclusive) |
+| `:not_within`         | Range that the length must not fall within         |
+| `:in`                 | Alias for :within                                  |
+| `:not_in`             | Range that the length must not fall within         |
+| `:min`                | Minimum allowed length                             |
+| `:max`                | Maximum allowed length                             |
+| `:is`                 | Exact required length                              |
+| `:is_not`             | Length that is not allowed                         |
+| `:within_message`     | Custom message for within/range validations        |
+| `:in_message`         | Custom message for :in validation                  |
+| `:not_within_message` | Custom message for not_within validation           |
+| `:not_in_message`     | Custom message for not_in validation               |
+| `:min_message`        | Custom message for minimum length validation       |
+| `:max_message`        | Custom message for maximum length validation       |
+| `:is_message`         | Custom message for exact length validation         |
+| `:is_not_message`     | Custom message for is_not validation               |
 
 ### Numeric
 
@@ -2423,22 +2364,22 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `:within` | Range that the value must fall within (inclusive) |
-| `:not_within` | Range that the value must not fall within |
-| `:in` | Alias for :within option |
-| `:not_in` | Alias for :not_within option |
-| `:min` | Minimum allowed value (inclusive, >=) |
-| `:max` | Maximum allowed value (inclusive, <=) |
-| `:is` | Exact value that must match |
-| `:is_not` | Value that must not match |
-| `:within_message` | Custom message for range validations |
-| `:not_within_message` | Custom message for exclusion validations |
-| `:min_message` | Custom message for minimum validation |
-| `:max_message` | Custom message for maximum validation |
-| `:is_message` | Custom message for exact match validation |
-| `:is_not_message` | Custom message for exclusion validation |
+| Options               | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `:within`             | Range that the value must fall within (inclusive) |
+| `:not_within`         | Range that the value must not fall within         |
+| `:in`                 | Alias for :within option                          |
+| `:not_in`             | Alias for :not_within option                      |
+| `:min`                | Minimum allowed value (inclusive, >=)             |
+| `:max`                | Maximum allowed value (inclusive, \<=)            |
+| `:is`                 | Exact value that must match                       |
+| `:is_not`             | Value that must not match                         |
+| `:within_message`     | Custom message for range validations              |
+| `:not_within_message` | Custom message for exclusion validations          |
+| `:min_message`        | Custom message for minimum validation             |
+| `:max_message`        | Custom message for maximum validation             |
+| `:is_message`         | Custom message for exact match validation         |
+| `:is_not_message`     | Custom message for exclusion validation           |
 
 ### Presence
 
@@ -2454,15 +2395,15 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description |
-|---------|-------------|
-| `true` | Ensures value is not nil, empty string, or whitespace |
+| Options | Description                                           |
+| ------- | ----------------------------------------------------- |
+| `true`  | Ensures value is not nil, empty string, or whitespace |
 
 ## Declarations
 
-!!! warning "Important"
+Important
 
-    Custom validators must raise `CMDx::ValidationError` with a descriptive message.
+Custom validators must raise `CMDx::ValidationError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -2510,9 +2451,9 @@ end
 
 Remove unwanted validators:
 
-!!! warning
+Warning
 
-    Each `deregister` call removes one validator. Use multiple calls for batch removals.
+Each `deregister` call removes one validator. Use multiple calls for batch removals.
 
 ```ruby
 class SetupApplication < CMDx::Task
@@ -2558,9 +2499,6 @@ result.metadata #=> {
                 #     }
                 #   }
 ```
-
-
-## Defaults
 
 # Attributes - Defaults
 
@@ -2640,9 +2578,6 @@ class ScheduleBackup < CMDx::Task
 end
 ```
 
-
-## Transformations
-
 # Attributes - Transformations
 
 Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.
@@ -2706,21 +2641,17 @@ class ScheduleBackup < CMDx::Task
   optional :frequency, transform: :downcase, inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
-
-
 # Features
-
-## Callbacks
 
 # Callbacks
 
 Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-See [Global Configuration](getting_started.md#callbacks) for framework-wide callback setup.
+See [Global Configuration](../getting_started/#callbacks) for framework-wide callback setup.
 
-!!! warning "Important"
+Important
 
-    Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
+Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
 
 ## Available Callbacks
 
@@ -2856,9 +2787,9 @@ end
 
 Remove unwanted callbacks dynamically:
 
-!!! warning "Important"
+Important
 
-    Each `deregister` call removes one callback. Use multiple calls for batch removals.
+Each `deregister` call removes one callback. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessBooking < CMDx::Task
@@ -2870,22 +2801,19 @@ class ProcessBooking < CMDx::Task
 end
 ```
 
-
-## Middlewares
-
 # Middlewares
 
 Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-See [Global Configuration](getting_started.md#middlewares) for framework-wide setup.
+See [Global Configuration](../getting_started/#middlewares) for framework-wide setup.
 
 ## Execution Order
 
 Middleware wraps task execution in layers, like an onion:
 
-!!! note
+Note
 
-    First registered = outermost wrapper. They execute in registration order.
+First registered = outermost wrapper. They execute in registration order.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -2963,9 +2891,9 @@ end
 
 Remove class or module-based middleware globally or per-task:
 
-!!! warning
+Warning
 
-    Each `deregister` call removes one middleware. Use multiple calls for batch removals.
+Each `deregister` call removes one middleware. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -3065,9 +2993,6 @@ result = ProcessExport.execute
 result.metadata #=> { runtime: 1247 } (ms)
 ```
 
-
-## Logging
-
 # Logging
 
 CMDx automatically logs every task execution with structured data, making debugging and monitoring effortless. Choose from multiple formatters to match your logging infrastructure.
@@ -3076,17 +3001,17 @@ CMDx automatically logs every task execution with structured data, making debugg
 
 Choose the format that works best for your logging system:
 
-| Formatter | Use Case | Output Style |
-|-----------|----------|--------------|
-| `Line` | Traditional logging | Single-line format |
-| `Json` | Structured systems | Compact JSON |
-| `KeyValue` | Log parsing | `key=value` pairs |
-| `Logstash` | ELK stack | JSON with @version/@timestamp |
-| `Raw` | Minimal output | Message content only |
+| Formatter  | Use Case            | Output Style                  |
+| ---------- | ------------------- | ----------------------------- |
+| `Line`     | Traditional logging | Single-line format            |
+| `Json`     | Structured systems  | Compact JSON                  |
+| `KeyValue` | Log parsing         | `key=value` pairs             |
+| `Logstash` | ELK stack           | JSON with @version/@timestamp |
+| `Raw`      | Minimal output      | Message content only          |
 
 Sample output:
 
-```log
+```text
 <!-- Success (INFO level) -->
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
@@ -3104,9 +3029,9 @@ E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
 index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
-!!! tip
+Tip
 
-    Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.
+Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.
 
 ## Structure
 
@@ -3114,40 +3039,40 @@ Every log entry includes rich metadata. Available fields depend on execution con
 
 ### Core Fields
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `severity` | Log level | `INFO`, `WARN`, `ERROR` |
+| Field       | Description             | Example                      |
+| ----------- | ----------------------- | ---------------------------- |
+| `severity`  | Log level               | `INFO`, `WARN`, `ERROR`      |
 | `timestamp` | ISO 8601 execution time | `2022-07-17T18:43:15.000000` |
-| `pid` | Process ID | `3784` |
+| `pid`       | Process ID              | `3784`                       |
 
 ### Task Information
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `index` | Execution sequence position | `0`, `1`, `2` |
-| `chain_id` | Unique execution chain ID | `018c2b95-b764-7615...` |
-| `type` | Execution unit type | `Task`, `Workflow` |
-| `class` | Task class name | `GenerateInvoiceTask` |
-| `id` | Unique task instance ID | `018c2b95-b764-7615...` |
-| `tags` | Custom categorization | `["billing", "financial"]` |
+| Field      | Description                 | Example                    |
+| ---------- | --------------------------- | -------------------------- |
+| `index`    | Execution sequence position | `0`, `1`, `2`              |
+| `chain_id` | Unique execution chain ID   | `018c2b95-b764-7615...`    |
+| `type`     | Execution unit type         | `Task`, `Workflow`         |
+| `class`    | Task class name             | `GenerateInvoiceTask`      |
+| `id`       | Unique task instance ID     | `018c2b95-b764-7615...`    |
+| `tags`     | Custom categorization       | `["billing", "financial"]` |
 
 ### Execution Data
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `state` | Lifecycle state | `complete`, `interrupted` |
-| `status` | Business outcome | `success`, `skipped`, `failed` |
-| `outcome` | Final classification | `success`, `interrupted` |
-| `metadata` | Custom task data | `{order_id: 123, amount: 99.99}` |
+| Field      | Description          | Example                          |
+| ---------- | -------------------- | -------------------------------- |
+| `state`    | Lifecycle state      | `complete`, `interrupted`        |
+| `status`   | Business outcome     | `success`, `skipped`, `failed`   |
+| `outcome`  | Final classification | `success`, `interrupted`         |
+| `metadata` | Custom task data     | `{order_id: 123, amount: 99.99}` |
 
 ### Failure Chain
 
-| Field | Description |
-|-------|-------------|
-| `reason` | Reason given for the stoppage |
-| `caused` | Cause exception details |
-| `caused_failure` | Original failing task details |
-| `threw_failure` | Task that propagated the failure |
+| Field            | Description                      |
+| ---------------- | -------------------------------- |
+| `reason`         | Reason given for the stoppage    |
+| `caused`         | Cause exception details          |
+| `caused_failure` | Original failing task details    |
+| `threw_failure`  | Task that propagated the failure |
 
 ## Usage
 
@@ -3162,9 +3087,6 @@ class ProcessSubscription < CMDx::Task
   end
 end
 ```
-
-
-## Internationalization
 
 # Internationalization (i18n)
 
@@ -3293,9 +3215,6 @@ rails generate cmdx:locale fr
 - zh-TW - Chinese (Traditional)
 - zh-YUE - Chinese (Yue)
 
-
-## Retries
-
 # Retries
 
 CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.
@@ -3331,9 +3250,9 @@ class ProcessPayment < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Only exceptions matching the `retry_on` configuration will trigger retries. Uncaught exceptions immediately fail the task.
+Only exceptions matching the `retry_on` configuration will trigger retries. Uncaught exceptions immediately fail the task.
 
 ## Retry Jitter
 
@@ -3418,9 +3337,6 @@ class FetchUserProfile < CMDx::Task
 end
 ```
 
-
-## Deprecation
-
 # Task Deprecation
 
 Manage legacy tasks gracefully with built-in deprecation support. Choose how to handle deprecated tasks—log warnings for awareness, issue Ruby warnings for development, or prevent execution entirely.
@@ -3431,9 +3347,9 @@ Manage legacy tasks gracefully with built-in deprecation support. Choose how to 
 
 Prevent task execution completely. Perfect for tasks that must no longer run.
 
-!!! warning
+Warning
 
-    Use `:raise` mode carefully—it will break existing workflows immediately.
+Use `:raise` mode carefully—it will break existing workflows immediately.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task
@@ -3567,9 +3483,6 @@ class OutdatedConnector < CMDx::Task
 end
 ```
 
-
-## Workflows
-
 # Workflows
 
 Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.
@@ -3578,9 +3491,9 @@ Compose multiple tasks into powerful, sequential pipelines. Workflows provide a 
 
 Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
 
-!!! warning
+Warning
 
-    Don't define a `work` method in workflows—the module handles execution automatically.
+Don't define a `work` method in workflows—the module handles execution automatically.
 
 ### Task
 
@@ -3595,17 +3508,17 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
+Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
 
 ### Group
 
 Group related tasks to share configuration:
 
-!!! warning "Important"
+Important
 
-    Settings and conditionals apply to all tasks in the group.
+Settings and conditionals apply to all tasks in the group.
 
 ```ruby
 class ContentModerationWorkflow < CMDx::Task
@@ -3753,9 +3666,9 @@ end
 
 Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem. It automatically uses all available processors for maximum throughput.
 
-!!! warning
+Warning
 
-    Context is read-only during parallel execution. Load all required data beforehand.
+Context is read-only during parallel execution. Load all required data beforehand.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -3793,14 +3706,10 @@ class SendNotifications < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
-
-
+Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
 # More
-
-## Tips and Tricks
 
 # Tips and Tricks
 

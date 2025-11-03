@@ -4,9 +4,9 @@ Exception handling differs between `execute` and `execute!`. Choose the method t
 
 ## Exception Handling
 
-!!! warning "Important"
+Important
 
-    Prefer `skip!` and `fail!` over raising exceptions—they signal intent more clearly.
+Prefer `skip!` and `fail!` over raising exceptions—they signal intent more clearly.
 
 ### Non-bang execution
 
@@ -28,9 +28,9 @@ result.reason   #=> "[ActiveRecord::NotFoundError] record not found"
 result.cause    #=> <ActiveRecord::NotFoundError>
 ```
 
-!!! note
+Note
 
-    Use `exception_handler` with `execute` to send exceptions to APM tools before they become failed results.
+Use `exception_handler` with `execute` to send exceptions to APM tools before they become failed results.
 
 ### Bang execution
 

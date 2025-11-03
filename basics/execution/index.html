@@ -1562,38 +1562,6 @@
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="w">      </span><span class="c1">#=&gt; Context with all task data</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w">     </span><span class="c1">#=&gt; Hash with execution metadata</span>
 </span></code></pre></div>
-        <div id="llms-copy-button" style="position: fixed; z-index: 1100; top: 80px; right: 20px;">
-            <button onclick="copyMarkdownToClipboard()" style="cursor: pointer; background: #fe1817;">Copy Markdown</button>
-        </div>
-        <script>
-        async function copyMarkdownToClipboard() {
-            try {
-                const currentPath = window.location.pathname;
-                const mdPath = currentPath.endsWith('/') ? currentPath + 'index.md' : currentPath.replace(/\.html$/, '.md');
-
-                const response = await fetch(mdPath);
-                if (response.ok) {
-                    const markdown = await response.text();
-                    await navigator.clipboard.writeText(markdown);
-                    // Show feedback
-                    const button = document.querySelector('#llms-copy-button button');
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-                    button.style.background = '#28a745';
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '#007acc';
-                    }, 2000);
-                } else {
-                    throw new Error('Markdown file not found');
-                }
-            } catch (err) {
-                console.error('Failed to copy markdown:', err);
-                alert('Failed to copy markdown content');
-            }
-        }
-        </script>
-        
 
 
 

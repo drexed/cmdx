@@ -1630,38 +1630,6 @@
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md">Sidekiq Async Execution</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md">Stoplight Circuit Breaker</a></li>
 </ul>
-        <div id="llms-copy-button" style="position: fixed; z-index: 1100; top: 80px; right: 20px;">
-            <button onclick="copyMarkdownToClipboard()" style="cursor: pointer; background: #fe1817;">Copy Markdown</button>
-        </div>
-        <script>
-        async function copyMarkdownToClipboard() {
-            try {
-                const currentPath = window.location.pathname;
-                const mdPath = currentPath.endsWith('/') ? currentPath + 'index.md' : currentPath.replace(/\.html$/, '.md');
-
-                const response = await fetch(mdPath);
-                if (response.ok) {
-                    const markdown = await response.text();
-                    await navigator.clipboard.writeText(markdown);
-                    // Show feedback
-                    const button = document.querySelector('#llms-copy-button button');
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-                    button.style.background = '#28a745';
-                    setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '#007acc';
-                    }, 2000);
-                } else {
-                    throw new Error('Markdown file not found');
-                }
-            } catch (err) {
-                console.error('Failed to copy markdown:', err);
-                alert('Failed to copy markdown content');
-            }
-        }
-        </script>
-        
 
 
 

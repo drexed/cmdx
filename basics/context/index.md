@@ -14,9 +14,9 @@ CalculateShipping.execute(weight: 2.5, destination: "CA")
 CalculateShipping.new(weight: 2.5, "destination" => "CA")
 ```
 
-!!! warning "Important"
+Important
 
-    String keys convert to symbols automatically. Prefer symbols for consistency.
+String keys convert to symbols automatically. Prefer symbols for consistency.
 
 ## Accessing Data
 
@@ -43,9 +43,9 @@ class CalculateShipping < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Undefined attributes return `nil` instead of raising errors—perfect for optional data.
+Undefined attributes return `nil` instead of raising errors—perfect for optional data.
 
 ## Modifying Context
 
@@ -86,9 +86,9 @@ class CalculateShipping < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
+Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
 
 ## Data Sharing
 

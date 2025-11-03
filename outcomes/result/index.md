@@ -6,9 +6,9 @@ Results are your window into task execution. They expose everything: outcome, st
 
 Access essential execution information:
 
-!!! warning "Important"
+Important
 
-    Results are immutable after execution completes.
+Results are immutable after execution completes.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -145,9 +145,9 @@ result
 
 Use Ruby 3.0+ pattern matching for elegant outcome handling:
 
-!!! warning "Important"
+Important
 
-    Pattern matching works with both array and hash deconstruction.
+Pattern matching works with both array and hash deconstruction.
 
 ### Array Pattern
 

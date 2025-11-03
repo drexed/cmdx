@@ -50,11 +50,11 @@ This creates `config/initializers/cmdx.rb` file.
 CMDx uses a straightforward two-tier configuration system:
 
 1. **Global Configuration** — Framework-wide defaults
-2. **Task Settings** — Class-level overrides using `settings`
+1. **Task Settings** — Class-level overrides using `settings`
 
-!!! warning "Important"
+Important
 
-    Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.
+Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.
 
 ## Global Configuration
 
@@ -92,9 +92,9 @@ end
 
 Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
 
-!!! note
+Note
 
-    In Rails environments, `backtrace_cleaner` defaults to `Rails.backtrace_cleaner.clean`.
+In Rails environments, `backtrace_cleaner` defaults to `Rails.backtrace_cleaner.clean`.
 
 ```ruby
 CMDx.configure do |config|
@@ -113,9 +113,9 @@ end
 
 Register handlers that run when non-fault exceptions occur.
 
-!!! tip
+Tip
 
-    Use exception handlers to send errors to your APM of choice.
+Use exception handlers to send errors to your APM of choice.
 
 ```ruby
 CMDx.configure do |config|
@@ -139,7 +139,7 @@ end
 
 ### Middlewares
 
-See the [Middlewares](middlewares.md#declarations) docs for task level configurations.
+See the [Middlewares](../middlewares/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -163,13 +163,13 @@ CMDx.configure do |config|
 end
 ```
 
-!!! note
+Note
 
-    Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
+Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.
 
 ### Callbacks
 
-See the [Callbacks](callbacks.md#declarations) docs for task level configurations.
+See the [Callbacks](../callbacks/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -195,7 +195,7 @@ end
 
 ### Coercions
 
-See the [Attributes - Coercions](attributes/coercions.md#declarations) docs for task level configurations.
+See the [Attributes - Coercions](../attributes/coercions/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -221,7 +221,7 @@ end
 
 ### Validators
 
-See the [Attributes - Validations](attributes/validations.md#declarations) docs for task level configurations.
+See the [Attributes - Validations](../attributes/validations/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -278,9 +278,9 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
+Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
 
 ### Registrations
 
@@ -336,9 +336,9 @@ end
 
 ### Resetting
 
-!!! warning
+Warning
 
-    Resetting affects your entire application. Use this primarily in test environments.
+Resetting affects your entire application. Use this primarily in test environments.
 
 ```ruby
 # Reset to framework defaults
@@ -375,9 +375,9 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
+Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
 ## Type safety
 

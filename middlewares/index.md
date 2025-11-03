@@ -2,15 +2,15 @@
 
 Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-See [Global Configuration](getting_started.md#middlewares) for framework-wide setup.
+See [Global Configuration](../getting_started/#middlewares) for framework-wide setup.
 
 ## Execution Order
 
 Middleware wraps task execution in layers, like an onion:
 
-!!! note
+Note
 
-    First registered = outermost wrapper. They execute in registration order.
+First registered = outermost wrapper. They execute in registration order.
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -88,9 +88,9 @@ end
 
 Remove class or module-based middleware globally or per-task:
 
-!!! warning
+Warning
 
-    Each `deregister` call removes one middleware. Use multiple calls for batch removals.
+Each `deregister` call removes one middleware. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessCampaign < CMDx::Task

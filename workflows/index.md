@@ -6,9 +6,9 @@ Compose multiple tasks into powerful, sequential pipelines. Workflows provide a 
 
 Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
 
-!!! warning
+Warning
 
-    Don't define a `work` method in workflows—the module handles execution automatically.
+Don't define a `work` method in workflows—the module handles execution automatically.
 
 ### Task
 
@@ -23,17 +23,17 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
+Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
 
 ### Group
 
 Group related tasks to share configuration:
 
-!!! warning "Important"
+Important
 
-    Settings and conditionals apply to all tasks in the group.
+Settings and conditionals apply to all tasks in the group.
 
 ```ruby
 class ContentModerationWorkflow < CMDx::Task
@@ -181,9 +181,9 @@ end
 
 Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem. It automatically uses all available processors for maximum throughput.
 
-!!! warning
+Warning
 
-    Context is read-only during parallel execution. Load all required data beforehand.
+Context is read-only during parallel execution. Load all required data beforehand.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -221,6 +221,6 @@ class SendNotifications < CMDx::Task
 end
 ```
 
-!!! tip
+Tip
 
-    Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
+Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`

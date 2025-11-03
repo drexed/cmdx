@@ -33,9 +33,9 @@ class ProcessPayment < CMDx::Task
 end
 ```
 
-!!! warning "Important"
+Important
 
-    Only exceptions matching the `retry_on` configuration will trigger retries. Uncaught exceptions immediately fail the task.
+Only exceptions matching the `retry_on` configuration will trigger retries. Uncaught exceptions immediately fail the task.
 
 ## Retry Jitter
 
