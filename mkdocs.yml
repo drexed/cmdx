@@ -82,8 +82,8 @@ plugins:
   - search
   - copy-to-llm:
       repo_url: "https://raw.githubusercontent.com/drexed/cmdx/main"
-      button_hover_color: "var(--md-primary-fg-color)"
-      toast_bg_color: "var(--md-primary-fg-color)"
+      button_hover_color: "#fe1817"
+      toast_bg_color: "#fe1817"
       minify: true
 
 nav:
