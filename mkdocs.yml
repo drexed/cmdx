@@ -80,7 +80,7 @@ markdown_extensions:
 
 plugins:
   - search
-  - llms-txt:
+  - llmstxt:
       sections:
         "Getting Started":
           - index.md
