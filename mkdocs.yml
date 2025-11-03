@@ -80,11 +80,6 @@ markdown_extensions:
 
 plugins:
   - search
-  - copy-to-llm:
-      repo_url: "https://raw.githubusercontent.com/drexed/cmdx/refs/heads/main/docs"
-      button_hover_color: "#fe1817"
-      toast_bg_color: "#fe1817"
-      minify: true
 
 nav:
   - Home: index.md
