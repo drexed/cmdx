@@ -148,6 +148,9 @@ nav:
   - Deprecation: deprecation.md
   - Workflows: workflows.md
   - Tips and Tricks: tips_and_tricks.md
+  - LLMs:
+    - llms.txt: https://drexed.github.io/cmdx/llms.txt
+    - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
 
 extra:
   generator: false
