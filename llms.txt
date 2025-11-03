@@ -1,0 +1,50 @@
+# CMDx
+
+> Build business logic that's powerful, predictable, and maintainable.
+
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
+
+## Getting Started
+
+- [Home](https://drexed.github.io/cmdx/index.md)
+- [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md)
+
+## Basics
+
+- [Setup](https://drexed.github.io/cmdx/basics/setup/index.md)
+- [Execution](https://drexed.github.io/cmdx/basics/execution/index.md)
+- [Context](https://drexed.github.io/cmdx/basics/context/index.md)
+- [Chain](https://drexed.github.io/cmdx/basics/chain/index.md)
+
+## Interruptions
+
+- [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md)
+- [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md)
+- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/index.md)
+
+## Outcomes
+
+- [Result](https://drexed.github.io/cmdx/outcomes/result/index.md)
+- [States](https://drexed.github.io/cmdx/outcomes/states/index.md)
+- [Statuses](https://drexed.github.io/cmdx/outcomes/statuses/index.md)
+
+## Attributes
+
+- [Definitions](https://drexed.github.io/cmdx/attributes/definitions/index.md)
+- [Naming](https://drexed.github.io/cmdx/attributes/naming/index.md)
+- [Coercions](https://drexed.github.io/cmdx/attributes/coercions/index.md)
+- [Validations](https://drexed.github.io/cmdx/attributes/validations/index.md)
+- [Defaults](https://drexed.github.io/cmdx/attributes/defaults/index.md)
+- [Transformations](https://drexed.github.io/cmdx/attributes/transformations/index.md)
+
+## Features
+
+- [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)
+- [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)
+- [Logging](https://drexed.github.io/cmdx/logging/index.md)
+- [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md)
+- [Retries](https://drexed.github.io/cmdx/retries/index.md)
+- [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md)
+- [Workflows](https://drexed.github.io/cmdx/workflows/index.md)
+- [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md)
+
