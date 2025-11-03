@@ -84,32 +84,38 @@ plugins:
       full_output: llms-full.txt
       markdown_description: CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
       sections:
-        - index.md
-        - getting_started.md
-        - basics/setup.md
-        - basics/execution.md
-        - basics/context.md
-        - basics/chain.md
-        - interruptions/halt.md
-        - interruptions/faults.md
-        - interruptions/exceptions.md
-        - outcomes/result.md
-        - outcomes/states.md
-        - outcomes/statuses.md
-        - attributes/definitions.md
-        - attributes/naming.md
-        - attributes/coercions.md
-        - attributes/validations.md
-        - attributes/defaults.md
-        - attributes/transformations.md
-        - callbacks.md
-        - middlewares.md
-        - logging.md
-        - internationalization.md
-        - retries.md
-        - deprecation.md
-        - workflows.md
-        - tips_and_tricks.md
+        Getting Started:
+          - index.md
+          - getting_started.md
+        Basics:
+          - basics/setup.md
+          - basics/execution.md
+          - basics/context.md
+          - basics/chain.md
+        Interruptions:
+          - interruptions/halt.md
+          - interruptions/faults.md
+          - interruptions/exceptions.md
+        Outcomes:
+          - outcomes/result.md
+          - outcomes/states.md
+          - outcomes/statuses.md
+        Attributes:
+          - attributes/definitions.md
+          - attributes/naming.md
+          - attributes/coercions.md
+          - attributes/validations.md
+          - attributes/defaults.md
+          - attributes/transformations.md
+        Features:
+          - callbacks.md
+          - middlewares.md
+          - logging.md
+          - internationalization.md
+          - retries.md
+          - deprecation.md
+          - workflows.md
+          - tips_and_tricks.md
 
 nav:
   - Home: index.md
