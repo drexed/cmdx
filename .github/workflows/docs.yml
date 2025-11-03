@@ -29,6 +29,6 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - name: Install dependencies
-        run: pip install mkdocs-material mkdocs-llms-txt pymdown-extensions
+        run: pip install mkdocs-material mkdocs-llmstxt-md pymdown-extensions
       - name: Deploy documentation
         run: mkdocs gh-deploy --force
