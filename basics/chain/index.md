@@ -6,9 +6,9 @@ Chains automatically track related task executions within a thread. Think of the
 
 Each thread maintains its own isolated chain using thread-local storage.
 
-Warning
+!!! warning
 
-Chains are thread-local. Don't share chain references across threads—it causes race conditions.
+    Chains are thread-local. Don't share chain references across threads—it causes race conditions.
 
 ```ruby
 # Thread A
@@ -32,9 +32,9 @@ CMDx::Chain.clear    #=> Clears current thread's chain
 
 Tasks automatically create or join the current thread's chain:
 
-Important
+!!! warning "Important"
 
-Chain management is automatic—no manual lifecycle handling needed.
+    Chain management is automatic—no manual lifecycle handling needed.
 
 ```ruby
 class ImportDataset < CMDx::Task
@@ -84,9 +84,9 @@ chain.results.map { |r| r.task.class }
 
 Chains expose comprehensive execution information:
 
-Important
+!!! warning "Important"
 
-Chain state reflects the first (outermost) task result. Subtasks maintain their own states.
+    Chain state reflects the first (outermost) task result. Subtasks maintain their own states.
 
 ```ruby
 result = ImportDataset.execute(dataset_id: 456)

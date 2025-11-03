@@ -6,9 +6,9 @@ CMDx offers two execution methods with different error handling approaches. Choo
 
 Both methods return results, but handle failures differently:
 
-| Method     | Returns                           | Exceptions                                  | Use Case                     |
-| ---------- | --------------------------------- | ------------------------------------------- | ---------------------------- |
-| `execute`  | Always returns `CMDx::Result`     | Never raises                                | Predictable result handling  |
+| Method | Returns | Exceptions | Use Case |
+|--------|---------|------------|----------|
+| `execute` | Always returns `CMDx::Result` | Never raises | Predictable result handling |
 | `execute!` | Returns `CMDx::Result` on success | Raises `CMDx::Fault` when skipped or failed | Exception-based control flow |
 
 ## Non-bang Execution
@@ -33,14 +33,14 @@ result.status           #=> "success"
 
 Raises `CMDx::Fault` exceptions on failure or skip. Returns results only on success.
 
-| Exception         | Raised When               |
-| ----------------- | ------------------------- |
-| `CMDx::FailFault` | Task execution fails      |
+| Exception | Raised When |
+|-----------|-------------|
+| `CMDx::FailFault` | Task execution fails |
 | `CMDx::SkipFault` | Task execution is skipped |
 
-Important
+!!! warning "Important"
 
-Behavior depends on `task_breakpoints` or `workflow_breakpoints` config. Default: only failures raise exceptions.
+    Behavior depends on `task_breakpoints` or `workflow_breakpoints` config. Default: only failures raise exceptions.
 
 ```ruby
 begin

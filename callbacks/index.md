@@ -2,11 +2,11 @@
 
 Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-See [Global Configuration](../getting_started/#callbacks) for framework-wide callback setup.
+See [Global Configuration](getting_started.md#callbacks) for framework-wide callback setup.
 
-Important
+!!! warning "Important"
 
-Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
+    Callbacks execute in declaration order (FIFO). Multiple callbacks of the same type run sequentially.
 
 ## Available Callbacks
 
@@ -142,9 +142,9 @@ end
 
 Remove unwanted callbacks dynamically:
 
-Important
+!!! warning "Important"
 
-Each `deregister` call removes one callback. Use multiple calls for batch removals.
+    Each `deregister` call removes one callback. Use multiple calls for batch removals.
 
 ```ruby
 class ProcessBooking < CMDx::Task

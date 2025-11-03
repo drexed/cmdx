@@ -2,7 +2,7 @@
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](../../getting_started/#validators) for custom validator setup.
+See [Global Configuration](../getting_started.md#validators) for custom validator setup.
 
 ## Usage
 
@@ -38,9 +38,9 @@ ProcessSubscription.execute(
 )
 ```
 
-Tip
+!!! tip
 
-Validations run after coercions, so you can validate the final coerced values rather than raw input.
+    Validations run after coercions, so you can validate the final coerced values rather than raw input.
 
 ## Built-in Validators
 
@@ -48,12 +48,12 @@ Validations run after coercions, so you can validate the final coerced values ra
 
 This list of options is available to all validators:
 
-| Option       | Description                                                           |
-| ------------ | --------------------------------------------------------------------- |
-| `:allow_nil` | Skip validation when value is `nil`                                   |
-| `:if`        | Symbol, proc, lambda, or callable determining when to validate        |
-| `:unless`    | Symbol, proc, lambda, or callable determining when to skip validation |
-| `:message`   | Custom error message for validation failures                          |
+| Option | Description |
+|--------|-------------|
+| `:allow_nil` | Skip validation when value is `nil` |
+| `:if` | Symbol, proc, lambda, or callable determining when to validate |
+| `:unless` | Symbol, proc, lambda, or callable determining when to skip validation |
+| `:message` | Custom error message for validation failures |
 
 ### Exclusion
 
@@ -67,13 +67,13 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options           | Description                                  |
-| ----------------- | -------------------------------------------- |
-| `:in`             | The collection of forbidden values or range  |
-| `:within`         | Alias for :in option                         |
-| `:of_message`     | Custom message for discrete value exclusions |
-| `:in_message`     | Custom message for range-based exclusions    |
-| `:within_message` | Alias for :in_message option                 |
+| Options | Description |
+|---------|-------------|
+| `:in` | The collection of forbidden values or range |
+| `:within` | Alias for :in option |
+| `:of_message` | Custom message for discrete value exclusions |
+| `:in_message` | Custom message for range-based exclusions |
+| `:within_message` | Alias for :in_message option |
 
 ### Format
 
@@ -89,10 +89,10 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options    | Description                                 |
-| ---------- | ------------------------------------------- |
-| `regexp`   | Alias for :with option                      |
-| `:with`    | Regex pattern that the value must match     |
+| Options | Description |
+|---------|-------------|
+| `regexp` | Alias for :with option |
+| `:with` | Regex pattern that the value must match |
 | `:without` | Regex pattern that the value must not match |
 
 ### Inclusion
@@ -107,13 +107,13 @@ class ProcessProduct < CMDx::Task
 end
 ```
 
-| Options           | Description                                  |
-| ----------------- | -------------------------------------------- |
-| `:in`             | The collection of allowed values or range    |
-| `:within`         | Alias for :in option                         |
-| `:of_message`     | Custom message for discrete value inclusions |
-| `:in_message`     | Custom message for range-based inclusions    |
-| `:within_message` | Alias for :in_message option                 |
+| Options | Description |
+|---------|-------------|
+| `:in` | The collection of allowed values or range |
+| `:within` | Alias for :in option |
+| `:of_message` | Custom message for discrete value inclusions |
+| `:in_message` | Custom message for range-based inclusions |
+| `:within_message` | Alias for :in_message option |
 
 ### Length
 
@@ -127,24 +127,24 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options               | Description                                        |
-| --------------------- | -------------------------------------------------- |
-| `:within`             | Range that the length must fall within (inclusive) |
-| `:not_within`         | Range that the length must not fall within         |
-| `:in`                 | Alias for :within                                  |
-| `:not_in`             | Range that the length must not fall within         |
-| `:min`                | Minimum allowed length                             |
-| `:max`                | Maximum allowed length                             |
-| `:is`                 | Exact required length                              |
-| `:is_not`             | Length that is not allowed                         |
-| `:within_message`     | Custom message for within/range validations        |
-| `:in_message`         | Custom message for :in validation                  |
-| `:not_within_message` | Custom message for not_within validation           |
-| `:not_in_message`     | Custom message for not_in validation               |
-| `:min_message`        | Custom message for minimum length validation       |
-| `:max_message`        | Custom message for maximum length validation       |
-| `:is_message`         | Custom message for exact length validation         |
-| `:is_not_message`     | Custom message for is_not validation               |
+| Options | Description |
+|---------|-------------|
+| `:within` | Range that the length must fall within (inclusive) |
+| `:not_within` | Range that the length must not fall within |
+| `:in` | Alias for :within |
+| `:not_in` | Range that the length must not fall within |
+| `:min` | Minimum allowed length |
+| `:max` | Maximum allowed length |
+| `:is` | Exact required length |
+| `:is_not` | Length that is not allowed |
+| `:within_message` | Custom message for within/range validations |
+| `:in_message` | Custom message for :in validation |
+| `:not_within_message` | Custom message for not_within validation |
+| `:not_in_message` | Custom message for not_in validation |
+| `:min_message` | Custom message for minimum length validation |
+| `:max_message` | Custom message for maximum length validation |
+| `:is_message` | Custom message for exact length validation |
+| `:is_not_message` | Custom message for is_not validation |
 
 ### Numeric
 
@@ -158,22 +158,22 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options               | Description                                       |
-| --------------------- | ------------------------------------------------- |
-| `:within`             | Range that the value must fall within (inclusive) |
-| `:not_within`         | Range that the value must not fall within         |
-| `:in`                 | Alias for :within option                          |
-| `:not_in`             | Alias for :not_within option                      |
-| `:min`                | Minimum allowed value (inclusive, >=)             |
-| `:max`                | Maximum allowed value (inclusive, \<=)            |
-| `:is`                 | Exact value that must match                       |
-| `:is_not`             | Value that must not match                         |
-| `:within_message`     | Custom message for range validations              |
-| `:not_within_message` | Custom message for exclusion validations          |
-| `:min_message`        | Custom message for minimum validation             |
-| `:max_message`        | Custom message for maximum validation             |
-| `:is_message`         | Custom message for exact match validation         |
-| `:is_not_message`     | Custom message for exclusion validation           |
+| Options | Description |
+|---------|-------------|
+| `:within` | Range that the value must fall within (inclusive) |
+| `:not_within` | Range that the value must not fall within |
+| `:in` | Alias for :within option |
+| `:not_in` | Alias for :not_within option |
+| `:min` | Minimum allowed value (inclusive, >=) |
+| `:max` | Maximum allowed value (inclusive, <=) |
+| `:is` | Exact value that must match |
+| `:is_not` | Value that must not match |
+| `:within_message` | Custom message for range validations |
+| `:not_within_message` | Custom message for exclusion validations |
+| `:min_message` | Custom message for minimum validation |
+| `:max_message` | Custom message for maximum validation |
+| `:is_message` | Custom message for exact match validation |
+| `:is_not_message` | Custom message for exclusion validation |
 
 ### Presence
 
@@ -189,15 +189,15 @@ class CreateBlogPost < CMDx::Task
 end
 ```
 
-| Options | Description                                           |
-| ------- | ----------------------------------------------------- |
-| `true`  | Ensures value is not nil, empty string, or whitespace |
+| Options | Description |
+|---------|-------------|
+| `true` | Ensures value is not nil, empty string, or whitespace |
 
 ## Declarations
 
-Important
+!!! warning "Important"
 
-Custom validators must raise `CMDx::ValidationError` with a descriptive message.
+    Custom validators must raise `CMDx::ValidationError` with a descriptive message.
 
 ### Proc or Lambda
 
@@ -245,9 +245,9 @@ end
 
 Remove unwanted validators:
 
-Warning
+!!! warning
 
-Each `deregister` call removes one validator. Use multiple calls for batch removals.
+    Each `deregister` call removes one validator. Use multiple calls for batch removals.
 
 ```ruby
 class SetupApplication < CMDx::Task

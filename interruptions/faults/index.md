@@ -4,15 +4,15 @@ Faults are exceptions raised by `execute!` when tasks halt. They carry rich cont
 
 ## Fault Types
 
-| Type              | Triggered By   | Use Case                               |
-| ----------------- | -------------- | -------------------------------------- |
-| `CMDx::Fault`     | Base class     | Catch-all for any interruption         |
-| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns     |
+| Type | Triggered By | Use Case |
+|------|--------------|----------|
+| `CMDx::Fault` | Base class | Catch-all for any interruption |
+| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
 | `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
 
-Important
+!!! warning "Important"
 
-All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
+    All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
 
 ## Fault Handling
 

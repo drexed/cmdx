@@ -4,17 +4,17 @@ Statuses represent the business outcome—did the task succeed, skip, or fail? T
 
 ## Definitions
 
-| Status    | Description                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------- |
-| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks.  |
+| Status | Description |
+| ------ | ----------- |
+| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks. |
 | `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary. |
-| `failed`  | Task stopped execution due to business rule violations, validation errors, or exceptions.            |
+| `failed` | Task stopped execution due to business rule violations, validation errors, or exceptions. |
 
 ## Transitions
 
-Important
+!!! warning "Important"
 
-Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
+    Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
 
 ```ruby
 # Valid status transitions

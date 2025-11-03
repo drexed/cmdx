@@ -6,9 +6,9 @@ Stop task execution intentionally using `skip!` or `fail!`. Both methods signal 
 
 Use `skip!` when the task doesn't need to run. It's a no-op, not an error.
 
-Important
+!!! warning "Important"
 
-Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.
+    Skipped tasks are considered "good" outcomes—they succeeded by doing nothing.
 
 ```ruby
 class ProcessInventory < CMDx::Task
@@ -119,10 +119,10 @@ result.metadata #=> {
 
 Halt methods trigger specific state and status transitions:
 
-| Method  | State         | Status    | Outcome                        |
-| ------- | ------------- | --------- | ------------------------------ |
-| `skip!` | `interrupted` | `skipped` | `good? = true`, `bad? = true`  |
-| `fail!` | `interrupted` | `failed`  | `good? = false`, `bad? = true` |
+| Method | State | Status | Outcome |
+|--------|-------|--------|---------|
+| `skip!` | `interrupted` | `skipped` | `good? = true`, `bad? = true` |
+| `fail!` | `interrupted` | `failed` | `good? = false`, `bad? = true` |
 
 ```ruby
 result = ProcessRenewal.execute(license_id: 567)
@@ -198,9 +198,9 @@ fail! #=> "Unspecified"
 
 For rare cases, manually add errors before halting:
 
-Important
+!!! warning "Important"
 
-Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
+    Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
 
 ```ruby
 class ProcessRenewal < CMDx::Task

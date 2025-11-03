@@ -2,13 +2,17 @@
 
 Build business logic that's powerful, predictable, and maintainable.
 
-______________________________________________________________________
+[![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
+[![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/drexed/cmdx)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
+
+---
 
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
-Note
+!!! note
 
-Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Requirements
 
@@ -30,48 +34,52 @@ Build powerful business logic in four simple steps:
 
 ### 1. Compose
 
-```ruby
-class AnalyzeMetrics < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+=== "Full Featured Task"
 
-  on_success :track_analysis_completion!
+    ```ruby
+    class AnalyzeMetrics < CMDx::Task
+      register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
 
-  required :dataset_id, type: :integer, numeric: { min: 1 }
-  optional :analysis_type, default: "standard"
+      on_success :track_analysis_completion!
 
-  def work
-    if dataset.nil?
-      fail!("Dataset not found", code: 404)
-    elsif dataset.unprocessed?
-      skip!("Dataset not ready for analysis")
-    else
-      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
-      context.analyzed_at = Time.now
+      required :dataset_id, type: :integer, numeric: { min: 1 }
+      optional :analysis_type, default: "standard"
 
-      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+      def work
+        if dataset.nil?
+          fail!("Dataset not found", code: 404)
+        elsif dataset.unprocessed?
+          skip!("Dataset not ready for analysis")
+        else
+          context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
+          context.analyzed_at = Time.now
+
+          SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+        end
+      end
+
+      private
+
+      def dataset
+        @dataset ||= Dataset.find_by(id: dataset_id)
+      end
+
+      def track_analysis_completion!
+        dataset.update!(analysis_result_id: context.result.id)
+      end
     end
-  end
+    ```
 
-  private
+=== "Minimum Viable Task"
 
-  def dataset
-    @dataset ||= Dataset.find_by(id: dataset_id)
-  end
-
-  def track_analysis_completion!
-    dataset.update!(analysis_result_id: context.result.id)
-  end
-end
-```
-
-```ruby
-class SendAnalyzedEmail < CMDx::Task
-  def work
-    user = User.find(context.user_id)
-    MetricsMailer.analyzed(user).deliver_now
-  end
-end
-```
+    ```ruby
+    class SendAnalyzedEmail < CMDx::Task
+      def work
+        user = User.find(context.user_id)
+        MetricsMailer.analyzed(user).deliver_now
+      end
+    end
+    ```
 
 ### 2. Execute
 
@@ -96,7 +104,7 @@ end
 
 ### 4. Observe
 
-```text
+```log
 I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
 index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
 
@@ -104,7 +112,7 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
-Ready to dive in? Check out the [Getting Started](getting_started/) guide to learn more.
+Ready to dive in? Check out the [Getting Started](getting_started.md) guide to learn more.
 
 ## Ecosystem
 

@@ -4,29 +4,29 @@ States track where a task is in its execution lifecycle—from creation through 
 
 ## Definitions
 
-| State         | Description                                                                    |
-| ------------- | ------------------------------------------------------------------------------ |
-| `initialized` | Task created but execution not yet started. Default state for new tasks.       |
-| `executing`   | Task is actively running its business logic. Transient state during execution. |
-| `complete`    | Task finished execution successfully without any interruption or halt.         |
-| `interrupted` | Task execution was stopped due to a fault, exception, or explicit halt.        |
+| State | Description |
+| ----- | ----------- |
+| `initialized` | Task created but execution not yet started. Default state for new tasks. |
+| `executing` | Task is actively running its business logic. Transient state during execution. |
+| `complete` | Task finished execution successfully without any interruption or halt. |
+| `interrupted` | Task execution was stopped due to a fault, exception, or explicit halt. |
 
 State-Status combinations:
 
-| State         | Status    | Meaning                             |
-| ------------- | --------- | ----------------------------------- |
-| `initialized` | `success` | Task created, not yet executed      |
-| `executing`   | `success` | Task currently running              |
-| `complete`    | `success` | Task finished successfully          |
-| `complete`    | `skipped` | Task finished by skipping execution |
-| `interrupted` | `failed`  | Task stopped due to failure         |
-| `interrupted` | `skipped` | Task stopped by skip condition      |
+| State | Status | Meaning |
+| ----- | ------ | ------- |
+| `initialized` | `success` | Task created, not yet executed |
+| `executing` | `success` | Task currently running |
+| `complete` | `success` | Task finished successfully |
+| `complete` | `skipped` | Task finished by skipping execution |
+| `interrupted` | `failed` | Task stopped due to failure |
+| `interrupted` | `skipped` | Task stopped by skip condition |
 
 ## Transitions
 
-Caution
+!!! danger "Caution"
 
-States are managed automatically—never modify them manually.
+    States are managed automatically—never modify them manually.
 
 ```ruby
 # Valid state transition flow

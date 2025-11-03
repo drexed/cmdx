@@ -8,9 +8,9 @@ Manage legacy tasks gracefully with built-in deprecation support. Choose how to 
 
 Prevent task execution completely. Perfect for tasks that must no longer run.
 
-Warning
+!!! warning
 
-Use `:raise` mode carefully—it will break existing workflows immediately.
+    Use `:raise` mode carefully—it will break existing workflows immediately.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task
