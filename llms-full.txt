@@ -2,7 +2,7 @@
 
 > Build business logic that's powerful, predictable, and maintainable.
 
-CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command/service objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
 # Getting Started
 
@@ -3709,6 +3709,7 @@ end
 Tip
 
 Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
+# More
 
 # Tips and Tricks
 
