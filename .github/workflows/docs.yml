@@ -24,11 +24,11 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          key: mkdocs-${{ env.cache_id }}-${{ hashFiles('requirements.txt') }}
-          path: ~/.cache/pip
+          key: mkdocs-material-${{ env.cache_id }}
+          path: ~/.cache
           restore-keys: |
-            mkdocs-
+            mkdocs-material-
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install mkdocs-material pymdown-extensions
       - name: Deploy documentation
         run: mkdocs gh-deploy --force
