@@ -80,6 +80,36 @@ markdown_extensions:
 
 plugins:
   - search
+  - llmstxt:
+    markdown_description: CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
+    full_output: llms-full.txt
+    sections:
+      Usage documentation:
+      - getting_started.md
+      - basics/setup.md
+      - basics/execution.md
+      - basics/context.md
+      - basics/chain.md
+      - interruptions/halt.md
+      - interruptions/faults.md
+      - interruptions/exceptions.md
+      - outcomes/result.md
+      - outcomes/states.md
+      - outcomes/statuses.md
+      - attributes/definitions.md
+      - attributes/naming.md
+      - attributes/coercions.md
+      - attributes/validations.md
+      - attributes/defaults.md
+      - attributes/transformations.md
+      - callbacks.md
+      - middlewares.md
+      - logging.md
+      - internationalization.md
+      - retries.md
+      - deprecation.md
+      - workflows.md
+      - tips_and_tricks.md
 
 nav:
   - Home: index.md
@@ -112,7 +142,6 @@ nav:
   - Deprecation: deprecation.md
   - Workflows: workflows.md
   - Tips and Tricks: tips_and_tricks.md
-  - LLM.md: https://raw.githubusercontent.com/drexed/cmdx/refs/heads/main/LLM.md
 
 extra:
   generator: false
