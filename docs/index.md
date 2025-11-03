@@ -125,7 +125,7 @@ For backwards compatibility of certain functionality:
 
 ## Contributing
 
-Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
