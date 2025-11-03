@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 site_name: CMDx
-site_url: https://drexed.github.io/cmdx/
 site_description: Build business logic that's powerful, predictable, and maintainable.
 site_author: drexed
+site_url: https://drexed.github.io/cmdx/
 repo_name: drexed/cmdx
 repo_url: https://github.com/drexed/cmdx
 edit_uri: edit/main/docs/
@@ -43,25 +43,27 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
   features:
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
     - navigation.footer
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.instant.progress
-    - navigation.tracking
-    - navigation.sections
     - navigation.expand
     - navigation.path
+    - navigation.sections
     - navigation.top
+    - navigation.tracking
+    - search.highlight
     - search.share
     - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.code.annotate
-    - content.tabs.link
-    - content.tooltips
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight:
@@ -73,8 +75,6 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - tables
-  - attr_list
-  - md_in_html
   - toc:
       permalink: true
 
@@ -82,7 +82,9 @@ plugins:
   - search
   - llmstxt:
       full_output: llms-full.txt
-      markdown_description: CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
+      markdown_description: >-
+        CMDx is a Ruby framework for building maintainable, observable business logic through composable command/service objects.
+        It brings structure, consistency, and powerful developer tools to your business processes.
       sections:
         Getting Started:
           - index.md
@@ -115,6 +117,7 @@ plugins:
           - retries.md
           - deprecation.md
           - workflows.md
+        More:
           - tips_and_tricks.md
 
 nav:
@@ -140,14 +143,16 @@ nav:
     - Validations: attributes/validations.md
     - Defaults: attributes/defaults.md
     - Transformations: attributes/transformations.md
-  - Callbacks: callbacks.md
-  - Middlewares: middlewares.md
-  - Logging: logging.md
-  - Internationalization: internationalization.md
-  - Retries: retries.md
-  - Deprecation: deprecation.md
-  - Workflows: workflows.md
-  - Tips and Tricks: tips_and_tricks.md
+  - Features:
+    - Callbacks: callbacks.md
+    - Middlewares: middlewares.md
+    - Logging: logging.md
+    - Internationalization: internationalization.md
+    - Retries: retries.md
+    - Deprecation: deprecation.md
+    - Workflows: workflows.md
+  - More:
+    - Tips and Tricks: tips_and_tricks.md
   - LLMs:
     - llms.txt: https://drexed.github.io/cmdx/llms.txt
     - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
