@@ -28,7 +28,5 @@ jobs:
           path: ~/.cache
           restore-keys: |
             mkdocs-material-
-      - name: Install dependencies
-        run: pip install mkdocs-material pymdown-extensions
       - name: Deploy documentation
         run: mkdocs gh-deploy --force

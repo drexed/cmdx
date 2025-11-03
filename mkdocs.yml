@@ -80,6 +80,10 @@ markdown_extensions:
 
 plugins:
   - search
+  - copy-to-llm:
+      button_hover_color: "#fe1817"
+      toast_bg_color: "#fe1817"
+      minify: true
 
 nav:
   - Home: index.md
