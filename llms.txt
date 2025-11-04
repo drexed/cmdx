@@ -6,48 +6,48 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 ## Getting Started
 
-- [Home](https://drexed.github.io/cmdx/index.md)
-- [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md)
+- [Home](https://drexed.github.io/cmdx/index.md): CMDx framework overview, installation, quick examples, and core concepts
+- [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md): Comprehensive guide to CMDx configuration, task setup, and framework fundamentals
 
 ## Basics
 
-- [Setup](https://drexed.github.io/cmdx/basics/setup/index.md)
-- [Execution](https://drexed.github.io/cmdx/basics/execution/index.md)
-- [Context](https://drexed.github.io/cmdx/basics/context/index.md)
-- [Chain](https://drexed.github.io/cmdx/basics/chain/index.md)
+- [Setup](https://drexed.github.io/cmdx/basics/setup/index.md): Task structure, inheritance, and basic setup requirements
+- [Execution](https://drexed.github.io/cmdx/basics/execution/index.md): Task execution methods (execute vs execute!), error handling, and control flow
+- [Context](https://drexed.github.io/cmdx/basics/context/index.md): Context object for data sharing, input/output management, and attribute access
+- [Chain](https://drexed.github.io/cmdx/basics/chain/index.md): Execution chain tracking for related tasks within threads
 
 ## Interruptions
 
-- [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md)
-- [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md)
-- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/index.md)
+- [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md): Intentional task interruption using skip! and fail! methods
+- [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md): Fault exceptions (SkipFault, FailFault) raised by execute! with rich context
+- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/index.md): Exception handling differences between execute and execute! methods
 
 ## Outcomes
 
-- [Result](https://drexed.github.io/cmdx/outcomes/result/index.md)
-- [States](https://drexed.github.io/cmdx/outcomes/states/index.md)
-- [Statuses](https://drexed.github.io/cmdx/outcomes/statuses/index.md)
+- [Result](https://drexed.github.io/cmdx/outcomes/result/index.md): Result objects exposing execution state, status, context, and metadata
+- [States](https://drexed.github.io/cmdx/outcomes/states/index.md): Execution lifecycle states (initialized, executing, complete, interrupted)
+- [Statuses](https://drexed.github.io/cmdx/outcomes/statuses/index.md): Business outcome statuses (success, skipped, failed) and transitions
 
 ## Attributes
 
-- [Definitions](https://drexed.github.io/cmdx/attributes/definitions/index.md)
-- [Naming](https://drexed.github.io/cmdx/attributes/naming/index.md)
-- [Coercions](https://drexed.github.io/cmdx/attributes/coercions/index.md)
-- [Validations](https://drexed.github.io/cmdx/attributes/validations/index.md)
-- [Defaults](https://drexed.github.io/cmdx/attributes/defaults/index.md)
-- [Transformations](https://drexed.github.io/cmdx/attributes/transformations/index.md)
+- [Definitions](https://drexed.github.io/cmdx/attributes/definitions/index.md): Attribute declarations (required/optional), validation, and type coercion
+- [Naming](https://drexed.github.io/cmdx/attributes/naming/index.md): Customizing accessor method names with prefixes and suffixes
+- [Coercions](https://drexed.github.io/cmdx/attributes/coercions/index.md): Automatic type conversion for inputs (string to integer, date parsing, etc.)
+- [Validations](https://drexed.github.io/cmdx/attributes/validations/index.md): Input validation rules (presence, length, format, numeric, inclusion, exclusion)
+- [Defaults](https://drexed.github.io/cmdx/attributes/defaults/index.md): Default values for optional attributes (static, dynamic, callable)
+- [Transformations](https://drexed.github.io/cmdx/attributes/transformations/index.md): Value transformation after coercion but before validation
 
 ## Features
 
-- [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)
-- [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)
-- [Logging](https://drexed.github.io/cmdx/logging/index.md)
-- [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md)
-- [Retries](https://drexed.github.io/cmdx/retries/index.md)
-- [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md)
-- [Workflows](https://drexed.github.io/cmdx/workflows/index.md)
+- [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md): Execution lifecycle callbacks (before_execution, on_success, on_failure, etc.)
+- [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md): Cross-cutting concerns wrapping task execution (authentication, caching, timeouts)
+- [Logging](https://drexed.github.io/cmdx/logging/index.md): Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
+- [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md): Multi-language support for error messages and validations (90+ locales)
+- [Retries](https://drexed.github.io/cmdx/retries/index.md): Automatic retry functionality for transient failures with jitter and selective retries
+- [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md): Managing deprecated tasks with logging, warnings, or execution prevention
+- [Workflows](https://drexed.github.io/cmdx/workflows/index.md): Composing multiple tasks into sequential pipelines with conditional execution
 
 ## More
 
-- [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md)
+- [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md): Best practices, patterns, and techniques for maintainable CMDx applications
 
