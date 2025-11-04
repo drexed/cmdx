@@ -87,38 +87,38 @@ plugins:
       full_output: llms-full.txt
       sections:
         "Getting Started":
-          - index.md
-          - getting_started.md
+          - index.md: CMDx framework overview, installation, quick examples, and core concepts
+          - getting_started.md: Comprehensive guide to CMDx configuration, task setup, and framework fundamentals
         Basics:
-          - basics/setup.md
-          - basics/execution.md
-          - basics/context.md
-          - basics/chain.md
+          - basics/setup.md: Task structure, inheritance, and basic setup requirements
+          - basics/execution.md: Task execution methods (execute vs execute!), error handling, and control flow
+          - basics/context.md: Context object for data sharing, input/output management, and attribute access
+          - basics/chain.md: Execution chain tracking for related tasks within threads
         Interruptions:
-          - interruptions/halt.md
-          - interruptions/faults.md
-          - interruptions/exceptions.md
+          - interruptions/halt.md: Intentional task interruption using skip! and fail! methods
+          - interruptions/faults.md: Fault exceptions (SkipFault, FailFault) raised by execute! with rich context
+          - interruptions/exceptions.md: Exception handling differences between execute and execute! methods
         Outcomes:
-          - outcomes/result.md
-          - outcomes/states.md
-          - outcomes/statuses.md
+          - outcomes/result.md: Result objects exposing execution state, status, context, and metadata
+          - outcomes/states.md: Execution lifecycle states (initialized, executing, complete, interrupted)
+          - outcomes/statuses.md: Business outcome statuses (success, skipped, failed) and transitions
         Attributes:
-          - attributes/definitions.md
-          - attributes/naming.md
-          - attributes/coercions.md
-          - attributes/validations.md
-          - attributes/defaults.md
-          - attributes/transformations.md
+          - attributes/definitions.md: Attribute declarations (required/optional), validation, and type coercion
+          - attributes/naming.md: Customizing accessor method names with prefixes and suffixes
+          - attributes/coercions.md: Automatic type conversion for inputs (string to integer, date parsing, etc.)
+          - attributes/validations.md: Input validation rules (presence, length, format, numeric, inclusion, exclusion)
+          - attributes/defaults.md: Default values for optional attributes (static, dynamic, callable)
+          - attributes/transformations.md: Value transformation after coercion but before validation
         Features:
-          - callbacks.md
-          - middlewares.md
-          - logging.md
-          - internationalization.md
-          - retries.md
-          - deprecation.md
-          - workflows.md
+          - callbacks.md: Execution lifecycle callbacks (before_execution, on_success, on_failure, etc.)
+          - middlewares.md: Cross-cutting concerns wrapping task execution (authentication, caching, timeouts)
+          - logging.md: Structured logging with multiple formatters (JSON, KeyValue, Logstash, Line, Raw)
+          - internationalization.md: Multi-language support for error messages and validations (90+ locales)
+          - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
+          - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
+          - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
         More:
-          - tips_and_tricks.md
+          - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
 
 nav:
   - Home: index.md
