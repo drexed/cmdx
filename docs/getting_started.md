@@ -2,10 +2,10 @@
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
-**Common challenges it solves:**
+**Common challenges:**
 
 - Inconsistent service object patterns across your codebase
-- Limited logging makes debugging a nightmare
+- Black boxes make debugging a nightmare
 - Fragile error handling erodes confidence
 
 **What you get:**
@@ -19,7 +19,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 ## The CERO Pattern
 
-CMDx embraces the Compose, Execute, React, Observe (CERO) pattern—a simple yet powerful approach to building reliable business logic.
+CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
 
 🧩 **Compose** — Define small, focused tasks with typed attributes and validations
 

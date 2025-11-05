@@ -8,7 +8,7 @@ Build business logic that's powerful, predictable, and maintainable.
 
 ---
 
-Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
+Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 !!! note
 
@@ -24,7 +24,9 @@ CMDx works with any Ruby framework. Rails support is built-in, but it's framewor
 
 ```sh
 gem install cmdx
+
 # - or -
+
 bundle add cmdx
 ```
 
