@@ -13,3 +13,6 @@
 
 # mkdocs
 /site/
+
+# generated API docs
+/docs/api/
