@@ -312,35 +312,3 @@ RSpec.configure do |config|
   end
 end
 ```
-
-## Task Generator
-
-Generate new CMDx tasks quickly using the built-in generator:
-
-```bash
-rails generate cmdx:task ModerateBlogPost
-```
-
-This creates a new task file with the basic structure:
-
-```ruby
-# app/tasks/moderate_blog_post.rb
-class ModerateBlogPost < CMDx::Task
-  def work
-    # Your logic here...
-  end
-end
-```
-
-Tip
-
-Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
-
-## Type safety
-
-CMDx includes built-in RBS (Ruby Type Signature) inline annotations throughout the codebase, providing type information for static analysis and editor support.
-
-- **Type checking** — Catch type errors before runtime using tools like Steep or TypeProf
-- **Better IDE support** — Enhanced autocomplete, navigation, and inline documentation
-- **Self-documenting code** — Clear method signatures and return types
-- **Refactoring confidence** — Type-aware refactoring reduces bugs
