@@ -1,0 +1,4 @@
+--no-private
+-o docs/api
+lib/**/*.rb
+
