@@ -1592,7 +1592,7 @@
 <h2 id="the-cero-pattern">The CERO Pattern<a class="headerlink" href="#the-cero-pattern" title="Permanent link">&para;</a></h2>
 <p>CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.</p>
 <h3 id="compose">Compose<a class="headerlink" href="#compose" title="Permanent link">&para;</a></h3>
-<p>Define small, focused tasks <em>(optional: attributes, validations, etc)</em></p>
+<p>Build reusable, single-responsibility tasks with typed attributes, validation, and callbacks. Tasks can be chained together in workflows to create complex business processes from simple building blocks.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AnalyzeMetrics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
@@ -1600,7 +1600,7 @@
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="execute">Execute<a class="headerlink" href="#execute" title="Permanent link">&para;</a></h3>
-<p>Run tasks that result in clear outcomes</p>
+<p>Invoke tasks with a consistent API that always returns a result object. Execution automatically handles validation, type coercion, error handling, and logging. Arguments are validated and coerced before your task logic runs.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Without args</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AnalyzeMetrics</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1608,7 +1608,7 @@
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AnalyzeMetrics</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">model</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;blackbox&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;sensitivity&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="react">React<a class="headerlink" href="#react" title="Permanent link">&para;</a></h3>
-<p>Optionally handle task outcomes with operations</p>
+<p>Every execution returns a result object with a clear outcome. Check the result's state (<code>success?</code>, <code>failed?</code>, <code>skipped?</code>) and access returned values, error messages, and metadata to make informed decisions.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">success?</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Handle success</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">elsif</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">skipped?</span>
@@ -1618,7 +1618,7 @@
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="observe">Observe<a class="headerlink" href="#observe" title="Permanent link">&para;</a></h3>
-<p>Capture structured logs and execution chains for analysis and debugging</p>
+<p>Every task execution generates structured logs with execution chains, runtime metrics, and contextual metadata. Logs can be automatically correlated using chain IDs, making it easy to trace complex workflows and debug issues.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>index=1 chain_id=&quot;018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf&quot; type=&quot;Task&quot; class=&quot;SendAnalyzedEmail&quot; state=&quot;complete&quot; status=&quot;success&quot; metadata={runtime: 347}
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>

@@ -180,7 +180,7 @@ CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pat
 
 ### Compose
 
-Define small, focused tasks *(optional: attributes, validations, etc)*
+Build reusable, single-responsibility tasks with typed attributes, validation, and callbacks. Tasks can be chained together in workflows to create complex business processes from simple building blocks.
 
 ```ruby
 class AnalyzeMetrics < CMDx::Task
@@ -192,7 +192,7 @@ end
 
 ### Execute
 
-Run tasks that result in clear outcomes
+Invoke tasks with a consistent API that always returns a result object. Execution automatically handles validation, type coercion, error handling, and logging. Arguments are validated and coerced before your task logic runs.
 
 ```ruby
 # Without args
@@ -204,7 +204,7 @@ result = AnalyzeMetrics.execute(model: "blackbox", "sensitivity" => 3)
 
 ### React
 
-Optionally handle task outcomes with operations
+Every execution returns a result object with a clear outcome. Check the result's state (`success?`, `failed?`, `skipped?`) and access returned values, error messages, and metadata to make informed decisions.
 
 ```ruby
 if result.success?
@@ -218,7 +218,7 @@ end
 
 ### Observe
 
-Capture structured logs and execution chains for analysis and debugging
+Every task execution generates structured logs with execution chains, runtime metrics, and contextual metadata. Logs can be automatically correlated using chain IDs, making it easy to trace complex workflows and debug issues.
 
 ```text
 I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
