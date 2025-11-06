@@ -88,7 +88,8 @@ plugins:
       sections:
         "Getting Started":
           - index.md: CMDx framework overview, installation, quick examples, and core concepts
-          - getting_started.md: Comprehensive guide to CMDx configuration, task setup, and framework fundamentals
+          - getting_started.md: Task setup and framework fundamentals (CERO pattern)
+          - configuration.md: Comprehensive guide to CMDx configuration
         Basics:
           - basics/setup.md: Task structure, inheritance, and basic setup requirements
           - basics/execution.md: Task execution methods (execute vs execute!), error handling, and control flow
@@ -123,6 +124,7 @@ plugins:
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
+  - Configuration: configuration.md
   - Basics:
     - Setup: basics/setup.md
     - Execution: basics/execution.md
