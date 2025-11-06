@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [1.10.1] - 2025-11-06
+
 ### Added
 - Added Sidekiq async integration example
+- Added YARDoc documentation to docs site
 
 ### Removed
 - Removed `Executor#repeator` method (never used)
