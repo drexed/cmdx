@@ -156,7 +156,7 @@ nav:
   - More:
     - Tips and Tricks: tips_and_tricks.md
   - References:
-    - API YARDocs: https://drexed.github.io/cmdx/api/index.html
+    - API Documentation: https://drexed.github.io/cmdx/api/index.html
     - llms.txt: https://drexed.github.io/cmdx/llms.txt
     - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
 
