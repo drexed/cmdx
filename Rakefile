@@ -20,11 +20,6 @@ task :yard do
 
   # Remove unwanted files
   FileUtils.rm_f("#{api_dir}/Cmdx_.html")
-  FileUtils.rm_f("#{api_dir}/top-level-namespace.html")
-  FileUtils.rm_f("#{api_dir}/CMDx/InstallGenerator.html")
-  FileUtils.rm_f("#{api_dir}/CMDx/LocaleGenerator.html")
-  FileUtils.rm_f("#{api_dir}/CMDx/TaskGenerator.html")
-  FileUtils.rm_f("#{api_dir}/CMDx/WorkflowGenerator.html")
 
   # Make CMDx.html the default index
   FileUtils.cp("#{api_dir}/CMDx.html", "#{api_dir}/index.html") if File.exist?("#{api_dir}/CMDx.html")
