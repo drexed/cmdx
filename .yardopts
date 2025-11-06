@@ -1,4 +1,7 @@
 --no-private
--o docs/api
+--output-dir
+docs/api
+--exclude
+lib/generators/**/*.rb
+lib/cmdx/railtie.rb
 lib/**/*.rb
-
