@@ -155,7 +155,7 @@ nav:
     - Workflows: workflows.md
   - More:
     - Tips and Tricks: tips_and_tricks.md
-  - API Reference: api.md
+  - API Reference: api-reference.md
   - LLMs:
     - llms.txt: https://drexed.github.io/cmdx/llms.txt
     - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
