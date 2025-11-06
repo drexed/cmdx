@@ -12,7 +12,7 @@ Build business logic that's powerful, predictable, and maintainable.
 
 ______________________________________________________________________
 
-Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
+Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 Note
 
@@ -28,7 +28,9 @@ CMDx works with any Ruby framework. Rails support is built-in, but it's framewor
 
 ```sh
 gem install cmdx
+
 # - or -
+
 bundle add cmdx
 ```
 
@@ -135,10 +137,10 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
-**Common challenges it solves:**
+**Common challenges:**
 
 - Inconsistent service object patterns across your codebase
-- Limited logging makes debugging a nightmare
+- Black boxes make debugging a nightmare
 - Fragile error handling erodes confidence
 
 **What you get:**
@@ -150,33 +152,85 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - Attribute validation with type coercions
 - Sensible defaults and developer-friendly APIs
 
-## The CERO Pattern
-
-CMDx embraces the Compose, Execute, React, Observe (CERO) pattern—a simple yet powerful approach to building reliable business logic.
-
-🧩 **Compose** — Define small, focused tasks with typed attributes and validations
-
-⚡ **Execute** — Run tasks with clear outcomes and pluggable behaviors
-
-🔄 **React** — Adapt to outcomes by chaining follow-up tasks or handling faults
-
-🔍 **Observe** — Capture structured logs and execution chains for debugging
-
 ## Installation
 
 Add CMDx to your Gemfile:
 
-```ruby
-gem 'cmdx'
+```sh
+gem install cmdx
+
+# - or -
+
+bundle add cmdx
 ```
 
-For Rails applications, generate the configuration:
+## Configuration (optional)
+
+For Rails applications, run the following command to generate a global configuration file in `config/initializers/cmdx.rb`.
 
 ```bash
 rails generate cmdx:install
 ```
 
-This creates `config/initializers/cmdx.rb` file.
+If not using Rails, manually copy the [configuration file](https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb).
+
+## The CERO Pattern
+
+CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
+
+### Compose
+
+Define small, focused tasks *(optional: attributes, validations, etc)*
+
+```ruby
+class AnalyzeMetrics < CMDx::Task
+  def work
+    # Your logic here...
+  end
+end
+```
+
+### Execute
+
+Run tasks with clear outcomes and pluggable behaviors
+
+```ruby
+# Without args
+result = AnalyzeMetrics.execute
+
+# With args
+result = AnalyzeMetrics.execute(model: "blackbox", "sensitivity" => 3)
+```
+
+### React
+
+Adapt to outcomes by chaining follow-up tasks or handling faults
+
+```ruby
+if result.success?
+  # Handle success
+elsif result.skipped?
+  # Handle skipped
+elsif result.failed?
+  # Handle failed
+end
+```
+
+### Observe
+
+Capture structured logs and execution chains for debugging
+
+```text
+I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
+index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+
+I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+```
+
+# Configuration
+
+Configure CMDx to customize framework behavior, register components, and control execution flow through global defaults with task-level overrides.
 
 ## Configuration Hierarchy
 
