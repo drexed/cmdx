@@ -1,5 +1,0 @@
---no-private
---format=markdown
--o docs/api
-lib/**/*.rb
-

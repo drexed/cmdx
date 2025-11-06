@@ -9,11 +9,4 @@ require "rubocop/rake_task"
 
 RuboCop::RakeTask.new
 
-desc "Generate YARD API documentation"
-task :yard do
-  require "yard"
-  require "yard-markdown"
-  YARD::CLI::Yardoc.run(*File.readlines(".yardopts", chomp: true).reject(&:empty?))
-end
-
 task default: %i[spec rubocop]

@@ -28,13 +28,7 @@ jobs:
           path: ~/.cache
           restore-keys: |
             mkdocs-material-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.4
-          bundler-cache: true
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: pip install mkdocs-material mkdocs-llmstxt pymdown-extensions
-      - name: Generate API documentation
-        run: bundle exec rake yard
       - name: Deploy documentation
         run: mkdocs gh-deploy --force
