@@ -246,8 +246,10 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
           allow(attribute_value).to receive_messages(
             required?: true,
             parent: nil,
-            name: name
+            name: name,
+            options: {}
           )
+          allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, {}).and_return(true)
         end
 
         context "with Context source" do
@@ -265,6 +267,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
 
             before do
               allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, {}).and_return(true)
             end
 
             it "adds required error" do
@@ -322,10 +325,77 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
               allow(source).to receive(:respond_to?).with(:call).and_return(false)
               allow(source).to receive(:respond_to?).with(name, true).and_return(false)
               allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(attribute_value).to receive(:options).and_return({})
+              allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, {}).and_return(true)
             end
 
             it "adds required error" do
               expect(errors).to receive(:add).with(method_name, "required error")
+
+              expect(attribute_value.send(:source_value)).to eq(source_object)
+            end
+          end
+        end
+
+        context "with conditional requirement" do
+          let(:source_object) { instance_double("MockSource") }
+          let(:source) { source_object }
+
+          before do
+            allow(source).to receive(:respond_to?).with(:call).and_return(false)
+            allow(source).to receive(:respond_to?).with(name, true).and_return(false)
+            allow(attribute_value).to receive(:options).and_return(attribute_options)
+          end
+
+          context "when condition evaluates to true" do
+            let(:attribute_options) { { if: :enabled? } }
+
+            before do
+              allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(true)
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+            end
+
+            it "validates required attribute" do
+              expect(errors).to receive(:add).with(method_name, "required error")
+
+              expect(attribute_value.send(:source_value)).to eq(source_object)
+            end
+          end
+
+          context "when condition evaluates to false" do
+            let(:attribute_options) { { if: :enabled? } }
+
+            before { allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(false) }
+
+            it "skips required validation" do
+              expect(errors).not_to receive(:add)
+
+              expect(attribute_value.send(:source_value)).to eq(source_object)
+            end
+          end
+
+          context "when no condition is specified" do
+            let(:attribute_options) { {} }
+
+            before do
+              allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(true)
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+            end
+
+            it "defaults to true and validates required attribute" do
+              expect(errors).to receive(:add).with(method_name, "required error")
+
+              expect(attribute_value.send(:source_value)).to eq(source_object)
+            end
+          end
+
+          context "when condition uses unless" do
+            let(:attribute_options) { { unless: :disabled? } }
+
+            before { allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(false) }
+
+            it "skips required validation when unless condition is true" do
+              expect(errors).not_to receive(:add)
 
               expect(attribute_value.send(:source_value)).to eq(source_object)
             end

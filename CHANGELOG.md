@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [1.11.0] - 2025-11-07
+
+### Updated
+- Added conditionally required attributes options
+
 ## [1.10.1] - 2025-11-06
 
 ### Added

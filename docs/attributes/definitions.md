@@ -52,6 +52,10 @@ class PublishArticle < CMDx::Task
   required :category
   required :status, :tags
 
+  # Conditionally required
+  required :publisher, if: :magazine?
+  required :approver, unless: proc { status == :published }
+
   def work
     title     #=> "Getting Started with Ruby"
     content   #=> "This is a comprehensive guide..."
@@ -59,19 +63,21 @@ class PublishArticle < CMDx::Task
     category  #=> "programming"
     status    #=> :published
     tags      #=> ["ruby", "beginner"]
+    publisher #=> "Eastbay"
+    approver  #=> #<Editor ...>
+  end
+
+  private
+
+  def magazine?
+    context.title.ends_with?("[M]")
   end
 end
-
-# Attributes passed as keyword arguments
-PublishArticle.execute(
-  title: "Getting Started with Ruby",
-  content: "This is a comprehensive guide...",
-  author_id: 42,
-  category: "programming",
-  status: :published,
-  tags: ["ruby", "beginner"]
-)
 ```
+
+!!! note
+
+    When a required attribute's condition evaluates to `false`, the attribute behaves as optional. All other attribute features such as coercions, validations, defaults, and transformations still apply normally.
 
 ## Sources
 

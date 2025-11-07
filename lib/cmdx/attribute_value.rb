@@ -111,7 +111,7 @@ module CMDx
         else source.respond_to?(:call) ? source.call(task) : source
         end
 
-      if required? && (parent.nil? || parent&.required?)
+      if required? && (parent.nil? || parent&.required?) && Utils::Condition.evaluate(task, options)
         case sourced_value
         when Context, Hash then sourced_value.key?(name)
         when Proc then true # HACK: Cannot be determined so assume it will respond
