@@ -114,7 +114,7 @@ module CMDx
       if required? && (parent.nil? || parent&.required?)
         case sourced_value
         when Context, Hash then sourced_value.key?(name)
-        when Proc then true # Cannot be determined
+        when Proc then true # HACK: Cannot be determined so assume it will respond
         else sourced_value.respond_to?(name, true)
         end || errors.add(method_name, Locale.t("cmdx.attributes.required"))
       end
