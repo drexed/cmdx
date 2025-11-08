@@ -2,110 +2,110 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://drexed.github.io/cmdx/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/callbacks/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/configuration/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/deprecation/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/getting_started/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/internationalization/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/logging/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/middlewares/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/retries/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/tips_and_tricks/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/workflows/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/coercions/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/defaults/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/definitions/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/naming/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/transformations/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/attributes/validations/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/basics/chain/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/basics/context/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/basics/execution/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/basics/setup/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/interruptions/exceptions/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/interruptions/faults/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/interruptions/halt/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/outcomes/result/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/outcomes/states/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/outcomes/statuses/</loc>
-         <lastmod>2025-11-06</lastmod>
+         <lastmod>2025-11-08</lastmod>
     </url>
 </urlset>
