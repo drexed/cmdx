@@ -10,7 +10,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_successful_workflow }
 
       it "returns success" do
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[success inner middle outer success])
       end
     end
@@ -19,7 +19,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_skipping_workflow }
 
       it "returns success" do
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[success success])
       end
     end
@@ -28,7 +28,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_failing_workflow }
 
       it "returns failure" do
-        expect(result).to have_been_failure(
+        expect(result).to have_failed(
           outcome: CMDx::Result::INTERRUPTED,
           threw_failure: hash_including(
             index: 2,
@@ -47,7 +47,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_erroring_workflow }
 
       it "returns failure" do
-        expect(result).to have_been_failure(
+        expect(result).to have_failed(
           outcome: CMDx::Result::INTERRUPTED,
           reason: "[CMDx::TestError] borked error",
           cause: be_a(CMDx::FailFault),
@@ -72,7 +72,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_successful_workflow }
 
       it "returns success" do
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[success inner middle outer success])
       end
     end
@@ -81,7 +81,7 @@ RSpec.describe "Workflow execution", type: :feature do
       let(:workflow) { create_skipping_workflow }
 
       it "returns success" do
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[success success])
       end
     end

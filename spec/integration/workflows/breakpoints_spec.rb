@@ -17,7 +17,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result.chain.results.size).to eq(4)
       expect(result.chain.results[2].skipped?).to be(true)
     end
@@ -35,7 +35,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_failure(reason: "Failed", outcome: "interrupted")
+      expect(result).to have_failed(reason: "Failed", outcome: "interrupted")
       expect(result.chain.results.size).to eq(3)
       expect(result.chain.results[2].failed?).to be(true)
     end
@@ -57,7 +57,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_skipped(reason: "Skipped")
+      expect(result).to have_skipped(reason: "Skipped")
       expect(result.chain.results.size).to eq(3)
     end
 
@@ -78,7 +78,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result.chain.results.size).to eq(5)
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result.chain.results.size).to eq(5)
     end
 
@@ -124,7 +124,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_skipped(reason: "Skipped")
+      expect(result).to have_skipped(reason: "Skipped")
       expect(result.chain.results.size).to eq(3)
     end
   end
@@ -146,7 +146,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_failure(reason: "Inner failure", outcome: "interrupted")
+      expect(result).to have_failed(reason: "Inner failure", outcome: "interrupted")
       expect(result.threw_failure?).to be(false)
     end
   end
@@ -181,7 +181,7 @@ RSpec.describe "Workflow breakpoints", type: :feature do
 
       result = workflow.new.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result.chain.results.size).to eq(4)
       expect(result.chain.results[2].failed?).to be(true)
       expect(result.chain.results[3].success?).to be(true)

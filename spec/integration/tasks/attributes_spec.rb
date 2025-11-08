@@ -20,7 +20,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -54,7 +54,7 @@ RSpec.describe "Task attributes", type: :feature do
             required_attr: "required"
           )
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: [nil, "plain_required", "required", nil])
         end
       end
@@ -79,7 +79,7 @@ RSpec.describe "Task attributes", type: :feature do
             optional_attr: "optional"
           )
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: %w[plain_optional plain_required required optional])
         end
       end
@@ -96,7 +96,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -121,7 +121,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -144,7 +144,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -169,7 +169,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "123")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: [123])
         end
       end
@@ -188,7 +188,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: [987])
         end
       end
@@ -205,7 +205,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "123")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: ["123"])
         end
       end
@@ -220,7 +220,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -247,7 +247,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: 123)
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attr: 123)
         end
       end
@@ -264,7 +264,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "abc")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attr: "ABC")
         end
       end
@@ -281,7 +281,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute
 
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "Invalid",
             cause: be_a(CMDx::FailFault)
           )
@@ -308,7 +308,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "123")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: ["123"])
         end
       end
@@ -325,7 +325,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "123")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: ["123"])
         end
       end
@@ -342,7 +342,7 @@ RSpec.describe "Task attributes", type: :feature do
 
           result = task.execute(raw_attr: "123")
 
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(attrs: ["123"])
         end
       end
@@ -363,7 +363,7 @@ RSpec.describe "Task attributes", type: :feature do
 
       result = task.execute
 
-      expect(result).to have_been_failure(
+      expect(result).to have_failed(
         reason: start_with(
           if RubyVersion.min?(3.4)
             "[NameError] undefined local variable or method 'raw_attr' for an instance of"
@@ -395,7 +395,7 @@ RSpec.describe "Task attributes", type: :feature do
 
       result = child_task.execute(parent_attr: "parent123", child_attr: "child456")
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(executed: %w[parent123 child456])
     end
   end

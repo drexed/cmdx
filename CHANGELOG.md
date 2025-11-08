@@ -6,10 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
-## [1.11.0] - 2025-11-07
+## [1.11.0] - 2025-11-08
 
 ### Updated
 - Added conditionally required attributes options
+- Update specs to use new `cmdx-rspec` matcher names
 
 ## [1.10.1] - 2025-11-06
 

@@ -18,10 +18,10 @@ RSpec.describe "Workflow conditionals", type: :feature do
       enabled_result = workflow.execute(execute_task: true)
       disabled_result = workflow.execute(execute_task: false)
 
-      expect(enabled_result).to have_been_success
+      expect(enabled_result).to be_successful
       expect(enabled_result.chain.results.size).to eq(2)
 
-      expect(disabled_result).to have_been_success
+      expect(disabled_result).to be_successful
       expect(disabled_result.chain.results.size).to eq(1)
     end
 
@@ -156,7 +156,7 @@ RSpec.describe "Workflow conditionals", type: :feature do
 
       result = workflow.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result.chain.results.size).to eq(4)
       expect(result).to have_matching_context(setup_complete: true)
     end

@@ -24,7 +24,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute(value: "test")
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(callbacks: [:before_validation], executed: true)
       end
     end
@@ -47,7 +47,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(callbacks: %i[before_execution work])
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(callbacks: %i[work on_complete])
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_failure(reason: "Test failure")
+        expect(result).to have_failed(reason: "Test failure")
         expect(result).to have_matching_context(callbacks: [:on_interrupted])
       end
     end
@@ -131,10 +131,10 @@ RSpec.describe "Task callbacks", type: :feature do
         success_result = success_task.execute
         failed_result = failed_task.execute
 
-        expect(success_result).to have_been_success
+        expect(success_result).to be_successful
         expect(success_result).to have_matching_context(callbacks: %i[success on_executed])
 
-        expect(failed_result).to have_been_failure(reason: "Test")
+        expect(failed_result).to have_failed(reason: "Test")
         expect(failed_result).to have_matching_context(callbacks: [:on_executed])
       end
     end
@@ -157,7 +157,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(callbacks: %i[work on_success])
       end
 
@@ -178,7 +178,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_failure(reason: "Test")
+        expect(result).to have_failed(reason: "Test")
         expect(result).to have_empty_context
       end
     end
@@ -201,7 +201,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_skipped(reason: "Test skip")
+        expect(result).to have_skipped(reason: "Test skip")
         expect(result).to have_matching_context(callbacks: [:on_skipped])
       end
     end
@@ -224,7 +224,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_failure(reason: "Test failure")
+        expect(result).to have_failed(reason: "Test failure")
         expect(result).to have_matching_context(callbacks: [:on_failed])
       end
     end
@@ -247,7 +247,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(callbacks: %i[work on_good])
       end
 
@@ -268,7 +268,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_skipped(reason: "Test")
+        expect(result).to have_skipped(reason: "Test")
         expect(result).to have_matching_context(callbacks: [:on_good])
       end
     end
@@ -291,7 +291,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_skipped(reason: "Test")
+        expect(result).to have_skipped(reason: "Test")
         expect(result).to have_matching_context(callbacks: [:on_bad])
       end
 
@@ -312,7 +312,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_failure(reason: "Test")
+        expect(result).to have_failed(reason: "Test")
         expect(result).to have_matching_context(callbacks: [:on_bad])
       end
     end
@@ -329,7 +329,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
       result = task.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(callbacks: %i[before_proc complete_proc])
     end
 
@@ -343,7 +343,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
       result = task.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(callbacks: %i[before_lambda complete_lambda])
     end
 
@@ -369,7 +369,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
       result = task.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(callbacks: %i[before_class complete_class])
     end
   end
@@ -397,10 +397,10 @@ RSpec.describe "Task callbacks", type: :feature do
       enabled_result = task.execute(enable_setup: true)
       disabled_result = task.execute(enable_setup: false)
 
-      expect(enabled_result).to have_been_success
+      expect(enabled_result).to be_successful
       expect(enabled_result).to have_matching_context(callbacks: %i[before_execution work])
 
-      expect(disabled_result).to have_been_success
+      expect(disabled_result).to be_successful
       expect(disabled_result).to have_matching_context(callbacks: [:work])
     end
 
@@ -426,10 +426,10 @@ RSpec.describe "Task callbacks", type: :feature do
       enabled_result = task.execute(skip_setup: false)
       disabled_result = task.execute(skip_setup: true)
 
-      expect(enabled_result).to have_been_success
+      expect(enabled_result).to be_successful
       expect(enabled_result).to have_matching_context(callbacks: %i[before_execution work])
 
-      expect(disabled_result).to have_been_success
+      expect(disabled_result).to be_successful
       expect(disabled_result).to have_matching_context(callbacks: [:work])
     end
 
@@ -459,10 +459,10 @@ RSpec.describe "Task callbacks", type: :feature do
       both_true = task.execute(enable_setup: true, override: true)
       if_true_unless_false = task.execute(enable_setup: true, override: false)
 
-      expect(both_true).to have_been_success
+      expect(both_true).to be_successful
       expect(both_true).to have_matching_context(callbacks: [:work])
 
-      expect(if_true_unless_false).to have_been_success
+      expect(if_true_unless_false).to be_successful
       expect(if_true_unless_false).to have_matching_context(callbacks: %i[before_execution work])
     end
   end
@@ -500,7 +500,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
       result = task.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(
         callbacks: %i[first_setup second_setup work first_complete second_complete]
       )
@@ -529,7 +529,7 @@ RSpec.describe "Task callbacks", type: :feature do
 
       result = child_task.execute
 
-      expect(result).to have_been_success
+      expect(result).to be_successful
       expect(result).to have_matching_context(callbacks: [:work])
     end
   end

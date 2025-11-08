@@ -11,7 +11,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_successful_task }
 
         it "returns success" do
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(executed: %i[success])
         end
       end
@@ -20,7 +20,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_skipping_task }
 
         it "returns skipped" do
-          expect(result).to have_been_skipped
+          expect(result).to have_skipped
           expect(result).to have_empty_context
         end
       end
@@ -29,7 +29,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_failing_task }
 
         it "returns failure" do
-          expect(result).to have_been_failure
+          expect(result).to have_failed
           expect(result).to have_empty_context
         end
       end
@@ -38,7 +38,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_erroring_task }
 
         it "returns failure" do
-          expect(result).to have_been_failure(
+          expect(result).to have_failed(
             reason: "[CMDx::TestError] borked error",
             cause: be_a(CMDx::TestError)
           )
@@ -53,7 +53,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -62,7 +62,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :skipped) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -71,7 +71,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -80,7 +80,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :error) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -91,7 +91,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -100,7 +100,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_skipped
+            expect(result).to have_skipped
             expect(result).to have_empty_context
           end
         end
@@ -109,7 +109,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw, status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               threw_failure: hash_including(
                 index: 1,
@@ -128,7 +128,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw, status: :error) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               reason: "[CMDx::TestError] borked error",
               threw_failure: hash_including(
@@ -150,7 +150,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -159,7 +159,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -168,7 +168,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise, status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               threw_failure: hash_including(
                 index: 1,
@@ -187,7 +187,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise, status: :error) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               reason: "[CMDx::TestError] borked error",
               cause: be_a(CMDx::TestError),
@@ -210,7 +210,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -219,7 +219,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -228,7 +228,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise, status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               threw_failure: hash_including(
                 index: 1,
@@ -247,7 +247,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise, status: :error) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               reason: "[CMDx::TestError] borked error",
               cause: be_a(CMDx::FailFault),
@@ -270,7 +270,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -279,7 +279,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[outer])
           end
         end
@@ -288,7 +288,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw, status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               threw_failure: hash_including(
                 index: 1,
@@ -307,7 +307,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw, status: :error) }
 
           it "returns failure" do
-            expect(result).to have_been_failure(
+            expect(result).to have_failed(
               outcome: CMDx::Result::INTERRUPTED,
               reason: "[CMDx::TestError] borked error",
               cause: be_a(CMDx::FailFault),
@@ -335,7 +335,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_successful_task }
 
         it "returns success" do
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(executed: %i[success])
         end
       end
@@ -344,7 +344,7 @@ RSpec.describe "Task execution", type: :feature do
         let(:task) { create_skipping_task }
 
         it "returns skipped" do
-          expect(result).to have_been_skipped
+          expect(result).to have_skipped
           expect(result).to have_empty_context
         end
       end
@@ -372,7 +372,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -381,7 +381,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :skipped) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -390,7 +390,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :failure) }
 
           it "returns failure" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -399,7 +399,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(status: :error) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -410,7 +410,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -419,7 +419,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_skipped
+            expect(result).to have_skipped
             expect(result).to have_empty_context
           end
         end
@@ -446,7 +446,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -455,7 +455,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -482,7 +482,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -491,7 +491,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :throw_raise, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[middle outer])
           end
         end
@@ -518,7 +518,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw) }
 
           it "returns success" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[inner middle outer])
           end
         end
@@ -527,7 +527,7 @@ RSpec.describe "Task execution", type: :feature do
           let(:task) { create_nested_task(strategy: :raise_throw, status: :skipped) }
 
           it "returns skipped" do
-            expect(result).to have_been_success
+            expect(result).to be_successful
             expect(result).to have_matching_context(executed: %i[outer])
           end
         end
@@ -561,7 +561,7 @@ RSpec.describe "Task execution", type: :feature do
 
         result = child_task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[parent])
       end
     end
@@ -577,7 +577,7 @@ RSpec.describe "Task execution", type: :feature do
 
         result = child_task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[child])
       end
     end
@@ -596,7 +596,7 @@ RSpec.describe "Task execution", type: :feature do
 
         result = child_task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(executed: %i[parent child])
       end
     end
@@ -608,7 +608,7 @@ RSpec.describe "Task execution", type: :feature do
 
       it "yields the result" do
         task.execute do |result|
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(executed: %i[success])
         end
       end
@@ -619,7 +619,7 @@ RSpec.describe "Task execution", type: :feature do
 
       it "yields the result" do
         task.execute do |result|
-          expect(result).to have_been_success
+          expect(result).to be_successful
           expect(result).to have_matching_context(executed: %i[success])
         end
       end
@@ -651,7 +651,7 @@ RSpec.describe "Task execution", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_success
+        expect(result).to be_successful
         expect(result).to have_matching_context(retries: 3, executed: %i[success])
         expect(result).to have_matching_metadata(retries: 2)
       end
@@ -681,7 +681,7 @@ RSpec.describe "Task execution", type: :feature do
 
         result = task.execute
 
-        expect(result).to have_been_failure(
+        expect(result).to have_failed(
           reason: "[CMDx::TestError] borked error",
           cause: be_a(CMDx::TestError)
         )
