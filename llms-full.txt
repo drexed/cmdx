@@ -1815,7 +1815,7 @@ class PublishArticle < CMDx::Task
 
   # Conditionally required
   required :publisher, if: :magazine?
-  required :approver, unless: proc { status == :published }
+  attribute :approver, required: true, unless: proc { status == :published }
 
   def work
     title     #=> "Getting Started with Ruby"
