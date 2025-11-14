@@ -517,26 +517,6 @@
 <span class='kw'>end</span></code></pre>
     
   </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>block</span>
-      
-      
-        <span class='type'>(<tt>Proc</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>the configuration block</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 <p class="tag_title">Yields:</p>
 <ul class="yield">
@@ -599,16 +579,16 @@
       <pre class="lines">
 
 
+221
+222
 223
 224
 225
 226
-227
-228
-229</pre>
+227</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 223</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 221</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_configure'>configure</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>block required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
@@ -742,12 +722,12 @@
       <pre class="lines">
 
 
-240
-241
-242</pre>
+238
+239
+240</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 240</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 238</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_reset_configuration!'>reset_configuration!</span>
   <span class='ivar'>@configuration</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CMDx/Configuration.html#initialize-instance_method" title="CMDx::Configuration#initialize (method)">new</a></span></span>
@@ -762,7 +742,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Nov 11 14:57:30 2025 by
+  Generated on Fri Nov 14 03:16:17 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.4.7).
 </div>

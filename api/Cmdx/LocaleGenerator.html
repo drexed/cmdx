@@ -188,13 +188,22 @@
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code># Copy default (English) locale file
-rails generate cmdx:locale
-# =&gt; Creates config/locales/en.yml
-
-# Copy Spanish locale file
-rails generate cmdx:locale es
-# =&gt; Creates config/locales/es.yml</code></pre>
+        <h5 class="example_title"><div class='inline'>
+<p>Copy default (English) locale file</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_generator'>generator</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Cmdx_.html" title="Cmdx (module)">Cmdx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Cmdx::LocaleGenerator (class)">LocaleGenerator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>en</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_generator'>generator</span><span class='period'>.</span><span class='id identifier rubyid_copy_locale_files'>copy_locale_files</span>
+<span class='comment'># =&gt; Creates config/locales/en.yml</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'>
+<p>Copy Spanish locale file</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_generator'>generator</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Cmdx_.html" title="Cmdx (module)">Cmdx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Cmdx::LocaleGenerator (class)">LocaleGenerator</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>es</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_generator'>generator</span><span class='period'>.</span><span class='id identifier rubyid_copy_locale_files'>copy_locale_files</span>
+<span class='comment'># =&gt; Creates config/locales/es.yml</span></code></pre>
     
   </div>
 
@@ -205,12 +214,12 @@ rails generate cmdx:locale es
       <pre class="lines">
 
 
-33
 34
-35</pre>
+35
+36</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/generators/cmdx/locale_generator.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/generators/cmdx/locale_generator.rb', line 34</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_copy_locale_files'>copy_locale_files</span>
   <span class='id identifier rubyid_copy_file'>copy_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_locale'>locale</span><span class='embexpr_end'>}</span><span class='tstring_content'>.yml</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>config/locales/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_locale'>locale</span><span class='embexpr_end'>}</span><span class='tstring_content'>.yml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -225,7 +234,7 @@ rails generate cmdx:locale es
 </div>
 
       <div id="footer">
-  Generated on Tue Nov 11 14:57:32 2025 by
+  Generated on Fri Nov 14 03:16:18 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.4.7).
 </div>

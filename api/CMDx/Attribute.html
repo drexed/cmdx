@@ -1239,6 +1239,30 @@
   
 </ul>
 
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:*</span>
+          <span class="type">(<tt>Object</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any attribute configuration option</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
 <p class="tag_title">Yields:</p>
 <ul class="yield">
   
@@ -1300,7 +1324,6 @@
       <pre class="lines">
 
 
-126
 127
 128
 129
@@ -1308,10 +1331,11 @@
 131
 132
 133
-134</pre>
+134
+135</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 126</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 127</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span>
@@ -1390,6 +1414,30 @@
   
 </ul>
 
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:*</span>
+          <span class="type">(<tt>Object</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any attribute configuration option</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
 <p class="tag_title">Yields:</p>
 <ul class="yield">
   
@@ -1433,12 +1481,12 @@
       <pre class="lines">
 
 
-149
-150
-151</pre>
+151
+152
+153</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 149</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 151</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional'>optional</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>required:</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1511,6 +1559,30 @@
   
 </ul>
 
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:*</span>
+          <span class="type">(<tt>Object</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any attribute configuration option</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
 <p class="tag_title">Yields:</p>
 <ul class="yield">
   
@@ -1554,12 +1626,12 @@
       <pre class="lines">
 
 
-166
-167
-168</pre>
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 169</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>required:</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1601,17 +1673,17 @@
       <pre class="lines">
 
 
-226
-227
-228
 229
 230
 231
 232
-233</pre>
+233
+234
+235
+236</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 226</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 229</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_define_and_verify_tree'>define_and_verify_tree</span>
   <span class='id identifier rubyid_define_and_verify'>define_and_verify</span>
@@ -1678,17 +1750,17 @@
       <pre class="lines">
 
 
-214
-215
-216
 217
 218
 219
 220
-221</pre>
+221
+222
+223
+224</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 214</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 217</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_name'>method_name</span>
   <span class='ivar'>@method_name</span> <span class='op'>||=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:as</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
@@ -1755,12 +1827,12 @@
       <pre class="lines">
 
 
-180
-181
-182</pre>
+183
+184
+185</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 180</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required?'>required?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@required</span>
@@ -1822,9 +1894,6 @@
       <pre class="lines">
 
 
-192
-193
-194
 195
 196
 197
@@ -1834,10 +1903,13 @@
 201
 202
 203
-204</pre>
+204
+205
+206
+207</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 192</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_source'>source</span>
   <span class='ivar'>@source</span> <span class='op'>||=</span> <span class='id identifier rubyid_parent'>parent</span><span class='op'>&amp;.</span><span class='id identifier rubyid_method_name'>method_name</span> <span class='op'>||</span> <span class='kw'>begin</span>
@@ -1862,7 +1934,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Nov 11 14:57:31 2025 by
+  Generated on Fri Nov 14 03:16:18 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.4.7).
 </div>

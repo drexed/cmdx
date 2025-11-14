@@ -683,6 +683,32 @@
   
 </ul>
 
+  
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**_kwargs</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:*</span>
+          <span class="type">(<tt>Object</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any keyword arguments (unused)</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
 <p class="tag_title">Yields:</p>
 <ul class="yield">
   
@@ -1142,12 +1168,12 @@
       <pre class="lines">
 
 
+182
 183
-184
-185</pre>
+184</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 183</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 182</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete!'>delete!</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1247,12 +1273,12 @@
       <pre class="lines">
 
 
+232
 233
-234
-235</pre>
+234</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 233</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 232</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
@@ -1340,12 +1366,12 @@
       <pre class="lines">
 
 
+198
 199
-200
-201</pre>
+200</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 199</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 198</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>==</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -1403,22 +1429,6 @@
       
     </li>
   
-    <li>
-      
-        <span class='name'>default</span>
-      
-      
-        <span class='type'>(<tt>Object</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>the default value if key is not found</p>
-</div>
-      
-    </li>
-  
 </ul>
 
 <p class="tag_title">Yields:</p>
@@ -1464,12 +1474,12 @@
       <pre class="lines">
 
 
+124
 125
-126
-127</pre>
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 125</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 124</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -1590,14 +1600,14 @@
       <pre class="lines">
 
 
+144
 145
 146
 147
-148
-149</pre>
+148</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 145</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 144</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fetch_or_store'>fetch_or_store</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1683,12 +1693,12 @@
       <pre class="lines">
 
 
+215
 216
-217
-218</pre>
+217</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 216</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 215</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
@@ -1796,13 +1806,13 @@
       <pre class="lines">
 
 
+163
 164
 165
-166
-167</pre>
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 164</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 163</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span> <span class='kw'>self</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
@@ -1975,12 +1985,12 @@
       <pre class="lines">
 
 
+245
 246
-247
-248</pre>
+247</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 246</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 245</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -1995,7 +2005,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Nov 11 14:57:31 2025 by
+  Generated on Fri Nov 14 03:16:18 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.4.7).
 </div>
