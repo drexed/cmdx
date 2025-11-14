@@ -14,6 +14,7 @@ module CMDx
       #
       # @param value [Object] The value to convert to Complex
       # @param options [Hash] Optional configuration parameters (currently unused)
+      # @option options [Object] :* Any configuration option (unused)
       #
       # @return [Complex] The converted Complex number value
       #

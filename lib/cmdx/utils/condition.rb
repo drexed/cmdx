@@ -34,9 +34,6 @@ module CMDx
       # @param options [Hash] Conditional options hash
       # @option options [Object] :if Condition that must be true for evaluation to succeed
       # @option options [Object] :unless Condition that must be false for evaluation to succeed
-      # @param args [Array] Additional arguments passed to condition evaluation
-      # @param kwargs [Hash] Additional keyword arguments passed to condition evaluation
-      # @param block [Proc, nil] Optional block passed to condition evaluation
       #
       # @return [Boolean] true if conditions are met, false otherwise
       #

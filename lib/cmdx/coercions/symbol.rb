@@ -15,6 +15,7 @@ module CMDx
       #
       # @param value [Object] The value to coerce to a symbol
       # @param options [Hash] Optional configuration parameters (unused in this coercion)
+      # @option options [Object] :* Any configuration option (unused)
       #
       # @return [Symbol] The coerced symbol value
       #

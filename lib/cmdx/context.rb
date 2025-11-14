@@ -109,7 +109,6 @@ module CMDx
     # Fetches a value from the context by key, with optional default value.
     #
     # @param key [String, Symbol] the key to fetch
-    # @param default [Object] the default value if key is not found
     #
     # @yield [key] a block to compute the default value
     #
@@ -255,6 +254,7 @@ module CMDx
     # @param method_name [Symbol] the method name that was called
     # @param args [Array<Object>] arguments passed to the method
     # @param _kwargs [Hash] keyword arguments (unused)
+    # @option _kwargs [Object] :* Any keyword arguments (unused)
     #
     # @yield [Object] optional block
     #

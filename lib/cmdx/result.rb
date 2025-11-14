@@ -171,8 +171,6 @@ module CMDx
       complete? || interrupted?
     end
 
-    # @param block [Proc] Block to execute conditionally
-    #
     # @yield [self] Executes the block if task has been executed
     #
     # @return [self] Returns self for method chaining
@@ -274,8 +272,6 @@ module CMDx
     end
     alias ok? good?
 
-    # @param block [Proc] Block to execute conditionally
-    #
     # @yield [self] Executes the block if task execution was successful
     #
     # @return [self] Returns self for method chaining
@@ -303,8 +299,6 @@ module CMDx
       !success?
     end
 
-    # @param block [Proc] Block to execute conditionally
-    #
     # @yield [self] Executes the block if task execution was unsuccessful
     #
     # @return [self] Returns self for method chaining
@@ -326,6 +320,7 @@ module CMDx
     # @param halt [Boolean] Whether to halt execution after skipping
     # @param cause [Exception, nil] Exception that caused the skip
     # @param metadata [Hash] Additional metadata about the skip
+    # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
     # @raise [RuntimeError] When attempting to skip from invalid status
     #
@@ -352,6 +347,7 @@ module CMDx
     # @param halt [Boolean] Whether to halt execution after failure
     # @param cause [Exception, nil] Exception that caused the failure
     # @param metadata [Hash] Additional metadata about the failure
+    # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
     # @raise [RuntimeError] When attempting to fail from invalid status
     #
@@ -407,6 +403,7 @@ module CMDx
     # @param halt [Boolean] Whether to halt execution after throwing
     # @param cause [Exception, nil] Exception that caused the throw
     # @param metadata [Hash] Additional metadata to merge
+    # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
     # @raise [TypeError] When result is not a CMDx::Result instance
     #
@@ -557,8 +554,6 @@ module CMDx
       end
     end
 
-    # @param keys [Array] Array of keys to deconstruct
-    #
     # @return [Array] Array containing state, status, reason, cause, and metadata
     #
     # @example
@@ -570,8 +565,6 @@ module CMDx
       [state, status, reason, cause, metadata]
     end
 
-    # @param keys [Array] Array of keys to deconstruct
-    #
     # @return [Hash] Hash with key-value pairs for pattern matching
     #
     # @example

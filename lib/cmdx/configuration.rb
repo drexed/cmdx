@@ -160,7 +160,7 @@ module CMDx
 
     # Converts the configuration to a hash representation.
     #
-    # @return [Hash<Symbol, Object>] hash containing all configuration values
+    # @return [Hash{Symbol => Object}] hash containing all configuration values
     #
     # @example
     #   config = Configuration.new
@@ -204,8 +204,6 @@ module CMDx
   end
 
   # Configures CMDx using a block that receives the configuration instance.
-  #
-  # @param block [Proc] the configuration block
   #
   # @yield [Configuration] the configuration instance to configure
   #

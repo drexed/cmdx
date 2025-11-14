@@ -112,6 +112,7 @@ module CMDx
       #
       # @param names [Array<Symbol, String>] The names of the attributes to create
       # @param options [Hash] Configuration options for the attributes
+      # @option options [Object] :* Any attribute configuration option
       #
       # @yield [self] Block to configure nested attributes
       #
@@ -137,6 +138,7 @@ module CMDx
       #
       # @param names [Array<Symbol, String>] The names of the attributes to create
       # @param options [Hash] Configuration options for the attributes
+      # @option options [Object] :* Any attribute configuration option
       #
       # @yield [self] Block to configure nested attributes
       #
@@ -154,6 +156,7 @@ module CMDx
       #
       # @param names [Array<Symbol, String>] The names of the attributes to create
       # @param options [Hash] Configuration options for the attributes
+      # @option options [Object] :* Any attribute configuration option
       #
       # @yield [self] Block to configure nested attributes
       #
@@ -238,6 +241,7 @@ module CMDx
     #
     # @param names [Array<Symbol, String>] The names of the child attributes
     # @param options [Hash] Configuration options for the child attributes
+    # @option options [Object] :* Any attribute configuration option
     #
     # @yield [self] Block to configure the child attributes
     #
@@ -257,6 +261,7 @@ module CMDx
     #
     # @param names [Array<Symbol, String>] The names of the optional child attributes
     # @param options [Hash] Configuration options for the child attributes
+    # @option options [Object] :* Any attribute configuration option
     #
     # @yield [self] Block to configure the child attributes
     #
@@ -274,6 +279,7 @@ module CMDx
     #
     # @param names [Array<Symbol, String>] The names of the required child attributes
     # @param options [Hash] Configuration options for the child attributes
+    # @option options [Object] :* Any attribute configuration option
     #
     # @yield [self] Block to configure the child attributes
     #

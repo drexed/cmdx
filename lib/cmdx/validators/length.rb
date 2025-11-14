@@ -87,6 +87,7 @@ module CMDx
       # @param min [Integer] Minimum length value
       # @param max [Integer] Maximum length value
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #
@@ -103,6 +104,7 @@ module CMDx
       # @param min [Integer] Minimum length value
       # @param max [Integer] Maximum length value
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #
@@ -118,6 +120,7 @@ module CMDx
       #
       # @param min [Integer] Minimum required length
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #
@@ -133,6 +136,7 @@ module CMDx
       #
       # @param max [Integer] Maximum allowed length
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #
@@ -148,6 +152,7 @@ module CMDx
       #
       # @param is [Integer] Required exact length
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #
@@ -163,6 +168,7 @@ module CMDx
       #
       # @param is_not [Integer] Length that is not allowed
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] Always raised with appropriate message
       #

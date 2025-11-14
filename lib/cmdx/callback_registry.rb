@@ -53,9 +53,9 @@ module CMDx
     # @param type [Symbol] The callback type from TYPES
     # @param callables [Array<#call>] Callable objects to register
     # @param options [Hash] Options to pass to the callback
+    # @param block [Proc] Optional block to register as a callable
     # @option options [Hash] :if Condition hash for conditional execution
     # @option options [Hash] :unless Inverse condition hash for conditional execution
-    # @param block [Proc] Optional block to register as a callable
     #
     # @return [CallbackRegistry] self for method chaining
     #
@@ -83,6 +83,7 @@ module CMDx
     # @param callables [Array<#call>] Callable objects to remove
     # @param options [Hash] Options that were used during registration
     # @param block [Proc] Optional block to remove
+    # @option options [Object] :* Any option key-value pairs
     #
     # @return [CallbackRegistry] self for method chaining
     #

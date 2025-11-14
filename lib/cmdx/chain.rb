@@ -114,11 +114,10 @@ module CMDx
 
     # Converts the chain to a hash representation.
     #
-    # @return [Hash] Hash containing chain id and serialized results
-    #
     # @option return [String] :id The chain identifier
-    #
     # @option return [Array<Hash>] :results Array of result hashes
+    #
+    # @return [Hash] Hash containing chain id and serialized results
     #
     # @example
     #   chain_hash = chain.to_h

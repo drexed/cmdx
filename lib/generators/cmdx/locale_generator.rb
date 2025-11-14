@@ -22,13 +22,14 @@ module Cmdx
     #
     # @return [void]
     #
-    # @example
-    #   # Copy default (English) locale file
-    #   rails generate cmdx:locale
+    # @example Copy default (English) locale file
+    #   generator = Cmdx::LocaleGenerator.new(["en"])
+    #   generator.copy_locale_files
     #   # => Creates config/locales/en.yml
     #
-    #   # Copy Spanish locale file
-    #   rails generate cmdx:locale es
+    # @example Copy Spanish locale file
+    #   generator = Cmdx::LocaleGenerator.new(["es"])
+    #   generator.copy_locale_files
     #   # => Creates config/locales/es.yml
     def copy_locale_files
       copy_file("#{locale}.yml", "config/locales/#{locale}.yml")

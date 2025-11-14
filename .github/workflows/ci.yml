@@ -23,3 +23,5 @@ jobs:
         run: bundle exec rspec
       - name: Rubocop
         run: bundle exec rubocop --parallel
+      - name: YARD-Lint
+        run: bundle exec yard-lint lib/ --diff origin/${{ github.base_ref }}

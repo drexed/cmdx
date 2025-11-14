@@ -109,6 +109,7 @@ module CMDx
     #
     # @param index [Integer] Current middleware index in the chain
     # @param task [Object] The task object being processed
+    # @param block [Proc] Block to execute after middleware processing
     #
     # @yield [task] Block to execute after middleware processing
     # @yieldparam task [Object] The processed task object

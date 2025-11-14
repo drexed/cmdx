@@ -50,6 +50,7 @@ module CMDx
       #
       # @param values [Array] The forbidden values that caused the error
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       def raise_of_validation_error!(values, options)
@@ -65,6 +66,7 @@ module CMDx
       # @param min [Object] The minimum value of the forbidden range
       # @param max [Object] The maximum value of the forbidden range
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       def raise_within_validation_error!(min, max, options)

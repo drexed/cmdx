@@ -20,7 +20,7 @@ module CMDx
 
     # Initialize a new coercion registry.
     #
-    # @param registry [Hash<Symbol, Class>, nil] optional initial registry hash
+    # @param registry [Hash{Symbol => Class}, nil] optional initial registry hash
     #
     # @example
     #   registry = CoercionRegistry.new
@@ -95,6 +95,7 @@ module CMDx
     # @param task [Object] the task context for the coercion
     # @param value [Object] the value to coerce
     # @param options [Hash] additional options for the coercion
+    # @option options [Object] :* Any coercion option key-value pairs
     #
     # @return [Object] the coerced value
     #

@@ -17,7 +17,9 @@ module CMDx
       # @param callable [Symbol, Proc, #call] The callable to invoke
       # @param args [Array] Positional arguments to pass to the callable
       # @param kwargs [Hash] Keyword arguments to pass to the callable
-      # @param &block [Proc, nil] Block to pass to the callable
+      # @option kwargs [Object] :* Any keyword arguments to pass to the callable
+      #
+      # @yield [Object] Block to pass to the callable
       #
       # @return [Object] The result of invoking the callable
       #

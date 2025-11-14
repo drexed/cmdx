@@ -82,6 +82,7 @@ module CMDx
       # @param min [Numeric] The minimum value of the allowed range
       # @param max [Numeric] The maximum value of the allowed range
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #
@@ -98,6 +99,7 @@ module CMDx
       # @param min [Numeric] The minimum value of the excluded range
       # @param max [Numeric] The maximum value of the excluded range
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #
@@ -113,6 +115,7 @@ module CMDx
       #
       # @param min [Numeric] The minimum allowed value
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #
@@ -128,6 +131,7 @@ module CMDx
       #
       # @param max [Numeric] The maximum allowed value
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #
@@ -143,6 +147,7 @@ module CMDx
       #
       # @param is [Numeric] The exact value that was expected
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #
@@ -158,6 +163,7 @@ module CMDx
       #
       # @param is_not [Numeric] The value that was not allowed
       # @param options [Hash] Validation options containing custom messages
+      # @option options [Object] :* Any validation option key-value pairs
       #
       # @raise [ValidationError] With appropriate error message
       #

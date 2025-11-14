@@ -100,6 +100,7 @@ module CMDx
     class << self
 
       # @param options [Hash] Configuration options to merge with existing settings
+      # @option options [Object] :* Any configuration option key-value pairs
       #
       # @return [Hash] The merged settings hash
       #
@@ -136,7 +137,6 @@ module CMDx
 
       # @param type [Symbol] The type of registry to register with
       # @param object [Object] The object to register
-      # @param args [Array] Additional arguments for registration
       #
       # @raise [RuntimeError] If the registry type is unknown
       #
@@ -158,7 +158,6 @@ module CMDx
 
       # @param type [Symbol] The type of registry to deregister from
       # @param object [Object] The object to deregister
-      # @param args [Array] Additional arguments for deregistration
       #
       # @raise [RuntimeError] If the registry type is unknown
       #
@@ -178,8 +177,6 @@ module CMDx
         end
       end
 
-      # @param args [Array] Arguments to build the attribute with
-      #
       # @example
       #   attributes :name, :email
       #   attributes :age, type: Integer, default: 18
@@ -190,8 +187,6 @@ module CMDx
       end
       alias attribute attributes
 
-      # @param args [Array] Arguments to build the optional attribute with
-      #
       # @example
       #   optional :description, :notes
       #   optional :priority, type: Symbol, default: :normal
@@ -201,8 +196,6 @@ module CMDx
         register(:attribute, Attribute.optional(...))
       end
 
-      # @param args [Array] Arguments to build the required attribute with
-      #
       # @example
       #   required :name, :email
       #   required :age, type: Integer, min: 0
@@ -242,6 +235,8 @@ module CMDx
       end
 
       # @param args [Array] Arguments to pass to the task constructor
+      # @param kwargs [Hash] Keyword arguments to pass to the task constructor
+      # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
       #
@@ -259,6 +254,8 @@ module CMDx
       end
 
       # @param args [Array] Arguments to pass to the task constructor
+      # @param kwargs [Hash] Keyword arguments to pass to the task constructor
+      # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
       #
@@ -322,14 +319,14 @@ module CMDx
       end
     end
 
-    # @return [Hash] A hash representation of the task
-    #
     # @option return [Integer] :index The result index
     # @option return [String] :chain_id The chain identifier
     # @option return [String] :type The task type ("Task" or "Workflow")
     # @option return [Array<Symbol>] :tags The task tags
     # @option return [String] :class The task class name
     # @option return [String] :id The task identifier
+    #
+    # @return [Hash] A hash representation of the task
     #
     # @example
     #   task_hash = task.to_h
