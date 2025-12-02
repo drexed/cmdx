@@ -118,12 +118,12 @@
         <dt id="FALSEY-constant" class="">FALSEY =
           
         </dt>
-        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(false|f|no|n|0)$</span><span class='regexp_end'>/i</span></span></pre></dd>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\A(false|f|no|n|0)\z</span><span class='regexp_end'>/i</span></span></pre></dd>
       
         <dt id="TRUTHY-constant" class="">TRUTHY =
           
         </dt>
-        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(true|t|yes|y|1)$</span><span class='regexp_end'>/i</span></span></pre></dd>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\A(true|t|yes|y|1)\z</span><span class='regexp_end'>/i</span></span></pre></dd>
       
     </dl>
   
@@ -344,7 +344,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/boolean.rb', line 42</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='kw'>case</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
   <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FALSEY-constant" title="CMDx::Coercions::Boolean::FALSEY (constant)">FALSEY</a></span></span> <span class='kw'>then</span> <span class='kw'>false</span>
   <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TRUTHY-constant" title="CMDx::Coercions::Boolean::TRUTHY (constant)">TRUTHY</a></span></span> <span class='kw'>then</span> <span class='kw'>true</span>
   <span class='kw'>else</span>
@@ -362,7 +362,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Dec  2 18:49:10 2025 by
+  Generated on Tue Dec  2 19:43:53 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.37 (ruby-3.4.7).
 </div>
