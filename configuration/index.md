@@ -96,7 +96,7 @@ end
 
 ### Middlewares
 
-See the [Middlewares](../middlewares/#declarations) docs for task level configurations.
+See the [Middlewares](https://drexed.github.io/cmdx/middlewares/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -126,7 +126,7 @@ Middlewares are executed in registration order. Each middleware wraps the next, 
 
 ### Callbacks
 
-See the [Callbacks](../callbacks/#declarations) docs for task level configurations.
+See the [Callbacks](https://drexed.github.io/cmdx/callbacks/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -152,7 +152,7 @@ end
 
 ### Coercions
 
-See the [Attributes - Coercions](../attributes/coercions/#declarations) docs for task level configurations.
+See the [Attributes - Coercions](https://drexed.github.io/cmdx/attributes/coercions/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -178,7 +178,7 @@ end
 
 ### Validators
 
-See the [Attributes - Validations](../attributes/validations/#declarations) docs for task level configurations.
+See the [Attributes - Validations](https://drexed.github.io/cmdx/attributes/validations/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|

@@ -114,7 +114,7 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
-Ready to dive in? Check out the [Getting Started](getting_started/) guide to learn more.
+Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md) guide to learn more.
 
 ## Ecosystem
 
@@ -358,7 +358,7 @@ end
 
 ### Middlewares
 
-See the [Middlewares](../middlewares/#declarations) docs for task level configurations.
+See the [Middlewares](https://drexed.github.io/cmdx/middlewares/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -388,7 +388,7 @@ Middlewares are executed in registration order. Each middleware wraps the next, 
 
 ### Callbacks
 
-See the [Callbacks](../callbacks/#declarations) docs for task level configurations.
+See the [Callbacks](https://drexed.github.io/cmdx/callbacks/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -414,7 +414,7 @@ end
 
 ### Coercions
 
-See the [Attributes - Coercions](../attributes/coercions/#declarations) docs for task level configurations.
+See the [Attributes - Coercions](https://drexed.github.io/cmdx/attributes/coercions/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -440,7 +440,7 @@ end
 
 ### Validators
 
-See the [Attributes - Validations](../attributes/validations/#declarations) docs for task level configurations.
+See the [Attributes - Validations](https://drexed.github.io/cmdx/attributes/validations/#declarations) docs for task level configurations.
 
 ```ruby
 CMDx.configure do |config|
@@ -1765,6 +1765,10 @@ Attributes define your task's interface with automatic validation, type coercion
 
 ## Declarations
 
+Important
+
+Attributes are order-dependent, so if you need to reference them as a source or use them in conditions, make sure they’re defined in the correct order.
+
 Tip
 
 Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
@@ -2112,7 +2116,7 @@ ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](../../getting_started/#coercions) for custom coercion setup.
+See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#coercions) for custom coercion setup.
 
 ## Usage
 
@@ -2268,7 +2272,7 @@ result.metadata #=> {
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](../../getting_started/#validators) for custom validator setup.
+See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#validators) for custom validator setup.
 
 ## Usage
 
@@ -2707,7 +2711,7 @@ end
 
 Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-See [Global Configuration](../getting_started/#callbacks) for framework-wide callback setup.
+See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#callbacks) for framework-wide callback setup.
 
 Important
 
@@ -2865,7 +2869,7 @@ end
 
 Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-See [Global Configuration](../getting_started/#middlewares) for framework-wide setup.
+See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#middlewares) for framework-wide setup.
 
 ## Execution Order
 

@@ -1924,6 +1924,10 @@
 <h1 id="attributes-definitions">Attributes - Definitions<a class="headerlink" href="#attributes-definitions" title="Permanent link">&para;</a></h1>
 <p>Attributes define your task's interface with automatic validation, type coercion, and accessor generation. They're the contract between callers and your business logic.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Attributes are order-dependent, so if you need to reference them as a source or use them in conditions, make sure they’re defined in the correct order.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Prefer using the <code>required</code> and <code>optional</code> alias for <code>attributes</code> for brevity and to clearly signal intent.</p>

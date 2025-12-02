@@ -2,7 +2,7 @@
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](../../getting_started/#validators) for custom validator setup.
+See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#validators) for custom validator setup.
 
 ## Usage
 

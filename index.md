@@ -106,7 +106,7 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
-Ready to dive in? Check out the [Getting Started](getting_started/) guide to learn more.
+Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md) guide to learn more.
 
 ## Ecosystem
 
