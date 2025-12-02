@@ -17,6 +17,11 @@ Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM
 - Ruby 3.4+
 - RSpec 3.1+
 
+## Development Guidelines
+- Performance is critical - benchmark any changes that could affect speed
+- Follow existing code patterns and conventions
+- Maintain backward compatibility for public API
+
 ## Code Style and Structure
 - Write concise, idiomatic Ruby code with accurate examples
 - Follow Ruby conventions and best practices
@@ -24,6 +29,7 @@ Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM
 - Prefer iteration and modularization over code duplication
 - Use descriptive variable and method names (e.g., user_signed_in?, calculate_total)
 - Write comprehensive code documentation using the Yardoc format
+- Minimize object allocations in hot paths
 
 ## Naming Conventions
 - Use snake_case for file names, method names, and variables
@@ -35,6 +41,7 @@ Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM
 - Use Ruby's expressive syntax (e.g., unless, ||=, &.)
 - Prefer double quotes for strings
 - Respect my Rubocop options
+- Run `bundle exec rubocop .` before finalizing any code changes
 
 ## Performance Optimization
 - Use memoization for expensive operations
@@ -50,6 +57,7 @@ Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM
 - Don't test declarative configuration
 - Use appropriate matchers
 - Update tests and update Yardocs after you write code
+- Run `bundle rspec .` before finalizing any code changes
 
 ## Documentation
 - Utilize the YARDoc format when documenting Ruby code
