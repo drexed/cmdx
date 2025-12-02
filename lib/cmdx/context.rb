@@ -263,7 +263,7 @@ module CMDx
     # @rbs (Symbol method_name, *untyped args, **untyped _kwargs) ?{ () -> untyped } -> untyped
     def method_missing(method_name, *args, **_kwargs, &)
       fetch(method_name) do
-        store(method_name[0..-2], args.first) if method_name.end_with?("=")
+        store(method_name.chop, args.first) if method_name.end_with?("=")
       end
     end
 
