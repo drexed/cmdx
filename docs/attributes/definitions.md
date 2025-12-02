@@ -4,6 +4,10 @@ Attributes define your task's interface with automatic validation, type coercion
 
 ## Declarations
 
+!!! warning "Important"
+
+    Attributes are order-dependent, so if you need to reference them as a source or use them in conditions, make sure they’re defined in the correct order.
+
 !!! tip
 
     Prefer using the `required` and `optional` alias for `attributes` for brevity and to clearly signal intent.
