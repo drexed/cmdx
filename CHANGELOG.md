@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Updated
+- Update boolean coercion `TRUTHY` and `FALSEY` regexp to be case insensitive
 - Improve YARD documentation with `yard-lint`
 
 ## [1.11.0] - 2025-11-08

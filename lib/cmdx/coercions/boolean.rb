@@ -11,10 +11,10 @@ module CMDx
       extend self
 
       # @rbs FALSEY: Regexp
-      FALSEY = /^(false|f|no|n|0)$/i
+      FALSEY = /\A(false|f|no|n|0)\z/i
 
       # @rbs TRUTHY: Regexp
-      TRUTHY = /^(true|t|yes|y|1)$/i
+      TRUTHY = /\A(true|t|yes|y|1)\z/i
 
       # Converts a value to a Boolean
       #
@@ -40,7 +40,7 @@ module CMDx
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
       def call(value, options = {})
-        case value.to_s.downcase
+        case value.to_s
         when FALSEY then false
         when TRUTHY then true
         else
