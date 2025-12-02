@@ -32,7 +32,7 @@ module CMDx
       #
       # @rbs (untyped message) -> untyped
       def to_log(message)
-        if message.respond_to?(:to_h) && message.class.ancestors.any? { |a| a.to_s.start_with?("CMDx") }
+        if message.respond_to?(:to_h) && message.class.ancestors.any? { |a| a.name&.start_with?("CMDx::") }
           message.to_h
         else
           message
