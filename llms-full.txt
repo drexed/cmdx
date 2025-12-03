@@ -2284,10 +2284,10 @@ class ProcessSubscription < CMDx::Task
   attribute :user_id, presence: true
 
   # String with length constraints
-  attribute :preferences, length: { minimum: 10, maximum: 500 }
+  optional :preferences, length: { minimum: 10, maximum: 500 }
 
   # Numeric range validation
-  attribute :tier_level, inclusion: { in: 1..5 }
+  required :tier_level, inclusion: { in: 1..5 }
 
   # Format validation for email
   attribute :contact_email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
@@ -2315,6 +2315,42 @@ Validations run after coercions, so you can validate the final coerced values ra
 ## Built-in Validators
 
 ### Common Options
+
+```ruby
+class ProcessProduct < CMDx::Task
+  # Allow nil
+  attribute :tier_level, inclusion: {
+    in: 1..5,
+    allow_nil: true
+  }
+
+  # Conditionals
+  optional :contact_email, format: {
+    with: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i,
+    if: ->(value) { value.includes?("@") }
+  }
+  required :status, exclusion: {
+    in: %w[recalled archived],
+    unless: :product_sunsetted?
+  }
+
+  # Custom message
+  attribute :title, length: {
+    within: 5..100,
+    message: "must be in optimal size"
+  }
+
+  def work
+    # Your logic here...
+  end
+
+  private
+
+  def product_defunct?(value)
+    context.company.out_of_business? || value == "deprecated"
+  end
+end
+```
 
 This list of options is available to all validators:
 
@@ -2531,10 +2567,15 @@ Validation failures provide detailed, structured error messages:
 
 ```ruby
 class CreateProject < CMDx::Task
-  attribute :project_name, presence: true, length: { minimum: 3, maximum: 50 }
-  attribute :budget, numeric: { greater_than: 1000, less_than: 1000000 }
-  attribute :priority, inclusion: { in: [:low, :medium, :high] }
-  attribute :contact_email, format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  attribute :project_name,
+    presence: true,
+    length: { minimum: 3, maximum: 50 }
+  optional :budget,
+    numeric: { greater_than: 1000, less_than: 1000000 }
+  required :priority,
+    inclusion: { in: [:low, :medium, :high] }
+  attribute :contact_email,
+    format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
 
   def work
     # Your logic here...
