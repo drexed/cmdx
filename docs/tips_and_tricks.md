@@ -150,5 +150,6 @@ end
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
+- [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
 - [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)
