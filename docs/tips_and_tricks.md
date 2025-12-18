@@ -149,6 +149,7 @@ end
 
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
+- [Flipper Feature Flags](https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md)
 - [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
 - [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md)
 - [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
