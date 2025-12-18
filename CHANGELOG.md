@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 - Added active record database transaction example
 - Added Sentry error tracking example
+- Added Redis idempotency example
 
 ### Updated
 - Remove `handle_*` methods and provide `on(*states_or_statuses)` method for more flexibility
