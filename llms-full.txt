@@ -1559,19 +1559,20 @@ result = BuildApplication.execute(version: "1.2.3")
 
 # Status-based handlers
 result
-  .handle_success { |result| notify_deployment_ready(result) }
-  .handle_failed { |result| handle_build_failure(result) }
-  .handle_skipped { |result| log_skip_reason(result) }
+  .on(:success) { |result| notify_deployment_ready(result) }
+  .on(:failed) { |result| handle_build_failure(result) }
+  .on(:skipped) { |result| log_skip_reason(result) }
 
 # State-based handlers
 result
-  .handle_complete { |result| update_build_status(result) }
-  .handle_interrupted { |result| cleanup_partial_artifacts(result) }
+  .on(:complete) { |result| update_build_status(result) }
+  .on(:interrupted) { |result| cleanup_partial_artifacts(result) }
+  .on(:executed) { |result| alert_operations_team(result) } #=> .on(:complete, :interrupted)
 
 # Outcome-based handlers
 result
-  .handle_good { |result| increment_success_counter(result) }
-  .handle_bad { |result| alert_operations_team(result) }
+  .on(:good) { |result| increment_success_counter(result) } #=> .on(:success, :skipped)
+  .on(:bad) { |result| alert_operations_team(result) }      #=> .on(:failed, :skipped)
 ```
 
 ## Pattern Matching
@@ -1680,16 +1681,16 @@ result.executed?    #=> true (complete OR interrupted)
 
 ## Handlers
 
-Handle lifecycle events with state-based handlers. Use `handle_executed` for cleanup that runs regardless of outcome:
+Handle lifecycle events with state-based handlers. Use `on(:executed)` for cleanup that runs regardless of outcome:
 
 ```ruby
 result = ProcessVideoUpload.execute
 
 # Individual state handlers
 result
-  .handle_complete { |result| send_upload_notification(result) }
-  .handle_interrupted { |result| cleanup_temp_files(result) }
-  .handle_executed { |result| log_upload_metrics(result) }
+  .on(:complete) { |result| send_upload_notification(result) }
+  .on(:interrupted) { |result| cleanup_temp_files(result) }
+  .on(:executed) { |result| log_upload_metrics(result) } #=> .on(:complete, :interrupted)
 ```
 
 # Outcomes - Statuses
@@ -1741,21 +1742,21 @@ result.bad?     #=> true if skipped OR failed (not success)
 
 ## Handlers
 
-Branch business logic with status-based handlers. Use `handle_good` and `handle_bad` for success/skip vs failed outcomes:
+Branch business logic with status-based handlers. Use `on(:good)` and `on(:bad)` for success/skip vs failed outcomes:
 
 ```ruby
 result = ProcessNotification.execute
 
 # Individual status handlers
 result
-  .handle_success { |result| mark_notification_sent(result) }
-  .handle_skipped { |result| log_notification_skipped(result) }
-  .handle_failed { |result| queue_retry_notification(result) }
+  .on(:success) { |result| mark_notification_sent(result) }
+  .on(:skipped) { |result| log_notification_skipped(result) }
+  .on(:failed){ |result| queue_retry_notification(result) }
 
 # Outcome-based handlers
 result
-  .handle_good { |result| update_message_stats(result) }
-  .handle_bad { |result| track_delivery_failure(result) }
+  .on(:good) { |result| update_message_stats(result) }  #=> .on(:success, :skipped)
+  .on(:bad) { |result| track_delivery_failure(result) } #=> .on(:failed, :skipped)
 ```
 # Attributes
 
@@ -3965,7 +3966,9 @@ end
 
 ## Useful Examples
 
+- [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
+- [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
 - [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)
