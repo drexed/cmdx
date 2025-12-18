@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added active record database transaction example
 
 ### Updated
+- Remove `handle_*` methods and provide `on(*states_or_statuses)` method for more flexibility
 - Optimize logging ancestor lookup
 - Use chop instead of range for better string performance
 - Update boolean coercion `TRUTHY` and `FALSEY` regexp to be case insensitive

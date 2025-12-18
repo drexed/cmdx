@@ -126,19 +126,20 @@ result = BuildApplication.execute(version: "1.2.3")
 
 # Status-based handlers
 result
-  .handle_success { |result| notify_deployment_ready(result) }
-  .handle_failed { |result| handle_build_failure(result) }
-  .handle_skipped { |result| log_skip_reason(result) }
+  .on(:success) { |result| notify_deployment_ready(result) }
+  .on(:failed) { |result| handle_build_failure(result) }
+  .on(:skipped) { |result| log_skip_reason(result) }
 
 # State-based handlers
 result
-  .handle_complete { |result| update_build_status(result) }
-  .handle_interrupted { |result| cleanup_partial_artifacts(result) }
+  .on(:complete) { |result| update_build_status(result) }
+  .on(:interrupted) { |result| cleanup_partial_artifacts(result) }
+  .on(:executed) { |result| alert_operations_team(result) } #=> .on(:complete, :interrupted)
 
 # Outcome-based handlers
 result
-  .handle_good { |result| increment_success_counter(result) }
-  .handle_bad { |result| alert_operations_team(result) }
+  .on(:good) { |result| increment_success_counter(result) } #=> .on(:success, :skipped)
+  .on(:bad) { |result| alert_operations_team(result) }      #=> .on(:failed, :skipped)
 ```
 
 ## Pattern Matching

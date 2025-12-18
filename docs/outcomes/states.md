@@ -53,14 +53,14 @@ result.executed?    #=> true (complete OR interrupted)
 
 ## Handlers
 
-Handle lifecycle events with state-based handlers. Use `handle_executed` for cleanup that runs regardless of outcome:
+Handle lifecycle events with state-based handlers. Use `on(:executed)` for cleanup that runs regardless of outcome:
 
 ```ruby
 result = ProcessVideoUpload.execute
 
 # Individual state handlers
 result
-  .handle_complete { |result| send_upload_notification(result) }
-  .handle_interrupted { |result| cleanup_temp_files(result) }
-  .handle_executed { |result| log_upload_metrics(result) }
+  .on(:complete) { |result| send_upload_notification(result) }
+  .on(:interrupted) { |result| cleanup_temp_files(result) }
+  .on(:executed) { |result| log_upload_metrics(result) } #=> .on(:complete, :interrupted)
 ```

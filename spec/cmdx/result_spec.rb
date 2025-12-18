@@ -306,28 +306,28 @@ RSpec.describe CMDx::Result, type: :unit do
       end
     end
 
-    describe "#handle_executed" do
+    describe "#on(:executed)" do
       it "raises ArgumentError without block" do
-        expect { result.handle_executed }.to raise_error(ArgumentError, "block required")
+        expect { result.on(:executed) }.to raise_error(ArgumentError, "block required")
       end
 
       it "calls block when executed" do
         result.interrupt!
         called = false
-        result.handle_executed { |_r| called = true }
+        result.on(:executed) { |_r| called = true }
 
         expect(called).to be(true)
       end
 
       it "does not call block when not executed" do
         called = false
-        result.handle_executed { |_r| called = true }
+        result.on(:executed) { |_r| called = true }
 
         expect(called).to be(false)
       end
 
       it "returns self" do
-        expect(result.handle_executed { "test" }).to eq(result)
+        expect(result.on(:executed) { "test" }).to eq(result)
       end
     end
   end
@@ -793,9 +793,9 @@ RSpec.describe CMDx::Result, type: :unit do
   describe "handle methods" do
     describe "state handle methods" do
       CMDx::Result::STATES.each do |state|
-        describe "#handle_#{state}" do
+        describe "#on(#{state})" do
           it "raises ArgumentError without block" do
-            expect { result.send(:"handle_#{state}") }.to raise_error(ArgumentError, "block required")
+            expect { result.on(state) }.to raise_error(ArgumentError, "block required")
           end
 
           context "when in #{state} state" do
@@ -815,14 +815,14 @@ RSpec.describe CMDx::Result, type: :unit do
 
             it "calls the block" do
               called = false
-              result.send(:"handle_#{state}") { |_r| called = true }
+              result.on(state) { |_r| called = true }
 
               expect(called).to be(true)
             end
 
             it "passes result to block" do
               block_result = nil
-              result.send(:"handle_#{state}") { |r| block_result = r }
+              result.on(state) { |r| block_result = r }
 
               expect(block_result).to eq(result)
             end
@@ -844,14 +844,14 @@ RSpec.describe CMDx::Result, type: :unit do
 
             it "does not call the block" do
               called = false
-              result.send(:"handle_#{state}") { |_r| called = true }
+              result.on(state) { |_r| called = true }
 
               expect(called).to be(false)
             end
           end
 
           it "returns self" do
-            expect(result.send(:"handle_#{state}") { "test" }).to eq(result)
+            expect(result.on(state) { "test" }).to eq(result)
           end
         end
       end
@@ -859,9 +859,9 @@ RSpec.describe CMDx::Result, type: :unit do
 
     describe "status handle methods" do
       CMDx::Result::STATUSES.each do |status|
-        describe "#handle_#{status}" do
+        describe "#on(#{status})" do
           it "raises ArgumentError without block" do
-            expect { result.send(:"handle_#{status}") }.to raise_error(ArgumentError, "block required")
+            expect { result.on(status) }.to raise_error(ArgumentError, "block required")
           end
 
           context "when in #{status} status" do
@@ -878,14 +878,14 @@ RSpec.describe CMDx::Result, type: :unit do
 
             it "calls the block" do
               called = false
-              result.send(:"handle_#{status}") { |_r| called = true }
+              result.on(status) { |_r| called = true }
 
               expect(called).to be(true)
             end
 
             it "passes result to block" do
               block_result = nil
-              result.send(:"handle_#{status}") { |r| block_result = r }
+              result.on(status) { |r| block_result = r }
 
               expect(block_result).to eq(result)
             end
@@ -905,28 +905,28 @@ RSpec.describe CMDx::Result, type: :unit do
 
             it "does not call the block" do
               called = false
-              result.send(:"handle_#{status}") { |_r| called = true }
+              result.on(status) { |_r| called = true }
 
               expect(called).to be(false)
             end
           end
 
           it "returns self" do
-            expect(result.send(:"handle_#{status}") { "test" }).to eq(result)
+            expect(result.on(status) { "test" }).to eq(result)
           end
         end
       end
     end
 
-    describe "#handle_good" do
+    describe "#on(:good)" do
       it "raises ArgumentError without block" do
-        expect { result.handle_good }.to raise_error(ArgumentError, "block required")
+        expect { result.on(:good) }.to raise_error(ArgumentError, "block required")
       end
 
       context "when good" do
         it "calls the block for success" do
           called = false
-          result.handle_good { |_r| called = true }
+          result.on(:good) { |_r| called = true }
 
           expect(called).to be(true)
         end
@@ -934,7 +934,7 @@ RSpec.describe CMDx::Result, type: :unit do
         it "calls the block for skipped" do
           result.skip!("test", halt: false)
           called = false
-          result.handle_good { |_r| called = true }
+          result.on(:good) { |_r| called = true }
 
           expect(called).to be(true)
         end
@@ -944,27 +944,27 @@ RSpec.describe CMDx::Result, type: :unit do
         it "does not call the block for failed" do
           result.fail!("test", halt: false)
           called = false
-          result.handle_good { |_r| called = true }
+          result.on(:good) { |_r| called = true }
 
           expect(called).to be(false)
         end
       end
 
       it "returns self" do
-        expect(result.handle_good { "test" }).to eq(result)
+        expect(result.on(:good) { "test" }).to eq(result)
       end
     end
 
-    describe "#handle_bad" do
+    describe "#on(:bad)" do
       it "raises ArgumentError without block" do
-        expect { result.handle_bad }.to raise_error(ArgumentError, "block required")
+        expect { result.on(:bad) }.to raise_error(ArgumentError, "block required")
       end
 
       context "when bad" do
         it "calls the block for skipped" do
           result.skip!("test", halt: false)
           called = false
-          result.handle_bad { |_r| called = true }
+          result.on(:bad) { |_r| called = true }
 
           expect(called).to be(true)
         end
@@ -972,7 +972,7 @@ RSpec.describe CMDx::Result, type: :unit do
         it "calls the block for failed" do
           result.fail!("test", halt: false)
           called = false
-          result.handle_bad { |_r| called = true }
+          result.on(:bad) { |_r| called = true }
 
           expect(called).to be(true)
         end
@@ -981,14 +981,14 @@ RSpec.describe CMDx::Result, type: :unit do
       context "when not bad" do
         it "does not call the block for success" do
           called = false
-          result.handle_bad { |_r| called = true }
+          result.on(:bad) { |_r| called = true }
 
           expect(called).to be(false)
         end
       end
 
       it "returns self" do
-        expect(result.handle_bad { "test" }).to eq(result)
+        expect(result.on(:bad) { "test" }).to eq(result)
       end
     end
   end

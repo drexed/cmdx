@@ -129,26 +129,6 @@ module CMDx
       #
       # @rbs () -> bool
       define_method(:"#{s}?") { state == s }
-
-      # @param block [Proc] Block to execute conditionally
-      #
-      # @yield [self] Executes the block if result is in specified state
-      #
-      # @return [self] Returns self for method chaining
-      #
-      # @raise [ArgumentError] When no block is provided
-      #
-      # @example
-      #   result.handle_initialized { |r| puts "Starting execution" }
-      #   result.handle_complete { |r| puts "Task completed" }
-      #
-      # @rbs () { (Result) -> void } -> self
-      define_method(:"handle_#{s}") do |&block|
-        raise ArgumentError, "block required" unless block
-
-        block.call(self) if send(:"#{s}?")
-        self
-      end
     end
 
     # @return [self] Returns self for method chaining
@@ -169,23 +149,6 @@ module CMDx
     # @rbs () -> bool
     def executed?
       complete? || interrupted?
-    end
-
-    # @yield [self] Executes the block if task has been executed
-    #
-    # @return [self] Returns self for method chaining
-    #
-    # @raise [ArgumentError] When no block is provided
-    #
-    # @example
-    #   result.handle_executed { |r| puts "Task finished: #{r.outcome}" }
-    #
-    # @rbs () { (Result) -> void } -> self
-    def handle_executed(&)
-      raise ArgumentError, "block required" unless block_given?
-
-      yield(self) if executed?
-      self
     end
 
     # @raise [RuntimeError] When attempting to transition from invalid state
@@ -239,26 +202,6 @@ module CMDx
       #
       # @rbs () -> bool
       define_method(:"#{s}?") { status == s }
-
-      # @param block [Proc] Block to execute conditionally
-      #
-      # @yield [self] Executes the block if result has specified status
-      #
-      # @return [self] Returns self for method chaining
-      #
-      # @raise [ArgumentError] When no block is provided
-      #
-      # @example
-      #   result.handle_success { |r| puts "Task succeeded" }
-      #   result.handle_failed { |r| puts "Task failed: #{r.reason}" }
-      #
-      # @rbs () { (Result) -> void } -> self
-      define_method(:"handle_#{s}") do |&block|
-        raise ArgumentError, "block required" unless block
-
-        block.call(self) if send(:"#{s}?")
-        self
-      end
     end
 
     # @return [Boolean] Whether the task execution was successful (not failed)
@@ -272,23 +215,6 @@ module CMDx
     end
     alias ok? good?
 
-    # @yield [self] Executes the block if task execution was successful
-    #
-    # @return [self] Returns self for method chaining
-    #
-    # @raise [ArgumentError] When no block is provided
-    #
-    # @example
-    #   result.handle_good { |r| puts "Task completed successfully" }
-    #
-    # @rbs () { (Result) -> void } -> self
-    def handle_good(&)
-      raise ArgumentError, "block required" unless block_given?
-
-      yield(self) if good?
-      self
-    end
-
     # @return [Boolean] Whether the task execution was unsuccessful (not success)
     #
     # @example
@@ -299,20 +225,21 @@ module CMDx
       !success?
     end
 
-    # @yield [self] Executes the block if task execution was unsuccessful
+    # @yield [self] Executes the block if task status or state matches
     #
     # @return [self] Returns self for method chaining
     #
     # @raise [ArgumentError] When no block is provided
     #
     # @example
-    #   result.handle_bad { |r| puts "Task had issues: #{r.reason}" }
+    #   result.on(:bad) { |r| puts "Task had issues: #{r.reason}" }
+    #   result.on(:success, :complete) { |r| puts "Task completed successfully" }
     #
     # @rbs () { (Result) -> void } -> self
-    def handle_bad(&)
+    def on(*states_or_statuses, &)
       raise ArgumentError, "block required" unless block_given?
 
-      yield(self) if bad?
+      yield(self) if states_or_statuses.any? { |s| send(:"#{s}?") }
       self
     end
 

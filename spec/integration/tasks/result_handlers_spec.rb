@@ -10,7 +10,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_success { handled << :on_success }
+      result.on(:success) { handled << :on_success }
 
       expect(handled).to eq([:on_success])
     end
@@ -21,7 +21,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_failed { handled << :on_failed }
+      result.on(:failed) { handled << :on_failed }
 
       expect(handled).to eq([:on_failed])
     end
@@ -32,7 +32,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_skipped { handled << :on_skipped }
+      result.on(:skipped) { handled << :on_skipped }
 
       expect(handled).to eq([:on_skipped])
     end
@@ -48,14 +48,14 @@ RSpec.describe "Task result handlers", type: :feature do
       failed_handled = []
 
       success_result
-        .handle_success { success_handled << :success }
-        .handle_failed { success_handled << :failed }
-        .handle_skipped { success_handled << :skipped }
+        .on(:success) { success_handled << :success }
+        .on(:failed) { success_handled << :failed }
+        .on(:skipped) { success_handled << :skipped }
 
       failed_result
-        .handle_success { failed_handled << :success }
-        .handle_failed { failed_handled << :failed }
-        .handle_skipped { failed_handled << :skipped }
+        .on(:success) { failed_handled << :success }
+        .on(:failed) { failed_handled << :failed }
+        .on(:skipped) { failed_handled << :skipped }
 
       expect(success_handled).to eq([:success])
       expect(failed_handled).to eq([:failed])
@@ -69,7 +69,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_complete { handled << :on_complete }
+      result.on(:complete) { handled << :on_complete }
 
       expect(handled).to eq([:on_complete])
     end
@@ -80,7 +80,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_interrupted { handled << :on_interrupted }
+      result.on(:interrupted) { handled << :on_interrupted }
 
       expect(handled).to eq([:on_interrupted])
     end
@@ -96,12 +96,12 @@ RSpec.describe "Task result handlers", type: :feature do
       interrupted_handled = []
 
       complete_result
-        .handle_complete { complete_handled << :complete }
-        .handle_interrupted { complete_handled << :interrupted }
+        .on(:complete) { complete_handled << :complete }
+        .on(:interrupted) { complete_handled << :interrupted }
 
       interrupted_result
-        .handle_complete { interrupted_handled << :complete }
-        .handle_interrupted { interrupted_handled << :interrupted }
+        .on(:complete) { interrupted_handled << :complete }
+        .on(:interrupted) { interrupted_handled << :interrupted }
 
       expect(complete_handled).to eq([:complete])
       expect(interrupted_handled).to eq([:interrupted])
@@ -115,7 +115,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_good { handled << :on_good }
+      result.on(:good) { handled << :on_good }
 
       expect(handled).to eq([:on_good])
     end
@@ -126,7 +126,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_good { handled << :on_good }
+      result.on(:good) { handled << :on_good }
 
       expect(handled).to eq([:on_good])
     end
@@ -137,7 +137,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_good { handled << :on_good }
+      result.on(:good) { handled << :on_good }
 
       expect(handled).to be_empty
     end
@@ -148,7 +148,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_bad { handled << :on_bad }
+      result.on(:bad) { handled << :on_bad }
 
       expect(handled).to eq([:on_bad])
     end
@@ -159,7 +159,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_bad { handled << :on_bad }
+      result.on(:bad) { handled << :on_bad }
 
       expect(handled).to eq([:on_bad])
     end
@@ -170,7 +170,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       handled = []
 
-      result.handle_bad { handled << :on_bad }
+      result.on(:bad) { handled << :on_bad }
 
       expect(handled).to be_empty
     end
@@ -184,9 +184,9 @@ RSpec.describe "Task result handlers", type: :feature do
       handled = []
 
       result
-        .handle_success { handled << :success }
-        .handle_complete { handled << :complete }
-        .handle_good { handled << :good }
+        .on(:success) { handled << :success }
+        .on(:complete) { handled << :complete }
+        .on(:good) { handled << :good }
 
       expect(handled).to eq(%i[success complete good])
     end
@@ -198,12 +198,12 @@ RSpec.describe "Task result handlers", type: :feature do
       handled = []
 
       result
-        .handle_success { handled << :success }
-        .handle_failed { handled << :failed }
-        .handle_complete { handled << :complete }
-        .handle_interrupted { handled << :interrupted }
-        .handle_good { handled << :good }
-        .handle_bad { handled << :bad }
+        .on(:success) { handled << :success }
+        .on(:failed) { handled << :failed }
+        .on(:complete) { handled << :complete }
+        .on(:interrupted) { handled << :interrupted }
+        .on(:good) { handled << :good }
+        .on(:bad) { handled << :bad }
 
       expect(handled).to eq(%i[failed interrupted bad])
     end
@@ -220,7 +220,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       captured_value = nil
 
-      result.handle_success { |r| captured_value = r.context.value }
+      result.on(:success) { |r| captured_value = r.context.value }
 
       expect(captured_value).to eq(42)
     end
@@ -235,7 +235,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       captured_metadata = nil
 
-      result.handle_failed { |r| captured_metadata = r.metadata }
+      result.on(:failed) { |r| captured_metadata = r.metadata }
 
       expect(captured_metadata).to include(error_code: "TEST.FAILED", retry_count: 3)
     end
@@ -248,7 +248,7 @@ RSpec.describe "Task result handlers", type: :feature do
       result = task.execute
       captured_task_class = nil
 
-      result.handle_success { |r| captured_task_class = r.task.class.name }
+      result.on(:success) { |r| captured_task_class = r.task.class.name }
 
       expect(captured_task_class).to match(/TestTask/)
     end
@@ -262,13 +262,15 @@ RSpec.describe "Task result handlers", type: :feature do
       success_outcome = nil
       failed_outcome = nil
 
-      success_task.execute
-                  .handle_success { success_outcome = "success_path" }
-                  .handle_failed { success_outcome = "failure_path" }
+      success_task
+        .execute
+        .on(:success) { success_outcome = "success_path" }
+        .on(:failed) { success_outcome = "failure_path" }
 
-      failed_task.execute
-                 .handle_success { failed_outcome = "success_path" }
-                 .handle_failed { failed_outcome = "failure_path" }
+      failed_task
+        .execute
+        .on(:success) { failed_outcome = "success_path" }
+        .on(:failed) { failed_outcome = "failure_path" }
 
       expect(success_outcome).to eq("success_path")
       expect(failed_outcome).to eq("failure_path")
@@ -283,9 +285,10 @@ RSpec.describe "Task result handlers", type: :feature do
 
       notifications = []
 
-      task.execute
-          .handle_success { |r| notifications << "Processed: #{r.context.value}" }
-          .handle_complete { notifications << "Completed" }
+      task
+        .execute
+        .on(:success) { |r| notifications << "Processed: #{r.context.value}" }
+        .on(:complete) { notifications << "Completed" }
 
       expect(notifications).to eq(["Processed: 100", "Completed"])
     end
@@ -304,7 +307,7 @@ RSpec.describe "Task result handlers", type: :feature do
         captured_result = r
       end
 
-      captured_result.handle_success { handler_executed = true }
+      captured_result.on(:success) { handler_executed = true }
 
       expect(block_executed).to be(true)
       expect(handler_executed).to be(true)
@@ -319,9 +322,9 @@ RSpec.describe "Task result handlers", type: :feature do
 
       cleanup_count = 0
 
-      success_task.execute.handle_good { cleanup_count += 1 }
-      failed_task.execute.handle_bad { cleanup_count += 1 }
-      skipped_task.execute.handle_bad { cleanup_count += 1 }
+      success_task.execute.on(:good) { cleanup_count += 1 }
+      failed_task.execute.on(:bad) { cleanup_count += 1 }
+      skipped_task.execute.on(:bad) { cleanup_count += 1 }
 
       expect(cleanup_count).to eq(3)
     end

@@ -47,19 +47,19 @@ result.bad?     #=> true if skipped OR failed (not success)
 
 ## Handlers
 
-Branch business logic with status-based handlers. Use `handle_good` and `handle_bad` for success/skip vs failed outcomes:
+Branch business logic with status-based handlers. Use `on(:good)` and `on(:bad)` for success/skip vs failed outcomes:
 
 ```ruby
 result = ProcessNotification.execute
 
 # Individual status handlers
 result
-  .handle_success { |result| mark_notification_sent(result) }
-  .handle_skipped { |result| log_notification_skipped(result) }
-  .handle_failed { |result| queue_retry_notification(result) }
+  .on(:success) { |result| mark_notification_sent(result) }
+  .on(:skipped) { |result| log_notification_skipped(result) }
+  .on(:failed){ |result| queue_retry_notification(result) }
 
 # Outcome-based handlers
 result
-  .handle_good { |result| update_message_stats(result) }
-  .handle_bad { |result| track_delivery_failure(result) }
+  .on(:good) { |result| update_message_stats(result) }  #=> .on(:success, :skipped)
+  .on(:bad) { |result| track_delivery_failure(result) } #=> .on(:failed, :skipped)
 ```
