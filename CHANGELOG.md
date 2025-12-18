@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
+- Added active record database transaction example
+
 ### Updated
 - Optimize logging ancestor lookup
 - Use chop instead of range for better string performance
