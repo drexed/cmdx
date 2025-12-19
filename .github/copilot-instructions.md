@@ -4,12 +4,17 @@ Follow the official Ruby gem guides for best practices.
 Reference the guides outlined in https://guides.rubygems.org
 
 ## Project Context
-CMDx provides a framework for designing and executing complex
-business logic within service/command objects.
+CMDx provides a framework for designing and executing complex business logic within service/command objects.
+Reference the CMDx documentation in https://github.com/drexed/cmdx/blob/main/LLM.md
 
 ## Technology Stack
 - Ruby 3.4+
 - RSpec 3.1+
+
+## Development Guidelines
+- Performance is critical - benchmark any changes that could affect speed
+- Follow existing code patterns and conventions
+- Maintain backward compatibility for public API
 
 ## Code Style and Structure
 - Write concise, idiomatic Ruby code with accurate examples
@@ -18,6 +23,7 @@ business logic within service/command objects.
 - Prefer iteration and modularization over code duplication
 - Use descriptive variable and method names (e.g., user_signed_in?, calculate_total)
 - Write comprehensive code documentation using the Yardoc format
+- Minimize object allocations in hot paths
 
 ## Naming Conventions
 - Use snake_case for file names, method names, and variables
@@ -29,6 +35,7 @@ business logic within service/command objects.
 - Use Ruby's expressive syntax (e.g., unless, ||=, &.)
 - Prefer double quotes for strings
 - Respect my Rubocop options
+- Run `bundle exec rubocop .` before finalizing any code changes
 
 ## Performance Optimization
 - Use memoization for expensive operations
@@ -44,6 +51,7 @@ business logic within service/command objects.
 - Don't test declarative configuration
 - Use appropriate matchers
 - Update tests and update Yardocs after you write code
+- Run `bundle rspec .` before finalizing any code changes
 
 ## Documentation
 - Utilize the YARDoc format when documenting Ruby code
