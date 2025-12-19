@@ -607,13 +607,14 @@ IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 Undo any operations linked to the given status, helping to restore a pristine state.
 
 ```ruby
-class ValidateDocument < CMDx::Task
+class ChargeCard < CMDx::Task
   def work
-    # Your logic here...
+    # Your logic here, ex: charge $100
   end
 
+  # Called automatically if a later step in the workflow fails
   def rollback
-    # Your undo logic...
+    # Your undo logic, ex: void $100 charge
   end
 end
 ```
