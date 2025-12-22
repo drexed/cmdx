@@ -93,7 +93,7 @@ I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
 index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
 ```
 
-!!! tip
+!!! note
 
     This represents a log-only event-sourcing approach, enabling full traceability and a complete, time-ordered view of system behavior.
 
