@@ -32,8 +32,6 @@ Allow execution while tracking deprecation in logs. Ideal for gradual migrations
 ```ruby
 class ProcessLegacyFormat < CMDx::Task
   settings(deprecated: :log)
-
-  # Same
   settings(deprecated: true)
 
   def work

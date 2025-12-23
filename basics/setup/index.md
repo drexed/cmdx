@@ -71,6 +71,28 @@ end
 
 Tasks follow a predictable execution pattern:
 
+```text
+stateDiagram-v2
+    Initialized: Instantiation
+    Initialized --> Validating: execute
+    Validating --> Executing: Valid?
+    Validating --> Failed: Invalid
+    Executing --> Success: Work done
+    Executing --> Skipped: skip!
+    Executing --> Failed: fail! / Exception
+    Executed
+
+    state Executed {
+        Success
+        Skipped
+        Failed
+        Rollback
+
+        Skipped --> Rollback
+        Failed --> Rollback
+    }
+```
+
 Caution
 
 Tasks are single-use objects. Once executed, they're frozen and immutable.

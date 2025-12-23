@@ -178,6 +178,13 @@ If not using Rails, manually copy the [configuration file](https://github.com/dr
 
 CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
 
+```text
+flowchart LR
+    Compose --> Execute
+    Execute --> React
+    Execute -.-> Observe
+```
+
 ### Compose
 
 Build reusable, single-responsibility tasks with typed attributes, validation, and callbacks. Tasks can be chained together in workflows to create complex business processes from simple building blocks.
@@ -653,6 +660,28 @@ end
 
 Tasks follow a predictable execution pattern:
 
+```text
+stateDiagram-v2
+    Initialized: Instantiation
+    Initialized --> Validating: execute
+    Validating --> Executing: Valid?
+    Validating --> Failed: Invalid
+    Executing --> Success: Work done
+    Executing --> Skipped: skip!
+    Executing --> Failed: fail! / Exception
+    Executed
+
+    state Executed {
+        Success
+        Skipped
+        Failed
+        Rollback
+
+        Skipped --> Rollback
+        Failed --> Rollback
+    }
+```
+
 Caution
 
 Tasks are single-use objects. Once executed, they're frozen and immutable.
@@ -678,6 +707,33 @@ Both methods return results, but handle failures differently:
 | ---------- | --------------------------------- | ------------------------------------------- | ---------------------------- |
 | `execute`  | Always returns `CMDx::Result`     | Never raises                                | Predictable result handling  |
 | `execute!` | Returns `CMDx::Result` on success | Raises `CMDx::Fault` when skipped or failed | Exception-based control flow |
+
+```text
+flowchart LR
+    subgraph Methods
+        E[execute]
+        EB[execute!]
+    end
+
+    subgraph Returns [Returns CMDx::Result]
+        Success
+        Failed
+        Skipped
+    end
+
+    subgraph Raises [Raises CMDx::Fault]
+        FailFault
+        SkipFault
+    end
+
+    E --> Success
+    E --> Failed
+    E --> Skipped
+
+    EB --> Success
+    EB --> FailFault
+    EB --> SkipFault
+```
 
 ## Non-bang Execution
 
@@ -3125,19 +3181,19 @@ Sample output:
 ```text
 <!-- Success (INFO level) -->
 I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
+index=1 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
 
 <!-- Skipped (WARN level) -->
 W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
-index=1 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="ValidateCustomer" state="interrupted" status="skipped" reason="Customer already validated"
+index=2 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="ValidateCustomer" state="interrupted" status="skipped" reason="Customer already validated"
 
 <!-- Failed (ERROR level) -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
-index=2 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="CalculateTax"  state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
+index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="CalculateTax"  state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
 
 <!-- Failed Chain -->
 E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
-index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
+index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
 ```
 
 Tip
@@ -3482,8 +3538,6 @@ Allow execution while tracking deprecation in logs. Ideal for gradual migrations
 ```ruby
 class ProcessLegacyFormat < CMDx::Task
   settings(deprecated: :log)
-
-  # Same
   settings(deprecated: true)
 
   def work
