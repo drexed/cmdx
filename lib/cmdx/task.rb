@@ -95,6 +95,8 @@ module CMDx
       @context = Context.build(context)
       @result = Result.new(self)
       @chain = Chain.build(@result)
+
+      @dry_run = !!@context.delete!(:dry_run)
     end
 
     class << self
@@ -274,6 +276,16 @@ module CMDx
 
     end
 
+    # @return [Boolean] Whether the task is running in dry-run mode
+    #
+    # @example
+    #   task.dry_run? # => true
+    #
+    # @rbs () -> bool
+    def dry_run?
+      !!@dry_run
+    end
+
     # @param raise [Boolean] Whether to raise exceptions on failure
     #
     # @return [Result] The execution result
@@ -341,6 +353,7 @@ module CMDx
         type: self.class.include?(Workflow) ? "Workflow" : "Task",
         tags: self.class.settings[:tags],
         class: self.class.name,
+        dry_run: dry_run?,
         id:
       }
     end

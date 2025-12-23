@@ -95,7 +95,7 @@ module CMDx
     # @rbs @cause: (Exception | nil)
     attr_reader :cause
 
-    def_delegators :task, :context, :chain, :errors
+    def_delegators :task, :context, :chain, :errors, :dry_run?
     alias ctx context
 
     # @param task [CMDx::Task] The task instance this result represents

@@ -778,4 +778,38 @@ RSpec.describe "Task execution", type: :feature do
       end
     end
   end
+
+  describe "dry run" do
+    context "when enabled" do
+      it "allows conditional logic execution" do
+        task = create_task_class do
+          def work
+            context.result = dry_run? ? "mocked" : "real"
+          end
+        end
+
+        result = task.execute(dry_run: true)
+
+        expect(result).to be_successful
+        expect(result).to be_dry_run
+        expect(result.context.result).to eq("mocked")
+      end
+    end
+
+    context "when disabled" do
+      it "executes real logic" do
+        task = create_task_class do
+          def work
+            context.result = dry_run? ? "mocked" : "real"
+          end
+        end
+
+        result = task.execute
+
+        expect(result).to be_successful
+        expect(result).not_to be_dry_run
+        expect(result.context.result).to eq("real")
+      end
+    end
+  end
 end

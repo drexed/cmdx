@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Added rollback tracking and logging
+- Added `dry_run` option to task execution
 
 ## [1.12.0] - 2025-12-18
 

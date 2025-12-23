@@ -19,6 +19,7 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(task.result).to be_a(CMDx::Result)
         expect(task.result.task).to eq(task)
         expect(task.chain).to be_a(CMDx::Chain)
+        expect(task.dry_run?).to be(false)
       end
 
       it "generates unique IDs for different instances" do
@@ -273,6 +274,20 @@ RSpec.describe CMDx::Task, type: :unit do
     end
   end
 
+  describe "#dry_run?" do
+    it "returns false by default" do
+      expect(task.dry_run?).to be(false)
+    end
+
+    context "when initialized with dry_run: true" do
+      let(:task) { task_class.new(dry_run: true) }
+
+      it "returns true" do
+        expect(task.dry_run?).to be(true)
+      end
+    end
+  end
+
   describe ".execute" do
     let(:mock_task) { instance_double(described_class, result: "result") }
 
@@ -394,6 +409,7 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(result_hash[:tags]).to eq(%w[tag1 tag2])
         expect(result_hash[:class]).to be_a(String)
         expect(result_hash[:class]).to match(/TestTask\d+/)
+        expect(result_hash[:dry_run]).to be(false)
         expect(result_hash[:id]).to eq(task.id)
       end
     end
@@ -414,6 +430,7 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(result_hash[:tags]).to eq(["workflow"])
         expect(result_hash[:class]).to be_a(String)
         expect(result_hash[:class]).to match(/TestTask\d+/)
+        expect(result_hash[:dry_run]).to be(false)
         expect(result_hash[:id]).to eq(workflow_task.id)
       end
     end
