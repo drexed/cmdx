@@ -71,7 +71,7 @@ end
 
 Tasks follow a predictable execution pattern:
 
-```text
+```
 stateDiagram-v2
     Initialized: Instantiation
     Initialized --> Validating: execute

@@ -43,7 +43,7 @@ If not using Rails, manually copy the [configuration file](https://github.com/dr
 
 CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
 
-```text
+```
 flowchart LR
     Compose --> Execute
     Execute --> React

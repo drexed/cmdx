@@ -11,7 +11,7 @@ Both methods return results, but handle failures differently:
 | `execute`  | Always returns `CMDx::Result`     | Never raises                                | Predictable result handling  |
 | `execute!` | Returns `CMDx::Result` on success | Raises `CMDx::Fault` when skipped or failed | Exception-based control flow |
 
-```text
+```
 flowchart LR
     subgraph Methods
         E[execute]
