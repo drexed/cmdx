@@ -39,9 +39,10 @@ module CMDx
     # @return [Chain] A new chain instance
     #
     # @rbs () -> void
-    def initialize
+    def initialize(dry_run: false)
       @id = Identifier.generate
       @results = []
+      @dry_run = !!dry_run
     end
 
     class << self
@@ -102,14 +103,26 @@ module CMDx
       #   puts "Chain size: #{chain.size}"
       #
       # @rbs (Result result) -> Chain
-      def build(result)
+      def build(result, dry_run: false)
         raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
-        self.current ||= new
+        self.current ||= new(dry_run:)
         current.results << result
         current
       end
 
+    end
+
+    # Returns whether the chain is running in dry-run mode.
+    #
+    # @return [Boolean] Whether the chain is running in dry-run mode
+    #
+    # @example
+    #   chain.dry_run? # => true
+    #
+    # @rbs () -> bool
+    def dry_run?
+      !!@dry_run
     end
 
     # Converts the chain to a hash representation.
@@ -127,7 +140,8 @@ module CMDx
     # @rbs () -> Hash[Symbol, untyped]
     def to_h
       {
-        id: id,
+        id:,
+        dry_run: dry_run?,
         results: results.map(&:to_h)
       }
     end

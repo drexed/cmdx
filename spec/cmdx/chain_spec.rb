@@ -146,6 +146,33 @@ RSpec.describe CMDx::Chain, type: :unit do
           expect(chain.results).to eq([mock_result, mock_result2])
         end
       end
+
+      context "with dry_run option" do
+        context "when no current chain exists" do
+          it "creates a new chain with dry_run set to true" do
+            result_chain = described_class.build(mock_result, dry_run: true)
+
+            expect(result_chain.dry_run?).to be(true)
+          end
+
+          it "creates a new chain with dry_run set to false" do
+            result_chain = described_class.build(mock_result, dry_run: false)
+
+            expect(result_chain.dry_run?).to be(false)
+          end
+        end
+
+        context "when a current chain already exists" do
+          before { described_class.current = chain }
+
+          it "does not update existing chain dry_run status" do
+            result_chain = described_class.build(mock_result, dry_run: true)
+
+            expect(result_chain).to eq(chain)
+            expect(result_chain.dry_run?).to be(false)
+          end
+        end
+      end
     end
   end
 
@@ -163,6 +190,7 @@ RSpec.describe CMDx::Chain, type: :unit do
         expect(chain.to_h).to eq(
           {
             id: "chain-id-123",
+            dry_run: false,
             results: []
           }
         )
@@ -182,6 +210,7 @@ RSpec.describe CMDx::Chain, type: :unit do
         expect(chain.to_h).to eq(
           {
             id: "chain-id-123",
+            dry_run: false,
             results: [result_hash1, result_hash2]
           }
         )
@@ -197,12 +226,13 @@ RSpec.describe CMDx::Chain, type: :unit do
   end
 
   describe "#to_s" do
-    let(:formatted_string) { "id=\"chain-id-123\" results=[]" }
+    let(:formatted_string) { "id=\"chain-id-123\" dry_run=false results=[]" }
 
     it "converts to hash and formats as string" do
       expect(CMDx::Utils::Format).to receive(:to_str).with(
         {
           id: "chain-id-123",
+          dry_run: false,
           results: []
         }
       )

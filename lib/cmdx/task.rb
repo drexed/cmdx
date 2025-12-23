@@ -71,6 +71,7 @@ module CMDx
     attr_reader :chain
 
     def_delegators :result, :skip!, :fail!, :throw!
+    def_delegators :chain, :dry_run?
 
     # @param context [Hash, Context] The initial context for the task
     #
@@ -94,9 +95,7 @@ module CMDx
       @id = Identifier.generate
       @context = Context.build(context)
       @result = Result.new(self)
-      @chain = Chain.build(@result)
-
-      @dry_run = !!@context.delete!(:dry_run)
+      @chain = Chain.build(@result, dry_run: @context.delete(:dry_run))
     end
 
     class << self
@@ -274,16 +273,6 @@ module CMDx
         block_given? ? yield(task.result) : task.result
       end
 
-    end
-
-    # @return [Boolean] Whether the task is running in dry-run mode
-    #
-    # @example
-    #   task.dry_run? # => true
-    #
-    # @rbs () -> bool
-    def dry_run?
-      !!@dry_run
     end
 
     # @param raise [Boolean] Whether to raise exceptions on failure
