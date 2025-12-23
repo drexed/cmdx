@@ -8,6 +8,8 @@ module CMDx
   # and proper error handling for different types of failures.
   class Executor
 
+    extend Forwardable
+
     # Returns the task being executed.
     #
     # @return [Task] The task instance
@@ -17,6 +19,8 @@ module CMDx
     #
     # @rbs @task: Task
     attr_reader :task
+
+    def_delegators :task, :result
 
     # @param task [CMDx::Task] The task to execute
     #
@@ -65,13 +69,13 @@ module CMDx
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
-        task.result.throw!(e.result, halt: false, cause: e)
+        result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
         retry if retry_execution?(e)
-        task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
+        result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         task.class.settings[:exception_handler]&.call(task, e)
       ensure
-        task.result.executed!
+        result.executed!
         post_execution!
       end
 
@@ -96,14 +100,14 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
-        task.result.throw!(e.result, halt: false, cause: e)
+        result.throw!(e.result, halt: false, cause: e)
         halt_execution?(e) ? raise_exception(e) : post_execution!
       rescue StandardError => e
         retry if retry_execution?(e)
-        task.result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
+        result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
         raise_exception(e)
       else
-        task.result.executed!
+        result.executed!
         post_execution!
       end
 
@@ -137,14 +141,14 @@ module CMDx
       available_retries = (task.class.settings[:retries] || 0).to_i
       return false unless available_retries.positive?
 
-      current_retries = (task.result.metadata[:retries] ||= 0).to_i
+      current_retries = (result.metadata[:retries] ||= 0).to_i
       remaining_retries = available_retries - current_retries
       return false unless remaining_retries.positive?
 
       exceptions = Array(task.class.settings[:retry_on] || StandardError)
       return false unless exceptions.any? { |e| exception.class <= e }
 
-      task.result.metadata[:retries] += 1
+      result.metadata[:retries] += 1
 
       task.logger.warn do
         reason = "[#{exception.class}] #{exception.message}"
@@ -208,7 +212,7 @@ module CMDx
       task.class.settings[:attributes].define_and_verify(task)
       return if task.errors.empty?
 
-      task.result.fail!(
+      result.fail!(
         Locale.t("cmdx.faults.invalid"),
         errors: {
           full_message: task.errors.to_s,
@@ -223,7 +227,7 @@ module CMDx
     def execution!
       invoke_callbacks(:before_execution)
 
-      task.result.executing!
+      result.executing!
       task.work
     end
 
@@ -231,12 +235,12 @@ module CMDx
     #
     # @rbs () -> void
     def post_execution!
-      invoke_callbacks(:"on_#{task.result.state}")
-      invoke_callbacks(:on_executed) if task.result.executed?
+      invoke_callbacks(:"on_#{result.state}")
+      invoke_callbacks(:on_executed) if result.executed?
 
-      invoke_callbacks(:"on_#{task.result.status}")
-      invoke_callbacks(:on_good) if task.result.good?
-      invoke_callbacks(:on_bad) if task.result.bad?
+      invoke_callbacks(:"on_#{result.status}")
+      invoke_callbacks(:on_good) if result.good?
+      invoke_callbacks(:on_bad) if result.bad?
     end
 
     # Finalizes execution by freezing the task, logging results, and rolling back work.
@@ -246,26 +250,25 @@ module CMDx
       log_execution!
       log_backtrace! if task.class.settings[:backtrace]
 
+      rollback_execution!
       freeze_execution!
       clear_chain!
-
-      rollback_execution!
     end
 
     # Logs the execution result at the configured log level.
     #
     # @rbs () -> void
     def log_execution!
-      task.logger.info { task.result.to_h }
+      task.logger.info { result.to_h }
     end
 
     # Logs the backtrace of the exception if the task failed.
     #
     # @rbs () -> void
     def log_backtrace!
-      return unless task.result.failed?
+      return unless result.failed?
 
-      exception = task.result.caused_failure.cause
+      exception = result.caused_failure.cause
       return if exception.is_a?(Fault)
 
       task.logger.error do
@@ -287,11 +290,11 @@ module CMDx
       return if Coercions::Boolean.call(skip_freezing)
 
       task.freeze
-      task.result.freeze
+      result.freeze
 
       # Freezing the context and chain can only be done
       # once the outer-most task has completed.
-      return unless task.result.index.zero?
+      return unless result.index.zero?
 
       task.context.freeze
       task.chain.freeze
@@ -301,7 +304,7 @@ module CMDx
     #
     # @rbs () -> void
     def clear_chain!
-      return unless task.result.index.zero?
+      return unless result.index.zero?
 
       Chain.clear
     end
@@ -310,12 +313,14 @@ module CMDx
     #
     # @rbs () -> void
     def rollback_execution!
+      return if result.rolled_back?
       return unless task.respond_to?(:rollback)
 
       statuses = task.class.settings[:rollback_on]
       statuses = Array(statuses).map(&:to_s).uniq
-      return unless statuses.include?(task.result.status)
+      return unless statuses.include?(result.status)
 
+      result.rolled_back!
       task.rollback
     end
 

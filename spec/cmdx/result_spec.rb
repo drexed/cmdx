@@ -257,6 +257,18 @@ RSpec.describe CMDx::Result, type: :unit do
         expect(result.bad?).to be(true)
       end
     end
+
+    describe "#rolled_back?" do
+      it "returns false by default" do
+        expect(result.rolled_back?).to be(false)
+      end
+
+      it "returns true when rolled back" do
+        result.rolled_back!
+
+        expect(result.rolled_back?).to be(true)
+      end
+    end
   end
 
   describe "execution methods" do
@@ -697,13 +709,14 @@ RSpec.describe CMDx::Result, type: :unit do
     end
 
     context "when interrupted" do
-      it "includes reason and cause" do
+      it "includes reason, cause and rolled_back status" do
         result.skip!("test reason", halt: false, cause: StandardError.new("test"))
 
         hash = result.to_h
 
-        expect(hash).to include(:reason, :cause)
+        expect(hash).to include(:reason, :cause, :rolled_back)
         expect(hash[:reason]).to eq("test reason")
+        expect(hash[:rolled_back]).to be(false)
       end
     end
 

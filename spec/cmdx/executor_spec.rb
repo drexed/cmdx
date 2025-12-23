@@ -839,10 +839,12 @@ RSpec.describe CMDx::Executor, type: :unit do
             allow(task.result).to receive(:status).and_return("failed")
           end
 
-          it "calls rollback" do
+          it "calls rollback and marks result as rolled back" do
             expect(task).to receive(:rollback)
 
             worker.send(:rollback_execution!)
+
+            expect(task.result.rolled_back?).to be(true)
           end
         end
 
@@ -903,20 +905,24 @@ RSpec.describe CMDx::Executor, type: :unit do
           allow(task.class).to receive(:settings).and_return({ rollback_on: %w[failed skipped] })
         end
 
-        it "calls rollback when status is failed" do
+        it "calls rollback and marks result as rolled back when status is failed" do
           allow(task.result).to receive(:status).and_return("failed")
 
           expect(task).to receive(:rollback)
 
           worker.send(:rollback_execution!)
+
+          expect(task.result.rolled_back?).to be(true)
         end
 
-        it "calls rollback when status is skipped" do
+        it "calls rollback and marks result as rolled back when status is skipped" do
           allow(task.result).to receive(:status).and_return("skipped")
 
           expect(task).to receive(:rollback)
 
           worker.send(:rollback_execution!)
+
+          expect(task.result.rolled_back?).to be(true)
         end
       end
     end

@@ -690,4 +690,92 @@ RSpec.describe "Task execution", type: :feature do
       end
     end
   end
+
+  describe "rollback" do
+    context "when rollback is configured" do
+      it "calls rollback on failure" do
+        task = create_task_class do
+          settings rollback_on: :failed
+
+          def work
+            fail!("something went wrong")
+          end
+
+          def rollback
+            (context.rolled_back ||= []) << :yes
+          end
+        end
+
+        result = task.execute
+
+        expect(result).to have_failed(reason: "something went wrong")
+        expect(result).to be_rolled_back
+        expect(result.context.rolled_back).to eq([:yes])
+      end
+
+      it "calls rollback on skip if configured" do
+        task = create_task_class do
+          settings rollback_on: %i[failed skipped]
+
+          def work
+            skip!("skipping")
+          end
+
+          def rollback
+            (context.rolled_back ||= []) << :yes
+          end
+        end
+
+        result = task.execute
+
+        expect(result).to have_skipped(reason: "skipping")
+        expect(result).to be_rolled_back
+        expect(result.context.rolled_back).to eq([:yes])
+      end
+    end
+
+    context "when rollback is explicitly disabled" do
+      it "does not call rollback" do
+        task = create_task_class do
+          settings rollback_on: []
+
+          def work
+            fail!("something went wrong")
+          end
+
+          def rollback
+            (context.rolled_back ||= []) << :yes
+          end
+        end
+
+        result = task.execute
+
+        expect(result).to have_failed(reason: "something went wrong")
+        expect(result).not_to be_rolled_back
+        expect(result.context.rolled_back).to be_nil
+      end
+    end
+
+    context "when rollback is configured but status does not match" do
+      it "does not call rollback" do
+        task = create_task_class do
+          settings rollback_on: %i[failed]
+
+          def work
+            skip!("skipping")
+          end
+
+          def rollback
+            (context.rolled_back ||= []) << :yes
+          end
+        end
+
+        result = task.execute
+
+        expect(result).to have_skipped(reason: "skipping")
+        expect(result).not_to be_rolled_back
+        expect(result.context.rolled_back).to be_nil
+      end
+    end
+  end
 end

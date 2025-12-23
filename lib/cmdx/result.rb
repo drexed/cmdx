@@ -118,6 +118,7 @@ module CMDx
       @metadata = {}
       @reason = nil
       @cause = nil
+      @rolled_back = false
     end
 
     STATES.each do |s|
@@ -419,6 +420,27 @@ module CMDx
       failed? && !caused_failure?
     end
 
+    # @return [void]
+    #
+    # @example
+    #   result.rolled_back!
+    #   result.rolled_back? # => true
+    #
+    # @rbs () -> void
+    def rolled_back!
+      @rolled_back = true
+    end
+
+    # @return [Boolean] Whether the result has been rolled back
+    #
+    # @example
+    #   result.rolled_back? # => true
+    #
+    # @rbs () -> bool
+    def rolled_back?
+      !!@rolled_back
+    end
+
     # @return [Integer] Index of this result in the chain
     #
     # @example
@@ -457,6 +479,7 @@ module CMDx
         if interrupted?
           hash[:reason] = reason
           hash[:cause] = cause
+          hash[:rolled_back] = rolled_back?
         end
 
         if failed?
