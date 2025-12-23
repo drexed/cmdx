@@ -11,6 +11,33 @@ Both methods return results, but handle failures differently:
 | `execute` | Always returns `CMDx::Result` | Never raises | Predictable result handling |
 | `execute!` | Returns `CMDx::Result` on success | Raises `CMDx::Fault` when skipped or failed | Exception-based control flow |
 
+```mermaid
+flowchart LR
+    subgraph Methods
+        E[execute]
+        EB[execute!]
+    end
+
+    subgraph Returns [Returns CMDx::Result]
+        Success
+        Failed
+        Skipped
+    end
+
+    subgraph Raises [Raises CMDx::Fault]
+        FailFault
+        SkipFault
+    end
+
+    E --> Success
+    E --> Failed
+    E --> Skipped
+
+    EB --> Success
+    EB --> FailFault
+    EB --> SkipFault
+```
+
 ## Non-bang Execution
 
 Always returns a `CMDx::Result`, never raises exceptions. Perfect for most use cases.

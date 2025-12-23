@@ -43,6 +43,13 @@ If not using Rails, manually copy the [configuration file](https://github.com/dr
 
 CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
 
+```mermaid
+flowchart LR
+    Compose --> Execute
+    Execute --> React
+    Execute -.-> Observe
+```
+
 ### Compose
 
 Build reusable, single-responsibility tasks with typed attributes, validation, and callbacks. Tasks can be chained together in workflows to create complex business processes from simple building blocks.
