@@ -232,6 +232,8 @@
     
 
     
+      (also: #delete)
+    
   </span>
   
   
@@ -403,6 +405,8 @@
       <a href="#merge!-instance_method" title="#merge! (instance method)">#<strong>merge!</strong>(args = {})  &#x21d2; Context </a>
     
 
+    
+      (also: #merge)
     
   </span>
   
@@ -752,15 +756,15 @@
       <pre class="lines">
 
 
-264
-265
 266
 267
 268
-269</pre>
+269
+270
+271</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 264</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 266</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__kwargs'>_kwargs</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1085,6 +1089,10 @@
   
 
   
+    <span class="aliases">Also known as:
+    <span class="names"><span id='delete-instance_method'>delete</span></span>
+    </span>
+  
 
   
 </h3><div class="docstring">
@@ -1170,12 +1178,12 @@
       <pre class="lines">
 
 
-182
 183
-184</pre>
+184
+185</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 182</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete!'>delete!</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -1275,12 +1283,12 @@
       <pre class="lines">
 
 
-232
-233
-234</pre>
+234
+235
+236</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 232</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 234</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
@@ -1368,12 +1376,12 @@
       <pre class="lines">
 
 
-198
-199
-200</pre>
+200
+201
+202</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 198</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 200</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>==</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -1695,12 +1703,12 @@
       <pre class="lines">
 
 
-215
-216
-217</pre>
+217
+218
+219</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 215</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 217</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
@@ -1716,6 +1724,10 @@
     #<strong>merge!</strong>(args = {})  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Context (class)">Context</a></span></tt> 
   
 
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='merge-instance_method'>merge</span></span>
+    </span>
   
 
   
@@ -1987,12 +1999,12 @@
       <pre class="lines">
 
 
-245
-246
-247</pre>
+247
+248
+249</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 245</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/context.rb', line 247</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -2007,7 +2019,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Dec 23 04:25:18 2025 by
+  Generated on Tue Dec 23 22:10:14 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

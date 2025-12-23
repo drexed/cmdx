@@ -30,7 +30,7 @@ result.metadata #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 
 ## Lifecycle Information
 
-Check execution state and status with predicate methods:
+Check execution state, status, and rollback with predicate methods:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -48,6 +48,9 @@ result.skipped?     #=> false (not skipped)
 # Outcome categorization
 result.good?        #=> true (success or skipped)
 result.bad?         #=> false (skipped or failed)
+
+# Rollback Status
+result.rolled_back? #=> true (execution was rolled back)
 ```
 
 ## Outcome Analysis

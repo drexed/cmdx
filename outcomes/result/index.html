@@ -1956,7 +1956,7 @@
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { error_code: &quot;BUILD_TOOL.NOT_FOUND&quot; }</span>
 </span></code></pre></div>
 <h2 id="lifecycle-information">Lifecycle Information<a class="headerlink" href="#lifecycle-information" title="Permanent link">&para;</a></h2>
-<p>Check execution state and status with predicate methods:</p>
+<p>Check execution state, status, and rollback with predicate methods:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">)</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># State predicates (execution lifecycle)</span>
@@ -1972,6 +1972,9 @@
 </span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Outcome categorization</span>
 </span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">        </span><span class="c1">#=&gt; true (success or skipped)</span>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">         </span><span class="c1">#=&gt; false (skipped or failed)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1"># Rollback Status</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">result</span><span class="o">.</span><span class="n">rolled_back?</span><span class="w"> </span><span class="c1">#=&gt; true (execution was rolled back)</span>
 </span></code></pre></div>
 <h2 id="outcome-analysis">Outcome Analysis<a class="headerlink" href="#outcome-analysis" title="Permanent link">&para;</a></h2>
 <p>Get a unified outcome string combining state and status:</p>

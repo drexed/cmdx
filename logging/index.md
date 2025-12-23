@@ -18,20 +18,16 @@ Sample output:
 
 ```text
 <!-- Success (INFO level) -->
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- GenerateInvoice:
-index=1 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="GenerateInvoice" state="complete" status="success" metadata={runtime: 187}
+I, [2025-12-23T17:04:07.292614Z #20108] INFO -- cmdx: {index: 1, chain_id: "019b4c2b-087b-79be-8ef2-96c11b659df5", type: "Task", tags: [], class: "GenerateInvoice", dry_run: false, id: "019b4c2b-0878-704d-ba0b-daa5410123ec", state: "complete", status: "success", outcome: "success", metadata: {runtime: 187}}
 
-<!-- Skipped (WARN level) -->
-W, [2022-07-17T18:43:15.000000 #3784] WARN -- ValidateCustomer:
-index=2 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="ValidateCustomer" state="interrupted" status="skipped" reason="Customer already validated"
+<!-- Skipped (INFO level) -->
+I, [2025-12-23T17:04:11.496881Z #20139] INFO -- cmdx: {index: 2, chain_id: "019b4c2b-18e8-7af6-a38b-63b042c4fbed", type: "Task", tags: [], class: "ValidateCustomer", dry_run: false, id: "019b4c2b-18e5-7230-af7e-5b4a4bd7cda2", state: "interrupted", status: "skipped", outcome: "skipped", metadata: {}, reason: "Customer already validated", cause: #<CMDx::SkipFault: Customer already validated>, rolled_back: false}
 
-<!-- Failed (ERROR level) -->
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- CalculateTax:
-index=3 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="CalculateTax"  state="interrupted" status="failed" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"}
+<!-- Failed (INFO level) -->
+I, [2025-12-23T17:04:15.875306Z #20173] INFO -- cmdx: {index: 3, chain_id: "019b4c2b-2a02-7dbc-b713-b20a7379704f", type: "Task", tags: [], class: "CalculateTax", dry_run: false, id: "019b4c2b-2a00-70b7-9fab-2f14db9139ef", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}
 
 <!-- Failed Chain -->
-E, [2022-07-17T18:43:15.000000 #3784] ERROR -- BillingWorkflow:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="BillingWorkflow"  state="interrupted" status="failed" caused_failure={index: 2, class: "CalculateTax", status: "failed"} threw_failure={index: 1, class: "ValidateCustomer", status: "failed"}
+I, [2025-12-23T17:04:20.972539Z #20209] INFO -- cmdx: {index: 0, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Workflow", tags: [], class: "BillingWorkflow", dry_run: false, id: "019b4c2b-3de6-70b9-9c16-5be13b1a463c", state: "interrupted", status: "failed", outcome: "interrupted", metadata: {}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false, threw_failure: {index: 3, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Task", tags: [], class: "CalculateTax", id: "019b4c2b-3dec-70b3-969b-c5b7896e3b27", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}, caused_failure: {index: 3, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Task", tags: [], class: "CalculateTax", id: "019b4c2b-3dec-70b3-969b-c5b7896e3b27", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}}
 ```
 
 Tip

@@ -121,3 +121,32 @@ result.chain        #=> Task execution chain
 result.context      #=> Context with all task data
 result.metadata     #=> Hash with execution metadata
 ```
+
+## Dry Run
+
+Execute tasks in dry-run mode to simulate execution without performing side effects. Pass `dry_run: true` in the context when initializing or executing the task.
+
+Inside your task, use the `dry_run?` method to conditionally skip side effects.
+
+```ruby
+class CloseStripeCard < CMDx::Task
+  def work
+    context.stripe_result =
+      if dry_run?
+        FactoryBot.build(:stripe_closed_card)
+      else
+        StripeApi.close_card(context.card_id)
+      end
+  end
+end
+
+# Execute in dry-run mode
+result = CloseStripeCard.execute(card_id: "card_abc123", dry_run: true)
+result.success? # => true
+
+# FactoryBot object
+result.context.stripe_result = {
+  card_id: "card_abc123",
+  status: "closed"
+}
+```
