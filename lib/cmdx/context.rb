@@ -164,6 +164,7 @@ module CMDx
       args.to_h.each { |key, value| self[key.to_sym] = value }
       self
     end
+    alias merge merge!
 
     # Deletes a key-value pair from the context.
     #
@@ -182,6 +183,7 @@ module CMDx
     def delete!(key, &)
       table.delete(key.to_sym, &)
     end
+    alias delete delete!
 
     # Compares this context with another object for equality.
     #
