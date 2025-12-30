@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Updated
+- Switched from instance_eval to define_singleton_method for safer method definition on the task instance.
+
 ## [1.13.0] - 2025-12-23
 
 ### Added
-
 - Added task execution rollback tracking and logging
 - Added `dry_run` option to task execution with inheritance support for nested tasks
 - Added context `delete` alias for `delete!`

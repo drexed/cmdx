@@ -483,10 +483,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
         end
 
         it "defines method on task" do
-          expect(task).to receive(:instance_eval) do |code|
-            expect(code).to include("def test_method")
-            expect(code).to include("attributes[:test_method]")
-          end
+          expect(task).to receive(:define_singleton_method).with(:test_method)
 
           attribute.send(:define_and_verify)
         end

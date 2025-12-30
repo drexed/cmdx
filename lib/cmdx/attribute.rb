@@ -312,11 +312,10 @@ module CMDx
       attribute_value.generate
       attribute_value.validate
 
-      task.instance_eval(<<~RUBY, __FILE__, __LINE__ + 1)
-        def #{method_name}
-          attributes[:#{method_name}]
-        end
-      RUBY
+      name_of_method = method_name
+      task.define_singleton_method(name_of_method) do
+        attributes[name_of_method]
+      end
     end
 
   end
