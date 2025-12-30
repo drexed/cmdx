@@ -75,6 +75,9 @@ class CalculateShipping < CMDx::Task
 
     # Remove sensitive data
     context.delete!(:credit_card_token)
+
+    # Clear all data
+    context.clear!
   end
 
   private

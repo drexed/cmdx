@@ -185,6 +185,22 @@ module CMDx
     end
     alias delete delete!
 
+    # Clears all key-value pairs from the context.
+    #
+    # @return [Context] self for method chaining
+    #
+    # @example
+    #   context = Context.new(name: "John")
+    #   context.clear!
+    #   context.to_h # => {}
+    #
+    # @rbs () -> self
+    def clear!
+      table.clear
+      self
+    end
+    alias clear clear!
+
     # Compares this context with another object for equality.
     #
     # @param other [Object] the object to compare with

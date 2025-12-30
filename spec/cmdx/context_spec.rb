@@ -320,6 +320,15 @@ RSpec.describe CMDx::Context, type: :unit do
     end
   end
 
+  describe "#clear!" do
+    it "clears all data and returns self" do
+      result = context.clear!
+
+      expect(result).to be(context)
+      expect(context.table).to be_empty
+    end
+  end
+
   describe "#eql? and #==" do
     let(:other_context) { described_class.new(name: "John", age: 30) }
     let(:different_context) { described_class.new(name: "Jane", age: 25) }
