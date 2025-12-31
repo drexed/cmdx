@@ -449,6 +449,106 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#domain-driven-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domain Driven Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Domain Driven Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ubiquitous-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubiquitous Language
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bounded-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounded Contexts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rich-domain-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rich Domain Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-sourcing-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Sourcing Replacement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Sourcing Replacement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reconstructability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconstructability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simplified-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplified Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1798,6 +1898,106 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#domain-driven-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Domain Driven Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Domain Driven Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ubiquitous-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubiquitous Language
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bounded-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bounded Contexts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rich-domain-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rich Domain Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#event-sourcing-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Event Sourcing Replacement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Event Sourcing Replacement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reconstructability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconstructability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#simplified-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplified Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1921,6 +2121,23 @@
 <p class="admonition-title">Note</p>
 <p>This represents a log-only event-sourcing approach, enabling full traceability and a complete, time-ordered view of system behavior.</p>
 </div>
+<h2 id="domain-driven-design">Domain Driven Design<a class="headerlink" href="#domain-driven-design" title="Permanent link">&para;</a></h2>
+<p>CMDx facilitates Domain Driven Design (DDD) by making business processes explicit and structural.</p>
+<h3 id="ubiquitous-language">Ubiquitous Language<a class="headerlink" href="#ubiquitous-language" title="Permanent link">&para;</a></h3>
+<p>Task names like <code>ApproveLoan</code> or <code>ShipOrder</code> mirror the language of domain experts, creating a shared vocabulary that eliminates translation gaps between business requirements and code.</p>
+<h3 id="bounded-contexts">Bounded Contexts<a class="headerlink" href="#bounded-contexts" title="Permanent link">&para;</a></h3>
+<p>Namespaces naturally enforce boundaries. <code>Billing::GenerateInvoice</code> and <code>Shipping::GenerateLabel</code> encapsulate logic within their specific domains, preventing leakage and "God objects."</p>
+<h3 id="rich-domain-layer">Rich Domain Layer<a class="headerlink" href="#rich-domain-layer" title="Permanent link">&para;</a></h3>
+<p>Move orchestration and rules out of Controllers and ActiveRecord models. Entities focus on state; CMDx tasks handle behavior. This separation prevents "Fat Models" and keeps business logic testable and isolated.</p>
+<h2 id="event-sourcing-replacement">Event Sourcing Replacement<a class="headerlink" href="#event-sourcing-replacement" title="Permanent link">&para;</a></h2>
+<p>Traditional Event Sourcing architectures impose a significant "complexity tax"—requiring specialized event stores, snapshots, and complex state rehydration logic. CMDx offers a pragmatic alternative: <strong>Log-Based Event Sourcing</strong>.</p>
+<p>By ensuring all state changes occur through CMDx tasks, your structured logs become a complete, immutable ledger of system behavior.</p>
+<h3 id="audit-trail">Audit Trail<a class="headerlink" href="#audit-trail" title="Permanent link">&para;</a></h3>
+<p>Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of <em>intent</em> (arguments) and <em>outcome</em> (success/failure) without extra coding.</p>
+<h3 id="reconstructability">Reconstructability<a class="headerlink" href="#reconstructability" title="Permanent link">&para;</a></h3>
+<p>Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.</p>
+<h3 id="simplified-architecture">Simplified Architecture<a class="headerlink" href="#simplified-architecture" title="Permanent link">&para;</a></h3>
+<p>Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.</p>
 <h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
 <p>Generate new CMDx tasks quickly using the built-in generator:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:task<span class="w"> </span>ModerateBlogPost
