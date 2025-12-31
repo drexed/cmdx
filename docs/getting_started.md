@@ -108,17 +108,11 @@ index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="Analy
 
 CMDx facilitates Domain Driven Design (DDD) by making business processes explicit and structural.
 
-### Ubiquitous Language
+- **Ubiquitous Language:** Task names like `ApproveLoan` or `ShipOrder` mirror the language of domain experts, creating a shared vocabulary that eliminates translation gaps between business requirements and code.
 
-Task names like `ApproveLoan` or `ShipOrder` mirror the language of domain experts, creating a shared vocabulary that eliminates translation gaps between business requirements and code.
+- **Bounded Contexts:** Namespaces naturally enforce boundaries. `Billing::GenerateInvoice` and `Shipping::GenerateLabel` encapsulate logic within their specific domains, preventing leakage and "God objects."
 
-### Bounded Contexts
-
-Namespaces naturally enforce boundaries. `Billing::GenerateInvoice` and `Shipping::GenerateLabel` encapsulate logic within their specific domains, preventing leakage and "God objects."
-
-### Rich Domain Layer
-
-Move orchestration and rules out of Controllers and ActiveRecord models. Entities focus on state; CMDx tasks handle behavior. This separation prevents "Fat Models" and keeps business logic testable and isolated.
+- **Rich Domain Layer:** Move orchestration and rules out of Controllers and ActiveRecord models. Entities focus on state; CMDx tasks handle behavior. This separation prevents "Fat Models" and keeps business logic testable and isolated.
 
 ## Event Sourcing Replacement
 
@@ -126,17 +120,11 @@ Traditional Event Sourcing architectures impose a significant "complexity tax"â€
 
 By ensuring all state changes occur through CMDx tasks, your structured logs become a complete, immutable ledger of system behavior.
 
-### Audit Trail
+- **Audit Trail:** Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of *intent* (arguments) and *outcome* (success/failure) without extra coding.
 
-Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of *intent* (arguments) and *outcome* (success/failure) without extra coding.
+- **Reconstructability** Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.
 
-### Reconstructability
-
-Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.
-
-### Simplified Architecture
-
-Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.
+- **Simplified Architecture** Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.
 
 ## Task Generator
 
