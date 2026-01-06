@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "CMDx is a framework for building maintainable business processes."
   spec.description = spec.summary
   spec.homepage = "https://github.com/drexed/cmdx"
-  spec.license = "MIT"
+  spec.license = "LGPL-3.0"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["homepage_uri"] = spec.homepage

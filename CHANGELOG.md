@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added context `clear!` for deleting all context data
 
 ### Updated
-- Switched from instance_eval to define_singleton_method for safer method definition on the task instance.
+- **IMPORTANT**: Switched from `MIT` to `LGPLv3` license
+- Switched from `instance_eval` to `define_singleton_method` to define attribute methods
 
 ## [1.13.0] - 2025-12-23
 
