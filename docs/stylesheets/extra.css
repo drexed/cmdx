@@ -40,3 +40,10 @@
   --md-code-hl-variable-color:   #ffb757;
   --md-code-hl-generic-color:    #dbb7ff;
 }
+
+/* Light/Dark mode logo switching */
+.only-dark { display: none; }
+.only-light { display: inline; }
+
+[data-md-color-scheme="slate"] .only-light { display: none; }
+[data-md-color-scheme="slate"] .only-dark { display: inline; }
