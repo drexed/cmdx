@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - Added context `clear!` for deleting all context data
+- Added Ruby 4.0 support
 
 ### Updated
 - **IMPORTANT**: Switched from `MIT` to `LGPLv3` license

@@ -185,7 +185,12 @@ RSpec.describe CMDx::Coercions::String, type: :unit do
         result = coercion.call(Set.new([1, 2, 3]))
 
         expect(result).to be_a(String)
-        expect(result).to eq("#<Set: {1, 2, 3}>")
+
+        if RubyVersion.min?(4.0)
+          expect(result).to eq("Set[1, 2, 3]")
+        else
+          expect(result).to eq("#<Set: {1, 2, 3}>")
+        end
       end
     end
 
