@@ -16,7 +16,7 @@ Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you de
 
 Note
 
-Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+[Documentation](https://drexed.github.io/cmdx/getting_started/index.md) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Requirements
 
