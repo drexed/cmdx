@@ -43,9 +43,9 @@
 
 /* Light/Dark mode logo switching */
 .only-dark,
-.only-light { max-width: 200px; }
-.only-dark { display: none; }
-.only-light { display: inline; }
+.only-light { max-width: 200px !important; }
+.only-dark { display: none !important; }
+.only-light { display: inline !important; }
 
-[data-md-color-scheme="slate"] .only-light { display: none; }
-[data-md-color-scheme="slate"] .only-dark { display: inline; }
+[data-md-color-scheme="slate"] .only-light { display: none !important; }
+[data-md-color-scheme="slate"] .only-dark { display: inline !important; }
