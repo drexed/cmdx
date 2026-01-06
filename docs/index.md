@@ -4,7 +4,7 @@ Build business logic that's powerful, predictable, and maintainable.
 
 [![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
 [![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/drexed/cmdx)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
+[![License](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
 
 ---
 

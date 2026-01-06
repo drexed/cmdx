@@ -10,7 +10,7 @@
 
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
-  <img alt="License" src="https://img.shields.io/github/license/drexed/cmdx">
+  <img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg">
 </div>
 
 # CMDx
