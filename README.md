@@ -18,7 +18,7 @@
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 > [!NOTE]
-> [Getting Started](https://drexed.github.io/cmdx/getting_started/) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+> [Documentation](https://drexed.github.io/cmdx/getting_started/) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Requirements
 
