@@ -12,7 +12,7 @@ Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you de
 
 !!! note
 
-    [Documentation](getting_started.md) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
 ## Requirements
 
