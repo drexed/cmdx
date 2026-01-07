@@ -3,7 +3,7 @@ date: 2025-01-07
 authors:
   - drexed
 categories:
-  - Getting Started
+  - Tutorials
 slug: getting-started-with-cmdx
 ---
 

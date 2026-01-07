@@ -91,9 +91,8 @@ plugins:
       post_url_format: "{slug}"
       archive_date_format: MMMM yyyy
       categories_allowed:
-        - Getting Started
         - Tutorials
-        - Best Practices
+        - Updates
   - llmstxt:
       markdown_description: >-
         CMDx is a Ruby framework for building maintainable, observable business logic through composable command/service objects.
