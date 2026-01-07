@@ -19,7 +19,7 @@ Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you de
 - Ruby: MRI 3.1+ or JRuby 9.4+
 - Dependencies: None
 
-CMDx works with any Ruby framework. Rails support is built-in, but it's framework-agnostic at its core.
+Rails support is built-in, but it's framework-agnostic at its core.
 
 ## Installation
 
