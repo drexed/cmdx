@@ -1,3 +1,12 @@
+---
+date: 2025-01-07
+authors:
+  - drexed
+categories:
+  - Getting Started
+slug: getting-started-with-cmdx
+---
+
 # Getting Started with CMDx: Taming Business Logic in Ruby
 
 I've spent years wrestling with service objects. You know the pattern—create a class, throw some business logic in a `call` method, cross your fingers, and hope for the best. The problem? Every team member writes them differently. Every project invents its own conventions. And when something breaks at 2 AM, good luck tracing what actually happened.

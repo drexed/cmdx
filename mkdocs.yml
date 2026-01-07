@@ -84,6 +84,16 @@ markdown_extensions:
 
 plugins:
   - search
+  - blog:
+      blog_dir: blog
+      blog_toc: true
+      post_date_format: long
+      post_url_format: "{slug}"
+      archive_date_format: MMMM yyyy
+      categories_allowed:
+        - Getting Started
+        - Tutorials
+        - Best Practices
   - llmstxt:
       markdown_description: >-
         CMDx is a Ruby framework for building maintainable, observable business logic through composable command/service objects.
@@ -159,6 +169,7 @@ nav:
     - Workflows: workflows.md
   - More:
     - Tips and Tricks: tips_and_tricks.md
+  - Blog: blog/index.md
   - References:
     - API Documentation: https://drexed.github.io/cmdx/api/index.html
     - llms.txt: https://drexed.github.io/cmdx/llms.txt
