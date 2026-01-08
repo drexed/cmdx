@@ -1,140 +1,409 @@
 ---
 hide:
   - navigation
+  - toc
 ---
 
-# ![CMDx](assets/cmdx-light-logo.png){: .only-light }![CMDx](assets/cmdx-dark-logo.png){: .only-dark }
+<style>
+.md-main__inner { max-width: none; }
+.md-content__inner { padding: 0; }
+.md-content__inner > :first-child { margin-top: 0; }
 
-Build business logic that's powerful, predictable, and maintainable.
+/* Hero section */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+  background: linear-gradient(135deg, rgba(254, 24, 23, 0.03) 0%, transparent 50%);
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero .tagline {
+  font-size: 1.35rem;
+  color: var(--md-typeset-color);
+  opacity: 0.85;
+  max-width: 650px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+.hero .buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+.hero .buttons a {
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.hero .buttons a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.hero .buttons .primary {
+  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
+  color: white !important;
+}
+.hero .buttons .secondary {
+  background: var(--md-code-bg-color);
+  color: var(--md-typeset-color) !important;
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
 
-[![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
-[![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
+/* Code showcase */
+.code-showcase {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: left;
+}
+.code-showcase .filename {
+  background: var(--md-code-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-bottom: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px 8px 0 0;
+  font-family: var(--md-code-font-family);
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color--light);
+}
+.code-showcase pre {
+  margin: 0 !important;
+  border-radius: 0 0 8px 8px !important;
+}
 
----
+/* Section styling */
+.section {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-alt {
+  background: var(--md-code-bg-color);
+}
+.section h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+}
+.section .subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
+/* Feature grid */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+.feature {
+  padding: 1.75rem;
+  border-radius: 12px;
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.feature:hover {
+  border-color: #fe1817;
+  box-shadow: 0 4px 20px rgba(254, 24, 23, 0.1);
+}
+.feature h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.feature h3::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #fe1817;
+  border-radius: 50%;
+}
+.feature p {
+  color: var(--md-default-fg-color--light);
+  margin: 0;
+  line-height: 1.6;
+}
 
-!!! note
+/* Use cases */
+.use-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.use-case {
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+.use-case h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.use-case p {
+  color: var(--md-default-fg-color--light);
+  margin: 0;
+  font-size: 0.95rem;
+}
 
-    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+/* CERO pattern section */
+.cero-flow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+.cero-step {
+  padding: 0.75rem 1.5rem;
+  background: var(--md-code-bg-color);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.cero-step.active {
+  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
+  color: white;
+}
+.cero-arrow {
+  color: var(--md-default-fg-color--light);
+  font-size: 1.2rem;
+}
 
-## Requirements
+/* Badges */
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
 
-- Ruby: MRI 3.1+ or JRuby 9.4+
-- Dependencies: None
+/* Stats */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+.stat {
+  text-align: center;
+}
+.stat .number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fe1817;
+}
+.stat .label {
+  font-size: 0.9rem;
+  color: var(--md-default-fg-color--light);
+}
+</style>
 
-Rails support is built-in, but it's framework-agnostic at its core.
+<!-- Hero Section -->
+<div class="hero">
+  <div class="badges">
+    <a href="https://rubygems.org/gems/cmdx"><img alt="Version" src="https://img.shields.io/gem/v/cmdx"></a>
+    <a href="https://github.com/drexed/cmdx/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg"></a>
+    <a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg"></a>
+  </div>
 
-## Installation
+  <h1><span>Build Business Logic</span><br>That Actually Works</h1>
 
-```sh
-gem install cmdx
+  <p class="tagline">
+    CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Say goodbye to messy service objects.
+  </p>
 
-# - or -
+  <div class="buttons">
+    <a href="getting_started/" class="primary">Get Started</a>
+    <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
+  </div>
 
-bundle add cmdx
-```
-
-## Quick Example
-
-Build powerful business logic in four simple steps:
-
-### 1. Compose
-
-=== "Full Featured Task"
-
-    ```ruby
-    class AnalyzeMetrics < CMDx::Task
-      register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
-
-      on_success :track_analysis_completion!
-
-      required :dataset_id, type: :integer, numeric: { min: 1 }
-      optional :analysis_type, default: "standard"
-
-      def work
-        if dataset.nil?
-          fail!("Dataset not found", code: 404)
-        elsif dataset.unprocessed?
-          skip!("Dataset not ready for analysis")
-        else
-          context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
-          context.analyzed_at = Time.now
-
-          SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
-        end
-      end
-
-      private
-
-      def dataset
-        @dataset ||= Dataset.find_by(id: dataset_id)
-      end
-
-      def track_analysis_completion!
-        dataset.update!(analysis_result_id: context.result.id)
-      end
-    end
-    ```
-
-=== "Minimum Viable Task"
-
-    ```ruby
-    class SendAnalyzedEmail < CMDx::Task
-      def work
-        user = User.find(context.user_id)
-        MetricsMailer.analyzed(user).deliver_now
-      end
-    end
-    ```
-
-### 2. Execute
+  <div class="code-showcase">
+    <div class="filename">app/tasks/approve_loan.rb</div>
 
 ```ruby
-result = AnalyzeMetrics.execute(
-  dataset_id: 123,
-  "analysis_type" => "advanced"
-)
-```
+class ApproveLoan < CMDx::Task
+  on_success :notify_applicant!
 
-### 3. React
+  required :application_id, type: :integer
+  optional :override_checks, default: false
 
-```ruby
-if result.success?
-  puts "Metrics analyzed at #{result.context.analyzed_at}"
-elsif result.skipped?
-  puts "Skipping analyzation due to: #{result.reason}"
-elsif result.failed?
-  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
+  def work
+    if application.nil?
+      fail!("Application not found", code: 404)
+    elsif application.score < minimum_score && !override_checks
+      fail!("Credit score too low", code: :rejected)
+    else
+      context.approval = application.approve!
+      context.approved_at = Time.current
+    end
+  end
+
+  private
+
+  def application = @application ||= LoanApplication.find_by(id: application_id)
+  def minimum_score = 650
+  def notify_applicant! = ApprovalMailer.approved(application).deliver_later
 end
 ```
 
-### 4. Observe
+  </div>
+</div>
 
-```log
-I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+<!-- Why CMDx Section -->
+<div class="section-alt">
+  <div class="section">
+    <h2>Why Choose CMDx?</h2>
+    <p class="subtitle">Everything you need to build reliable, testable business logic in Ruby</p>
 
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+    <div class="features">
+      <div class="feature">
+        <h3>Zero Dependencies</h3>
+        <p>Pure Ruby with no external dependencies. Works with any Ruby project—Rails, Sinatra, or plain Ruby scripts.</p>
+      </div>
+      <div class="feature">
+        <h3>Type-Safe Attributes</h3>
+        <p>Declare inputs with automatic type coercion, validation, and defaults. Catch errors before they cause problems.</p>
+      </div>
+      <div class="feature">
+        <h3>Built-in Observability</h3>
+        <p>Structured logging with chain IDs, runtime metrics, and execution tracing. Debug complex workflows with ease.</p>
+      </div>
+      <div class="feature">
+        <h3>Composable Workflows</h3>
+        <p>Chain tasks together into sequential pipelines. Build complex processes from simple, tested building blocks.</p>
+      </div>
+      <div class="feature">
+        <h3>Predictable Results</h3>
+        <p>Every execution returns a result object with clear success, failure, or skipped states. No more exception juggling.</p>
+      </div>
+      <div class="feature">
+        <h3>Production Ready</h3>
+        <p>Automatic retries, middleware support, callbacks, and internationalization. Battle-tested in real applications.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Use Cases Section -->
+<div class="section">
+  <h2>Designed For</h2>
+  <p class="subtitle">CMDx shines wherever you need structured, reliable business logic</p>
+
+  <div class="use-cases">
+    <div class="use-case">
+      <h3>🏦 Financial Operations</h3>
+      <p>Payment processing, loan approvals, and transaction handling with full audit trails</p>
+    </div>
+    <div class="use-case">
+      <h3>📧 Notification Systems</h3>
+      <p>Multi-channel notifications with fallbacks, personalization, and delivery tracking</p>
+    </div>
+    <div class="use-case">
+      <h3>🔄 Data Pipelines</h3>
+      <p>ETL processes, data migrations, and transformations with checkpoints and recovery</p>
+    </div>
+    <div class="use-case">
+      <h3>🛒 E-commerce Flows</h3>
+      <p>Order processing, inventory management, and fulfillment orchestration</p>
+    </div>
+    <div class="use-case">
+      <h3>👤 User Onboarding</h3>
+      <p>Registration flows, verification steps, and welcome sequences</p>
+    </div>
+    <div class="use-case">
+      <h3>🤖 Background Jobs</h3>
+      <p>Complex async operations with Sidekiq, retry logic, and error handling</p>
+    </div>
+  </div>
+</div>
+
+<!-- CERO Pattern Section -->
+<div class="section-alt">
+  <div class="section">
+    <h2>The CERO Pattern</h2>
+    <p class="subtitle">A simple yet powerful approach to building reliable business logic</p>
+
+    <div class="cero-flow">
+      <span class="cero-step active">Compose</span>
+      <span class="cero-arrow">→</span>
+      <span class="cero-step">Execute</span>
+      <span class="cero-arrow">→</span>
+      <span class="cero-step">React</span>
+      <span class="cero-arrow">→</span>
+      <span class="cero-step">Observe</span>
+    </div>
+
+```ruby
+# Compose: Define your task with typed attributes and callbacks
+result = ApproveLoan.execute(application_id: 123)
+
+# React: Handle outcomes with clear state checks
+if result.success?
+  redirect_to result.context.approval
+elsif result.failed?
+  render :error, notice: result.reason
+end
+
+# Observe: Automatic structured logging
+# index=0 chain_id="abc123" class="ApproveLoan" state="complete" status="success"
 ```
 
-Ready to dive in? Check out the [Getting Started](getting_started.md) guide to learn more.
+    <div class="stats">
+      <div class="stat">
+        <div class="number">90+</div>
+        <div class="label">Locales Supported</div>
+      </div>
+      <div class="stat">
+        <div class="number">0</div>
+        <div class="label">Dependencies</div>
+      </div>
+      <div class="stat">
+        <div class="number">100%</div>
+        <div class="label">Test Coverage</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-## Ecosystem
+<!-- Quick Start Section -->
+<div class="section">
+  <h2>Get Started in Seconds</h2>
+  <p class="subtitle">Add CMDx to your project and start building</p>
 
-- [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
+```bash
+gem install cmdx
+# or
+bundle add cmdx
+```
 
-For backwards compatibility of certain functionality:
-
-- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0` - `v1.6.2`
-- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1` - `v1.6.2`
-
-## Contributing
-
-Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
-
-## License
-
-The gem is available as open source under the terms of the [LGPLv3 License](https://www.gnu.org/licenses/lgpl-3.0.html).
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
+    <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+  </div>
+</div>
