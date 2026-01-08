@@ -6,133 +6,140 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 # Getting Started
 
-# 
+# Build Business Logic That Actually Works
 
-Build business logic that's powerful, predictable, and maintainable.
+CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Say goodbye to messy service objects.
 
-______________________________________________________________________
+[Get Started](https://drexed.github.io/cmdx/getting_started/index.md) [View on GitHub](https://github.com/drexed/cmdx)
 
-Say goodbye to messy service objects. CMDx (pronounced "Command X") helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
-
-Note
-
-Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
-
-## Requirements
-
-- Ruby: MRI 3.1+ or JRuby 9.4+
-- Dependencies: None
-
-Rails support is built-in, but it's framework-agnostic at its core.
-
-## Installation
-
-```sh
-gem install cmdx
-
-# - or -
-
-bundle add cmdx
-```
-
-## Quick Example
-
-Build powerful business logic in four simple steps:
-
-### 1. Compose
+app/tasks/approve_loan.rb
 
 ```ruby
-class AnalyzeMetrics < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+class ApproveLoan < CMDx::Task
+  on_success :notify_applicant!
 
-  on_success :track_analysis_completion!
-
-  required :dataset_id, type: :integer, numeric: { min: 1 }
-  optional :analysis_type, default: "standard"
+  required :application_id, type: :integer
+  optional :override_checks, default: false
 
   def work
-    if dataset.nil?
-      fail!("Dataset not found", code: 404)
-    elsif dataset.unprocessed?
-      skip!("Dataset not ready for analysis")
+    if application.nil?
+      fail!("Application not found", code: 404)
+    elsif application.score < minimum_score && !override_checks
+      fail!("Credit score too low", code: :rejected)
     else
-      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
-      context.analyzed_at = Time.now
-
-      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+      context.approval = application.approve!
+      context.approved_at = Time.current
     end
   end
 
   private
 
-  def dataset
-    @dataset ||= Dataset.find_by(id: dataset_id)
-  end
-
-  def track_analysis_completion!
-    dataset.update!(analysis_result_id: context.result.id)
-  end
+  def application = @application ||= LoanApplication.find_by(id: application_id)
+  def minimum_score = 650
+  def notify_applicant! = ApprovalMailer.approved(application).deliver_later
 end
 ```
 
+## Why Choose CMDx?
+
+Everything you need to build reliable, testable business logic in Ruby
+
+### Zero Dependencies
+
+Pure Ruby with no external dependencies. Works with any Ruby project—Rails, Sinatra, or plain Ruby scripts.
+
+### Type-Safe Attributes
+
+Declare inputs with automatic type coercion, validation, and defaults. Catch errors before they cause problems.
+
+### Built-in Observability
+
+Structured logging with chain IDs, runtime metrics, and execution tracing. Debug complex workflows with ease.
+
+### Composable Workflows
+
+Chain tasks together into sequential pipelines. Build complex processes from simple, tested building blocks.
+
+### Predictable Results
+
+Every execution returns a result object with clear success, failure, or skipped states. No more exception juggling.
+
+### Production Ready
+
+Automatic retries, middleware support, callbacks, and internationalization. Battle-tested in real applications.
+
+## Designed For
+
+CMDx shines wherever you need structured, reliable business logic
+
+### 🏦 Financial Operations
+
+Payment processing, loan approvals, and transaction handling with full audit trails
+
+### 📧 Notification Systems
+
+Multi-channel notifications with fallbacks, personalization, and delivery tracking
+
+### 🔄 Data Pipelines
+
+ETL processes, data migrations, and transformations with checkpoints and recovery
+
+### 🛒 E-commerce Flows
+
+Order processing, inventory management, and fulfillment orchestration
+
+### 👤 User Onboarding
+
+Registration flows, verification steps, and welcome sequences
+
+### 🤖 Background Jobs
+
+Complex async operations with Sidekiq, retry logic, and error handling
+
+## The CERO Pattern
+
+A simple yet powerful approach to building reliable business logic
+
+Compose → Execute → React → Observe
+
 ```ruby
-class SendAnalyzedEmail < CMDx::Task
-  def work
-    user = User.find(context.user_id)
-    MetricsMailer.analyzed(user).deliver_now
-  end
-end
-```
+# Compose: Define your task with typed attributes and callbacks
+result = ApproveLoan.execute(application_id: 123)
 
-### 2. Execute
-
-```ruby
-result = AnalyzeMetrics.execute(
-  dataset_id: 123,
-  "analysis_type" => "advanced"
-)
-```
-
-### 3. React
-
-```ruby
+# React: Handle outcomes with clear state checks
 if result.success?
-  puts "Metrics analyzed at #{result.context.analyzed_at}"
-elsif result.skipped?
-  puts "Skipping analyzation due to: #{result.reason}"
+  redirect_to result.context.approval
 elsif result.failed?
-  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
+  render :error, notice: result.reason
 end
+
+# Observe: Automatic structured logging
+# index=0 chain_id="abc123" class="ApproveLoan" state="complete" status="success"
 ```
 
-### 4. Observe
+90+
 
-```text
-I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+Locales Supported
 
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+0
+
+Dependencies
+
+100%
+
+Test Coverage
+
+## Get Started in Seconds
+
+Add CMDx to your project and start building
+
+```bash
+gem install cmdx
+# or
+bundle add cmdx
 ```
 
-Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/index.md) guide to learn more.
-
-## Ecosystem
-
-- [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
-
-For backwards compatibility of certain functionality:
-
-- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0` - `v1.6.2`
-- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1` - `v1.6.2`
-
-## Contributing
-
-Bug reports and pull requests are welcome at <https://github.com/drexed/cmdx>. We're committed to fostering a welcoming, collaborative community. Please follow our [code of conduct](https://github.com/drexed/cmdx/blob/main/CODE_OF_CONDUCT.md).
-
-## License
-
-The gem is available as open source under the terms of the [LGPLv3 License](https://www.gnu.org/licenses/lgpl-3.0.html).
+[Read the Docs](https://drexed.github.io/cmdx/getting_started/index.md) [Star on GitHub](https://github.com/drexed/cmdx)
 
 # Getting Started
 
