@@ -266,7 +266,7 @@ hide:
   </div>
 
   <div class="buttons">
-    <a href="getting_started/" class="primary">Get Started</a>
+    <a href="getting_started/" class="primary">Read the Docs</a>
     <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
   </div>
 
