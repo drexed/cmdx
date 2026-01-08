@@ -1,3 +1,9 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
 # ![CMDx](assets/cmdx-light-logo.png){: .only-light }![CMDx](assets/cmdx-dark-logo.png){: .only-dark }
 
 Build business logic that's powerful, predictable, and maintainable.
