@@ -223,6 +223,13 @@ hide:
   font-size: 0.9rem;
   color: var(--md-default-fg-color--light);
 }
+
+/* Quick start code block */
+.section .highlight {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 
 <!-- Hero Section -->
@@ -365,8 +372,9 @@ end
 
 <!-- Quick Start Section -->
 <div class="section-alt">
-  <h2>Get Started in Seconds</h2>
-  <p class="subtitle">Add CMDx to your project and start building</p>
+  <div class="section">
+    <h2>Get Started in Seconds</h2>
+    <p class="subtitle">Add CMDx to your project and start building</p>
 
 ```bash
 gem install cmdx
@@ -374,8 +382,9 @@ gem install cmdx
 bundle add cmdx
 ```
 
-  <div style="text-align: center; margin-top: 2rem;">
-    <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
-    <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
+      <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+    </div>
   </div>
 </div>
