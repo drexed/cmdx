@@ -1,5 +1,11 @@
 # Getting Started
 
+[![Version](https://img.shields.io/gem/v/cmdx)](https://rubygems.org/gems/cmdx)
+[![Build](https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg)](https://github.com/drexed/cmdx/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/drexed/cmdx/blob/main/LICENSE.txt)
+
+---
+
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
 **Common challenges:**
@@ -16,6 +22,17 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - Comprehensive logging for observability
 - Attribute validation with type coercions
 - Sensible defaults and developer-friendly APIs
+
+!!! note
+
+    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+
+## Requirements
+
+- Ruby: MRI 3.1+ or JRuby 9.4+
+- Dependencies: None
+
+Rails support is built-in, but it's framework-agnostic at its core.
 
 ## Installation
 
@@ -157,3 +174,12 @@ CMDx includes built-in RBS (Ruby Type Signature) inline annotations throughout t
 - **Better IDE support** — Enhanced autocomplete, navigation, and inline documentation
 - **Self-documenting code** — Clear method signatures and return types
 - **Refactoring confidence** — Type-aware refactoring reduces bugs
+
+## Ecosystem
+
+- [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
+
+For backwards compatibility of certain functionality:
+
+- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0` - `v1.6.2`
+- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1` - `v1.6.2`
