@@ -285,7 +285,7 @@ class ApproveLoan < CMDx::Task
     elsif application.approved?
       skip!("Application already approved")
     else
-      context.approval = application.approve!
+      application.approve!
       context.approved_at = Time.current
     end
   end
