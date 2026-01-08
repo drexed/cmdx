@@ -256,8 +256,8 @@ class ApproveLoan < CMDx::Task
   def work
     if application.nil?
       fail!("Application not found", code: 404)
-    elsif application.score < minimum_score && !override_checks
-      fail!("Credit score too low", code: :rejected)
+    elsif application.approved?
+      skip!("Application already approved")
     else
       context.approval = application.approve!
       context.approved_at = Time.current
@@ -266,9 +266,13 @@ class ApproveLoan < CMDx::Task
 
   private
 
-  def application = @application ||= LoanApplication.find_by(id: application_id)
-  def minimum_score = 650
-  def notify_applicant! = ApprovalMailer.approved(application).deliver_later
+  def application
+    @application ||= LoanApplication.find_by(id: application_id)
+  end
+
+  def notify_applicant!
+    ApprovalMailer.approved(application).deliver_later
+  end
 end
 ```
 
@@ -343,56 +347,8 @@ end
   </div>
 </div>
 
-<!-- CERO Pattern Section -->
-<div class="section-alt">
-  <div class="section">
-    <h2>The CERO Pattern</h2>
-    <p class="subtitle">A simple yet powerful approach to building reliable business logic</p>
-
-    <div class="cero-flow">
-      <span class="cero-step active">Compose</span>
-      <span class="cero-arrow">→</span>
-      <span class="cero-step">Execute</span>
-      <span class="cero-arrow">→</span>
-      <span class="cero-step">React</span>
-      <span class="cero-arrow">→</span>
-      <span class="cero-step">Observe</span>
-    </div>
-
-```ruby
-# Compose: Define your task with typed attributes and callbacks
-result = ApproveLoan.execute(application_id: 123)
-
-# React: Handle outcomes with clear state checks
-if result.success?
-  redirect_to result.context.approval
-elsif result.failed?
-  render :error, notice: result.reason
-end
-
-# Observe: Automatic structured logging
-# index=0 chain_id="abc123" class="ApproveLoan" state="complete" status="success"
-```
-
-    <div class="stats">
-      <div class="stat">
-        <div class="number">90+</div>
-        <div class="label">Locales Supported</div>
-      </div>
-      <div class="stat">
-        <div class="number">0</div>
-        <div class="label">Dependencies</div>
-      </div>
-      <div class="stat">
-        <div class="number">100%</div>
-        <div class="label">Test Coverage</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Quick Start Section -->
-<div class="section">
+<div class="section-alt">
   <h2>Get Started in Seconds</h2>
   <p class="subtitle">Add CMDx to your project and start building</p>
 
