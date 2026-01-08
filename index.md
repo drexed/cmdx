@@ -2,7 +2,7 @@
 
 CMDx is a Ruby framework for clean, composable business logic—designed to replace service-object sprawl.
 
-[Get Started](https://drexed.github.io/cmdx/getting_started/index.md) [View on GitHub](https://github.com/drexed/cmdx)
+[Read the Docs](https://drexed.github.io/cmdx/getting_started/index.md) [View on GitHub](https://github.com/drexed/cmdx)
 
 app/tasks/approve_loan.rb
 
