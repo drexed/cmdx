@@ -36,7 +36,7 @@ class ApproveLoan < CMDx::Task
 end
 ```
 
-## Why Choose CMDx?
+## Why Use CMDx?
 
 Everything you need to build reliable, testable business logic in Ruby
 
