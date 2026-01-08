@@ -63,25 +63,51 @@ hide:
   border: 1px solid var(--md-default-fg-color--lightest);
 }
 
-/* Code showcase */
+/* Code showcase - Terminal style */
 .code-showcase {
   max-width: 720px;
   margin: 0 auto;
   text-align: left;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
-.code-showcase .filename {
-  background: var(--md-code-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-  border-bottom: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px 8px 0 0;
+.code-showcase .terminal-header {
+  background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.code-showcase .terminal-buttons {
+  display: flex;
+  gap: 8px;
+}
+.code-showcase .terminal-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.code-showcase .terminal-btn.close { background: #ff5f57; }
+.code-showcase .terminal-btn.minimize { background: #febc2e; }
+.code-showcase .terminal-btn.maximize { background: #28c840; }
+.code-showcase .terminal-title {
+  flex: 1;
+  text-align: center;
   font-family: var(--md-code-font-family);
-  font-size: 0.85rem;
-  color: var(--md-default-fg-color--light);
+  font-size: 0.8rem;
+  color: #999;
+  margin-right: 52px;
 }
 .code-showcase pre {
   margin: 0 !important;
-  border-radius: 0 0 8px 8px !important;
+  border-radius: 0 !important;
+}
+.code-showcase .highlight {
+  border-radius: 0 !important;
+}
+.code-showcase .highlighttable {
+  border-radius: 0 !important;
 }
 
 /* Section styling */
@@ -226,6 +252,11 @@ hide:
 
 <!-- Hero Section -->
 <div class="hero">
+  <div class="logo">
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light">
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark">
+  </div>
+
   <div class="badges">
     <a href="https://rubygems.org/gems/cmdx"><img alt="Version" src="https://img.shields.io/gem/v/cmdx"></a>
     <a href="https://github.com/drexed/cmdx/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg"></a>
@@ -244,7 +275,14 @@ hide:
   </div>
 
   <div class="code-showcase">
-    <div class="filename">app/tasks/approve_loan.rb</div>
+    <div class="terminal-header">
+      <div class="terminal-buttons">
+        <span class="terminal-btn close"></span>
+        <span class="terminal-btn minimize"></span>
+        <span class="terminal-btn maximize"></span>
+      </div>
+      <span class="terminal-title">app/tasks/approve_loan.rb</span>
+    </div>
 
 ```ruby
 class ApproveLoan < CMDx::Task
