@@ -1923,7 +1923,7 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 .code-showcase .terminal-header {
-  background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+  background: #2a2a2a;
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -2043,31 +2043,6 @@
   font-size: 0.95rem;
 }
 
-/* CERO pattern section */
-.cero-flow {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 2.5rem;
-}
-.cero-step {
-  padding: 0.75rem 1.5rem;
-  background: var(--md-code-bg-color);
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.cero-step.active {
-  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
-  color: white;
-}
-.cero-arrow {
-  color: var(--md-default-fg-color--light);
-  font-size: 1.2rem;
-}
-
 /* Badges */
 .badges {
   display: flex;
@@ -2098,13 +2073,20 @@
   font-size: 0.9rem;
   color: var(--md-default-fg-color--light);
 }
+
+/* Quick start code block */
+.section .highlight {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 
 <!-- Hero Section -->
 <div class="hero">
   <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light">
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark">
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
   </div>
 
   <div class="badges">
@@ -2113,7 +2095,10 @@
     <a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg"></a>
   </div>
 
-  <h1><span>Build Business Logic</span><br>That Actually Works</h1>
+  <h1>
+    Build <span>Business Logic</span><br>
+    That Actually Works
+  </h1>
 
   <p class="tagline">
     CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Say goodbye to messy service objects.
@@ -2236,17 +2221,19 @@
 
 <!-- Quick Start Section -->
 <div class="section-alt">
-  <h2>Get Started in Seconds</h2>
-  <p class="subtitle">Add CMDx to your project and start building</p>
+  <div class="section">
+    <h2>Get Started in Seconds</h2>
+    <p class="subtitle">Add CMDx to your project and start building</p>
 
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gem<span class="w"> </span>install<span class="w"> </span>cmdx
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># or</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>bundle<span class="w"> </span>add<span class="w"> </span>cmdx
 </span></code></pre></div>
 
-  <div style="text-align: center; margin-top: 2rem;">
-    <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
-    <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
+      <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+    </div>
   </div>
 </div>
 
