@@ -73,7 +73,7 @@ hide:
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 .code-showcase .terminal-header {
-  background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+  background: #2a2a2a;
   padding: 12px 16px;
   display: flex;
   align-items: center;
@@ -193,31 +193,6 @@ hide:
   font-size: 0.95rem;
 }
 
-/* CERO pattern section */
-.cero-flow {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 2.5rem;
-}
-.cero-step {
-  padding: 0.75rem 1.5rem;
-  background: var(--md-code-bg-color);
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.cero-step.active {
-  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
-  color: white;
-}
-.cero-arrow {
-  color: var(--md-default-fg-color--light);
-  font-size: 1.2rem;
-}
-
 /* Badges */
 .badges {
   display: flex;
@@ -253,8 +228,8 @@ hide:
 <!-- Hero Section -->
 <div class="hero">
   <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light">
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark">
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
   </div>
 
   <div class="badges">
@@ -263,7 +238,10 @@ hide:
     <a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg"></a>
   </div>
 
-  <h1><span>Build Business Logic</span><br>That Actually Works</h1>
+  <h1>
+    Build <span>Business Logic</span><br>
+    That Actually Works
+  </h1>
 
   <p class="tagline">
     CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Say goodbye to messy service objects.
