@@ -1,7 +1,5 @@
 ---
 blog_toc: true
+hide:
+  - navigation
 ---
-
-# Blog
-
-Updates, tutorials, and announcements from the CMDx team.

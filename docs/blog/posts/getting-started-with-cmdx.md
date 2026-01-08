@@ -13,6 +13,8 @@ I've spent years wrestling with service objects. You know the pattern—create a
 
 That frustration led me to create CMDx.
 
+<!-- more -->
+
 ## The Problem with Service Objects
 
 Let's be honest about what we're dealing with. Your typical Rails service object looks something like this:

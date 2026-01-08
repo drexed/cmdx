@@ -13,3 +13,4 @@ Writing guidelines:
 - Keep similar structure to existing posts
 - Use real world examples
 - Start small and build up to the final example
+- The first section should be excerpt ready using: `<!-- more -->`
