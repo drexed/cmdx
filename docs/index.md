@@ -1,6 +1,6 @@
 ---
 hide:
-  - toc
+  - navigation
 ---
 
 # ![CMDx](assets/cmdx-light-logo.png){: .only-light }![CMDx](assets/cmdx-dark-logo.png){: .only-dark }

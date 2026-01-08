@@ -1,5 +1,5 @@
 ---
-date: 2025-01-07
+date: 2025-01-01
 authors:
   - drexed
 categories:
@@ -223,11 +223,4 @@ Check out the [full documentation](https://drexed.github.io/cmdx) to explore the
 
 The goal of CMDx is simple: make your business logic predictable, observable, and maintainable. No more 2 AM mysteries. No more inconsistent patterns. Just clean, focused tasks that tell you exactly what they did.
 
-Give it a try:
-
-```sh
-gem install cmdx
-```
-
-I'd love to hear how it works for you.
-
+Give it a try! I'd love to hear how it works for you.
