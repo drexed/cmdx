@@ -451,6 +451,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -571,6 +582,17 @@
     <span class="md-ellipsis">
       
         Type safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem
       
     </span>
   </a>
@@ -1890,6 +1912,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2016,6 +2049,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#ecosystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ecosystem
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2043,6 +2087,10 @@
 
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
+<p><a href="https://rubygems.org/gems/cmdx"><img alt="Version" src="https://img.shields.io/gem/v/cmdx" /></a>
+<a href="https://github.com/drexed/cmdx/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg" /></a>
+<a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg" /></a></p>
+<hr />
 <p>CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.</p>
 <p><strong>Common challenges:</strong></p>
 <ul>
@@ -2059,6 +2107,16 @@
 <li>Attribute validation with type coercions</li>
 <li>Sensible defaults and developer-friendly APIs</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Documentation reflects the latest code on <code>main</code>. For version-specific documentation, please refer to the <code>docs/</code> directory within that version's tag.</p>
+</div>
+<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Ruby: MRI 3.1+ or JRuby 9.4+</li>
+<li>Dependencies: None</li>
+</ul>
+<p>Rails support is built-in, but it's framework-agnostic at its core.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>Add CMDx to your Gemfile:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gem<span class="w"> </span>install<span class="w"> </span>cmdx
@@ -2166,6 +2224,15 @@
 <li><strong>Better IDE support</strong> — Enhanced autocomplete, navigation, and inline documentation</li>
 <li><strong>Self-documenting code</strong> — Clear method signatures and return types</li>
 <li><strong>Refactoring confidence</strong> — Type-aware refactoring reduces bugs</li>
+</ul>
+<h2 id="ecosystem">Ecosystem<a class="headerlink" href="#ecosystem" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/drexed/cmdx-rspec">cmdx-rspec</a> - RSpec test matchers</li>
+</ul>
+<p>For backwards compatibility of certain functionality:</p>
+<ul>
+<li><a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> - 85+ translations, <code>v1.5.0</code> - <code>v1.6.2</code></li>
+<li><a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> - Parallel workflow tasks, <code>v1.6.1</code> - <code>v1.6.2</code></li>
 </ul>
 
 
