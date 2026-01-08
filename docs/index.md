@@ -249,12 +249,12 @@ hide:
   </div>
 
   <h1>
-    Build <span>Business Logic</span><br>
-    That Actually Works
+    Build <span>powerful</span>, <span>predictable</span>,<br>
+    and <span>maintainable</span> business logic
   </h1>
 
   <p class="tagline">
-    CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. Say goodbye to messy service objects.
+    CMDx is a Ruby framework for clean, composable business logic—designed to replace service-object sprawl.
   </p>
 
   <div class="buttons">
