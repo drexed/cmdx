@@ -43,7 +43,7 @@
 
 /* Light/Dark mode logo switching */
 .only-dark,
-.only-light { max-width: 200px !important; }
+.only-light { max-width: 240px !important; }
 .only-dark { display: none !important; }
 .only-light { display: inline !important; }
 
