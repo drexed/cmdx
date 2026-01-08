@@ -320,7 +320,7 @@ module CMDx
       statuses = Array(statuses).map(&:to_s).uniq
       return unless statuses.include?(result.status)
 
-      result.rolled_back!
+      result.rolled_back = true
       task.rollback
     end
 

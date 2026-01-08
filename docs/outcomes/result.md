@@ -49,6 +49,10 @@ result.skipped?     #=> false (not skipped)
 result.good?        #=> true (success or skipped)
 result.bad?         #=> false (skipped or failed)
 
+# Retry Status
+result.retries      #=> 2
+result.retried?     #=> true (execution was retried)
+
 # Rollback Status
 result.rolled_back? #=> true (execution was rolled back)
 ```

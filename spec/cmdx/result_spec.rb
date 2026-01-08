@@ -264,7 +264,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when rolled back" do
-        result.rolled_back!
+        result.rolled_back = true
 
         expect(result.rolled_back?).to be(true)
       end

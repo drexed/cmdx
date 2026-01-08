@@ -105,6 +105,16 @@ module CMDx
     # @rbs @retries: Integer
     attr_accessor :retries
 
+    # Returns whether the result has been rolled back.
+    #
+    # @return [Boolean] Whether the result has been rolled back
+    #
+    # @example
+    #   result.rolled_back? # => true
+    #
+    # @rbs @rolled_back: bool
+    attr_accessor :rolled_back
+
     def_delegators :task, :context, :chain, :errors, :dry_run?
     alias ctx context
 
@@ -439,17 +449,6 @@ module CMDx
     # @rbs () -> bool
     def retried?
       retries.positive?
-    end
-
-    # @return [void]
-    #
-    # @example
-    #   result.rolled_back!
-    #   result.rolled_back? # => true
-    #
-    # @rbs () -> void
-    def rolled_back!
-      @rolled_back = true
     end
 
     # @return [Boolean] Whether the result has been rolled back
