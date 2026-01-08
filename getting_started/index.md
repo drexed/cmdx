@@ -69,8 +69,43 @@ Build reusable, single-responsibility tasks with typed attributes, validation, a
 
 ```ruby
 class AnalyzeMetrics < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+
+  on_success :track_analysis_completion!
+
+  required :dataset_id, type: :integer, numeric: { min: 1 }
+  optional :analysis_type, default: "standard"
+
   def work
-    # Your logic here...
+    if dataset.nil?
+      fail!("Dataset not found", code: 404)
+    elsif dataset.unprocessed?
+      skip!("Dataset not ready for analysis")
+    else
+      context.result = PValueAnalyzer.execute(dataset:, analysis_type:)
+      context.analyzed_at = Time.now
+
+      SendAnalyzedEmail.execute(user_id: Current.account.manager_id)
+    end
+  end
+
+  private
+
+  def dataset
+    @dataset ||= Dataset.find_by(id: dataset_id)
+  end
+
+  def track_analysis_completion!
+    dataset.update!(analysis_result_id: context.result.id)
+  end
+end
+```
+
+```ruby
+class SendAnalyzedEmail < CMDx::Task
+  def work
+    user = User.find(context.user_id)
+    MetricsMailer.analyzed(user).deliver_now
   end
 end
 ```
@@ -80,11 +115,11 @@ end
 Invoke tasks with a consistent API that always returns a result object. Execution automatically handles validation, type coercion, error handling, and logging. Arguments are validated and coerced before your task logic runs.
 
 ```ruby
-# Without args
-result = AnalyzeMetrics.execute
-
-# With args
 result = AnalyzeMetrics.execute(model: "blackbox", "sensitivity" => 3)
+```
+
+```ruby
+result = AnalyzeMetrics.execute
 ```
 
 ### React
@@ -93,11 +128,11 @@ Every execution returns a result object with a clear outcome. Check the result's
 
 ```ruby
 if result.success?
-  # Handle success
+  puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
-  # Handle skipped
+  puts "Skipping analyzation due to: #{result.reason}"
 elsif result.failed?
-  # Handle failed
+  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
 end
 ```
 
