@@ -38,29 +38,31 @@ hide:
   margin: 0 auto 2rem;
   line-height: 1.6;
 }
-.hero .buttons {
+.buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+.hero .buttons {
   margin-bottom: 3rem;
 }
-.hero .buttons a {
+.buttons a {
   padding: 0.8rem 2rem;
   border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.hero .buttons a:hover {
+.buttons a:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-.hero .buttons .primary {
+.buttons .primary {
   background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
   color: white !important;
 }
-.hero .buttons .secondary {
+.buttons .secondary {
   background: var(--md-code-bg-color);
   color: var(--md-typeset-color) !important;
   border: 1px solid var(--md-default-fg-color--lightest);
@@ -124,7 +126,7 @@ hide:
 }
 .section h2 {
   text-align: center;
-  font-size: 2.2rem;
+  font-size: clamp(1.5rem, 4vw + 0.5rem, 2.2rem);
   margin-bottom: 0.75rem;
 }
 .section .subtitle {
@@ -379,9 +381,9 @@ end
     <h2>Get Started in Seconds</h2>
     <p class="subtitle">Say goodbye to messy service objects. Design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
 
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
-      <a href="https://github.com/drexed/cmdx" class="md-button">Star on GitHub</a>
+    <div class="buttons" style="margin-top: 2rem;">
+      <a href="getting_started/" class="primary">Read the Docs</a>
+      <a href="https://github.com/drexed/cmdx" class="secondary">Star on GitHub</a>
     </div>
   </div>
 </div>
