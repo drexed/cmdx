@@ -142,8 +142,11 @@ plugins:
           - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
         More:
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
+        Ecosystem:
+          - cmdx-rspec: RSpec test matchers (https://github.com/drexed/cmdx-rspec)
 
 nav:
+  - Home: index.md
   - Documentation:
     - Getting Started: getting_started.md
     - Configuration: configuration.md
@@ -181,6 +184,8 @@ nav:
       - API Documentation: https://drexed.github.io/cmdx/api/index.html
       - llms.txt: https://drexed.github.io/cmdx/llms.txt
       - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
+    - Ecosystem:
+      - cmdx-rspec: https://github.com/drexed/cmdx-rspec
   - Blog: blog/index.md
 
 extra:
