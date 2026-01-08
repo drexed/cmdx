@@ -1613,6 +1613,10 @@ result.skipped?     #=> false (not skipped)
 result.good?        #=> true (success or skipped)
 result.bad?         #=> false (skipped or failed)
 
+# Retry Status
+result.retries      #=> 2
+result.retried?     #=> true (execution was retried)
+
 # Rollback Status
 result.rolled_back? #=> true (execution was rolled back)
 ```
@@ -3572,6 +3576,19 @@ class FetchUserProfile < CMDx::Task
   end
 end
 ```
+
+## Retry Results
+
+After execution, the result object provides methods to inspect retry behavior:
+
+```ruby
+result = FetchExternalData.execute
+
+result.retries   # => 2 (number of retry attempts made)
+result.retried?  # => true (whether any retries occurred)
+```
+
+Use these methods for logging, metrics, or conditional post-processing based on retry activity.
 
 # Task Deprecation
 

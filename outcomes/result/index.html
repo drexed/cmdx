@@ -2285,8 +2285,12 @@
 </span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">        </span><span class="c1">#=&gt; true (success or skipped)</span>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">         </span><span class="c1">#=&gt; false (skipped or failed)</span>
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1"># Rollback Status</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">result</span><span class="o">.</span><span class="n">rolled_back?</span><span class="w"> </span><span class="c1">#=&gt; true (execution was rolled back)</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1"># Retry Status</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">      </span><span class="c1">#=&gt; 2</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">     </span><span class="c1">#=&gt; true (execution was retried)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="c1"># Rollback Status</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="n">result</span><span class="o">.</span><span class="n">rolled_back?</span><span class="w"> </span><span class="c1">#=&gt; true (execution was rolled back)</span>
 </span></code></pre></div>
 <h2 id="outcome-analysis">Outcome Analysis<a class="headerlink" href="#outcome-analysis" title="Permanent link">&para;</a></h2>
 <p>Get a unified outcome string combining state and status:</p>

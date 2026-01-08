@@ -244,6 +244,60 @@
       <li class="public ">
   <span class="summary_signature">
     
+      <a href="#retries-instance_method" title="#retries (instance method)">#<strong>retries</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the number of retries attempted.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rolled_back-instance_method" title="#rolled_back (instance method)">#<strong>rolled_back</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns whether the result has been rolled back.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#state-instance_method" title="#state (instance method)">#<strong>state</strong>  &#x21d2; String </a>
     
 
@@ -746,7 +800,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#rolled_back!-instance_method" title="#rolled_back! (instance method)">#<strong>rolled_back!</strong>  &#x21d2; void </a>
+      <a href="#retried%3F-instance_method" title="#retried? (instance method)">#<strong>retried?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -760,7 +814,9 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'>
+<p>Whether the result has been retried.</p>
+</div></span>
   
 </li>
 
@@ -1033,20 +1089,21 @@
       <pre class="lines">
 
 
-112
-113
-114
-115
-116
-117
-118
-119
-120
-121
-122</pre>
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 132</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be a CMDx::Task</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='rparen'>)</span>
@@ -1057,6 +1114,7 @@
   <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
   <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='ivar'>@cause</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@retries</span> <span class='op'>=</span> <span class='int'>0</span>
   <span class='ivar'>@rolled_back</span> <span class='op'>=</span> <span class='kw'>false</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1163,7 +1221,7 @@
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span> <span class='comment'># =&gt; { duration: 1.5, retries: 2 }</span></code></pre>
+      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span> <span class='comment'># =&gt; { duration: 1.5, code: 200, message: &quot;Success&quot; }</span></code></pre>
     
   </div>
 
@@ -1270,6 +1328,144 @@
 
 <span class='kw'>def</span> <span class='id identifier rubyid_reason'>reason</span>
   <span class='ivar'>@reason</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="retries=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="retries-instance_method">
+  
+    #<strong>retries</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the number of retries attempted.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_retries'>retries</span> <span class='comment'># =&gt; 2</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The number of retries attempted</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_retries'>retries</span>
+  <span class='ivar'>@retries</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="rolled_back=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="rolled_back-instance_method">
+  
+    #<strong>rolled_back</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns whether the result has been rolled back.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_rolled_back?'>rolled_back?</span> <span class='comment'># =&gt; true</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether the result has been rolled back</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rolled_back'>rolled_back</span>
+  <span class='ivar'>@rolled_back</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1542,12 +1738,12 @@
       <pre class="lines">
 
 
-225
-226
-227</pre>
+246
+247
+248</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 225</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 246</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_bad?'>bad?</span>
   <span class='op'>!</span><span class='id identifier rubyid_success?'>success?</span>
@@ -1610,14 +1806,14 @@
       <pre class="lines">
 
 
-362
-363
-364
-365
-366</pre>
+383
+384
+385
+386
+387</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 362</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 383</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_caused_failure'>caused_failure</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
@@ -1683,14 +1879,14 @@
       <pre class="lines">
 
 
-376
-377
-378
-379
-380</pre>
+397
+398
+399
+400
+401</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 376</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 397</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
@@ -1752,16 +1948,16 @@
       <pre class="lines">
 
 
-175
-176
-177
-178
-179
-180
-181</pre>
+196
+197
+198
+199
+200
+201
+202</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 175</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 196</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_complete!'>complete!</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_complete?'>complete?</span>
@@ -1828,12 +2024,12 @@
       <pre class="lines">
 
 
-514
-515
-516</pre>
+534
+535
+536</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 514</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 534</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct'>deconstruct</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='lbracket'>[</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_status'>status</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_cause'>cause</span><span class='comma'>,</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='rbracket'>]</span>
@@ -1900,22 +2096,22 @@
       <pre class="lines">
 
 
-529
-530
-531
-532
-533
-534
-535
-536
-537
-538
-539
-540
-541</pre>
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 529</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 549</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='lbrace'>{</span>
@@ -1987,12 +2183,12 @@
       <pre class="lines">
 
 
-141
-142
-143</pre>
+162
+163
+164</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 141</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 162</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_executed!'>executed!</span>
   <span class='id identifier rubyid_success?'>success?</span> <span class='op'>?</span> <span class='id identifier rubyid_complete!'>complete!</span> <span class='op'>:</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
@@ -2054,12 +2250,12 @@
       <pre class="lines">
 
 
-151
-152
-153</pre>
+172
+173
+174</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 151</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 172</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_executed?'>executed?</span>
   <span class='id identifier rubyid_complete?'>complete?</span> <span class='op'>||</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
@@ -2119,16 +2315,16 @@
       <pre class="lines">
 
 
-161
-162
-163
-164
-165
-166
-167</pre>
+182
+183
+184
+185
+186
+187
+188</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 161</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 182</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_executing!'>executing!</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_executing?'>executing?</span>
@@ -2295,22 +2491,22 @@
       <pre class="lines">
 
 
-287
-288
-289
-290
-291
-292
-293
-294
-295
-296
-297
-298
-299</pre>
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 287</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 308</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_failed?'>failed?</span>
@@ -2386,12 +2582,12 @@
       <pre class="lines">
 
 
-214
-215
-216</pre>
+235
+236
+237</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 214</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 235</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_good?'>good?</span>
   <span class='op'>!</span><span class='id identifier rubyid_failed?'>failed?</span>
@@ -2465,30 +2661,30 @@
       <pre class="lines">
 
 
-308
-309
-310
-311
-312
-313
-314
-315
-316
-317
-318
-319
-320
-321
-322
-323
-324
-325
-326
-327
-328</pre>
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 308</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 329</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_halt!'>halt!</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_success?'>success?</span>
@@ -2569,12 +2765,12 @@
       <pre class="lines">
 
 
-451
-452
-453</pre>
+471
+472
+473</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 451</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 471</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span>
   <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -2634,16 +2830,16 @@
       <pre class="lines">
 
 
-189
-190
-191
-192
-193
-194
-195</pre>
+210
+211
+212
+213
+214
+215
+216</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
@@ -2746,15 +2942,15 @@
       <pre class="lines">
 
 
-240
-241
-242
-243
-244
-245</pre>
+261
+262
+263
+264
+265
+266</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 240</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 261</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_states_or_statuses'>states_or_statuses</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>block required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
@@ -2819,12 +3015,12 @@
       <pre class="lines">
 
 
-461
-462
-463</pre>
+481
+482
+483</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 461</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 481</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_outcome'>outcome</span>
   <span class='id identifier rubyid_initialized?'>initialized?</span> <span class='op'>||</span> <span class='id identifier rubyid_thrown_failure?'>thrown_failure?</span> <span class='op'>?</span> <span class='id identifier rubyid_state'>state</span> <span class='op'>:</span> <span class='id identifier rubyid_status'>status</span>
@@ -2835,9 +3031,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="rolled_back!-instance_method">
+  <h3 class="signature " id="retried?-instance_method">
   
-    #<strong>rolled_back!</strong>  &#x21d2; <tt>void</tt> 
+    #<strong>retried?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -2845,7 +3041,9 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p>
+    
+<p>Returns Whether the result has been retried.</p>
+
 
   </div>
 </div>
@@ -2855,11 +3053,28 @@
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_rolled_back!'>rolled_back!</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_rolled_back?'>rolled_back?</span> <span class='comment'># =&gt; true</span></code></pre>
+      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_retried?'>retried?</span> <span class='comment'># =&gt; true</span></code></pre>
     
   </div>
 
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether the result has been retried</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -2867,15 +3082,15 @@
       <pre class="lines">
 
 
-430
-431
-432</pre>
+450
+451
+452</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 430</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 450</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_rolled_back!'>rolled_back!</span>
-  <span class='ivar'>@rolled_back</span> <span class='op'>=</span> <span class='kw'>true</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_retried?'>retried?</span>
+  <span class='id identifier rubyid_retries'>retries</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2934,12 +3149,12 @@
       <pre class="lines">
 
 
-440
-441
-442</pre>
+460
+461
+462</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 440</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 460</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rolled_back?'>rolled_back?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@rolled_back</span>
@@ -3102,22 +3317,22 @@
       <pre class="lines">
 
 
-260
-261
-262
-263
-264
-265
-266
-267
-268
-269
-270
-271
-272</pre>
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 260</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 281</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_skipped?'>skipped?</span>
@@ -3190,16 +3405,16 @@
       <pre class="lines">
 
 
-389
-390
-391
-392
-393
-394
-395</pre>
+410
+411
+412
+413
+414
+415
+416</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 389</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 410</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_threw_failure'>threw_failure</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
@@ -3267,14 +3482,14 @@
       <pre class="lines">
 
 
-405
-406
-407
-408
-409</pre>
+426
+427
+428
+429
+430</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 405</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 426</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_threw_failure?'>threw_failure?</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
@@ -3437,20 +3652,20 @@
       <pre class="lines">
 
 
-343
-344
-345
-346
-347
-348
-349
-350
-351
-352
-353</pre>
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 343</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 364</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be a CMDx::Result</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></span><span class='rparen'>)</span>
@@ -3522,12 +3737,12 @@
       <pre class="lines">
 
 
-419
-420
-421</pre>
+440
+441
+442</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 419</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 440</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_thrown_failure?'>thrown_failure?</span>
   <span class='id identifier rubyid_failed?'>failed?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
@@ -3590,28 +3805,28 @@
       <pre class="lines">
 
 
-472
-473
-474
-475
-476
-477
-478
-479
-480
-481
-482
-483
-484
-485
-486
-487
-488
-489
-490</pre>
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 472</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 492</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span>
@@ -3689,17 +3904,17 @@
       <pre class="lines">
 
 
-498
-499
-500
-501
-502
-503
-504
-505</pre>
+518
+519
+520
+521
+522
+523
+524
+525</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 498</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 518</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
@@ -3719,7 +3934,7 @@
 </div>
 
       <div id="footer">
-  Generated on Thu Jan  8 19:10:57 2026 by
+  Generated on Thu Jan  8 21:27:10 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
