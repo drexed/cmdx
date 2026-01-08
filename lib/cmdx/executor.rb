@@ -138,17 +138,17 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def retry_execution?(exception)
-      available_retries = (task.class.settings[:retries] || 0).to_i
+      available_retries = Integer(task.class.settings[:retries] || 0)
       return false unless available_retries.positive?
 
-      current_retries = (result.metadata[:retries] ||= 0).to_i
-      remaining_retries = available_retries - current_retries
+      current_retry = result.retries
+      remaining_retries = available_retries - current_retry
       return false unless remaining_retries.positive?
 
       exceptions = Array(task.class.settings[:retry_on] || StandardError)
       return false unless exceptions.any? { |e| exception.class <= e }
 
-      result.metadata[:retries] += 1
+      result.retries += 1
 
       task.logger.warn do
         reason = "[#{exception.class}] #{exception.message}"
@@ -158,13 +158,13 @@ module CMDx
       jitter = task.class.settings[:retry_jitter]
       jitter =
         if jitter.is_a?(Symbol)
-          task.send(jitter, current_retries)
+          task.send(jitter, current_retry)
         elsif jitter.is_a?(Proc)
-          task.instance_exec(current_retries, &jitter)
+          task.instance_exec(current_retry, &jitter)
         elsif jitter.respond_to?(:call)
-          jitter.call(task, current_retries)
+          jitter.call(task, current_retry)
         else
-          jitter.to_f * current_retries
+          jitter.to_f * current_retry
         end
 
       sleep(jitter) if jitter.positive?

@@ -119,3 +119,16 @@ class FetchUserProfile < CMDx::Task
   end
 end
 ```
+
+## Retry Results
+
+After execution, the result object provides methods to inspect retry behavior:
+
+```ruby
+result = FetchExternalData.execute
+
+result.retries   # => 2 (number of retry attempts made)
+result.retried?  # => true (whether any retries occurred)
+```
+
+Use these methods for logging, metrics, or conditional post-processing based on retry activity.

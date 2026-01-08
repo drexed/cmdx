@@ -70,7 +70,7 @@ module CMDx
     # @return [Hash{Symbol => Object}] Metadata hash
     #
     # @example
-    #   result.metadata # => { duration: 1.5, retries: 2 }
+    #   result.metadata # => { duration: 1.5, code: 200, message: "Success" }
     #
     # @rbs @metadata: Hash[Symbol, untyped]
     attr_reader :metadata
@@ -95,6 +95,16 @@ module CMDx
     # @rbs @cause: (Exception | nil)
     attr_reader :cause
 
+    # Returns the number of retries attempted.
+    #
+    # @return [Integer] The number of retries attempted
+    #
+    # @example
+    #   result.retries # => 2
+    #
+    # @rbs @retries: Integer
+    attr_accessor :retries
+
     def_delegators :task, :context, :chain, :errors, :dry_run?
     alias ctx context
 
@@ -118,6 +128,7 @@ module CMDx
       @metadata = {}
       @reason = nil
       @cause = nil
+      @retries = 0
       @rolled_back = false
     end
 
@@ -418,6 +429,16 @@ module CMDx
     # @rbs () -> bool
     def thrown_failure?
       failed? && !caused_failure?
+    end
+
+    # @return [Boolean] Whether the result has been retried
+    #
+    # @example
+    #   result.retried? # => true
+    #
+    # @rbs () -> bool
+    def retried?
+      retries.positive?
     end
 
     # @return [void]

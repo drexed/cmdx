@@ -269,6 +269,18 @@ RSpec.describe CMDx::Result, type: :unit do
         expect(result.rolled_back?).to be(true)
       end
     end
+
+    describe "#retried?" do
+      it "returns false when retries is zero" do
+        expect(result.retried?).to be(false)
+      end
+
+      it "returns true when retries is positive" do
+        result.retries = 1
+
+        expect(result.retried?).to be(true)
+      end
+    end
   end
 
   describe "execution methods" do

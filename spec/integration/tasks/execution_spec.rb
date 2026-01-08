@@ -653,7 +653,7 @@ RSpec.describe "Task execution", type: :feature do
 
         expect(result).to be_successful
         expect(result).to have_matching_context(retries: 3, executed: %i[success])
-        expect(result).to have_matching_metadata(retries: 2)
+        expect(result.retries).to eq(2)
       end
     end
 

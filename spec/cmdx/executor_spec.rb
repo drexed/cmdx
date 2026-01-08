@@ -391,7 +391,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "when retries are exhausted" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 2 })
-        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+        allow(task.result).to receive(:retries).and_return(2)
       end
 
       it "returns false" do
@@ -402,7 +402,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "when exception type does not match retry_on" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_on: [ArgumentError] })
-        allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        allow(task.result).to receive(:retries).and_return(0)
       end
 
       it "returns false" do
@@ -413,23 +413,24 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "when retry should happen" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3 })
-        allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+        allow(task.result).to receive_messages(retries: 0, :retries= => nil)
       end
 
       it "returns true" do
         expect(worker.send(:retry_execution?, exception)).to be(true)
       end
 
-      it "increments retry count in metadata" do
-        metadata = { retries: 1 }
-        allow(task.result).to receive(:metadata).and_return(metadata)
+      it "increments retry count on result" do
+        allow(task.result).to receive_messages(retries: 1, :retries= => nil)
+
+        expect(task.result).to receive(:retries=).with(2)
 
         worker.send(:retry_execution?, exception)
-
-        expect(metadata[:retries]).to eq(2)
       end
 
       it "logs warning with reason and remaining retries" do
+        allow(task.result).to receive_messages(retries: 0, :retries= => nil)
+
         expect(logger).to receive(:warn) do |&block|
           result = block.call
           expect(result[:reason]).to eq("[StandardError] test error")
@@ -444,7 +445,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       context "when exception matches configured type" do
         before do
           allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
-          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+          allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
         it "returns true" do
@@ -457,7 +458,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         before do
           allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
-          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+          allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
         it "returns true" do
@@ -468,7 +469,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       context "when multiple exception types are configured" do
         before do
           allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [ArgumentError, StandardError] })
-          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+          allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
         it "returns true if exception matches any type" do
@@ -480,7 +481,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "with retry_jitter as numeric value" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0.5 })
-        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
       it "sleeps for jitter multiplied by current retries" do
@@ -491,7 +492,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when first retry" do
         before do
-          allow(task.result).to receive(:metadata).and_return({ retries: 0 })
+          allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
         it "does not sleep when jitter calculation is 0" do
@@ -503,7 +504,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when second retry" do
         before do
-          allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+          allow(task.result).to receive_messages(retries: 1, :retries= => nil)
         end
 
         it "sleeps for jitter * 1" do
@@ -515,7 +516,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when third retry" do
         before do
-          allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+          allow(task.result).to receive_messages(retries: 2, :retries= => nil)
         end
 
         it "sleeps for jitter * 2" do
@@ -529,7 +530,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "with retry_jitter as symbol" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: :custom_jitter })
-        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        allow(task.result).to receive_messages(retries: 1, :retries= => nil)
         allow(task).to receive(:custom_jitter).with(1).and_return(2.5)
       end
 
@@ -546,7 +547,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_proc })
-        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+        allow(task.result).to receive_messages(retries: 2, :retries= => nil)
       end
 
       it "instance_execs proc with current retries" do
@@ -567,7 +568,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_callable })
-        allow(task.result).to receive(:metadata).and_return({ retries: 2 })
+        allow(task.result).to receive_messages(retries: 2, :retries= => nil)
       end
 
       it "calls object with task and current retries" do
@@ -581,7 +582,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "when jitter calculation returns negative value" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: -0.5 })
-        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
       it "does not sleep" do
@@ -594,7 +595,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "when jitter calculation returns zero" do
       before do
         allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0 })
-        allow(task.result).to receive(:metadata).and_return({ retries: 1 })
+        allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
       it "does not sleep" do
