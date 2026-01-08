@@ -94,12 +94,6 @@ Complex async operations with Sidekiq, retry logic, and error handling
 
 ## Get Started in Seconds
 
-Add CMDx to your project and start building
-
-```bash
-gem install cmdx
-# or
-bundle add cmdx
-```
+Say goodbye to messy service objects. Design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 [Read the Docs](https://drexed.github.io/cmdx/getting_started/index.md) [Star on GitHub](https://github.com/drexed/cmdx)
