@@ -217,6 +217,25 @@ module CMDx
       end
       alias remove_attribute remove_attributes
 
+      # @return [Hash] Hash of attribute names to their configurations
+      #
+      # @example
+      #   MyTask.attributes_schema #=> {
+      #     user_id: { name: :user_id, method_name: :user_id, required: true, types: [:integer], options: {}, children: [] },
+      #     email: { name: :email, method_name: :email, required: false, types: [:string], options: { default: nil }, children: [] },
+      #     profile: { name: :profile, method_name: :profile, required: false, types: [:hash], options: {}, children: [
+      #       { name: :bio, method_name: :bio, required: false, types: [:string], options: {}, children: [] },
+      #       { name: :name, method_name: :name, required: true, types: [:string], options: {}, children: [] }
+      #     ] }
+      #   }
+      #
+      # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
+      def attributes_schema
+        Array(settings[:attributes]).each_with_object({}) do |attr, schema|
+          schema[attr.method_name] = attr.to_h
+        end
+      end
+
       CallbackRegistry::TYPES.each do |callback|
         # @param callables [Array] Callable objects to register as callbacks
         # @param options [Hash] Options for the callback registration

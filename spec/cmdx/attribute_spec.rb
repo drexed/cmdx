@@ -392,6 +392,93 @@ RSpec.describe CMDx::Attribute, type: :unit do
     end
   end
 
+  describe "#to_h" do
+    context "with basic attribute" do
+      let(:attribute_options) { { type: :string, default: "test" } }
+
+      it "returns a hash representation" do
+        result = attribute.to_h
+
+        expect(result).to be_a(Hash)
+        expect(result).to include(
+          name: :test_attr,
+          method_name: :test_attr,
+          required: false,
+          types: [:string],
+          children: []
+        )
+      end
+
+      it "includes options without :if and :unless" do
+        result = attribute.to_h
+
+        expect(result[:options]).to eq(default: "test")
+      end
+    end
+
+    context "with required attribute" do
+      let(:attribute_options) { { required: true, type: :integer } }
+
+      it "sets required to true" do
+        expect(attribute.to_h[:required]).to be(true)
+      end
+    end
+
+    context "with conditional options" do
+      let(:attribute_options) { { type: :string, if: :some_condition?, unless: :other_condition?, default: "value" } }
+
+      it "excludes :if and :unless from options" do
+        result = attribute.to_h
+
+        expect(result[:options]).not_to have_key(:if)
+        expect(result[:options]).not_to have_key(:unless)
+        expect(result[:options]).to eq(default: "value")
+      end
+    end
+
+    context "with nested children" do
+      let(:attribute) do
+        described_class.new(:parent_attr, type: :hash) do
+          optional :child1, type: :string
+          required :child2, type: :integer
+        end
+      end
+
+      it "includes children as array of hashes" do
+        result = attribute.to_h
+
+        expect(result[:children]).to be_an(Array)
+        expect(result[:children].size).to eq(2)
+      end
+
+      it "recursively converts children to hashes" do
+        result = attribute.to_h
+        child_names = result[:children].map { |c| c[:name] }
+
+        expect(child_names).to contain_exactly(:child1, :child2)
+      end
+
+      it "preserves child metadata" do
+        result = attribute.to_h
+        child1 = result[:children].find { |c| c[:name] == :child1 }
+        child2 = result[:children].find { |c| c[:name] == :child2 }
+
+        expect(child1[:required]).to be(false)
+        expect(child1[:types]).to eq([:string])
+        expect(child2[:required]).to be(true)
+        expect(child2[:types]).to eq([:integer])
+      end
+    end
+
+    context "with custom method name" do
+      let(:attribute_options) { { as: :custom_method, type: :string } }
+
+      it "includes the custom method name" do
+        expect(attribute.to_h[:method_name]).to eq(:custom_method)
+      end
+    end
+  end
+
   describe "private methods" do
     describe "#attribute" do
       let(:child_options) { { required: true } }

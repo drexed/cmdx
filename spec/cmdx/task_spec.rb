@@ -253,6 +253,63 @@ RSpec.describe CMDx::Task, type: :unit do
     end
   end
 
+  describe ".attributes_schema" do
+    let(:task_with_attrs) do
+      Class.new(CMDx::Task) do
+        required :user_id, type: :integer
+        optional :email, type: :string, default: "test@example.com"
+        optional :profile, type: :hash do
+          optional :bio, type: :string
+          required :name, type: :string
+        end
+
+        def work; end
+      end
+    end
+
+    it "returns a hash keyed by attribute method names" do
+      schema = task_with_attrs.attributes_schema
+
+      expect(schema).to be_a(Hash)
+      expect(schema.keys).to contain_exactly(:user_id, :email, :profile)
+    end
+
+    it "includes attribute metadata from to_h" do
+      schema = task_with_attrs.attributes_schema
+
+      expect(schema[:user_id]).to include(
+        name: :user_id,
+        method_name: :user_id,
+        required: true,
+        types: [:integer]
+      )
+
+      expect(schema[:email]).to include(
+        name: :email,
+        method_name: :email,
+        required: false,
+        types: [:string]
+      )
+      expect(schema[:email][:options]).to include(default: "test@example.com")
+    end
+
+    it "includes nested children" do
+      schema = task_with_attrs.attributes_schema
+
+      expect(schema[:profile][:children]).to be_an(Array)
+      expect(schema[:profile][:children].size).to eq(2)
+
+      child_names = schema[:profile][:children].map { |c| c[:name] }
+      expect(child_names).to contain_exactly(:bio, :name)
+    end
+
+    it "returns empty hash when no attributes defined" do
+      empty_task = Class.new(CMDx::Task) { def work; end }
+
+      expect(empty_task.attributes_schema).to eq({})
+    end
+  end
+
   describe "callback methods" do
     CMDx::CallbackRegistry::TYPES.each do |callback_type|
       describe ".#{callback_type}" do

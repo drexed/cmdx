@@ -235,6 +235,23 @@ module CMDx
       end
     end
 
+    # @return [Hash] A hash representation of the attribute
+    #
+    # @example
+    #   attribute.to_h # => { name: :user_id, method_name: :user_id, required: true, types: [:integer], options: {}, children: [] }
+    #
+    # @rbs () -> Hash[Symbol, untyped]
+    def to_h
+      {
+        name: name,
+        method_name: method_name,
+        required: required?,
+        types: types,
+        options: options.except(:if, :unless),
+        children: children.map(&:to_h)
+      }
+    end
+
     private
 
     # Creates nested attributes as children of this attribute.
