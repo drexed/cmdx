@@ -15,6 +15,9 @@ hide:
   padding: 4rem 1rem 3rem;
   background: linear-gradient(135deg, rgba(254, 24, 23, 0.03) 0%, transparent 50%);
 }
+.hero .logo {
+  margin-bottom: 1.5rem;
+}
 .hero h1 {
   font-size: 3rem;
   font-weight: 700;
