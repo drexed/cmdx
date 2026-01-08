@@ -244,12 +244,6 @@ hide:
     <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
   </div>
 
-  <div class="badges">
-    <a href="https://rubygems.org/gems/cmdx"><img alt="Version" src="https://img.shields.io/gem/v/cmdx"></a>
-    <a href="https://github.com/drexed/cmdx/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg"></a>
-    <a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg"></a>
-  </div>
-
   <h1>
     Build <span>powerful</span>, <span>predictable</span>,<br>
     and <span>maintainable</span> business logic
@@ -258,6 +252,12 @@ hide:
   <p class="tagline">
     CMDx is a Ruby framework for clean, composable business logic—designed to replace service-object sprawl.
   </p>
+
+  <div class="badges">
+    <a href="https://rubygems.org/gems/cmdx"><img alt="Version" src="https://img.shields.io/gem/v/cmdx"></a>
+    <a href="https://github.com/drexed/cmdx/actions/workflows/ci.yml"><img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg"></a>
+    <a href="https://github.com/drexed/cmdx/blob/main/LICENSE.txt"><img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg"></a>
+  </div>
 
   <div class="buttons">
     <a href="getting_started/" class="primary">Get Started</a>
@@ -310,7 +310,7 @@ end
 <!-- Why CMDx Section -->
 <div class="section-alt">
   <div class="section">
-    <h2>Why Choose CMDx?</h2>
+    <h2>Why Use CMDx?</h2>
     <p class="subtitle">Everything you need to build reliable, testable business logic in Ruby</p>
 
     <div class="features">
