@@ -377,13 +377,7 @@ end
 <div class="section-alt">
   <div class="section">
     <h2>Get Started in Seconds</h2>
-    <p class="subtitle">Add CMDx to your project and start building</p>
-
-```bash
-gem install cmdx
-# or
-bundle add cmdx
-```
+    <p class="subtitle">Say goodbye to messy service objects. Design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
 
     <div style="text-align: center; margin-top: 2rem;">
       <a href="getting_started/" class="md-button md-button--primary" style="margin-right: 0.5rem;">Read the Docs</a>
