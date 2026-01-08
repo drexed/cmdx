@@ -4,3 +4,5 @@ hide:
   - navigation
   - toc
 ---
+
+# Blog
