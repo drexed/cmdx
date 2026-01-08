@@ -16,8 +16,8 @@ class ApproveLoan < CMDx::Task
   def work
     if application.nil?
       fail!("Application not found", code: 404)
-    elsif application.score < minimum_score && !override_checks
-      fail!("Credit score too low", code: :rejected)
+    elsif application.approved?
+      skip!("Application already approved")
     else
       context.approval = application.approve!
       context.approved_at = Time.current
@@ -26,9 +26,13 @@ class ApproveLoan < CMDx::Task
 
   private
 
-  def application = @application ||= LoanApplication.find_by(id: application_id)
-  def minimum_score = 650
-  def notify_applicant! = ApprovalMailer.approved(application).deliver_later
+  def application
+    @application ||= LoanApplication.find_by(id: application_id)
+  end
+
+  def notify_applicant!
+    ApprovalMailer.approved(application).deliver_later
+  end
 end
 ```
 
@@ -87,39 +91,6 @@ Registration flows, verification steps, and welcome sequences
 ### 🤖 Background Jobs
 
 Complex async operations with Sidekiq, retry logic, and error handling
-
-## The CERO Pattern
-
-A simple yet powerful approach to building reliable business logic
-
-Compose → Execute → React → Observe
-
-```ruby
-# Compose: Define your task with typed attributes and callbacks
-result = ApproveLoan.execute(application_id: 123)
-
-# React: Handle outcomes with clear state checks
-if result.success?
-  redirect_to result.context.approval
-elsif result.failed?
-  render :error, notice: result.reason
-end
-
-# Observe: Automatic structured logging
-# index=0 chain_id="abc123" class="ApproveLoan" state="complete" status="success"
-```
-
-90+
-
-Locales Supported
-
-0
-
-Dependencies
-
-100%
-
-Test Coverage
 
 ## Get Started in Seconds
 
