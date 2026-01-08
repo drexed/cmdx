@@ -47,6 +47,8 @@ hide:
 .hero .buttons {
   margin-bottom: 3rem;
 }
+
+/* Buttons */
 .buttons a {
   padding: 0.8rem 2rem;
   border-radius: 8px;
@@ -66,6 +68,10 @@ hide:
   background: var(--md-code-bg-color);
   color: var(--md-typeset-color) !important;
   border: 1px solid var(--md-default-fg-color--lightest);
+}
+@media (max-width: 480px) {
+  .buttons { flex-direction: column; }
+  .buttons a { width: 100%; text-align: center; }
 }
 
 /* Code showcase - Terminal style */
