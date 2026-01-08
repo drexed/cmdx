@@ -54,6 +54,8 @@ theme:
     - navigation.expand
     - navigation.path
     - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
     - search.highlight
@@ -136,38 +138,39 @@ plugins:
 
 nav:
   - Home: index.md
-  - Getting Started: getting_started.md
-  - Configuration: configuration.md
-  - Basics:
-    - Setup: basics/setup.md
-    - Execution: basics/execution.md
-    - Context: basics/context.md
-    - Chain: basics/chain.md
-  - Interruptions:
-    - Halt: interruptions/halt.md
-    - Faults: interruptions/faults.md
-    - Exceptions: interruptions/exceptions.md
-  - Outcomes:
-    - Result: outcomes/result.md
-    - States: outcomes/states.md
-    - Statuses: outcomes/statuses.md
-  - Attributes:
-    - Definitions: attributes/definitions.md
-    - Naming: attributes/naming.md
-    - Coercions: attributes/coercions.md
-    - Validations: attributes/validations.md
-    - Defaults: attributes/defaults.md
-    - Transformations: attributes/transformations.md
-  - Features:
-    - Callbacks: callbacks.md
-    - Middlewares: middlewares.md
-    - Logging: logging.md
-    - Internationalization: internationalization.md
-    - Retries: retries.md
-    - Deprecation: deprecation.md
-    - Workflows: workflows.md
-  - More:
-    - Tips and Tricks: tips_and_tricks.md
+  - Documentation:
+    - Getting Started: getting_started.md
+    - Configuration: configuration.md
+    - Basics:
+      - Setup: basics/setup.md
+      - Execution: basics/execution.md
+      - Context: basics/context.md
+      - Chain: basics/chain.md
+    - Interruptions:
+      - Halt: interruptions/halt.md
+      - Faults: interruptions/faults.md
+      - Exceptions: interruptions/exceptions.md
+    - Outcomes:
+      - Result: outcomes/result.md
+      - States: outcomes/states.md
+      - Statuses: outcomes/statuses.md
+    - Attributes:
+      - Definitions: attributes/definitions.md
+      - Naming: attributes/naming.md
+      - Coercions: attributes/coercions.md
+      - Validations: attributes/validations.md
+      - Defaults: attributes/defaults.md
+      - Transformations: attributes/transformations.md
+    - Features:
+      - Callbacks: callbacks.md
+      - Middlewares: middlewares.md
+      - Logging: logging.md
+      - Internationalization: internationalization.md
+      - Retries: retries.md
+      - Deprecation: deprecation.md
+      - Workflows: workflows.md
+    - More:
+      - Tips and Tricks: tips_and_tricks.md
   - Blog: blog/index.md
   - References:
     - API Documentation: https://drexed.github.io/cmdx/api/index.html
