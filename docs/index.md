@@ -34,7 +34,7 @@ hide:
   font-size: 1.35rem;
   color: var(--md-typeset-color);
   opacity: 0.85;
-  max-width: 650px;
+  max-width: 850px;
   margin: 0 auto 2rem;
   line-height: 1.6;
 }
