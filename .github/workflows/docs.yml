@@ -33,7 +33,7 @@ jobs:
           ruby-version: 3.4
           bundler-cache: true
       - name: Install Python dependencies
-        run: pip install mkdocs-material mkdocs-llmstxt pymdown-extensions
+        run: pip install mkdocs-material mkdocs-llmstxt mkdocs-rss-plugin pymdown-extensions
       - name: Generate API documentation
         run: bundle exec rake yard
       - name: Deploy documentation

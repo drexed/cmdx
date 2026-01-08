@@ -87,6 +87,12 @@ markdown_extensions:
 
 plugins:
   - search
+  - rss:
+      match_path: blog/posts/.*
+      date_from_meta:
+        as_creation: date
+      categories:
+        - categories
   - blog:
       blog_dir: blog
       blog_toc: true
@@ -182,6 +188,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/drexed/cmdx
+    - icon: fontawesome/solid/rss
+      link: https://drexed.github.io/cmdx/feed_rss_created.xml
 
 extra_css:
   - stylesheets/extra.css
