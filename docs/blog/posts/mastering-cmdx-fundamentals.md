@@ -1,5 +1,5 @@
 ---
-date: 2025-01-07
+date: 2026-01-07
 authors:
   - drexed
 categories:
