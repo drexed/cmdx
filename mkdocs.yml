@@ -99,6 +99,7 @@ plugins:
       post_date_format: long
       post_url_format: "{slug}"
       archive_date_format: MMMM yyyy
+      draft_if_future_date: true
       categories_allowed:
         - Tutorials
         - Updates
