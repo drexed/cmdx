@@ -14,3 +14,4 @@ Writing guidelines:
 - Use real world examples
 - Start small and build up to the final example
 - The first section should be excerpt ready using: `<!-- more -->`
+- Include the word `Ruby` atleast once within the post
