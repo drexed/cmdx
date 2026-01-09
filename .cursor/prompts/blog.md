@@ -2,7 +2,7 @@ Create a CMDx focused blog post markdown file into `docs/posts`
 
 Topic:
 
-Create a tutorial focused on all things in the `docs/outcomes`
+Create a tutorial focused on `callbacks` and `middlewares.md` of `docs/features`
 
 Writing guidelines:
 

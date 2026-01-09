@@ -476,6 +476,8 @@ rescue CMDx::Fault => e
 end
 ```
 
+## Conclusion
+
 That's the power of CMDx interruptions: explicit control flow, rich context, and clean error handling. No more mystery failures at 2 AM.
 
 Happy coding!
