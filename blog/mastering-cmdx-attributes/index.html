@@ -2112,7 +2112,7 @@
 </span></code></pre></div>
 <p>No exceptions to catch, no mystery failures buried in a stack trace. The task tells you exactly what went wrong.</p>
 <h2 id="how-attributes-become-methods">How Attributes Become Methods<a class="headerlink" href="#how-attributes-become-methods" title="Permanent link">&para;</a></h2>
-<p>You might have noticed something in that example: I'm calling <code>email</code> and <code>password</code> directly, not <code>context.email</code> or <code>@email</code>. That's because <strong>each attribute definition creates an instance method on your task</strong>.</p>
+<p>You might have noticed something in that example: I'm calling <code>email</code> and <code>password</code> directly, not <code>context.email</code> or <code>@email</code>. That's because <strong>each attribute definition creates an instance method on your task</strong> (Ruby FTW 🏆).</p>
 <p>When you write:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">RegisterUser</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:email</span>
