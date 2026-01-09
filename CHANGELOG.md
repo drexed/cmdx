@@ -38,11 +38,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added Flipper feature flag example
 
 ### Updated
-- Remove `handle_*` methods and provide `on(*states_or_statuses)` method for more flexibility
 - Optimize logging ancestor lookup
 - Use chop instead of range for better string performance
 - Update boolean coercion `TRUTHY` and `FALSEY` regexp to be case insensitive
 - Improve YARD documentation with `yard-lint`
+
+### Removed
+- Remove `handle_*` methods and provide `on(*states_or_statuses)` method for more flexibility
 
 ## [1.11.0] - 2025-11-08
 
