@@ -52,7 +52,7 @@ No exceptions to catch, no mystery failures buried in a stack trace. The task te
 
 ## How Attributes Become Methods
 
-You might have noticed something in that example: I'm calling `email` and `password` directly, not `context.email` or `@email`. That's because **each attribute definition creates an instance method on your task**.
+You might have noticed something in that example: I'm calling `email` and `password` directly, not `context.email` or `@email`. That's because **each attribute definition creates an instance method on your task** (Ruby FTW 🏆).
 
 When you write:
 

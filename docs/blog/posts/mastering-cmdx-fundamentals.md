@@ -105,7 +105,7 @@ result = ProcessOrder.execute(
 )
 ```
 
-String keys automatically convert to symbols. You can pass a hash, keyword arguments, or even an existing context from a previous task.
+String keys automatically convert to symbols. You can pass a hash, keyword arguments, or even an existing context from a previous task (it's what makes Ruby powerful IMHO 🌟).
 
 ### Getting Data Out
 
