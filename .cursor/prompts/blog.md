@@ -2,7 +2,7 @@ Create a CMDx focused blog post markdown file into `docs/posts`
 
 Topic:
 
-Create a tutorial focused on all things in the `docs/interruptions`
+Create a tutorial focused on all things in the `docs/outcomes`
 
 Writing guidelines:
 
