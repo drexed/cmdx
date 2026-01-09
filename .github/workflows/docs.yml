@@ -7,6 +7,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      CLICOLOR_FORCE: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

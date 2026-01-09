@@ -4,13 +4,15 @@ on:
     branches: [main]
 jobs:
   build:
-    env:
-      BUNDLE_GEMFILE: Gemfile
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         ruby-version: ["3.2", "3.3", "3.4", "4.0"]
+    env:
+      FORCE_COLOR: 1
+      CLICOLOR_FORCE: 1
+      BUNDLE_GEMFILE: Gemfile
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
