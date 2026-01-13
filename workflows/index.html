@@ -2382,10 +2382,10 @@
 </span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
-<p>Run tasks concurrently using the <a href="https://github.com/grosser/parallel">Parallel</a> gem. It automatically uses all available processors for maximum throughput.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Context is read-only during parallel execution. Load all required data beforehand.</p>
+<p>Run tasks concurrently using the <a href="https://github.com/grosser/parallel">Parallel</a> gem which automatically uses all available processors for maximum throughput.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature depends on the <code>parallel</code> gem being installed in your application or execution environment.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
@@ -2402,6 +2402,10 @@
 </span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="c1"># NOTE: Reactors are not supported</span>
 </span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Context is read-only during parallel execution. Load all required data beforehand.</p>
+</div>
 <h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
 <p>Generate new CMDx workflow tasks quickly using the built-in generator:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:workflow<span class="w"> </span>SendNotifications

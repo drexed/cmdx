@@ -179,11 +179,11 @@ end
 
 ## Parallel Execution
 
-Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem. It automatically uses all available processors for maximum throughput.
+Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem which automatically uses all available processors for maximum throughput.
 
-Warning
+Note
 
-Context is read-only during parallel execution. Load all required data beforehand.
+This feature depends on the `parallel` gem being installed in your application or execution environment.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -201,6 +201,10 @@ class SendWelcomeNotifications < CMDx::Task
   # NOTE: Reactors are not supported
 end
 ```
+
+Warning
+
+Context is read-only during parallel execution. Load all required data beforehand.
 
 ## Task Generator
 
