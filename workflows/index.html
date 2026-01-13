@@ -2251,10 +2251,6 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">CreateDashboard</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Execute tasks in parallel via the <a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> gem.</p>
-</div>
 <h3 id="group">Group<a class="headerlink" href="#group" title="Permanent link">&para;</a></h3>
 <p>Group related tasks to share configuration:</p>
 <div class="admonition warning">
@@ -2383,10 +2379,6 @@
 </span></code></pre></div>
 <h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
 <p>Run tasks concurrently using the <a href="https://github.com/grosser/parallel">Parallel</a> gem which automatically uses all available processors for maximum throughput.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This feature depends on the <code>parallel</code> gem being installed in your application or execution environment.</p>
-</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
@@ -2402,6 +2394,10 @@
 </span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="c1"># NOTE: Reactors are not supported</span>
 </span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature depends on the <code>parallel</code> gem being installed in your application or execution environment.</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Context is read-only during parallel execution. Load all required data beforehand.</p>

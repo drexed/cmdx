@@ -23,10 +23,6 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-Tip
-
-Execute tasks in parallel via the [cmdx-parallel](https://github.com/drexed/cmdx-parallel) gem.
-
 ### Group
 
 Group related tasks to share configuration:
@@ -181,10 +177,6 @@ end
 
 Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem which automatically uses all available processors for maximum throughput.
 
-Note
-
-This feature depends on the `parallel` gem being installed in your application or execution environment.
-
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
   include CMDx::Workflow
@@ -201,6 +193,10 @@ class SendWelcomeNotifications < CMDx::Task
   # NOTE: Reactors are not supported
 end
 ```
+
+Note
+
+This feature depends on the `parallel` gem being installed in your application or execution environment.
 
 Warning
 
