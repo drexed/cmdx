@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.14.0] - 2025-01-09
+
 ### Added
 - Add Ruby 4.0 compatibility
 - Add `Context#clear!` method to remove all context data
