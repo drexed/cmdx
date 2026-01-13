@@ -169,3 +169,9 @@ CMDx comes with built-in translations for over 90 languages, so standard validat
 These features—retries, deprecation, and internationalization—might seem like "nice-to-haves," but they are what separate a script from a framework. They allow you to write code that is resilient to failure, maintainable over the long term, and accessible to a global audience.
 
 By leaning on CMDx to handle these concerns, you keep your `work` method clean and focused on the actual business logic. And that's always a win.
+
+## References
+
+- [Retries](https://drexed.github.io/cmdx/retries/)
+- [Deprecation](https://drexed.github.io/cmdx/deprecation/)
+- [Internationalization](https://drexed.github.io/cmdx/internationalization/)

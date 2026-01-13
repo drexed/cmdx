@@ -481,3 +481,9 @@ end
 That's the power of CMDx interruptions: explicit control flow, rich context, and clean error handling. No more mystery failures at 2 AM.
 
 Happy coding!
+
+## References
+
+- [Halt](https://drexed.github.io/cmdx/interruptions/halt/)
+- [Faults](https://drexed.github.io/cmdx/interruptions/faults/)
+- [Exceptions](https://drexed.github.io/cmdx/interruptions/exceptions/)

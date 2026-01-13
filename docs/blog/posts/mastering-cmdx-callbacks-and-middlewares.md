@@ -143,3 +143,8 @@ The execution flow works like this:
 By leveraging callbacks and middlewares, this class tells a story. You can see at a glance that it's time-boxed, monitored, and has clear success/failure paths—all before you even look at the `work` method.
 
 That's the CMDx way: clean, composable, and easy to read.
+
+## References
+
+- [Callbacks Documentation](https://drexed.github.io/cmdx/callbacks/)
+- [Middlewares Documentation](https://drexed.github.io/cmdx/middlewares/)

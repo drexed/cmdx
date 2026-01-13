@@ -148,3 +148,9 @@ end
 By standardizing on a robust `Result` object, CMDx takes the guesswork out of your application's flow. You stop writing defensive checks for `nil` or rescuing generic `StandardError` everywhere. Instead, you get a clear, typed contract for every operation in your system.
 
 So next time you're writing a service object, ask yourself: *What is this actually returning?* If the answer isn't "a consistent Result object," give CMDx a look.
+
+## References
+
+- [Result](https://drexed.github.io/cmdx/outcomes/result/)
+- [States](https://drexed.github.io/cmdx/outcomes/states/)
+- [Statuses](https://drexed.github.io/cmdx/outcomes/statuses/)

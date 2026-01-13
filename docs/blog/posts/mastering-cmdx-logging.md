@@ -142,3 +142,7 @@ No more guessing *why* something failed. It's right there in the record.
 Good logging is the difference between a five-minute fix and a five-hour headache. CMDx handles the heavy lifting for you, ensuring that every piece of business logic is observable by default.
 
 So go ahead, delete those `puts "HERE"` statements. CMDx has got you covered.
+
+## References
+
+- [Logging](https://drexed.github.io/cmdx/logging/)

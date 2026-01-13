@@ -400,3 +400,10 @@ end
 These fundamentals are the foundation for everything else in CMDx—attributes, callbacks, workflows, middlewares. Master these four concepts and you'll be building robust business logic in no time.
 
 Happy coding!
+
+## References
+
+- [Setup](https://drexed.github.io/cmdx/basics/setup/)
+- [Context](https://drexed.github.io/cmdx/basics/context/)
+- [Execution](https://drexed.github.io/cmdx/basics/execution/)
+- [Chain](https://drexed.github.io/cmdx/basics/chain/)

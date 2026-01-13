@@ -600,3 +600,12 @@ Well-designed attributes give you:
 The time you invest in thoughtful attribute design pays dividends in debugging time saved and confidence gained. Your future self (and your teammates) will thank you.
 
 Next time you're building a task, start with the attributes. Ask yourself: What data do I need? What shape should it be in? What makes it valid? Answer those questions with attributes, and the rest follows naturally.
+
+## References
+
+- [Attribute Definitions](https://drexed.github.io/cmdx/attributes/definitions/)
+- [Coercions](https://drexed.github.io/cmdx/attributes/coercions/)
+- [Validations](https://drexed.github.io/cmdx/attributes/validations/)
+- [Defaults](https://drexed.github.io/cmdx/attributes/defaults/)
+- [Transformations](https://drexed.github.io/cmdx/attributes/transformations/)
+- [Naming](https://drexed.github.io/cmdx/attributes/naming/)

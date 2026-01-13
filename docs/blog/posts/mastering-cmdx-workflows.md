@@ -180,3 +180,7 @@ Workflows changed how I think about service objects. Instead of writing code tha
 5. **Parallelization**: Execute multiple tasks simultaneously.
 
 Give it a try on your next complex feature. You'll find yourself writing less glue code and more focused business logic.
+
+## References
+
+- [Workflows](https://drexed.github.io/cmdx/workflows/)
