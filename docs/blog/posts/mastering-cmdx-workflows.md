@@ -137,6 +137,38 @@ end
 
 `PlaceOrder` doesn't need to know how fulfillment works; it just knows it needs to happen. This encapsulation is key to maintaining large Ruby codebases.
 
+## Parallel Execution
+
+Some tasks don't depend on each other and can run simultaneously. Sending notifications is a perfect example—email, SMS, and push notifications are all independent operations.
+
+CMDx supports parallel execution out of the box using the `strategy: :parallel` option:
+
+```ruby
+class PlaceOrder < CMDx::Task
+  include CMDx::Workflow
+
+  task ValidateCart
+  task ChargeCard
+
+  # These run concurrently—no waiting for email to finish before SMS
+  tasks SendEmailReceipt, SendSmsConfirmation, NotifySlack, strategy: :parallel
+
+  task UpdateAnalytics
+end
+```
+
+This uses the [Parallel](https://github.com/grosser/parallel) gem under the hood (must be installed in your app or execution environment), automatically utilizing all available processors. You can also fine-tune with `in_threads` or `in_processes`:
+
+```ruby
+# Fixed thread pool
+tasks SendEmailReceipt, SendSmsConfirmation, strategy: :parallel, in_threads: 2
+
+# Forked processes (for CPU-bound work)
+tasks GeneratePdf, GenerateCsv, strategy: :parallel, in_processes: 2
+```
+
+One gotcha: **context is read-only during parallel execution**. Since tasks run simultaneously, allowing writes would create race conditions. Load all the data you need before the parallel block, and aggregate results afterward.
+
 ## Wrapping Up
 
 Workflows changed how I think about service objects. Instead of writing code that *does* things, I write code that *describes* what should be done.
@@ -145,5 +177,6 @@ Workflows changed how I think about service objects. Instead of writing code tha
 2. **Add flow control**: Use `if`/`unless` for logic branches.
 3. **Group related tasks**: Keep your definitions DRY.
 4. **Compose**: Break big workflows into smaller sub-workflows.
+5. **Parallelization**: Execute multiple tasks simultaneously.
 
 Give it a try on your next complex feature. You'll find yourself writing less glue code and more focused business logic.
