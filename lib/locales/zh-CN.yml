@@ -26,6 +26,7 @@ zh-CN:
       symbol: "符号"
       time: "时间"
     validators:
+      absence: "必须为空"
       exclusion:
         of: "不能是以下之一: %{values}"
         within: "不能在 %{min} 和 %{max} 之间"

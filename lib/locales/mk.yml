@@ -26,6 +26,7 @@ mk:
       symbol: "симбол"
       time: "време"
     validators:
+      absence: "мора да биде празно"
       exclusion:
         of: "не смее да биде еден од: %{values}"
         within: "не смее да биде помеѓу %{min} и %{max}"

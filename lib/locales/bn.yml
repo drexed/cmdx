@@ -26,6 +26,7 @@ bn:
       symbol: "প্রতীক"
       time: "সময়"
     validators:
+      absence: "খালি হতে হবে"
       exclusion:
         of: "নিম্নলিখিতগুলির মধ্যে একটি হতে পারবে না: %{values}"
         within: "%{min} এবং %{max} এর মধ্যে থাকতে পারবে না"

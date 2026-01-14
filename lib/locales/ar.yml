@@ -26,6 +26,7 @@ ar:
       symbol: "رمز"
       time: "الوقت"
     validators:
+      absence: "يجب أن يكون فارغاً"
       exclusion:
         of: "يجب ألا يكون واحداً من: %{values}"
         within: "يجب ألا يكون بين %{min} و %{max}"

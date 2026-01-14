@@ -26,6 +26,7 @@ fi:
       symbol: "symboli"
       time: "aika"
     validators:
+      absence: "täytyy olla tyhjä"
       exclusion:
         of: "ei saa olla yksi seuraavista: %{values}"
         within: "ei saa olla välillä %{min} ja %{max}"

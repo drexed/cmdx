@@ -26,6 +26,7 @@ ro:
       symbol: "simbol"
       time: "timp"
     validators:
+      absence: "trebuie să fie gol"
       exclusion:
         of: "nu trebuie să fie unul din: %{values}"
         within: "nu trebuie să fie între %{min} și %{max}"

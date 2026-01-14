@@ -26,6 +26,7 @@ sr:
       symbol: "симбол"
       time: "време"
     validators:
+      absence: "мора бити празно"
       exclusion:
         of: "не сме бити један од: %{values}"
         within: "не сме бити између %{min} и %{max}"

@@ -26,6 +26,7 @@ et:
       symbol: "sümbol"
       time: "aeg"
     validators:
+      absence: "peab olema tühi"
       exclusion:
         of: "ei tohi olla üks järgmistest: %{values}"
         within: "ei tohi olla %{min} ja %{max} vahel"

@@ -26,6 +26,7 @@ rm:
       symbol: "simbol"
       time: "ura"
     validators:
+      absence: "stoscha esser vid"
       exclusion:
         of: "na dastga betg esser in da: %{values}"
         within: "na dastga betg esser tranter %{min} e %{max}"

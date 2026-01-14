@@ -26,6 +26,7 @@ eo:
       symbol: "simbolo"
       time: "tempo"
     validators:
+      absence: "devas esti malplena"
       exclusion:
         of: "ne devas esti unu el: %{values}"
         within: "ne devas esti inter %{min} kaj %{max}"

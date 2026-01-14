@@ -26,6 +26,7 @@ sl:
       symbol: "simbol"
       time: "čas"
     validators:
+      absence: "mora biti prazno"
       exclusion:
         of: "ne sme biti eden od: %{values}"
         within: "ne sme biti med %{min} in %{max}"

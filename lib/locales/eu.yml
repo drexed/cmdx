@@ -26,6 +26,7 @@ eu:
       symbol: "ikurra"
       time: "ordua"
     validators:
+      absence: "hutsik izan behar du"
       exclusion:
         of: "ezin da honetako bat izan: %{values}"
         within: "ezin da %{min} eta %{max} artean izan"

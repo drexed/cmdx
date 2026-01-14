@@ -26,6 +26,7 @@ tr:
       symbol: "sembol"
       time: "zaman"
     validators:
+      absence: "boş olmalıdır"
       exclusion:
         of: "şunlardan biri olmamalıdır: %{values}"
         within: "%{min} ve %{max} arasında olmamalıdır"

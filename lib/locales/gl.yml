@@ -26,6 +26,7 @@ gl:
       symbol: "símbolo"
       time: "tempo"
     validators:
+      absence: "debe estar baleiro"
       exclusion:
         of: "non debe ser un de: %{values}"
         within: "non debe estar entre %{min} e %{max}"

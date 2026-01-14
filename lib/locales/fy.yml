@@ -26,6 +26,7 @@ fy:
       symbol: "symboal"
       time: "tiid"
     validators:
+      absence: "moat leech wêze"
       exclusion:
         of: "moat net ien fan wêze: %{values}"
         within: "moat net binnen %{min} en %{max} wêze"

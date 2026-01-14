@@ -26,6 +26,7 @@ ja:
       symbol: "シンボル"
       time: "時刻"
     validators:
+      absence: "空でなければなりません"
       exclusion:
         of: "次のいずれかであってはなりません: %{values}"
         within: "%{min} と %{max} の間であってはなりません"

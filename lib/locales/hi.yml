@@ -26,6 +26,7 @@ hi:
       symbol: "प्रतीक"
       time: "समय"
     validators:
+      absence: "खाली होना चाहिए"
       exclusion:
         of: "निम्नलिखित में से कोई नहीं होना चाहिए: %{values}"
         within: "%{min} और %{max} के बीच नहीं होना चाहिए"

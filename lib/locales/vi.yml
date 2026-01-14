@@ -26,6 +26,7 @@ vi:
       symbol: "ký hiệu"
       time: "thời gian"
     validators:
+      absence: "phải để trống"
       exclusion:
         of: "không được là một trong: %{values}"
         within: "không được nằm giữa %{min} và %{max}"

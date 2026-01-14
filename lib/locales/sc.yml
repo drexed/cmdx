@@ -26,6 +26,7 @@ sc:
       symbol: "sìmbulu"
       time: "ora"
     validators:
+      absence: "deve èssere bòidu"
       exclusion:
         of: "non deve èssere unu de: %{values}"
         within: "non deve èssere intre %{min} e %{max}"

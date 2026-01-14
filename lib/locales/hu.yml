@@ -26,6 +26,7 @@ hu:
       symbol: "szimbólum"
       time: "idő"
     validators:
+      absence: "üresnek kell lennie"
       exclusion:
         of: "nem lehet egyike a következőknek: %{values}"
         within: "nem lehet %{min} és %{max} között"

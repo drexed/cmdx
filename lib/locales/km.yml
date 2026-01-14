@@ -26,6 +26,7 @@ km:
       symbol: "និមិត្តសញ្ញា"
       time: "ពេលវេលា"
     validators:
+      absence: "ត្រូវតែទទេរ"
       exclusion:
         of: "មិនត្រូវតែជាមួយក្នុងចំណោម: %{values} ទេ"
         within: "មិនត្រូវតែនៅចន្លោះ %{min} និង %{max} ទេ"

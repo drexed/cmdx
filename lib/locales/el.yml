@@ -26,6 +26,7 @@ el:
       symbol: "σύμβολο"
       time: "ώρα"
     validators:
+      absence: "πρέπει να είναι κενό"
       exclusion:
         of: "δεν πρέπει να είναι ένα από: %{values}"
         within: "δεν πρέπει να είναι μεταξύ %{min} και %{max}"

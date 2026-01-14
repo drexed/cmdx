@@ -26,6 +26,7 @@ dz:
       symbol: "མཚན་མ།"
       time: "དུས་ཚིགས།"
     validators:
+      absence: "སྟོང་པོ་ཆོག་པ་ཆེད་དགོས།"
       exclusion:
         of: "འདི་ཚོའི་ནང་ནས་གཅིག་མི་ཆོག %{values}"
         within: "%{min} དང་ %{max} ཡབ་ཡུམ་ནས་མི་ཆོག"

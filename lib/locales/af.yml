@@ -26,6 +26,7 @@ af:
       symbol: "simbool"
       time: "tyd"
     validators:
+      absence: "moet leeg wees"
       exclusion:
         of: "moet nie een van wees nie: %{values}"
         within: "moet nie binne %{min} en %{max} wees nie"

@@ -26,6 +26,7 @@ da:
       symbol: "symbol"
       time: "tid"
     validators:
+      absence: "skal være tom"
       exclusion:
         of: "må ikke være en af: %{values}"
         within: "må ikke være mellem %{min} og %{max}"

@@ -26,6 +26,7 @@ be:
       symbol: "сімвал"
       time: "час"
     validators:
+      absence: "павінна быць пустым"
       exclusion:
         of: "не можа быць адным з: %{values}"
         within: "не можа быць паміж %{min} і %{max}"

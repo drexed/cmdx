@@ -26,6 +26,7 @@ sv:
       symbol: "symbol"
       time: "tid"
     validators:
+      absence: "måste vara tom"
       exclusion:
         of: "får inte vara en av: %{values}"
         within: "får inte vara mellan %{min} och %{max}"

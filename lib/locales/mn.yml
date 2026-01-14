@@ -26,6 +26,7 @@ mn:
       symbol: "тэмдэг"
       time: "цаг"
     validators:
+      absence: "хоосон байх ёстой"
       exclusion:
         of: "дараах зүйлсийн аль нэг байж болохгүй: %{values}"
         within: "%{min} ба %{max} хооронд байж болохгүй"

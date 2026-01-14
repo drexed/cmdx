@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+- Add attribute `Absence` validator
+
 ## [1.14.0] - 2025-01-09
 
 ### Added

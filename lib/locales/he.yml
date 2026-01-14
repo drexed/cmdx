@@ -26,6 +26,7 @@ he:
       symbol: "סמל"
       time: "זמן"
     validators:
+      absence: "חייב להיות ריק"
       exclusion:
         of: "לא יכול להיות אחד מ: %{values}"
         within: "לא יכול להיות בין %{min} ו-%{max}"

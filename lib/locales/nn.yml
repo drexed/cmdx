@@ -26,6 +26,7 @@ nn:
       symbol: "symbol"
       time: "tid"
     validators:
+      absence: "må vere tom"
       exclusion:
         of: "må ikkje vere ein av: %{values}"
         within: "må ikkje vere innanfor %{min} og %{max}"

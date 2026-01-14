@@ -26,6 +26,7 @@ oc:
       symbol: "simbol"
       time: "ora"
     validators:
+      absence: "deu èsser void"
       exclusion:
         of: "deu pas èsser un de: %{values}"
         within: "deu pas èsser entre %{min} e %{max}"

@@ -26,6 +26,7 @@ uz:
       symbol: "belgi"
       time: "vaqt"
     validators:
+      absence: "bo'sh bo'lishi kerak"
       exclusion:
         of: "bularning biri bo'lmasligi kerak: %{values}"
         within: "%{min} va %{max} oralig'ida bo'lmasligi kerak"

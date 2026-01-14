@@ -26,6 +26,7 @@ pt:
       symbol: "símbolo"
       time: "tempo"
     validators:
+      absence: "deve estar vazio"
       exclusion:
         of: "não deve ser um de: %{values}"
         within: "não deve estar entre %{min} e %{max}"

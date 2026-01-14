@@ -26,6 +26,7 @@ ms:
       symbol: "simbol"
       time: "masa"
     validators:
+      absence: "mesti kosong"
       exclusion:
         of: "tidak boleh menjadi salah satu daripada: %{values}"
         within: "tidak boleh berada di antara %{min} dan %{max}"

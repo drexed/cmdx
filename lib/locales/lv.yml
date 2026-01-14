@@ -26,6 +26,7 @@ lv:
       symbol: "simbols"
       time: "laiks"
     validators:
+      absence: "jābūt tukšam"
       exclusion:
         of: "nedrīkst būt viens no: %{values}"
         within: "nedrīkst būt starp %{min} un %{max}"

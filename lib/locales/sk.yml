@@ -26,6 +26,7 @@ sk:
       symbol: "symbol"
       time: "čas"
     validators:
+      absence: "musí byť prázdne"
       exclusion:
         of: "nesmie byť jedným z: %{values}"
         within: "nesmie byť medzi %{min} a %{max}"

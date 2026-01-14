@@ -26,6 +26,7 @@ mg:
       symbol: "mariky"
       time: "ora"
     validators:
+      absence: "tsy maintsy ho banga"
       exclusion:
         of: "tsy maintsy ho iray amin'ireo: %{values}"
         within: "tsy maintsy ho eo anelanelan'ny %{min} sy %{max}"

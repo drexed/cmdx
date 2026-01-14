@@ -26,6 +26,7 @@ ru:
       symbol: "символ"
       time: "время"
     validators:
+      absence: "должен быть пустым"
       exclusion:
         of: "не должен быть одним из: %{values}"
         within: "не должен быть между %{min} и %{max}"

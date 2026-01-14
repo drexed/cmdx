@@ -26,6 +26,7 @@ sq:
       symbol: "simbol"
       time: "koha"
     validators:
+      absence: "duhet të jetë bosh"
       exclusion:
         of: "nuk duhet të jetë një nga: %{values}"
         within: "nuk duhet të jetë mes %{min} dhe %{max}"

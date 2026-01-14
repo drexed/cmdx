@@ -26,6 +26,7 @@ or:
       symbol: "ପ୍ରତୀକ"
       time: "ସମୟ"
     validators:
+      absence: "ଖାଲି ହୋଇଥିବା ଆବଶ୍ୟକ"
       exclusion:
         of: "ନିମ୍ନଲିଖିତ ମଧ୍ୟରୁ ଗୋଟିଏ ହୋଇପାରିବ ନାହିଁ: %{values}"
         within: "%{min} ଏବଂ %{max} ମଧ୍ୟରେ ହୋଇପାରିବ ନାହିଁ"

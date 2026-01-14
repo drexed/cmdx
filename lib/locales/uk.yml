@@ -26,6 +26,7 @@ uk:
       symbol: "символ"
       time: "час"
     validators:
+      absence: "має бути порожнім"
       exclusion:
         of: "не може бути одним з: %{values}"
         within: "не може бути між %{min} та %{max}"

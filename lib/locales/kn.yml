@@ -26,6 +26,7 @@ kn:
       symbol: "ಚಿಹ್ನೆ"
       time: "ಸಮಯ"
     validators:
+      absence: "ಖಾಲಿಯಾಗಿರಬೇಕು"
       exclusion:
         of: "ಈ ಕೆಳಗಿನವುಗಳಲ್ಲಿ ಒಂದಾಗಿರಬಾರದು: %{values}"
         within: "%{min} ಮತ್ತು %{max} ನಡುವೆ ಇರಬಾರದು"

@@ -26,6 +26,7 @@ id:
       symbol: "simbol"
       time: "waktu"
     validators:
+      absence: "harus kosong"
       exclusion:
         of: "tidak boleh salah satu dari: %{values}"
         within: "tidak boleh di antara %{min} dan %{max}"

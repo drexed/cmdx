@@ -26,6 +26,7 @@ kk:
       symbol: "символ"
       time: "уақыт"
     validators:
+      absence: "бос болуы керек"
       exclusion:
         of: "бұлардың бірі болмасын: %{values}"
         within: "%{min} және %{max} арасында болмасын"

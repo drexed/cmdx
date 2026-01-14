@@ -26,6 +26,7 @@ sw:
       symbol: "ishara"
       time: "wakati"
     validators:
+      absence: "lazima iwe tupu"
       exclusion:
         of: "haipaswi kuwa moja ya: %{values}"
         within: "haipaswi kuwa kati ya %{min} na %{max}"

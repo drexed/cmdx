@@ -26,6 +26,7 @@ ur:
       symbol: "علامت"
       time: "وقت"
     validators:
+      absence: "خالی ہونا ضروری ہے"
       exclusion:
         of: "ان میں سے کوئی ایک نہیں ہونا چاہیے: %{values}"
         within: "%{min} اور %{max} کے درمیان نہیں ہونا چاہیے"

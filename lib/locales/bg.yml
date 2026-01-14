@@ -26,6 +26,7 @@ bg:
       symbol: "символ"
       time: "час"
     validators:
+      absence: "трябва да бъде празно"
       exclusion:
         of: "не може да бъде един от: %{values}"
         within: "не може да бъде между %{min} и %{max}"

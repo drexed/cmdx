@@ -26,6 +26,7 @@ ne:
       symbol: "प्रतीक"
       time: "समय"
     validators:
+      absence: "खाली हुनुपर्छ"
       exclusion:
         of: "निम्न मध्ये एउटा हुन सक्दैन: %{values}"
         within: "%{min} र %{max} बीचमा हुन सक्दैन"

@@ -26,6 +26,7 @@ bs:
       symbol: "simbol"
       time: "vrijeme"
     validators:
+      absence: "mora biti prazno"
       exclusion:
         of: "ne smije biti jedan od: %{values}"
         within: "ne smije biti između %{min} i %{max}"

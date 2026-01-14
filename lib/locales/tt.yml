@@ -26,6 +26,7 @@ tt:
       symbol: "символ"
       time: "вакыт"
     validators:
+      absence: "буш булырга тиеш"
       exclusion:
         of: "боларның берсе булмасын: %{values}"
         within: "%{min} һәм %{max} арасында булмасын"

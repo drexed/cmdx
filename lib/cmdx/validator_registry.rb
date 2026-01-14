@@ -29,6 +29,7 @@ module CMDx
     # @rbs (?Hash[Symbol, Class]? registry) -> void
     def initialize(registry = nil)
       @registry = registry || {
+        absence: Validators::Absence,
         exclusion: Validators::Exclusion,
         format: Validators::Format,
         inclusion: Validators::Inclusion,

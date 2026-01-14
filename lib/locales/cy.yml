@@ -26,6 +26,7 @@ cy:
       symbol: "symbol"
       time: "amser"
     validators:
+      absence: "rhaid iddo fod yn wag"
       exclusion:
         of: "ni all fod yn un o: %{values}"
         within: "ni all fod rhwng %{min} a %{max}"

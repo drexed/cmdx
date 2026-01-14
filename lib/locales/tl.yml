@@ -26,6 +26,7 @@ tl:
       symbol: "symbol"
       time: "oras"
     validators:
+      absence: "dapat na walang laman"
       exclusion:
         of: "hindi dapat na isa sa: %{values}"
         within: "hindi dapat na nasa pagitan ng %{min} at %{max}"

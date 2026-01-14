@@ -26,6 +26,7 @@ lo:
       symbol: "ສັນຍະລັກ"
       time: "ເວລາ"
     validators:
+      absence: "ຕ້ອງເປັນຄ່າວ່າງ"
       exclusion:
         of: "ບໍ່ຕ້ອງເປັນອັນໃດອັນໜຶ່ງໃນ: %{values}"
         within: "ບໍ່ຕ້ອງຢູ່ໃນຊ່ວງ %{min} ແລະ %{max}"

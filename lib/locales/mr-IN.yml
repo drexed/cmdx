@@ -26,6 +26,7 @@ mr-IN:
       symbol: "चिन्ह"
       time: "वेळ"
     validators:
+      absence: "रिक्त असणे आवश्यक आहे"
       exclusion:
         of: "खालीलपैकी एक असू शकत नाही: %{values}"
         within: "%{min} आणि %{max} दरम्यान असू शकत नाही"

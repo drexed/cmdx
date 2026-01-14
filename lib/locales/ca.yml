@@ -26,6 +26,7 @@ ca:
       symbol: "símbol"
       time: "temps"
     validators:
+      absence: "ha d'estar buit"
       exclusion:
         of: "no ha de ser un de: %{values}"
         within: "no ha d'estar entre %{min} i %{max}"

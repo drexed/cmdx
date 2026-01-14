@@ -26,6 +26,7 @@ is:
       symbol: "tákn"
       time: "tími"
     validators:
+      absence: "verður að vera tómt"
       exclusion:
         of: "má ekki vera einn af: %{values}"
         within: "má ekki vera á milli %{min} og %{max}"

@@ -26,6 +26,7 @@ ml:
       symbol: "ചിഹ്നം"
       time: "സമയം"
     validators:
+      absence: "ശൂന്യമായിരിക്കണം"
       exclusion:
         of: "ഇനിപ്പറയുന്നവയിൽ ഒന്നാകാൻ പാടില്ല: %{values}"
         within: "%{min} ഉം %{max} ഉം തമ്മിൽ ആകാൻ പാടില്ല"

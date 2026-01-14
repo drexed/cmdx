@@ -26,6 +26,7 @@ lb:
       symbol: "Symbol"
       time: "Zäit"
     validators:
+      absence: "muss eidel sinn"
       exclusion:
         of: "däerf net ee vun dësen sinn: %{values}"
         within: "däerf net tëscht %{min} an %{max} sinn"

@@ -26,6 +26,7 @@ lt:
       symbol: "simbolis"
       time: "laikas"
     validators:
+      absence: "turi būti tuščias"
       exclusion:
         of: "neturi būti vienas iš: %{values}"
         within: "neturi būti tarp %{min} ir %{max}"

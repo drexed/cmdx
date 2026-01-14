@@ -26,6 +26,7 @@ te:
       symbol: "చిహ్నం"
       time: "సమయం"
     validators:
+      absence: "ఖాళీగా ఉండాలి"
       exclusion:
         of: "ఈ క్రింది వాటిలో ఒకటి కాకూడదు: %{values}"
         within: "%{min} మరియు %{max} మధ్య ఉండకూడదు"

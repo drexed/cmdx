@@ -26,6 +26,7 @@ st:
       symbol: "mokhoa"
       time: "nako"
     validators:
+      absence: "e tlameha ho ba e se na letho"
       exclusion:
         of: "ha e tlameha ho ba e mong oa: %{values}"
         within: "ha e tlameha ho ba pakeng tsa %{min} le %{max}"

@@ -26,6 +26,7 @@ ug:
       symbol: "بەلگە"
       time: "ۋاقىت"
     validators:
+      absence: "بوش بولۇشى كېرەك"
       exclusion:
         of: "بۇلارنىڭ بىرى بولماسلىقى كېرەك: %{values}"
         within: "%{min} ۋە %{max} ئارىسىدا بولماسلىقى كېرەك"

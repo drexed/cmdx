@@ -26,6 +26,7 @@ hy:
       symbol: "սիմվոլ"
       time: "ժամանակ"
     validators:
+      absence: "պdelays delays delays delays delays է delays delaysdelays delays delays delays"
       exclusion:
         of: "չի կարող լինել հետևյալներից մեկը: %{values}"
         within: "չի կարող լինել %{min} և %{max} միջև"

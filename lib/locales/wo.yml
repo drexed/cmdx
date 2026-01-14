@@ -26,6 +26,7 @@ wo:
       symbol: "simbol"
       time: "jamono"
     validators:
+      absence: "dafa war a nekk lu nekk"
       exclusion:
         of: "duñu war a nekk benn ci: %{values}"
         within: "duñu war a nekk ci digg %{min} ak %{max}"

@@ -26,6 +26,7 @@ cs:
       symbol: "symbol"
       time: "čas"
     validators:
+      absence: "musí být prázdné"
       exclusion:
         of: "nesmí být jedním z: %{values}"
         within: "nesmí být mezi %{min} a %{max}"

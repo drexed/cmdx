@@ -26,6 +26,7 @@ ka:
       symbol: "სიმბოლო"
       time: "დრო"
     validators:
+      absence: "უნდა იყოს ცარიელი"
       exclusion:
         of: "არ უნდა იყოს ერთ-ერთი: %{values}"
         within: "არ უნდა იყოს %{min} და %{max} შორის"

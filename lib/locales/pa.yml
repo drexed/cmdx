@@ -26,6 +26,7 @@ pa:
       symbol: "ਚਿੰਨ੍ਹ"
       time: "ਸਮਾਂ"
     validators:
+      absence: "ਖਾਲੀ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ"
       exclusion:
         of: "ਹੇਠਾਂ ਦਿੱਤੇ ਗਏ ਵਿੱਚੋਂ ਕੋਈ ਇੱਕ ਨਹੀਂ ਹੋ ਸਕਦਾ: %{values}"
         within: "%{min} ਅਤੇ %{max} ਦੇ ਵਿਚਕਾਰ ਨਹੀਂ ਹੋ ਸਕਦਾ"

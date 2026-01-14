@@ -26,6 +26,7 @@ cnr:
       symbol: "simbol"
       time: "vrijeme"
     validators:
+      absence: "mora biti prazan"
       exclusion:
         of: "ne smije biti jedan od: %{values}"
         within: "ne smije biti između %{min} i %{max}"

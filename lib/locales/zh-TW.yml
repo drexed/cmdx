@@ -26,6 +26,7 @@ zh-TW:
       symbol: "符號"
       time: "時間"
     validators:
+      absence: "必須是空白"
       exclusion:
         of: "不可以是其中一個：%{values}"
         within: "不可以在 %{min} 和 %{max} 之間"

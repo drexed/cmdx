@@ -26,6 +26,7 @@ zh-YUE:
       symbol: "符號"
       time: "時間"
     validators:
+      absence: "必須係空白"
       exclusion:
         of: "唔可以係其中一個：%{values}"
         within: "唔可以喺 %{min} 同 %{max} 之間"

@@ -26,6 +26,7 @@ az:
       symbol: "simvol"
       time: "vaxt"
     validators:
+      absence: "boş olmalıdır"
       exclusion:
         of: "aşağıdakılardan biri ola bilməz: %{values}"
         within: "%{min} və %{max} arasında ola bilməz"

@@ -26,6 +26,7 @@ th:
       symbol: "สัญลักษณ์"
       time: "เวลา"
     validators:
+      absence: "ต้องเป็นค่าว่าง"
       exclusion:
         of: "ต้องไม่ใช่หนึ่งใน: %{values}"
         within: "ต้องไม่อยู่ระหว่าง %{min} และ %{max}"

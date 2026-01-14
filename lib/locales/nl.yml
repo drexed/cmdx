@@ -26,6 +26,7 @@ nl:
       symbol: "symbool"
       time: "tijd"
     validators:
+      absence: "moet leeg zijn"
       exclusion:
         of: "mag niet een van zijn: %{values}"
         within: "mag niet tussen %{min} en %{max} liggen"

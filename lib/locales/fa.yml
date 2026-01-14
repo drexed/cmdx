@@ -26,6 +26,7 @@ fa:
       symbol: "نماد"
       time: "زمان"
     validators:
+      absence: "باید خالی باشد"
       exclusion:
         of: "نباید یکی از اینها باشد: %{values}"
         within: "نباید بین %{min} و %{max} باشد"
