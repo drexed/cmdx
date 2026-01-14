@@ -352,13 +352,15 @@
 36
 37
 38
-39</pre>
+39
+40</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span> <span class='op'>||</span> <span class='lbrace'>{</span>
+    <span class='label'>absence:</span> <span class='const'><span class='object_link'><a href="Validators.html" title="CMDx::Validators (module)">Validators</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Validators/Absence.html" title="CMDx::Validators::Absence (module)">Absence</a></span></span><span class='comma'>,</span>
     <span class='label'>exclusion:</span> <span class='const'><span class='object_link'><a href="Validators.html" title="CMDx::Validators (module)">Validators</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Validators/Exclusion.html" title="CMDx::Validators::Exclusion (module)">Exclusion</a></span></span><span class='comma'>,</span>
     <span class='label'>format:</span> <span class='const'><span class='object_link'><a href="Validators.html" title="CMDx::Validators (module)">Validators</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Validators/Format.html" title="CMDx::Validators::Format (module)">Format</a></span></span><span class='comma'>,</span>
     <span class='label'>inclusion:</span> <span class='const'><span class='object_link'><a href="Validators.html" title="CMDx::Validators (module)">Validators</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Validators/Inclusion.html" title="CMDx::Validators::Inclusion (module)">Inclusion</a></span></span><span class='comma'>,</span>
@@ -530,13 +532,13 @@
       <pre class="lines">
 
 
-78
 79
 80
-81</pre>
+81
+82</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 78</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 79</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
@@ -591,12 +593,12 @@
       <pre class="lines">
 
 
-46
 47
-48</pre>
+48
+49</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 46</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 47</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dup'>dup</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='rparen'>)</span>
@@ -695,13 +697,13 @@
       <pre class="lines">
 
 
-62
 63
 64
-65</pre>
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 62</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 63</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_validator'>validator</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_validator'>validator</span>
@@ -863,7 +865,6 @@
       <pre class="lines">
 
 
-98
 99
 100
 101
@@ -879,10 +880,11 @@
 111
 112
 113
-114</pre>
+114
+115</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 98</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown validator type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
@@ -911,7 +913,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Jan 13 18:19:00 2026 by
+  Generated on Wed Jan 14 14:55:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

@@ -2500,6 +2500,24 @@ This list of options is available to all validators:
 | `:unless`    | Symbol, proc, lambda, or callable determining when to skip validation |
 | `:message`   | Custom error message for validation failures                          |
 
+### Absence
+
+```ruby
+class CreateUser < CMDx::Task
+  attribute :honey_pot, absence: true
+
+  attribute :honey_pot, absence: { message: "must be empty" }
+
+  def work
+    # Your logic here...
+  end
+end
+```
+
+| Options | Description                                       |
+| ------- | ------------------------------------------------- |
+| `true`  | Ensures value is nil, empty string, or whitespace |
+
 ### Exclusion
 
 ```ruby
