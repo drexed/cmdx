@@ -604,17 +604,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#event-sourcing-replacement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Event Sourcing Replacement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -630,17 +619,6 @@
     <span class="md-ellipsis">
       
         Type safety
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-cmdx-over-alternatives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why CMDx Over Alternatives?
       
     </span>
   </a>
@@ -1738,6 +1716,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2158,17 +2164,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#event-sourcing-replacement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Event Sourcing Replacement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#task-generator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2184,17 +2179,6 @@
     <span class="md-ellipsis">
       
         Type safety
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-cmdx-over-alternatives" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why CMDx Over Alternatives?
       
     </span>
   </a>
@@ -2416,20 +2400,6 @@
 <p><strong>Rich Domain Layer:</strong> Move orchestration and rules out of Controllers and ActiveRecord models. Entities focus on state; CMDx tasks handle behavior. This separation prevents "Fat Models" and keeps business logic testable and isolated.</p>
 </li>
 </ul>
-<h2 id="event-sourcing-replacement">Event Sourcing Replacement<a class="headerlink" href="#event-sourcing-replacement" title="Permanent link">&para;</a></h2>
-<p>Traditional Event Sourcing architectures impose a significant "complexity tax"—requiring specialized event stores, snapshots, and complex state rehydration logic. CMDx offers a pragmatic alternative: <strong>Log-Based Event Sourcing</strong>.</p>
-<p>By ensuring all state changes occur through CMDx tasks, your structured logs become a complete, immutable ledger of system behavior.</p>
-<ul>
-<li>
-<p><strong>Audit Trail:</strong> Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of <em>intent</em> (arguments) and <em>outcome</em> (success/failure) without extra coding.</p>
-</li>
-<li>
-<p><strong>Reconstructability</strong> Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.</p>
-</li>
-<li>
-<p><strong>Simplified Architecture</strong> Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.</p>
-</li>
-</ul>
 <h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
 <p>Generate new CMDx tasks quickly using the built-in generator:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:task<span class="w"> </span>ModerateBlogPost
@@ -2453,149 +2423,6 @@
 <li><strong>Better IDE support</strong> — Enhanced autocomplete, navigation, and inline documentation</li>
 <li><strong>Self-documenting code</strong> — Clear method signatures and return types</li>
 <li><strong>Refactoring confidence</strong> — Type-aware refactoring reduces bugs</li>
-</ul>
-<h2 id="why-cmdx-over-alternatives">Why CMDx Over Alternatives?<a class="headerlink" href="#why-cmdx-over-alternatives" title="Permanent link">&para;</a></h2>
-<p>CMDx stands apart by combining zero external dependencies with production-grade observability and a comprehensive type coercion system—all in a single, cohesive package. While other gems excel in specific areas, CMDx delivers the full stack: structured logging with correlation IDs, automatic runtime metrics, 20+ built-in type coercers, extensible middleware, and fault tolerance patterns—without pulling in a single additional dependency.</p>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th><a href="https://github.com/drexed/cmdx">CMDx</a></th>
-<th><a href="https://github.com/sunny/actor">Actor</a></th>
-<th><a href="https://github.com/servactory/servactory">Servactory</a></th>
-<th><a href="https://github.com/collectiveidea/interactor">Interactor</a></th>
-<th><a href="https://github.com/AaronLasseigne/active_interaction">ActiveInteraction</a></th>
-<th><a href="https://github.com/adomokos/light-service">LightService</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Zero dependencies</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>Typed attributes</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Type coercion</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Attribute validation</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Built-in logging</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Correlation IDs</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Runtime metrics</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Middleware system</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>Batch execution</td>
-<td>✅</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Fault tolerance</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Lifecycle callbacks</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>RBS type signatures</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-</tbody>
-</table>
-<p><strong>Key differentiators:</strong></p>
-<ul>
-<li>
-<p><strong>Observability out of the box</strong> — Structured logging, chain correlation, and runtime metrics are built-in, not bolted on. Trace complex workflows across services without additional instrumentation.</p>
-</li>
-<li>
-<p><strong>Comprehensive type system</strong> — 20+ coercers handle everything from primitives to dates, arrays, and custom types. Validation rules like <code>numeric</code>, <code>format</code>, and <code>inclusion</code> ensure data integrity before execution.</p>
-</li>
-<li>
-<p><strong>Extensible middleware</strong> — Inject cross-cutting concerns (authentication, rate limiting, telemetry) without modifying task logic. Middleware composes cleanly and executes in predictable order.</p>
-</li>
-<li>
-<p><strong>Fault tolerance patterns</strong> — Built-in retry policies with exponential backoff, circuit breakers, and timeout handling. Production-ready resilience without external gems.</p>
-</li>
-<li>
-<p><strong>Framework agnostic</strong> — Works seamlessly with Rails, Hanami, Sinatra, or plain Ruby. No ActiveSupport dependency, no framework lock-in.</p>
-</li>
 </ul>
 
 
