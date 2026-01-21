@@ -6,8 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### TODO
-- Add `rescue_from` handler
+## [1.15.0] - 2025-01-21
 
 ### Added
 - Add attribute `Absence` validator
