@@ -15,8 +15,8 @@ class MyTask < CMDx::Task
   end
 
   # Use execute! to trigger Sidekiq's retry logic on failures/exceptions.
-  def perform
-    self.class.execute!
+  def perform(context = {})
+    self.class.execute!(context)
   end
 
 end
@@ -25,5 +25,5 @@ end
 ### Usage
 
 ```ruby
-MyTask.perform_async
+MyTask.perform_async(work: "fast")
 ```
