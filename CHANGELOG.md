@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### TODO
 - Add `rescue_from` handler
-- Add example to convert attributes in openapi schema
 - Add example to make tasks durable with background jobs
 
 ### Added
