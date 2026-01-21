@@ -4172,6 +4172,7 @@ end
 
 ## Useful Examples
 
+- [Active Job Durability](https://github.com/drexed/cmdx/blob/main/examples/active_job_durability.md)
 - [Active Record Database Transaction](https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md)
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Active Support Instrumentation](https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md)
