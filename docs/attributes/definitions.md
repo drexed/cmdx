@@ -163,6 +163,22 @@ class BackupDatabase < CMDx::Task
 end
 ```
 
+## Description
+
+Add metadata to attributes for documentation or introspection purposes.
+
+```ruby
+class CreateUser < CMDx::Task
+  required :email, description: "The user's primary email address"
+
+  # Alias :desc
+  optional :phone, desc: "Primary contact number"
+
+  # Bulk definition - description applies to all
+  attributes :first_name, :last_name, desc: "Part of user's legal name"
+end
+```
+
 ## Nesting
 
 Build complex structures with nested attributes. Children inherit their parent as source and support all attribute options:

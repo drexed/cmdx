@@ -72,6 +72,16 @@ module CMDx
     # @rbs @types: Array[Class]
     attr_reader :types
 
+    # Returns the description of the attribute.
+    #
+    # @return [String] The description of the attribute
+    #
+    # @example
+    #   attribute.description # => "The user's name"
+    #
+    # @rbs @description: String
+    attr_reader :description
+
     # Creates a new attribute with the specified name and configuration.
     #
     # @param name [Symbol, String] The name of the attribute
@@ -79,6 +89,7 @@ module CMDx
     # @option options [Attribute] :parent The parent attribute for nested structures
     # @option options [Boolean] :required Whether the attribute is required (default: false)
     # @option options [Array<Class>, Class] :types The expected type(s) for the attribute value
+    # @option options [String] :description The description of the attribute
     # @option options [Symbol, String, Proc] :source The source of the attribute value
     # @option options [Symbol, String] :as The method name to use for this attribute
     # @option options [Symbol, String, Boolean] :prefix The prefix to add to the method name
@@ -98,6 +109,7 @@ module CMDx
       @parent = options.delete(:parent)
       @required = options.delete(:required) || false
       @types = Array(options.delete(:types) || options.delete(:type))
+      @description = options.delete(:description) || options.delete(:desc)
 
       @name = name.to_sym
       @options = options
@@ -238,13 +250,22 @@ module CMDx
     # @return [Hash] A hash representation of the attribute
     #
     # @example
-    #   attribute.to_h # => { name: :user_id, method_name: :user_id, required: true, types: [:integer], options: {}, children: [] }
+    #   attribute.to_h # => {
+    #   name: :user_id,
+    #   method_name: :current_user_id,
+    #   description: "The user's name",
+    #   required: true,
+    #   types: [:integer],
+    #   options: {},
+    #   children: []
+    # }
     #
     # @rbs () -> Hash[Symbol, untyped]
     def to_h
       {
         name: name,
         method_name: method_name,
+        description: description,
         required: required?,
         types: types,
         options: options.except(:if, :unless),
