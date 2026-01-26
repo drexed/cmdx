@@ -2,9 +2,13 @@
 hide:
   - navigation
   - toc
+title: CMDx
 ---
 
+# Home { .hidden-h1 }
+
 <style>
+.hidden-h1 { display: none; }
 /* Main content */
 .md-main__inner { max-width: none; }
 .md-content__inner { padding: 0; }
