@@ -2,7 +2,7 @@
 
 Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-See [Global Configuration](getting_started.md#middlewares) for framework-wide setup.
+See [Global Configuration](configuration.md#middlewares) for framework-wide setup.
 
 ## Execution Order
 

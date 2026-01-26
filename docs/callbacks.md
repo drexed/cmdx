@@ -2,7 +2,7 @@
 
 Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-See [Global Configuration](getting_started.md#callbacks) for framework-wide callback setup.
+See [Global Configuration](configuration.md#callbacks) for framework-wide callback setup.
 
 !!! warning "Important"
 

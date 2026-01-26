@@ -2,7 +2,7 @@
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](../getting_started.md#validators) for custom validator setup.
+See [Global Configuration](../configuration.md#validators) for custom validator setup.
 
 ## Usage
 

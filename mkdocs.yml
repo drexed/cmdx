@@ -145,9 +145,6 @@ plugins:
         More:
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
-        Ecosystem:
-          - cmdx-rspec: RSpec test matchers (https://github.com/drexed/cmdx-rspec)
-
 nav:
   - Home: index.md
   - Documentation:

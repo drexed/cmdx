@@ -2,7 +2,7 @@
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](../getting_started.md#coercions) for custom coercion setup.
+See [Global Configuration](../configuration.md#coercions) for custom coercion setup.
 
 ## Usage
 
