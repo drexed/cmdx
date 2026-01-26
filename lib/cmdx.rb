@@ -35,8 +35,8 @@ end
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cmdx" => "CMDx", "json" => "JSON")
 loader.ignore("#{__dir__}/cmdx/configuration")
-loader.ignore("#{__dir__}/cmdx/exception")
-loader.ignore("#{__dir__}/cmdx/fault")
+loader.ignore("#{__dir__}/cmdx/exceptions")
+loader.ignore("#{__dir__}/cmdx/faults")
 loader.ignore("#{__dir__}/cmdx/railtie")
 loader.ignore("#{__dir__}/generators")
 loader.ignore("#{__dir__}/locales")
@@ -48,11 +48,11 @@ require_relative "cmdx/configuration"
 
 # Pre-load exceptions to make them available at the top level
 # This ensures CMDx::Error and its descendants are always available
-require_relative "cmdx/exception"
+require_relative "cmdx/exceptions"
 
 # Pre-load fault classes to make them available at the top level
 # This ensures CMDx::FailFault and CMDx::SkipFault are always available
-require_relative "cmdx/fault"
+require_relative "cmdx/faults"
 
 # Conditionally load Rails components if Rails is available
 if defined?(Rails::Generators)

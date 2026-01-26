@@ -7,7 +7,7 @@ module CMDx
   # This serves as the root exception class for all errors raised by the CMDx
   # framework. It inherits from StandardError and provides a common base for
   # handling CMDx-specific exceptions.
-  Exception = Error = Class.new(StandardError)
+  Error = Class.new(StandardError)
 
   # Raised when attribute coercion fails during task execution.
   #

@@ -6,13 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Added
-- Add `CMDx::Exception` alias for `CMDx::Error`
-
-### Changed
-- Renamed `exceptions.rb` file to `exception.rb` (zeitwerk issue)
-- Renamed `faults.rb` file to `fault.rb` (zeitwerk issue)
-
 ## [1.15.0] - 2025-01-21
 
 ### Added
