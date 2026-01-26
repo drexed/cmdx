@@ -1,4 +1,6 @@
 --no-private
+--tag
+rbs
 --output-dir
 docs/api
 --exclude
