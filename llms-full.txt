@@ -6,6 +6,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 # Getting Started
 
+# Home
 
 # Getting Started
 
