@@ -5,6 +5,7 @@ hide:
 ---
 
 <style>
+/* Main content */
 .md-main__inner { max-width: none; }
 .md-content__inner { padding: 0; }
 .md-content__inner > :first-child { margin-top: 0; }
