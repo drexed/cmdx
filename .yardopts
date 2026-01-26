@@ -4,6 +4,7 @@ rbs
 --output-dir
 docs/api
 --exclude
-lib/generators/**/*.rb
+lib/generators/.*\.rb
+--exclude
 lib/cmdx/railtie.rb
 lib/**/*.rb
