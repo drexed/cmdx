@@ -84,11 +84,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#home" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -360,8 +355,6 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
-      
-        
       
       
       <a href="." class="md-nav__link md-nav__link--active">
@@ -1860,8 +1853,6 @@
   
   
   
-    
-  
   
 </nav>
                   </div>
@@ -1884,36 +1875,151 @@
               
               <article class="md-content__inner md-typeset">
                 
-                  
-  
+<!-- Hero Section -->
+<div class="hero">
+  <div class="logo">
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
+  </div>
 
+  <h1>
+    Build <span>powerful</span>, <span>predictable</span>,<br>
+    and <span>maintainable</span> business logic
+  </h1>
 
+  <p class="tagline">
+    CMDx is a Ruby framework for clean, composable business logic—designed to replace service-object sprawl.
+  </p>
 
-  
-  
+  <div class="buttons">
+    <a href="getting_started/" class="primary">Read the Docs</a>
+    <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
+  </div>
 
+  <div class="code-showcase">
+    <div class="terminal-header">
+      <div class="terminal-buttons">
+        <span class="terminal-btn close"></span>
+        <span class="terminal-btn minimize"></span>
+        <span class="terminal-btn maximize"></span>
+      </div>
+      <span class="terminal-title">app/tasks/approve_loan.rb</span>
+    </div>
 
-<h1 class="hidden-h1" id="home">Home<a class="headerlink" href="#home" title="Permanent link">&para;</a></h1>
-<p></div>
-<div class="hero"></p>
+```ruby
+class ApproveLoan < CMDx::Task
+  on_success :notify_applicant!
 
+  required :application_id, type: :integer
+  optional :override_checks, default: false
 
+  def work
+    if application.nil?
+      fail!("Application not found", code: 404)
+    elsif application.approved?
+      skip!("Application already approved")
+    else
+      application.approve!
+      context.approved_at = Time.current
+    end
+  end
 
+  private
 
+  def application
+    @application ||= LoanApplication.find_by(id: application_id)
+  end
 
+  def notify_applicant!
+    ApprovalMailer.approved(application).deliver_later
+  end
+end
+```
 
+  </div>
+</div>
 
-  
-  
+<!-- Why CMDx Section -->
+<div class="section-alt">
+  <div class="section">
+    <h2>Why Use CMDx?</h2>
+    <p class="subtitle">Everything you need to build reliable, testable business logic in Ruby</p>
 
+    <div class="features">
+      <div class="feature">
+        <h3>Zero Dependencies</h3>
+        <p>Pure Ruby with no external dependencies. Works with any Ruby project—Rails, Sinatra, or plain Ruby scripts.</p>
+      </div>
+      <div class="feature">
+        <h3>Type-Safe Attributes</h3>
+        <p>Declare inputs with automatic type coercion, validation, and defaults. Catch errors before they cause problems.</p>
+      </div>
+      <div class="feature">
+        <h3>Built-in Observability</h3>
+        <p>Structured logging with chain IDs, runtime metrics, and execution tracing. Debug complex workflows with ease.</p>
+      </div>
+      <div class="feature">
+        <h3>Composable Workflows</h3>
+        <p>Chain tasks together into sequential pipelines. Build complex processes from simple, tested building blocks.</p>
+      </div>
+      <div class="feature">
+        <h3>Predictable Results</h3>
+        <p>Every execution returns a result object with clear success, failure, or skipped states. No more exception juggling.</p>
+      </div>
+      <div class="feature">
+        <h3>Production Ready</h3>
+        <p>Automatic retries, middleware support, callbacks, and internationalization. Battle-tested in real applications.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Use Cases Section -->
+<div class="section">
+  <h2>Designed For</h2>
+  <p class="subtitle">CMDx shines wherever you need structured, reliable business logic</p>
 
+  <div class="use-cases">
+    <div class="use-case">
+      <h3>🏦 Financial Operations</h3>
+      <p>Payment processing, loan approvals, and transaction handling with full audit trails</p>
+    </div>
+    <div class="use-case">
+      <h3>📧 Notification Systems</h3>
+      <p>Multi-channel notifications with fallbacks, personalization, and delivery tracking</p>
+    </div>
+    <div class="use-case">
+      <h3>🔄 Data Pipelines</h3>
+      <p>ETL processes, data migrations, and transformations with checkpoints and recovery</p>
+    </div>
+    <div class="use-case">
+      <h3>🛒 E-commerce Flows</h3>
+      <p>Order processing, inventory management, and fulfillment orchestration</p>
+    </div>
+    <div class="use-case">
+      <h3>👤 User Onboarding</h3>
+      <p>Registration flows, verification steps, and welcome sequences</p>
+    </div>
+    <div class="use-case">
+      <h3>🤖 Background Jobs</h3>
+      <p>Complex async operations with Sidekiq, retry logic, and error handling</p>
+    </div>
+  </div>
+</div>
 
-  
+<!-- Quick Start Section -->
+<div class="section-alt">
+  <div class="section">
+    <h2>Get Started in Seconds</h2>
+    <p class="subtitle">Say goodbye to messy service objects. Design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
 
+    <div class="buttons" style="margin-top: 2rem;">
+      <a href="getting_started/" class="primary">Read the Docs</a>
+      <a href="https://github.com/drexed/cmdx" class="secondary">Star on GitHub</a>
+    </div>
+  </div>
+</div>
 
-
-                
               </article>
             </div>
           
