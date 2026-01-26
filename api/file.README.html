@@ -78,7 +78,7 @@
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
   <img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg">
 </div>
-<h1 id="label-CMDx">CMDx</h1>
+<h1 id="cmdx">CMDx</h1>
 
 <p>Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
 
@@ -86,7 +86,7 @@
 <p>[!NOTE] [Documentation](<a href="https://drexed.github.io/cmdx/getting_started">drexed.github.io/cmdx/getting_started</a>/) reflects the latest code on <code>main</code>. For version-specific documentation, please refer to the <code>docs/</code> directory within that version’s tag.</p>
 </blockquote>
 
-<h2 id="label-Requirements">Requirements</h2>
+<h2 id="requirements">Requirements</h2>
 <ul><li>
 <p>Ruby: MRI 3.1+ or JRuby 9.4+</p>
 </li><li>
@@ -95,18 +95,18 @@
 
 <p>Rails support is built-in, but it’s framework-agnostic at its core.</p>
 
-<h2 id="label-Installation">Installation</h2>
+<h2 id="installation">Installation</h2>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='id identifier rubyid_install'>install</span> <span class='id identifier rubyid_cmdx'>cmdx</span>
 <span class='comment'># - or -
 </span><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_add'>add</span> <span class='id identifier rubyid_cmdx'>cmdx</span>
 </code></pre>
 
-<h2 id="label-Quick+Example">Quick Example</h2>
+<h2 id="quick-example">Quick Example</h2>
 
 <p>Build powerful business logic in four simple steps:</p>
 
-<h3 id="label-1.+Compose">1. Compose</h3>
+<h3 id="1-compose">1. Compose</h3>
 
 <pre class="code ruby"><code class="ruby"><span class='comment'># Full-featured task example
 </span><span class='comment'># See docs for minimum viable task examples
@@ -144,7 +144,7 @@
 <span class='kw'>end</span>
 </code></pre>
 
-<h3 id="label-2.+Execute">2. Execute</h3>
+<h3 id="2-execute">2. Execute</h3>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'>AnalyzeMetrics</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span>
   <span class='label'>dataset_id:</span> <span class='int'>123</span><span class='comma'>,</span>
@@ -152,7 +152,7 @@
 <span class='rparen'>)</span>
 </code></pre>
 
-<h3 id="label-3.+React">3. React</h3>
+<h3 id="3-react">3. React</h3>
 
 <pre class="code ruby"><code class="ruby"><span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metrics analyzed at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_analyzed_at'>analyzed_at</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
@@ -163,7 +163,7 @@
 <span class='kw'>end</span>
 </code></pre>
 
-<h3 id="label-4.+Observe">4. Observe</h3>
+<h3 id="4-observe">4. Observe</h3>
 
 <pre class="code ruby"><code class="ruby">I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
 index=1 chain_id=&quot;018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf&quot; type=&quot;Task&quot; class=&quot;SendAnalyzedEmail&quot; state=&quot;complete&quot; status=&quot;success&quot; metadata={runtime: 347}
@@ -174,7 +174,7 @@ index=0 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Tas
 
 <p>Ready to dive in? Check out the <a href="https://drexed.github.io/cmdx/getting_started/">Getting Started</a> guide to learn more.</p>
 
-<h2 id="label-Ecosystem">Ecosystem</h2>
+<h2 id="ecosystem">Ecosystem</h2>
 <ul><li>
 <p><a href="https://github.com/drexed/cmdx-rspec">cmdx-rspec</a> - RSpec test matchers</p>
 </li></ul>
@@ -186,17 +186,17 @@ index=0 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Tas
 <p><a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> - Parallel workflow tasks, <code>v1.6.1</code> - <code>v1.6.2</code></p>
 </li></ul>
 
-<h2 id="label-Contributing">Contributing</h2>
+<h2 id="contributing">Contributing</h2>
 
 <p>Bug reports and pull requests are welcome at <a href="https://github.com/drexed/cmdx">github.com/drexed/cmdx</a>. We’re committed to fostering a welcoming, collaborative community. Please follow our <a href="CODE_OF_CONDUCT_md.html">code of conduct</a>.</p>
 
-<h2 id="label-License">License</h2>
+<h2 id="license">License</h2>
 
 <p>The gem is available as open source under the terms of the <a href="https://www.gnu.org/licenses/lgpl-3.0.html">LGPLv3 License</a>.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Mon Jan 26 01:21:23 2026 by
+  Generated on Mon Jan 26 01:25:39 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
