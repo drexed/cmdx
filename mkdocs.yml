@@ -11,6 +11,7 @@ copyright: Drexed, Inc. &copy; 2025 - EoT
 
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/favicon.svg
   favicon: assets/favicon.ico
   icon:
