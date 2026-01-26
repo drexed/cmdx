@@ -2191,7 +2191,7 @@ ScheduleMaintenance.execute(scheduled_at: DateTime.new(2024, 12, 15, 2, 0, 0))
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#coercions) for custom coercion setup.
+See [Global Configuration](https://drexed.github.io/cmdx/configuration/#coercions) for custom coercion setup.
 
 ## Usage
 
@@ -2347,7 +2347,7 @@ result.metadata #=> {
 
 Ensure inputs meet requirements before execution. Validations run after coercions, giving you declarative data integrity checks.
 
-See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#validators) for custom validator setup.
+See [Global Configuration](https://drexed.github.io/cmdx/configuration/#validators) for custom validator setup.
 
 ## Usage
 
@@ -2845,7 +2845,7 @@ end
 
 Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
 
-See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#callbacks) for framework-wide callback setup.
+See [Global Configuration](https://drexed.github.io/cmdx/configuration/#callbacks) for framework-wide callback setup.
 
 Important
 
@@ -3003,7 +3003,7 @@ end
 
 Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
 
-See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#middlewares) for framework-wide setup.
+See [Global Configuration](https://drexed.github.io/cmdx/configuration/#middlewares) for framework-wide setup.
 
 ## Execution Order
 
@@ -4114,5 +4114,3 @@ By ensuring all state changes occur through CMDx tasks, your structured logs bec
 - **Audit Trail:** Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of *intent* (arguments) and *outcome* (success/failure) without extra coding.
 - **Reconstructability** Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.
 - **Simplified Architecture** Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.
-# Ecosystem
-

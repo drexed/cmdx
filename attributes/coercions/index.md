@@ -2,7 +2,7 @@
 
 Automatically convert inputs to expected types. Coercions handle everything from simple string-to-integer conversions to JSON parsing.
 
-See [Global Configuration](https://drexed.github.io/cmdx/getting_started/#coercions) for custom coercion setup.
+See [Global Configuration](https://drexed.github.io/cmdx/configuration/#coercions) for custom coercion setup.
 
 ## Usage
 

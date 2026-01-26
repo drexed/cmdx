@@ -53,6 +53,3 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/index.md): Best practices, patterns, and techniques for maintainable CMDx applications
 - [Comparison](https://drexed.github.io/cmdx/comparison/index.md): Comparison with other command/service object frameworks
 
-## Ecosystem
-
-
