@@ -15,7 +15,9 @@ GEM
       cmdx (>= 1.5.0)
       rspec
     concurrent-ruby (1.3.6)
+    date (3.5.1)
     diff-lcs (1.6.2)
+    erb (6.0.1)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
     json (2.18.0)
@@ -27,9 +29,16 @@ GEM
       ast (~> 2.4.1)
       racc
     prism (1.8.0)
+    psych (5.3.1)
+      date
+      stringio
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.1)
+    rdoc (7.1.0)
+      erb
+      psych (>= 4.0.0)
+      tsort
     regexp_parser (2.11.3)
     rspec (3.13.2)
       rspec-core (~> 3.13.0)
@@ -69,6 +78,8 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.81)
     ruby-progressbar (1.13.0)
+    stringio (3.2.0)
+    tsort (0.2.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
@@ -89,6 +100,7 @@ DEPENDENCIES
   i18n
   parallel
   rake
+  rdoc
   rspec
   rubocop
   rubocop-performance
