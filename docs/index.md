@@ -5,6 +5,8 @@ hide:
 title: CMDx
 ---
 
+# Home { .hidden-h1 }
+
 <!-- Hero Section -->
 <div class="hero">
   <div class="logo">
