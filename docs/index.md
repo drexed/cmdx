@@ -2,7 +2,7 @@
 hide:
   - navigation
   - toc
-title: CMDx
+title: Home
 template: home.html
 ---
 
