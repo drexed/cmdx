@@ -5,8 +5,6 @@ hide:
 title: CMDx
 ---
 
-<link rel="stylesheet" href="stylesheets/home.css">
-
 <!-- Hero Section -->
 <div class="hero">
   <div class="logo">
