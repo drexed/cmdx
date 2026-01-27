@@ -1904,6 +1904,7 @@
   text-align: center;
   overflow: hidden;
   background: radial-gradient(circle at 50% 0%, rgba(254, 24, 23, 0.08) 0%, transparent 60%);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
 }
 
 .hero .logo {
@@ -2257,7 +2258,6 @@
   </h1>
 
   <p class="tagline">
-    Zero-dependency, type-safe, and observable service objects.<br>
     Build maintainable systems, not just scripts.
   </p>
 
@@ -2357,7 +2357,7 @@
 </div>
 
 <!-- The CERO Pattern -->
-<div class="section" style="background: var(--md-code-bg-color); border-top: 1px solid var(--md-default-fg-color--lightest); border-bottom: 1px solid var(--md-default-fg-color--lightest);">
+<div class="stats-section">
   <div class="section-header">
     <h2>The CERO Pattern</h2>
     <p>A simple mental model for reliable business logic.</p>
@@ -2383,117 +2383,6 @@
       <span class="cero-icon">📊</span>
       <div class="cero-title">Observe</div>
       <p>Trace execution with structured logs, correlation IDs, and runtime metrics.</p>
-    </div>
-  </div>
-</div>
-
-<!-- Powerful Features (Tabs) -->
-<div class="section">
-  <div class="section-header">
-    <h2>Powerful Features</h2>
-    <p>Everything you need to build complex systems, built right in.</p>
-  </div>
-
-  <div class="tabbed-showcase">
-    <div class="tabbed-set" data-tabs="1:4">
-      <input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio">
-      <input id="__tabbed_1_2" name="__tabbed_1" type="radio">
-      <input id="__tabbed_1_3" name="__tabbed_1" type="radio">
-      <input id="__tabbed_1_4" name="__tabbed_1" type="radio">
-
-      <div class="md-tabs">
-        <label class="md-tabs__link" for="__tabbed_1_1">Workflows</label>
-        <label class="md-tabs__link" for="__tabbed_1_2">Middlewares</label>
-        <label class="md-tabs__link" for="__tabbed_1_3">Validation</label>
-        <label class="md-tabs__link" for="__tabbed_1_4">Parallel</label>
-      </div>
-
-      <div class="md-content">
-        <div class="md-tabbed__content">
-          <div class="code-showcase">
-            <div class="terminal-header">
-              <div class="terminal-title">app/workflows/onboarding_workflow.rb</div>
-            </div>
-<pre class="highlight"><code>class OnboardingWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  # Define sequential tasks
-  task CreateUserProfile
-  task SetupAccountPreferences
-
-  # Conditional execution
-  task SendWelcomeEmail, if: :email_configured?
-
-  # Group related tasks
-  tasks CreateDashboard, SetupTutorial, unless: :expert_user?
-
-  private
-
-  def email_configured?
-    context.user.email.present?
-  end
-end</code></pre>
-          </div>
-        </div>
-
-        <div class="md-tabbed__content">
-          <div class="code-showcase">
-            <div class="terminal-header">
-              <div class="terminal-title">app/tasks/process_campaign.rb</div>
-            </div>
-<pre class="highlight"><code>class ProcessCampaign < CMDx::Task
-  # Wrap execution in layers
-  register :middleware, AuditMiddleware
-  register :middleware, AuthorizationMiddleware
-
-  # Built-in middlewares
-  register :middleware, CMDx::Middlewares::Timeout, seconds: 5
-  register :middleware, CMDx::Middlewares::Correlate
-
-  def work
-    # Your business logic here...
-  end
-end</code></pre>
-          </div>
-        </div>
-
-        <div class="md-tabbed__content">
-          <div class="code-showcase">
-            <div class="terminal-header">
-              <div class="terminal-title">app/tasks/analyze_metrics.rb</div>
-            </div>
-<pre class="highlight"><code>class AnalyzeMetrics < CMDx::Task
-  # Type coercion and validation
-  required :dataset_id, type: :integer, numeric: { min: 1 }
-  required :start_date, type: :date
-  optional :format, default: "json", inclusion: %w[json csv]
-
-  def work
-    # Attributes are safe to use
-    data = Dataset.find(dataset_id)
-    # ...
-  end
-end</code></pre>
-          </div>
-        </div>
-
-        <div class="md-tabbed__content">
-          <div class="code-showcase">
-            <div class="terminal-header">
-              <div class="terminal-title">app/tasks/bulk_notification.rb</div>
-            </div>
-<pre class="highlight"><code>class BulkNotification < CMDx::Task
-  include CMDx::Workflow
-
-  # Run tasks in parallel processes/threads
-  tasks SendEmail, SendPush, SendSMS, strategy: :parallel
-
-  # Configure concurrency
-  tasks ProcessBatchA, ProcessBatchB, strategy: :parallel, in_threads: 4
-end</code></pre>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
