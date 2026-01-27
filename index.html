@@ -1875,23 +1875,26 @@
                 
 <style>
 /* Reset & Base */
-.md-main__inner { max-width: none; }
+.md-main__inner {
+  margin-top: 0 !important;
+  max-width: none;
+}
 .md-content__inner { padding: 0; }
 .md-content__inner > :first-child { margin-top: 0; }
 
 :root {
-  --rage-red: #fe1817;
-  --rage-red-glow: rgba(254, 24, 23, 0.5);
-  --rage-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
-  --rage-surface: #1a1a1a;
-  --rage-surface-hover: #252525;
-  --rage-border: rgba(255, 255, 255, 0.1);
+  --cmdx-red: #fe1817;
+  --cmdx-red-glow: rgba(254, 24, 23, 0.5);
+  --cmdx-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
+  --cmdx-surface: #1a1a1a;
+  --cmdx-surface-hover: #252525;
+  --cmdx-border: rgba(255, 255, 255, 0.1);
 }
 
 [data-md-color-scheme="default"] {
-  --rage-surface: #ffffff;
-  --rage-surface-hover: #f8f8f8;
-  --rage-border: rgba(0, 0, 0, 0.1);
+  --cmdx-surface: #ffffff;
+  --cmdx-surface-hover: #f8f8f8;
+  --cmdx-border: rgba(0, 0, 0, 0.1);
 }
 
 /* Hero Section */
@@ -1919,7 +1922,7 @@
 }
 
 .hero h1 span {
-  background: var(--rage-gradient);
+  background: var(--cmdx-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1954,7 +1957,7 @@
 }
 
 .buttons .primary {
-  background: var(--rage-red);
+  background: var(--cmdx-red);
   color: white !important;
   box-shadow: 0 4px 20px rgba(254, 24, 23, 0.3);
 }
@@ -1971,8 +1974,8 @@
 }
 
 .buttons .secondary:hover {
-  border-color: var(--rage-red);
-  color: var(--rage-red) !important;
+  border-color: var(--cmdx-red);
+  color: var(--cmdx-red) !important;
 }
 
 /* Code Showcase */
@@ -2071,7 +2074,7 @@
 
 .feature-card:hover {
   transform: translateY(-5px);
-  border-color: var(--rage-red);
+  border-color: var(--cmdx-red);
   box-shadow: 0 10px 40px -10px rgba(254, 24, 23, 0.15);
 }
 
@@ -2084,7 +2087,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  color: var(--rage-red);
+  color: var(--cmdx-red);
   font-size: 1.5rem;
 }
 
@@ -2103,8 +2106,7 @@
 /* Comparison / Stats Section */
 .stats-section {
   background: var(--md-code-bg-color);
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  border: 1px solid var(--md-default-fg-color--lightest);
 }
 
 .stats-grid {
@@ -2117,7 +2119,7 @@
 .stat-item .number {
   font-size: 3.5rem;
   font-weight: 800;
-  background: var(--rage-gradient);
+  background: var(--cmdx-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2131,6 +2133,103 @@
   color: var(--md-default-fg-color--light);
 }
 
+/* CERO Pattern Section */
+.cero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.cero-step {
+  text-align: center;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.cero-step::after {
+  content: "→";
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: var(--md-default-fg-color--lightest);
+}
+
+.cero-step:last-child::after { display: none; }
+
+@media (max-width: 1024px) {
+  .cero-step::after {
+    right: 50%;
+    top: auto;
+    bottom: -2rem;
+    transform: translateX(50%) rotate(90deg);
+  }
+}
+
+.cero-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.cero-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--cmdx-red);
+}
+
+/* Tabs for Code Examples */
+.tabbed-showcase {
+  margin-top: 2rem;
+}
+
+.tabbed-showcase .md-tabs {
+  justify-content: center;
+  background: transparent;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.tabbed-showcase .md-tabs__link {
+  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+}
+
+.tabbed-showcase .md-tabs__link--active {
+  color: var(--cmdx-red);
+  border-bottom: 2px solid var(--cmdx-red);
+}
+
+/* Comparison Table */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+  background: var(--md-default-bg-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.comparison-table th {
+  background: var(--md-code-bg-color);
+  font-weight: 600;
+}
+
+.comparison-table tr:last-child td { border-bottom: none; }
+
+.comparison-table .check { color: #28c840; }
+.comparison-table .cross { color: #ff5f57; opacity: 0.5; }
+
 /* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -2141,14 +2240,15 @@
   .hero h1 { font-size: 2.5rem; }
   .buttons { flex-direction: column; }
   .buttons a { width: 100%; text-align: center; }
+  .cero-step::after { display: none; }
 }
 </style>
 
 <!-- Hero -->
 <div class="hero">
   <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" width="120" />
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" width="120" />
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
   </div>
 
   <h1>
@@ -2164,47 +2264,6 @@
   <div class="buttons">
     <a href="getting_started/" class="primary">Get Started</a>
     <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
-  </div>
-</div>
-
-<!-- Key Features -->
-<div class="section">
-  <div class="section-header">
-    <h2>Why CMDx?</h2>
-    <p>Designed for developers who value clarity, consistency, and reliability.</p>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⚡️</div>
-      <h3>Zero Dependencies</h3>
-      <p>Lightweight and pure Ruby. Drop it into Rails, Sinatra, Hanami, or any plain Ruby script without bloating your Gemfile.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🛡️</div>
-      <h3>Type Safety</h3>
-      <p>Declare inputs with strict typing, coercion, and validation. Catch bad data at the boundary, before it corrupts your logic.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
-      <h3>Observability</h3>
-      <p>Built-in tracing, structured logging, and error tracking. Know exactly what happened, when, and why.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧩</div>
-      <h3>Composability</h3>
-      <p>Chain small, focused commands into complex workflows. Reuse logic across your application with confidence.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">✅</div>
-      <h3>Predictable Results</h3>
-      <p>No more rescuing exceptions for control flow. Every command returns a standardized Result object.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌍</div>
-      <h3>Production Ready</h3>
-      <p>Includes I18n, retries, deprecation handling, and middleware support out of the box.</p>
-    </div>
   </div>
 </div>
 
@@ -2253,6 +2312,255 @@
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="k">end</span>
 </span></code></pre></div>
     </div>
+  </div>
+</div>
+
+<!-- Key Features -->
+<div class="section">
+  <div class="section-header">
+    <h2>Why CMDx?</h2>
+    <p>Designed for developers who value clarity, consistency, and reliability.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡️</div>
+      <h3>Zero Dependencies</h3>
+      <p>Lightweight and pure Ruby. Drop it into Rails, Sinatra, Hanami, or any plain Ruby script without bloating your Gemfile.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Type Safety</h3>
+      <p>Declare inputs with strict typing, coercion, and validation. Catch bad data at the boundary, before it corrupts your logic.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Observability</h3>
+      <p>Built-in tracing, structured logging, and error tracking. Know exactly what happened, when, and why.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧩</div>
+      <h3>Composability</h3>
+      <p>Chain small, focused commands into complex workflows. Reuse logic across your application with confidence.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Predictable Results</h3>
+      <p>No more rescuing exceptions for control flow. Every command returns a standardized Result object.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <h3>Production Ready</h3>
+      <p>Includes I18n, retries, deprecation handling, and middleware support out of the box.</p>
+    </div>
+  </div>
+</div>
+
+<!-- The CERO Pattern -->
+<div class="section" style="background: var(--md-code-bg-color); border-top: 1px solid var(--md-default-fg-color--lightest); border-bottom: 1px solid var(--md-default-fg-color--lightest);">
+  <div class="section-header">
+    <h2>The CERO Pattern</h2>
+    <p>A simple mental model for reliable business logic.</p>
+  </div>
+
+  <div class="cero-grid">
+    <div class="cero-step">
+      <span class="cero-icon">🏗️</span>
+      <div class="cero-title">Compose</div>
+      <p>Build reusable, single-responsibility tasks with typed attributes and validation.</p>
+    </div>
+    <div class="cero-step">
+      <span class="cero-icon">⚡️</span>
+      <div class="cero-title">Execute</div>
+      <p>Invoke tasks with a consistent API that handles errors and logging automatically.</p>
+    </div>
+    <div class="cero-step">
+      <span class="cero-icon">🎯</span>
+      <div class="cero-title">React</div>
+      <p>Handle standardized result objects with clear success, failure, or skipped states.</p>
+    </div>
+    <div class="cero-step">
+      <span class="cero-icon">📊</span>
+      <div class="cero-title">Observe</div>
+      <p>Trace execution with structured logs, correlation IDs, and runtime metrics.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Powerful Features (Tabs) -->
+<div class="section">
+  <div class="section-header">
+    <h2>Powerful Features</h2>
+    <p>Everything you need to build complex systems, built right in.</p>
+  </div>
+
+  <div class="tabbed-showcase">
+    <div class="tabbed-set" data-tabs="1:4">
+      <input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio">
+      <input id="__tabbed_1_2" name="__tabbed_1" type="radio">
+      <input id="__tabbed_1_3" name="__tabbed_1" type="radio">
+      <input id="__tabbed_1_4" name="__tabbed_1" type="radio">
+
+      <div class="md-tabs">
+        <label class="md-tabs__link" for="__tabbed_1_1">Workflows</label>
+        <label class="md-tabs__link" for="__tabbed_1_2">Middlewares</label>
+        <label class="md-tabs__link" for="__tabbed_1_3">Validation</label>
+        <label class="md-tabs__link" for="__tabbed_1_4">Parallel</label>
+      </div>
+
+      <div class="md-content">
+        <div class="md-tabbed__content">
+          <div class="code-showcase">
+            <div class="terminal-header">
+              <div class="terminal-title">app/workflows/onboarding_workflow.rb</div>
+            </div>
+<pre class="highlight"><code>class OnboardingWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  # Define sequential tasks
+  task CreateUserProfile
+  task SetupAccountPreferences
+
+  # Conditional execution
+  task SendWelcomeEmail, if: :email_configured?
+
+  # Group related tasks
+  tasks CreateDashboard, SetupTutorial, unless: :expert_user?
+
+  private
+
+  def email_configured?
+    context.user.email.present?
+  end
+end</code></pre>
+          </div>
+        </div>
+
+        <div class="md-tabbed__content">
+          <div class="code-showcase">
+            <div class="terminal-header">
+              <div class="terminal-title">app/tasks/process_campaign.rb</div>
+            </div>
+<pre class="highlight"><code>class ProcessCampaign < CMDx::Task
+  # Wrap execution in layers
+  register :middleware, AuditMiddleware
+  register :middleware, AuthorizationMiddleware
+
+  # Built-in middlewares
+  register :middleware, CMDx::Middlewares::Timeout, seconds: 5
+  register :middleware, CMDx::Middlewares::Correlate
+
+  def work
+    # Your business logic here...
+  end
+end</code></pre>
+          </div>
+        </div>
+
+        <div class="md-tabbed__content">
+          <div class="code-showcase">
+            <div class="terminal-header">
+              <div class="terminal-title">app/tasks/analyze_metrics.rb</div>
+            </div>
+<pre class="highlight"><code>class AnalyzeMetrics < CMDx::Task
+  # Type coercion and validation
+  required :dataset_id, type: :integer, numeric: { min: 1 }
+  required :start_date, type: :date
+  optional :format, default: "json", inclusion: %w[json csv]
+
+  def work
+    # Attributes are safe to use
+    data = Dataset.find(dataset_id)
+    # ...
+  end
+end</code></pre>
+          </div>
+        </div>
+
+        <div class="md-tabbed__content">
+          <div class="code-showcase">
+            <div class="terminal-header">
+              <div class="terminal-title">app/tasks/bulk_notification.rb</div>
+            </div>
+<pre class="highlight"><code>class BulkNotification < CMDx::Task
+  include CMDx::Workflow
+
+  # Run tasks in parallel processes/threads
+  tasks SendEmail, SendPush, SendSMS, strategy: :parallel
+
+  # Configure concurrency
+  tasks ProcessBatchA, ProcessBatchB, strategy: :parallel, in_threads: 4
+end</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison -->
+<div class="section">
+  <div class="section-header">
+    <h2>How We Compare</h2>
+    <p>CMDx delivers the full stack without the bloat.</p>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>CMDx</th>
+          <th>Actor</th>
+          <th>Interactor</th>
+          <th>ActiveInteraction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Zero Dependencies</td>
+          <td class="check">✅</td>
+          <td class="check">✅</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+        </tr>
+        <tr>
+          <td>Typed Attributes</td>
+          <td class="check">✅</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+          <td class="check">✅</td>
+        </tr>
+        <tr>
+          <td>Type Coercion</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+          <td class="check">✅</td>
+        </tr>
+        <tr>
+          <td>Built-in Logging</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+        </tr>
+        <tr>
+          <td>Middleware System</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+        </tr>
+        <tr>
+          <td>Fault Tolerance</td>
+          <td class="check">✅</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+          <td class="cross">❌</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
