@@ -2,358 +2,402 @@
 
 {% block content %}
 <style>
+/* Reset & Base */
 .md-main__inner { max-width: none; }
 .md-content__inner { padding: 0; }
 .md-content__inner > :first-child { margin-top: 0; }
 
-/* Hero section */
+:root {
+  --rage-red: #fe1817;
+  --rage-red-glow: rgba(254, 24, 23, 0.5);
+  --rage-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
+  --rage-surface: #1a1a1a;
+  --rage-surface-hover: #252525;
+  --rage-border: rgba(255, 255, 255, 0.1);
+}
+
+[data-md-color-scheme="default"] {
+  --rage-surface: #ffffff;
+  --rage-surface-hover: #f8f8f8;
+  --rage-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section */
 .hero {
+  position: relative;
+  padding: 6rem 1rem 4rem;
   text-align: center;
-  padding: 4rem 1rem 3rem;
-  background: linear-gradient(135deg, rgba(254, 24, 23, 0.03) 0%, transparent 50%);
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, rgba(254, 24, 23, 0.08) 0%, transparent 60%);
 }
+
 .hero .logo {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.8s ease-out;
 }
+
 .hero h1 {
-  font-size: clamp(1.75rem, 5vw + 0.5rem, 3rem);
-  font-weight: 700;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   margin-bottom: 1.5rem;
-  line-height: 1.2;
+  color: var(--md-typeset-color);
+  animation: fadeUp 0.8s ease-out 0.1s backwards;
 }
+
 .hero h1 span {
-  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
+  background: var(--rage-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline-block;
 }
+
 .hero .tagline {
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
   color: var(--md-typeset-color);
-  opacity: 0.85;
-  max-width: 850px;
-  margin: 0 auto 2rem;
+  opacity: 0.7;
+  max-width: 700px;
+  margin: 0 auto 3rem;
   line-height: 1.6;
+  animation: fadeUp 0.8s ease-out 0.2s backwards;
 }
-.buttons {
+
+.hero .buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  flex-wrap: wrap;
-}
-.hero .buttons {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
+  animation: fadeUp 0.8s ease-out 0.3s backwards;
 }
 
-/* Buttons */
 .buttons a {
-  padding: 0.8rem 2rem;
-  border-radius: 8px;
+  padding: 0.9rem 2.2rem;
+  border-radius: 50px;
   font-weight: 600;
+  font-size: 1.05rem;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
 }
-.buttons a:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+
 .buttons .primary {
-  background: linear-gradient(135deg, #fe1817 0%, #d40000 100%);
+  background: var(--rage-red);
   color: white !important;
+  box-shadow: 0 4px 20px rgba(254, 24, 23, 0.3);
 }
+
+.buttons .primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(254, 24, 23, 0.4);
+}
+
 .buttons .secondary {
-  background: var(--md-code-bg-color);
+  background: transparent;
   color: var(--md-typeset-color) !important;
   border: 1px solid var(--md-default-fg-color--lightest);
 }
-@media (max-width: 480px) {
-  .buttons { flex-direction: column; }
-  .buttons a { width: 100%; text-align: center; }
+
+.buttons .secondary:hover {
+  border-color: var(--rage-red);
+  color: var(--rage-red) !important;
 }
 
-/* Code showcase - Terminal style */
-.code-showcase {
-  max-width: 720px;
+/* Code Showcase */
+.code-showcase-wrapper {
+  max-width: 900px;
   margin: 0 auto;
-  text-align: left;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  perspective: 1000px;
+  animation: fadeUp 1s ease-out 0.4s backwards;
 }
-.code-showcase .terminal-header {
-  background: #2a2a2a;
+
+.code-showcase {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-align: left;
+  transform: rotateX(2deg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.code-showcase:hover {
+  transform: rotateX(0deg);
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.6);
+}
+
+.terminal-header {
+  background: #252526;
   padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-.code-showcase .terminal-buttons {
+
+.terminal-controls {
   display: flex;
   gap: 8px;
 }
-.code-showcase .terminal-btn {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.code-showcase .terminal-btn.close { background: #ff5f57; }
-.code-showcase .terminal-btn.minimize { background: #febc2e; }
-.code-showcase .terminal-btn.maximize { background: #28c840; }
-.code-showcase .terminal-title {
+
+.control { width: 12px; height: 12px; border-radius: 50%; }
+.close { background: #ff5f57; }
+.minimize { background: #febc2e; }
+.maximize { background: #28c840; }
+
+.terminal-title {
   flex: 1;
   text-align: center;
   font-family: var(--md-code-font-family);
-  font-size: 0.8rem;
-  color: #999;
+  font-size: 0.85rem;
+  color: #888;
   margin-right: 52px;
 }
-.code-showcase pre {
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-.code-showcase .highlight {
-  border-radius: 0 !important;
-}
-.code-showcase .highlighttable {
-  border-radius: 0 !important;
-}
 
-/* Section styling */
+.code-showcase pre { margin: 0 !important; }
+
+/* Features Grid */
 .section {
-  padding: 4rem 2rem;
+  padding: 6rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
-.section-alt {
-  background: var(--md-code-bg-color);
-}
-.section h2 {
+
+.section-header {
   text-align: center;
-  font-size: clamp(1.5rem, 4vw + 0.5rem, 2.2rem);
-  margin-bottom: 0.75rem;
-}
-.section .subtitle {
-  text-align: center;
-  font-size: 1.1rem;
-  color: var(--md-default-fg-color--light);
-  margin-bottom: 3rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 4rem;
 }
 
-/* Feature grid */
-.features {
+.section-header h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: var(--md-default-fg-color--light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
-.feature {
-  padding: 1.75rem;
-  border-radius: 12px;
+
+.feature-card {
+  padding: 2rem;
+  border-radius: 16px;
   background: var(--md-default-bg-color);
   border: 1px solid var(--md-default-fg-color--lightest);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-.feature:hover {
-  border-color: #fe1817;
-  box-shadow: 0 4px 20px rgba(254, 24, 23, 0.1);
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--rage-red);
+  box-shadow: 0 10px 40px -10px rgba(254, 24, 23, 0.15);
 }
-.feature h3 {
-  font-size: 1.15rem;
-  margin-bottom: 0.5rem;
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(254, 24, 23, 0.1);
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: var(--rage-red);
+  font-size: 1.5rem;
 }
-.feature h3::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: #fe1817;
-  border-radius: 50%;
+
+.feature-card h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 }
-.feature p {
+
+.feature-card p {
   color: var(--md-default-fg-color--light);
-  margin: 0;
   line-height: 1.6;
-}
-
-/* Use cases */
-.use-cases {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-}
-.use-case {
-  padding: 1.5rem;
-  border-radius: 10px;
-  background: var(--md-default-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-}
-.use-case h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-.use-case p {
-  color: var(--md-default-fg-color--light);
   margin: 0;
-  font-size: 0.95rem;
 }
 
-/* Badges */
-.badges {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-/* Stats */
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 3rem;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-  padding-top: 2rem;
+/* Comparison / Stats Section */
+.stats-section {
+  background: var(--md-code-bg-color);
   border-top: 1px solid var(--md-default-fg-color--lightest);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
 }
-.stat {
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
   text-align: center;
 }
-.stat .number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fe1817;
+
+.stat-item .number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: var(--rage-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  margin-bottom: 0.5rem;
 }
-.stat .label {
-  font-size: 0.9rem;
+
+.stat-item .label {
+  font-size: 1.1rem;
+  font-weight: 600;
   color: var(--md-default-fg-color--light);
 }
 
-/* Quick start code block */
-.section .highlight {
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.5rem; }
+  .buttons { flex-direction: column; }
+  .buttons a { width: 100%; text-align: center; }
 }
 </style>
 
-<!-- Hero Section -->
+<!-- Hero -->
 <div class="hero">
   <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" width="120" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" width="120" />
   </div>
 
   <h1>
-    Build <span>powerful</span>, <span>predictable</span>,<br>
-    and <span>maintainable</span> business logic
+    The <span>Business Logic</span><br>
+    Framework for Ruby
   </h1>
 
   <p class="tagline">
-    CMDx is a Ruby framework for clean, composable business logic—designed to replace service-object sprawl.
+    Zero-dependency, type-safe, and observable service objects.<br>
+    Build maintainable systems, not just scripts.
   </p>
 
   <div class="buttons">
-    <a href="getting_started/" class="primary">Read the Docs</a>
+    <a href="getting_started/" class="primary">Get Started</a>
     <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
   </div>
-
-  <div class="code-showcase">
-    <div class="terminal-header">
-      <div class="terminal-buttons">
-        <span class="terminal-btn close"></span>
-        <span class="terminal-btn minimize"></span>
-        <span class="terminal-btn maximize"></span>
-      </div>
-      <span class="terminal-title">app/tasks/approve_loan.rb</span>
-    </div>
-
-    {{ page.content }}
-
-  </div>
 </div>
 
-<!-- Why CMDx Section -->
-<div class="section-alt">
-  <div class="section">
-    <h2>Why Use CMDx?</h2>
-    <p class="subtitle">Everything you need to build reliable, testable business logic in Ruby</p>
-
-    <div class="features">
-      <div class="feature">
-        <h3>Zero Dependencies</h3>
-        <p>Pure Ruby with no external dependencies. Works with any Ruby project—Rails, Sinatra, or plain Ruby scripts.</p>
-      </div>
-      <div class="feature">
-        <h3>Type-Safe Attributes</h3>
-        <p>Declare inputs with automatic type coercion, validation, and defaults. Catch errors before they cause problems.</p>
-      </div>
-      <div class="feature">
-        <h3>Built-in Observability</h3>
-        <p>Structured logging with chain IDs, runtime metrics, and execution tracing. Debug complex workflows with ease.</p>
-      </div>
-      <div class="feature">
-        <h3>Composable Workflows</h3>
-        <p>Chain tasks together into sequential pipelines. Build complex processes from simple, tested building blocks.</p>
-      </div>
-      <div class="feature">
-        <h3>Predictable Results</h3>
-        <p>Every execution returns a result object with clear success, failure, or skipped states. No more exception juggling.</p>
-      </div>
-      <div class="feature">
-        <h3>Production Ready</h3>
-        <p>Automatic retries, middleware support, callbacks, and internationalization. Battle-tested in real applications.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Use Cases Section -->
+<!-- Key Features -->
 <div class="section">
-  <h2>Designed For</h2>
-  <p class="subtitle">CMDx shines wherever you need structured, reliable business logic</p>
+  <div class="section-header">
+    <h2>Why CMDx?</h2>
+    <p>Designed for developers who value clarity, consistency, and reliability.</p>
+  </div>
 
-  <div class="use-cases">
-    <div class="use-case">
-      <h3>🏦 Financial Operations</h3>
-      <p>Payment processing, loan approvals, and transaction handling with full audit trails</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡️</div>
+      <h3>Zero Dependencies</h3>
+      <p>Lightweight and pure Ruby. Drop it into Rails, Sinatra, Hanami, or any plain Ruby script without bloating your Gemfile.</p>
     </div>
-    <div class="use-case">
-      <h3>📧 Notification Systems</h3>
-      <p>Multi-channel notifications with fallbacks, personalization, and delivery tracking</p>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <h3>Type Safety</h3>
+      <p>Declare inputs with strict typing, coercion, and validation. Catch bad data at the boundary, before it corrupts your logic.</p>
     </div>
-    <div class="use-case">
-      <h3>🔄 Data Pipelines</h3>
-      <p>ETL processes, data migrations, and transformations with checkpoints and recovery</p>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Observability</h3>
+      <p>Built-in tracing, structured logging, and error tracking. Know exactly what happened, when, and why.</p>
     </div>
-    <div class="use-case">
-      <h3>🛒 E-commerce Flows</h3>
-      <p>Order processing, inventory management, and fulfillment orchestration</p>
+    <div class="feature-card">
+      <div class="feature-icon">🧩</div>
+      <h3>Composability</h3>
+      <p>Chain small, focused commands into complex workflows. Reuse logic across your application with confidence.</p>
     </div>
-    <div class="use-case">
-      <h3>👤 User Onboarding</h3>
-      <p>Registration flows, verification steps, and welcome sequences</p>
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Predictable Results</h3>
+      <p>No more rescuing exceptions for control flow. Every command returns a standardized Result object.</p>
     </div>
-    <div class="use-case">
-      <h3>🤖 Background Jobs</h3>
-      <p>Complex async operations with Sidekiq, retry logic, and error handling</p>
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <h3>Production Ready</h3>
+      <p>Includes I18n, retries, deprecation handling, and middleware support out of the box.</p>
     </div>
   </div>
 </div>
 
-<!-- Quick Start Section -->
-<div class="section-alt">
+<!-- Code Showcase Section -->
+<div class="section">
+  <div class="section-header">
+    <h2>See CMDx in Action</h2>
+    <p>Write clean, maintainable code with familiar Ruby patterns.</p>
+  </div>
+  <div class="code-showcase-wrapper">
+    <div class="code-showcase">
+      <div class="terminal-header">
+        <div class="terminal-controls">
+          <div class="control close"></div>
+          <div class="control minimize"></div>
+          <div class="control maximize"></div>
+        </div>
+        <div class="terminal-title">app/commands/approve_loan.rb</div>
+      </div>
+      {{ page.content }}
+    </div>
+  </div>
+</div>
+
+<!-- Stats / Impact -->
+<div class="stats-section">
   <div class="section">
-    <h2>Get Started in Seconds</h2>
-    <p class="subtitle">Say goodbye to messy service objects. Design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
-
-    <div class="buttons" style="margin-top: 2rem;">
-      <a href="getting_started/" class="primary">Read the Docs</a>
-      <a href="https://github.com/drexed/cmdx" class="secondary">Star on GitHub</a>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="number">100%</span>
+        <span class="label">Pure Ruby</span>
+      </div>
+      <div class="stat-item">
+        <span class="number">0</span>
+        <span class="label">Dependencies</span>
+      </div>
+      <div class="stat-item">
+        <span class="number">Type</span>
+        <span class="label">Safe Inputs</span>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Use Cases -->
+<div class="section">
+  <div class="section-header">
+    <h2>Built For Real World Logic</h2>
+    <p>From simple scripts to complex enterprise workflows.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <h3>🏦 Financial Operations</h3>
+      <p>Handle payments, loans, and ledgers with audit trails and transactional integrity.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🔄 Data Pipelines</h3>
+      <p>Structure ETL processes with clear steps, error handling, and resumption capabilities.</p>
+    </div>
+    <div class="feature-card">
+      <h3>🛒 E-commerce</h3>
+      <p>Orchestrate order fulfillment, inventory checks, and shipping logistics reliably.</p>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
