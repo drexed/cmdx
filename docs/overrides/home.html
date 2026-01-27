@@ -3,23 +3,26 @@
 {% block content %}
 <style>
 /* Reset & Base */
-.md-main__inner { max-width: none; }
+.md-main__inner {
+  margin-top: 0 !important;
+  max-width: none;
+}
 .md-content__inner { padding: 0; }
 .md-content__inner > :first-child { margin-top: 0; }
 
 :root {
-  --rage-red: #fe1817;
-  --rage-red-glow: rgba(254, 24, 23, 0.5);
-  --rage-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
-  --rage-surface: #1a1a1a;
-  --rage-surface-hover: #252525;
-  --rage-border: rgba(255, 255, 255, 0.1);
+  --cmdx-red: #fe1817;
+  --cmdx-red-glow: rgba(254, 24, 23, 0.5);
+  --cmdx-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
+  --cmdx-surface: #1a1a1a;
+  --cmdx-surface-hover: #252525;
+  --cmdx-border: rgba(255, 255, 255, 0.1);
 }
 
 [data-md-color-scheme="default"] {
-  --rage-surface: #ffffff;
-  --rage-surface-hover: #f8f8f8;
-  --rage-border: rgba(0, 0, 0, 0.1);
+  --cmdx-surface: #ffffff;
+  --cmdx-surface-hover: #f8f8f8;
+  --cmdx-border: rgba(0, 0, 0, 0.1);
 }
 
 /* Hero Section */
@@ -47,7 +50,7 @@
 }
 
 .hero h1 span {
-  background: var(--rage-gradient);
+  background: var(--cmdx-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -82,7 +85,7 @@
 }
 
 .buttons .primary {
-  background: var(--rage-red);
+  background: var(--cmdx-red);
   color: white !important;
   box-shadow: 0 4px 20px rgba(254, 24, 23, 0.3);
 }
@@ -99,8 +102,8 @@
 }
 
 .buttons .secondary:hover {
-  border-color: var(--rage-red);
-  color: var(--rage-red) !important;
+  border-color: var(--cmdx-red);
+  color: var(--cmdx-red) !important;
 }
 
 /* Code Showcase */
@@ -199,7 +202,7 @@
 
 .feature-card:hover {
   transform: translateY(-5px);
-  border-color: var(--rage-red);
+  border-color: var(--cmdx-red);
   box-shadow: 0 10px 40px -10px rgba(254, 24, 23, 0.15);
 }
 
@@ -212,7 +215,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
-  color: var(--rage-red);
+  color: var(--cmdx-red);
   font-size: 1.5rem;
 }
 
@@ -231,8 +234,7 @@
 /* Comparison / Stats Section */
 .stats-section {
   background: var(--md-code-bg-color);
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  border: 1px solid var(--md-default-fg-color--lightest);
 }
 
 .stats-grid {
@@ -245,7 +247,7 @@
 .stat-item .number {
   font-size: 3.5rem;
   font-weight: 800;
-  background: var(--rage-gradient);
+  background: var(--cmdx-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -275,8 +277,8 @@
 <!-- Hero -->
 <div class="hero">
   <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" width="120" />
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" width="120" />
+    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
+    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
   </div>
 
   <h1>
@@ -285,7 +287,6 @@
   </h1>
 
   <p class="tagline">
-    Zero-dependency, type-safe, and observable service objects.<br>
     Build maintainable systems, not just scripts.
   </p>
 
