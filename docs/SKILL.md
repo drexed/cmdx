@@ -137,6 +137,8 @@ Multiple attribute names can share the same options: `required :first_name, :las
 | `:rational` | String ("1/2") | |
 | `:complex` | String ("1+2i") | |
 
+Custom coercions can be registered — see the [Coercions Guide](https://drexed.github.io/cmdx/attributes/coercions).
+
 ### Validations
 
 ```ruby
@@ -147,12 +149,9 @@ required :name, length: { min: 2, max: 100 }
 required :banned, absence: true    # Must be nil/blank
 required :terms, presence: true    # Must be present
 optional :code, exclusion: { in: %w[admin root] }
-
-# Conditional validation
-required :manager_id, if: :requires_approval?
 ```
 
-Built-in validators: `absence`, `presence`, `format`, `inclusion`, `exclusion`, `length`, `numeric`.
+Built-in validators: `absence`, `presence`, `format`, `inclusion`, `exclusion`, `length`, `numeric`. Custom validators can be registered — see the [Validators Guide](https://drexed.github.io/cmdx/attributes/validators).
 
 ### Introspection & Removal
 
@@ -215,7 +214,7 @@ end
 | `skip!(reason, **meta)` | Nothing to do | `skipped?` = true |
 | `throw!(result, **meta)` | Propagate subtask failure | Preserves state/status/reason |
 
-All three accept: `reason` (String, optional), `halt:` (Boolean, default: `true`), `cause:` (Exception, optional), `**metadata`.
+`fail!` and `skip!` accept: `reason` (String, optional), `halt:` (Boolean, default: `true`), `cause:` (Exception, optional), `**metadata`. `throw!` accepts: `result` (Result), `halt:`, `cause:`, `**metadata` — it copies state/status/reason from the given result.
 
 ```ruby
 def work
@@ -490,7 +489,9 @@ Runtime stored in: `result.metadata[:runtime]`
 ### Custom Middleware
 
 ```ruby
-class AuditMiddleware
+module AuditMiddleware
+  extend self
+
   def call(task, **options)
     result = yield
     AuditLog.record(task.class.name, result.status) unless task.dry_run?
@@ -658,6 +659,14 @@ end
 
 Reset to defaults: `CMDx.reset_configuration!`
 
+### I18n Support
+
+CMDx ships with 80+ locale files for validation and fault messages. In Rails, the railtie auto-loads them. Custom locale files can be generated:
+
+```bash
+rails generate cmdx:locale
+```
+
 ## Task Settings
 
 Per-task settings override global configuration and inherit from parent classes:
@@ -718,7 +727,7 @@ end
 ## Best Practices
 
 1. **Single responsibility**: One task = one operation
-2. **Use context for data sharing**: `context.result = value`
+2. **Use context for data sharing**: `context.output = value`
 3. **Control flow via fail!/skip!**: Not exceptions
 4. **Memoize lookups**: `def user = @user ||= User.find(id)`
 5. **Validate at boundaries**: Use typed attributes with validators
