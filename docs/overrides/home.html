@@ -72,7 +72,7 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-bottom: 4rem;
+  margin-bottom: 0;
   animation: fadeUp 0.8s ease-out 0.3s backwards;
 }
 
@@ -107,58 +107,134 @@
   color: var(--cmdx-red) !important;
 }
 
-/* Code Showcase */
-.code-showcase-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  perspective: 1000px;
-  animation: fadeUp 1s ease-out 0.4s backwards;
+/* See it in Action — Tabbed Showcase */
+.showcase-section {
+  background: var(--md-code-bg-color);
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
 }
 
-.code-showcase {
-  background: #1e1e1e;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  text-align: left;
-  transform: rotateX(2deg);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.code-showcase:hover {
-  transform: rotateX(0deg);
-  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.6);
-}
-
-.terminal-header {
-  background: #252526;
-  padding: 12px 16px;
+.showcase-tabs {
   display: flex;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.terminal-controls {
+.showcase-tabs::-webkit-scrollbar { display: none; }
+
+.showcase-tab {
+  padding: 1rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--md-default-fg-color--light);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: var(--md-text-font-family);
+}
+
+.showcase-tab:hover {
+  color: var(--cmdx-red);
+}
+
+.showcase-tab.active {
+  color: var(--cmdx-red);
+  border-bottom-color: var(--cmdx-red);
+}
+
+.showcase-panels {
+  position: relative;
+}
+
+.showcase-panel {
+  display: none;
+  animation: fadeUp 0.4s ease-out;
+}
+
+.showcase-panel.active {
   display: flex;
-  gap: 8px;
+  align-items: stretch;
+  gap: 0;
 }
 
-.control { width: 12px; height: 12px; border-radius: 50%; }
-.close { background: #ff5f57; }
-.minimize { background: #febc2e; }
-.maximize { background: #28c840; }
+@media (max-width: 900px) {
+  .showcase-panel.active {
+    flex-direction: column;
+  }
+}
 
-.terminal-title {
+.showcase-info {
+  flex: 0 0 320px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--md-default-fg-color--lightest);
+}
+
+@media (max-width: 900px) {
+  .showcase-info {
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+    padding: 2rem 1.5rem;
+  }
+}
+
+.showcase-info h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--md-typeset-color);
+}
+
+.showcase-info p {
+  color: var(--md-default-fg-color--light);
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.showcase-code {
   flex: 1;
-  text-align: center;
-  font-family: var(--md-code-font-family);
-  font-size: 0.85rem;
-  color: #888;
-  margin-right: 52px;
+  min-width: 0;
+  overflow-x: auto;
 }
 
-.code-showcase pre { margin: 0 !important; }
+.showcase-code pre {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 2rem !important;
+  font-size: 0.85rem !important;
+  line-height: 1.6 !important;
+  background: #1e1e1e !important;
+  min-height: 100%;
+}
+
+.showcase-code code {
+  font-family: var(--md-code-font-family) !important;
+  color: #d4d4d4 !important;
+}
+
+/* Syntax highlighting colors */
+.showcase-code .k  { color: #c586c0; } /* keyword */
+.showcase-code .nc { color: #4ec9b0; } /* class name */
+.showcase-code .nb { color: #4fc1ff; } /* builtin */
+.showcase-code .n  { color: #9cdcfe; } /* name */
+.showcase-code .s  { color: #ce9178; } /* string */
+.showcase-code .c  { color: #6a9955; } /* comment */
+.showcase-code .ss { color: #4fc1ff; } /* symbol */
+.showcase-code .mi { color: #b5cea8; } /* integer */
+.showcase-code .o  { color: #d4d4d4; } /* operator */
+.showcase-code .p  { color: #d4d4d4; } /* punctuation */
 
 /* Features Grid */
 .section {
@@ -311,27 +387,6 @@
   color: var(--cmdx-red);
 }
 
-/* Tabs for Code Examples */
-.tabbed-showcase {
-  margin-top: 2rem;
-}
-
-.tabbed-showcase .md-tabs {
-  justify-content: center;
-  background: transparent;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.tabbed-showcase .md-tabs__link {
-  font-size: 1.1rem;
-  padding: 1rem 1.5rem;
-}
-
-.tabbed-showcase .md-tabs__link--active {
-  color: var(--cmdx-red);
-  border-bottom: 2px solid var(--cmdx-red);
-}
-
 /* Comparison Table */
 .comparison-table {
   width: 100%;
@@ -396,23 +451,195 @@
   </div>
 </div>
 
-<!-- Code Showcase Section -->
-<div class="section">
-  <div class="section-header">
-    <h2>See CMDx in Action</h2>
-    <p>Write clean, maintainable code with familiar Ruby patterns.</p>
+<!-- See it in Action -->
+<div class="showcase-section">
+  <div class="section-header" style="padding: 4rem 2rem 0;">
+    <h2>See it in Action</h2>
+    <p>From simple tasks to complex workflows, see how CMDx brings clarity to your business logic.</p>
   </div>
-  <div class="code-showcase-wrapper">
-    <div class="code-showcase">
-      <div class="terminal-header">
-        <div class="terminal-controls">
-          <div class="control close"></div>
-          <div class="control minimize"></div>
-          <div class="control maximize"></div>
-        </div>
-        <div class="terminal-title">app/commands/approve_loan.rb</div>
+
+  <div class="showcase-tabs" role="tablist">
+    <button class="showcase-tab active" data-panel="define" role="tab">Define a Task</button>
+    <button class="showcase-tab" data-panel="execute" role="tab">Execute & React</button>
+    <button class="showcase-tab" data-panel="workflow" role="tab">Compose Workflows</button>
+    <button class="showcase-tab" data-panel="retries" role="tab">Fault Tolerance</button>
+    <button class="showcase-tab" data-panel="observe" role="tab">Observe</button>
+  </div>
+
+  <div class="showcase-panels">
+    <!-- Define a Task -->
+    <div class="showcase-panel active" id="panel-define">
+      <div class="showcase-info">
+        <h3>Define a Task</h3>
+        <p>Declare typed attributes with validation, coercion, and defaults. Write your business logic in a single <code>work</code> method with built-in flow control for success, failure, and skip states.</p>
       </div>
-      {{ page.content }}
+      <div class="showcase-code">
+        <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="n">on_success</span> <span class="ss">:notify_applicant!</span>
+
+  <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
+  <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>
+
+  <span class="k">def</span> <span class="n">work</span>
+    <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
+      <span class="n">fail!</span>(<span class="s">"Application not found"</span>, <span class="ss">code:</span> <span class="mi">404</span>)
+    <span class="k">elsif</span> <span class="n">application</span>.<span class="n">approved?</span>
+      <span class="n">skip!</span>(<span class="s">"Already approved"</span>)
+    <span class="k">else</span>
+      <span class="n">application</span>.<span class="n">approve!</span>
+      <span class="n">context</span>.<span class="n">approved_at</span> = <span class="nc">Time</span>.<span class="n">current</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">private</span>
+
+  <span class="k">def</span> <span class="n">application</span>
+    <span class="n">@application</span> <span class="o">||=</span> <span class="nc">LoanApplication</span>.<span class="n">find_by</span>(<span class="ss">id:</span> <span class="n">application_id</span>)
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="n">notify_applicant!</span>
+    <span class="nc">ApprovalMailer</span>.<span class="n">approved</span>(<span class="n">application</span>).<span class="n">deliver_later</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+      </div>
+    </div>
+
+    <!-- Execute & React -->
+    <div class="showcase-panel" id="panel-execute">
+      <div class="showcase-info">
+        <h3>Execute & React</h3>
+        <p>Every execution returns a standardized Result object. No more rescuing exceptions for control flow. Check the outcome and access returned values, error messages, and metadata.</p>
+      </div>
+      <div class="showcase-code">
+        <pre><code><span class="c"># Execute with typed, validated arguments</span>
+<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
+
+<span class="c"># React to the outcome</span>
+<span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
+  <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
+
+<span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
+  <span class="n">puts</span> <span class="s">"Skipped: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
+
+<span class="k">elsif</span> <span class="n">result</span>.<span class="n">failed?</span>
+  <span class="n">puts</span> <span class="s">"Failed: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
+  <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
+<span class="k">end</span>
+
+<span class="c"># Bang variant raises on failure</span>
+<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute!</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
+<span class="c"># => raises CMDx::ExecutionError on failure</span></code></pre>
+      </div>
+    </div>
+
+    <!-- Compose Workflows -->
+    <div class="showcase-panel" id="panel-workflow">
+      <div class="showcase-info">
+        <h3>Compose Workflows</h3>
+        <p>Chain tasks into declarative pipelines with shared context, conditional execution, and configurable halt behavior. Run tasks in parallel for maximum throughput.</p>
+      </div>
+      <div class="showcase-code">
+        <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="k">include</span> <span class="nc">CMDx::Workflow</span>
+
+  <span class="c"># Sequential pipeline</span>
+  <span class="n">task</span> <span class="nc">CreateAccount</span>
+  <span class="n">task</span> <span class="nc">SetupBilling</span>
+  <span class="n">task</span> <span class="nc">AssignPlan</span>
+
+  <span class="c"># Parallel notifications</span>
+  <span class="n">tasks</span> <span class="nc">SendWelcomeEmail</span>,
+        <span class="nc">SendWelcomeSms</span>,
+        <span class="nc">CreateDashboard</span>,
+        <span class="ss">strategy:</span> <span class="ss">:parallel</span>
+
+  <span class="c"># Conditional execution</span>
+  <span class="n">task</span> <span class="nc">ScheduleOnboardingCall</span>,
+       <span class="ss">if:</span> <span class="ss">:premium_plan?</span>
+
+  <span class="k">private</span>
+
+  <span class="k">def</span> <span class="n">premium_plan?</span>
+    <span class="n">context</span>.<span class="n">plan</span>.<span class="n">tier</span> == <span class="ss">:premium</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c"># Run the entire workflow</span>
+<span class="n">result</span> = <span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
+      </div>
+    </div>
+
+    <!-- Fault Tolerance -->
+    <div class="showcase-panel" id="panel-retries">
+      <div class="showcase-info">
+        <h3>Fault Tolerance</h3>
+        <p>Handle transient failures automatically with configurable retries, selective exception matching, and exponential backoff. No manual intervention needed.</p>
+      </div>
+      <div class="showcase-code">
+        <pre><code><span class="k">class</span> <span class="nc">ProcessPayment</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="n">settings</span> <span class="ss">retries:</span> <span class="mi">5</span>,
+           <span class="ss">retry_on:</span> [<span class="nc">Stripe::RateLimitError</span>,
+                      <span class="nc">Net::ReadTimeout</span>],
+           <span class="ss">retry_jitter:</span> <span class="ss">:exponential_backoff</span>
+
+  <span class="n">required</span> <span class="ss">:payment_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
+
+  <span class="k">def</span> <span class="n">work</span>
+    <span class="n">payment</span> = <span class="nc">Payment</span>.<span class="n">find</span>(<span class="n">payment_id</span>)
+    <span class="n">context</span>.<span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(
+      <span class="ss">amount:</span> <span class="n">payment</span>.<span class="n">amount_cents</span>,
+      <span class="ss">currency:</span> <span class="s">"usd"</span>,
+      <span class="ss">source:</span> <span class="n">payment</span>.<span class="n">token</span>
+    )
+  <span class="k">end</span>
+
+  <span class="k">private</span>
+
+  <span class="k">def</span> <span class="n">exponential_backoff</span>(<span class="n">current_retry</span>)
+    <span class="mi">2</span> ** <span class="n">current_retry</span> <span class="c"># 2s, 4s, 8s, 16s, 32s</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">result</span> = <span class="nc">ProcessPayment</span>.<span class="n">execute</span>(<span class="ss">payment_id:</span> <span class="mi">99</span>)
+<span class="n">result</span>.<span class="n">retried?</span>  <span class="c"># => true</span>
+<span class="n">result</span>.<span class="n">retries</span>   <span class="c"># => 2</span></code></pre>
+      </div>
+    </div>
+
+    <!-- Observe -->
+    <div class="showcase-panel" id="panel-observe">
+      <div class="showcase-info">
+        <h3>Observe Everything</h3>
+        <p>Every execution automatically generates structured logs with chain IDs, runtime metrics, and contextual metadata. Trace complex workflows and debug issues with ease.</p>
+      </div>
+      <div class="showcase-code">
+        <pre><code><span class="c"># Structured logs are generated automatically</span>
+<span class="c"># with correlation IDs for full traceability</span>
+
+<span class="c">I, [2026-02-06T14:22:01.000 #4891] INFO -- CMDx:</span>
+<span class="n">index</span>=<span class="mi">0</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
+<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"CreateAccount"</span>
+<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
+<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">12</span>}
+
+<span class="c">I, [2026-02-06T14:22:01.050 #4891] INFO -- CMDx:</span>
+<span class="n">index</span>=<span class="mi">1</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
+<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SetupBilling"</span>
+<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
+<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">45</span>}
+
+<span class="c">W, [2026-02-06T14:22:01.200 #4891] WARN -- CMDx:</span>
+<span class="n">index</span>=<span class="mi">2</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
+<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SendWelcomeEmail"</span>
+<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"skipped"</span>
+<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">2</span>, <span class="ss">reason:</span> <span class="s">"Email not configured"</span>}
+
+<span class="c">I, [2026-02-06T14:22:01.250 #4891] INFO -- CMDx:</span>
+<span class="n">index</span>=<span class="mi">0</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
+<span class="n">type</span>=<span class="s">"Workflow"</span> <span class="n">class</span>=<span class="s">"OnboardCustomer"</span>
+<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
+<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">250</span>}</code></pre>
+      </div>
     </div>
   </div>
 </div>
@@ -604,5 +831,23 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var tabs = document.querySelectorAll(".showcase-tab");
+  var panels = document.querySelectorAll(".showcase-panel");
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      panels.forEach(function (p) { p.classList.remove("active"); });
+
+      tab.classList.add("active");
+      var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
+      if (panel) panel.classList.add("active");
+    });
+  });
+});
+</script>
 
 {% endblock %}
