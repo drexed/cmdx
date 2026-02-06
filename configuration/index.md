@@ -222,7 +222,7 @@ class GenerateInvoice < CMDx::Task
     log_level: :info,                            # Log level override
     log_formatter: CMDx::LogFormatters::Json.new # Log formatter override
     tags: ["billing", "financial"],              # Logging tags
-    deprecated: true,                            # Task deprecations
+    deprecate: true,                             # Task deprecations
     retries: 3,                                  # Non-fault exception retries
     retry_on: [External::ApiError],              # List of exceptions to retry on
     retry_jitter: 1,                             # Space between retry iteration, eg: current retry num + 1

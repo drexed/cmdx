@@ -14,7 +14,7 @@ Use `:raise` mode carefully—it will break existing workflows immediately.
 
 ```ruby
 class ProcessObsoleteAPI < CMDx::Task
-  settings(deprecated: :raise)
+  settings(deprecate: :raise)
 
   def work
     # Will never execute...
@@ -31,8 +31,8 @@ Allow execution while tracking deprecation in logs. Ideal for gradual migrations
 
 ```ruby
 class ProcessLegacyFormat < CMDx::Task
-  settings(deprecated: :log)
-  settings(deprecated: true)
+  settings(deprecate: :log)
+  settings(deprecate: true)
 
   def work
     # Executes but logs deprecation warning...
@@ -52,7 +52,7 @@ Issue Ruby warnings visible during development and testing. Keeps production log
 
 ```ruby
 class ProcessOldData < CMDx::Task
-  settings(deprecated: :warn)
+  settings(deprecate: :warn)
 
   def work
     # Executes but emits Ruby warning...
@@ -73,10 +73,10 @@ result.successful? #=> true
 ```ruby
 class OutdatedConnector < CMDx::Task
   # Symbol
-  settings(deprecated: :raise)
+  settings(deprecate: :raise)
 
   # String
-  settings(deprecated: "warn")
+  settings(deprecate: "warn")
 end
 ```
 
@@ -85,11 +85,11 @@ end
 ```ruby
 class OutdatedConnector < CMDx::Task
   # Deprecates with default :log mode
-  settings(deprecated: true)
+  settings(deprecate: true)
 
   # Skips deprecation
-  settings(deprecated: false)
-  settings(deprecated: nil)
+  settings(deprecate: false)
+  settings(deprecate: nil)
 end
 ```
 
@@ -98,7 +98,7 @@ end
 ```ruby
 class OutdatedConnector < CMDx::Task
   # Symbol
-  settings(deprecated: :deprecated?)
+  settings(deprecate: :deprecated?)
 
   def work
     # Your logic here...
@@ -117,10 +117,10 @@ end
 ```ruby
 class OutdatedConnector < CMDx::Task
   # Proc
-  settings(deprecated: proc { Rails.env.development? ? :raise : :log })
+  settings(deprecate: proc { Rails.env.development? ? :raise : :log })
 
   # Lambda
-  settings(deprecated: -> { Current.tenant.legacy_mode? ? :warn : :raise })
+  settings(deprecate: -> { Current.tenant.legacy_mode? ? :warn : :raise })
 end
 ```
 
@@ -135,9 +135,9 @@ end
 
 class OutdatedConnector < CMDx::Task
   # Class or Module
-  settings(deprecated: OutdatedTaskDeprecator)
+  settings(deprecate: OutdatedTaskDeprecator)
 
   # Instance
-  settings(deprecated: OutdatedTaskDeprecator.new)
+  settings(deprecate: OutdatedTaskDeprecator.new)
 end
 ```
