@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.16.0] - 2025-02-06
+
 ### Added
 - Add `CMDx::Exception` alias for `CMDx::Error`
 

@@ -95,7 +95,7 @@ When I start phasing out a task, I usually begin with logging. The task still ru
 
 ```ruby
 class CreateUser < CMDx::Task
-  settings deprecated: :log
+  settings deprecate: :log
 
   def work
     # logic ...
@@ -111,7 +111,7 @@ For a stronger signal during development, you can use `:warn`. This prints a Rub
 
 ```ruby
 class CreateUser < CMDx::Task
-  settings deprecated: :warn
+  settings deprecate: :warn
   # ...
 end
 ```
@@ -122,7 +122,7 @@ Finally, when the deadline passes, you can prevent execution entirely.
 
 ```ruby
 class CreateUser < CMDx::Task
-  settings deprecated: :raise
+  settings deprecate: :raise
   # ...
 end
 
@@ -132,7 +132,7 @@ end
 You can even make this dynamic! For example, maybe you want to raise errors in development but only log in production:
 
 ```ruby
-settings deprecated: -> { Rails.env.production? ? :log : :raise }
+settings deprecate: -> { Rails.env.production? ? :log : :raise }
 ```
 
 ## Internationalization (i18n): Speaking Your User's Language

@@ -301,7 +301,7 @@ class GenerateInvoice < CMDx::Task
     log_level: :info,
     tags: ["billing"],
     retries: 3,
-    deprecated: :warn  # :log, :warn, :raise
+    deprecate: :warn  # :log, :warn, :raise
   )
 end
 ```
