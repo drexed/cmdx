@@ -5,7 +5,7 @@ module CMDx
     # Converts various input types to Array format
     #
     # Handles conversion from strings that look like JSON arrays and other
-    # values that can be converted to arrays using Ruby's Array() method.
+    # values that can be wrapped in an array using Ruby's Array() method.
     module Array
 
       extend self

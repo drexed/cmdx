@@ -9,6 +9,7 @@ module CMDx
     # - Hash objects (returned as-is)
     # - Array objects (converted using Hash[*array])
     # - JSON strings starting with "{" (parsed into Hash)
+    # - JSON strings that are "null" (parsed into empty Hash)
     # - Other types raise CoercionError
     module Hash
 
