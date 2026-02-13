@@ -108,6 +108,8 @@
 </li><li>
 <p>JSON strings starting with “{” (parsed into Hash)</p>
 </li><li>
+<p>JSON strings that are “null” (parsed into empty Hash)</p>
+</li><li>
 <p>Other types raise CoercionError</p>
 </li></ul>
 
@@ -331,7 +333,6 @@
       <pre class="lines">
 
 
-35
 36
 37
 38
@@ -350,10 +351,11 @@
 51
 52
 53
-54</pre>
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/hash.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/hash.rb', line 36</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -385,7 +387,7 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Feb 13 22:37:10 2026 by
+  Generated on Fri Feb 13 23:02:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
