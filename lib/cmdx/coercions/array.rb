@@ -29,8 +29,11 @@ module CMDx
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
       def call(value, options = {})
-        if value.is_a?(::String) && value.start_with?("[")
-          JSON.parse(value)
+        if value.is_a?(::String) && (
+          value.start_with?("[") ||
+          value.strip == "null"
+        )
+          JSON.parse(value) || []
         else
           Array(value)
         end

@@ -115,6 +115,20 @@ RSpec.describe CMDx::Coercions::Hash, type: :unit do
         expect(result).to eq({})
       end
 
+      it "parses JSON null string as empty hash" do
+        result = coercion.call("null")
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq({})
+      end
+
+      it "parses JSON null string with whitespace as empty hash" do
+        result = coercion.call("  null  ")
+
+        expect(result).to be_a(Hash)
+        expect(result).to eq({})
+      end
+
       it "raises CoercionError for invalid JSON" do
         expect { coercion.call('{"invalid": json}') }
           .to raise_error(CMDx::CoercionError, "could not coerce into a hash")

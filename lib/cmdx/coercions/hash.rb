@@ -39,8 +39,11 @@ module CMDx
           value
         elsif value.is_a?(::Array)
           ::Hash[*value]
-        elsif value.is_a?(::String) && value.start_with?("{")
-          JSON.parse(value)
+        elsif value.is_a?(::String) && (
+          value.start_with?("{") ||
+          value.strip == "null"
+        )
+          JSON.parse(value) || {}
         elsif value.respond_to?(:to_h)
           value.to_h
         else

@@ -37,6 +37,18 @@ RSpec.describe CMDx::Coercions::Array, type: :unit do
         expect(result).to eq([{ "key" => "value" }, { "number" => 42 }])
       end
 
+      it "parses JSON null string as empty array" do
+        result = coercion.call("null")
+
+        expect(result).to eq([])
+      end
+
+      it "parses JSON null string with whitespace as empty array" do
+        result = coercion.call("  null  ")
+
+        expect(result).to eq([])
+      end
+
       context "with invalid JSON" do
         it "raises JSON::ParserError for malformed JSON" do
           expect { coercion.call("[invalid json") }
