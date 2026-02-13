@@ -7,11 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
-- Array coercion: treat JSON `"null"` string as empty array
-- Hash coercion: treat JSON `"null"` string as empty hash
-
-### Fixed
-- Attribute sourcing: support both string and symbol keys when sourcing/deriving from Hash (e.g. JSON-parsed data)
+- Add array coercion for JSON `"null"` string as empty array
+- Add hash coercion for JSON `"null"` string as empty hash
+- Add attribute sourcing to support both string and symbol keys when sourcing/deriving from Hash
 
 ## [1.16.0] - 2025-02-06
 
