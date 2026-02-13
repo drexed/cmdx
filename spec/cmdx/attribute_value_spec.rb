@@ -288,6 +288,30 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
           end
         end
 
+        context "with string-keyed Hash source" do
+          let(:source) { { "test_name" => "value" } }
+
+          before { allow(source).to receive(:respond_to?).with(:call).and_return(false) }
+
+          it "checks both string and symbol key presence" do
+            expect(attribute_value.send(:source_value)).to eq(source)
+          end
+
+          context "when hash missing key" do
+            let(:source) { { "other_key" => "value" } }
+
+            before do
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+            end
+
+            it "adds required error" do
+              expect(errors).to receive(:add).with(method_name, "required error")
+
+              expect(attribute_value.send(:source_value)).to eq(source)
+            end
+          end
+        end
+
         context "with Proc source" do
           let(:source) { proc { "value" } }
 
@@ -507,6 +531,14 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
 
         it "extracts value using name key" do
           expect(attribute_value.send(:derive_value, hash)).to eq("hash_value")
+        end
+
+        context "with string keys" do
+          let(:hash) { { "test_name" => "hash_value" } }
+
+          it "extracts value using string or symbol key" do
+            expect(attribute_value.send(:derive_value, hash)).to eq("hash_value")
+          end
         end
       end
 

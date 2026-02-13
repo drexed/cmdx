@@ -113,7 +113,8 @@ module CMDx
 
       if required? && (parent.nil? || parent&.required?) && Utils::Condition.evaluate(task, options)
         case sourced_value
-        when Context, Hash then sourced_value.key?(name)
+        when Context then sourced_value.key?(name)
+        when Hash then sourced_value.key?(name.to_s) || sourced_value.key?(name.to_sym)
         when Proc then true # HACK: Cannot be determined so assume it will respond
         else sourced_value.respond_to?(name, true)
         end || errors.add(method_name, Locale.t("cmdx.attributes.required"))
@@ -164,7 +165,8 @@ module CMDx
     def derive_value(source_value)
       derived_value =
         case source_value
-        when Context, Hash then source_value[name]
+        when Context then source_value[name]
+        when Hash then source_value[name.to_s] || source_value[name.to_sym]
         when Symbol then source_value.send(name)
         when Proc then task.instance_exec(name, &source_value)
         else source_value.call(task, name) if source_value.respond_to?(:call)
