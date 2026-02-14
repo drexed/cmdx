@@ -18,7 +18,7 @@ module CMDx
     # @rbs @attribute: Attribute
     attr_reader :attribute
 
-    def_delegators :attribute, :task, :parent, :name, :options, :types, :source, :method_name, :required?
+    def_delegators :attribute, :task, :parent, :name, :options, :types, :source, :method_name, :required?, :optional?
     def_delegators :task, :attributes, :errors
 
     # Creates a new attribute value manager for the given attribute.
@@ -224,16 +224,17 @@ module CMDx
       rescue CoercionError => e
         next if i != last_idx
 
-        message =
-          if last_idx.zero?
-            e.message
-          else
-            tl = types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
-            Locale.t("cmdx.coercions.into_any", types: tl)
-          end
+        unless optional? && transformed_value.nil?
+          message =
+            if last_idx.zero?
+              e.message
+            else
+              tl = types.map { |t| Locale.t("cmdx.types.#{t}") }.join(", ")
+              Locale.t("cmdx.coercions.into_any", types: tl)
+            end
 
-        errors.add(method_name, message)
-        nil
+          errors.add(method_name, message)
+        end
       end
     end
 

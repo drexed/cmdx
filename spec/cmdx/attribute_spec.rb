@@ -63,6 +63,18 @@ RSpec.describe CMDx::Attribute, type: :unit do
       end
     end
 
+    context "with optional option" do
+      let(:attribute_options) { { required: false } }
+
+      it "sets optional to true" do
+        expect(new_attribute.optional?).to be(true)
+      end
+
+      it "removes optional from options" do
+        expect(new_attribute.options).not_to have_key(:required)
+      end
+    end
+
     context "with types option" do
       let(:attribute_options) { { types: %i[string integer] } }
 

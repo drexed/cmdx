@@ -184,6 +184,18 @@ module CMDx
 
     end
 
+    # Checks if the attribute is optional.
+    #
+    # @return [Boolean] true if the attribute is optional, false otherwise
+    #
+    # @example
+    #   attribute.optional? # => true
+    #
+    # @rbs () -> bool
+    def optional?
+      !required? || !!options[:optional]
+    end
+
     # Checks if the attribute is required.
     #
     # @return [Boolean] true if the attribute is required, false otherwise

@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add hash coercion for JSON `"null"` string as empty hash
 - Add attribute sourcing to support both string and symbol keys when sourcing/deriving from Hash
 
+## Changed
+- Do not fail coercion if nil on optional attributes
+
 ## [1.16.0] - 2025-02-06
 
 ### Added

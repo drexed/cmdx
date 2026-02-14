@@ -111,66 +111,146 @@ RSpec.describe "Task attributes", type: :feature do
     end
 
     context "with type options" do
-      context "when cannot be coerced into type" do
-        it "fails with coercion error message" do
-          task = create_task_class do
-            attribute :raw_attr, type: :integer
+      context "when attribute is optional" do
+        context "when cannot be coerced into type" do
+          it "fails with coercion error message" do
+            task = create_task_class do
+              attribute :raw_attr, type: :integer
 
-            def work = nil
-          end
-
-          result = task.execute
-
-          expect(result).to have_failed(
-            reason: "Invalid",
-            cause: be_a(CMDx::FailFault)
-          )
-          expect(result).to have_matching_metadata(
-            errors: {
-              full_message: "raw_attr could not coerce into an integer",
-              messages: { raw_attr: ["could not coerce into an integer"] }
-            }
-          )
-        end
-      end
-
-      context "when cannot be coerced into any type" do
-        it "fails with coercion error message" do
-          task = create_task_class do
-            attribute :raw_attr, types: %i[float integer]
-
-            def work = nil
-          end
-
-          result = task.execute
-
-          expect(result).to have_failed(
-            reason: "Invalid",
-            cause: be_a(CMDx::FailFault)
-          )
-          expect(result).to have_matching_metadata(
-            errors: {
-              full_message: "raw_attr could not coerce into one of: float, integer",
-              messages: { raw_attr: ["could not coerce into one of: float, integer"] }
-            }
-          )
-        end
-      end
-
-      context "when value can be coerced" do
-        it "coerces the value into the type" do
-          task = create_task_class do
-            attribute :raw_attr, type: :integer
-
-            def work
-              context.attrs = [raw_attr]
+              def work
+                context.attrs = [raw_attr]
+              end
             end
+
+            result = task.execute
+
+            expect(result).to be_successful
+            expect(result).to have_matching_context(attrs: [nil])
           end
+        end
 
-          result = task.execute(raw_attr: "123")
+        context "when cannot be coerced into any type" do
+          it "fails with coercion error message" do
+            task = create_task_class do
+              attribute :raw_attr, types: %i[float integer]
 
-          expect(result).to be_successful
-          expect(result).to have_matching_context(attrs: [123])
+              def work
+                context.attrs = [raw_attr]
+              end
+            end
+
+            result = task.execute
+
+            expect(result).to be_successful
+            expect(result).to have_matching_context(attrs: [nil])
+          end
+        end
+
+        context "when value can be coerced" do
+          it "coerces the value into the type" do
+            task = create_task_class do
+              attribute :raw_attr, type: :integer
+
+              def work
+                context.attrs = [raw_attr]
+              end
+            end
+
+            result = task.execute(raw_attr: "123")
+
+            expect(result).to be_successful
+            expect(result).to have_matching_context(attrs: [123])
+          end
+        end
+      end
+
+      context "when attribute is required" do
+        context "when cannot be coerced into type" do
+          it "fails with coercion error message" do
+            task = create_task_class do
+              required :raw_attr, type: :hash do
+                required :raw_key, type: :integer
+              end
+
+              def work = nil
+            end
+
+            result = task.execute(raw_attr: { raw_key: nil })
+
+            expect(result).to have_failed(
+              reason: "Invalid",
+              cause: be_a(CMDx::FailFault)
+            )
+            expect(result).to have_matching_metadata(
+              errors: {
+                full_message: "raw_key could not coerce into an integer",
+                messages: { raw_key: ["could not coerce into an integer"] }
+              }
+            )
+          end
+        end
+
+        context "when cannot be coerced into any type" do
+          it "fails with coercion error message" do
+            task = create_task_class do
+              required :raw_attr, type: :hash do
+                required :raw_key, type: %i[float integer]
+              end
+
+              def work = nil
+            end
+
+            result = task.execute(raw_attr: { raw_key: nil })
+
+            expect(result).to have_failed(
+              reason: "Invalid",
+              cause: be_a(CMDx::FailFault)
+            )
+            expect(result).to have_matching_metadata(
+              errors: {
+                full_message: "raw_key could not coerce into one of: float, integer",
+                messages: { raw_key: ["could not coerce into one of: float, integer"] }
+              }
+            )
+          end
+        end
+
+        context "when nested attribute is missing" do
+          it "fails with coercion error message" do
+            task = create_task_class do
+              required :raw_attr, type: :hash do
+                optional :raw_key, type: :integer
+              end
+
+              def work
+                context.attrs = [raw_key]
+              end
+            end
+
+            result = task.execute(raw_attr: {})
+
+            expect(result).to be_successful
+            expect(result).to have_matching_context(attrs: [nil])
+          end
+        end
+
+        context "when value can be coerced" do
+          it "coerces the value into the type" do
+            task = create_task_class do
+              required :raw_attr, type: :hash do
+                required :raw_key, type: :integer
+              end
+
+              def work
+                context.attrs = [raw_key]
+              end
+            end
+
+            result = task.execute(raw_attr: { raw_key: "123" })
+
+            expect(result).to be_successful
+            expect(result).to have_matching_context(attrs: [123])
+          end
         end
       end
     end
