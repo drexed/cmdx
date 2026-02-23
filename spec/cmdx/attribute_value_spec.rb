@@ -266,7 +266,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
             let(:context) { CMDx::Context.new({}) }
 
             before do
-              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required", hash_including(:method)).and_return("required error")
               allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, {}).and_return(true)
             end
 
@@ -301,7 +301,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
             let(:source) { { "other_key" => "value" } }
 
             before do
-              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required", hash_including(:method)).and_return("required error")
             end
 
             it "adds required error" do
@@ -348,7 +348,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
             before do
               allow(source).to receive(:respond_to?).with(:call).and_return(false)
               allow(source).to receive(:respond_to?).with(name, true).and_return(false)
-              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required", hash_including(:method)).and_return("required error")
               allow(attribute_value).to receive(:options).and_return({})
               allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, {}).and_return(true)
             end
@@ -376,7 +376,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
 
             before do
               allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(true)
-              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required", hash_including(:method)).and_return("required error")
             end
 
             it "validates required attribute" do
@@ -403,7 +403,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
 
             before do
               allow(CMDx::Utils::Condition).to receive(:evaluate).with(task, attribute_options).and_return(true)
-              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required").and_return("required error")
+              allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.required", hash_including(:method)).and_return("required error")
             end
 
             it "defaults to true and validates required attribute" do

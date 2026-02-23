@@ -26,10 +26,10 @@ RSpec.describe "Task attributes", type: :feature do
           )
           expect(result).to have_matching_metadata(
             errors: {
-              full_message: "plain_required_attr must be accessible via the source. required_attr must be accessible via the source",
+              full_message: "plain_required_attr must be accessible via the context source method. required_attr must be accessible via the context source method",
               messages: {
-                plain_required_attr: ["must be accessible via the source"],
-                required_attr: ["must be accessible via the source"]
+                plain_required_attr: ["must be accessible via the context source method"],
+                required_attr: ["must be accessible via the context source method"]
               }
             }
           )
