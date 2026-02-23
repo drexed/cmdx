@@ -1,7 +1,7 @@
 or:
   cmdx:
     attributes:
-      required: "ଉତ୍ସ ମାଧ୍ୟମରେ ପ୍ରବେଶ ଯୋଗ୍ୟ ହୋଇଥିବା ଆବଶ୍ୟକ"
+      required: "%{method} ଉତ୍ସ ପଦ୍ଧତି ମାଧ୍ୟମରେ ଉପଲବ୍ଧ ହେବା ଆବଶ୍ୟକ"
       undefined: "ଅପରିଭାଷିତ ପଦ୍ଧତିକୁ %{method} ନିୟୋଜିତ କରେ"
     coercions:
       into_a: "%{type} ରେ ପରିବର୍ତ୍ତନ କରି ପାରିଲା ନାହିଁ"

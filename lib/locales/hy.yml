@@ -1,7 +1,7 @@
 hy:
   cmdx:
     attributes:
-      required: "պետք է հասանելի լինի աղբյուրի միջոցով"
+      required: "պետք է հասանելի լինի %{method} ելակետային մեթոդի միջոցով"
       undefined: "անցնում է չսահմանված մեթոդին %{method}"
     coercions:
       into_a: "չհաջողվեց վերածել %{type} տիպի"

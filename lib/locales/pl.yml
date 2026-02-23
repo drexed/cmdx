@@ -1,7 +1,7 @@
 pl:
   cmdx:
     attributes:
-      required: "musi być dostępny przez źródło"
+      required: "musi być dostępny przez metodę źródłową %{method}"
       undefined: "deleguje do niezdefiniowanej metody %{method}"
     coercions:
       into_a: "nie można przekonwertować na %{type}"

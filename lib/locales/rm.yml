@@ -1,7 +1,7 @@
 rm:
   cmdx:
     attributes:
-      required: "stoscha esser accessibel via la funtauna"
+      required: "stue esser accessibel via la metoda da funtauna %{method}"
       undefined: "delega a la metoda betg definida %{method}"
     coercions:
       into_a: "na pudeva betg vegnir convertì en %{type}"

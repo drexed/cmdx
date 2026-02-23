@@ -1,7 +1,7 @@
 lv:
   cmdx:
     attributes:
-      required: "jābūt pieejamam caur avotu"
+      required: "jābūt pieejamam, izmantojot avota metodi %{method}"
       undefined: "deleģē nedefinētai metodei %{method}"
     coercions:
       into_a: "nevarēja konvertēt uz %{type}"

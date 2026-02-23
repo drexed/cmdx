@@ -1,7 +1,7 @@
 hu:
   cmdx:
     attributes:
-      required: "elérhetőnek kell lennie a forráson keresztül"
+      required: "hozzáférhetőnek kell lennie a(z) %{method} forrásmetóduson keresztül"
       undefined: "delegál a nem definiált metódusra %{method}"
     coercions:
       into_a: "nem sikerült %{type} típusra konvertálni"

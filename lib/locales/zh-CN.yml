@@ -1,7 +1,7 @@
 zh-CN:
   cmdx:
     attributes:
-      required: "必须通过源访问"
+      required: "必须通过 %{method} 源方法访问"
       undefined: "委托给未定义的方法 %{method}"
     coercions:
       into_a: "无法转换为 %{type}"

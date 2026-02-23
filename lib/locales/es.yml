@@ -1,7 +1,7 @@
 es:
   cmdx:
     attributes:
-      required: "debe ser accesible a través de la fuente"
+      required: "debe ser accesible a través del método de origen %{method}"
       undefined: "delega a método indefinido %{method}"
     coercions:
       into_a: "no se pudo convertir en un %{type}"

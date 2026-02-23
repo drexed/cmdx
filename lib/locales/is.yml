@@ -1,7 +1,7 @@
 is:
   cmdx:
     attributes:
-      required: "verður að vera aðgengilegt gegnum uppsprettuna"
+      required: "verður að vera aðgengilegt í gegnum grunnaðferðina %{method}"
       undefined: "fela óskilgreindri aðferð %{method}"
     coercions:
       into_a: "gat ekki breytt í %{type}"

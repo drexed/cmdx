@@ -1,7 +1,7 @@
 ug:
   cmdx:
     attributes:
-      required: "مەنبە ئارقىلىق ئىگە بولۇشى كېرەك"
+      required: "%{method} مەنبە ئۇسۇلى ئارقىلىق زىيارەت قىلىنىشى كېرەك"
       undefined: "ئېنىقلانمىغان %{method} مېتودىغا ۋەكەتلىك قىلىدۇ"
     coercions:
       into_a: "%{type} غا ئايلاندۇرالمايدۇ"

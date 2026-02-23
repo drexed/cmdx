@@ -1,7 +1,7 @@
 kn:
   cmdx:
     attributes:
-      required: "ಮೂಲದ ಮೂಲಕ ಪ್ರವೇಶಿಸಬಹುದಾಗಿರಬೇಕು"
+      required: "%{method} ಮೂಲ ವಿಧಾನದ ಮೂಲಕ ಪ್ರವೇಶಿಸಬಹುದಾಗಿರಬೇಕು"
       undefined: "ವ್ಯಾಖ್ಯಾನಿಸದ ವಿಧಾನಕ್ಕೆ %{method} ನಿಯೋಜಿಸುತ್ತದೆ"
     coercions:
       into_a: "%{type} ಗೆ ಪರಿವರ್ತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"

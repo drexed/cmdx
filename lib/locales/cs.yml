@@ -1,7 +1,7 @@
 cs:
   cmdx:
     attributes:
-      required: "musí být přístupné přes zdroj"
+      required: "musí být přístupné přes zdrojovou metodu %{method}"
       undefined: "deleguje na nedefinovanou metodu %{method}"
     coercions:
       into_a: "nelze převést na %{type}"

@@ -1,7 +1,7 @@
 vi:
   cmdx:
     attributes:
-      required: "phải có thể truy cập thông qua nguồn"
+      required: "phải có thể truy cập thông qua phương thức nguồn %{method}"
       undefined: "ủy quyền cho phương thức không xác định %{method}"
     coercions:
       into_a: "không thể chuyển đổi thành %{type}"

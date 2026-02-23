@@ -1,7 +1,7 @@
 ur:
   cmdx:
     attributes:
-      required: "ماخذ کے ذریعے قابل رسائی ہونا ضروری ہے"
+      required: "%{method} ماخذ طریقہ کار کے ذریعے قابل رسائی ہونا ضروری ہے"
       undefined: "غیر متعین طریقہ %{method} کو تفویض کرتا ہے"
     coercions:
       into_a: "%{type} میں تبدیل نہیں کر سکا"

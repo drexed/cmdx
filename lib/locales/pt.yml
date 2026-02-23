@@ -1,7 +1,7 @@
 pt:
   cmdx:
     attributes:
-      required: "deve ser acessível através da fonte"
+      required: "deve ser acessível através do método de origem %{method}"
       undefined: "delega para método não definido %{method}"
     coercions:
       into_a: "não foi possível converter em %{type}"

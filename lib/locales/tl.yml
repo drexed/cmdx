@@ -1,7 +1,7 @@
 tl:
   cmdx:
     attributes:
-      required: "dapat na ma-access sa pamamagitan ng source"
+      required: "dapat ma-access sa pamamagitan ng pamamaraang pinagmulan ng %{method}"
       undefined: "nag-delegate sa hindi tinukoy na method %{method}"
     coercions:
       into_a: "hindi ma-convert sa %{type}"

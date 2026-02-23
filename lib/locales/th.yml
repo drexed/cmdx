@@ -1,7 +1,7 @@
 th:
   cmdx:
     attributes:
-      required: "ต้องเข้าถึงได้ผ่านแหล่งข้อมูล"
+      required: "ต้องสามารถเข้าถึงได้ผ่านวิธีแหล่งที่มา %{method}"
       undefined: "มอบหมายให้กับเมธอดที่ไม่ได้กำหนด %{method}"
     coercions:
       into_a: "ไม่สามารถแปลงเป็น %{type} ได้"

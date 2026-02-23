@@ -1,7 +1,7 @@
 fa:
   cmdx:
     attributes:
-      required: "باید از طریق منبع قابل دسترسی باشد"
+      required: "باید از طریق متد منبع %{method} قابل دسترسی باشد"
       undefined: "به متد تعریف نشده %{method} واگذار می‌کند"
     coercions:
       into_a: "نمی‌تواند به %{type} تبدیل شود"

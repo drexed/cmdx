@@ -1,7 +1,7 @@
 id:
   cmdx:
     attributes:
-      required: "harus dapat diakses melalui sumber"
+      required: "harus dapat diakses melalui metode sumber %{method}"
       undefined: "mendelegasikan ke metode yang tidak terdefinisi %{method}"
     coercions:
       into_a: "tidak dapat dikonversi ke %{type}"

@@ -1,7 +1,7 @@
 hi:
   cmdx:
     attributes:
-      required: "स्रोत के माध्यम से सुलभ होना चाहिए"
+      required: "%{method} स्रोत विधि के माध्यम से सुलभ होना चाहिए"
       undefined: "अपरिभाषित विधि %{method} को सौंपता है"
     coercions:
       into_a: "%{type} में परिवर्तित नहीं किया जा सका"

@@ -1,7 +1,7 @@
 tt:
   cmdx:
     attributes:
-      required: "чыганак аша ирешүе мәҗбүри"
+      required: "%{method} чыганак методы аша керү мөмкинлеге булырга тиеш"
       undefined: "билгеләнмәгән %{method} методына тапшыра"
     coercions:
       into_a: "%{type} төренә күчерә алмады"

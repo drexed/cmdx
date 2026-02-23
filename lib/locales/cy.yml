@@ -1,7 +1,7 @@
 cy:
   cmdx:
     attributes:
-      required: "rhaid iddo fod yn hygyrch drwy'r ffynhonnell"
+      required: "rhaid bod yn hygyrch trwy'r dull ffynhonnell %{method}"
       undefined: "delegio i'r dull amhendant %{method}"
     coercions:
       into_a: "ni allwyd ei drawsnewid i %{type}"

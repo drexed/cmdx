@@ -1,7 +1,7 @@
 wo:
   cmdx:
     attributes:
-      required: "dafa war a nekk ci yokkute ci ndoorte"
+      required: "dafa war a man a dugg ci mbirum %{method} bi"
       undefined: "dafa yokkute ci xam-xam bu ñu waxul %{method}"
     coercions:
       into_a: "duñu ko man a soppi ci %{type}"

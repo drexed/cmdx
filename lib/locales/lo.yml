@@ -1,7 +1,7 @@
 lo:
   cmdx:
     attributes:
-      required: "ຕ້ອງເຂົ້າເຖິງໄດ້ຜ່ານແຫຼ່ງຂໍ້ມູນ"
+      required: "ຕ້ອງສາມາດເຂົ້າເຖິງໄດ້ຜ່ານວິທີການແຫຼ່ງ %{method}"
       undefined: "ມອບໝາຍໃຫ້ກັບວິທີທີ່ບໍ່ໄດ້ກຳນົດ %{method}"
     coercions:
       into_a: "ບໍ່ສາມາດປ່ຽນເປັນ %{type} ໄດ້"

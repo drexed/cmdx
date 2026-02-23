@@ -1,7 +1,7 @@
 zh-HK:
   cmdx:
     attributes:
-      required: "必須可以透過來源存取"
+      required: "必須透過 %{method} 來源方法存取"
       undefined: "委託給未定義的方法 %{method}"
     coercions:
       into_a: "無法強制轉換成 %{type}"

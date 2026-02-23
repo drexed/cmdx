@@ -1,7 +1,7 @@
 lb:
   cmdx:
     attributes:
-      required: "muss iwwer d'Quell zougänglech sinn"
+      required: "muss iwwer d'Quellmethod %{method} zougänglech sinn"
       undefined: "delegéiert un onbestëmmte Methode %{method}"
     coercions:
       into_a: "konnt net an %{type} ëmwandelen"

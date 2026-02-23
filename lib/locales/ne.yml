@@ -1,7 +1,7 @@
 ne:
   cmdx:
     attributes:
-      required: "स्रोत मार्फत पहुँचयोग्य हुनुपर्छ"
+      required: "%{method} स्रोत विधि मार्फत पहुँचयोग्य हुनुपर्छ"
       undefined: "अपरिभाषित विधिलाई %{method} नियुक्त गर्दछ"
     coercions:
       into_a: "%{type} मा रूपान्तरण गर्न सकिएन"

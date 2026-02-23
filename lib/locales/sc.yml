@@ -1,7 +1,7 @@
 sc:
   cmdx:
     attributes:
-      required: "deve èssere accessìbile a traessu sa fonte"
+      required: "depet èssere atzessìbile pro mèdiu de su mètodu de orìgine %{method}"
       undefined: "delegat a su metodu non definidu %{method}"
     coercions:
       into_a: "no s'est podidu cunvertire in %{type}"

@@ -1,7 +1,7 @@
 ms:
   cmdx:
     attributes:
-      required: "mesti boleh diakses melalui sumber"
+      required: "mesti boleh diakses melalui kaedah sumber %{method}"
       undefined: "delegasi kepada kaedah yang tidak ditakrifkan %{method}"
     coercions:
       into_a: "tidak boleh ditukar kepada %{type}"

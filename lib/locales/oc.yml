@@ -1,7 +1,7 @@
 oc:
   cmdx:
     attributes:
-      required: "deu èsser accessible via la font"
+      required: "deu èsser accessible via lo metòde font %{method}"
       undefined: "delegar a la metòda non definida %{method}"
     coercions:
       into_a: "poguèt pas èsser convertit en %{type}"

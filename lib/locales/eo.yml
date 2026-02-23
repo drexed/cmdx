@@ -1,7 +1,7 @@
 eo:
   cmdx:
     attributes:
-      required: "devas esti alirebla tra la fonto"
+      required: "devas esti alirebla per la fontmetodo %{method}"
       undefined: "delegas al nedifinita metodo %{method}"
     coercions:
       into_a: "ne povis esti konvertita al %{type}"

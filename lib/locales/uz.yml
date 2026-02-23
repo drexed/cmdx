@@ -1,7 +1,7 @@
 uz:
   cmdx:
     attributes:
-      required: "manba orqali kirish imkoniyati bo'lishi kerak"
+      required: "%{method} manba usuli orqali kirish imkoniyatiga ega bo'lishi kerak"
       undefined: "aniqlanmagan %{method} metodiga topshiradi"
     coercions:
       into_a: "%{type} ga o'tkazib bo'lmadi"

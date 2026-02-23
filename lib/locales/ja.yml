@@ -1,7 +1,7 @@
 ja:
   cmdx:
     attributes:
-      required: "ソースからアクセス可能である必要があります"
+      required: "%{method} ソースメソッド経由でアクセスできる必要があります"
       undefined: "未定義のメソッド %{method} に委譲します"
     coercions:
       into_a: "%{type} に変換できませんでした"

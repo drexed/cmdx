@@ -1,7 +1,7 @@
 af:
   cmdx:
     attributes:
-      required: "moet toeganklik wees via die bron"
+      required: "moet toeganklik wees via die %{method} bronmetode"
       undefined: "delegeer na ongedefinieerde metode %{method}"
     coercions:
       into_a: "kon nie na %{type} omskep word nie"

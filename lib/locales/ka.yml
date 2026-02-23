@@ -1,7 +1,7 @@
 ka:
   cmdx:
     attributes:
-      required: "უნდა იყოს ხელმისაწვდომი წყაროდან"
+      required: "ხელმისაწვდომი უნდა იყოს %{method} წყაროს მეთოდის საშუალებით"
       undefined: "აღწერს განუსაზღვრელ მეთოდს %{method}"
     coercions:
       into_a: "ვერ გადაიყვანა %{type} ტიპად"

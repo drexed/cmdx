@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Changed
 - Do not fail coercion if nil on optional attributes
+- Include the source method in the required attribute error message
 
 ## [1.16.0] - 2025-02-06
 

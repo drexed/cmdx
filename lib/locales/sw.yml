@@ -1,7 +1,7 @@
 sw:
   cmdx:
     attributes:
-      required: "lazima iwe inapatikana kupitia chanzo"
+      required: "lazima ipatikane kupitia mbinu ya chanzo ya %{method}"
       undefined: "inakabidhi kwa njia isiyofafanuliwa %{method}"
     coercions:
       into_a: "haikuweza kubadilishwa kuwa %{type}"

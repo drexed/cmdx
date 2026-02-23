@@ -1,7 +1,7 @@
 tr:
   cmdx:
     attributes:
-      required: "kaynak üzerinden erişilebilir olmalıdır"
+      required: "%{method} kaynak yöntemi ile erişilebilir olmalıdır"
       undefined: "tanımlanmamış metoda %{method} devreder"
     coercions:
       into_a: "%{type} türüne dönüştürülemedi"

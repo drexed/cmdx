@@ -1,7 +1,7 @@
 ro:
   cmdx:
     attributes:
-      required: "trebuie să fie accesibil prin sursă"
+      required: "trebuie să fie accesibil prin metoda sursă %{method}"
       undefined: "delegează la metoda nedefinită %{method}"
     coercions:
       into_a: "nu a putut fi convertit în %{type}"

@@ -1,7 +1,7 @@
 ca:
   cmdx:
     attributes:
-      required: "ha de ser accessible a través de la font"
+      required: "ha de ser accessible mitjançant el mètode font %{method}"
       undefined: "delega al mètode no definit %{method}"
     coercions:
       into_a: "no es va poder convertir a %{type}"

@@ -1,7 +1,7 @@
 nl:
   cmdx:
     attributes:
-      required: "moet toegankelijk zijn via de bron"
+      required: "moet toegankelijk zijn via de bronmethode %{method}"
       undefined: "delegeert naar ongedefinieerde methode %{method}"
     coercions:
       into_a: "kon niet worden geconverteerd naar %{type}"

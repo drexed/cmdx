@@ -1,7 +1,7 @@
 ar:
   cmdx:
     attributes:
-      required: "يجب أن يكون قابلاً للوصول عبر المصدر"
+      required: "يجب أن يكون قابلاً للوصول عبر طريقة المصدر %{method}"
       undefined: "يفوض إلى طريقة غير معرفة %{method}"
     coercions:
       into_a: "لا يمكن تحويله إلى %{type}"

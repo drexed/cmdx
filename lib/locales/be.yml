@@ -1,7 +1,7 @@
 be:
   cmdx:
     attributes:
-      required: "павінна быць даступна праз крыніцу"
+      required: "павінен быць даступны праз зыходны метад %{method}"
       undefined: "дэлегуе невызначанаму метаду %{method}"
     coercions:
       into_a: "не ўдалося пераўтварыць у %{type}"

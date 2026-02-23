@@ -1,7 +1,7 @@
 sq:
   cmdx:
     attributes:
-      required: "duhet të jetë i aksesueshëm përmes burimit"
+      required: "duhet të jetë i qasshëm përmes metodës së burimit %{method}"
       undefined: "delegon metodën e padefinuar %{method}"
     coercions:
       into_a: "nuk mund të konvertohet në %{type}"

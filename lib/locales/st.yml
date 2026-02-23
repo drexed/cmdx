@@ -1,7 +1,7 @@
 st:
   cmdx:
     attributes:
-      required: "e tlameha ho ba e fihleleha ka mohlodi"
+      required: "e tlameha ho fihlelleha ka mokhoa oa mohloli oa %{method}"
       undefined: "e fana ka boikarabello ho mokgwa o sa hlaloswang %{method}"
     coercions:
       into_a: "ha e ka fetolelwa ho %{type}"

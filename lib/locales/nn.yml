@@ -1,7 +1,7 @@
 nn:
   cmdx:
     attributes:
-      required: "må vere tilgjengeleg via kjelda"
+      required: "må vere tilgjengeleg via kjeldemetoden %{method}"
       undefined: "delegerer til udefinert metode %{method}"
     coercions:
       into_a: "kunne ikkje konvertere til %{type}"

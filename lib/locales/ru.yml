@@ -1,7 +1,7 @@
 ru:
   cmdx:
     attributes:
-      required: "должен быть доступен через источник"
+      required: "должно быть доступно через исходный метод %{method}"
       undefined: "делегирует неопределенному методу %{method}"
     coercions:
       into_a: "не удалось преобразовать в %{type}"

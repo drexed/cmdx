@@ -1,7 +1,7 @@
 sl:
   cmdx:
     attributes:
-      required: "mora biti dostopen preko vira"
+      required: "mora biti dostopno prek izvorne metode %{method}"
       undefined: "delegira nedefinirani metodi %{method}"
     coercions:
       into_a: "ni bilo mogoče pretvoriti v %{type}"

@@ -1,7 +1,7 @@
 eu:
   cmdx:
     attributes:
-      required: "iturriaren bidez eskuragarri izan behar du"
+      required: "eskuragarri egon behar du %{method} iturburu-metodoaren bidez"
       undefined: "metodo zehaztugabea %{method} delegatzen du"
     coercions:
       into_a: "ezin izan da %{type} ra bihurtu"

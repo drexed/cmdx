@@ -1,7 +1,7 @@
 te:
   cmdx:
     attributes:
-      required: "మూలం ద్వారా ప్రాప్యత ఉండాలి"
+      required: "%{method} మూల పద్ధతి ద్వారా యాక్సెస్ చేయగలగాలి"
       undefined: "నిర్వచించబడని పద్ధతికి %{method} అప్పగిస్తుంది"
     coercions:
       into_a: "%{type} గా మార్చలేకపోయింది"

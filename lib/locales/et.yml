@@ -1,7 +1,7 @@
 et:
   cmdx:
     attributes:
-      required: "peab olema kättesaadav läbi allika"
+      required: "peab olema juurdepääsetav lähtemeetodi %{method} kaudu"
       undefined: "delegeerib määramata meetodile %{method}"
     coercions:
       into_a: "ei õnnestunud teisendada %{type} tüübiks"

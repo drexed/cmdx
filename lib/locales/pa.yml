@@ -1,7 +1,7 @@
 pa:
   cmdx:
     attributes:
-      required: "ਸਰੋਤ ਰਾਹੀਂ ਪਹੁੰਚਯੋਗ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ"
+      required: "%{method} ਸਰੋਤ ਵਿਧੀ ਰਾਹੀਂ ਪਹੁੰਚਯੋਗ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ"
       undefined: "ਅਪਰਿਭਾਸ਼ਿਤ ਵਿਧੀ ਨੂੰ %{method} ਨਿਰਧਾਰਤ ਕਰਦਾ ਹੈ"
     coercions:
       into_a: "%{type} ਵਿੱਚ ਬਦਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ"

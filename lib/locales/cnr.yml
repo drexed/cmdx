@@ -1,7 +1,7 @@
 cnr:
   cmdx:
     attributes:
-      required: "mora biti dostupan preko izvora"
+      required: "mora biti dostupan preko izvorne metode %{method}"
       undefined: "delegira na nedefinisani metod %{method}"
     coercions:
       into_a: "nije mogao konvertovati u %{type}"

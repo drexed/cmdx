@@ -1,7 +1,7 @@
 mk:
   cmdx:
     attributes:
-      required: "мора да биде достапен преку изворот"
+      required: "мора да биде достапно преку изворниот метод %{method}"
       undefined: "делегира на недефиниран метод %{method}"
     coercions:
       into_a: "не можеше да се конвертира во %{type}"

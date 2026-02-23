@@ -1,7 +1,7 @@
 bs:
   cmdx:
     attributes:
-      required: "mora biti dostupan kroz izvor"
+      required: "mora biti dostupan preko izvorne metode %{method}"
       undefined: "delegira nedefiniranoj metodi %{method}"
     coercions:
       into_a: "nije mogao biti pretvoren u %{type}"

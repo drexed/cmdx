@@ -1,7 +1,7 @@
 sv:
   cmdx:
     attributes:
-      required: "måste vara tillgänglig via källan"
+      required: "måste vara tillgänglig via källmetoden %{method}"
       undefined: "delegerar till odefinierad metod %{method}"
     coercions:
       into_a: "kunde inte konverteras till %{type}"

@@ -1,7 +1,7 @@
 en:
   cmdx:
     attributes:
-      required: "must be accessible via the source"
+      required: "must be accessible via the %{method} source method"
       undefined: "delegates to undefined method %{method}"
     coercions:
       into_a: "could not coerce into a %{type}"

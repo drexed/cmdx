@@ -1,7 +1,7 @@
 uk:
   cmdx:
     attributes:
-      required: "має бути доступним через джерело"
+      required: "має бути доступним через вихідний метод %{method}"
       undefined: "делегує невизначеному методу %{method}"
     coercions:
       into_a: "не вдалося перетворити на %{type}"

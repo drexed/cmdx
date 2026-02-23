@@ -1,7 +1,7 @@
 he:
   cmdx:
     attributes:
-      required: "חייב להיות נגיש דרך המקור"
+      required: "חייב להיות נגיש דרך מתודת המקור %{method}"
       undefined: "מאציל לשיטה לא מוגדרת %{method}"
     coercions:
       into_a: "לא ניתן להמיר ל-%{type}"

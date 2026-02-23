@@ -1,7 +1,7 @@
 kk:
   cmdx:
     attributes:
-      required: "көзге арқылы қол жетімді болуы керек"
+      required: "%{method} бастапқы әдісі арқылы қолжетімді болуы керек"
       undefined: "анықталмаған %{method} әдісіне тапсырады"
     coercions:
       into_a: "%{type} түріне айналдыра алмады"

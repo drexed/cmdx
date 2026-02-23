@@ -1,7 +1,7 @@
 mg:
   cmdx:
     attributes:
-      required: "tsy maintsy azo idirana amin'ny alalan'ny loharanom-baovao"
+      required: "tsy maintsy azo idirana amin'ny alalan'ny fomba loharano %{method}"
       undefined: "ny delegasiona amin'ny fomba tsy voafaritra %{method}"
     coercions:
       into_a: "tsy afaka ovaina ho %{type}"

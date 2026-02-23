@@ -117,7 +117,7 @@ module CMDx
         when Hash then sourced_value.key?(name.to_s) || sourced_value.key?(name.to_sym)
         when Proc then true # HACK: Cannot be determined so assume it will respond
         else sourced_value.respond_to?(name, true)
-        end || errors.add(method_name, Locale.t("cmdx.attributes.required"))
+        end || errors.add(method_name, Locale.t("cmdx.attributes.required", method: source))
       end
 
       sourced_value

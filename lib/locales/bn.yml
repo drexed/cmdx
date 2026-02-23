@@ -1,7 +1,7 @@
 bn:
   cmdx:
     attributes:
-      required: "উৎসের মাধ্যমে অ্যাক্সেসযোগ্য হতে হবে"
+      required: "%{method} সোর্স মেথডের মাধ্যমে অ্যাক্সেসযোগ্য হতে হবে"
       undefined: "অসংজ্ঞায়িত পদ্ধতিতে %{method} অর্পণ করে"
     coercions:
       into_a: "%{type} এ রূপান্তর করা যায়নি"

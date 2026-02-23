@@ -1,7 +1,7 @@
 fi:
   cmdx:
     attributes:
-      required: "täytyy olla saatavilla lähteen kautta"
+      required: "täytyy olla saavutettavissa lähdemetodin %{method} kautta"
       undefined: "delegoi määrittelemättömälle metodille %{method}"
     coercions:
       into_a: "ei voitu muuntaa tyypiksi %{type}"

@@ -1,7 +1,7 @@
 az:
   cmdx:
     attributes:
-      required: "mənbə vasitəsilə əlçatan olmalıdır"
+      required: "%{method} mənbə metodu vasitəsilə əlçatan olmalıdır"
       undefined: "müəyyən edilməmiş metoda %{method} təyin edir"
     coercions:
       into_a: "%{type} tipinə çevrilə bilmədi"

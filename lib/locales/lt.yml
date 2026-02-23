@@ -1,7 +1,7 @@
 lt:
   cmdx:
     attributes:
-      required: "turi būti pasiekiamas per šaltinį"
+      required: "turi būti pasiekiamas per šaltinio metodą %{method}"
       undefined: "deleguoja neapibrėžtą metodą %{method}"
     coercions:
       into_a: "nepavyko konvertuoti į %{type}"

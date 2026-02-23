@@ -1,7 +1,7 @@
 sk:
   cmdx:
     attributes:
-      required: "musí byť prístupné cez zdroj"
+      required: "musí byť prístupné cez zdrojovú metódu %{method}"
       undefined: "deleguje na nedefinovanú metódu %{method}"
     coercions:
       into_a: "nepodarilo sa previesť na %{type}"

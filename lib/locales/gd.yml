@@ -1,7 +1,7 @@
 gd:
   cmdx:
     attributes:
-      required: "feumaidh e a bhith inntinneach tron stòr"
+      required: "feumaidh e bhith ruigsinneach tron mhodh thùsail %{method}"
       undefined: "deileigeas gu modh neo-mhìneachaidh %{method}"
     coercions:
       into_a: "cha b' urrainn tionndadh gu %{type}"

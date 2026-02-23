@@ -1,7 +1,7 @@
 da:
   cmdx:
     attributes:
-      required: "skal være tilgængelig via kilden"
+      required: "skal være tilgængelig via %{method} kildemetoden"
       undefined: "delegerer til udefineret metode %{method}"
     coercions:
       into_a: "kunne ikke konverteres til %{type}"

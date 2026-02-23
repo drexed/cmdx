@@ -1,7 +1,7 @@
 fy:
   cmdx:
     attributes:
-      required: "moat tagong hawwe fia de boarne"
+      required: "moat tagonklik wêze fia de boarnemetoade %{method}"
       undefined: "delegearret nei ûndefiniearre metoade %{method}"
     coercions:
       into_a: "koe net nei %{type} konvertearje"

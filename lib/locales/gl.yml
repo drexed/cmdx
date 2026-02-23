@@ -1,7 +1,7 @@
 gl:
   cmdx:
     attributes:
-      required: "debe ser accesible a través da fonte"
+      required: "debe ser accesible a través do método de orixe %{method}"
       undefined: "delega ao método non definido %{method}"
     coercions:
       into_a: "non se puido converter a %{type}"

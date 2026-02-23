@@ -1,7 +1,7 @@
 bg:
   cmdx:
     attributes:
-      required: "трябва да бъде достъпен чрез източника"
+      required: "трябва да е достъпен чрез изходния метод %{method}"
       undefined: "делегира към недефиниран метод %{method}"
     coercions:
       into_a: "не може да бъде преобразуван в %{type}"
