@@ -118,7 +118,10 @@
   <span class='id identifier rubyid_on_success'>on_success</span> <span class='symbol'>:track_analysis_completion!</span>
 
   <span class='id identifier rubyid_required'>required</span> <span class='symbol'>:dataset_id</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:integer</span><span class='comma'>,</span> <span class='label'>numeric:</span> <span class='lbrace'>{</span> <span class='label'>min:</span> <span class='int'>1</span> <span class='rbrace'>}</span>
+
   <span class='id identifier rubyid_optional'>optional</span> <span class='symbol'>:analysis_type</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>standard</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_returns'>returns</span> <span class='symbol'>:result</span><span class='comma'>,</span> <span class='symbol'>:analyzed_at</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_dataset'>dataset</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -197,7 +200,7 @@ index=0 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Tas
 </div></div>
 
       <div id="footer">
-  Generated on Mon Feb 23 17:24:24 2026 by
+  Generated on Mon Feb 23 18:05:18 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
