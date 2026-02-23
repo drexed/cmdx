@@ -46,6 +46,7 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 - [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md): Multi-language support for error messages and validations (90+ locales)
 - [Retries](https://drexed.github.io/cmdx/retries/index.md): Automatic retry functionality for transient failures with jitter and selective retries
 - [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md): Managing deprecated tasks with logging, warnings, or execution prevention
+- [Returns](https://drexed.github.io/cmdx/returns/index.md): Declaring expected context outputs that must be set after task execution
 - [Workflows](https://drexed.github.io/cmdx/workflows/index.md): Composing multiple tasks into sequential pipelines with conditional execution
 
 ## More

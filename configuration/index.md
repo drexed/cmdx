@@ -212,7 +212,7 @@ class GenerateInvoice < CMDx::Task
   settings(
     # Global configuration overrides
     task_breakpoints: ["failed"],                # Breakpoint override
-    workflow_breakpoints: [],                    # Breakpoint override
+    workflow_breakpoints: ["failed"],            # Breakpoint override
     backtrace: true,                             # Toggle backtrace
     backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
     logger: CustomLogger.new($stdout),           # Custom logger
@@ -227,6 +227,7 @@ class GenerateInvoice < CMDx::Task
     retry_on: [External::ApiError],              # List of exceptions to retry on
     retry_jitter: 1,                             # Space between retry iteration, eg: current retry num + 1
     rollback_on: ["failed", "skipped"],          # Rollback on override
+    returns: [:user, :account_number]            # Predefines expected return values
   )
 
   def work

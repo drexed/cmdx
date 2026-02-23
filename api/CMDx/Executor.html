@@ -697,7 +697,8 @@
 80
 81
 82
-83</pre>
+83
+84</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 65</span>
@@ -706,6 +707,7 @@
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
+    <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span> <span class='comment'># No need to clear the Chain since exception is not being re-raised
 </span>  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
@@ -813,7 +815,6 @@
       <pre class="lines">
 
 
-96
 97
 98
 99
@@ -832,15 +833,18 @@
 112
 113
 114
-115</pre>
+115
+116
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute!'>execute!</span>
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
+    <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
@@ -867,7 +871,7 @@
 </div>
 
       <div id="footer">
-  Generated on Sat Feb 14 04:45:40 2026 by
+  Generated on Mon Feb 23 17:24:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
