@@ -8,6 +8,8 @@ lv:
       into_an: "nevarēja konvertēt uz %{type}"
       into_any: "nevarēja konvertēt uz vienu no: %{types}"
       unknown: "nezināms %{type} konvertēšanas tips"
+    returns:
+      missing: "jābūt iestatītam kontekstā"
     faults:
       invalid: "Nederīgi"
       unspecified: "Nav norādīts"

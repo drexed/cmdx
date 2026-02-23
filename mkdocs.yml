@@ -141,6 +141,7 @@ plugins:
           - internationalization.md: Multi-language support for error messages and validations (90+ locales)
           - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
           - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
+          - returns.md: Declaring expected context outputs that must be set after task execution
           - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
         More:
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
@@ -177,6 +178,7 @@ nav:
       - Internationalization: internationalization.md
       - Retries: retries.md
       - Deprecation: deprecation.md
+      - Returns: returns.md
       - Workflows: workflows.md
     - More:
       - Tips and Tricks: tips_and_tricks.md

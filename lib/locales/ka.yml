@@ -8,6 +8,8 @@ ka:
       into_an: "ვერ გადაიყვანა %{type} ტიპად"
       into_any: "ვერ გადაიყვანა ერთ-ერთად: %{types}"
       unknown: "უცნობი %{type} კონვერტაციის ტიპი"
+    returns:
+      missing: "კონტექსტში უნდა იყოს დაყენებული"
     faults:
       invalid: "არასწორი"
       unspecified: "მითითებული არ არის"

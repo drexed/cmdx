@@ -8,6 +8,8 @@ mr-IN:
       into_an: "%{type} मध्ये रूपांतर करता आले नाही"
       into_any: "खालीलपैकी एकामध्ये रूपांतर करता आले नाही: %{types}"
       unknown: "अज्ञात %{type} रूपांतरण प्रकार"
+    returns:
+      missing: "संदर्भात सेट केले पाहिजे"
     faults:
       invalid: "अवैध"
       unspecified: "निर्दिष्ट नाही"

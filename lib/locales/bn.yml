@@ -8,6 +8,8 @@ bn:
       into_an: "%{type} এ রূপান্তর করা যায়নি"
       into_any: "নিম্নলিখিতগুলির মধ্যে একটিতে রূপান্তর করা যায়নি: %{types}"
       unknown: "অজানা %{type} রূপান্তর প্রকার"
+    returns:
+      missing: "প্রসঙ্গে সেট করতে হবে"
     faults:
       invalid: "অবৈধ"
       unspecified: "অনির্দিষ্ট"

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe "Task result handlers", type: :feature do
+RSpec.describe "Task handlers", type: :feature do
   context "when using status-based handlers" do
     it "executes on_success handler" do
       task = create_successful_task

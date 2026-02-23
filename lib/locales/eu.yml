@@ -8,6 +8,8 @@ eu:
       into_an: "ezin izan da %{type} ra bihurtu"
       into_any: "ezin izan da honetako batera bihurtu: %{types}"
       unknown: "%{type} bihurtze mota ezezaguna"
+    returns:
+      missing: "testuinguruan ezarrita egon behar du"
     faults:
       invalid: "Baliogabeak"
       unspecified: "Zehaztu gabe"

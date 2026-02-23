@@ -8,6 +8,8 @@ fy:
       into_an: "koe net nei %{type} konvertearje"
       into_any: "koe net nei ien fan: %{types} konvertearje"
       unknown: "ûnbekende %{type} konverzje type"
+    returns:
+      missing: "moat ynsteld wurde yn de kontekst"
     faults:
       invalid: "Ûnjildige"
       unspecified: "Net spesifisearre"

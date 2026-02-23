@@ -8,6 +8,8 @@ ug:
       into_an: "%{type} غا ئايلاندۇرالمايدۇ"
       into_any: "بۇلارنىڭ بىرىگە ئايلاندۇرالمايدۇ: %{types}"
       unknown: "نامەلۇم %{type} ئايلاندۇرۇش تىپى"
+    returns:
+      missing: "مەزمۇندا بېكىتىلىشى كېرەك"
     faults:
       invalid: "ئىناۋەتسىز"
       unspecified: "بەلگىلەنمىگەن"

@@ -8,6 +8,8 @@ dz:
       into_an: "%{type} ལ་བསྒྱུར་མ་ཐུབ།"
       into_any: "འདི་ཚོའི་ནང་ནས་གཅིག་ལ་བསྒྱུར་མ་ཐུབ། %{types}"
       unknown: "མ་ཤེས་པའི་ %{type} བསྒྱུར་པའི་རིགས།"
+    returns:
+      missing: "སྐབས་དོན་ནང་བཀོད་དགོས"
     faults:
       invalid: "ཆ་རྐྱེན་མི་ཆོག"
       unspecified: "མ་བཟུང་།"

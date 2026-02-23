@@ -8,6 +8,8 @@ ar:
       into_an: "لا يمكن تحويله إلى %{type}"
       into_any: "لا يمكن تحويله إلى واحد من: %{types}"
       unknown: "نوع تحويل %{type} غير معروف"
+    returns:
+      missing: "يجب تعيينه في السياق"
     faults:
       invalid: "غير صالح"
       unspecified: "غير محدد"

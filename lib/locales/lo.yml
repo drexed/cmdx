@@ -8,6 +8,8 @@ lo:
       into_an: "ບໍ່ສາມາດປ່ຽນເປັນ %{type} ໄດ້"
       into_any: "ບໍ່ສາມາດປ່ຽນເປັນອັນໃດອັນໜຶ່ງໃນ: %{types} ໄດ້"
       unknown: "ປະເພດການປ່ຽນ %{type} ທີ່ບໍ່ຮູ້"
+    returns:
+      missing: "ຕ້ອງຖືກກໍານົດໃນບໍລິບົດ"
     faults:
       invalid: "ບໍ່ຖືກຕ້ອງ"
       unspecified: "ບໍ່ໄດ້ກຳນົດ"

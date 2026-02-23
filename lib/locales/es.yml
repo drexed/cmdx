@@ -8,6 +8,8 @@ es:
       into_an: "no se pudo convertir en un %{type}"
       into_any: "no se pudo convertir en uno de: %{types}"
       unknown: "tipo de conversión %{type} desconocido"
+    returns:
+      missing: "debe estar establecido en el contexto"
     faults:
       invalid: "Inválidas"
       unspecified: "No especificada"

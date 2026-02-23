@@ -8,6 +8,8 @@ oc:
       into_an: "poguèt pas èsser convertit en %{type}"
       into_any: "poguèt pas èsser convertit en un de: %{types}"
       unknown: "tipe de conversion %{type} desconegut"
+    returns:
+      missing: "deu èsser definit dins lo contèxt"
     faults:
       invalid: "Invalidas"
       unspecified: "Non especificada"

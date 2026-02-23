@@ -8,6 +8,8 @@ ne:
       into_an: "%{type} मा रूपान्तरण गर्न सकिएन"
       into_any: "निम्न मध्ये एउटामा रूपान्तरण गर्न सकिएन: %{types}"
       unknown: "अज्ञात %{type} रूपान्तरण प्रकार"
+    returns:
+      missing: "सन्दर्भमा सेट गरिएको हुनुपर्छ"
     faults:
       invalid: "अवैध"
       unspecified: "निर्दिष्ट नभएको"

@@ -8,6 +8,8 @@ sq:
       into_an: "nuk mund të konvertohet në %{type}"
       into_any: "nuk mund të konvertohet në një nga: %{types}"
       unknown: "tip i panjohur konvertimi %{type}"
+    returns:
+      missing: "duhet të vendoset në kontekst"
     faults:
       invalid: "Të pavlefshme"
       unspecified: "E papërcaktuar"

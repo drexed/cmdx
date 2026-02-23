@@ -8,6 +8,8 @@ da:
       into_an: "kunne ikke konverteres til %{type}"
       into_any: "kunne ikke konverteres til en af: %{types}"
       unknown: "ukendt %{type} konverteringstype"
+    returns:
+      missing: "skal være sat i konteksten"
     faults:
       invalid: "Ugyldige"
       unspecified: "Uspecificeret"

@@ -8,6 +8,8 @@ rm:
       into_an: "na pudeva betg vegnir convertì en %{type}"
       into_any: "na pudeva betg vegnir convertì en in da: %{types}"
       unknown: "tip da conversiun %{type} nunenconuschent"
+    returns:
+      missing: "sto esser definì en il context"
     faults:
       invalid: "Nunvalidas"
       unspecified: "Betg specificà"

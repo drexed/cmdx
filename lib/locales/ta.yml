@@ -8,6 +8,8 @@ ta:
       into_an: "%{type} ஆக மாற்ற முடியவில்லை"
       into_any: "பின்வருவனவற்றில் ஒன்றாக மாற்ற முடியவில்லை: %{types}"
       unknown: "தெரியாத %{type} மாற்ற வகை"
+    returns:
+      missing: "சூழலில் அமைக்கப்பட வேண்டும்"
     faults:
       invalid: "தவறான"
       unspecified: "குறிப்பிடப்படாத"

@@ -8,6 +8,8 @@ fi:
       into_an: "ei voitu muuntaa tyypiksi %{type}"
       into_any: "ei voitu muuntaa yhdeksi seuraavista: %{types}"
       unknown: "tuntematon %{type} muunnostyyppi"
+    returns:
+      missing: "on asetettava kontekstissa"
     faults:
       invalid: "Virheelliset"
       unspecified: "Määrittämätön"

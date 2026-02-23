@@ -8,6 +8,8 @@ uk:
       into_an: "не вдалося перетворити на %{type}"
       into_any: "не вдалося перетворити на один з: %{types}"
       unknown: "невідомий тип перетворення %{type}"
+    returns:
+      missing: "повинно бути встановлено в контексті"
     faults:
       invalid: "Невірні"
       unspecified: "Не вказано"

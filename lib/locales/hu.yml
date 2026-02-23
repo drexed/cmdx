@@ -8,6 +8,8 @@ hu:
       into_an: "nem sikerült %{type} típusra konvertálni"
       into_any: "nem sikerült konvertálni a következők egyikére: %{types}"
       unknown: "ismeretlen %{type} konverziós típus"
+    returns:
+      missing: "be kell állítani a kontextusban"
     faults:
       invalid: "Érvénytelen"
       unspecified: "Nincs megadva"

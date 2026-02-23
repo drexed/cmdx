@@ -8,6 +8,8 @@ vi:
       into_an: "không thể chuyển đổi thành %{type}"
       into_any: "không thể chuyển đổi thành một trong: %{types}"
       unknown: "kiểu chuyển đổi %{type} không xác định"
+    returns:
+      missing: "phải được thiết lập trong ngữ cảnh"
     faults:
       invalid: "Không hợp lệ"
       unspecified: "Không xác định"

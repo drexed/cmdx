@@ -8,6 +8,8 @@ kk:
       into_an: "%{type} түріне айналдыра алмады"
       into_any: "бұлардың біріне айналдыра алмады: %{types}"
       unknown: "белгісіз %{type} айналдыру түрі"
+    returns:
+      missing: "контексте орнатылуы керек"
     faults:
       invalid: "Жарамсыз"
       unspecified: "Көрсетілмеген"

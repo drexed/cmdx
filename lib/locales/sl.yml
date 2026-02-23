@@ -8,6 +8,8 @@ sl:
       into_an: "ni bilo mogoče pretvoriti v %{type}"
       into_any: "ni bilo mogoče pretvoriti v enega od: %{types}"
       unknown: "neznan tip pretvorbe %{type}"
+    returns:
+      missing: "mora biti nastavljeno v kontekstu"
     faults:
       invalid: "Neveljavni"
       unspecified: "Nedoločeno"

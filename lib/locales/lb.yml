@@ -8,6 +8,8 @@ lb:
       into_an: "konnt net an %{type} ëmwandelen"
       into_any: "konnt net an ee vun dësen ëmwandelen: %{types}"
       unknown: "onbekannte %{type} Ëmwandlungstyp"
+    returns:
+      missing: "muss am Kontext gesat sinn"
     faults:
       invalid: "Ongëlteg"
       unspecified: "Net spezifizéiert"

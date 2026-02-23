@@ -8,6 +8,8 @@ tl:
       into_an: "hindi ma-convert sa %{type}"
       into_any: "hindi ma-convert sa isa sa: %{types}"
       unknown: "hindi kilalang %{type} conversion type"
+    returns:
+      missing: "dapat itakda sa konteksto"
     faults:
       invalid: "Hindi wasto"
       unspecified: "Hindi tinukoy"

@@ -8,6 +8,8 @@ sc:
       into_an: "no s'est podidu cunvertire in %{type}"
       into_any: "no s'est podidu cunvertire in unu de: %{types}"
       unknown: "tipu de cunversione %{type} disconnotu"
+    returns:
+      missing: "depet èssere impostadu in su cuntestu"
     faults:
       invalid: "Non vàlidos"
       unspecified: "Non specificadu"

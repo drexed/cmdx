@@ -11,6 +11,8 @@ en:
     faults:
       invalid: "Invalid"
       unspecified: "Unspecified"
+    returns:
+      missing: "must be set in the context"
     types:
       array: "array"
       big_decimal: "big decimal"

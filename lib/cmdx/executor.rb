@@ -66,6 +66,7 @@ module CMDx
       task.class.settings[:middlewares].call!(task) do
         pre_execution! unless @pre_execution
         execution!
+        verify_returns!
       rescue UndefinedMethodError => e
         raise(e) # No need to clear the Chain since exception is not being re-raised
       rescue Fault => e
@@ -97,6 +98,7 @@ module CMDx
       task.class.settings[:middlewares].call!(task) do
         pre_execution! unless @pre_execution
         execution!
+        verify_returns!
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
@@ -229,6 +231,27 @@ module CMDx
 
       result.executing!
       task.work
+    end
+
+    # Verifies that all declared returns are present in the context after execution.
+    #
+    # @rbs () -> void
+    def verify_returns!
+      return unless result.success?
+
+      returns = Array(task.class.settings[:returns])
+      missing = returns.reject { |name| task.context.key?(name) }
+      return if missing.empty?
+
+      missing.each { |name| task.errors.add(name, Locale.t("cmdx.returns.missing")) }
+
+      result.fail!(
+        Locale.t("cmdx.faults.invalid"),
+        errors: {
+          full_message: task.errors.to_s,
+          messages: task.errors.to_h
+        }
+      )
     end
 
     # Performs post-execution tasks including callback invocation.

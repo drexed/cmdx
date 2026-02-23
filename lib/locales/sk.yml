@@ -8,6 +8,8 @@ sk:
       into_an: "nepodarilo sa previesť na %{type}"
       into_any: "nepodarilo sa previesť na jeden z: %{types}"
       unknown: "neznámy typ konverzie %{type}"
+    returns:
+      missing: "musí byť nastavené v kontexte"
     faults:
       invalid: "Neplatné"
       unspecified: "Nešpecifikované"

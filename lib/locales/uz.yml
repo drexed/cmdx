@@ -8,6 +8,8 @@ uz:
       into_an: "%{type} ga o'tkazib bo'lmadi"
       into_any: "bularning biriga o'tkazib bo'lmadi: %{types}"
       unknown: "noma'lum %{type} o'tkazish turi"
+    returns:
+      missing: "kontekstda belgilangan bolishi kerak"
     faults:
       invalid: "Noto'g'ri"
       unspecified: "Ko'rsatilmagan"

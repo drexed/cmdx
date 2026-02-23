@@ -8,6 +8,8 @@ et:
       into_an: "ei õnnestunud teisendada %{type} tüübiks"
       into_any: "ei õnnestunud teisendada üheks järgmistest: %{types}"
       unknown: "tundmatu %{type} teisendustüüp"
+    returns:
+      missing: "peab olema kontekstis määratud"
     faults:
       invalid: "Kehtetud"
       unspecified: "Määramata"

@@ -8,6 +8,8 @@ zh-CN:
       into_an: "无法转换为 %{type}"
       into_any: "无法转换为以下之一: %{types}"
       unknown: "未知的 %{type} 转换类型"
+    returns:
+      missing: "必须在上下文中设置"
     faults:
       invalid: "无效"
       unspecified: "未指定"

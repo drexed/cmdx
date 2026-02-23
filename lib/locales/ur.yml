@@ -8,6 +8,8 @@ ur:
       into_an: "%{type} میں تبدیل نہیں کر سکا"
       into_any: "ان میں سے کسی ایک میں تبدیل نہیں کر سکا: %{types}"
       unknown: "نامعلوم %{type} تبدیلی کی قسم"
+    returns:
+      missing: "سیاق و سباق میں سیٹ ہونا ضروری ہے"
     faults:
       invalid: "غلط"
       unspecified: "غیر متعین"

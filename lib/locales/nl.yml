@@ -8,6 +8,8 @@ nl:
       into_an: "kon niet worden geconverteerd naar %{type}"
       into_any: "kon niet worden geconverteerd naar een van: %{types}"
       unknown: "onbekend %{type} conversietype"
+    returns:
+      missing: "moet ingesteld zijn in de context"
     faults:
       invalid: "Ongeldig"
       unspecified: "Niet gespecificeerd"

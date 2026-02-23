@@ -130,6 +130,7 @@ module CMDx
             end
 
           hash[:attributes] ||= AttributeRegistry.new
+          hash[:returns] ||= []
           hash[:tags] ||= []
 
           hash.merge!(options)
@@ -216,6 +217,33 @@ module CMDx
         deregister(:attribute, names)
       end
       alias remove_attribute remove_attributes
+
+      # Declares expected context returns that must be set after task execution.
+      # If any declared return is missing from the context after {#work} completes
+      # successfully, the task will fail with a validation error.
+      #
+      # @param names [Array<Symbol, String>] Names of expected return keys in the context
+      #
+      # @example
+      #   returns :user, :token
+      #
+      # @rbs (*untyped names) -> void
+      def returns(*names)
+        settings[:returns] |= names.map(&:to_sym)
+      end
+
+      # Removes declared returns from the task.
+      #
+      # @param names [Array<Symbol>] Names of returns to remove
+      #
+      # @example
+      #   remove_returns :old_return
+      #
+      # @rbs (*Symbol names) -> void
+      def remove_returns(*names)
+        settings[:returns] -= names.map(&:to_sym)
+      end
+      alias remove_return remove_returns
 
       # @return [Hash] Hash of attribute names to their configurations
       #

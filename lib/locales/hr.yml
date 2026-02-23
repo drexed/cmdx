@@ -8,6 +8,8 @@ hr:
       into_an: "nije mogao biti pretvoren u %{type}"
       into_any: "nije mogao biti pretvoren u jedan od: %{types}"
       unknown: "nepoznati tip pretvorbe %{type}"
+    returns:
+      missing: "mora biti postavljeno u kontekstu"
     faults:
       invalid: "Neispravni"
       unspecified: "Nije naveden"

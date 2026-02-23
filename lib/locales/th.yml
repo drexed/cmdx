@@ -8,6 +8,8 @@ th:
       into_an: "ไม่สามารถแปลงเป็น %{type} ได้"
       into_any: "ไม่สามารถแปลงเป็นหนึ่งใน: %{types} ได้"
       unknown: "ประเภทการแปลง %{type} ที่ไม่รู้จัก"
+    returns:
+      missing: "ต้องถูกกำหนดในบริบท"
     faults:
       invalid: "ไม่ถูกต้อง"
       unspecified: "ไม่ระบุ"

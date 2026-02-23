@@ -8,6 +8,8 @@ tr:
       into_an: "%{type} türüne dönüştürülemedi"
       into_any: "şunlardan birine dönüştürülemedi: %{types}"
       unknown: "bilinmeyen %{type} dönüştürme türü"
+    returns:
+      missing: "bağlamda ayarlanmış olmalıdır"
     faults:
       invalid: "Geçersiz"
       unspecified: "Belirtilmemiş"

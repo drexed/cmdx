@@ -8,6 +8,8 @@ gd:
       into_an: "cha b' urrainn tionndadh gu %{type}"
       into_any: "cha b' urrainn tionndadh gu aon de: %{types}"
       unknown: "seòrsa tionndaidh %{type} neo-aithnichte"
+    returns:
+      missing: "feumaidh e bhith air a shuidheachadh sa cho-theacsa"
     faults:
       invalid: "Neo-dhligheach"
       unspecified: "Neo-mhìneachaidh"

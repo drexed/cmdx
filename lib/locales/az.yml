@@ -8,6 +8,8 @@ az:
       into_an: "%{type} tipinə çevrilə bilmədi"
       into_any: "aşağıdakılardan birinə çevrilə bilmədi: %{types}"
       unknown: "naməlum %{type} çevrilmə tipi"
+    returns:
+      missing: "kontekstdə təyin edilməlidir"
     faults:
       invalid: "Etibarsız"
       unspecified: "Göstərilməyib"

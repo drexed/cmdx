@@ -8,6 +8,8 @@ pl:
       into_an: "nie można przekonwertować na %{type}"
       into_any: "nie można przekonwertować na jeden z: %{types}"
       unknown: "nieznany typ konwersji %{type}"
+    returns:
+      missing: "musi być ustawione w kontekście"
     faults:
       invalid: "Nieprawidłowe"
       unspecified: "Nieokreślone"

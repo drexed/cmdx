@@ -8,6 +8,8 @@ st:
       into_an: "ha e ka fetolelwa ho %{type}"
       into_any: "ha e ka fetolelwa ho e mong oa: %{types}"
       unknown: "mofuta o sa tsejoang oa phetoho %{type}"
+    returns:
+      missing: "e tlameha ho hlophisetswa ka moelelo"
     faults:
       invalid: "Tse sa sebetseng"
       unspecified: "Ha e hlalosoe"

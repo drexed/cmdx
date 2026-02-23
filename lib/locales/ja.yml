@@ -8,6 +8,8 @@ ja:
       into_an: "%{type} に変換できませんでした"
       into_any: "次のいずれかに変換できませんでした: %{types}"
       unknown: "不明な %{type} 変換タイプ"
+    returns:
+      missing: "コンテキストに設定する必要があります"
     faults:
       invalid: "無効"
       unspecified: "未指定"

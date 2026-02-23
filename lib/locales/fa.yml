@@ -8,6 +8,8 @@ fa:
       into_an: "نمی‌تواند به %{type} تبدیل شود"
       into_any: "نمی‌تواند به یکی از اینها تبدیل شود: %{types}"
       unknown: "نوع تبدیل %{type} ناشناخته"
+    returns:
+      missing: "باید در زمینه تنظیم شود"
     faults:
       invalid: "نامعتبر"
       unspecified: "نامشخص"

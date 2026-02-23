@@ -8,6 +8,8 @@ pa:
       into_an: "%{type} ਵਿੱਚ ਬਦਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ"
       into_any: "ਹੇਠਾਂ ਦਿੱਤੇ ਗਏ ਵਿੱਚੋਂ ਕਿਸੇ ਇੱਕ ਵਿੱਚ ਬਦਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ: %{types}"
       unknown: "ਅਣਜਾਣ %{type} ਬਦਲਾਅ ਕਿਸਮ"
+    returns:
+      missing: "ਸੰਦਰਭ ਵਿੱਚ ਸੈੱਟ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ"
     faults:
       invalid: "ਅਵੈਧ"
       unspecified: "ਅਨਿਰਧਾਰਿਤ"

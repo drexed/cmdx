@@ -13,6 +13,7 @@ CMDx structures business logic through Tasks (single operations) and Workflows (
 class ProcessPayment < CMDx::Task
   required :amount, type: :big_decimal, numeric: { min: 0.01 }
   required :user_id, type: :integer
+
   optional :currency, default: "USD"
 
   on_success :send_receipt!
@@ -69,6 +70,7 @@ Workflows define `work` automatically — you **cannot** redefine it in a workfl
 class CreateUser < CMDx::Task
   required :email, type: :string, format: { with: URI::MailTo::EMAIL_REGEXP }
   required :age, type: :integer, numeric: { min: 18, max: 120 }
+
   optional :role, default: "user", inclusion: { in: %w[user admin] }
   optional :notes, transform: :strip
 
@@ -142,12 +144,12 @@ Custom coercions can be registered — see the [Coercions Guide](https://drexed.
 ### Validations
 
 ```ruby
-required :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+\.[a-z]+\z/i }
-required :age, numeric: { min: 18, max: 120 }
+attribute :email, format: { with: /\A[\w+\-.]+@[a-z\d\-]+\.[a-z]+\z/i }
+attribute :age, numeric: { min: 18, max: 120 }
 required :status, inclusion: { in: %w[active pending] }
 required :name, length: { min: 2, max: 100 }
-required :banned, absence: true    # Must be nil/blank
 required :terms, presence: true    # Must be present
+optional :banned, absence: true    # Must be nil/blank
 optional :code, exclusion: { in: %w[admin root] }
 ```
 
@@ -205,6 +207,44 @@ end
 ```
 
 **Aliases:** `merge` = `merge!`, `delete` = `delete!`, `clear` = `clear!`
+
+## Returns
+
+Declare expected context outputs that must be present after successful execution. If any declared return is missing, the task fails with a validation error.
+
+```ruby
+class CreateUser < CMDx::Task
+  required :name, :email
+  returns :user, :token
+
+  def work
+    context.user = User.create!(name: name, email: email)
+    context.token = JwtService.encode(user_id: context.user.id)
+  end
+end
+```
+
+Return validation runs **only** when `work` completes successfully — skipped/failed tasks bypass it.
+
+```ruby
+# Missing returns cause failure
+result = CreateUser.execute(name: "John", email: "john@example.com")
+# If context.token was never set:
+# result.failed? => true
+# result.metadata[:errors][:messages] => { token: ["must be set in the context"] }
+```
+
+**Inheritance:** Returns are inherited from parent classes. Use `remove_return`/`remove_returns` to drop inherited declarations:
+
+```ruby
+class BaseTask < CMDx::Task
+  returns :audit_log
+end
+
+class QuietTask < BaseTask
+  remove_return :audit_log
+end
+```
 
 ## Control Flow
 

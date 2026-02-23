@@ -8,6 +8,8 @@ af:
       into_an: "kon nie na %{type} omskep word nie"
       into_any: "kon nie na een van: %{types} omskep word nie"
       unknown: "onbekende %{type} omskep tipe"
+    returns:
+      missing: "moet in die konteks gestel word"
     faults:
       invalid: "Ongeldig"
       unspecified: "Ongespesifiseer"

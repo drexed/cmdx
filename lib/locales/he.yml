@@ -8,6 +8,8 @@ he:
       into_an: "לא ניתן להמיר ל-%{type}"
       into_any: "לא ניתן להמיר לאחד מ: %{types}"
       unknown: "סוג המרה %{type} לא ידוע"
+    returns:
+      missing: "חייב להיות מוגדר בהקשר"
     faults:
       invalid: "לא תקינים"
       unspecified: "לא מוגדר"

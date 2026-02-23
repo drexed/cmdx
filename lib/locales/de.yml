@@ -8,6 +8,8 @@ de:
       into_an: "konnte nicht in %{type} umgewandelt werden"
       into_any: "konnte nicht in einen von: %{types} umgewandelt werden"
       unknown: "unbekannter %{type} Umwandlungstyp"
+    returns:
+      missing: "muss im Kontext gesetzt sein"
     faults:
       invalid: "Ungültig"
       unspecified: "Nicht angegeben"

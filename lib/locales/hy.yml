@@ -8,6 +8,8 @@ hy:
       into_an: "չհաջողվեց վերածել %{type} տիպի"
       into_any: "չհաջողվեց վերածել հետևյալներից մեկի: %{types}"
       unknown: "անհայտ %{type} փոխակերպման տիպ"
+    returns:
+      missing: "պետք է սահմանված լինի համատեքստում"
     faults:
       invalid: "Անվավեր"
       unspecified: "Չնշված"

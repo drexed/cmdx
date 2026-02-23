@@ -8,6 +8,8 @@ id:
       into_an: "tidak dapat dikonversi ke %{type}"
       into_any: "tidak dapat dikonversi ke salah satu dari: %{types}"
       unknown: "jenis konversi %{type} yang tidak dikenal"
+    returns:
+      missing: "harus diatur dalam konteks"
     faults:
       invalid: "Tidak valid"
       unspecified: "Tidak ditentukan"

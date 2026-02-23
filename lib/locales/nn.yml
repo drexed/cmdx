@@ -8,6 +8,8 @@ nn:
       into_an: "kunne ikkje konvertere til %{type}"
       into_any: "kunne ikkje konvertere til ein av: %{types}"
       unknown: "ukjend %{type} konverteringstype"
+    returns:
+      missing: "må vere sett i konteksten"
     faults:
       invalid: "Ugyldig"
       unspecified: "Uspesifisert"

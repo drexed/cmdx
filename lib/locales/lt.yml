@@ -8,6 +8,8 @@ lt:
       into_an: "nepavyko konvertuoti į %{type}"
       into_any: "nepavyko konvertuoti į vieną iš: %{types}"
       unknown: "nežinomas %{type} konvertavimo tipas"
+    returns:
+      missing: "turi būti nustatyta kontekste"
     faults:
       invalid: "Neteisingi"
       unspecified: "Nenurodyta"

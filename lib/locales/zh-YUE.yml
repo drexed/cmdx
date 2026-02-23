@@ -8,6 +8,8 @@ zh-YUE:
       into_an: "無法強制轉換成 %{type}"
       into_any: "無法強制轉換成其中一個：%{types}"
       unknown: "未知嘅 %{type} 強制轉換類型"
+    returns:
+      missing: "必須喺上下文入面設定"
     faults:
       invalid: "無效"
       unspecified: "未指定"

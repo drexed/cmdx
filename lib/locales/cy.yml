@@ -8,6 +8,8 @@ cy:
       into_an: "ni allwyd ei drawsnewid i %{type}"
       into_any: "ni allwyd ei drawsnewid i un o: %{types}"
       unknown: "math anhysbys o drawsnewid %{type}"
+    returns:
+      missing: "rhaid ei osod yn y cyd-destun"
     faults:
       invalid: "Annilys"
       unspecified: "Anhebgor"

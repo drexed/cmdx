@@ -8,6 +8,8 @@ cs:
       into_an: "nelze převést na %{type}"
       into_any: "nelze převést na jeden z: %{types}"
       unknown: "neznámý typ převodu %{type}"
+    returns:
+      missing: "musí být nastaveno v kontextu"
     faults:
       invalid: "Neplatné"
       unspecified: "Neurčeno"

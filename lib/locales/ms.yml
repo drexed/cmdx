@@ -8,6 +8,8 @@ ms:
       into_an: "tidak boleh ditukar kepada %{type}"
       into_any: "tidak boleh ditukar kepada salah satu daripada: %{types}"
       unknown: "jenis penukaran %{type} yang tidak diketahui"
+    returns:
+      missing: "mesti ditetapkan dalam konteks"
     faults:
       invalid: "Tidak sah"
       unspecified: "Tidak ditentukan"

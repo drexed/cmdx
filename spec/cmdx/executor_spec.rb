@@ -701,6 +701,106 @@ RSpec.describe CMDx::Executor, type: :unit do
     end
   end
 
+  describe "#verify_returns!" do
+    let(:errors) { task.errors }
+
+    context "when no returns are declared" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: [] })
+        allow(task.result).to receive(:success?).and_return(true)
+      end
+
+      it "does not fail the result" do
+        expect(task.result).not_to receive(:fail!)
+
+        worker.send(:verify_returns!)
+      end
+    end
+
+    context "when returns setting is nil" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: nil })
+        allow(task.result).to receive(:success?).and_return(true)
+      end
+
+      it "does not fail the result" do
+        expect(task.result).not_to receive(:fail!)
+
+        worker.send(:verify_returns!)
+      end
+    end
+
+    context "when result is not success" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: [:user] })
+        allow(task.result).to receive(:success?).and_return(false)
+      end
+
+      it "skips verification" do
+        expect(task.result).not_to receive(:fail!)
+
+        worker.send(:verify_returns!)
+      end
+    end
+
+    context "when all declared returns are present in context" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.result).to receive(:success?).and_return(true)
+        task.context[:user] = "John"
+        task.context[:token] = "abc123"
+      end
+
+      it "does not fail the result" do
+        expect(task.result).not_to receive(:fail!)
+
+        worker.send(:verify_returns!)
+      end
+    end
+
+    context "when some declared returns are missing" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.result).to receive(:success?).and_return(true)
+        task.context[:user] = "John"
+      end
+
+      it "adds errors for missing returns and fails the result" do
+        expect(task.result).to receive(:fail!).with(
+          "Invalid",
+          errors: {
+            full_message: "token must be set in the context",
+            messages: { token: ["must be set in the context"] }
+          }
+        )
+
+        worker.send(:verify_returns!)
+      end
+    end
+
+    context "when all declared returns are missing" do
+      before do
+        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.result).to receive(:success?).and_return(true)
+      end
+
+      it "adds errors for all missing returns and fails the result" do
+        expect(task.result).to receive(:fail!).with(
+          "Invalid",
+          errors: {
+            full_message: "user must be set in the context. token must be set in the context",
+            messages: {
+              user: ["must be set in the context"],
+              token: ["must be set in the context"]
+            }
+          }
+        )
+
+        worker.send(:verify_returns!)
+      end
+    end
+  end
+
   describe "#post_execution!" do
     let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
     let(:result) { instance_double(CMDx::Result) }

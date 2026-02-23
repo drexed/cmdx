@@ -8,6 +8,8 @@ sv:
       into_an: "kunde inte konverteras till %{type}"
       into_any: "kunde inte konverteras till en av: %{types}"
       unknown: "okänd %{type} konverteringstyp"
+    returns:
+      missing: "måste vara satt i kontexten"
     faults:
       invalid: "Ogiltiga"
       unspecified: "Ospecificerat"

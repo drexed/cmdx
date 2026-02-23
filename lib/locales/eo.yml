@@ -8,6 +8,8 @@ eo:
       into_an: "ne povis esti konvertita al %{type}"
       into_any: "ne povis esti konvertita al unu el: %{types}"
       unknown: "nekonata %{type} konverta tipo"
+    returns:
+      missing: "devas esti agordita en la kunteksto"
     faults:
       invalid: "Nevalidaj"
       unspecified: "Nespecifita"

@@ -8,6 +8,8 @@ gl:
       into_an: "non se puido converter a %{type}"
       into_any: "non se puido converter a un de: %{types}"
       unknown: "tipo de conversión %{type} descoñecido"
+    returns:
+      missing: "debe estar establecido no contexto"
     faults:
       invalid: "Non válidas"
       unspecified: "Non especificada"

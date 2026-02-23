@@ -25,7 +25,7 @@ GEM
     lint_roller (1.1.0)
     logger (1.7.0)
     parallel (1.27.0)
-    parser (3.3.10.1)
+    parser (3.3.10.2)
       ast (~> 2.4.1)
       racc
     prism (1.9.0)
@@ -87,7 +87,7 @@ GEM
     yard-lint (1.4.0)
       yard (~> 0.9)
       zeitwerk (~> 2.6)
-    zeitwerk (2.7.4)
+    zeitwerk (2.7.5)
 
 PLATFORMS
   arm64-darwin-24

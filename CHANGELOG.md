@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [TODO]
+
 ## [Unreleased]
 
 ### Added
+- Add `returns` macro for context output validation after task execution
+- Add `remove_return`/`remove_returns` macro to remove declared returns (supports inheritance)
 - Add array coercion for JSON `"null"` string as empty array
 - Add hash coercion for JSON `"null"` string as empty hash
 - Add attribute sourcing to support both string and symbol keys when sourcing/deriving from Hash

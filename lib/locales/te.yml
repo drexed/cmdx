@@ -8,6 +8,8 @@ te:
       into_an: "%{type} గా మార్చలేకపోయింది"
       into_any: "ఈ క్రింది వాటిలో ఒకటిగా మార్చలేకపోయింది: %{types}"
       unknown: "తెలియని %{type} మార్పు రకం"
+    returns:
+      missing: "సందర్భంలో సెట్ చేయబడాలి"
     faults:
       invalid: "చెల్లని"
       unspecified: "నిర్దిష్టం కాదు"

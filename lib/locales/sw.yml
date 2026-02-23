@@ -8,6 +8,8 @@ sw:
       into_an: "haikuweza kubadilishwa kuwa %{type}"
       into_any: "haikuweza kubadilishwa kuwa moja ya: %{types}"
       unknown: "aina isiyojulikana ya mabadiliko %{type}"
+    returns:
+      missing: "lazima iwekwe katika muktadha"
     faults:
       invalid: "Zisizofaa"
       unspecified: "Haijaspecifikwa"

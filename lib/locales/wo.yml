@@ -8,6 +8,8 @@ wo:
       into_an: "duñu ko man a soppi ci %{type}"
       into_any: "duñu ko man a soppi ci benn ci: %{types}"
       unknown: "xam-xam bu ñu waxul bu soppi %{type}"
+    returns:
+      missing: "war na nekk ci contexte bi"
     faults:
       invalid: "Ñu waxul"
       unspecified: "Duñu wax"

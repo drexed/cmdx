@@ -8,6 +8,8 @@ mg:
       into_an: "tsy afaka ovaina ho %{type}"
       into_any: "tsy afaka ovaina ho iray amin'ireo: %{types}"
       unknown: "karazana fovana %{type} tsy fantatra"
+    returns:
+      missing: "tsy maintsy voatondro ao anatin ny contexte"
     faults:
       invalid: "Tsy mety"
       unspecified: "Tsy voafaritra"

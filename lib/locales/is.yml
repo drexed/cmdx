@@ -8,6 +8,8 @@ is:
       into_an: "gat ekki breytt í %{type}"
       into_any: "gat ekki breytt í einn af: %{types}"
       unknown: "óþekktur %{type} breytingargerð"
+    returns:
+      missing: "verður að vera stillt í samhenginu"
     faults:
       invalid: "Ógild"
       unspecified: "Ótilgreind"
