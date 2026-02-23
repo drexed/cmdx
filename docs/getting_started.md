@@ -79,7 +79,10 @@ Build reusable, single-responsibility tasks with typed attributes, validation, a
       on_success :track_analysis_completion!
 
       required :dataset_id, type: :integer, numeric: { min: 1 }
+
       optional :analysis_type, default: "standard"
+
+      returns :result, :analyzed_at
 
       def work
         if dataset.nil?
