@@ -26,7 +26,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="feed_rss_updated.xml">
       
       <link rel="icon" href="assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2761,21 +2761,21 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  var tabs = document.querySelectorAll(".showcase-tab");
-  var panels = document.querySelectorAll(".showcase-panel");
+  (function () {
+    var tabs = document.querySelectorAll(".showcase-tab");
+    var panels = document.querySelectorAll(".showcase-panel");
 
-  tabs.forEach(function (tab) {
-    tab.addEventListener("click", function () {
-      tabs.forEach(function (t) { t.classList.remove("active"); });
-      panels.forEach(function (p) { p.classList.remove("active"); });
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        tabs.forEach(function (t) { t.classList.remove("active"); });
+        panels.forEach(function (p) { p.classList.remove("active"); });
 
-      tab.classList.add("active");
-      var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
-      if (panel) panel.classList.add("active");
+        tab.classList.add("active");
+        var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
+        if (panel) panel.classList.add("active");
+      });
     });
-  });
-});
+  })();
 </script>
 
 

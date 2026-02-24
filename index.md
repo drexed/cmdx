@@ -3,7 +3,10 @@ class ApproveLoan < CMDx::Task
   on_success :notify_applicant!
 
   required :application_id, type: :integer
+
   optional :override_checks, default: false
+
+  returns :approved_at
 
   def work
     if application.nil?
