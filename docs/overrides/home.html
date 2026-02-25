@@ -478,7 +478,10 @@
   <span class="n">on_success</span> <span class="ss">:notify_applicant!</span>
 
   <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
+
   <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>
+
+  <span class="n">returns</span> <span class="ss">:approved_at</span>
 
   <span class="k">def</span> <span class="n">work</span>
     <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
