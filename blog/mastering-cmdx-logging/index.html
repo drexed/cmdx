@@ -12,32 +12,32 @@
         <meta name="author" content="drexed">
       
       
-        <link rel="canonical" href="https://drexed.github.io/cmdx/">
+        <link rel="canonical" href="https://drexed.github.io/cmdx/blog/mastering-cmdx-logging/">
       
       
+        <link rel="prev" href="../mastering-cmdx-retries-deprecation-i18n/">
       
-        <link rel="next" href="getting_started/">
       
       
         
       
       
-        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="feed_rss_created.xml">
-        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="feed_rss_updated.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
       
-      <link rel="icon" href="assets/favicon.ico">
+      <link rel="icon" href="../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
-        <title>Home - CMDx</title>
+        <title>Mastering CMDx: The Art of Observability with Logging - CMDx</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -56,9 +56,9 @@
       
     
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -82,6 +82,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#mastering-cmdx-the-art-of-observability-with-logging" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -94,9 +99,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="CMDx" class="md-header__button md-logo" aria-label="CMDx" data-md-component="logo">
+    <a href="../.." title="CMDx" class="md-header__button md-logo" aria-label="CMDx" data-md-component="logo">
       
-  <img src="assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Mastering CMDx: The Art of Observability with Logging
             
           </span>
         </div>
@@ -233,11 +238,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -258,7 +261,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="getting_started/" class="md-tabs__link">
+        <a href="../../getting_started/" class="md-tabs__link">
           
   
   
@@ -274,9 +277,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="blog/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../" class="md-tabs__link">
         
   
   
@@ -319,9 +324,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="CMDx" class="md-nav__button md-logo" aria-label="CMDx" data-md-component="logo">
+    <a href="../.." title="CMDx" class="md-nav__button md-logo" aria-label="CMDx" data-md-component="logo">
       
-  <img src="assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     CMDx
@@ -345,17 +350,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -371,7 +369,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -437,7 +434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting_started/" class="md-nav__link">
+      <a href="../../getting_started/" class="md-nav__link">
         
   
   
@@ -465,7 +462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="configuration/" class="md-nav__link">
+      <a href="../../configuration/" class="md-nav__link">
         
   
   
@@ -547,7 +544,7 @@
   
   
     <li class="md-nav__item">
-      <a href="basics/setup/" class="md-nav__link">
+      <a href="../../basics/setup/" class="md-nav__link">
         
   
   
@@ -575,7 +572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="basics/execution/" class="md-nav__link">
+      <a href="../../basics/execution/" class="md-nav__link">
         
   
   
@@ -603,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="basics/context/" class="md-nav__link">
+      <a href="../../basics/context/" class="md-nav__link">
         
   
   
@@ -631,7 +628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="basics/chain/" class="md-nav__link">
+      <a href="../../basics/chain/" class="md-nav__link">
         
   
   
@@ -721,7 +718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/halt/" class="md-nav__link">
         
   
   
@@ -749,7 +746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="interruptions/faults/" class="md-nav__link">
+      <a href="../../interruptions/faults/" class="md-nav__link">
         
   
   
@@ -777,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="interruptions/exceptions/" class="md-nav__link">
+      <a href="../../interruptions/exceptions/" class="md-nav__link">
         
   
   
@@ -867,7 +864,7 @@
   
   
     <li class="md-nav__item">
-      <a href="outcomes/result/" class="md-nav__link">
+      <a href="../../outcomes/result/" class="md-nav__link">
         
   
   
@@ -895,7 +892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="outcomes/states/" class="md-nav__link">
+      <a href="../../outcomes/states/" class="md-nav__link">
         
   
   
@@ -923,7 +920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="outcomes/statuses/" class="md-nav__link">
+      <a href="../../outcomes/statuses/" class="md-nav__link">
         
   
   
@@ -1013,7 +1010,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/definitions/" class="md-nav__link">
+      <a href="../../attributes/definitions/" class="md-nav__link">
         
   
   
@@ -1041,7 +1038,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/naming/" class="md-nav__link">
+      <a href="../../attributes/naming/" class="md-nav__link">
         
   
   
@@ -1069,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/coercions/" class="md-nav__link">
+      <a href="../../attributes/coercions/" class="md-nav__link">
         
   
   
@@ -1097,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/validations/" class="md-nav__link">
+      <a href="../../attributes/validations/" class="md-nav__link">
         
   
   
@@ -1125,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/defaults/" class="md-nav__link">
+      <a href="../../attributes/defaults/" class="md-nav__link">
         
   
   
@@ -1153,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attributes/transformations/" class="md-nav__link">
+      <a href="../../attributes/transformations/" class="md-nav__link">
         
   
   
@@ -1243,7 +1240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="callbacks/" class="md-nav__link">
+      <a href="../../callbacks/" class="md-nav__link">
         
   
   
@@ -1271,7 +1268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="middlewares/" class="md-nav__link">
+      <a href="../../middlewares/" class="md-nav__link">
         
   
   
@@ -1299,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="logging/" class="md-nav__link">
+      <a href="../../logging/" class="md-nav__link">
         
   
   
@@ -1327,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="internationalization/" class="md-nav__link">
+      <a href="../../internationalization/" class="md-nav__link">
         
   
   
@@ -1355,7 +1352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="retries/" class="md-nav__link">
+      <a href="../../retries/" class="md-nav__link">
         
   
   
@@ -1383,7 +1380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="deprecation/" class="md-nav__link">
+      <a href="../../deprecation/" class="md-nav__link">
         
   
   
@@ -1411,7 +1408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="returns/" class="md-nav__link">
+      <a href="../../returns/" class="md-nav__link">
         
   
   
@@ -1439,7 +1436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="workflows/" class="md-nav__link">
+      <a href="../../workflows/" class="md-nav__link">
         
   
   
@@ -1529,7 +1526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tips_and_tricks/" class="md-nav__link">
+      <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
   
@@ -1557,7 +1554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="comparison/" class="md-nav__link">
+      <a href="../../comparison/" class="md-nav__link">
         
   
   
@@ -1861,12 +1858,14 @@
       
   
   
+    
+  
   
     
   
   
-    <li class="md-nav__item">
-      <a href="blog/" class="md-nav__link">
+    <li class="md-nav__item md-nav__item--active">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1896,7 +1895,7 @@
               
                 
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1907,6 +1906,121 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-default-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Default Experience
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-your-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing Your Style
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Choosing Your Style">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-the-humans-line-formatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For the Humans (Line Formatter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-the-machines-json-formatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        For the Machines (JSON Formatter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-inside-your-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging Inside Your Tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-power-of-correlation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Power of Correlation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging Failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1915,876 +2029,218 @@
             
           
           
-            <div class="md-content" data-md-component="content">
-              
-                
-
-  
-
-
-
-  
-
-
-              
-              <article class="md-content__inner md-typeset">
-                
-<style>
-/* Reset & Base */
-.md-main__inner {
-  margin-top: 0 !important;
-  max-width: none;
-}
-.md-content__inner { padding: 0; }
-.md-content__inner > :first-child { margin-top: 0; }
-
-:root {
-  --cmdx-red: #fe1817;
-  --cmdx-red-glow: rgba(254, 24, 23, 0.5);
-  --cmdx-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
-  --cmdx-surface: #1a1a1a;
-  --cmdx-surface-hover: #252525;
-  --cmdx-border: rgba(255, 255, 255, 0.1);
-}
-
-[data-md-color-scheme="default"] {
-  --cmdx-surface: #ffffff;
-  --cmdx-surface-hover: #f8f8f8;
-  --cmdx-border: rgba(0, 0, 0, 0.1);
-}
-
-/* Hero Section */
-.hero {
-  position: relative;
-  padding: 6rem 1rem 4rem;
-  text-align: center;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 0%, rgba(254, 24, 23, 0.08) 0%, transparent 60%);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.hero .logo {
-  margin-bottom: 2.5rem;
-  animation: fadeUp 0.8s ease-out;
-}
-
-.hero h1 {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  color: var(--md-typeset-color);
-  animation: fadeUp 0.8s ease-out 0.1s backwards;
-}
-
-.hero h1 span {
-  background: var(--cmdx-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: inline-block;
-}
-
-.hero .tagline {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  color: var(--md-typeset-color);
-  opacity: 0.7;
-  max-width: 700px;
-  margin: 0 auto 3rem;
-  line-height: 1.6;
-  animation: fadeUp 0.8s ease-out 0.2s backwards;
-}
-
-.hero .buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 0;
-  animation: fadeUp 0.8s ease-out 0.3s backwards;
-}
-
-.buttons a {
-  padding: 0.9rem 2.2rem;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 1.05rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.buttons .primary {
-  background: var(--cmdx-red);
-  color: white !important;
-  box-shadow: 0 4px 20px rgba(254, 24, 23, 0.3);
-}
-
-.buttons .primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(254, 24, 23, 0.4);
-}
-
-.buttons .secondary {
-  background: transparent;
-  color: var(--md-typeset-color) !important;
-  border: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.buttons .secondary:hover {
-  border-color: var(--cmdx-red);
-  color: var(--cmdx-red) !important;
-}
-
-/* See it in Action — Tabbed Showcase */
-.showcase-section {
-  background: var(--md-code-bg-color);
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.showcase-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.showcase-tabs::-webkit-scrollbar { display: none; }
-
-.showcase-tab {
-  padding: 1rem 1.6rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--md-default-fg-color--light);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  font-family: var(--md-text-font-family);
-}
-
-.showcase-tab:hover {
-  color: var(--cmdx-red);
-}
-
-.showcase-tab.active {
-  color: var(--cmdx-red);
-  border-bottom-color: var(--cmdx-red);
-}
-
-.showcase-panels {
-  position: relative;
-}
-
-.showcase-panel {
-  display: none;
-  animation: fadeUp 0.4s ease-out;
-}
-
-.showcase-panel.active {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-}
-
-@media (max-width: 900px) {
-  .showcase-panel.active {
-    flex-direction: column;
-  }
-}
-
-.showcase-info {
-  flex: 0 0 320px;
-  padding: 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-right: 1px solid var(--md-default-fg-color--lightest);
-}
-
-@media (max-width: 900px) {
-  .showcase-info {
-    flex: none;
-    border-right: none;
-    border-bottom: 1px solid var(--md-default-fg-color--lightest);
-    padding: 2rem 1.5rem;
-  }
-}
-
-.showcase-info h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--md-typeset-color);
-}
-
-.showcase-info p {
-  color: var(--md-default-fg-color--light);
-  line-height: 1.6;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.showcase-code {
-  flex: 1;
-  min-width: 0;
-  overflow-x: auto;
-}
-
-.showcase-code pre {
-  margin: 0 !important;
-  border-radius: 0 !important;
-  border: none !important;
-  padding: 2rem !important;
-  font-size: 0.85rem !important;
-  line-height: 1.6 !important;
-  background: #1e1e1e !important;
-  min-height: 100%;
-}
-
-.showcase-code code {
-  font-family: var(--md-code-font-family) !important;
-  color: #d4d4d4 !important;
-}
-
-/* Syntax highlighting colors */
-.showcase-code .k  { color: #c586c0; } /* keyword */
-.showcase-code .nc { color: #4ec9b0; } /* class name */
-.showcase-code .nb { color: #4fc1ff; } /* builtin */
-.showcase-code .n  { color: #9cdcfe; } /* name */
-.showcase-code .s  { color: #ce9178; } /* string */
-.showcase-code .c  { color: #6a9955; } /* comment */
-.showcase-code .ss { color: #4fc1ff; } /* symbol */
-.showcase-code .mi { color: #b5cea8; } /* integer */
-.showcase-code .o  { color: #d4d4d4; } /* operator */
-.showcase-code .p  { color: #d4d4d4; } /* punctuation */
-
-/* Features Grid */
-.section {
-  padding: 6rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.section-header h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.section-header p {
-  font-size: 1.2rem;
-  color: var(--md-default-fg-color--light);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-}
-
-.feature-card {
-  padding: 2rem;
-  border-radius: 16px;
-  background: var(--md-default-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--cmdx-red);
-  box-shadow: 0 10px 40px -10px rgba(254, 24, 23, 0.15);
-}
-
-.feature-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(254, 24, 23, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  color: var(--cmdx-red);
-  font-size: 1.5rem;
-}
-
-.feature-card h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.feature-card p {
-  color: var(--md-default-fg-color--light);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* Comparison / Stats Section */
-.stats-section {
-  background: var(--md-code-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 3rem;
-  text-align: center;
-}
-
-.stat-item .number {
-  font-size: 3.5rem;
-  font-weight: 800;
-  background: var(--cmdx-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.stat-item .label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--md-default-fg-color--light);
-}
-
-/* CERO Pattern Section */
-.cero-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
-  margin: 3rem auto 0;
-  max-width: 1200px;
-}
-
-.cero-step {
-  text-align: center;
-  padding: 1.5rem;
-  position: relative;
-}
-
-.cero-step::after {
-  content: "→";
-  position: absolute;
-  right: -1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2rem;
-  color: var(--md-default-fg-color--lightest);
-}
-
-.cero-step:last-child::after { display: none; }
-
-@media (max-width: 1024px) {
-  .cero-step::after {
-    right: 50%;
-    top: auto;
-    bottom: -2rem;
-    transform: translateX(50%) rotate(90deg);
-  }
-}
-
-.cero-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.cero-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: var(--cmdx-red);
-}
-
-/* Comparison Table */
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 2rem;
-  background: var(--md-default-bg-color);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
-
-.comparison-table th,
-.comparison-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.comparison-table th {
-  background: var(--md-code-bg-color);
-  font-weight: 600;
-}
-
-.comparison-table tr:last-child td { border-bottom: none; }
-
-.comparison-table .check { color: #28c840; }
-.comparison-table .cross { color: #ff5f57; opacity: 0.5; }
-
-/* Animations */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-  .hero h1 { font-size: 2.5rem; }
-  .buttons { flex-direction: column; }
-  .buttons a { width: 100%; text-align: center; }
-  .cero-step::after { display: none; }
-}
-</style>
-
-<!-- Hero -->
-<div class="hero">
-  <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
-  </div>
-
-  <h1>
-    The <span>Business Logic</span><br>
-    Framework for Ruby
-  </h1>
-
-  <p class="tagline">
-    Build maintainable systems, not just scripts.
-  </p>
-
-  <div class="buttons">
-    <a href="getting_started/" class="primary">Get Started</a>
-    <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
-  </div>
-</div>
-
-<!-- See it in Action -->
-<div class="showcase-section">
-  <div class="section-header" style="padding: 4rem 2rem 0;">
-    <h2>See it in Action</h2>
-    <p>From simple tasks to complex workflows, see how CMDx brings clarity to your business logic.</p>
-  </div>
-
-  <div class="showcase-tabs" role="tablist">
-    <button class="showcase-tab active" data-panel="define" role="tab">Define a Task</button>
-    <button class="showcase-tab" data-panel="execute" role="tab">Execute & React</button>
-    <button class="showcase-tab" data-panel="workflow" role="tab">Compose Workflows</button>
-    <button class="showcase-tab" data-panel="retries" role="tab">Fault Tolerance</button>
-    <button class="showcase-tab" data-panel="observe" role="tab">Observe</button>
-  </div>
-
-  <div class="showcase-panels">
-    <!-- Define a Task -->
-    <div class="showcase-panel active" id="panel-define">
-      <div class="showcase-info">
-        <h3>Define a Task</h3>
-        <p>Declare typed attributes with validation, coercion, and defaults. Write your business logic in a single <code>work</code> method with built-in flow control for success, failure, and skip states.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="n">on_success</span> <span class="ss">:notify_applicant!</span>
-
-  <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
-
-  <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>
-
-  <span class="n">returns</span> <span class="ss">:approved_at</span>
-
-  <span class="k">def</span> <span class="n">work</span>
-    <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
-      <span class="n">fail!</span>(<span class="s">"Application not found"</span>, <span class="ss">code:</span> <span class="mi">404</span>)
-    <span class="k">elsif</span> <span class="n">application</span>.<span class="n">approved?</span>
-      <span class="n">skip!</span>(<span class="s">"Already approved"</span>)
-    <span class="k">else</span>
-      <span class="n">application</span>.<span class="n">approve!</span>
-      <span class="n">context</span>.<span class="n">approved_at</span> = <span class="nc">Time</span>.<span class="n">current</span>
-    <span class="k">end</span>
-  <span class="k">end</span>
-
-  <span class="k">private</span>
-
-  <span class="k">def</span> <span class="n">application</span>
-    <span class="n">@application</span> <span class="o">||=</span> <span class="nc">LoanApplication</span>.<span class="n">find_by</span>(<span class="ss">id:</span> <span class="n">application_id</span>)
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="n">notify_applicant!</span>
-    <span class="nc">ApprovalMailer</span>.<span class="n">approved</span>(<span class="n">application</span>).<span class="n">deliver_later</span>
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-      </div>
-    </div>
-
-    <!-- Execute & React -->
-    <div class="showcase-panel" id="panel-execute">
-      <div class="showcase-info">
-        <h3>Execute & React</h3>
-        <p>Every execution returns a standardized Result object. No more rescuing exceptions for control flow. Check the outcome and access returned values, error messages, and metadata.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="c"># Execute with typed, validated arguments</span>
-<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
-
-<span class="c"># React to the outcome</span>
-<span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
-  <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
-
-<span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
-  <span class="n">puts</span> <span class="s">"Skipped: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
-
-<span class="k">elsif</span> <span class="n">result</span>.<span class="n">failed?</span>
-  <span class="n">puts</span> <span class="s">"Failed: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
-  <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
-<span class="k">end</span>
-
-<span class="c"># Bang variant raises on failure</span>
-<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute!</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
-<span class="c"># => raises CMDx::ExecutionError on failure</span></code></pre>
-      </div>
-    </div>
-
-    <!-- Compose Workflows -->
-    <div class="showcase-panel" id="panel-workflow">
-      <div class="showcase-info">
-        <h3>Compose Workflows</h3>
-        <p>Chain tasks into declarative pipelines with shared context, conditional execution, and configurable halt behavior. Run tasks in parallel for maximum throughput.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="k">include</span> <span class="nc">CMDx::Workflow</span>
-
-  <span class="c"># Sequential pipeline</span>
-  <span class="n">task</span> <span class="nc">CreateAccount</span>
-  <span class="n">task</span> <span class="nc">SetupBilling</span>
-  <span class="n">task</span> <span class="nc">AssignPlan</span>
-
-  <span class="c"># Parallel notifications</span>
-  <span class="n">tasks</span> <span class="nc">SendWelcomeEmail</span>,
-        <span class="nc">SendWelcomeSms</span>,
-        <span class="nc">CreateDashboard</span>,
-        <span class="ss">strategy:</span> <span class="ss">:parallel</span>
-
-  <span class="c"># Conditional execution</span>
-  <span class="n">task</span> <span class="nc">ScheduleOnboardingCall</span>,
-       <span class="ss">if:</span> <span class="ss">:premium_plan?</span>
-
-  <span class="k">private</span>
-
-  <span class="k">def</span> <span class="n">premium_plan?</span>
-    <span class="n">context</span>.<span class="n">plan</span>.<span class="n">tier</span> == <span class="ss">:premium</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="c"># Run the entire workflow</span>
-<span class="n">result</span> = <span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
-      </div>
-    </div>
-
-    <!-- Fault Tolerance -->
-    <div class="showcase-panel" id="panel-retries">
-      <div class="showcase-info">
-        <h3>Fault Tolerance</h3>
-        <p>Handle transient failures automatically with configurable retries, selective exception matching, and exponential backoff. No manual intervention needed.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">ProcessPayment</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="n">settings</span> <span class="ss">retries:</span> <span class="mi">5</span>,
-           <span class="ss">retry_on:</span> [<span class="nc">Stripe::RateLimitError</span>,
-                      <span class="nc">Net::ReadTimeout</span>],
-           <span class="ss">retry_jitter:</span> <span class="ss">:exponential_backoff</span>
-
-  <span class="n">required</span> <span class="ss">:payment_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
-
-  <span class="k">def</span> <span class="n">work</span>
-    <span class="n">payment</span> = <span class="nc">Payment</span>.<span class="n">find</span>(<span class="n">payment_id</span>)
-    <span class="n">context</span>.<span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(
-      <span class="ss">amount:</span> <span class="n">payment</span>.<span class="n">amount_cents</span>,
-      <span class="ss">currency:</span> <span class="s">"usd"</span>,
-      <span class="ss">source:</span> <span class="n">payment</span>.<span class="n">token</span>
-    )
-  <span class="k">end</span>
-
-  <span class="k">private</span>
-
-  <span class="k">def</span> <span class="n">exponential_backoff</span>(<span class="n">current_retry</span>)
-    <span class="mi">2</span> ** <span class="n">current_retry</span> <span class="c"># 2s, 4s, 8s, 16s, 32s</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="n">result</span> = <span class="nc">ProcessPayment</span>.<span class="n">execute</span>(<span class="ss">payment_id:</span> <span class="mi">99</span>)
-<span class="n">result</span>.<span class="n">retried?</span>  <span class="c"># => true</span>
-<span class="n">result</span>.<span class="n">retries</span>   <span class="c"># => 2</span></code></pre>
-      </div>
-    </div>
-
-    <!-- Observe -->
-    <div class="showcase-panel" id="panel-observe">
-      <div class="showcase-info">
-        <h3>Observe Everything</h3>
-        <p>Every execution automatically generates structured logs with chain IDs, runtime metrics, and contextual metadata. Trace complex workflows and debug issues with ease.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="c"># Structured logs are generated automatically</span>
-<span class="c"># with correlation IDs for full traceability</span>
-
-<span class="c">I, [2026-02-06T14:22:01.000 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">0</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"CreateAccount"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">12</span>}
-
-<span class="c">I, [2026-02-06T14:22:01.050 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">1</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SetupBilling"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">45</span>}
-
-<span class="c">W, [2026-02-06T14:22:01.200 #4891] WARN -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">2</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SendWelcomeEmail"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"skipped"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">2</span>, <span class="ss">reason:</span> <span class="s">"Email not configured"</span>}
-
-<span class="c">I, [2026-02-06T14:22:01.250 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">0</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Workflow"</span> <span class="n">class</span>=<span class="s">"OnboardCustomer"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">250</span>}</code></pre>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Key Features -->
-<div class="section">
-  <div class="section-header">
-    <h2>Why CMDx?</h2>
-    <p>Designed for developers who value clarity, consistency, and reliability.</p>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⚡️</div>
-      <h3>Zero Dependencies</h3>
-      <p>Lightweight and pure Ruby. Drop it into Rails, Sinatra, Hanami, or any plain Ruby script without bloating your Gemfile.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🛡️</div>
-      <h3>Type Safety</h3>
-      <p>Declare inputs with strict typing, coercion, and validation. Catch bad data at the boundary, before it corrupts your logic.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
-      <h3>Observability</h3>
-      <p>Built-in tracing, structured logging, and error tracking. Know exactly what happened, when, and why.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧩</div>
-      <h3>Composability</h3>
-      <p>Chain small, focused commands into complex workflows. Reuse logic across your application with confidence.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">✅</div>
-      <h3>Predictable Results</h3>
-      <p>No more rescuing exceptions for control flow. Every command returns a standardized Result object.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌍</div>
-      <h3>Production Ready</h3>
-      <p>Includes I18n, retries, deprecation handling, and middleware support out of the box.</p>
-    </div>
-  </div>
-</div>
-
-<!-- The CERO Pattern -->
-<div class="stats-section">
-  <div class="section-header">
-    <h2>The CERO Pattern</h2>
-    <p>A simple mental model for reliable logic.</p>
-  </div>
-
-  <div class="cero-grid">
-    <div class="cero-step">
-      <span class="cero-icon">🏗️</span>
-      <div class="cero-title">Compose</div>
-      <p>Build reusable, single-responsibility tasks with typed attributes and validation.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">⚡️</span>
-      <div class="cero-title">Execute</div>
-      <p>Invoke tasks with a consistent API that handles errors and logging automatically.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">🎯</span>
-      <div class="cero-title">React</div>
-      <p>Handle standardized result objects with clear success, failure, or skipped states.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">📊</span>
-      <div class="cero-title">Observe</div>
-      <p>Trace execution with structured logs, correlation IDs, and runtime metrics.</p>
-    </div>
-  </div>
-</div>
-
-<!-- Comparison -->
-<div class="section">
-  <div class="section-header">
-    <h2>How We Compare</h2>
-    <p>CMDx delivers the full stack without the bloat.</p>
-  </div>
-
-  <div style="overflow-x: auto;">
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>CMDx</th>
-          <th>Actor</th>
-          <th>Interactor</th>
-          <th>ActiveInteraction</th>
-          <th>LightService</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Zero Dependencies</td>
-          <td class="check">✅</td>
-          <td class="check">✅</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-        </tr>
-        <tr>
-          <td>Typed Attributes</td>
-          <td class="check">✅</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Type Coercion</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Built-in Logging</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Middleware System</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-        </tr>
-        <tr>
-          <td>Fault Tolerance</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Stats / Impact -->
-<div class="stats-section">
-  <div class="section">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="number">100%</span>
-        <span class="label">Pure Ruby</span>
-      </div>
-      <div class="stat-item">
-        <span class="number">0</span>
-        <span class="label">Dependencies</span>
-      </div>
-      <div class="stat-item">
-        <span class="number">Type</span>
-        <span class="label">Safe Inputs</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Use Cases -->
-<div class="section">
-  <div class="section-header">
-    <h2>Built For Real World Logic</h2>
-    <p>From simple scripts to complex enterprise workflows.</p>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <h3>🏦 Financial Operations</h3>
-      <p>Handle payments, loans, and ledgers with audit trails and transactional integrity.</p>
-    </div>
-    <div class="feature-card">
-      <h3>🔄 Data Pipelines</h3>
-      <p>Structure ETL processes with clear steps, error handling, and resumption capabilities.</p>
-    </div>
-    <div class="feature-card">
-      <h3>🛒 E-commerce</h3>
-      <p>Orchestrate order fulfillment, inventory checks, and shipping logistics reliably.</p>
-    </div>
-  </div>
-</div>
-
-<script>
-  (function () {
-    var tabs = document.querySelectorAll(".showcase-tab");
-    var panels = document.querySelectorAll(".showcase-panel");
-
-    tabs.forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        tabs.forEach(function (t) { t.classList.remove("active"); });
-        panels.forEach(function (p) { p.classList.remove("active"); });
-
-        tab.classList.add("active");
-        var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
-        if (panel) panel.classList.add("active");
-      });
-    });
-  })();
-</script>
-
-
-              </article>
+  <div class="md-content md-content--post" data-md-component="content">
+    <div class="md-sidebar md-sidebar--post" data-md-component="sidebar" data-md-type="navigation">
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner md-post">
+          <nav class="md-nav md-nav--primary">
+            <div class="md-post__back">
+              <div class="md-nav__title md-nav__container">
+                <a href="../" class="md-nav__link">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+                  <span class="md-ellipsis">
+                    Back to index
+                  </span>
+                </a>
+              </div>
             </div>
+            
+              <div class="md-post__authors md-typeset">
+                
+                  <div class="md-profile md-post__profile">
+                    <span class="md-author md-author--long">
+                      <img src="https://github.com/drexed.png" alt="drexed">
+                    </span>
+                    <span class="md-profile__description">
+                      <strong>
+                        
+                          drexed
+                        
+                      </strong>
+                      <br>
+                      Creator of CMDx
+                    </span>
+                  </div>
+                
+              </div>
+            
+            <ul class="md-post__meta md-nav__list">
+              <li class="md-nav__item md-nav__item--section">
+                <div class="md-post__title">
+                  <span class="md-ellipsis">
+                    Metadata
+                  </span>
+                </div>
+                <nav class="md-nav">
+                  <ul class="md-nav__list">
+                    <li class="md-nav__item">
+                      <div class="md-nav__link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V8h14m-3-7v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1m-1 11h-5v5h5z"/></svg>
+                        <time datetime="2026-02-25 00:00:00+00:00" class="md-ellipsis">February 25, 2026</time>
+                      </div>
+                    </li>
+                    
+                    
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 3v15h3V3zm3 2 4 13 3-1-4-13zM5 5v13h3V5zM3 19v2h18v-2z"/></svg>
+                          <span class="md-ellipsis">
+                            in
+                            
+                              <a href="../category/tutorials/">Tutorials</a></span>
+                        </div>
+                      </li>
+                    
+                    
+                      
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m0-18a10 10 0 0 1 10 10 10 10 0 0 1-10 10C6.47 22 2 17.5 2 12A10 10 0 0 1 12 2m.5 5v5.25l4.5 2.67-.75 1.23L11 13V7z"/></svg>
+                          <span class="md-ellipsis">
+                            
+                              3 min read
+                            
+                          </span>
+                        </div>
+                      </li>
+                    
+                  </ul>
+                </nav>
+              </li>
+            </ul>
+            
+          </nav>
           
+        </div>
+      </div>
+    </div>
+    <article class="md-content__inner md-typeset">
+      
+        
+  
+
+
+
+  
+  
+
+
+<h1 id="mastering-cmdx-the-art-of-observability-with-logging">Mastering CMDx: The Art of Observability with Logging<a class="headerlink" href="#mastering-cmdx-the-art-of-observability-with-logging" title="Permanent link">&para;</a></h1>
+<p>We've all been there. A production incident report lands on your desk. "Transaction failed for user X." You open the logs, grep for the user ID, and... silence. Or worse, a wall of unstructured text that tells you everything except what you need to know.</p>
+<p>Logging is often an afterthought—something we sprinkle in <code>rescue</code> blocks when we're debugging. But in CMDx, the Ruby framework for business logic, observability isn't an add-on; it's a first-class citizen.</p>
+<!-- more -->
+
+<h2 id="the-default-experience">The Default Experience<a class="headerlink" href="#the-default-experience" title="Permanent link">&para;</a></h2>
+<p>When I built CMDx, I wanted to ensure that you never had to guess <em>if</em> a task ran. By default, every single task execution is logged. You don't have to configure anything.</p>
+<p>Run a task:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CreateUser</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">end</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="no">CreateUser</span><span class="o">.</span><span class="n">call</span>
+</span></code></pre></div>
+<p>And check your output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>I, [2026-01-09T10:00:00.000000 #1234] INFO -- cmdx: {index: 0, chain_id: &quot;...&quot;, type: &quot;Task&quot;, class: &quot;CreateUser&quot;, state: &quot;complete&quot;, status: &quot;success&quot;, ...}
+</span></code></pre></div>
+<p>Right out of the box, you get:</p>
+<ul>
+<li><strong>Who</strong>: The class name (<code>CreateUser</code>)</li>
+<li><strong>When</strong>: Timestamp</li>
+<li><strong>What</strong>: The outcome (<code>success</code>, <code>failed</code>, <code>skipped</code>)</li>
+<li><strong>How long</strong>: Runtime metadata</li>
+</ul>
+<h2 id="choosing-your-style">Choosing Your Style<a class="headerlink" href="#choosing-your-style" title="Permanent link">&para;</a></h2>
+<p>While the default output is great for development, your production environment might need something different. CMDx supports multiple formatters to fit your stack.</p>
+<h3 id="for-the-humans-line-formatter">For the Humans (Line Formatter)<a class="headerlink" href="#for-the-humans-line-formatter" title="Permanent link">&para;</a></h3>
+<p>If you're tailing logs in a terminal, you might prefer the <code>Line</code> formatter. It's concise and readable.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">Line</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="for-the-machines-json-formatter">For the Machines (JSON Formatter)<a class="headerlink" href="#for-the-machines-json-formatter" title="Permanent link">&para;</a></h3>
+<p>If you're shipping logs to Datadog, Splunk, or CloudWatch, structured JSON is king.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">Json</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Now your logs are perfectly parseable JSON objects, ready for aggregation and querying.</p>
+<h2 id="logging-inside-your-tasks">Logging Inside Your Tasks<a class="headerlink" href="#logging-inside-your-tasks" title="Permanent link">&para;</a></h2>
+<p>Sometimes the automatic execution log isn't enough. You want to capture specific business events—"Payment gateway contacted", "Inventory check passed".</p>
+<p>CMDx exposes a standard logger instance right inside your task context:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessPayment</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Contacting payment gateway...&quot;</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">PaymentGateway</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Charge successful: </span><span class="si">#{</span><span class="n">charge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">charge_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">charge</span><span class="o">.</span><span class="n">id</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>This uses the same logger instance as the framework, ensuring your custom logs are interleaved correctly with the automatic system logs.</p>
+<h2 id="the-power-of-correlation">The Power of Correlation<a class="headerlink" href="#the-power-of-correlation" title="Permanent link">&para;</a></h2>
+<p>Here is where it gets really cool. When you run a <code>Workflow</code> (a chain of tasks), CMDx generates a <code>chain_id</code>. This ID is passed down to every single task in that workflow.</p>
+<p>If you have a workflow like this:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PlaceOrder</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">step</span><span class="w"> </span><span class="no">ValidateCart</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">step</span><span class="w"> </span><span class="no">ChargeCard</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="n">step</span><span class="w"> </span><span class="no">SendEmail</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Every log entry from <code>ValidateCart</code>, <code>ChargeCard</code>, and <code>SendEmail</code> will share the same <code>chain_id</code>. You can filter your logs by this ID and see the entire lifecycle of that request, from start to finish, across multiple classes.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>I, [2026-01-09T10:00:00.000000 #1234] INFO -- cmdx: {index: 1, chain_id: &quot;a1b2c3d4&quot;, class: &quot;ValidateCart&quot;, ...}
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>I, [2026-01-09T10:00:00.100000 #1234] INFO -- cmdx: {index: 2, chain_id: &quot;a1b2c3d4&quot;, class: &quot;ChargeCard&quot;, ...}
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>I, [2026-01-09T10:00:00.200000 #1234] INFO -- cmdx: {index: 3, chain_id: &quot;a1b2c3d4&quot;, class: &quot;SendEmail&quot;, ...}
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>I, [2026-01-09T10:00:00.300000 #1234] INFO -- cmdx: {index: 0, chain_id: &quot;a1b2c3d4&quot;, class: &quot;PlaceOrder&quot;, ...}
+</span></code></pre></div>
+<p>Notice how <code>chain_id: "a1b2c3d4"</code> persists across all entries. Even better, the final entry for the <code>PlaceOrder</code> workflow wraps it all up, confirming the entire chain succeeded.</p>
+<h2 id="debugging-failures">Debugging Failures<a class="headerlink" href="#debugging-failures" title="Permanent link">&para;</a></h2>
+<p>When things go wrong, CMDx provides rich context. If a task fails:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ValidateCart</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Cart is empty&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="ss">:empty_cart</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>The log entry will include:</p>
+<ul>
+<li>The <code>status</code> ("failed")</li>
+<li>The <code>reason</code> ("Cart is empty")</li>
+<li>The <code>metadata</code> (<code>{code: :empty_cart}</code>)</li>
+<li>The <code>chain_id</code> (so you know which workflow triggered it)</li>
+</ul>
+<p>No more guessing <em>why</em> something failed. It's right there in the record.</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>Good logging is the difference between a five-minute fix and a five-hour headache. CMDx handles the heavy lifting for you, ensuring that every piece of business logic is observable by default.</p>
+<p>So go ahead, delete those <code>puts "HERE"</code> statements. CMDx has got you covered.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://drexed.github.io/cmdx/logging/">Logging</a></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+      
+    </article>
+  </div>
+
           
   <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
 
@@ -2807,22 +2263,22 @@
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
-        
           
-          <a href="getting_started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Getting Started
-              </div>
-            </div>
+          <a href="../mastering-cmdx-retries-deprecation-i18n/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mastering CMDx: Retries, Deprecation, and Internationalization">
             <div class="md-footer__button md-icon">
               
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Mastering CMDx: Retries, Deprecation, and Internationalization
+              </div>
             </div>
           </a>
+        
         
       </nav>
     
@@ -2880,10 +2336,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.expand", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.expand", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
