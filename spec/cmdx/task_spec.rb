@@ -415,33 +415,65 @@ RSpec.describe CMDx::Task, type: :unit do
 
   describe "#logger" do
     context "when class settings has logger" do
-      let(:class_logger) { instance_double(Logger) }
+      let(:class_logger) { Logger.new(IO::NULL) }
 
       before do
         allow(task.class).to receive(:settings).and_return({ logger: class_logger })
-        allow(class_logger).to receive_messages(level: Logger::INFO, formatter: nil)
-        allow(class_logger).to receive(:level=)
-        allow(class_logger).to receive(:formatter=)
       end
 
       it "returns the class logger" do
-        expect(task.logger).to eq(class_logger)
+        expect(task.logger).to equal(class_logger)
       end
     end
 
     context "when class settings has no logger" do
-      let(:config_logger) { instance_double(Logger) }
+      let(:config_logger) { Logger.new(IO::NULL) }
 
       before do
         allow(task.class).to receive(:settings).and_return({})
         allow(CMDx.configuration).to receive(:logger).and_return(config_logger)
-        allow(config_logger).to receive_messages(level: Logger::INFO, formatter: nil)
-        allow(config_logger).to receive(:level=)
-        allow(config_logger).to receive(:formatter=)
       end
 
       it "returns the configuration logger" do
-        expect(task.logger).to eq(config_logger)
+        expect(task.logger).to equal(config_logger)
+      end
+    end
+
+    context "when log_level is customized" do
+      let(:shared_logger) { Logger.new(IO::NULL).tap { |l| l.level = Logger::INFO } }
+
+      before do
+        allow(task.class).to receive(:settings).and_return({ logger: shared_logger, log_level: Logger::DEBUG })
+      end
+
+      it "does not mutate the shared logger" do
+        task.logger
+        expect(shared_logger.level).to eq(Logger::INFO)
+      end
+
+      it "returns a different logger instance" do
+        expect(task.logger).not_to equal(shared_logger)
+        expect(task.logger.level).to eq(Logger::DEBUG)
+      end
+    end
+
+    context "when log_formatter is customized" do
+      let(:shared_logger) { Logger.new(IO::NULL) }
+      let(:original_formatter) { shared_logger.formatter }
+      let(:custom_formatter) { proc { |_s, _d, _p, msg| "#{msg}\n" } }
+
+      before do
+        allow(task.class).to receive(:settings).and_return({ logger: shared_logger, log_formatter: custom_formatter })
+      end
+
+      it "does not mutate the shared logger" do
+        task.logger
+        expect(shared_logger.formatter).to eq(original_formatter)
+      end
+
+      it "returns a different logger instance" do
+        expect(task.logger).not_to equal(shared_logger)
+        expect(task.logger.formatter).to eq(custom_formatter)
       end
     end
   end

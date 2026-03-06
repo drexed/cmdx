@@ -351,6 +351,10 @@ module CMDx
       raise UndefinedMethodError, "undefined method #{self.class.name}#work"
     end
 
+    # Returns a logger for this task. When a custom log_level or
+    # log_formatter is configured, the shared logger is duplicated
+    # so the original instance is never mutated.
+    #
     # @return [Logger] The logger instance for this task
     #
     # @example
@@ -360,10 +364,17 @@ module CMDx
     # @rbs () -> Logger
     def logger
       @logger ||= begin
-        logger = self.class.settings[:logger] || CMDx.configuration.logger
-        logger.level = self.class.settings[:log_level] || logger.level
-        logger.formatter = self.class.settings[:log_formatter] || logger.formatter
-        logger
+        log_instance = self.class.settings[:logger] || CMDx.configuration.logger
+        log_level = self.class.settings[:log_level]
+        log_formatter = self.class.settings[:log_formatter]
+
+        if log_level || log_formatter
+          log_instance = log_instance.dup
+          log_instance.level = log_level if log_level
+          log_instance.formatter = log_formatter if log_formatter
+        end
+
+        log_instance
       end
     end
 

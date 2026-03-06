@@ -30,7 +30,7 @@ RSpec.describe CMDx::Middlewares::Correlate, type: :unit do
   end
 
   describe ".id=" do
-    it "sets the correlation ID in thread local storage" do
+    it "sets the correlation ID in fiber or thread local storage" do
       correlate.id = "new-correlation-id"
 
       expect(correlate.id).to eq("new-correlation-id")
@@ -369,6 +369,86 @@ RSpec.describe CMDx::Middlewares::Correlate, type: :unit do
           correlate.call(task, id: "test-id", unknown_option: "value", &test_block)
         end.not_to raise_error
       end
+    end
+  end
+
+  describe "thread safety" do
+    after { described_class.clear }
+
+    it "maintains separate correlation IDs per thread" do
+      thread1_id = nil
+      thread2_id = nil
+
+      thread1 = Thread.new do
+        described_class.id = "thread-1-id"
+        thread1_id = described_class.id
+      end
+
+      thread2 = Thread.new do
+        described_class.id = "thread-2-id"
+        thread2_id = described_class.id
+      end
+
+      thread1.join
+      thread2.join
+
+      expect(thread1_id).to eq("thread-1-id")
+      expect(thread2_id).to eq("thread-2-id")
+      expect(thread1_id).not_to eq(thread2_id)
+    end
+
+    it "does not interfere with main thread correlation ID" do
+      described_class.id = "main-thread-id"
+
+      thread_id = nil
+      thread = Thread.new do
+        described_class.id = "child-thread-id"
+        thread_id = described_class.id
+      end
+      thread.join
+
+      expect(described_class.id).to eq("main-thread-id")
+      expect(thread_id).to eq("child-thread-id")
+    end
+  end
+
+  describe "fiber safety" do
+    after { described_class.clear }
+
+    it "maintains separate correlation IDs per fiber" do
+      fiber1_id = nil
+      fiber2_id = nil
+
+      fiber1 = Fiber.new do
+        described_class.id = "fiber-1-id"
+        fiber1_id = described_class.id
+      end
+
+      fiber2 = Fiber.new do
+        described_class.id = "fiber-2-id"
+        fiber2_id = described_class.id
+      end
+
+      fiber1.resume
+      fiber2.resume
+
+      expect(fiber1_id).to eq("fiber-1-id")
+      expect(fiber2_id).to eq("fiber-2-id")
+      expect(fiber1_id).not_to eq(fiber2_id)
+    end
+
+    it "does not interfere with main fiber correlation ID" do
+      described_class.id = "main-fiber-id"
+
+      fiber_id = nil
+      fiber = Fiber.new do
+        described_class.id = "child-fiber-id"
+        fiber_id = described_class.id
+      end
+      fiber.resume
+
+      expect(described_class.id).to eq("main-fiber-id")
+      expect(fiber_id).to eq("child-fiber-id")
     end
   end
 end

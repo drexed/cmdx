@@ -4,18 +4,18 @@ module CMDx
   module Middlewares
     # Middleware for correlating task executions with unique identifiers.
     #
-    # The Correlate middleware provides thread-safe correlation ID management
-    # for tracking task execution flows across different operations.
-    # It automatically generates correlation IDs when none are provided and
-    # stores them in task result metadata for traceability.
+    # The Correlate middleware provides thread and fiber safe correlation ID management
+    # for tracking task execution flows across different operations. It automatically
+    # generates correlation IDs when none are provided and stores them in task result
+    # metadata for traceability.
     module Correlate
 
       extend self
 
-      # @rbs THREAD_KEY: Symbol
-      THREAD_KEY = :cmdx_correlate
+      # @rbs CONCURRENCY_KEY: Symbol
+      CONCURRENCY_KEY = :cmdx_correlate
 
-      # Retrieves the current correlation ID from thread-local storage.
+      # Retrieves the current correlation ID from local storage.
       #
       # @return [String, nil] The current correlation ID or nil if not set
       #
@@ -24,10 +24,10 @@ module CMDx
       #
       # @rbs () -> String?
       def id
-        Thread.current[THREAD_KEY]
+        thread_or_fiber[CONCURRENCY_KEY]
       end
 
-      # Sets the correlation ID in thread-local storage.
+      # Sets the correlation ID in local storage.
       #
       # @param id [String] The correlation ID to set
       # @return [String] The set correlation ID
@@ -37,10 +37,10 @@ module CMDx
       #
       # @rbs (String id) -> String
       def id=(id)
-        Thread.current[THREAD_KEY] = id
+        thread_or_fiber[CONCURRENCY_KEY] = id
       end
 
-      # Clears the current correlation ID from thread-local storage.
+      # Clears the current correlation ID from local storage.
       #
       # @return [nil] Always returns nil
       #
@@ -49,7 +49,7 @@ module CMDx
       #
       # @rbs () -> nil
       def clear
-        Thread.current[THREAD_KEY] = nil
+        thread_or_fiber[CONCURRENCY_KEY] = nil
       end
 
       # Temporarily uses a new correlation ID for the duration of a block.
@@ -120,6 +120,17 @@ module CMDx
           end
 
         use(correlation_id, &)
+      end
+
+      private
+
+      # Returns the thread or fiber storage for the current execution context.
+      #
+      # @return [Hash] The thread or fiber storage
+      #
+      # @rbs () -> Hash
+      def thread_or_fiber
+        Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current
       end
 
     end

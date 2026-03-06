@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Manages a collection of task execution results in a thread-safe manner.
+  # Manages a collection of task execution results in a thread and fiber safe manner.
   # Chains provide a way to track related task executions and their outcomes
   # within the same execution context.
   class Chain
 
     extend Forwardable
 
-    # @rbs THREAD_KEY: Symbol
-    THREAD_KEY = :cmdx_chain
+    # @rbs CONCURRENCY_KEY: Symbol
+    CONCURRENCY_KEY = :cmdx_chain
 
     # Returns the unique identifier for this chain.
     #
@@ -47,7 +47,7 @@ module CMDx
 
     class << self
 
-      # Retrieves the current chain for the current thread.
+      # Retrieves the current chain for the current execution context.
       #
       # @return [Chain, nil] The current chain or nil if none exists
       #
@@ -59,10 +59,10 @@ module CMDx
       #
       # @rbs () -> Chain?
       def current
-        Thread.current[THREAD_KEY]
+        thread_or_fiber[CONCURRENCY_KEY]
       end
 
-      # Sets the current chain for the current thread.
+      # Sets the current chain for the current execution context.
       #
       # @param chain [Chain] The chain to set as current
       #
@@ -73,10 +73,10 @@ module CMDx
       #
       # @rbs (Chain chain) -> Chain
       def current=(chain)
-        Thread.current[THREAD_KEY] = chain
+        thread_or_fiber[CONCURRENCY_KEY] = chain
       end
 
-      # Clears the current chain for the current thread.
+      # Clears the current chain for the current execution context.
       #
       # @return [nil] Always returns nil
       #
@@ -85,7 +85,7 @@ module CMDx
       #
       # @rbs () -> nil
       def clear
-        Thread.current[THREAD_KEY] = nil
+        thread_or_fiber[CONCURRENCY_KEY] = nil
       end
 
       # Builds or extends the current chain by adding a result.
@@ -109,6 +109,17 @@ module CMDx
         self.current ||= new(dry_run:)
         current.results << result
         current
+      end
+
+      private
+
+      # Returns the thread or fiber storage for the current execution context.
+      #
+      # @return [Hash] The thread or fiber storage
+      #
+      # @rbs () -> Hash
+      def thread_or_fiber
+        Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current
       end
 
     end

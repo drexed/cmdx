@@ -5,6 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Chain, type: :unit do
   subject(:chain) { described_class.new }
 
+  let(:fiber_or_thread) { Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current }
   let(:mock_task) { instance_double(CMDx::Task) }
   let(:mock_result) do
     instance_double(CMDx::Result, to_h: { id: "result-1" }).tap do |mock|
@@ -73,7 +74,7 @@ RSpec.describe CMDx::Chain, type: :unit do
 
     it "sets the current chain in thread storage" do
       described_class.current = chain
-      expect(Thread.current[:cmdx_chain]).to eq(chain)
+      expect(fiber_or_thread[described_class::CONCURRENCY_KEY]).to eq(chain)
     end
 
     it "allows setting to nil" do
@@ -93,7 +94,7 @@ RSpec.describe CMDx::Chain, type: :unit do
 
     it "clears thread storage" do
       described_class.clear
-      expect(Thread.current[:cmdx_chain]).to be_nil
+      expect(fiber_or_thread[described_class::CONCURRENCY_KEY]).to be_nil
     end
   end
 
@@ -279,6 +280,47 @@ RSpec.describe CMDx::Chain, type: :unit do
 
       expect(described_class.current).to eq(main_chain)
       expect(thread_chain).not_to eq(main_chain)
+    end
+  end
+
+  describe "fiber safety" do
+    after { described_class.clear }
+
+    it "maintains separate chains per fiber" do
+      fiber1_chain = nil
+      fiber2_chain = nil
+
+      fiber1 = Fiber.new do
+        described_class.current = described_class.new
+        fiber1_chain = described_class.current
+      end
+
+      fiber2 = Fiber.new do
+        described_class.current = described_class.new
+        fiber2_chain = described_class.current
+      end
+
+      fiber1.resume
+      fiber2.resume
+
+      expect(fiber1_chain).not_to eq(fiber2_chain)
+      expect(fiber1_chain).to be_a(described_class)
+      expect(fiber2_chain).to be_a(described_class)
+    end
+
+    it "does not interfere with main fiber chain" do
+      main_chain = described_class.new
+      described_class.current = main_chain
+
+      fiber_chain = nil
+      fiber = Fiber.new do
+        described_class.current = described_class.new
+        fiber_chain = described_class.current
+      end
+      fiber.resume
+
+      expect(described_class.current).to eq(main_chain)
+      expect(fiber_chain).not_to eq(main_chain)
     end
   end
 end
