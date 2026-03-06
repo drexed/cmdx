@@ -672,7 +672,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>The logger instance for this task.</p>
+<p>Returns a logger for this task.</p>
 </div></span>
   
 </li>
@@ -2857,7 +2857,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns The logger instance for this task.</p>
+<p>Returns a logger for this task. When a custom log_level or log_formatter is configured, the shared logger is duplicated so the original instance is never mutated.</p>
 
 
   </div>
@@ -2914,24 +2914,38 @@
       <pre class="lines">
 
 
-361
-362
-363
-364
 365
 366
 367
-368</pre>
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 361</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 365</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='kw'>begin</span>
-    <span class='id identifier rubyid_logger'>logger</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:logger</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="Configuration.html#logger-instance_method" title="CMDx::Configuration#logger (method)">logger</a></span></span>
-    <span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_level</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span>
-    <span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_formatter</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span>
-    <span class='id identifier rubyid_logger'>logger</span>
+    <span class='id identifier rubyid_log_instance'>log_instance</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:logger</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="Configuration.html#logger-instance_method" title="CMDx::Configuration#logger (method)">logger</a></span></span>
+    <span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_level</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_log_formatter'>log_formatter</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_formatter</span><span class='rbracket'>]</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>||</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span>
+      <span class='id identifier rubyid_log_instance'>log_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='id identifier rubyid_log_level'>log_level</span> <span class='kw'>if</span> <span class='id identifier rubyid_log_level'>log_level</span>
+      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>=</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span> <span class='kw'>if</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_log_instance'>log_instance</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -3031,20 +3045,20 @@
       <pre class="lines">
 
 
-385
-386
-387
-388
-389
-390
-391
-392
-393
-394
-395</pre>
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 385</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 396</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -3131,12 +3145,12 @@
       <pre class="lines">
 
 
-404
-405
-406</pre>
+415
+416
+417</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 404</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 415</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -3237,7 +3251,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Feb 25 21:10:31 2026 by
+  Generated on Fri Mar  6 14:35:41 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
