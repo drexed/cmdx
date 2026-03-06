@@ -259,8 +259,8 @@ module CMDx
       #
       # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
       def attributes_schema
-        Array(settings[:attributes]).each_with_object({}) do |attr, schema|
-          schema[attr.method_name] = attr.to_h
+        Array(settings[:attributes]).to_h do |attr|
+          [attr.method_name, attr.to_h]
         end
       end
 

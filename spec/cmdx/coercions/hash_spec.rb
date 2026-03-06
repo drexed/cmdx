@@ -274,7 +274,7 @@ RSpec.describe CMDx::Coercions::Hash, type: :unit do
       end
 
       it "handles very large JSON string" do
-        large_hash = (1..100).each_with_object({}) { |i, h| h["key#{i}"] = "value#{i}" }
+        large_hash = (1..100).to_h { |i| ["key#{i}", "value#{i}"] }
         json_string = large_hash.to_json
 
         result = coercion.call(json_string)
