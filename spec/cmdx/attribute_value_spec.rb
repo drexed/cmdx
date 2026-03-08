@@ -542,26 +542,42 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
         end
       end
 
-      context "when source_value is not Context, Hash, or Proc" do
+      context "when source_value responds to attribute name" do
         let(:source_object) { instance_double("MockSource", test_name: "object_value") }
 
-        before { allow(source_object).to receive(:respond_to?).with(:call).and_return(false) }
-
-        it "returns default value" do
-          expect(attribute_value.send(:derive_value, source_object)).to eq("default")
+        before do
+          allow(source_object).to receive(:respond_to?).with(:call).and_return(false)
+          allow(source_object).to receive(:respond_to?).with(name, true).and_return(true)
         end
 
-        context "when method raises NoMethodError" do
-          let(:source_object) { instance_double("MockSource") }
+        it "derives value via send" do
+          expect(attribute_value.send(:derive_value, source_object)).to eq("object_value")
+        end
 
+        context "when send raises NoMethodError" do
           before do
-            allow(source_object).to receive(:respond_to?).with(:call).and_return(false)
+            allow(source_object).to receive(:test_name).and_raise(NoMethodError)
             allow(CMDx::Locale).to receive(:t).with("cmdx.attributes.undefined", method: name).and_return("undefined error")
           end
 
           it "adds error and returns nil" do
-            expect(attribute_value.send(:derive_value, source_object)).to eq("default")
+            expect(errors).to receive(:add).with(method_name, "undefined error")
+
+            expect(attribute_value.send(:derive_value, source_object)).to be_nil
           end
+        end
+      end
+
+      context "when source_value does not respond to call or attribute name" do
+        let(:source_object) { instance_double("MockSource") }
+
+        before do
+          allow(source_object).to receive(:respond_to?).with(:call).and_return(false)
+          allow(source_object).to receive(:respond_to?).with(name, true).and_return(false)
+        end
+
+        it "returns default value" do
+          expect(attribute_value.send(:derive_value, source_object)).to eq("default")
         end
       end
 

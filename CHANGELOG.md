@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 - Use `Fiber.storage` instead of `Thread.current` for `Chain` and `Correlate` storage, with fallback to `Thread.current` for Ruby < 3.2, making them thread and fiber safe
 - Clone shared logger in `Task#logger` when `log_level` or `log_formatter` is customized to prevent mutation of the shared instance
+- Derive attribute values from source objects that respond to the attribute name (via `send`) as fallback when the source is not callable
 
 ## [1.17.0] - 2025-02-23
 

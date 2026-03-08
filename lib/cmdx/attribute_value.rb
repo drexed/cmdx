@@ -169,7 +169,12 @@ module CMDx
         when Hash then source_value[name.to_s] || source_value[name.to_sym]
         when Symbol then source_value.send(name)
         when Proc then task.instance_exec(name, &source_value)
-        else source_value.call(task, name) if source_value.respond_to?(:call)
+        else
+          if source_value.respond_to?(:call)
+            source_value.call(task, name)
+          elsif source_value.respond_to?(name, true)
+            source_value.send(name)
+          end
         end
 
       derived_value.nil? ? default_value : derived_value
