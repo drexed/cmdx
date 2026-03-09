@@ -102,7 +102,7 @@ module CMDx
       match =
         if options.is_a?(Hash)
           case options
-          in allow_nil: then allow_nil && value.nil?
+          in allow_nil: then !(allow_nil && value.nil?)
           else Utils::Condition.evaluate(task, options, value)
           end
         else

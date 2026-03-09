@@ -275,56 +275,83 @@ RSpec.describe CMDx::ValidatorRegistry, type: :unit do
           end
         end
 
-        context "with allow_nil option and nil value" do
-          let(:value) { nil }
-          let(:options) { { allow_nil: true } }
+        context "with allow_nil: true" do
+          context "when value is nil" do
+            let(:value) { nil }
+            let(:options) { { allow_nil: true } }
 
-          it "calls the validator" do
-            expect(CMDx::Utils::Condition).not_to receive(:evaluate)
-            expect(CMDx::Utils::Call).to receive(:invoke).with(
-              mock_task, mock_validator, value, options
-            )
+            it "skips the validator" do
+              expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+              expect(CMDx::Utils::Call).not_to receive(:invoke)
 
-            registry.validate(:custom, mock_task, value, options)
+              registry.validate(:custom, mock_task, value, options)
+            end
+
+            it "returns nil" do
+              result = registry.validate(:custom, mock_task, value, options)
+
+              expect(result).to be_nil
+            end
           end
 
-          it "returns the result from Utils::Call.invoke" do
-            result = registry.validate(:custom, mock_task, value, options)
+          context "when value is not nil" do
+            let(:options) { { allow_nil: true } }
 
-            expect(result).to eq("validation_result")
+            it "calls the validator" do
+              expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+              expect(CMDx::Utils::Call).to receive(:invoke).with(
+                mock_task, mock_validator, value, options
+              )
+
+              registry.validate(:custom, mock_task, value, options)
+            end
+
+            it "returns the result from Utils::Call.invoke" do
+              result = registry.validate(:custom, mock_task, value, options)
+
+              expect(result).to eq("validation_result")
+            end
           end
         end
 
-        context "with allow_nil option and non-nil value" do
-          let(:options) { { allow_nil: true } }
+        context "with allow_nil: false" do
+          context "when value is nil" do
+            let(:value) { nil }
+            let(:options) { { allow_nil: false } }
 
-          it "does not call the validator" do
-            expect(CMDx::Utils::Call).not_to receive(:invoke)
+            it "calls the validator" do
+              expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+              expect(CMDx::Utils::Call).to receive(:invoke).with(
+                mock_task, mock_validator, value, options
+              )
 
-            registry.validate(:custom, mock_task, value, options)
+              registry.validate(:custom, mock_task, value, options)
+            end
+
+            it "returns the result from Utils::Call.invoke" do
+              result = registry.validate(:custom, mock_task, value, options)
+
+              expect(result).to eq("validation_result")
+            end
           end
 
-          it "returns nil" do
-            result = registry.validate(:custom, mock_task, value, options)
+          context "when value is not nil" do
+            let(:options) { { allow_nil: false } }
 
-            expect(result).to be_nil
-          end
-        end
+            it "calls the validator" do
+              expect(CMDx::Utils::Condition).not_to receive(:evaluate)
+              expect(CMDx::Utils::Call).to receive(:invoke).with(
+                mock_task, mock_validator, value, options
+              )
 
-        context "with allow_nil false and nil value" do
-          let(:value) { nil }
-          let(:options) { { allow_nil: false } }
+              registry.validate(:custom, mock_task, value, options)
+            end
 
-          it "does not call the validator" do
-            expect(CMDx::Utils::Call).not_to receive(:invoke)
+            it "returns the result from Utils::Call.invoke" do
+              result = registry.validate(:custom, mock_task, value, options)
 
-            registry.validate(:custom, mock_task, value, options)
-          end
-
-          it "returns nil" do
-            result = registry.validate(:custom, mock_task, value, options)
-
-            expect(result).to be_nil
+              expect(result).to eq("validation_result")
+            end
           end
         end
       end

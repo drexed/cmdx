@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Freeze chain results
 - Fix missing fault cause no method error issue
 - Add context respond_to? with setter methods
+- Fix validator `allow_nil` inverted logic
 
 ## [1.18.0] - 2025-03-09
 
