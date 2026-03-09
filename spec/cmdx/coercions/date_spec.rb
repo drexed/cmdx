@@ -14,18 +14,21 @@ RSpec.describe CMDx::Coercions::Date, type: :unit do
         expect(result).to eq(date)
       end
 
-      it "returns DateTime unchanged" do
+      it "converts DateTime to Date" do
         datetime = DateTime.new(2023, 12, 25, 14, 30, 0)
         result = coercion.call(datetime)
 
-        expect(result).to eq(datetime)
+        expect(result).to be_a(Date)
+        expect(result).not_to be_a(DateTime)
+        expect(result).to eq(Date.new(2023, 12, 25))
       end
 
-      it "returns Time unchanged" do
+      it "converts Time to Date" do
         time = Time.new(2023, 12, 25, 14, 30, 0)
         result = coercion.call(time)
 
-        expect(result).to eq(time)
+        expect(result).to be_a(Date)
+        expect(result).to eq(Date.new(2023, 12, 25))
       end
     end
 

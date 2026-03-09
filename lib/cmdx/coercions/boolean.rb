@@ -34,14 +34,18 @@ module CMDx
       #   Boolean.call("false")  # => false
       #   Boolean.call("no")     # => false
       #   Boolean.call("0")      # => false
+      #   Boolean.call(nil)      # => false
+      #   Boolean.call("")       # => false
       # @example Handle case-insensitive input
       #   Boolean.call("TRUE")   # => true
       #   Boolean.call("False")  # => false
+      # @example Handle edge cases
+      #   Boolean.call("abc")    # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
       def call(value, options = {})
         case value.to_s
-        when FALSEY then false
+        when FALSEY, "" then false
         when TRUTHY then true
         else
           type = Locale.t("cmdx.types.boolean")

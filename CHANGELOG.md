@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Fix missing fault cause no method error issue
 - Add context respond_to? with setter methods
 - Fix validator `allow_nil` inverted logic
+- Array coercion JSON parse error no returns CoercionError
+- Boolean coercions now return `false` for `nil` and `""`
+- Coerce anaglous date, datetime, and time class checks to rely on `to_date`, `to_time`, `to_datetime` methods
 
 ## [1.18.0] - 2025-03-09
 

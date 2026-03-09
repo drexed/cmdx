@@ -11,11 +11,6 @@ module CMDx
 
       extend self
 
-      # Types that are already date-time-like and don't need conversion
-      #
-      # @rbs ANALOG_TYPES: Array[String]
-      ANALOG_TYPES = %w[Date DateTime Time].freeze
-
       # Converts a value to a DateTime
       #
       # @param value [Object] The value to convert to DateTime
@@ -38,7 +33,7 @@ module CMDx
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> DateTime
       def call(value, options = {})
-        return value if ANALOG_TYPES.include?(value.class.name)
+        return value.to_datetime if value.respond_to?(:to_datetime)
         return ::DateTime.strptime(value, options[:strptime]) if options[:strptime]
 
         ::DateTime.parse(value)

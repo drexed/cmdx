@@ -164,21 +164,23 @@ RSpec.describe CMDx::Coercions::Boolean, type: :unit do
 
         expect(result).to be(false)
       end
+
+      it "coerces nil to false" do
+        result = coercion.call(nil)
+
+        expect(result).to be(false)
+      end
+
+      it "coerces empty string to false" do
+        result = coercion.call("")
+
+        expect(result).to be(false)
+      end
     end
 
     context "when value is invalid" do
       it "raises CoercionError for invalid string" do
         expect { coercion.call("invalid") }
-          .to raise_error(CMDx::CoercionError, "could not coerce into a boolean")
-      end
-
-      it "raises CoercionError for empty string" do
-        expect { coercion.call("") }
-          .to raise_error(CMDx::CoercionError, "could not coerce into a boolean")
-      end
-
-      it "raises CoercionError for nil" do
-        expect { coercion.call(nil) }
           .to raise_error(CMDx::CoercionError, "could not coerce into a boolean")
       end
 

@@ -18,7 +18,7 @@ module CMDx
       #
       # @return [Array] The converted array value
       #
-      # @raise [JSON::ParserError] If the string value contains invalid JSON
+      # @raise [CoercionError] If the value cannot be converted to an array
       #
       # @example Convert a JSON-like string to an array
       #   Array.call("[1, 2, 3]") # => [1, 2, 3]
@@ -26,6 +26,8 @@ module CMDx
       #   Array.call("hello")     # => ["hello"]
       #   Array.call(42)          # => [42]
       #   Array.call(nil)         # => []
+      # @example Handle invalid JSON-like strings
+      #   Array.call("[not json") # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
       def call(value, options = {})
@@ -37,6 +39,9 @@ module CMDx
         else
           Array(value)
         end
+      rescue JSON::ParserError
+        type = Locale.t("cmdx.types.array")
+        raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
       end
 
     end

@@ -50,19 +50,19 @@ RSpec.describe CMDx::Coercions::Array, type: :unit do
       end
 
       context "with invalid JSON" do
-        it "raises JSON::ParserError for malformed JSON" do
+        it "raises CoercionError for malformed JSON" do
           expect { coercion.call("[invalid json") }
-            .to raise_error(JSON::ParserError)
+            .to raise_error(CMDx::CoercionError)
         end
 
-        it "raises JSON::ParserError for incomplete array" do
+        it "raises CoercionError for incomplete array" do
           expect { coercion.call("[1, 2,") }
-            .to raise_error(JSON::ParserError)
+            .to raise_error(CMDx::CoercionError)
         end
 
-        it "raises JSON::ParserError for unquoted strings" do
+        it "raises CoercionError for unquoted strings" do
           expect { coercion.call("[unquoted, string]") }
-            .to raise_error(JSON::ParserError)
+            .to raise_error(CMDx::CoercionError)
         end
       end
     end

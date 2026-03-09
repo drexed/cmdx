@@ -169,7 +169,7 @@ module CMDx
           jitter.to_f * current_retry
         end
 
-      sleep(jitter) if jitter.positive?
+      sleep(jitter) if Float(jitter).positive?
 
       true
     end

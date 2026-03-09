@@ -7,11 +7,14 @@ RSpec.describe CMDx::Coercions::DateTime, type: :unit do
 
   describe ".call" do
     context "when value is already an analog type" do
-      it "returns Date unchanged" do
+      it "converts Date to DateTime" do
         date = Date.new(2023, 12, 25)
         result = coercion.call(date)
 
-        expect(result).to eq(date)
+        expect(result).to be_a(DateTime)
+        expect(result.year).to eq(2023)
+        expect(result.month).to eq(12)
+        expect(result.day).to eq(25)
       end
 
       it "returns DateTime unchanged" do
@@ -21,11 +24,14 @@ RSpec.describe CMDx::Coercions::DateTime, type: :unit do
         expect(result).to eq(datetime)
       end
 
-      it "returns Time unchanged" do
+      it "converts Time to DateTime" do
         time = Time.new(2023, 12, 25, 14, 30, 0)
         result = coercion.call(time)
 
-        expect(result).to eq(time)
+        expect(result).to be_a(DateTime)
+        expect(result.year).to eq(2023)
+        expect(result.month).to eq(12)
+        expect(result.day).to eq(25)
       end
     end
 

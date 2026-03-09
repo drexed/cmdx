@@ -11,11 +11,6 @@ module CMDx
 
       extend self
 
-      # Types that are already time-like and don't need conversion
-      #
-      # @rbs ANALOG_TYPES: Array[String]
-      ANALOG_TYPES = %w[DateTime Time].freeze
-
       # Converts a value to a Time object
       #
       # @param value [Object] The value to convert to a Time object
@@ -40,7 +35,6 @@ module CMDx
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Time
       def call(value, options = {})
-        return value if ANALOG_TYPES.include?(value.class.name)
         return value.to_time if value.respond_to?(:to_time)
         return ::Time.strptime(value, options[:strptime]) if options[:strptime]
 
