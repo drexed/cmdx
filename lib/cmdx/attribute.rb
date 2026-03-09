@@ -208,7 +208,8 @@ module CMDx
       !!@required
     end
 
-    # Determines the source of the attribute value.
+    # Determines the source of the attribute value. Returns :context
+    # as a safe fallback when task is not yet set (e.g., schema introspection).
     #
     # @return [Symbol] The source identifier for the attribute value
     #
@@ -217,13 +218,15 @@ module CMDx
     #
     # @rbs () -> untyped
     def source
-      @source ||= parent&.method_name || begin
+      return @source if defined?(@source)
+
+      @source = parent&.method_name || begin
         value = options[:source]
 
         if value.is_a?(Proc)
-          task.instance_eval(&value)
+          task ? task.instance_eval(&value) : :context
         elsif value.respond_to?(:call)
-          value.call(task)
+          task ? value.call(task) : :context
         else
           value || :context
         end
@@ -239,7 +242,9 @@ module CMDx
     #
     # @rbs () -> Symbol
     def method_name
-      @method_name ||= options[:as] || begin
+      return @method_name if defined?(@method_name)
+
+      @method_name = options[:as] || begin
         prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
         suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
 

@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Changed
+- Add attribute `source` fallback to `:context` when no task is given
+- Improve falsy attribute derived Hash value lookup
+- Freeze chain results
+- Fix missing fault cause no method error issue
+- Add context respond_to? with setter methods
+
 ## [1.18.0] - 2025-03-09
 
 ### Changed

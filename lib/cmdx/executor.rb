@@ -291,8 +291,8 @@ module CMDx
     def log_backtrace!
       return unless result.failed?
 
-      exception = result.caused_failure.cause
-      return if exception.is_a?(Fault)
+      exception = result.caused_failure&.cause
+      return if exception.nil? || exception.is_a?(Fault)
 
       task.logger.error do
         "[#{exception.class}] #{exception.message}\n" <<

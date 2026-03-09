@@ -30,10 +30,9 @@ module CMDx
       #   Integer.call(3.14)      # => 3
       #   Integer.call(0.0)       # => 0
       # @example Handle edge cases
-      #   Integer.call("")        # => 0
-      #   Integer.call(nil)       # => 0
-      #   Integer.call(false)     # => 0
-      #   Integer.call(true)      # => 1
+      #   Integer.call("")        # => raises CoercionError
+      #   Integer.call(nil)       # => raises CoercionError
+      #   Integer.call("abc")     # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Integer
       def call(value, options = {})

@@ -166,7 +166,12 @@ module CMDx
       derived_value =
         case source_value
         when Context then source_value[name]
-        when Hash then source_value[name.to_s] || source_value[name.to_sym]
+        when Hash
+          if source_value.key?(name.to_s)
+            source_value[name.to_s]
+          elsif source_value.key?(name.to_sym)
+            source_value[name.to_sym]
+          end
         when Symbol then source_value.send(name)
         when Proc then task.instance_exec(name, &source_value)
         else

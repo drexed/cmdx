@@ -136,6 +136,20 @@ module CMDx
       !!@dry_run
     end
 
+    # Freezes the chain and its internal results to prevent modifications.
+    #
+    # @return [Chain] the frozen chain
+    #
+    # @example
+    #   chain.freeze
+    #   chain.results << result # => raises FrozenError
+    #
+    # @rbs () -> self
+    def freeze
+      results.freeze
+      super
+    end
+
     # Converts the chain to a hash representation.
     #
     # @option return [String] :id The chain identifier
