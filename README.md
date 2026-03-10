@@ -14,7 +14,7 @@
   [Request Feature](https://github.com/drexed/cmdx/issues) ·
   [llms.txt](https://drexed.github.io/cmdx/llms.txt) ·
   [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt) ·
-  [SKILL.md](https://github.com/drexed/cmdx/blob/main/docs/SKILL.md)
+  [AI Skills](https://github.com/drexed/cmdx/blob/main/skills)
 
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
