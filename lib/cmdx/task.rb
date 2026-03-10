@@ -102,40 +102,25 @@ module CMDx
 
     class << self
 
-      # @param options [Hash] Configuration options to merge with existing settings
-      # @option options [Object] :* Any configuration option key-value pairs
+      # Returns (and lazily creates) the task-level Settings object.
+      # On first access, inherits from the superclass settings or
+      # the global Configuration. Optional overrides are applied once.
       #
-      # @return [Hash] The merged settings hash
+      # @param overrides [Hash] Configuration overrides applied on first access
+      # @option overrides [Object] :* Any configuration override key-value pairs
+      #
+      # @return [Settings] The settings instance for this task class
       #
       # @example
       #   class MyTask < Task
       #     settings deprecate: true, tags: [:experimental]
       #   end
       #
-      # @rbs (**untyped options) -> Hash[Symbol, untyped]
-      def settings(**options)
+      # @rbs (**untyped overrides) -> Settings
+      def settings(**overrides)
         @settings ||= begin
-          hash =
-            if superclass.respond_to?(:settings)
-              parent = superclass.settings
-              parent
-                .except(:backtrace_cleaner, :exception_handler, :logger, :deprecate)
-                .transform_values!(&:dup)
-                .merge!(
-                  backtrace_cleaner: parent[:backtrace_cleaner] || CMDx.configuration.backtrace_cleaner,
-                  exception_handler: parent[:exception_handler] || CMDx.configuration.exception_handler,
-                  logger: parent[:logger] || CMDx.configuration.logger,
-                  deprecate: parent[:deprecate]
-                )
-            else
-              CMDx.configuration.to_h
-            end
-
-          hash[:attributes] ||= AttributeRegistry.new
-          hash[:returns] ||= []
-          hash[:tags] ||= []
-
-          hash.merge!(options)
+          parent = superclass.settings if superclass.respond_to?(:settings)
+          Settings.new(parent:, **overrides)
         end
       end
 
@@ -151,11 +136,11 @@ module CMDx
       # @rbs (Symbol type, untyped object, *untyped) -> void
       def register(type, object, ...)
         case type
-        when :attribute then settings[:attributes].register(object, ...)
-        when :callback then settings[:callbacks].register(object, ...)
-        when :coercion then settings[:coercions].register(object, ...)
-        when :middleware then settings[:middlewares].register(object, ...)
-        when :validator then settings[:validators].register(object, ...)
+        when :attribute then settings.attributes.register(object, ...)
+        when :callback then settings.callbacks.register(object, ...)
+        when :coercion then settings.coercions.register(object, ...)
+        when :middleware then settings.middlewares.register(object, ...)
+        when :validator then settings.validators.register(object, ...)
         else raise "unknown registry type #{type.inspect}"
         end
       end
@@ -172,11 +157,11 @@ module CMDx
       # @rbs (Symbol type, untyped object, *untyped) -> void
       def deregister(type, object, ...)
         case type
-        when :attribute then settings[:attributes].deregister(object, ...)
-        when :callback then settings[:callbacks].deregister(object, ...)
-        when :coercion then settings[:coercions].deregister(object, ...)
-        when :middleware then settings[:middlewares].deregister(object, ...)
-        when :validator then settings[:validators].deregister(object, ...)
+        when :attribute then settings.attributes.deregister(object, ...)
+        when :callback then settings.callbacks.deregister(object, ...)
+        when :coercion then settings.coercions.deregister(object, ...)
+        when :middleware then settings.middlewares.deregister(object, ...)
+        when :validator then settings.validators.deregister(object, ...)
         else raise "unknown registry type #{type.inspect}"
         end
       end
@@ -231,7 +216,7 @@ module CMDx
       #
       # @rbs (*untyped names) -> void
       def returns(*names)
-        settings[:returns] |= names.map(&:to_sym)
+        settings.returns |= names.map(&:to_sym)
       end
 
       # Removes declared returns from the task.
@@ -243,7 +228,7 @@ module CMDx
       #
       # @rbs (*Symbol names) -> void
       def remove_returns(*names)
-        settings[:returns] -= names.map(&:to_sym)
+        settings.returns -= names.map(&:to_sym)
       end
       alias remove_return remove_returns
 
@@ -261,7 +246,7 @@ module CMDx
       #
       # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
       def attributes_schema
-        Array(settings[:attributes]).to_h do |attr|
+        Array(settings.attributes).to_h do |attr|
           [attr.method_name, attr.to_h]
         end
       end
@@ -366,14 +351,13 @@ module CMDx
     # @rbs () -> Logger
     def logger
       @logger ||= begin
-        log_instance = self.class.settings[:logger] || CMDx.configuration.logger
-        log_level = self.class.settings[:log_level]
-        log_formatter = self.class.settings[:log_formatter]
+        settings = self.class.settings
+        log_instance = settings.logger || CMDx.configuration.logger
 
-        if log_level || log_formatter
+        if settings.log_level || settings.log_formatter
           log_instance = log_instance.dup
-          log_instance.level = log_level if log_level
-          log_instance.formatter = log_formatter if log_formatter
+          log_instance.level = settings.log_level if settings.log_level
+          log_instance.formatter = settings.log_formatter if settings.log_formatter
         end
 
         log_instance
@@ -400,7 +384,7 @@ module CMDx
         index: result.index,
         chain_id: chain.id,
         type: self.class.include?(Workflow) ? "Workflow" : "Task",
-        tags: self.class.settings[:tags],
+        tags: self.class.settings.tags,
         class: self.class.name,
         dry_run: dry_run?,
         id:

@@ -99,11 +99,9 @@ RSpec.describe CMDx::Task, type: :unit do
       it "returns default settings with required keys" do
         settings = task_class.settings
 
-        expect(settings).to be_a(Hash)
-        expect(settings).to have_key(:attributes)
-        expect(settings[:attributes]).to be_a(CMDx::AttributeRegistry)
-        expect(settings).to have_key(:tags)
-        expect(settings[:tags]).to eq([])
+        expect(settings).to be_a(CMDx::Settings)
+        expect(settings.attributes).to be_a(CMDx::AttributeRegistry)
+        expect(settings.tags).to eq([])
       end
     end
 
@@ -112,28 +110,28 @@ RSpec.describe CMDx::Task, type: :unit do
       let(:child_class) { Class.new(parent_class) }
 
       before do
-        parent_class.settings(custom_setting: "parent_value")
+        parent_class.settings(deprecate: true)
       end
 
       it "inherits from superclass settings" do
         child_settings = child_class.settings
 
-        expect(child_settings[:custom_setting]).to eq("parent_value")
+        expect(child_settings.deprecate).to be(true)
       end
 
       it "can override inherited settings" do
-        child_settings = child_class.settings(custom_setting: "child_value")
+        child_settings = child_class.settings(deprecate: false)
 
-        expect(child_settings[:custom_setting]).to eq("child_value")
+        expect(child_settings.deprecate).to be(false)
       end
     end
 
     context "with custom options" do
       it "merges custom options with defaults" do
-        settings = task_class.settings(custom_key: "custom_value", tags: ["tag1"])
+        settings = task_class.settings(deprecate: :warn, tags: ["tag1"])
 
-        expect(settings[:custom_key]).to eq("custom_value")
-        expect(settings[:tags]).to eq(["tag1"])
+        expect(settings.deprecate).to eq(:warn)
+        expect(settings.tags).to eq(["tag1"])
       end
     end
 
@@ -149,11 +147,13 @@ RSpec.describe CMDx::Task, type: :unit do
     let(:mock_registry) { instance_double("MockRegistry") }
 
     before do
-      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
-      allow(task_class.settings).to receive(:[]).with(:callbacks).and_return(mock_registry)
-      allow(task_class.settings).to receive(:[]).with(:coercions).and_return(mock_registry)
-      allow(task_class.settings).to receive(:[]).with(:middlewares).and_return(mock_registry)
-      allow(task_class.settings).to receive(:[]).with(:validators).and_return(mock_registry)
+      allow(task_class.settings).to receive_messages(
+        attributes: mock_registry,
+        callbacks: mock_registry,
+        coercions: mock_registry,
+        middlewares: mock_registry,
+        validators: mock_registry
+      )
     end
 
     context "with :attribute type" do
@@ -236,7 +236,7 @@ RSpec.describe CMDx::Task, type: :unit do
   describe ".remove_attributes" do
     it "removes multiple attributes from the registry" do
       mock_registry = instance_double(CMDx::AttributeRegistry)
-      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
+      allow(task_class.settings).to receive(:attributes).and_return(mock_registry)
 
       expect(mock_registry).to receive(:deregister).with(%w[attr1 attr2 attr3])
 
@@ -245,7 +245,7 @@ RSpec.describe CMDx::Task, type: :unit do
 
     it "handles single attribute removal" do
       mock_registry = instance_double(CMDx::AttributeRegistry)
-      allow(task_class.settings).to receive(:[]).with(:attributes).and_return(mock_registry)
+      allow(task_class.settings).to receive(:attributes).and_return(mock_registry)
 
       expect(mock_registry).to receive(:deregister).with(["single_attr"])
 
@@ -418,7 +418,7 @@ RSpec.describe CMDx::Task, type: :unit do
       let(:class_logger) { Logger.new(IO::NULL) }
 
       before do
-        allow(task.class).to receive(:settings).and_return({ logger: class_logger })
+        allow(task.class).to receive(:settings).and_return(mock_settings(logger: class_logger))
       end
 
       it "returns the class logger" do
@@ -430,7 +430,7 @@ RSpec.describe CMDx::Task, type: :unit do
       let(:config_logger) { Logger.new(IO::NULL) }
 
       before do
-        allow(task.class).to receive(:settings).and_return({})
+        allow(task.class).to receive(:settings).and_return(mock_settings)
         allow(CMDx.configuration).to receive(:logger).and_return(config_logger)
       end
 
@@ -443,7 +443,7 @@ RSpec.describe CMDx::Task, type: :unit do
       let(:shared_logger) { Logger.new(IO::NULL).tap { |l| l.level = Logger::INFO } }
 
       before do
-        allow(task.class).to receive(:settings).and_return({ logger: shared_logger, log_level: Logger::DEBUG })
+        allow(task.class).to receive(:settings).and_return(mock_settings(logger: shared_logger, log_level: Logger::DEBUG))
       end
 
       it "does not mutate the shared logger" do
@@ -463,7 +463,7 @@ RSpec.describe CMDx::Task, type: :unit do
       let(:custom_formatter) { proc { |_s, _d, _p, msg| "#{msg}\n" } }
 
       before do
-        allow(task.class).to receive(:settings).and_return({ logger: shared_logger, log_formatter: custom_formatter })
+        allow(task.class).to receive(:settings).and_return(mock_settings(logger: shared_logger, log_formatter: custom_formatter))
       end
 
       it "does not mutate the shared logger" do
@@ -485,7 +485,7 @@ RSpec.describe CMDx::Task, type: :unit do
     before do
       allow(task.result).to receive(:index).and_return(5)
       allow(task.chain).to receive(:id).and_return("chain-123")
-      allow(task.class).to receive(:settings).and_return({ tags: %w[tag1 tag2] })
+      allow(task.class).to receive(:settings).and_return(mock_settings(tags: %w[tag1 tag2]))
     end
 
     context "when task is regular task" do
@@ -507,7 +507,7 @@ RSpec.describe CMDx::Task, type: :unit do
       before do
         allow(workflow_task.result).to receive(:index).and_return(3)
         allow(workflow_task.chain).to receive(:id).and_return("workflow-chain-456")
-        allow(workflow_task.class).to receive(:settings).and_return({ tags: ["workflow"] })
+        allow(workflow_task.class).to receive(:settings).and_return(mock_settings(tags: ["workflow"]))
       end
 
       it "returns hash with type 'Workflow'" do

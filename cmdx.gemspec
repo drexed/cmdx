@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
           docs/
           examples/
           test/
+          skills/
           spec/
           src/
           .git

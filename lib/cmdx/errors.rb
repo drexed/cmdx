@@ -18,7 +18,7 @@ module CMDx
     # @rbs @messages: Hash[Symbol, Set[String]]
     attr_reader :messages
 
-    def_delegators :messages, :empty?
+    def_delegators :messages, :any?, :clear, :empty?, :size
 
     # Initialize a new error collection.
     #

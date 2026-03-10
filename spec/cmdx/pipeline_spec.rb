@@ -31,7 +31,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     before do
       allow(execution_group).to receive_messages(options: group_options, tasks: [])
       allow(CMDx::Utils::Condition).to receive(:evaluate).and_return(true)
-      allow(workflow_class).to receive_messages(pipeline: [execution_group], settings: {})
+      allow(workflow_class).to receive_messages(pipeline: [execution_group], settings: mock_settings(workflow_breakpoints: []))
     end
 
     it "iterates through workflow pipeline groups" do
@@ -56,7 +56,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       context "with breakpoints in workflow settings" do
         before do
-          allow(workflow_class).to receive(:settings).and_return({ breakpoints: ["workflow_step"] })
+          allow(workflow_class).to receive(:settings).and_return(mock_settings(breakpoints: ["workflow_step"]))
         end
 
         it "uses workflow breakpoints" do
@@ -67,7 +67,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       context "with breakpoints in workflow_breakpoints setting" do
         before do
-          allow(workflow_class).to receive(:settings).and_return({ workflow_breakpoints: ["wf_step"] })
+          allow(workflow_class).to receive(:settings).and_return(mock_settings(workflow_breakpoints: ["wf_step"]))
         end
 
         it "uses workflow_breakpoints" do
@@ -80,10 +80,9 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         let(:group_options) { { breakpoints: ["group_step"] } }
 
         before do
-          allow(workflow_class).to receive(:settings).and_return({
-            breakpoints: ["workflow_step"],
-            workflow_breakpoints: ["wf_step"]
-          })
+          allow(workflow_class).to receive(:settings).and_return(
+            mock_settings(breakpoints: ["workflow_step"], workflow_breakpoints: ["wf_step"])
+          )
         end
 
         it "prioritizes group breakpoints" do

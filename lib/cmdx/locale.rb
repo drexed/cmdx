@@ -8,9 +8,14 @@ module CMDx
 
     extend self
 
-    # @rbs EN: Hash[String, untyped]
-    EN = YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml")).freeze
-    private_constant :EN
+    # Returns the lazily-loaded English translations hash.
+    #
+    # @return [Hash{String => Object}] The parsed English translations
+    #
+    # @rbs () -> Hash[String, untyped]
+    def translations
+      @translations ||= YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml"))
+    end
 
     # Translates a key to the current locale with optional interpolation.
     # Falls back to English translations if I18n gem is unavailable.
@@ -38,7 +43,7 @@ module CMDx
     #
     # @rbs ((String | Symbol) key, **untyped options) -> String
     def translate(key, **options)
-      options[:default] ||= EN.dig("en", *key.to_s.split("."))
+      options[:default] ||= translations.dig("en", *key.to_s.split("."))
       return ::I18n.t(key, **options) if defined?(::I18n)
 
       case message = options.delete(:default)

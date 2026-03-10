@@ -20,12 +20,10 @@ module CMDx
     #   # => "01890b2c-1234-5678-9abc-def123456789"
     #
     # @rbs () -> String
-    def generate
-      if SecureRandom.respond_to?(:uuid_v7)
-        SecureRandom.uuid_v7
-      else
-        SecureRandom.uuid
-      end
+    if SecureRandom.respond_to?(:uuid_v7)
+      def generate = SecureRandom.uuid_v7
+    else
+      def generate = SecureRandom.uuid
     end
 
   end

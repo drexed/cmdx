@@ -84,6 +84,40 @@ class ProcessCampaign < CMDx::Task
 end
 ```
 
+## Ordering
+
+Control middleware insertion position with the `at:` parameter. First registered is outermost (default: append to end).
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  register :middleware, AuditMiddleware           # Position 0 (outermost)
+  register :middleware, CacheMiddleware            # Position 1
+  register :middleware, PriorityMiddleware, at: 0  # Inserted at position 0, pushes others down
+end
+
+# Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...
+```
+
+## Safety
+
+CMDx detects middlewares that fail to yield or return the result. If a middleware swallows the block call, the task is automatically marked as failed with a descriptive error.
+
+```ruby
+class BrokenMiddleware
+  def call(task, options)
+    # Forgot to call `yield` — CMDx catches this
+  end
+end
+
+result = MyTask.execute
+result.failed? #=> true
+result.reason  #=> "[RuntimeError] ..."
+```
+
+!!! danger "Caution"
+
+    Always call `yield` inside your middleware and return the result. Swallowed execution is treated as a failure.
+
 ## Removals
 
 Remove class or module-based middleware globally or per-task:
@@ -131,7 +165,7 @@ end
 result = ProcessReport.execute
 
 result.state    #=> "interrupted"
-result.status   #=> "failure"
+result.status   #=> "failed"
 result.reason   #=> "[CMDx::TimeoutError] execution exceeded 3 seconds"
 result.cause    #=> <CMDx::TimeoutError>
 result.metadata #=> { limit: 3 }
@@ -165,6 +199,26 @@ end
 
 result = ProcessExport.execute
 result.metadata #=> { correlation_id: "550e8400-e29b-41d4-a716-446655440000" }
+```
+
+#### Class-Level API
+
+Manage correlation IDs directly for cross-boundary tracing (e.g., from a controller into multiple tasks):
+
+```ruby
+# Read or set the current correlation ID
+CMDx::Middlewares::Correlate.id              #=> current ID or nil
+CMDx::Middlewares::Correlate.id = "custom-id"
+
+# Scoped block — restores the previous ID after the block
+CMDx::Middlewares::Correlate.use("request-123") do
+  ProcessExport.execute  # uses "request-123"
+  SendNotification.execute # same correlation ID
+end
+# previous ID is restored here
+
+# Clear the current ID
+CMDx::Middlewares::Correlate.clear
 ```
 
 ### Runtime

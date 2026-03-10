@@ -2,6 +2,28 @@
 
 Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.
 
+## Building Context
+
+`Context.build` intelligently handles different input types:
+
+```ruby
+# From a hash
+Context.build(email: "user@example.com")
+
+# From an existing Context (reuses if not frozen)
+Context.build(existing_context)
+
+# From a Result or Task (extracts its context)
+Context.build(some_result)  # equivalent to some_result.context
+
+# From nil (creates empty context)
+Context.build(nil)
+```
+
+!!! warning "Important"
+
+    `Context.build` raises `ArgumentError` if the argument doesn't respond to `to_h` or `to_hash`.
+
 ## Assigning Data
 
 Context automatically captures all task inputs, normalizing keys to symbols:
@@ -34,8 +56,18 @@ class CalculateShipping < CMDx::Task
     options = context["options"]
 
     # Safe access with defaults
-    rush_delivery = context.fetch!(:rush_delivery, false)
+    rush_delivery = context.fetch(:rush_delivery, false)
     carrier = context.dig(:options, :carrier)
+
+    # Fetch or set a default (returns existing value, or stores and returns the default)
+    context.fetch_or_store(:attempt_count, 0)
+
+    # Check key existence
+    context.key?(:weight)  #=> true
+
+    # Iteration
+    context.each { |key, value| logger.debug("#{key}: #{value}") }
+    keys = context.map { |key, _| key }
 
     # Shorter alias
     cost = ctx.weight * ctx.rate_per_pound  # ctx aliases context
@@ -122,3 +154,7 @@ result = CalculateShipping.execute(destination: "New York, NY")
 
 CreateShippingLabel.execute(result)
 ```
+
+!!! warning "Important"
+
+    When passing `context`, a `Result`, or a `Task` to another task, the context is **shared by reference**—not copied. Mutations in one task are visible in the other. This enables natural data flow in pipelines but can cause surprises if you expect isolation. Use `context.to_h` to pass a snapshot instead.

@@ -6,11 +6,11 @@ RSpec.describe CMDx::Deprecator, type: :unit do
   let(:mock_task) { instance_double("MockTask") }
   let(:mock_task_class) { class_double(CMDx::Task, name: "TestTask") }
   let(:mock_logger) { instance_double(Logger) }
-  let(:mock_settings) { { deprecate: deprecate_value } }
+  let(:task_settings) { mock_settings(deprecate: deprecate_value) }
   let(:deprecate_value) { false }
 
   before do
-    allow(mock_task_class).to receive(:settings).and_return(mock_settings)
+    allow(mock_task_class).to receive(:settings).and_return(task_settings)
     allow(mock_task).to receive_messages(class: mock_task_class, logger: mock_logger)
     allow(mock_logger).to receive(:warn)
   end
@@ -54,9 +54,9 @@ RSpec.describe CMDx::Deprecator, type: :unit do
       context "when deprecate setting is 'custom_raise'" do
         let(:deprecate_value) { "custom_raise" }
 
-        it "raises DeprecationError" do
+        it "raises error for unevaluable deprecation value" do
           expect { described_class.restrict(mock_task) }.to raise_error(
-            CMDx::DeprecationError, "TestTask usage prohibited"
+            RuntimeError, 'cannot evaluate "custom_raise"'
           )
         end
       end
@@ -74,10 +74,10 @@ RSpec.describe CMDx::Deprecator, type: :unit do
       context "when deprecate setting is 'custom_log'" do
         let(:deprecate_value) { "custom_log" }
 
-        it "logs a warning message" do
-          expect(mock_logger).to receive(:warn)
-
-          described_class.restrict(mock_task)
+        it "raises error for unevaluable deprecation value" do
+          expect { described_class.restrict(mock_task) }.to raise_error(
+            RuntimeError, 'cannot evaluate "custom_log"'
+          )
         end
       end
     end
@@ -97,13 +97,10 @@ RSpec.describe CMDx::Deprecator, type: :unit do
       context "when deprecate setting is 'custom_warn'" do
         let(:deprecate_value) { "custom_warn" }
 
-        it "calls warn with deprecation message" do
-          expect(described_class).to receive(:warn).with(
-            "[TestTask] DEPRECATED: migrate to a replacement or discontinue use",
-            category: :deprecated
+        it "raises error for unevaluable deprecation value" do
+          expect { described_class.restrict(mock_task) }.to raise_error(
+            RuntimeError, 'cannot evaluate "custom_warn"'
           )
-
-          described_class.restrict(mock_task)
         end
       end
     end

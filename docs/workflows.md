@@ -2,15 +2,46 @@
 
 Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.
 
+Since workflows are Task subclasses, they inherit all Task features: [attributes](attributes/definitions.md), [callbacks](callbacks.md), [middlewares](middlewares.md), [settings](configuration.md#task-configuration), and [returns](returns.md). Use these to validate workflow-level inputs, set up shared state, or track workflow outcomes.
+
+```ruby
+class OnboardingWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  register :middleware, CMDx::Middlewares::Correlate
+  before_execution :load_user
+  on_failed :notify_admin!
+
+  required :user_id, type: :integer
+  returns :onboarded_at
+
+  task CreateProfile
+  task SetupPreferences
+  task SendWelcome
+
+  private
+
+  def load_user
+    context.user = User.find(user_id)
+  end
+
+  def notify_admin!
+    AdminMailer.onboarding_failed(context.user).deliver_later
+  end
+end
+```
+
 ## Declarations
 
 Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
 
 !!! warning
 
-    Don't define a `work` method in workflows—the module handles execution automatically.
+    Don't define a `work` method in workflows—the module handles execution automatically. Attempting to do so raises a `RuntimeError`.
 
 ### Task
+
+`task` and `tasks` are aliases—use either interchangeably.
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
@@ -92,7 +123,7 @@ end
 
 ## Halt Behavior
 
-By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally or per-task to customize this behavior.
+By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally via [`workflow_breakpoints`](configuration.md#breakpoints) or per-task to customize this behavior.
 
 ```ruby
 class AnalyticsWorkflow < CMDx::Task
@@ -139,12 +170,58 @@ Different task groups can have different halt behavior:
 class SubscriptionWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task CreateSubscription, ValidatePayment, workflow_breakpoints: ["skipped", "failed"]
+  task CreateSubscription, ValidatePayment, breakpoints: ["skipped", "failed"]
 
   # Never halt, always continue
   task SendConfirmationEmail, UpdateBilling, breakpoints: []
 end
 ```
+
+## Rollback in Workflows
+
+Each task in a workflow handles its own rollback independently. When a task's status matches the `rollback_on` setting (default: `["failed"]`), that task's `rollback` method is called immediately after its execution — not retroactively for previously completed tasks.
+
+```ruby
+class PaymentWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  task ReserveInventory   # Succeeds → no rollback
+  task ChargeCard          # Fails → ChargeCard.rollback called
+  task SendConfirmation    # Never runs (workflow halts on failure)
+end
+
+class ChargeCard < CMDx::Task
+  def work
+    context.charge = PaymentGateway.charge(context.amount)
+    fail!("Declined") if context.charge.declined?
+  end
+
+  def rollback
+    PaymentGateway.void(context.charge.id)
+  end
+end
+```
+
+!!! warning "Important"
+
+    CMDx does **not** automatically rollback previously successful tasks when a later task fails. If you need to undo `ReserveInventory` when `ChargeCard` fails, handle it in `ChargeCard`'s rollback or use a callback on the workflow itself.
+
+    ```ruby
+    class PaymentWorkflow < CMDx::Task
+      include CMDx::Workflow
+
+      on_failed :compensate!
+
+      task ReserveInventory
+      task ChargeCard
+
+      private
+
+      def compensate!
+        ReleaseInventory.execute(context) if context.reservation_id
+      end
+    end
+    ```
 
 ## Nested Workflows
 

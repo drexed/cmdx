@@ -6,25 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
+- Add `Settings` object to replace hash-based task settings with method-based access
+- Add `freeze_results` configuration option to replace `SKIP_CMDX_FREEZING` env var
+- Add `any?`, `clear`, and `size` delegators to `Errors`
+- Add `Context#respond_to_missing?` support for setter methods
+- Add `Attribute#clear_task_tree!` to prevent class-level attributes from retaining last-executed task instance
+- Add thread-safe `Chain#push` with `Mutex` synchronization
+- Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
+
+### Changed
+- Replace hash-based `settings[:]` access with method-based `settings.` access throughout the codebase
+- Lazy-load English locale translations instead of eager-loading via constant
+- Use compile-time method definition for `Identifier#generate` and `Chain`/`Correlate` `thread_or_fiber`
+- Use `define_method` on task class instead of `define_singleton_method` per instance for attribute readers
+- Tighten `Deprecator` regex patterns to exact word boundaries to prevent partial matches
+- Use `public_send` instead of `send` in `Result` for state/status checks
+
+### Fixed
+- Fix `Attribute#source` and `Attribute#method_name` memoization to avoid caching when no task is present
+- Fix `execute!` fault handling to call `executed!` before `post_execution!` in non-halt path
+- Clear `task.errors` before each retry attempt to prevent error accumulation across retries
+
+### Removed
+- Remove `SKIP_CMDX_FREEZING` env var in favor of `CMDx.configuration.freeze_results`
+
+## [1.19.0] - 2026-03-09
+
 ### Changed
 - Add attribute `source` fallback to `:context` when no task is given
-- Improve falsy attribute derived Hash value lookup
+- Improve falsy attribute derived hash value lookup
 - Freeze chain results
-- Fix missing fault cause no method error issue
-- Add context respond_to? with setter methods
-- Fix validator `allow_nil` inverted logic
-- Array coercion JSON parse error no returns CoercionError
-- Boolean coercions now return `false` for `nil` and `""`
-- Coerce anaglous date, datetime, and time class checks to rely on `to_date`, `to_time`, `to_datetime` methods
+- Coerce analogous date, datetime, and time class checks to rely on `to_date`, `to_time`, `to_datetime` methods
 
-## [1.18.0] - 2025-03-09
+### Fixed
+- Fix missing fault cause `NoMethodError`
+- Fix validator `allow_nil` inverted logic
+- Fix array coercion JSON parse error to now return `CoercionError`
+- Fix boolean coercions to return `false` for `nil` and `""`
+
+## [1.18.0] - 2026-03-09
 
 ### Changed
 - Use `Fiber.storage` instead of `Thread.current` for `Chain` and `Correlate` storage, with fallback to `Thread.current` for Ruby < 3.2, making them thread and fiber safe
 - Clone shared logger in `Task#logger` when `log_level` or `log_formatter` is customized to prevent mutation of the shared instance
 - Derive attribute values from source objects that respond to the attribute name (via `send`) as fallback when the source is not callable
 
-## [1.17.0] - 2025-02-23
+## [1.17.0] - 2026-02-23
 
 ### Added
 - Add `returns` macro for context output validation after task execution
@@ -33,26 +61,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add hash coercion for JSON `"null"` string as empty hash
 - Add attribute sourcing to support both string and symbol keys when sourcing/deriving from Hash
 
-## Changed
-- Do not fail coercion if nil on optional attributes
+### Changed
 - Include the source method in the required attribute error message
 
-## [1.16.0] - 2025-02-06
+### Fixed
+- Fix coercion to not fail on `nil` for optional attributes
+
+## [1.16.0] - 2026-02-06
 
 ### Added
 - Add `CMDx::Exception` alias for `CMDx::Error`
 
 ### Changed
-- Renamed `exceptions.rb` file to `exception.rb` (zeitwerk issue)
-- Renamed `faults.rb` file to `fault.rb` (zeitwerk issue)
+- Rename `exceptions.rb` file to `exception.rb` (zeitwerk compatibility)
+- Rename `faults.rb` file to `fault.rb` (zeitwerk compatibility)
 
-## [1.15.0] - 2025-01-21
+## [1.15.0] - 2026-01-21
 
 ### Added
 - Add attribute `Absence` validator
 - Add attribute `:description` option
 
-## [1.14.0] - 2025-01-09
+## [1.14.0] - 2026-01-09
 
 ### Added
 - Add Ruby 4.0 compatibility

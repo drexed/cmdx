@@ -40,6 +40,7 @@ module CMDx
     #
     # @rbs () -> void
     def initialize(dry_run: false)
+      @mutex = Mutex.new
       @id = Identifier.generate
       @results = []
       @dry_run = !!dry_run
@@ -107,7 +108,7 @@ module CMDx
         raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
 
         self.current ||= new(dry_run:)
-        current.results << result
+        current.push(result)
         current
       end
 
@@ -118,10 +119,23 @@ module CMDx
       # @return [Hash] The thread or fiber storage
       #
       # @rbs () -> Hash
-      def thread_or_fiber
-        Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current
+      if Fiber.respond_to?(:storage)
+        def thread_or_fiber = Fiber.storage
+      else
+        def thread_or_fiber = Thread.current
       end
 
+    end
+
+    # Thread-safe append of a result to the chain.
+    #
+    # @param result [Result] The result to append
+    #
+    # @return [Array<Result>] The updated results array
+    #
+    # @rbs (Result result) -> Array[Result]
+    def push(result)
+      @mutex.synchronize { @results << result }
     end
 
     # Returns whether the chain is running in dry-run mode.

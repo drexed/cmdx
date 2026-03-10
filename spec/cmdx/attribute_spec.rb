@@ -581,8 +581,8 @@ RSpec.describe CMDx::Attribute, type: :unit do
           attribute.send(:define_and_verify)
         end
 
-        it "defines method on task" do
-          expect(task).to receive(:define_singleton_method).with(:test_method)
+        it "defines method on task class" do
+          expect(task.class).to receive(:define_method).with(:test_method)
 
           attribute.send(:define_and_verify)
         end

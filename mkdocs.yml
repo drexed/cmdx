@@ -144,6 +144,8 @@ plugins:
           - returns.md: Declaring expected context outputs that must be set after task execution
           - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
         More:
+          - testing.md: Best practices for testing CMDx tasks and workflows with RSpec
+          - exceptions.md: Complete exception hierarchy and error type reference
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
 nav:
@@ -181,6 +183,8 @@ nav:
       - Returns: returns.md
       - Workflows: workflows.md
     - More:
+      - Testing: testing.md
+      - Exceptions: exceptions.md
       - Tips and Tricks: tips_and_tricks.md
       - Comparison: comparison.md
     - References:

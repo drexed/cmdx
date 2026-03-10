@@ -40,7 +40,7 @@ class ProcessLegacyFormat < CMDx::Task
 end
 
 result = ProcessLegacyFormat.execute
-result.successful? #=> true
+result.success? #=> true
 
 # Deprecation warning appears in logs:
 # WARN -- : DEPRECATED: ProcessLegacyFormat - migrate to replacement or discontinue use
@@ -60,7 +60,7 @@ class ProcessOldData < CMDx::Task
 end
 
 result = ProcessOldData.execute
-result.successful? #=> true
+result.success? #=> true
 
 # Ruby warning appears in stderr:
 # [ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use

@@ -287,6 +287,7 @@ module CMDx
     end
 
     # Checks if the object responds to a given method.
+    # Supports both getter access for existing keys and setter methods.
     #
     # @param method_name [Symbol] the method name to check
     # @param include_private [Boolean] whether to include private methods
@@ -296,11 +297,13 @@ module CMDx
     # @example
     #   context = Context.new(name: "John")
     #   context.respond_to?(:name) # => true
+    #   context.respond_to?(:name=) # => true
     #   context.respond_to?(:age) # => false
     #
     # @rbs (Symbol method_name, ?bool include_private) -> bool
     def respond_to_missing?(method_name, include_private = false)
-      key?(method_name) || super
+      str_name = method_name.to_s
+      key?(str_name) || str_name.end_with?("=") || super
     end
 
   end

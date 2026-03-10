@@ -92,6 +92,8 @@ module CMDx
         attribute.task = task
         attribute.define_and_verify_tree
       end
+    ensure
+      registry.each(&:clear_task_tree!)
     end
 
     private

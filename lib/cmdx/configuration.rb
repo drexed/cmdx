@@ -123,6 +123,17 @@ module CMDx
     # @rbs @rollback_on: Array[String]
     attr_accessor :rollback_on
 
+    # Returns whether to freeze task results after execution.
+    # Set to false in test environments to allow stubbing on result objects.
+    #
+    # @return [Boolean] true if results should be frozen (default: true)
+    #
+    # @example
+    #   config.freeze_results = false
+    #
+    # @rbs @freeze_results: bool
+    attr_accessor :freeze_results
+
     # Initializes a new Configuration instance with default values.
     #
     # Creates new registry instances for middlewares, callbacks, coercions, and
@@ -145,6 +156,7 @@ module CMDx
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
       @rollback_on = DEFAULT_ROLLPOINTS
+      @freeze_results = true
 
       @backtrace = false
       @backtrace_cleaner = nil
@@ -177,6 +189,7 @@ module CMDx
         task_breakpoints: @task_breakpoints,
         workflow_breakpoints: @workflow_breakpoints,
         rollback_on: @rollback_on,
+        freeze_results: @freeze_results,
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,
         exception_handler: @exception_handler,

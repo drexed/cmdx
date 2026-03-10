@@ -124,7 +124,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
   describe "#validate" do
     let(:method_name) { :test_method }
     let(:validator_registry) { instance_double(CMDx::ValidatorRegistry) }
-    let(:task_settings) { { validators: validator_registry } }
+    let(:task_settings) { mock_settings(validators: validator_registry) }
     let(:attribute_options) { { format: /\d+/, presence: true } }
 
     before do
@@ -692,7 +692,7 @@ RSpec.describe CMDx::AttributeValue, type: :unit do
     describe "#coerce_value" do
       let(:method_name) { :test_method }
       let(:coercion_registry) { instance_double(CMDx::CoercionRegistry) }
-      let(:task_settings) { { coercions: coercion_registry } }
+      let(:task_settings) { mock_settings(coercions: coercion_registry) }
       let(:types) { %i[string integer] }
 
       before do

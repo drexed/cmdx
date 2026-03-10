@@ -220,15 +220,15 @@ module CMDx
     def source
       return @source if defined?(@source)
 
-      @source = parent&.method_name || begin
+      parent&.method_name || begin
         value = options[:source]
 
         if value.is_a?(Proc)
-          task ? task.instance_eval(&value) : :context
+          task ? @source = task.instance_eval(&value) : :context
         elsif value.respond_to?(:call)
-          task ? value.call(task) : :context
+          task ? @source = value.call(task) : :context
         else
-          value || :context
+          @source = value || :context
         end
       end
     end
@@ -244,12 +244,17 @@ module CMDx
     def method_name
       return @method_name if defined?(@method_name)
 
-      @method_name = options[:as] || begin
+      result = options[:as] || begin
         prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
         suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
-
         :"#{prefix}#{name}#{suffix}"
       end
+
+      # Only memoize if @source is defined to avoid memoizing method
+      # name when no task is present.
+      return result unless defined?(@source)
+
+      @method_name = result
     end
 
     # Defines and verifies the entire attribute tree including nested children.
@@ -262,6 +267,15 @@ module CMDx
         child.task = task
         child.define_and_verify_tree
       end
+    end
+
+    # Recursively clears the task reference from this attribute and all children.
+    # Prevents the class-level attribute from retaining the last-executed task instance.
+    #
+    # @rbs () -> void
+    def clear_task_tree!
+      @task = nil
+      children.each(&:clear_task_tree!)
     end
 
     # @return [Hash] A hash representation of the attribute
@@ -348,29 +362,33 @@ module CMDx
       attributes(*names, **options.merge(required: true), &)
     end
 
-    # Defines the attribute method on the task and validates the configuration.
+    # Defines the attribute reader on the task class (once) and
+    # generates/validates the per-instance value (every execution).
     #
     # @raise [RuntimeError] When the method name is already defined on the task
     #
     # @rbs () -> void
     def define_and_verify
-      if task.respond_to?(method_name, true)
-        raise <<~MESSAGE
-          The method #{method_name.inspect} is already defined on the #{task.class.name} task.
-          This may be due conflicts with one of the task's user defined or internal methods/attributes.
+      name_of_method = method_name
 
-          Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
-        MESSAGE
+      unless task.class.method_defined?(name_of_method)
+        if task.respond_to?(name_of_method, true)
+          raise <<~MESSAGE
+            The method #{name_of_method.inspect} is already defined on the #{task.class.name} task.
+            This may be due conflicts with one of the task's user defined or internal methods/attributes.
+
+            Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
+          MESSAGE
+        end
+
+        task.class.define_method(name_of_method) do
+          attributes[name_of_method]
+        end
       end
 
       attribute_value = AttributeValue.new(self)
       attribute_value.generate
       attribute_value.validate
-
-      name_of_method = method_name
-      task.define_singleton_method(name_of_method) do
-        attributes[name_of_method]
-      end
     end
 
   end

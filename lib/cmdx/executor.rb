@@ -63,23 +63,24 @@ module CMDx
     #
     # @rbs () -> Result
     def execute
-      task.class.settings[:middlewares].call!(task) do
+      task.class.settings.middlewares.call!(task) do
         pre_execution! unless @pre_execution
         execution!
         verify_returns!
       rescue UndefinedMethodError => e
-        raise(e) # No need to clear the Chain since exception is not being re-raised
+        raise_exception(e)
       rescue Fault => e
         result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
         retry if retry_execution?(e)
         result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
-        task.class.settings[:exception_handler]&.call(task, e)
+        task.class.settings.exception_handler&.call(task, e)
       ensure
         result.executed!
         post_execution!
       end
 
+      unswallow_middleware!
       finalize_execution!
     end
 
@@ -95,7 +96,7 @@ module CMDx
     #
     # @rbs () -> Result
     def execute!
-      task.class.settings[:middlewares].call!(task) do
+      task.class.settings.middlewares.call!(task) do
         pre_execution! unless @pre_execution
         execution!
         verify_returns!
@@ -103,7 +104,13 @@ module CMDx
         raise_exception(e)
       rescue Fault => e
         result.throw!(e.result, halt: false, cause: e)
-        halt_execution?(e) ? raise_exception(e) : post_execution!
+
+        if halt_execution?(e)
+          raise_exception(e)
+        else
+          result.executed!
+          post_execution!
+        end
       rescue StandardError => e
         retry if retry_execution?(e)
         result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
@@ -113,6 +120,7 @@ module CMDx
         post_execution!
       end
 
+      unswallow_middleware!
       finalize_execution!
     end
 
@@ -126,7 +134,8 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
-      statuses = task.class.settings[:breakpoints] || task.class.settings[:task_breakpoints]
+      settings = task.class.settings
+      statuses = settings.breakpoints || settings.task_breakpoints
       statuses = Array(statuses).map(&:to_s).uniq
 
       statuses.include?(exception.result.status)
@@ -140,14 +149,14 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def retry_execution?(exception)
-      available_retries = Integer(task.class.settings[:retries] || 0)
+      available_retries = Integer(task.class.settings.retries || 0)
       return false unless available_retries.positive?
 
       current_retry = result.retries
       remaining_retries = available_retries - current_retry
       return false unless remaining_retries.positive?
 
-      exceptions = Array(task.class.settings[:retry_on] || StandardError)
+      exceptions = Array(task.class.settings.retry_on || StandardError)
       return false unless exceptions.any? { |e| exception.class <= e }
 
       result.retries += 1
@@ -157,7 +166,9 @@ module CMDx
         task.to_h.merge!(reason:, remaining_retries:)
       end
 
-      jitter = task.class.settings[:retry_jitter]
+      task.errors.clear
+
+      jitter = task.class.settings.retry_jitter
       jitter =
         if jitter.is_a?(Symbol)
           task.send(jitter, current_retry)
@@ -198,7 +209,7 @@ module CMDx
     #
     # @rbs (Symbol type) -> void
     def invoke_callbacks(type)
-      task.class.settings[:callbacks].invoke(type, task)
+      task.class.settings.callbacks.invoke(type, task)
     end
 
     private
@@ -211,7 +222,7 @@ module CMDx
 
       invoke_callbacks(:before_validation)
 
-      task.class.settings[:attributes].define_and_verify(task)
+      task.class.settings.attributes.define_and_verify(task)
       return if task.errors.empty?
 
       result.fail!(
@@ -239,7 +250,7 @@ module CMDx
     def verify_returns!
       return unless result.success?
 
-      returns = Array(task.class.settings[:returns])
+      returns = Array(task.class.settings.returns)
       missing = returns.reject { |name| task.context.key?(name) }
       return if missing.empty?
 
@@ -268,10 +279,10 @@ module CMDx
 
     # Finalizes execution by freezing the task, logging results, and rolling back work.
     #
-    # @rbs () -> Result
+    # @rbs () -> void
     def finalize_execution!
       log_execution!
-      log_backtrace! if task.class.settings[:backtrace]
+      log_backtrace! if task.class.settings.backtrace
 
       rollback_execution!
       freeze_execution!
@@ -296,7 +307,7 @@ module CMDx
 
       task.logger.error do
         "[#{exception.class}] #{exception.message}\n" <<
-          if (cleaner = task.class.settings[:backtrace_cleaner])
+          if (cleaner = task.class.settings.backtrace_cleaner)
             cleaner.call(exception.backtrace).join("\n\t")
           else
             exception.full_message(highlight: false)
@@ -309,18 +320,32 @@ module CMDx
     # @rbs () -> void
     def freeze_execution!
       # Stubbing on frozen objects is not allowed in most test environments.
-      skip_freezing = ENV.fetch("SKIP_CMDX_FREEZING", false)
-      return if Coercions::Boolean.call(skip_freezing)
+      return unless CMDx.configuration.freeze_results
 
       task.freeze
       result.freeze
 
-      # Freezing the context and chain can only be done
-      # once the outer-most task has completed.
+      # Freezing the context and chain can only be done once the outer-most
+      # task has completed.
       return unless result.index.zero?
 
       task.context.freeze
       task.chain.freeze
+    end
+
+    # Detects if middleware swallowed the block without yielding.
+    # When this happens the result is still in the initialized state.
+    #
+    # @rbs () -> void
+    def unswallow_middleware!
+      return unless result.initialized?
+
+      result.fail!(
+        Locale.t("cmdx.faults.invalid"),
+        halt: false,
+        source: :swallowed_middleware
+      )
+      result.executed!
     end
 
     # Clears the chain if the task is the outermost (top-level) task.
@@ -339,8 +364,7 @@ module CMDx
       return if result.rolled_back?
       return unless task.respond_to?(:rollback)
 
-      statuses = task.class.settings[:rollback_on]
-      statuses = Array(statuses).map(&:to_s).uniq
+      statuses = Array(task.class.settings.rollback_on).map(&:to_s).uniq
       return unless statuses.include?(result.status)
 
       result.rolled_back = true

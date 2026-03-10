@@ -197,11 +197,13 @@ RSpec.describe CMDx::AttributeRegistry, type: :unit do
   describe "#define_and_verify" do
     subject(:registry) { described_class.new([attribute1, attribute2]) }
 
-    it "sets task on each attribute and calls define_and_verify_tree" do
-      expect(attribute1).to receive(:task=).with(task)
-      expect(attribute2).to receive(:task=).with(task)
-      expect(attribute1).to receive(:define_and_verify_tree)
-      expect(attribute2).to receive(:define_and_verify_tree)
+    it "sets task on each attribute, calls define_and_verify_tree, and clears references" do
+      expect(attribute1).to receive(:task=).with(task).ordered
+      expect(attribute1).to receive(:define_and_verify_tree).ordered
+      expect(attribute2).to receive(:task=).with(task).ordered
+      expect(attribute2).to receive(:define_and_verify_tree).ordered
+      expect(attribute1).to receive(:clear_task_tree!).ordered
+      expect(attribute2).to receive(:clear_task_tree!).ordered
 
       registry.define_and_verify(task)
     end
@@ -217,10 +219,15 @@ RSpec.describe CMDx::AttributeRegistry, type: :unit do
     context "when attribute raises error" do
       before do
         allow(attribute1).to receive(:task=)
+        allow(attribute1).to receive(:clear_task_tree!)
+        allow(attribute2).to receive(:clear_task_tree!)
         allow(attribute1).to receive(:define_and_verify_tree).and_raise(StandardError, "attribute error")
       end
 
-      it "propagates the error" do
+      it "propagates the error and still clears task references" do
+        expect(attribute1).to receive(:clear_task_tree!)
+        expect(attribute2).to receive(:clear_task_tree!)
+
         expect { registry.define_and_verify(task) }.to raise_error(StandardError, "attribute error")
       end
     end

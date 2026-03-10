@@ -104,6 +104,58 @@ RSpec.describe CMDx::Errors, type: :unit do
     end
   end
 
+  describe "#any?" do
+    context "when no errors have been added" do
+      it "returns false" do
+        expect(errors.any?).to be(false)
+      end
+    end
+
+    context "when errors have been added" do
+      before do
+        errors.add(:name, "is required")
+      end
+
+      it "returns true" do
+        expect(errors.any?).to be(true)
+      end
+    end
+  end
+
+  describe "#clear" do
+    context "when errors have been added" do
+      before do
+        errors.add(:name, "is required")
+        errors.add(:email, "is invalid")
+      end
+
+      it "removes all errors" do
+        errors.clear
+
+        expect(errors).to be_empty
+      end
+    end
+  end
+
+  describe "#size" do
+    context "when no errors have been added" do
+      it "returns 0" do
+        expect(errors.size).to eq(0)
+      end
+    end
+
+    context "when errors have been added for multiple attributes" do
+      before do
+        errors.add(:name, "is required")
+        errors.add(:email, "is invalid")
+      end
+
+      it "returns the number of attributes with errors" do
+        expect(errors.size).to eq(2)
+      end
+    end
+  end
+
   describe "#empty?" do
     context "when no errors have been added" do
       it "returns true" do

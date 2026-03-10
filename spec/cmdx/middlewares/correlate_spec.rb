@@ -191,20 +191,10 @@ RSpec.describe CMDx::Middlewares::Correlate, type: :unit do
     context "when id option is a Proc" do
       let(:id_proc) { proc { "proc-generated-id" } }
 
-      before do
-        allow(task).to receive(:instance_eval).and_yield.and_return("proc-result-id")
-      end
-
-      it "evaluates the proc in task context" do
-        expect(task).to receive(:instance_eval).and_yield.and_return("proc-result-id")
-
-        correlate.call(task, id: id_proc, &test_block)
-      end
-
       it "uses the proc result as correlation ID" do
         correlate.call(task, id: id_proc, &test_block)
 
-        expect(metadata[:correlation_id]).to eq("proc-result-id")
+        expect(metadata[:correlation_id]).to eq("proc-generated-id")
       end
     end
 

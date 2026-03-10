@@ -28,26 +28,6 @@ RSpec.describe CMDx::Identifier, type: :unit do
       end
     end
 
-    context "when SecureRandom does not respond to uuid_v7" do
-      let(:uuid_v4) { "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
-
-      before do
-        allow(SecureRandom).to receive(:respond_to?).with(:uuid_v7).and_return(false)
-      end
-
-      it "returns a UUID v4 as fallback" do
-        allow(SecureRandom).to receive(:uuid).and_return(uuid_v4)
-
-        expect(identifier.generate).to eq(uuid_v4)
-      end
-
-      it "does not call uuid_v7" do
-        expect(SecureRandom).not_to receive(:uuid_v7)
-
-        identifier.generate
-      end
-    end
-
     context "when called multiple times" do
       before do
         allow(SecureRandom).to receive(:respond_to?).with(:uuid_v7).and_return(true)

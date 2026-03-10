@@ -2,6 +2,24 @@
 
 Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.
 
+## Processing Pipeline
+
+Each attribute flows through a fixed pipeline:
+
+```mermaid
+flowchart LR
+    Source --> Coerce --> Transform --> Validate
+```
+
+| Stage | Description |
+|-------|-------------|
+| **Source** | Resolve value from context, method, proc, or callable |
+| **Coerce** | Convert to declared `type` (e.g., string → integer) |
+| **Transform** | Apply `transform` function to coerced value |
+| **Validate** | Run validators (presence, format, etc.) on final value |
+
+This means transformations receive already-coerced values, and validators see the final transformed output.
+
 ## Declarations
 
 ### Symbol References

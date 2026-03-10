@@ -7,6 +7,12 @@ module CMDx
   module Testing
     module TaskBuilders
 
+      def mock_settings(**attrs)
+        settings = CMDx::Settings.allocate
+        attrs.each { |k, v| settings.public_send(:"#{k}=", v) }
+        settings
+      end
+
       # Base
 
       def create_task_class(base: CMDx::Task, name: "AnonymousTask", &)

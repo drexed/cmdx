@@ -1,6 +1,6 @@
 # Basics - Execution
 
-CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow.
+CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow. See also [Result](../outcomes/result.md) for the full result API, [Halt](../interruptions/halt.md) for `skip!`/`fail!`, and [Retries](../retries.md) for automatic retry behavior.
 
 ## Execution Methods
 
@@ -82,6 +82,20 @@ rescue Exception => e
 end
 ```
 
+## Block Yield
+
+Execute tasks with direct result access via a block:
+
+```ruby
+CreateAccount.execute(email: "user@example.com") do |result|
+  if result.success?
+    redirect_to dashboard_path
+  else
+    render :new, alert: result.reason
+  end
+end
+```
+
 ## Direct Instantiation
 
 Tasks can be instantiated directly for advanced use cases, testing, and custom execution patterns:
@@ -104,6 +118,10 @@ task.execute!
 
 task.result.success?         #=> true/false
 ```
+
+!!! tip
+
+    Shorthand aliases are available on task instances: `ctx` for `context` and `res` for `result`.
 
 ## Result Details
 

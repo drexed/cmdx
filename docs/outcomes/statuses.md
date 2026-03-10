@@ -41,9 +41,13 @@ result.skipped? #=> true/false
 result.failed?  #=> true/false
 
 # Outcome categorization
-result.good?    #=> true if success OR skipped
+result.good?    #=> true if success OR skipped (alias: ok?)
 result.bad?     #=> true if skipped OR failed (not success)
 ```
+
+!!! note
+
+    `skipped` is intentionally both `good?` and `bad?`. This reflects that skipping is a valid outcome (good — nothing broke) but also a non-success (bad — work wasn't done). Use `success?` when you need a strict success check.
 
 ## Handlers
 

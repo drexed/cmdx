@@ -81,7 +81,7 @@ module CMDx
     #
     # @rbs () -> void
     def validate
-      registry = task.class.settings[:validators]
+      registry = task.class.settings.validators
 
       options.slice(*registry.keys).each do |type, opts|
         registry.validate(type, task, value, opts)
@@ -226,7 +226,7 @@ module CMDx
     def coerce_value(transformed_value)
       return transformed_value if types.empty?
 
-      registry = task.class.settings[:coercions]
+      registry = task.class.settings.coercions
       last_idx = types.size - 1
 
       types.find.with_index do |type, i|

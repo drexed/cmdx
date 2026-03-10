@@ -115,6 +115,24 @@ result.metadata #=> {
                 #   }
 ```
 
+## Idempotency
+
+Halt methods are safe to call when the result is already in the target status:
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    fail!("Out of stock") if out_of_stock?
+    fail!("Insufficient funds") if insufficient_funds?
+    # Second fail! is a no-op if already failed above
+  end
+end
+```
+
+!!! warning "Important"
+
+    `skip!` and `fail!` are no-ops when the result is already in the matching status. However, calling `skip!` after `fail!` (or vice versa) raises a `RuntimeError` — status transitions are unidirectional.
+
 ## State Transitions
 
 Halt methods trigger specific state and status transitions:
@@ -196,11 +214,33 @@ fail! #=> "Unspecified"
 
 ## Manual Errors
 
-For rare cases, manually add errors before halting:
+For rare cases, manually add errors before halting.
 
 !!! warning "Important"
 
     Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
+
+### Errors API
+
+The `errors` object provides methods for querying and formatting error messages:
+
+```ruby
+errors.add(:email, "is invalid")
+errors.add(:email, "is required")
+errors.add(:name, "is too short")
+
+errors.any?              #=> true
+errors.empty?            #=> false
+errors.size              #=> 2 (number of attributes with errors)
+errors.for?(:email)      #=> true
+errors.for?(:phone)      #=> false
+
+errors.to_h              #=> { email: ["is invalid", "is required"], name: ["is too short"] }
+errors.full_messages     #=> { email: ["email is invalid", "email is required"], name: ["name is too short"] }
+errors.to_s              #=> "email is invalid. email is required. name is too short"
+```
+
+### Usage
 
 ```ruby
 class ProcessRenewal < CMDx::Task

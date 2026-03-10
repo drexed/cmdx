@@ -59,7 +59,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     before do
       allow(callbacks).to receive(:invoke)
-      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
+      allow(task.class).to receive(:settings).and_return(mock_settings(middlewares: middlewares, callbacks: callbacks))
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
       allow(worker).to receive(:freeze_execution!)
@@ -202,7 +202,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     before do
       allow(callbacks).to receive(:invoke)
-      allow(task.class).to receive(:settings).and_return({ middlewares: middlewares, callbacks: callbacks })
+      allow(task.class).to receive(:settings).and_return(mock_settings(middlewares: middlewares, callbacks: callbacks))
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
       allow(worker).to receive(:freeze_execution!)
@@ -246,13 +246,14 @@ RSpec.describe CMDx::Executor, type: :unit do
       let(:fault) { CMDx::FailFault.new(fault_result) }
 
       context "when halt_execution? returns false" do
-        it "calls throw! and post_execution!" do
+        it "calls throw!, executed!, and post_execution!" do
           expect(middlewares).to receive(:call!).with(task).and_yield
 
           allow(worker).to receive(:pre_execution!)
           allow(worker).to receive(:execution!).and_raise(fault)
 
           expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+          expect(task.result).to receive(:executed!)
           expect(worker).to receive(:halt_execution?).with(fault).and_return(false)
           expect(worker).to receive(:post_execution!)
 
@@ -299,7 +300,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when breakpoints setting exists" do
       before do
-        allow(task.class).to receive(:settings).and_return({ breakpoints: %w[failed skipped] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(breakpoints: %w[failed skipped]))
       end
 
       context "when exception result status is in breakpoints" do
@@ -320,7 +321,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when task_breakpoints setting exists" do
       before do
-        allow(task.class).to receive(:settings).and_return({ task_breakpoints: [:failed] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(task_breakpoints: [:failed]))
       end
 
       it "converts symbols to strings and checks inclusion" do
@@ -330,7 +331,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when no breakpoints are configured" do
       before do
-        allow(task.class).to receive(:settings).and_return({})
+        allow(task.class).to receive(:settings).and_return(mock_settings(task_breakpoints: nil))
       end
 
       it "returns false" do
@@ -340,7 +341,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when breakpoints is nil" do
       before do
-        allow(task.class).to receive(:settings).and_return({ breakpoints: nil })
+        allow(task.class).to receive(:settings).and_return(mock_settings(breakpoints: nil, task_breakpoints: nil))
       end
 
       it "returns false" do
@@ -350,7 +351,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "with duplicate breakpoints" do
       before do
-        allow(task.class).to receive(:settings).and_return({ breakpoints: ["failed", "failed", :failed] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(breakpoints: ["failed", "failed", :failed]))
       end
 
       it "removes duplicates after string conversion" do
@@ -370,7 +371,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when retries is not configured" do
       before do
-        allow(task.class).to receive(:settings).and_return({})
+        allow(task.class).to receive(:settings).and_return(mock_settings)
       end
 
       it "returns false" do
@@ -380,7 +381,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when retries is 0" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 0 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 0))
       end
 
       it "returns false" do
@@ -390,7 +391,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when retries are exhausted" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 2 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 2))
         allow(task.result).to receive(:retries).and_return(2)
       end
 
@@ -401,7 +402,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when exception type does not match retry_on" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_on: [ArgumentError] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_on: [ArgumentError]))
         allow(task.result).to receive(:retries).and_return(0)
       end
 
@@ -412,7 +413,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when retry should happen" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3))
         allow(task.result).to receive_messages(retries: 0, :retries= => nil)
       end
 
@@ -426,6 +427,14 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(task.result).to receive(:retries=).with(2)
 
         worker.send(:retry_execution?, exception)
+      end
+
+      it "clears task errors" do
+        task.errors.add(:base, "previous error")
+
+        worker.send(:retry_execution?, exception)
+
+        expect(task.errors).to be_empty
       end
 
       it "logs warning with reason and remaining retries" do
@@ -444,7 +453,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     context "with retry_on configuration" do
       context "when exception matches configured type" do
         before do
-          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(retries: 2, retry_on: [StandardError]))
           allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
@@ -457,7 +466,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         let(:custom_error) { CMDx::TestError.new("test error") }
 
         before do
-          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [StandardError] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(retries: 2, retry_on: [StandardError]))
           allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
@@ -468,7 +477,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when multiple exception types are configured" do
         before do
-          allow(task.class).to receive(:settings).and_return({ retries: 2, retry_on: [ArgumentError, StandardError] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(retries: 2, retry_on: [ArgumentError, StandardError]))
           allow(task.result).to receive_messages(retries: 0, :retries= => nil)
         end
 
@@ -480,7 +489,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "with retry_jitter as numeric value" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0.5 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: 0.5))
         allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
@@ -529,7 +538,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "with retry_jitter as symbol" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: :custom_jitter })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: :custom_jitter))
         allow(task.result).to receive_messages(retries: 1, :retries= => nil)
         allow(task).to receive(:custom_jitter).with(1).and_return(2.5)
       end
@@ -546,7 +555,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       let(:jitter_proc) { ->(retries) { retries * 0.75 } }
 
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_proc })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: jitter_proc))
         allow(task.result).to receive_messages(retries: 2, :retries= => nil)
       end
 
@@ -567,7 +576,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: jitter_callable })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: jitter_callable))
         allow(task.result).to receive_messages(retries: 2, :retries= => nil)
       end
 
@@ -581,7 +590,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when jitter calculation returns negative value" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: -0.5 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: -0.5))
         allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
@@ -594,7 +603,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when jitter calculation returns zero" do
       before do
-        allow(task.class).to receive(:settings).and_return({ retries: 3, retry_jitter: 0 })
+        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: 0))
         allow(task.result).to receive_messages(retries: 1, :retries= => nil)
       end
 
@@ -620,7 +629,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+      allow(task.class).to receive(:settings).and_return(mock_settings(callbacks: callbacks))
     end
 
     it "delegates to callbacks registry with type and task" do
@@ -636,10 +645,9 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:errors) { instance_double(CMDx::Errors) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({
-        callbacks: callbacks,
-        attributes: attributes
-      })
+      allow(task.class).to receive(:settings).and_return(
+        mock_settings(callbacks: callbacks, attributes: attributes)
+      )
       allow(task).to receive(:errors).and_return(errors)
       allow(callbacks).to receive(:invoke)
       allow(attributes).to receive(:define_and_verify)
@@ -686,7 +694,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+      allow(task.class).to receive(:settings).and_return(mock_settings(callbacks: callbacks))
       allow(callbacks).to receive(:invoke)
       allow(task.result).to receive(:executing!)
       allow(task).to receive(:work)
@@ -706,7 +714,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when no returns are declared" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: [] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: []))
         allow(task.result).to receive(:success?).and_return(true)
       end
 
@@ -719,7 +727,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when returns setting is nil" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: nil })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: nil))
         allow(task.result).to receive(:success?).and_return(true)
       end
 
@@ -732,7 +740,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when result is not success" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: [:user] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: [:user]))
         allow(task.result).to receive(:success?).and_return(false)
       end
 
@@ -745,7 +753,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when all declared returns are present in context" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: %i[user token]))
         allow(task.result).to receive(:success?).and_return(true)
         task.context[:user] = "John"
         task.context[:token] = "abc123"
@@ -760,7 +768,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when some declared returns are missing" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: %i[user token]))
         allow(task.result).to receive(:success?).and_return(true)
         task.context[:user] = "John"
       end
@@ -780,7 +788,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when all declared returns are missing" do
       before do
-        allow(task.class).to receive(:settings).and_return({ returns: %i[user token] })
+        allow(task.class).to receive(:settings).and_return(mock_settings(returns: %i[user token]))
         allow(task.result).to receive(:success?).and_return(true)
       end
 
@@ -806,7 +814,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:result) { instance_double(CMDx::Result) }
 
     before do
-      allow(task.class).to receive(:settings).and_return({ callbacks: callbacks })
+      allow(task.class).to receive(:settings).and_return(mock_settings(callbacks: callbacks))
       allow(task).to receive(:result).and_return(result)
       allow(callbacks).to receive(:invoke)
     end
@@ -932,7 +940,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when rollpoints setting exists" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollback_on: %w[failed skipped] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(rollback_on: %w[failed skipped]))
         end
 
         context "when result status is in rollpoints" do
@@ -964,7 +972,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when no rollpoints are configured" do
         before do
-          allow(task.class).to receive(:settings).and_return({})
+          allow(task.class).to receive(:settings).and_return(mock_settings(rollback_on: []))
           allow(task.result).to receive(:status).and_return("failed")
         end
 
@@ -977,7 +985,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "when rollpoints is nil" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollback_on: nil })
+          allow(task.class).to receive(:settings).and_return(mock_settings(rollback_on: nil))
           allow(task.result).to receive(:status).and_return("failed")
         end
 
@@ -990,7 +998,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "with duplicate rollpoints" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollback_on: ["failed", "failed", :failed] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(rollback_on: ["failed", "failed", :failed]))
           allow(task.result).to receive(:status).and_return("failed")
         end
 
@@ -1003,7 +1011,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       context "with multiple statuses in rollpoints" do
         before do
-          allow(task.class).to receive(:settings).and_return({ rollback_on: %w[failed skipped] })
+          allow(task.class).to receive(:settings).and_return(mock_settings(rollback_on: %w[failed skipped]))
         end
 
         it "calls rollback and marks result as rolled back when status is failed" do
@@ -1025,6 +1033,58 @@ RSpec.describe CMDx::Executor, type: :unit do
 
           expect(task.result.rolled_back?).to be(true)
         end
+      end
+    end
+  end
+
+  describe "#unswallow_middleware!" do
+    context "when result is still initialized (middleware did not yield)" do
+      before do
+        allow(task.result).to receive(:initialized?).and_return(true)
+      end
+
+      it "marks result as failed and transitions to executed" do
+        expect(task.result).to receive(:fail!).with(
+          CMDx::Locale.t("cmdx.faults.invalid"),
+          halt: false,
+          source: :swallowed_middleware
+        )
+        expect(task.result).to receive(:executed!)
+
+        worker.send(:unswallow_middleware!)
+      end
+    end
+
+    context "when result has progressed past initialized" do
+      before do
+        allow(task.result).to receive(:initialized?).and_return(false)
+      end
+
+      it "does nothing" do
+        expect(task.result).not_to receive(:fail!)
+        expect(task.result).not_to receive(:executed!)
+
+        worker.send(:unswallow_middleware!)
+      end
+    end
+
+    context "when middleware swallows the block during #execute" do
+      let(:swallowing_task_class) { create_successful_task(name: "SwallowTestTask") }
+
+      before do
+        swallowing_task_class.settings.middlewares.register(
+          Class.new do
+            def self.call(_task, **_opts); end
+          end
+        )
+      end
+
+      it "detects and fails the result" do
+        result = swallowing_task_class.execute
+
+        expect(result.failed?).to be(true)
+        expect(result.metadata[:source]).to eq(:swallowed_middleware)
+        expect(result.interrupted?).to be(true)
       end
     end
   end

@@ -49,7 +49,7 @@ class OpenApiGenerator
 
     # Iterate over all attributes defined in the command
     # attributes are stored in the settings[:attributes] registry
-    command_class.settings[:attributes].registry.each do |attribute|
+    command_class.settings.attributes.registry.each do |attribute|
       # Use to_h to get the raw attribute data
       data = attribute.to_h
 

@@ -129,8 +129,10 @@ module CMDx
       # @return [Hash] The thread or fiber storage
       #
       # @rbs () -> Hash
-      def thread_or_fiber
-        Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current
+      if Fiber.respond_to?(:storage)
+        def thread_or_fiber = Fiber.storage
+      else
+        def thread_or_fiber = Thread.current
       end
 
     end

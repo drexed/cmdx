@@ -75,6 +75,68 @@ Every log entry includes rich metadata. Available fields depend on execution con
 | `caused_failure` | Original failing task details |
 | `threw_failure` | Task that propagated the failure |
 
+## Formatter Configuration
+
+Set the formatter globally or per-task:
+
+=== "Global"
+
+    ```ruby
+    CMDx.configure do |config|
+      config.logger.formatter = CMDx::LogFormatters::Json.new
+    end
+    ```
+
+=== "Per-task"
+
+    ```ruby
+    class ProcessSubscription < CMDx::Task
+      settings(log_formatter: CMDx::LogFormatters::Json.new)
+    end
+    ```
+
+### Formatter Output Examples
+
+=== "Line (default)"
+
+    ```log
+    I, [2025-01-15T10:30:45.123456Z #12345] INFO -- cmdx: {index: 0, class: "MyTask", state: "complete", ...}
+    ```
+
+=== "Json"
+
+    ```json
+    {"severity":"INFO","timestamp":"2025-01-15T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{...}}
+    ```
+
+=== "KeyValue"
+
+    ```log
+    severity="INFO" timestamp="2025-01-15T10:30:45.123456Z" progname="cmdx" pid=12345 message={...}
+    ```
+
+=== "Logstash"
+
+    ```json
+    {"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2025-01-15T10:30:45.123456Z"}
+    ```
+
+=== "Raw"
+
+    ```log
+    {index: 0, class: "MyTask", state: "complete", status: "success", ...}
+    ```
+
+## Log Levels
+
+CMDx logs task execution at `INFO` level, retries at `WARN`, and backtraces at `ERROR`. Override the log level per-task:
+
+```ruby
+class VerboseTask < CMDx::Task
+  settings(log_level: :debug)
+end
+```
+
 ## Usage
 
 Access the framework logger directly within tasks:

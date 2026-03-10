@@ -57,9 +57,8 @@ module CMDx
       workflow.class.pipeline.each do |group|
         next unless Utils::Condition.evaluate(workflow, group.options)
 
-        breakpoints = group.options[:breakpoints] ||
-                      workflow.class.settings[:breakpoints] ||
-                      workflow.class.settings[:workflow_breakpoints]
+        settings = workflow.class.settings
+        breakpoints = group.options[:breakpoints] || settings.breakpoints || settings.workflow_breakpoints
         breakpoints = Array(breakpoints).map(&:to_s).uniq
 
         execute_group_tasks(group, breakpoints)

@@ -28,9 +28,9 @@ module CMDx
 
     # @rbs STRIP_FAILURE: Proc
     STRIP_FAILURE = proc do |hash, result, key|
-      unless result.send(:"#{key}?")
+      unless result.public_send(:"#{key}?")
         # Strip caused/threw failures since its the same info as the log line
-        hash[key] = result.send(key).to_h.except(:caused_failure, :threw_failure)
+        hash[key] = result.public_send(key).to_h.except(:caused_failure, :threw_failure)
       end
     end.freeze
     private_constant :STRIP_FAILURE
@@ -261,7 +261,7 @@ module CMDx
     def on(*states_or_statuses, &)
       raise ArgumentError, "block required" unless block_given?
 
-      yield(self) if states_or_statuses.any? { |s| send(:"#{s}?") }
+      yield(self) if states_or_statuses.any? { |s| public_send(:"#{s}?") }
       self
     end
 
@@ -338,7 +338,7 @@ module CMDx
       unless frames.empty?
         frames = frames.map(&:to_s)
 
-        if (cleaner = task.class.settings[:backtrace_cleaner])
+        if (cleaner = task.class.settings.backtrace_cleaner)
           cleaner.call(frames)
         end
 

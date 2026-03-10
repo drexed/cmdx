@@ -641,7 +641,7 @@ RSpec.describe "Task execution", type: :feature do
           def work
             context.retries ||= 0
             context.retries += 1
-            raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
+            raise CMDx::TestError, "borked error" unless self.class.settings.retries < context.retries
 
             (context.executed ||= []) << :success
           end
@@ -671,7 +671,7 @@ RSpec.describe "Task execution", type: :feature do
           def work
             context.retries ||= 0
             context.retries += 1
-            raise CMDx::TestError, "borked error" unless self.class.settings[:retries] < context.retries
+            raise CMDx::TestError, "borked error" unless self.class.settings.retries < context.retries
 
             (context.executed ||= []) << :success
           end
