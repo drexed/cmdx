@@ -47,6 +47,7 @@ result.skipped?     #=> false (not skipped)
 
 # Outcome categorization
 result.good?        #=> true (success or skipped)
+result.ok?          #=> true (alias for good?)
 result.bad?         #=> false (skipped or failed)
 
 # Retry Status
@@ -126,7 +127,11 @@ end
 
 ## Handlers
 
-Handle outcomes with functional-style methods. Handlers return the result for chaining:
+Handle outcomes with functional-style methods. Handlers return the result for chaining.
+
+Important
+
+The `on` method requires a block. Calling `on` without a block raises `ArgumentError`.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -195,7 +200,7 @@ in { status: "failed", metadata: { attempts: n } } if n < 3
   retry_build_with_delay(result, n * 2)
 in { status: "failed", metadata: { attempts: n } } if n >= 3
   mark_build_permanently_failed(result)
-in { runtime: time } if time > performance_threshold
+in { metadata: { runtime: Integer => time } } if time > performance_threshold
   investigate_build_performance(result)
 end
 ```

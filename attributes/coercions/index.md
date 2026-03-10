@@ -68,7 +68,7 @@ Use anonymous functions for simple coercion logic:
 ```ruby
 class TransformCoordinates < CMDx::Task
   # Proc
-  register :callback, :geolocation, proc do |value, options = {}|
+  register :coercion, :geolocation, proc do |value, options = {}|
     begin
       Geolocation(value)
     rescue StandardError
@@ -77,7 +77,7 @@ class TransformCoordinates < CMDx::Task
   end
 
   # Lambda
-  register :callback, :geolocation, ->(value, options = {}) {
+  register :coercion, :geolocation, ->(value, options = {}) {
     begin
       Geolocation(value)
     rescue StandardError

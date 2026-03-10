@@ -51,6 +51,43 @@ rails generate cmdx:install
 
 If not using Rails, manually copy the [configuration file](https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb).
 
+## Quick Start
+
+A self-contained example you can run in `irb` or a plain Ruby script — no Rails required:
+
+```ruby
+require "cmdx"
+
+class Greet < CMDx::Task
+  required :name, type: :string, presence: true
+
+  def work
+    context.greeting = "Hello, #{name}!"
+  end
+end
+
+result = Greet.execute(name: "World")
+result.success?          #=> true
+result.context.greeting  #=> "Hello, World!"
+
+result = Greet.execute(name: "")
+result.failed?           #=> true
+result.reason            #=> "Invalid"
+```
+
+From here, you can progressively add features as needed:
+
+| Need                   | Feature                                                                      | Docs                             |
+| ---------------------- | ---------------------------------------------------------------------------- | -------------------------------- |
+| Type safety on inputs  | [Coercions](https://drexed.github.io/cmdx/attributes/coercions/index.md)     | `type: :integer`                 |
+| Input constraints      | [Validations](https://drexed.github.io/cmdx/attributes/validations/index.md) | `numeric: { min: 1 }`            |
+| Conditional stops      | [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md)            | `skip!`, `fail!`                 |
+| Multi-task pipelines   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)                | `include CMDx::Workflow`         |
+| Cross-cutting concerns | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)            | `register :middleware`           |
+| Lifecycle hooks        | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)                | `on_success`, `before_execution` |
+| Output contracts       | [Returns](https://drexed.github.io/cmdx/returns/index.md)                    | `returns :user, :token`          |
+| Structured logs        | [Logging](https://drexed.github.io/cmdx/logging/index.md)                    | Automatic                        |
+
 ## The CERO Pattern
 
 CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
@@ -167,7 +204,15 @@ CMDx facilitates Domain Driven Design (DDD) by making business processes explici
 Generate new CMDx tasks quickly using the built-in generator:
 
 ```bash
+# Task
 rails generate cmdx:task ModerateBlogPost
+
+# Workflow
+rails generate cmdx:workflow ProcessNotifications
+
+# Namespaced
+rails generate cmdx:task Admin::AuditUser
+# => Creates app/tasks/admin/audit_user.rb
 ```
 
 This creates a new task file with the basic structure:
@@ -177,6 +222,24 @@ This creates a new task file with the basic structure:
 class ModerateBlogPost < CMDx::Task
   def work
     # Your logic here...
+  end
+end
+```
+
+Note
+
+The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
+
+```ruby
+# app/tasks/application_task.rb
+class ApplicationTask < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate
+  before_execution :set_request_context
+
+  private
+
+  def set_request_context
+    context.request_id ||= SecureRandom.uuid
   end
 end
 ```

@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../feed_rss_updated.xml">
       
       <link rel="icon" href="../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1398,6 +1398,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1439,6 +1461,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Correlate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-level-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class-Level API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1699,6 +1738,62 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2149,6 +2244,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2190,6 +2307,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Correlate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-level-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class-Level API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2365,94 +2499,136 @@
 </span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">MonitoringMiddleware</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;MONITORING_KEY&quot;</span><span class="o">]</span><span class="p">)</span>
 </span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">end</span>
 </span></code></pre></div>
+<h2 id="ordering">Ordering<a class="headerlink" href="#ordering" title="Permanent link">&para;</a></h2>
+<p>Control middleware insertion position with the <code>at:</code> parameter. First registered is outermost (default: append to end).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditMiddleware</span><span class="w">           </span><span class="c1"># Position 0 (outermost)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CacheMiddleware</span><span class="w">            </span><span class="c1"># Position 1</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">PriorityMiddleware</span><span class="p">,</span><span class="w"> </span><span class="ss">at</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1"># Inserted at position 0, pushes others down</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...</span>
+</span></code></pre></div>
+<h2 id="safety">Safety<a class="headerlink" href="#safety" title="Permanent link">&para;</a></h2>
+<p>CMDx detects middlewares that fail to yield or return the result. If a middleware swallows the block call, the task is automatically marked as failed with a descriptive error.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BrokenMiddleware</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="c1"># Forgot to call `yield` — CMDx catches this</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">MyTask</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">result</span><span class="o">.</span><span class="n">failed?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">  </span><span class="c1">#=&gt; &quot;[RuntimeError] ...&quot;</span>
+</span></code></pre></div>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>Always call <code>yield</code> inside your middleware and return the result. Swallowed execution is treated as a failure.</p>
+</div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
 <p>Remove class or module-based middleware globally or per-task:</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Each <code>deregister</code> call removes one middleware. Use multiple calls for batch removals.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Class or Module (no instances)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessCampaign</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Class or Module (no instances)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TelemetryMiddleware</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="built-in">Built-in<a class="headerlink" href="#built-in" title="Permanent link">&para;</a></h2>
 <h3 id="timeout">Timeout<a class="headerlink" href="#timeout" title="Permanent link">&para;</a></h3>
 <p>Prevent tasks from running too long:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessReport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Default timeout: 3 seconds</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="c1"># Seconds (takes Numeric, Symbol, Proc, Lambda, Class, Module)</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span><span class="p">,</span><span class="w"> </span><span class="ss">seconds</span><span class="p">:</span><span class="w"> </span><span class="ss">:max_processing_time</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Quick&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">max_processing_time</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="k">end</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>
-</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="c1"># Slow task</span>
-</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessReport</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>
-</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">    </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
-</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">   </span><span class="c1">#=&gt; &quot;failure&quot;</span>
-</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">   </span><span class="c1">#=&gt; &quot;[CMDx::TimeoutError] execution exceeded 3 seconds&quot;</span>
-</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="w">    </span><span class="c1">#=&gt; &lt;CMDx::TimeoutError&gt;</span>
-</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { limit: 3 }</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessReport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Default timeout: 3 seconds</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="c1"># Seconds (takes Numeric, Symbol, Proc, Lambda, Class, Module)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span><span class="p">,</span><span class="w"> </span><span class="ss">seconds</span><span class="p">:</span><span class="w"> </span><span class="ss">:max_processing_time</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Quick&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">max_processing_time</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="c1"># Slow task</span>
+</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessReport</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>
+</span><span id="__span-6-25"><a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">    </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
+</span><span id="__span-6-26"><a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">   </span><span class="c1">#=&gt; &quot;failed&quot;</span>
+</span><span id="__span-6-27"><a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">   </span><span class="c1">#=&gt; &quot;[CMDx::TimeoutError] execution exceeded 3 seconds&quot;</span>
+</span><span id="__span-6-28"><a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="w">    </span><span class="c1">#=&gt; &lt;CMDx::TimeoutError&gt;</span>
+</span><span id="__span-6-29"><a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { limit: 3 }</span>
 </span></code></pre></div>
 <h3 id="correlate">Correlate<a class="headerlink" href="#correlate" title="Permanent link">&para;</a></h3>
 <p>Add correlation IDs for distributed tracing and request tracking:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessExport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Default correlation ID generation</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="c1"># Seconds (takes Object, Symbol, Proc, Lambda, Class, Module)</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="p">,</span><span class="w"> </span><span class="nb">id</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">session_id</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:correlation_enabled?</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">correlation_enabled?</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;CORRELATION_ENABLED&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;true&quot;</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="k">end</span>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessExport</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { correlation_id: &quot;550e8400-e29b-41d4-a716-446655440000&quot; }</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessExport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="c1"># Default correlation ID generation</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="c1"># Seconds (takes Object, Symbol, Proc, Lambda, Class, Module)</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="p">,</span><span class="w"> </span><span class="nb">id</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">session_id</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:correlation_enabled?</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">correlation_enabled?</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">    </span><span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;CORRELATION_ENABLED&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;true&quot;</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="k">end</span>
+</span><span id="__span-7-21"><a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+</span><span id="__span-7-22"><a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessExport</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-7-23"><a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { correlation_id: &quot;550e8400-e29b-41d4-a716-446655440000&quot; }</span>
+</span></code></pre></div>
+<h4 id="class-level-api">Class-Level API<a class="headerlink" href="#class-level-api" title="Permanent link">&para;</a></h4>
+<p>Manage correlation IDs directly for cross-boundary tracing (e.g., from a controller into multiple tasks):</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Read or set the current correlation ID</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="o">.</span><span class="n">id</span><span class="w">              </span><span class="c1">#=&gt; current ID or nil</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;custom-id&quot;</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1"># Scoped block — restores the previous ID after the block</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;request-123&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="no">ProcessExport</span><span class="o">.</span><span class="n">execute</span><span class="w">  </span><span class="c1"># uses &quot;request-123&quot;</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="no">SendNotification</span><span class="o">.</span><span class="n">execute</span><span class="w"> </span><span class="c1"># same correlation ID</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">end</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="c1"># previous ID is restored here</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="c1"># Clear the current ID</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span><span class="o">.</span><span class="n">clear</span>
 </span></code></pre></div>
 <h3 id="runtime">Runtime<a class="headerlink" href="#runtime" title="Permanent link">&para;</a></h3>
 <p>Track task execution time in milliseconds using a monotonic clock:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PerformanceMonitoringCheck</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">monitoring_enabled?</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">end</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessExport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="c1"># Default timeout is 3 seconds</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Runtime</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Runtime</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="no">PerformanceMonitoringCheck</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="k">end</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessExport</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { runtime: 1247 } (ms)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PerformanceMonitoringCheck</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">monitoring_enabled?</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">end</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessExport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="c1"># Default timeout is 3 seconds</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Runtime</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="c1"># If or Unless (takes Symbol, Proc, Lambda, Class, Module)</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Runtime</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="no">PerformanceMonitoringCheck</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">end</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessExport</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w"> </span><span class="c1">#=&gt; { runtime: 1247 } (ms)</span>
 </span></code></pre></div>
 
 

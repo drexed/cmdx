@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/tips_and_tricks/">
       
       
-        <link rel="prev" href="../workflows/">
+        <link rel="prev" href="../exceptions/">
       
       
         <link rel="next" href="../comparison/">
@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../feed_rss_updated.xml">
       
       <link rel="icon" href="../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1544,6 +1544,62 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2214,7 +2270,7 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../testing/" class="md-path__link">
           
   <span class="md-ellipsis">
     More
@@ -2340,7 +2396,11 @@
 </span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="attribute-options">Attribute Options<a class="headerlink" href="#attribute-options" title="Permanent link">&para;</a></h2>
-<p>Use <code>with_options</code> to reduce duplication:</p>
+<p>Use <code>with_options</code> to reduce duplication.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>with_options</code> is provided by ActiveSupport and is available automatically in Rails applications. For plain Ruby projects, add <code>require "active_support/core_ext/object/with_options"</code> or apply shared options manually.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureCompany</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Apply common options to multiple attributes</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">with_options</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">,</span><span class="w"> </span><span class="ss">presence</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
@@ -2414,7 +2474,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../workflows/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Workflows">
+          <a href="../exceptions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Exceptions">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2424,7 +2484,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Workflows
+                Exceptions
               </div>
             </div>
           </a>

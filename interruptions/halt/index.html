@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -822,6 +822,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#state-transitions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -890,6 +901,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Manual Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errors-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1701,6 +1740,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -2126,6 +2221,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#idempotency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotency
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#state-transitions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2194,6 +2300,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Manual Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errors-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2386,6 +2520,20 @@
 </span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a><span class="w">                </span><span class="c1">#     retry_after: &lt;Time 30 days from now&gt;</span>
 </span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">                </span><span class="c1">#   }</span>
 </span></code></pre></div>
+<h2 id="idempotency">Idempotency<a class="headerlink" href="#idempotency" title="Permanent link">&para;</a></h2>
+<p>Halt methods are safe to call when the result is already in the target status:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOrder</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Out of stock&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">out_of_stock?</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Insufficient funds&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">insufficient_funds?</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="c1"># Second fail! is a no-op if already failed above</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p><code>skip!</code> and <code>fail!</code> are no-ops when the result is already in the matching status. However, calling <code>skip!</code> after <code>fail!</code> (or vice versa) raises a <code>RuntimeError</code> — status transitions are unidirectional.</p>
+</div>
 <h2 id="state-transitions">State Transitions<a class="headerlink" href="#state-transitions" title="Permanent link">&para;</a></h2>
 <p>Halt methods trigger specific state and status transitions:</p>
 <table>
@@ -2412,76 +2560,93 @@
 </tr>
 </tbody>
 </table>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRenewal</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">license_id</span><span class="p">:</span><span class="w"> </span><span class="mi">567</span><span class="p">)</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># State information</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">        </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">       </span><span class="c1">#=&gt; &quot;skipped&quot; or &quot;failed&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">result</span><span class="o">.</span><span class="n">interrupted?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">result</span><span class="o">.</span><span class="n">complete?</span><span class="w">    </span><span class="c1">#=&gt; false</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Outcome categorization</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">        </span><span class="c1">#=&gt; true for skipped, false for failed</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">         </span><span class="c1">#=&gt; true for both skipped and failed</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRenewal</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">license_id</span><span class="p">:</span><span class="w"> </span><span class="mi">567</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># State information</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">        </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">       </span><span class="c1">#=&gt; &quot;skipped&quot; or &quot;failed&quot;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">result</span><span class="o">.</span><span class="n">interrupted?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">result</span><span class="o">.</span><span class="n">complete?</span><span class="w">    </span><span class="c1">#=&gt; false</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># Outcome categorization</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">        </span><span class="c1">#=&gt; true for skipped, false for failed</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">         </span><span class="c1">#=&gt; true for both skipped and failed</span>
 </span></code></pre></div>
 <h2 id="execution-behavior">Execution Behavior<a class="headerlink" href="#execution-behavior" title="Permanent link">&para;</a></h2>
 <p>Halt methods behave differently depending on the call method used:</p>
 <h3 id="non-bang-execution">Non-bang execution<a class="headerlink" href="#non-bang-execution" title="Permanent link">&para;</a></h3>
 <p>Returns result object without raising exceptions:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRefund</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">refund_id</span><span class="p">:</span><span class="w"> </span><span class="mi">789</span><span class="p">)</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">case</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">status</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;success&quot;</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund processed: $</span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">refund</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;skipped&quot;</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund skipped: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund failed: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="n">handle_refund_error</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRefund</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">refund_id</span><span class="p">:</span><span class="w"> </span><span class="mi">789</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">case</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">status</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;success&quot;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund processed: $</span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">refund</span><span class="o">.</span><span class="n">amount</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;skipped&quot;</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund skipped: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">when</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Refund failed: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">handle_refund_error</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="bang-execution">Bang execution<a class="headerlink" href="#bang-execution" title="Permanent link">&para;</a></h3>
 <p>Raises exceptions for halt conditions based on <code>task_breakpoints</code> configuration:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">begin</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRefund</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">refund_id</span><span class="p">:</span><span class="w"> </span><span class="mi">789</span><span class="p">)</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Success: Refund processed&quot;</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">SkipFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Skipped: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="n">handle_refund_failure</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">begin</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessRefund</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">refund_id</span><span class="p">:</span><span class="w"> </span><span class="mi">789</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Success: Refund processed&quot;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">SkipFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Skipped: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="n">handle_refund_failure</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <p>Always provide a reason for better debugging and clearer exception messages:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Good: Clear, specific reason</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Document processing paused for compliance review&quot;</span><span class="p">)</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;File format not supported by processor&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORMAT_UNSUPPORTED&quot;</span><span class="p">)</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Acceptable: Generic, non-specific reason</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Paused&quot;</span><span class="p">)</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Unsupported&quot;</span><span class="p">)</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># Bad: Default, cannot determine reason</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">skip!</span><span class="w"> </span><span class="c1">#=&gt; &quot;Unspecified&quot;</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">fail</span><span class="o">!</span><span class="w"> </span><span class="c1">#=&gt; &quot;Unspecified&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Good: Clear, specific reason</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Document processing paused for compliance review&quot;</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;File format not supported by processor&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FORMAT_UNSUPPORTED&quot;</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="c1"># Acceptable: Generic, non-specific reason</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">skip!</span><span class="p">(</span><span class="s2">&quot;Paused&quot;</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Unsupported&quot;</span><span class="p">)</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># Bad: Default, cannot determine reason</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="n">skip!</span><span class="w"> </span><span class="c1">#=&gt; &quot;Unspecified&quot;</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="nb">fail</span><span class="o">!</span><span class="w"> </span><span class="c1">#=&gt; &quot;Unspecified&quot;</span>
 </span></code></pre></div>
 <h2 id="manual-errors">Manual Errors<a class="headerlink" href="#manual-errors" title="Permanent link">&para;</a></h2>
-<p>For rare cases, manually add errors before halting:</p>
+<p>For rare cases, manually add errors before halting.</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
 <p>Manual errors don't stop execution—you still need to call <code>fail!</code> or <code>skip!</code>.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">document</span><span class="o">.</span><span class="n">nonrenewable?</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="n">errors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="ss">:document</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;not renewable&quot;</span><span class="p">)</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;document could not be renewed&quot;</span><span class="p">)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="k">else</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="n">document</span><span class="o">.</span><span class="n">renew!</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="k">end</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">end</span>
+<h3 id="errors-api">Errors API<a class="headerlink" href="#errors-api" title="Permanent link">&para;</a></h3>
+<p>The <code>errors</code> object provides methods for querying and formatting error messages:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">errors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is invalid&quot;</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">errors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="ss">:email</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is required&quot;</span><span class="p">)</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">errors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is too short&quot;</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">errors</span><span class="o">.</span><span class="n">any?</span><span class="w">              </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">errors</span><span class="o">.</span><span class="n">empty?</span><span class="w">            </span><span class="c1">#=&gt; false</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">errors</span><span class="o">.</span><span class="n">size</span><span class="w">              </span><span class="c1">#=&gt; 2 (number of attributes with errors)</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">errors</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="ss">:email</span><span class="p">)</span><span class="w">      </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">errors</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="ss">:phone</span><span class="p">)</span><span class="w">      </span><span class="c1">#=&gt; false</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span><span class="w">              </span><span class="c1">#=&gt; { email: [&quot;is invalid&quot;, &quot;is required&quot;], name: [&quot;is too short&quot;] }</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="n">errors</span><span class="o">.</span><span class="n">full_messages</span><span class="w">     </span><span class="c1">#=&gt; { email: [&quot;email is invalid&quot;, &quot;email is required&quot;], name: [&quot;name is too short&quot;] }</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="n">errors</span><span class="o">.</span><span class="n">to_s</span><span class="w">              </span><span class="c1">#=&gt; &quot;email is invalid. email is required. name is too short&quot;</span>
+</span></code></pre></div>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessRenewal</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">document</span><span class="o">.</span><span class="n">nonrenewable?</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">      </span><span class="n">errors</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="ss">:document</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;not renewable&quot;</span><span class="p">)</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">      </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;document could not be renewed&quot;</span><span class="p">)</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="k">else</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="n">document</span><span class="o">.</span><span class="n">renew!</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">end</span>
 </span></code></pre></div>
 
 

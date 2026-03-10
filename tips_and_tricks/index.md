@@ -119,7 +119,11 @@ end
 
 ## Attribute Options
 
-Use `with_options` to reduce duplication:
+Use `with_options` to reduce duplication.
+
+Note
+
+`with_options` is provided by ActiveSupport and is available automatically in Rails applications. For plain Ruby projects, add `require "active_support/core_ext/object/with_options"` or apply shared options manually.
 
 ```ruby
 class ConfigureCompany < CMDx::Task

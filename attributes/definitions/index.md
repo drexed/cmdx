@@ -6,7 +6,21 @@ Attributes define your task's interface with automatic validation, type coercion
 
 Important
 
-Attributes are order-dependent, so if you need to reference them as a source or use them in conditions, make sure they’re defined in the correct order.
+Attributes are order-dependent. If one attribute references another as a source or condition, the referenced attribute must be defined first.
+
+```ruby
+# Correct: credentials defined before connection_string
+required :credentials, source: :database_config
+attribute :connection_string, source: :credentials
+
+# Wrong: connection_string references credentials before it exists
+attribute :connection_string, source: :credentials
+required :credentials, source: :database_config
+```
+
+Important
+
+Attribute names that conflict with existing Ruby or CMDx methods will raise an error. Use `:as`, `:prefix`, or `:suffix` to resolve naming conflicts. See [Naming](https://drexed.github.io/cmdx/attributes/naming/index.md).
 
 Tip
 
@@ -82,6 +96,47 @@ end
 Note
 
 When a required attribute's condition evaluates to `false`, the attribute behaves as optional. All other attribute features such as coercions, validations, defaults, and transformations still apply normally.
+
+## Removals
+
+Remove inherited or previously defined attributes and their accessor methods:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  required :tenant_id
+  optional :debug_mode
+end
+
+class PublicTask < ApplicationTask
+  remove_attribute :tenant_id
+  remove_attributes :debug_mode
+
+  def work
+    # tenant_id and debug_mode are no longer defined
+  end
+end
+```
+
+Important
+
+Removing an attribute also removes any nested children defined under it.
+
+## Introspection
+
+Inspect the full attribute schema for tooling, documentation generation, or debugging:
+
+```ruby
+class CreateUser < CMDx::Task
+  required :email, type: :string, format: /\A.+@.+\z/
+  optional :role, default: "member", inclusion: { in: %w[member admin] }
+end
+
+CreateUser.attributes_schema
+#=> {
+#     email: { required: true, types: [:string], format: /\A.+@.+\z/, ... },
+#     role: { required: false, default: "member", inclusion: { in: ["member", "admin"] }, ... }
+#   }
+```
 
 ## Sources
 

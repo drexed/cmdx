@@ -21,6 +21,24 @@ class AuthenticateUser < CMDx::Task
 end
 ```
 
+## Removals
+
+Remove inherited return declarations:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  returns :audit_log
+end
+
+class LightweightTask < ApplicationTask
+  remove_returns :audit_log
+
+  def work
+    # No longer required to set context.audit_log
+  end
+end
+```
+
 ## Validation Behavior
 
 Return validation runs **after** `work` completes and **only** when the result is still successful. If the task has already failed or been skipped, return validation is skipped entirely.

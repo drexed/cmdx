@@ -17,6 +17,19 @@ Task settings take precedence over global config. Settings are inherited from pa
 
 Configure framework-wide defaults that apply to all tasks. These settings come with sensible defaults out of the box.
 
+### Default Values
+
+| Setting                | Default                                             | Description                                                           |
+| ---------------------- | --------------------------------------------------- | --------------------------------------------------------------------- |
+| `task_breakpoints`     | `["failed"]`                                        | Statuses that cause `execute!` to raise                               |
+| `workflow_breakpoints` | `["failed"]`                                        | Statuses that halt workflow pipelines                                 |
+| `rollback_on`          | `["failed"]`                                        | Statuses that trigger `rollback`                                      |
+| `freeze_results`       | `true`                                              | Freeze results after execution                                        |
+| `backtrace`            | `false`                                             | Include backtraces for non-fault exceptions                           |
+| `backtrace_cleaner`    | `nil`                                               | Callable to clean backtraces (Rails: `Rails.backtrace_cleaner.clean`) |
+| `exception_handler`    | `nil`                                               | Callable invoked on non-fault exceptions                              |
+| `logger`               | `Logger.new($stdout, level: INFO, formatter: Line)` | Logger instance                                                       |
+
 ### Breakpoints
 
 Control when `execute!` raises a `CMDx::Fault` based on task status.
@@ -45,6 +58,20 @@ CMDx.configure do |config|
 end
 ```
 
+### Result Freezing
+
+By default, results, context, and chains are frozen after execution to enforce immutability. There are very rare instances where disabling this is needed so take great care.
+
+```ruby
+CMDx.configure do |config|
+  config.freeze_results = false
+end
+```
+
+Tip
+
+Only disable `freeze_results` in tests. Frozen results prevent accidental mutation in production code.
+
 ### Backtraces
 
 Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
@@ -68,11 +95,15 @@ end
 
 ### Exception Handlers
 
-Register handlers that run when non-fault exceptions occur.
+Register handlers that run when non-fault exceptions occur during `execute` (non-bang). The handler receives the **task instance** and the **exception** — access the result via `task.result`.
 
 Tip
 
 Use exception handlers to send errors to your APM of choice.
+
+Note
+
+Exception handlers only run for non-fault `StandardError` exceptions caught by `execute`. Faults (`skip!`/`fail!`) and `execute!` exceptions do not trigger the handler.
 
 ```ruby
 CMDx.configure do |config|
@@ -81,7 +112,11 @@ CMDx.configure do |config|
 
   # Via proc or lambda
   config.exception_handler = proc do |task, exception|
-    APMService.report(exception, extra_data: { task: task.name, id: task.id })
+    APMService.report(exception, extra_data: {
+      task: task.class.name,
+      id: task.id,
+      status: task.result.status
+    })
   end
 end
 ```
@@ -205,7 +240,20 @@ end
 
 ### Settings
 
-Override global configuration for specific tasks using `settings`:
+Override global configuration for specific tasks using `settings`.
+
+Caution
+
+`settings` is initialized **once per class** on first access. Subsequent calls return the existing instance and ignore any new overrides. Define all overrides in a single `settings` call.
+
+```ruby
+class MyTask < CMDx::Task
+  settings(retries: 3, tags: ["api"])     # These apply
+  settings(retries: 5)                    # Ignored — settings already initialized
+end
+```
+
+Override global configuration for specific tasks:
 
 ```ruby
 class GenerateInvoice < CMDx::Task
@@ -286,8 +334,8 @@ class ProcessUpload < CMDx::Task
   settings(tags: ["files", "storage"])
 
   def work
-    self.class.settings[:logger] #=> Global configuration value
-    self.class.settings[:tags]   #=> Task configuration value => ["files", "storage"]
+    self.class.settings.logger #=> Global configuration value
+    self.class.settings.tags   #=> Task configuration value => ["files", "storage"]
   end
 end
 ```

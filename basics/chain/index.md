@@ -4,11 +4,15 @@ Chains automatically track related task executions within a thread. Think of the
 
 ## Management
 
-Each thread maintains its own isolated chain using thread-local storage.
+Each execution context maintains its own isolated chain. CMDx uses `Fiber.storage` when available (Ruby 3.2+), falling back to `Thread.current` on older Rubies.
 
 Warning
 
-Chains are thread-local. Don't share chain references across threads—it causes race conditions.
+Chains are scoped to the current fiber or thread. Don't share chain references across fibers or threads—it causes race conditions.
+
+Tip
+
+Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the `async` gem out of the box.
 
 ```ruby
 # Thread A
@@ -92,17 +96,27 @@ Chain state reflects the first (outermost) task result. Subtasks maintain their 
 result = ImportDataset.execute(dataset_id: 456)
 chain = result.chain
 
-# Chain identification
-chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
-chain.results #=> Array of all results in execution order
+# Chain identification (UUID v7 when available, UUID v4 otherwise)
+chain.id        #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+chain.results   #=> Array of all results in execution order
+chain.dry_run?  #=> true/false
 
 # State delegation (from first/outer-most result)
-chain.state   #=> "complete"
-chain.status  #=> "success"
-chain.outcome #=> "success"
+chain.state     #=> "complete"
+chain.status    #=> "success"
+chain.outcome   #=> "success"
+
+# Convenience methods (delegated from results array)
+chain.size      #=> 4 (number of results)
+chain.first     #=> First result (outermost task)
+chain.last      #=> Last result (most recent subtask)
 
 # Access individual results
 chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
 ```
+
+## Freezing
+
+After the outermost task completes, CMDx freezes the chain, context, and all results to enforce immutability. Subtask results are frozen as part of this top-level freeze—not individually during their own execution.

@@ -582,8 +582,7 @@
 63
 64
 65
-66
-67</pre>
+66</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 56</span>
@@ -592,9 +591,8 @@
   <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_group'>group</span><span class='op'>|</span>
     <span class='kw'>next</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Condition.html" title="CMDx::Utils::Condition (module)">Condition</a></span></span><span class='period'>.</span><span class='id identifier rubyid_evaluate'><span class='object_link'><a href="Utils/Condition.html#evaluate-instance_method" title="CMDx::Utils::Condition#evaluate (method)">evaluate</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='comma'>,</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
 
-    <span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>=</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:breakpoints</span><span class='rbracket'>]</span> <span class='op'>||</span>
-                  <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:breakpoints</span><span class='rbracket'>]</span> <span class='op'>||</span>
-                  <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:workflow_breakpoints</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_settings'>settings</span> <span class='op'>=</span> <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span>
+    <span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>=</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:breakpoints</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>||</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_workflow_breakpoints'>workflow_breakpoints</span>
     <span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_breakpoints'>breakpoints</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
 
     <span class='id identifier rubyid_execute_group_tasks'>execute_group_tasks</span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='comma'>,</span> <span class='id identifier rubyid_breakpoints'>breakpoints</span><span class='rparen'>)</span>
@@ -610,7 +608,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:29 2026 by
+  Generated on Tue Mar 10 18:38:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

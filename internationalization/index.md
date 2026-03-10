@@ -17,7 +17,7 @@ end
 
 I18n.with_locale(:fr) do
   result = ProcessQuote.execute(price: "invalid")
-  result.metadata[:messages][:price] #=> ["impossible de contraindre en float"]
+  result.metadata[:errors][:messages][:price] #=> ["impossible de contraindre en float"]
 end
 ```
 

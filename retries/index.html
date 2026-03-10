@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../feed_rss_updated.xml">
       
       <link rel="icon" href="../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1515,6 +1515,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#retry-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retry Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#retry-results" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1682,6 +1693,62 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2165,6 +2232,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#retry-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retry Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#retry-results" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2354,6 +2432,14 @@
 </span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="k">end</span>
 </span></code></pre></div>
+<h2 id="retry-behavior">Retry Behavior<a class="headerlink" href="#retry-behavior" title="Permanent link">&para;</a></h2>
+<p>Understanding how retries work internally helps avoid surprises:</p>
+<ul>
+<li><strong>Same task instance</strong> — Retries reuse the same task object. Context and attributes from previous attempts persist.</li>
+<li><strong>Validation skipped</strong> — <code>before_validation</code> callbacks and attribute validation only run on the first attempt. Retries go straight to <code>before_execution</code> and <code>work</code>.</li>
+<li><strong>Errors cleared</strong> — <code>task.errors</code> is automatically cleared before each retry so errors from previous attempts don't carry over.</li>
+<li><strong>Retry count tracked</strong> — <code>result.retries</code> increments before each retry attempt.</li>
+</ul>
 <h2 id="retry-results">Retry Results<a class="headerlink" href="#retry-results" title="Permanent link">&para;</a></h2>
 <p>After execution, the result object provides methods to inspect retry behavior:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>

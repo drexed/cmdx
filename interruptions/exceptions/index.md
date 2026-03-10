@@ -1,6 +1,14 @@
 # Interruptions - Exceptions
 
-Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy.
+Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy. See the [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full exception hierarchy.
+
+## Exception Hierarchy
+
+CMDx defines a clear exception hierarchy. See [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full tree.
+
+Caution
+
+`CMDx::TimeoutError` inherits from `Interrupt`, **not** `StandardError`. This means `rescue StandardError` will not catch timeouts. Rescue `CMDx::TimeoutError` or `Interrupt` explicitly when using the Timeout middleware.
 
 ## Exception Handling
 

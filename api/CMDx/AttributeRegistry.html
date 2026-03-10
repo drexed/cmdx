@@ -545,7 +545,9 @@
 92
 93
 94
-95</pre>
+95
+96
+97</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/attribute_registry.rb', line 90</span>
@@ -555,6 +557,8 @@
     <span class='id identifier rubyid_attribute'>attribute</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
     <span class='id identifier rubyid_attribute'>attribute</span><span class='period'>.</span><span class='id identifier rubyid_define_and_verify_tree'>define_and_verify_tree</span>
   <span class='kw'>end</span>
+<span class='kw'>ensure</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:clear_task_tree!</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -867,7 +871,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:30 2026 by
+  Generated on Tue Mar 10 18:38:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

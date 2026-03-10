@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1640,6 +1640,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -2211,9 +2267,13 @@
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">result</span><span class="o">.</span><span class="n">failed?</span><span class="w">  </span><span class="c1">#=&gt; true/false</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># Outcome categorization</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">    </span><span class="c1">#=&gt; true if success OR skipped</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">result</span><span class="o">.</span><span class="n">good?</span><span class="w">    </span><span class="c1">#=&gt; true if success OR skipped (alias: ok?)</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span><span class="o">.</span><span class="n">bad?</span><span class="w">     </span><span class="c1">#=&gt; true if skipped OR failed (not success)</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>skipped</code> is intentionally both <code>good?</code> and <code>bad?</code>. This reflects that skipping is a valid outcome (good — nothing broke) but also a non-success (bad — work wasn't done). Use <code>success?</code> when you need a strict success check.</p>
+</div>
 <h2 id="handlers">Handlers<a class="headerlink" href="#handlers" title="Permanent link">&para;</a></h2>
 <p>Branch business logic with status-based handlers. Use <code>on(:good)</code> and <code>on(:bad)</code> for success/skip vs failed outcomes:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessNotification</span><span class="o">.</span><span class="n">execute</span>

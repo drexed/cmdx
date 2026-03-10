@@ -24,7 +24,7 @@ CMDx stands apart by combining zero external dependencies with production-grade 
 - **Observability out of the box** — Structured logging, chain correlation, and runtime metrics are built-in, not bolted on. Trace complex workflows across services without additional instrumentation.
 - **Comprehensive type system** — 20+ coercers handle everything from primitives to dates, arrays, and custom types. Validation rules like `numeric`, `format`, and `inclusion` ensure data integrity before execution.
 - **Extensible middleware** — Inject cross-cutting concerns (authentication, rate limiting, telemetry) without modifying task logic. Middleware composes cleanly and executes in predictable order.
-- **Fault tolerance patterns** — Built-in retry policies with exponential backoff, circuit breakers, and timeout handling. Production-ready resilience without external gems.
+- **Fault tolerance patterns** — Built-in retry policies with configurable jitter, timeout middleware, and graceful degradation via `skip!`/`fail!`. Production-ready resilience without external gems.
 - **Framework agnostic** — Works seamlessly with Rails, Hanami, Sinatra, or plain Ruby. No ActiveSupport dependency, no framework lock-in.
 
 ## Event Sourcing Replacement

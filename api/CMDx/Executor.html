@@ -698,29 +698,31 @@
 81
 82
 83
-84</pre>
+84
+85</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 65</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span>
-  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
     <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
-    <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span> <span class='comment'># No need to clear the Chain since exception is not being re-raised
-</span>  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='kw'>retry</span> <span class='kw'>if</span> <span class='id identifier rubyid_retry_execution?'>retry_execution?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:exception_handler</span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_exception_handler'>exception_handler</span><span class='op'>&amp;.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>ensure</span>
     <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_executed!'>executed!</span>
     <span class='id identifier rubyid_post_execution!'>post_execution!</span>
   <span class='kw'>end</span>
 
+  <span class='id identifier rubyid_unswallow_middleware!'>unswallow_middleware!</span>
   <span class='id identifier rubyid_finalize_execution!'>finalize_execution!</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -815,7 +817,6 @@
       <pre class="lines">
 
 
-97
 98
 99
 100
@@ -835,13 +836,21 @@
 114
 115
 116
-117</pre>
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 97</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute!'>execute!</span>
-  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
     <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
@@ -849,7 +858,13 @@
     <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_halt_execution?'>halt_execution?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_post_execution!'>post_execution!</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_halt_execution?'>halt_execution?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_executed!'>executed!</span>
+      <span class='id identifier rubyid_post_execution!'>post_execution!</span>
+    <span class='kw'>end</span>
   <span class='kw'>rescue</span> <span class='const'>StandardError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='kw'>retry</span> <span class='kw'>if</span> <span class='id identifier rubyid_retry_execution?'>retry_execution?</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
@@ -859,6 +874,7 @@
     <span class='id identifier rubyid_post_execution!'>post_execution!</span>
   <span class='kw'>end</span>
 
+  <span class='id identifier rubyid_unswallow_middleware!'>unswallow_middleware!</span>
   <span class='id identifier rubyid_finalize_execution!'>finalize_execution!</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -871,7 +887,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:29 2026 by
+  Generated on Tue Mar 10 18:38:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

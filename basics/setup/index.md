@@ -26,7 +26,7 @@ IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 
 ## Rollback
 
-Undo any operations linked to the given status, helping to restore a pristine state.
+Undo any operations linked to the given status, helping to restore a pristine state. Configure which statuses trigger rollback via [`rollback_on`](https://drexed.github.io/cmdx/configuration/#rollback) (default: `["failed"]`).
 
 ```ruby
 class ChargeCard < CMDx::Task
@@ -87,6 +87,7 @@ stateDiagram-v2
         Skipped
         Failed
         Rollback
+        Freeze
 
         Skipped --> Rollback
         Failed --> Rollback

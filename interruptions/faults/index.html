@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1718,6 +1718,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -2318,7 +2374,7 @@
 
 
 <h1 id="interruptions-faults">Interruptions - Faults<a class="headerlink" href="#interruptions-faults" title="Permanent link">&para;</a></h1>
-<p>Faults are exceptions raised by <code>execute!</code> when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.</p>
+<p>Faults are exceptions raised by <code>execute!</code> when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns. See the <a href="../../exceptions/">Exceptions Reference</a> for the full hierarchy.</p>
 <h2 id="fault-types">Fault Types<a class="headerlink" href="#fault-types" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2412,7 +2468,11 @@
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="fault-propagation">Fault Propagation<a class="headerlink" href="#fault-propagation" title="Permanent link">&para;</a></h2>
-<p>Propagate failures with <code>throw!</code> to preserve context and maintain the error chain:</p>
+<p>Propagate failures with <code>throw!</code> to preserve context and maintain the error chain.</p>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p><code>throw!</code> requires a <code>CMDx::Result</code> argument. Passing any other object raises a <code>TypeError</code>.</p>
+</div>
 <h3 id="basic-propagation">Basic Propagation<a class="headerlink" href="#basic-propagation" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportGenerator</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>

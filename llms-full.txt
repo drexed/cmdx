@@ -92,6 +92,43 @@ rails generate cmdx:install
 
 If not using Rails, manually copy the [configuration file](https://github.com/drexed/cmdx/blob/main/lib/generators/cmdx/templates/install.rb).
 
+## Quick Start
+
+A self-contained example you can run in `irb` or a plain Ruby script — no Rails required:
+
+```ruby
+require "cmdx"
+
+class Greet < CMDx::Task
+  required :name, type: :string, presence: true
+
+  def work
+    context.greeting = "Hello, #{name}!"
+  end
+end
+
+result = Greet.execute(name: "World")
+result.success?          #=> true
+result.context.greeting  #=> "Hello, World!"
+
+result = Greet.execute(name: "")
+result.failed?           #=> true
+result.reason            #=> "Invalid"
+```
+
+From here, you can progressively add features as needed:
+
+| Need                   | Feature                                                                      | Docs                             |
+| ---------------------- | ---------------------------------------------------------------------------- | -------------------------------- |
+| Type safety on inputs  | [Coercions](https://drexed.github.io/cmdx/attributes/coercions/index.md)     | `type: :integer`                 |
+| Input constraints      | [Validations](https://drexed.github.io/cmdx/attributes/validations/index.md) | `numeric: { min: 1 }`            |
+| Conditional stops      | [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md)            | `skip!`, `fail!`                 |
+| Multi-task pipelines   | [Workflows](https://drexed.github.io/cmdx/workflows/index.md)                | `include CMDx::Workflow`         |
+| Cross-cutting concerns | [Middlewares](https://drexed.github.io/cmdx/middlewares/index.md)            | `register :middleware`           |
+| Lifecycle hooks        | [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md)                | `on_success`, `before_execution` |
+| Output contracts       | [Returns](https://drexed.github.io/cmdx/returns/index.md)                    | `returns :user, :token`          |
+| Structured logs        | [Logging](https://drexed.github.io/cmdx/logging/index.md)                    | Automatic                        |
+
 ## The CERO Pattern
 
 CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
@@ -208,7 +245,15 @@ CMDx facilitates Domain Driven Design (DDD) by making business processes explici
 Generate new CMDx tasks quickly using the built-in generator:
 
 ```bash
+# Task
 rails generate cmdx:task ModerateBlogPost
+
+# Workflow
+rails generate cmdx:workflow ProcessNotifications
+
+# Namespaced
+rails generate cmdx:task Admin::AuditUser
+# => Creates app/tasks/admin/audit_user.rb
 ```
 
 This creates a new task file with the basic structure:
@@ -218,6 +263,24 @@ This creates a new task file with the basic structure:
 class ModerateBlogPost < CMDx::Task
   def work
     # Your logic here...
+  end
+end
+```
+
+Note
+
+The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
+
+```ruby
+# app/tasks/application_task.rb
+class ApplicationTask < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate
+  before_execution :set_request_context
+
+  private
+
+  def set_request_context
+    context.request_id ||= SecureRandom.uuid
   end
 end
 ```
@@ -254,6 +317,19 @@ Task settings take precedence over global config. Settings are inherited from pa
 
 Configure framework-wide defaults that apply to all tasks. These settings come with sensible defaults out of the box.
 
+### Default Values
+
+| Setting                | Default                                             | Description                                                           |
+| ---------------------- | --------------------------------------------------- | --------------------------------------------------------------------- |
+| `task_breakpoints`     | `["failed"]`                                        | Statuses that cause `execute!` to raise                               |
+| `workflow_breakpoints` | `["failed"]`                                        | Statuses that halt workflow pipelines                                 |
+| `rollback_on`          | `["failed"]`                                        | Statuses that trigger `rollback`                                      |
+| `freeze_results`       | `true`                                              | Freeze results after execution                                        |
+| `backtrace`            | `false`                                             | Include backtraces for non-fault exceptions                           |
+| `backtrace_cleaner`    | `nil`                                               | Callable to clean backtraces (Rails: `Rails.backtrace_cleaner.clean`) |
+| `exception_handler`    | `nil`                                               | Callable invoked on non-fault exceptions                              |
+| `logger`               | `Logger.new($stdout, level: INFO, formatter: Line)` | Logger instance                                                       |
+
 ### Breakpoints
 
 Control when `execute!` raises a `CMDx::Fault` based on task status.
@@ -282,6 +358,20 @@ CMDx.configure do |config|
 end
 ```
 
+### Result Freezing
+
+By default, results, context, and chains are frozen after execution to enforce immutability. There are very rare instances where disabling this is needed so take great care.
+
+```ruby
+CMDx.configure do |config|
+  config.freeze_results = false
+end
+```
+
+Tip
+
+Only disable `freeze_results` in tests. Frozen results prevent accidental mutation in production code.
+
 ### Backtraces
 
 Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.
@@ -305,11 +395,15 @@ end
 
 ### Exception Handlers
 
-Register handlers that run when non-fault exceptions occur.
+Register handlers that run when non-fault exceptions occur during `execute` (non-bang). The handler receives the **task instance** and the **exception** — access the result via `task.result`.
 
 Tip
 
 Use exception handlers to send errors to your APM of choice.
+
+Note
+
+Exception handlers only run for non-fault `StandardError` exceptions caught by `execute`. Faults (`skip!`/`fail!`) and `execute!` exceptions do not trigger the handler.
 
 ```ruby
 CMDx.configure do |config|
@@ -318,7 +412,11 @@ CMDx.configure do |config|
 
   # Via proc or lambda
   config.exception_handler = proc do |task, exception|
-    APMService.report(exception, extra_data: { task: task.name, id: task.id })
+    APMService.report(exception, extra_data: {
+      task: task.class.name,
+      id: task.id,
+      status: task.result.status
+    })
   end
 end
 ```
@@ -442,7 +540,20 @@ end
 
 ### Settings
 
-Override global configuration for specific tasks using `settings`:
+Override global configuration for specific tasks using `settings`.
+
+Caution
+
+`settings` is initialized **once per class** on first access. Subsequent calls return the existing instance and ignore any new overrides. Define all overrides in a single `settings` call.
+
+```ruby
+class MyTask < CMDx::Task
+  settings(retries: 3, tags: ["api"])     # These apply
+  settings(retries: 5)                    # Ignored — settings already initialized
+end
+```
+
+Override global configuration for specific tasks:
 
 ```ruby
 class GenerateInvoice < CMDx::Task
@@ -523,8 +634,8 @@ class ProcessUpload < CMDx::Task
   settings(tags: ["files", "storage"])
 
   def work
-    self.class.settings[:logger] #=> Global configuration value
-    self.class.settings[:tags]   #=> Task configuration value => ["files", "storage"]
+    self.class.settings.logger #=> Global configuration value
+    self.class.settings.tags   #=> Task configuration value => ["files", "storage"]
   end
 end
 ```
@@ -580,7 +691,7 @@ IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
 
 ## Rollback
 
-Undo any operations linked to the given status, helping to restore a pristine state.
+Undo any operations linked to the given status, helping to restore a pristine state. Configure which statuses trigger rollback via [`rollback_on`](https://drexed.github.io/cmdx/configuration/#rollback) (default: `["failed"]`).
 
 ```ruby
 class ChargeCard < CMDx::Task
@@ -641,6 +752,7 @@ stateDiagram-v2
         Skipped
         Failed
         Rollback
+        Freeze
 
         Skipped --> Rollback
         Failed --> Rollback
@@ -662,7 +774,7 @@ Tasks are single-use objects. Once executed, they're frozen and immutable.
 
 # Basics - Execution
 
-CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow.
+CMDx offers two execution methods with different error handling approaches. Choose based on your needs: safe result handling or exception-based control flow. See also [Result](https://drexed.github.io/cmdx/outcomes/result/index.md) for the full result API, [Halt](https://drexed.github.io/cmdx/interruptions/halt/index.md) for `skip!`/`fail!`, and [Retries](https://drexed.github.io/cmdx/retries/index.md) for automatic retry behavior.
 
 ## Execution Methods
 
@@ -744,6 +856,20 @@ rescue Exception => e
 end
 ```
 
+## Block Yield
+
+Execute tasks with direct result access via a block:
+
+```ruby
+CreateAccount.execute(email: "user@example.com") do |result|
+  if result.success?
+    redirect_to dashboard_path
+  else
+    render :new, alert: result.reason
+  end
+end
+```
+
 ## Direct Instantiation
 
 Tasks can be instantiated directly for advanced use cases, testing, and custom execution patterns:
@@ -766,6 +892,10 @@ task.execute!
 
 task.result.success?         #=> true/false
 ```
+
+Tip
+
+Shorthand aliases are available on task instances: `ctx` for `context` and `res` for `result`.
 
 ## Result Details
 
@@ -817,6 +947,28 @@ result.context.stripe_result = {
 
 Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.
 
+## Building Context
+
+`Context.build` intelligently handles different input types:
+
+```ruby
+# From a hash
+Context.build(email: "user@example.com")
+
+# From an existing Context (reuses if not frozen)
+Context.build(existing_context)
+
+# From a Result or Task (extracts its context)
+Context.build(some_result)  # equivalent to some_result.context
+
+# From nil (creates empty context)
+Context.build(nil)
+```
+
+Important
+
+`Context.build` raises `ArgumentError` if the argument doesn't respond to `to_h` or `to_hash`.
+
 ## Assigning Data
 
 Context automatically captures all task inputs, normalizing keys to symbols:
@@ -849,8 +1001,18 @@ class CalculateShipping < CMDx::Task
     options = context["options"]
 
     # Safe access with defaults
-    rush_delivery = context.fetch!(:rush_delivery, false)
+    rush_delivery = context.fetch(:rush_delivery, false)
     carrier = context.dig(:options, :carrier)
+
+    # Fetch or set a default (returns existing value, or stores and returns the default)
+    context.fetch_or_store(:attempt_count, 0)
+
+    # Check key existence
+    context.key?(:weight)  #=> true
+
+    # Iteration
+    context.each { |key, value| logger.debug("#{key}: #{value}") }
+    keys = context.map { |key, _| key }
 
     # Shorter alias
     cost = ctx.weight * ctx.rate_per_pound  # ctx aliases context
@@ -938,17 +1100,25 @@ result = CalculateShipping.execute(destination: "New York, NY")
 CreateShippingLabel.execute(result)
 ```
 
+Important
+
+When passing `context`, a `Result`, or a `Task` to another task, the context is **shared by reference**—not copied. Mutations in one task are visible in the other. This enables natural data flow in pipelines but can cause surprises if you expect isolation. Use `context.to_h` to pass a snapshot instead.
+
 # Basics - Chain
 
 Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.
 
 ## Management
 
-Each thread maintains its own isolated chain using thread-local storage.
+Each execution context maintains its own isolated chain. CMDx uses `Fiber.storage` when available (Ruby 3.2+), falling back to `Thread.current` on older Rubies.
 
 Warning
 
-Chains are thread-local. Don't share chain references across threads—it causes race conditions.
+Chains are scoped to the current fiber or thread. Don't share chain references across fibers or threads—it causes race conditions.
+
+Tip
+
+Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the `async` gem out of the box.
 
 ```ruby
 # Thread A
@@ -1032,20 +1202,30 @@ Chain state reflects the first (outermost) task result. Subtasks maintain their 
 result = ImportDataset.execute(dataset_id: 456)
 chain = result.chain
 
-# Chain identification
-chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
-chain.results #=> Array of all results in execution order
+# Chain identification (UUID v7 when available, UUID v4 otherwise)
+chain.id        #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+chain.results   #=> Array of all results in execution order
+chain.dry_run?  #=> true/false
 
 # State delegation (from first/outer-most result)
-chain.state   #=> "complete"
-chain.status  #=> "success"
-chain.outcome #=> "success"
+chain.state     #=> "complete"
+chain.status    #=> "success"
+chain.outcome   #=> "success"
+
+# Convenience methods (delegated from results array)
+chain.size      #=> 4 (number of results)
+chain.first     #=> First result (outermost task)
+chain.last      #=> Last result (most recent subtask)
 
 # Access individual results
 chain.results.each_with_index do |result, index|
   puts "#{index}: #{result.task.class} - #{result.status}"
 end
 ```
+
+## Freezing
+
+After the outermost task completes, CMDx freezes the chain, context, and all results to enforce immutability. Subtask results are frozen as part of this top-level freeze—not individually during their own execution.
 # Interruptions
 
 # Interruptions - Halt
@@ -1165,6 +1345,24 @@ result.metadata #=> {
                 #   }
 ```
 
+## Idempotency
+
+Halt methods are safe to call when the result is already in the target status:
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    fail!("Out of stock") if out_of_stock?
+    fail!("Insufficient funds") if insufficient_funds?
+    # Second fail! is a no-op if already failed above
+  end
+end
+```
+
+Important
+
+`skip!` and `fail!` are no-ops when the result is already in the matching status. However, calling `skip!` after `fail!` (or vice versa) raises a `RuntimeError` — status transitions are unidirectional.
+
 ## State Transitions
 
 Halt methods trigger specific state and status transitions:
@@ -1246,11 +1444,33 @@ fail! #=> "Unspecified"
 
 ## Manual Errors
 
-For rare cases, manually add errors before halting:
+For rare cases, manually add errors before halting.
 
 Important
 
 Manual errors don't stop execution—you still need to call `fail!` or `skip!`.
+
+### Errors API
+
+The `errors` object provides methods for querying and formatting error messages:
+
+```ruby
+errors.add(:email, "is invalid")
+errors.add(:email, "is required")
+errors.add(:name, "is too short")
+
+errors.any?              #=> true
+errors.empty?            #=> false
+errors.size              #=> 2 (number of attributes with errors)
+errors.for?(:email)      #=> true
+errors.for?(:phone)      #=> false
+
+errors.to_h              #=> { email: ["is invalid", "is required"], name: ["is too short"] }
+errors.full_messages     #=> { email: ["email is invalid", "email is required"], name: ["name is too short"] }
+errors.to_s              #=> "email is invalid. email is required. name is too short"
+```
+
+### Usage
 
 ```ruby
 class ProcessRenewal < CMDx::Task
@@ -1267,7 +1487,7 @@ end
 
 # Interruptions - Faults
 
-Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.
+Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns. See the [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full hierarchy.
 
 ## Fault Types
 
@@ -1359,7 +1579,11 @@ end
 
 ## Fault Propagation
 
-Propagate failures with `throw!` to preserve context and maintain the error chain:
+Propagate failures with `throw!` to preserve context and maintain the error chain.
+
+Important
+
+`throw!` requires a `CMDx::Result` argument. Passing any other object raises a `TypeError`.
 
 ### Basic Propagation
 
@@ -1437,7 +1661,15 @@ end
 
 # Interruptions - Exceptions
 
-Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy.
+Exception handling differs between `execute` and `execute!`. Choose the method that matches your error handling strategy. See the [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full exception hierarchy.
+
+## Exception Hierarchy
+
+CMDx defines a clear exception hierarchy. See [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full tree.
+
+Caution
+
+`CMDx::TimeoutError` inherits from `Interrupt`, **not** `StandardError`. This means `rescue StandardError` will not catch timeouts. Rescue `CMDx::TimeoutError` or `Interrupt` explicitly when using the Timeout middleware.
 
 ## Exception Handling
 
@@ -1538,6 +1770,7 @@ result.skipped?     #=> false (not skipped)
 
 # Outcome categorization
 result.good?        #=> true (success or skipped)
+result.ok?          #=> true (alias for good?)
 result.bad?         #=> false (skipped or failed)
 
 # Retry Status
@@ -1617,7 +1850,11 @@ end
 
 ## Handlers
 
-Handle outcomes with functional-style methods. Handlers return the result for chaining:
+Handle outcomes with functional-style methods. Handlers return the result for chaining.
+
+Important
+
+The `on` method requires a block. Calling `on` without a block raises `ArgumentError`.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -1686,7 +1923,7 @@ in { status: "failed", metadata: { attempts: n } } if n < 3
   retry_build_with_delay(result, n * 2)
 in { status: "failed", metadata: { attempts: n } } if n >= 3
   mark_build_permanently_failed(result)
-in { runtime: time } if time > performance_threshold
+in { metadata: { runtime: Integer => time } } if time > performance_threshold
   investigate_build_performance(result)
 end
 ```
@@ -1801,9 +2038,13 @@ result.skipped? #=> true/false
 result.failed?  #=> true/false
 
 # Outcome categorization
-result.good?    #=> true if success OR skipped
+result.good?    #=> true if success OR skipped (alias: ok?)
 result.bad?     #=> true if skipped OR failed (not success)
 ```
+
+Note
+
+`skipped` is intentionally both `good?` and `bad?`. This reflects that skipping is a valid outcome (good — nothing broke) but also a non-success (bad — work wasn't done). Use `success?` when you need a strict success check.
 
 ## Handlers
 
@@ -1833,7 +2074,21 @@ Attributes define your task's interface with automatic validation, type coercion
 
 Important
 
-Attributes are order-dependent, so if you need to reference them as a source or use them in conditions, make sure they’re defined in the correct order.
+Attributes are order-dependent. If one attribute references another as a source or condition, the referenced attribute must be defined first.
+
+```ruby
+# Correct: credentials defined before connection_string
+required :credentials, source: :database_config
+attribute :connection_string, source: :credentials
+
+# Wrong: connection_string references credentials before it exists
+attribute :connection_string, source: :credentials
+required :credentials, source: :database_config
+```
+
+Important
+
+Attribute names that conflict with existing Ruby or CMDx methods will raise an error. Use `:as`, `:prefix`, or `:suffix` to resolve naming conflicts. See [Naming](https://drexed.github.io/cmdx/attributes/naming/index.md).
 
 Tip
 
@@ -1909,6 +2164,47 @@ end
 Note
 
 When a required attribute's condition evaluates to `false`, the attribute behaves as optional. All other attribute features such as coercions, validations, defaults, and transformations still apply normally.
+
+## Removals
+
+Remove inherited or previously defined attributes and their accessor methods:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  required :tenant_id
+  optional :debug_mode
+end
+
+class PublicTask < ApplicationTask
+  remove_attribute :tenant_id
+  remove_attributes :debug_mode
+
+  def work
+    # tenant_id and debug_mode are no longer defined
+  end
+end
+```
+
+Important
+
+Removing an attribute also removes any nested children defined under it.
+
+## Introspection
+
+Inspect the full attribute schema for tooling, documentation generation, or debugging:
+
+```ruby
+class CreateUser < CMDx::Task
+  required :email, type: :string, format: /\A.+@.+\z/
+  optional :role, default: "member", inclusion: { in: %w[member admin] }
+end
+
+CreateUser.attributes_schema
+#=> {
+#     email: { required: true, types: [:string], format: /\A.+@.+\z/, ... },
+#     role: { required: false, default: "member", inclusion: { in: ["member", "admin"] }, ... }
+#   }
+```
 
 ## Sources
 
@@ -2264,7 +2560,7 @@ Use anonymous functions for simple coercion logic:
 ```ruby
 class TransformCoordinates < CMDx::Task
   # Proc
-  register :callback, :geolocation, proc do |value, options = {}|
+  register :coercion, :geolocation, proc do |value, options = {}|
     begin
       Geolocation(value)
     rescue StandardError
@@ -2273,7 +2569,7 @@ class TransformCoordinates < CMDx::Task
   end
 
   # Lambda
-  register :callback, :geolocation, ->(value, options = {}) {
+  register :coercion, :geolocation, ->(value, options = {}) {
     begin
       Geolocation(value)
     rescue StandardError
@@ -2787,6 +3083,24 @@ end
 
 Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.
 
+## Processing Pipeline
+
+Each attribute flows through a fixed pipeline:
+
+```
+flowchart LR
+    Source --> Coerce --> Transform --> Validate
+```
+
+| Stage         | Description                                            |
+| ------------- | ------------------------------------------------------ |
+| **Source**    | Resolve value from context, method, proc, or callable  |
+| **Coerce**    | Convert to declared `type` (e.g., string → integer)    |
+| **Transform** | Apply `transform` function to coerced value            |
+| **Validate**  | Run validators (presence, format, etc.) on final value |
+
+This means transformations receive already-coerced values, and validators see the final transformed output.
+
 ## Declarations
 
 ### Symbol References
@@ -3092,6 +3406,40 @@ class ProcessCampaign < CMDx::Task
 end
 ```
 
+## Ordering
+
+Control middleware insertion position with the `at:` parameter. First registered is outermost (default: append to end).
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  register :middleware, AuditMiddleware           # Position 0 (outermost)
+  register :middleware, CacheMiddleware            # Position 1
+  register :middleware, PriorityMiddleware, at: 0  # Inserted at position 0, pushes others down
+end
+
+# Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...
+```
+
+## Safety
+
+CMDx detects middlewares that fail to yield or return the result. If a middleware swallows the block call, the task is automatically marked as failed with a descriptive error.
+
+```ruby
+class BrokenMiddleware
+  def call(task, options)
+    # Forgot to call `yield` — CMDx catches this
+  end
+end
+
+result = MyTask.execute
+result.failed? #=> true
+result.reason  #=> "[RuntimeError] ..."
+```
+
+Caution
+
+Always call `yield` inside your middleware and return the result. Swallowed execution is treated as a failure.
+
 ## Removals
 
 Remove class or module-based middleware globally or per-task:
@@ -3139,7 +3487,7 @@ end
 result = ProcessReport.execute
 
 result.state    #=> "interrupted"
-result.status   #=> "failure"
+result.status   #=> "failed"
 result.reason   #=> "[CMDx::TimeoutError] execution exceeded 3 seconds"
 result.cause    #=> <CMDx::TimeoutError>
 result.metadata #=> { limit: 3 }
@@ -3173,6 +3521,26 @@ end
 
 result = ProcessExport.execute
 result.metadata #=> { correlation_id: "550e8400-e29b-41d4-a716-446655440000" }
+```
+
+#### Class-Level API
+
+Manage correlation IDs directly for cross-boundary tracing (e.g., from a controller into multiple tasks):
+
+```ruby
+# Read or set the current correlation ID
+CMDx::Middlewares::Correlate.id              #=> current ID or nil
+CMDx::Middlewares::Correlate.id = "custom-id"
+
+# Scoped block — restores the previous ID after the block
+CMDx::Middlewares::Correlate.use("request-123") do
+  ProcessExport.execute  # uses "request-123"
+  SendNotification.execute # same correlation ID
+end
+# previous ID is restored here
+
+# Clear the current ID
+CMDx::Middlewares::Correlate.clear
 ```
 
 ### Runtime
@@ -3275,6 +3643,54 @@ Every log entry includes rich metadata. Available fields depend on execution con
 | `caused_failure` | Original failing task details    |
 | `threw_failure`  | Task that propagated the failure |
 
+## Formatter Configuration
+
+Set the formatter globally or per-task:
+
+```ruby
+CMDx.configure do |config|
+  config.logger.formatter = CMDx::LogFormatters::Json.new
+end
+```
+
+```ruby
+class ProcessSubscription < CMDx::Task
+  settings(log_formatter: CMDx::LogFormatters::Json.new)
+end
+```
+
+### Formatter Output Examples
+
+```text
+I, [2025-01-15T10:30:45.123456Z #12345] INFO -- cmdx: {index: 0, class: "MyTask", state: "complete", ...}
+```
+
+```json
+{"severity":"INFO","timestamp":"2025-01-15T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{...}}
+```
+
+```text
+severity="INFO" timestamp="2025-01-15T10:30:45.123456Z" progname="cmdx" pid=12345 message={...}
+```
+
+```json
+{"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2025-01-15T10:30:45.123456Z"}
+```
+
+```text
+{index: 0, class: "MyTask", state: "complete", status: "success", ...}
+```
+
+## Log Levels
+
+CMDx logs task execution at `INFO` level, retries at `WARN`, and backtraces at `ERROR`. Override the log level per-task:
+
+```ruby
+class VerboseTask < CMDx::Task
+  settings(log_level: :debug)
+end
+```
+
 ## Usage
 
 Access the framework logger directly within tasks:
@@ -3308,7 +3724,7 @@ end
 
 I18n.with_locale(:fr) do
   result = ProcessQuote.execute(price: "invalid")
-  result.metadata[:messages][:price] #=> ["impossible de contraindre en float"]
+  result.metadata[:errors][:messages][:price] #=> ["impossible de contraindre en float"]
 end
 ```
 
@@ -3538,6 +3954,15 @@ class FetchUserProfile < CMDx::Task
 end
 ```
 
+## Retry Behavior
+
+Understanding how retries work internally helps avoid surprises:
+
+- **Same task instance** — Retries reuse the same task object. Context and attributes from previous attempts persist.
+- **Validation skipped** — `before_validation` callbacks and attribute validation only run on the first attempt. Retries go straight to `before_execution` and `work`.
+- **Errors cleared** — `task.errors` is automatically cleared before each retry so errors from previous attempts don't carry over.
+- **Retry count tracked** — `result.retries` increments before each retry attempt.
+
 ## Retry Results
 
 After execution, the result object provides methods to inspect retry behavior:
@@ -3593,7 +4018,7 @@ class ProcessLegacyFormat < CMDx::Task
 end
 
 result = ProcessLegacyFormat.execute
-result.successful? #=> true
+result.success? #=> true
 
 # Deprecation warning appears in logs:
 # WARN -- : DEPRECATED: ProcessLegacyFormat - migrate to replacement or discontinue use
@@ -3613,7 +4038,7 @@ class ProcessOldData < CMDx::Task
 end
 
 result = ProcessOldData.execute
-result.successful? #=> true
+result.success? #=> true
 
 # Ruby warning appears in stderr:
 # [ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use
@@ -3718,6 +4143,24 @@ class AuthenticateUser < CMDx::Task
 end
 ```
 
+## Removals
+
+Remove inherited return declarations:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  returns :audit_log
+end
+
+class LightweightTask < ApplicationTask
+  remove_returns :audit_log
+
+  def work
+    # No longer required to set context.audit_log
+  end
+end
+```
+
 ## Validation Behavior
 
 Return validation runs **after** `work` completes and **only** when the result is still successful. If the task has already failed or been skipped, return validation is skipped entirely.
@@ -3773,15 +4216,46 @@ end
 
 Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.
 
+Since workflows are Task subclasses, they inherit all Task features: [attributes](https://drexed.github.io/cmdx/attributes/definitions/index.md), [callbacks](https://drexed.github.io/cmdx/callbacks/index.md), [middlewares](https://drexed.github.io/cmdx/middlewares/index.md), [settings](https://drexed.github.io/cmdx/configuration/#task-configuration), and [returns](https://drexed.github.io/cmdx/returns/index.md). Use these to validate workflow-level inputs, set up shared state, or track workflow outcomes.
+
+```ruby
+class OnboardingWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  register :middleware, CMDx::Middlewares::Correlate
+  before_execution :load_user
+  on_failed :notify_admin!
+
+  required :user_id, type: :integer
+  returns :onboarded_at
+
+  task CreateProfile
+  task SetupPreferences
+  task SendWelcome
+
+  private
+
+  def load_user
+    context.user = User.find(user_id)
+  end
+
+  def notify_admin!
+    AdminMailer.onboarding_failed(context.user).deliver_later
+  end
+end
+```
+
 ## Declarations
 
 Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
 
 Warning
 
-Don't define a `work` method in workflows—the module handles execution automatically.
+Don't define a `work` method in workflows—the module handles execution automatically. Attempting to do so raises a `RuntimeError`.
 
 ### Task
+
+`task` and `tasks` are aliases—use either interchangeably.
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
@@ -3863,7 +4337,7 @@ end
 
 ## Halt Behavior
 
-By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally or per-task to customize this behavior.
+By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally via [`workflow_breakpoints`](https://drexed.github.io/cmdx/configuration/#breakpoints) or per-task to customize this behavior.
 
 ```ruby
 class AnalyticsWorkflow < CMDx::Task
@@ -3910,10 +4384,56 @@ Different task groups can have different halt behavior:
 class SubscriptionWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task CreateSubscription, ValidatePayment, workflow_breakpoints: ["skipped", "failed"]
+  task CreateSubscription, ValidatePayment, breakpoints: ["skipped", "failed"]
 
   # Never halt, always continue
   task SendConfirmationEmail, UpdateBilling, breakpoints: []
+end
+```
+
+## Rollback in Workflows
+
+Each task in a workflow handles its own rollback independently. When a task's status matches the `rollback_on` setting (default: `["failed"]`), that task's `rollback` method is called immediately after its execution — not retroactively for previously completed tasks.
+
+```ruby
+class PaymentWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  task ReserveInventory   # Succeeds → no rollback
+  task ChargeCard          # Fails → ChargeCard.rollback called
+  task SendConfirmation    # Never runs (workflow halts on failure)
+end
+
+class ChargeCard < CMDx::Task
+  def work
+    context.charge = PaymentGateway.charge(context.amount)
+    fail!("Declined") if context.charge.declined?
+  end
+
+  def rollback
+    PaymentGateway.void(context.charge.id)
+  end
+end
+```
+
+Important
+
+CMDx does **not** automatically rollback previously successful tasks when a later task fails. If you need to undo `ReserveInventory` when `ChargeCard` fails, handle it in `ChargeCard`'s rollback or use a callback on the workflow itself.
+
+```ruby
+class PaymentWorkflow < CMDx::Task
+  include CMDx::Workflow
+
+  on_failed :compensate!
+
+  task ReserveInventory
+  task ChargeCard
+
+  private
+
+  def compensate!
+    ReleaseInventory.execute(context) if context.reservation_id
+  end
 end
 ```
 
@@ -3996,6 +4516,375 @@ Tip
 
 Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
 # More
+
+# Testing
+
+Best practices for testing CMDx tasks and workflows with RSpec.
+
+## Setup
+
+Reset global configuration between tests to prevent state leakage:
+
+```ruby
+# spec/rails_helper.rb or spec/spec_helper.rb
+RSpec.configure do |config|
+  config.before(:each) do
+    CMDx.reset_configuration!
+    CMDx::Chain.clear
+  end
+end
+```
+
+## Testing Tasks
+
+### Basic Execution
+
+Test tasks by calling `execute` and asserting on the result:
+
+```ruby
+RSpec.describe CreateUser do
+  it "creates a user successfully" do
+    result = CreateUser.execute(email: "dev@example.com", name: "Ada")
+
+    expect(result).to be_success
+    expect(result.context.user).to be_persisted
+    expect(result.context.user.email).to eq("dev@example.com")
+  end
+
+  it "fails with invalid email" do
+    result = CreateUser.execute(email: "", name: "Ada")
+
+    expect(result).to be_failed
+    expect(result.reason).to include("Invalid")
+  end
+end
+```
+
+### Testing Skip and Fail Conditions
+
+```ruby
+RSpec.describe ProcessRefund do
+  it "skips when refund is already processed" do
+    refund = create(:refund, status: :completed)
+
+    result = ProcessRefund.execute(refund_id: refund.id)
+
+    expect(result).to be_skipped
+    expect(result.reason).to eq("Refund already processed")
+  end
+
+  it "fails when refund is expired" do
+    refund = create(:refund, expired_at: 1.day.ago)
+
+    result = ProcessRefund.execute(refund_id: refund.id)
+
+    expect(result).to be_failed
+    expect(result.metadata[:error_code]).to eq("REFUND_EXPIRED")
+  end
+end
+```
+
+### Testing Bang Execution
+
+```ruby
+RSpec.describe ProcessPayment do
+  it "raises FailFault on failure" do
+    expect {
+      ProcessPayment.execute!(amount: -1)
+    }.to raise_error(CMDx::FailFault) { |fault|
+      expect(fault.result.reason).to include("positive")
+    }
+  end
+end
+```
+
+### Testing Attribute Validation
+
+```ruby
+RSpec.describe CreateProject do
+  it "fails when required attributes are missing" do
+    result = CreateProject.execute(name: nil)
+
+    expect(result).to be_failed
+    expect(result.reason).to eq("Invalid")
+    expect(result.metadata[:errors][:messages]).to have_key(:name)
+  end
+
+  it "coerces string attributes to expected types" do
+    result = CreateProject.execute(name: "Alpha", budget: "5000")
+
+    expect(result).to be_success
+    expect(result.context.budget).to eq(5000)
+  end
+end
+```
+
+### Testing Returns
+
+```ruby
+RSpec.describe AuthenticateUser do
+  it "fails when declared returns are missing" do
+    allow(User).to receive(:authenticate).and_return(nil)
+
+    result = AuthenticateUser.execute(email: "a@b.com", password: "pw")
+
+    expect(result).to be_failed
+    expect(result.metadata[:errors][:messages]).to have_key(:token)
+  end
+end
+```
+
+### Testing Dry Run
+
+```ruby
+RSpec.describe ChargeCard do
+  it "simulates execution without side effects" do
+    result = ChargeCard.execute(card_id: "card_123", dry_run: true)
+
+    expect(result).to be_success
+    expect(result.dry_run?).to be(true)
+  end
+end
+```
+
+## Testing Workflows
+
+### Full Workflow
+
+```ruby
+RSpec.describe OnboardingWorkflow do
+  it "runs all tasks in sequence" do
+    result = OnboardingWorkflow.execute(user_data: valid_params)
+
+    expect(result).to be_success
+    expect(result.chain.results.size).to eq(4)
+    expect(result.chain.results.map { |r| r.task.class }).to eq(
+      [OnboardingWorkflow, CreateProfile, SetupPreferences, SendWelcome]
+    )
+  end
+end
+```
+
+### Workflow Failure Propagation
+
+```ruby
+RSpec.describe PaymentWorkflow do
+  it "stops on first failure and includes root cause" do
+    result = PaymentWorkflow.execute(invalid_card: true)
+
+    expect(result).to be_failed
+    expect(result.caused_failure.task).to be_a(ValidateCard)
+  end
+end
+```
+
+## Testing Callbacks
+
+```ruby
+RSpec.describe ProcessBooking do
+  it "notifies guest on success" do
+    allow(GuestNotifier).to receive(:call)
+    booking = create(:booking)
+
+    ProcessBooking.execute(booking_id: booking.id)
+
+    expect(GuestNotifier).to have_received(:call)
+  end
+end
+```
+
+## Testing Middlewares
+
+```ruby
+RSpec.describe "Timeout middleware" do
+  it "fails when task exceeds time limit" do
+    result = SlowTask.execute
+
+    expect(result).to be_failed
+    expect(result.cause).to be_a(CMDx::TimeoutError)
+    expect(result.metadata[:limit]).to eq(3)
+  end
+end
+```
+
+## Direct Instantiation
+
+For fine-grained inspection, instantiate tasks directly:
+
+```ruby
+RSpec.describe CalculateShipping do
+  it "exposes context before execution" do
+    task = CalculateShipping.new(weight: 2.5, destination: "CA")
+
+    expect(task.context.weight).to eq(2.5)
+    expect(task.result).to be_initialized
+  end
+
+  it "can be executed manually" do
+    task = CalculateShipping.new(weight: 2.5, destination: "CA")
+    task.execute
+
+    expect(task.result).to be_success
+  end
+end
+```
+
+## Pattern Matching in Tests
+
+Use Ruby's pattern matching for expressive assertions:
+
+```ruby
+RSpec.describe BuildApplication do
+  it "returns expected pattern on success" do
+    result = BuildApplication.execute(version: "1.0")
+
+    expect(result.deconstruct).to match(["complete", "success", anything, anything, anything])
+  end
+
+  it "matches hash pattern on failure" do
+    result = BuildApplication.execute(version: nil)
+
+    case result
+    in { status: "failed", metadata: { errors: { messages: Hash => msgs } } }
+      expect(msgs).to have_key(:version)
+    else
+      raise "Expected failed result with validation errors"
+    end
+  end
+end
+```
+
+# Exceptions Reference
+
+CMDx defines a clear exception hierarchy for distinguishing between different failure types. Understanding this hierarchy is essential for writing correct `rescue` clauses.
+
+## Hierarchy
+
+```text
+StandardError
+└── CMDx::Error (alias: CMDx::Exception)
+    ├── CMDx::CoercionError
+    ├── CMDx::DeprecationError
+    ├── CMDx::UndefinedMethodError
+    ├── CMDx::ValidationError
+    └── CMDx::Fault
+        ├── CMDx::SkipFault
+        └── CMDx::FailFault
+
+Interrupt
+└── CMDx::TimeoutError
+```
+
+## Exception Types
+
+### CMDx::Error
+
+Base class for all CMDx exceptions. Also aliased as `CMDx::Exception`.
+
+```ruby
+rescue CMDx::Error => e
+  # Catches any CMDx-specific error
+end
+```
+
+### CMDx::CoercionError
+
+Raised internally when a type coercion fails. Custom coercions must raise this to integrate with CMDx's error reporting.
+
+```ruby
+class MoneyCoercion
+  def self.call(value, options = {})
+    Money.parse(value)
+  rescue ArgumentError
+    raise CMDx::CoercionError, "could not convert into money"
+  end
+end
+```
+
+### CMDx::ValidationError
+
+Raised internally when a custom validator rejects a value. Custom validators must raise this to integrate with CMDx's error reporting.
+
+```ruby
+class PhoneValidator
+  def self.call(value, options = {})
+    unless value.match?(/\A\+?[\d\s\-()]+\z/)
+      raise CMDx::ValidationError, "is not a valid phone number"
+    end
+  end
+end
+```
+
+### CMDx::DeprecationError
+
+Raised when a task with `settings(deprecate: :raise)` is executed. See [Deprecation](https://drexed.github.io/cmdx/deprecation/index.md).
+
+```ruby
+begin
+  LegacyTask.execute(data: payload)
+rescue CMDx::DeprecationError => e
+  puts "Task prohibited: #{e.message}"
+end
+```
+
+### CMDx::UndefinedMethodError
+
+Raised when a task is executed without defining a `work` method.
+
+```ruby
+class IncompleteTask < CMDx::Task
+  # No `work` method
+end
+
+IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
+```
+
+### CMDx::Fault
+
+Base class for execution interruptions raised by `execute!`. All faults carry a `result` with full execution context. See [Faults](https://drexed.github.io/cmdx/interruptions/faults/index.md) for advanced matching.
+
+| Subclass          | Triggered By                           | Raised When                    |
+| ----------------- | -------------------------------------- | ------------------------------ |
+| `CMDx::SkipFault` | `skip!`                                | Task was intentionally skipped |
+| `CMDx::FailFault` | `fail!`, validation errors, exceptions | Task execution failed          |
+
+```ruby
+begin
+  MyTask.execute!(args)
+rescue CMDx::FailFault => e
+  e.result    #=> CMDx::Result with full execution data
+  e.task      #=> The task instance
+  e.context   #=> Task context
+  e.chain     #=> Execution chain
+rescue CMDx::SkipFault => e
+  e.result.reason #=> "Reason for skipping"
+rescue CMDx::Fault => e
+  # Catch-all for any interruption
+end
+```
+
+### CMDx::TimeoutError
+
+Raised by the [Timeout middleware](https://drexed.github.io/cmdx/middlewares/#timeout) when a task exceeds its time limit.
+
+Caution
+
+`TimeoutError` inherits from `Interrupt`, **not** `StandardError`. This means `rescue StandardError` will **not** catch timeouts. You must rescue `CMDx::TimeoutError` or `Interrupt` explicitly.
+
+```ruby
+begin
+  SlowTask.execute!(data: large_dataset)
+rescue CMDx::TimeoutError => e
+  puts "Task timed out: #{e.message}"
+rescue CMDx::FailFault => e
+  # Timeouts caught by `execute` are wrapped in a FailFault
+  puts "Task failed: #{e.result.reason}"
+end
+```
+
+Note
+
+When using non-bang `execute`, timeouts are caught internally and converted to a failed result. The `TimeoutError` distinction matters primarily for `execute!` or custom middleware error handling.
 
 # Tips and Tricks
 
@@ -4118,7 +5007,11 @@ end
 
 ## Attribute Options
 
-Use `with_options` to reduce duplication:
+Use `with_options` to reduce duplication.
+
+Note
+
+`with_options` is provided by ActiveSupport and is available automatically in Rails applications. For plain Ruby projects, add `require "active_support/core_ext/object/with_options"` or apply shared options manually.
 
 ```ruby
 class ConfigureCompany < CMDx::Task
@@ -4184,7 +5077,7 @@ CMDx stands apart by combining zero external dependencies with production-grade 
 - **Observability out of the box** — Structured logging, chain correlation, and runtime metrics are built-in, not bolted on. Trace complex workflows across services without additional instrumentation.
 - **Comprehensive type system** — 20+ coercers handle everything from primitives to dates, arrays, and custom types. Validation rules like `numeric`, `format`, and `inclusion` ensure data integrity before execution.
 - **Extensible middleware** — Inject cross-cutting concerns (authentication, rate limiting, telemetry) without modifying task logic. Middleware composes cleanly and executes in predictable order.
-- **Fault tolerance patterns** — Built-in retry policies with exponential backoff, circuit breakers, and timeout handling. Production-ready resilience without external gems.
+- **Fault tolerance patterns** — Built-in retry policies with configurable jitter, timeout middleware, and graceful degradation via `skip!`/`fail!`. Production-ready resilience without external gems.
 - **Framework agnostic** — Works seamlessly with Rails, Hanami, Sinatra, or plain Ruby. No ActiveSupport dependency, no framework lock-in.
 
 ## Event Sourcing Replacement

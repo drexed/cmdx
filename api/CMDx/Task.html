@@ -574,7 +574,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#settings-class_method" title="settings (class method)">.<strong>settings</strong>(**options)  &#x21d2; Hash </a>
+      <a href="#settings-class_method" title="settings (class method)">.<strong>settings</strong>(**overrides)  &#x21d2; Settings </a>
     
 
     
@@ -589,7 +589,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>The merged settings hash.</p>
+<p>Returns (and lazily creates) the task-level Settings object.</p>
 </div></span>
   
 </li>
@@ -1486,12 +1486,12 @@
       <pre class="lines">
 
 
-189
-190
-191</pre>
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 174</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_attributes'>attributes</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='symbol'>:attribute</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Attribute.html" title="CMDx::Attribute (class)">Attribute</a></span></span><span class='period'>.</span><span class='id identifier rubyid_build'><span class='object_link'><a href="Attribute.html#build-class_method" title="CMDx::Attribute.build (method)">build</a></span></span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -1576,17 +1576,17 @@
       <pre class="lines">
 
 
-263
-264
-265
-266
-267</pre>
+248
+249
+250
+251
+252</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 263</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 248</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_attributes_schema'>attributes_schema</span>
-  <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:attributes</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_attr'>attr</span><span class='op'>|</span>
+  <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_attr'>attr</span><span class='op'>|</span>
     <span class='lbracket'>[</span><span class='id identifier rubyid_attr'>attr</span><span class='period'>.</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='id identifier rubyid_attr'>attr</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rbracket'>]</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -1698,27 +1698,27 @@
       <pre class="lines">
 
 
-173
-174
-175
-176
-177
-178
-179
-180
-181
-182</pre>
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 173</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 158</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
-  <span class='kw'>when</span> <span class='symbol'>:attribute</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:attributes</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:callback</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:callbacks</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:coercion</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:coercions</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:middleware</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:validator</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:validators</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:attribute</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:callback</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_callbacks'>callbacks</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:coercion</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_coercions'>coercions</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:middleware</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:validator</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_validators'>validators</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>else</span> <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown registry type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -1858,14 +1858,14 @@
       <pre class="lines">
 
 
-300
-301
-302
-303
-304</pre>
+285
+286
+287
+288
+289</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 300</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 285</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
@@ -2024,14 +2024,14 @@
       <pre class="lines">
 
 
-319
-320
-321
-322
-323</pre>
+304
+305
+306
+307
+308</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 319</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 304</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute!'>execute!</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_kwargs'>kwargs</span><span class='rparen'>)</span>
@@ -2092,12 +2092,12 @@
       <pre class="lines">
 
 
-199
-200
-201</pre>
+184
+185
+186</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 199</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 184</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional'>optional</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='symbol'>:attribute</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Attribute.html" title="CMDx::Attribute (class)">Attribute</a></span></span><span class='period'>.</span><span class='id identifier rubyid_optional'><span class='object_link'><a href="Attribute.html#optional-class_method" title="CMDx::Attribute.optional (method)">optional</a></span></span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2210,27 +2210,27 @@
       <pre class="lines">
 
 
-152
-153
-154
-155
-156
-157
-158
-159
-160
-161</pre>
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 152</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 137</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
-  <span class='kw'>when</span> <span class='symbol'>:attribute</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:attributes</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:callback</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:callbacks</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:coercion</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:coercions</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:middleware</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:middlewares</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:validator</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:validators</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:attribute</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:callback</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_callbacks'>callbacks</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:coercion</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_coercions'>coercions</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:middleware</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:validator</span> <span class='kw'>then</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_validators'>validators</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>else</span> <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown registry type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
@@ -2311,12 +2311,12 @@
       <pre class="lines">
 
 
-218
-219
-220</pre>
+203
+204
+205</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 218</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 203</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_remove_attributes'>remove_attributes</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='symbol'>:attribute</span><span class='comma'>,</span> <span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
@@ -2400,15 +2400,15 @@
       <pre class="lines">
 
 
-245
-246
-247</pre>
+230
+231
+232</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 245</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 230</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_remove_returns'>remove_returns</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:returns</span><span class='rbracket'>]</span> <span class='op'>-=</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_returns'>returns</span> <span class='op'>-=</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2464,12 +2464,12 @@
       <pre class="lines">
 
 
-208
-209
-210</pre>
+193
+194
+195</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 208</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 193</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='symbol'>:attribute</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Attribute.html" title="CMDx::Attribute (class)">Attribute</a></span></span><span class='period'>.</span><span class='id identifier rubyid_required'><span class='object_link'><a href="Attribute.html#required-class_method" title="CMDx::Attribute.required (method)">required</a></span></span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span><span class='rparen'>)</span>
@@ -2549,15 +2549,15 @@
       <pre class="lines">
 
 
-233
-234
-235</pre>
+218
+219
+220</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 233</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 218</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_returns'>returns</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:returns</span><span class='rbracket'>]</span> <span class='op'>|=</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_returns'>returns</span> <span class='op'>|=</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2567,7 +2567,7 @@
       <div class="method_details ">
   <h3 class="signature " id="settings-class_method">
   
-    .<strong>settings</strong>(**options)  &#x21d2; <tt>Hash</tt> 
+    .<strong>settings</strong>(**overrides)  &#x21d2; <tt><span class='object_link'><a href="Settings.html" title="CMDx::Settings (class)">Settings</a></span></tt> 
   
 
   
@@ -2576,7 +2576,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns The merged settings hash.</p>
+<p>Returns (and lazily creates) the task-level Settings object. On first access, inherits from the superclass settings or the global Configuration. Optional overrides are applied once.</p>
 
 
   </div>
@@ -2597,7 +2597,7 @@
   
     <li>
       
-        <span class='name'>options</span>
+        <span class='name'>overrides</span>
       
       
         <span class='type'>(<tt>Hash</tt>)</span>
@@ -2606,7 +2606,7 @@
       
         &mdash;
         <div class='inline'>
-<p>Configuration options to merge with existing settings</p>
+<p>Configuration overrides applied on first access</p>
 </div>
       
     </li>
@@ -2616,7 +2616,7 @@
   
     
     
-    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <p class="tag_title">Options Hash (<tt>**overrides</tt>):</p>
     <ul class="option">
       
         <li>
@@ -2627,7 +2627,7 @@
           </span>
           
             &mdash; <div class='inline'>
-<p>Any configuration option key-value pairs</p>
+<p>Any configuration override key-value pairs</p>
 </div>
           
         </li>
@@ -2641,13 +2641,13 @@
     <li>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Settings.html" title="CMDx::Settings (class)">Settings</a></span></tt>)</span>
       
       
       
         &mdash;
         <div class='inline'>
-<p>The merged settings hash</p>
+<p>The settings instance for this task class</p>
 </div>
       
     </li>
@@ -2663,7 +2663,7 @@
       
         
         <div class='inline'>
-<p>(**untyped options) -&gt; Hash[Symbol, untyped]</p>
+<p>(**untyped overrides) -&gt; Settings</p>
 </div>
       
     </li>
@@ -2676,58 +2676,20 @@
       <pre class="lines">
 
 
-116
-117
-118
-119
 120
 121
 122
 123
 124
-125
-126
-127
-128
-129
-130
-131
-132
-133
-134
-135
-136
-137
-138
-139
-140</pre>
+125</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 116</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 120</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_settings'>settings</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_settings'>settings</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_overrides'>overrides</span><span class='rparen'>)</span>
   <span class='ivar'>@settings</span> <span class='op'>||=</span> <span class='kw'>begin</span>
-    <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span>
-      <span class='kw'>if</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:settings</span><span class='rparen'>)</span>
-        <span class='id identifier rubyid_parent'>parent</span> <span class='op'>=</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span>
-        <span class='id identifier rubyid_parent'>parent</span>
-          <span class='period'>.</span><span class='id identifier rubyid_except'>except</span><span class='lparen'>(</span><span class='symbol'>:backtrace_cleaner</span><span class='comma'>,</span> <span class='symbol'>:exception_handler</span><span class='comma'>,</span> <span class='symbol'>:logger</span><span class='comma'>,</span> <span class='symbol'>:deprecate</span><span class='rparen'>)</span>
-          <span class='period'>.</span><span class='id identifier rubyid_transform_values!'>transform_values!</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
-          <span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span>
-            <span class='label'>backtrace_cleaner:</span> <span class='id identifier rubyid_parent'>parent</span><span class='lbracket'>[</span><span class='symbol'>:backtrace_cleaner</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_backtrace_cleaner'><span class='object_link'><a href="Configuration.html#backtrace_cleaner-instance_method" title="CMDx::Configuration#backtrace_cleaner (method)">backtrace_cleaner</a></span></span><span class='comma'>,</span>
-            <span class='label'>exception_handler:</span> <span class='id identifier rubyid_parent'>parent</span><span class='lbracket'>[</span><span class='symbol'>:exception_handler</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exception_handler'><span class='object_link'><a href="Configuration.html#exception_handler-instance_method" title="CMDx::Configuration#exception_handler (method)">exception_handler</a></span></span><span class='comma'>,</span>
-            <span class='label'>logger:</span> <span class='id identifier rubyid_parent'>parent</span><span class='lbracket'>[</span><span class='symbol'>:logger</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="Configuration.html#logger-instance_method" title="CMDx::Configuration#logger (method)">logger</a></span></span><span class='comma'>,</span>
-            <span class='label'>deprecate:</span> <span class='id identifier rubyid_parent'>parent</span><span class='lbracket'>[</span><span class='symbol'>:deprecate</span><span class='rbracket'>]</span>
-          <span class='rparen'>)</span>
-      <span class='kw'>else</span>
-        <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_h'><span class='object_link'><a href="Configuration.html#to_h-instance_method" title="CMDx::Configuration#to_h (method)">to_h</a></span></span>
-      <span class='kw'>end</span>
-
-    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:attributes</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="AttributeRegistry.html" title="CMDx::AttributeRegistry (class)">AttributeRegistry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="AttributeRegistry.html#initialize-instance_method" title="CMDx::AttributeRegistry#initialize (method)">new</a></span></span>
-    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:returns</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
-    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:tags</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
-
-    <span class='id identifier rubyid_hash'>hash</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_parent'>parent</span> <span class='op'>=</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span> <span class='kw'>if</span> <span class='id identifier rubyid_superclass'>superclass</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:settings</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Settings.html" title="CMDx::Settings (class)">Settings</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Settings.html#initialize-instance_method" title="CMDx::Settings#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>parent:</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_overrides'>overrides</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -2832,13 +2794,13 @@
       <pre class="lines">
 
 
-336
-337
-338
-339</pre>
+321
+322
+323
+324</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 336</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 321</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>raise:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Executor.html" title="CMDx::Executor (class)">Executor</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Executor.html#execute-class_method" title="CMDx::Executor.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='label'>raise:</span><span class='rparen'>)</span>
@@ -2918,35 +2880,33 @@
       <pre class="lines">
 
 
-367
-368
-369
-370
-371
-372
-373
-374
-375
-376
-377
-378
-379
-380
-381</pre>
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 367</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 352</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_logger'>logger</span>
   <span class='ivar'>@logger</span> <span class='op'>||=</span> <span class='kw'>begin</span>
-    <span class='id identifier rubyid_log_instance'>log_instance</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:logger</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="Configuration.html#logger-instance_method" title="CMDx::Configuration#logger (method)">logger</a></span></span>
-    <span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_level</span><span class='rbracket'>]</span>
-    <span class='id identifier rubyid_log_formatter'>log_formatter</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:log_formatter</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_settings'>settings</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span>
+    <span class='id identifier rubyid_log_instance'>log_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'><span class='object_link'><a href="../CMDx.html#configuration-instance_method" title="CMDx#configuration (method)">configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="Configuration.html#logger-instance_method" title="CMDx::Configuration#logger (method)">logger</a></span></span>
 
-    <span class='kw'>if</span> <span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>||</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_level'>log_level</span> <span class='op'>||</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_formatter'>log_formatter</span>
       <span class='id identifier rubyid_log_instance'>log_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
-      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='id identifier rubyid_log_level'>log_level</span> <span class='kw'>if</span> <span class='id identifier rubyid_log_level'>log_level</span>
-      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>=</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span> <span class='kw'>if</span> <span class='id identifier rubyid_log_formatter'>log_formatter</span>
+      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_level'>log_level</span> <span class='kw'>if</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_level'>log_level</span>
+      <span class='id identifier rubyid_log_instance'>log_instance</span><span class='period'>.</span><span class='id identifier rubyid_formatter'>formatter</span> <span class='op'>=</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_formatter'>log_formatter</span> <span class='kw'>if</span> <span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_log_formatter'>log_formatter</span>
     <span class='kw'>end</span>
 
     <span class='id identifier rubyid_log_instance'>log_instance</span>
@@ -3049,27 +3009,27 @@
       <pre class="lines">
 
 
-398
-399
-400
-401
-402
-403
-404
-405
-406
-407
-408</pre>
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 398</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 382</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
     <span class='label'>index:</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='comma'>,</span>
     <span class='label'>chain_id:</span> <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
     <span class='label'>type:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Workflow</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
-    <span class='label'>tags:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:tags</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>tags:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_tags'>tags</span><span class='comma'>,</span>
     <span class='label'>class:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span>
     <span class='label'>dry_run:</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span><span class='comma'>,</span>
     <span class='label'>id:</span>
@@ -3149,12 +3109,12 @@
       <pre class="lines">
 
 
-417
-418
-419</pre>
+401
+402
+403</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 417</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 401</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -3235,12 +3195,12 @@
       <pre class="lines">
 
 
-352
-353
-354</pre>
+337
+338
+339</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 352</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 337</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>undefined method </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>#work</span><span class='tstring_end'>&quot;</span></span>
@@ -3255,7 +3215,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:29 2026 by
+  Generated on Tue Mar 10 18:38:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

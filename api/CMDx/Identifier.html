@@ -124,7 +124,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>  &#x21d2; String </a>
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>  &#x21d2; Object </a>
     
 
     
@@ -138,9 +138,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Generates a unique identifier string.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -157,112 +155,24 @@
       <div class="method_details first">
   <h3 class="signature first" id="generate-instance_method">
   
-    #<strong>generate</strong>  &#x21d2; <tt>String</tt> 
+    #<strong>generate</strong>  &#x21d2; <tt>Object</tt> 
   
 
   
 
   
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Generates a unique identifier string.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Generate a unique identifier</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="CMDx::Identifier (module)">Identifier</a></span></span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span>
-<span class='comment'># =&gt; &quot;01890b2c-1234-5678-9abc-def123456789&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>A unique identifier string (UUID v7 if available, otherwise UUID v4)</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>StandardError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>If SecureRandom is unavailable or fails to generate an identifier</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; String</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
+</h3><table class="source_code">
   <tr>
     <td>
       <pre class="lines">
 
 
-23
-24
-25
-26
-27
-28
-29</pre>
+24</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/identifier.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/identifier.rb', line 24</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
-  <span class='kw'>if</span> <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:uuid_v7</span><span class='rparen'>)</span>
-    <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid_v7'>uuid_v7</span>
-  <span class='kw'>else</span>
-    <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span>
-  <span class='kw'>end</span>
-<span class='kw'>end</span></pre>
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span> <span class='op'>=</span> <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid_v7'>uuid_v7</span></pre>
     </td>
   </tr>
 </table>
@@ -273,7 +183,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:28 2026 by
+  Generated on Tue Mar 10 18:38:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

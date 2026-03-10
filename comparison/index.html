@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../feed_rss_updated.xml">
       
       <link rel="icon" href="../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1547,6 +1547,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -2092,7 +2148,7 @@
     
     
       <li class="md-path__item">
-        <a href="../tips_and_tricks/" class="md-path__link">
+        <a href="../testing/" class="md-path__link">
           
   <span class="md-ellipsis">
     More
@@ -2242,7 +2298,7 @@
 <p><strong>Extensible middleware</strong> — Inject cross-cutting concerns (authentication, rate limiting, telemetry) without modifying task logic. Middleware composes cleanly and executes in predictable order.</p>
 </li>
 <li>
-<p><strong>Fault tolerance patterns</strong> — Built-in retry policies with exponential backoff, circuit breakers, and timeout handling. Production-ready resilience without external gems.</p>
+<p><strong>Fault tolerance patterns</strong> — Built-in retry policies with configurable jitter, timeout middleware, and graceful degradation via <code>skip!</code>/<code>fail!</code>. Production-ready resilience without external gems.</p>
 </li>
 <li>
 <p><strong>Framework agnostic</strong> — Works seamlessly with Rails, Hanami, Sinatra, or plain Ruby. No ActiveSupport dependency, no framework lock-in.</p>

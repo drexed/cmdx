@@ -12,34 +12,34 @@
         <meta name="author" content="drexed">
       
       
-        <link rel="canonical" href="https://drexed.github.io/cmdx/basics/chain/">
+        <link rel="canonical" href="https://drexed.github.io/cmdx/exceptions/">
       
       
-        <link rel="prev" href="../context/">
+        <link rel="prev" href="../testing/">
       
       
-        <link rel="next" href="../../interruptions/halt/">
+        <link rel="next" href="../tips_and_tricks/">
       
       
         
       
       
-        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../feed_rss_created.xml">
-        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../feed_rss_updated.xml">
       
-      <link rel="icon" href="../../assets/favicon.ico">
+      <link rel="icon" href="../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Chain - CMDx</title>
+        <title>Exceptions - CMDx</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -58,9 +58,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#basics-chain" class="md-skip">
+        <a href="#exceptions-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -101,9 +101,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="CMDx" class="md-header__button md-logo" aria-label="CMDx" data-md-component="logo">
+    <a href=".." title="CMDx" class="md-header__button md-logo" aria-label="CMDx" data-md-component="logo">
       
-  <img src="../../assets/favicon.svg" alt="logo">
+  <img src="../assets/favicon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Chain
+              Exceptions
             
           </span>
         </div>
@@ -242,7 +242,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -265,7 +265,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../getting_started/" class="md-tabs__link">
+        <a href="../getting_started/" class="md-tabs__link">
           
   
   
@@ -283,7 +283,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../blog/" class="md-tabs__link">
+      <a href="../blog/" class="md-tabs__link">
         
   
   
@@ -324,9 +324,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="CMDx" class="md-nav__button md-logo" aria-label="CMDx" data-md-component="logo">
+    <a href=".." title="CMDx" class="md-nav__button md-logo" aria-label="CMDx" data-md-component="logo">
       
-  <img src="../../assets/favicon.svg" alt="logo">
+  <img src="../assets/favicon.svg" alt="logo">
 
     </a>
     CMDx
@@ -353,7 +353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -437,7 +437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../getting_started/" class="md-nav__link">
+      <a href="../getting_started/" class="md-nav__link">
         
   
   
@@ -465,7 +465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -490,8 +490,6 @@
                 
   
   
-    
-  
   
   
     
@@ -507,11 +505,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_3" >
         
           
           <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
@@ -532,7 +532,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -550,7 +550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup/" class="md-nav__link">
+      <a href="../basics/setup/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../execution/" class="md-nav__link">
+      <a href="../basics/execution/" class="md-nav__link">
         
   
   
@@ -606,7 +606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../context/" class="md-nav__link">
+      <a href="../basics/context/" class="md-nav__link">
         
   
   
@@ -631,37 +631,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Chain
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../basics/chain/" class="md-nav__link">
         
   
   
@@ -677,83 +650,6 @@
   
 
       </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#management" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Management
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Links
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inheritance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inheritance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#freezing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Freezing
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -831,7 +727,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/halt/" class="md-nav__link">
         
   
   
@@ -859,7 +755,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/faults/" class="md-nav__link">
+      <a href="../interruptions/faults/" class="md-nav__link">
         
   
   
@@ -887,7 +783,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/exceptions/" class="md-nav__link">
+      <a href="../interruptions/exceptions/" class="md-nav__link">
         
   
   
@@ -980,7 +876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../outcomes/result/" class="md-nav__link">
+      <a href="../outcomes/result/" class="md-nav__link">
         
   
   
@@ -1008,7 +904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../outcomes/states/" class="md-nav__link">
+      <a href="../outcomes/states/" class="md-nav__link">
         
   
   
@@ -1036,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../outcomes/statuses/" class="md-nav__link">
+      <a href="../outcomes/statuses/" class="md-nav__link">
         
   
   
@@ -1129,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../attributes/definitions/" class="md-nav__link">
         
   
   
@@ -1157,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../attributes/naming/" class="md-nav__link">
         
   
   
@@ -1185,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../attributes/coercions/" class="md-nav__link">
         
   
   
@@ -1213,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../attributes/validations/" class="md-nav__link">
         
   
   
@@ -1241,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../attributes/defaults/" class="md-nav__link">
         
   
   
@@ -1269,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../attributes/transformations/" class="md-nav__link">
         
   
   
@@ -1362,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../callbacks/" class="md-nav__link">
+      <a href="../callbacks/" class="md-nav__link">
         
   
   
@@ -1390,7 +1286,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../middlewares/" class="md-nav__link">
+      <a href="../middlewares/" class="md-nav__link">
         
   
   
@@ -1418,7 +1314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../logging/" class="md-nav__link">
+      <a href="../logging/" class="md-nav__link">
         
   
   
@@ -1446,7 +1342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../internationalization/" class="md-nav__link">
+      <a href="../internationalization/" class="md-nav__link">
         
   
   
@@ -1474,7 +1370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../retries/" class="md-nav__link">
+      <a href="../retries/" class="md-nav__link">
         
   
   
@@ -1502,7 +1398,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../deprecation/" class="md-nav__link">
+      <a href="../deprecation/" class="md-nav__link">
         
   
   
@@ -1530,7 +1426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../returns/" class="md-nav__link">
         
   
   
@@ -1558,7 +1454,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../workflows/" class="md-nav__link">
+      <a href="../workflows/" class="md-nav__link">
         
   
   
@@ -1591,8 +1487,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1606,13 +1504,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_8" checked>
         
           
           <label class="md-nav__link" for="__nav_2_8" id="__nav_2_8_label" tabindex="">
@@ -1633,7 +1529,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1651,7 +1547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../testing/" class="md-nav__link">
+      <a href="../testing/" class="md-nav__link">
         
   
   
@@ -1676,10 +1572,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1695,6 +1618,133 @@
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exception-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exception Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exception Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmdxerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxcoercionerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::CoercionError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxvalidationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::ValidationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxdeprecationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::DeprecationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxundefinedmethoderror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::UndefinedMethodError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxfault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Fault
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxtimeouterror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::TimeoutError
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1707,7 +1757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tips_and_tricks/" class="md-nav__link">
+      <a href="../tips_and_tricks/" class="md-nav__link">
         
   
   
@@ -1735,7 +1785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../comparison/" class="md-nav__link">
+      <a href="../comparison/" class="md-nav__link">
         
   
   
@@ -2050,7 +2100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../blog/" class="md-nav__link">
+      <a href="../blog/" class="md-nav__link">
         
   
   
@@ -2099,10 +2149,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#management" class="md-nav__link">
+  <a href="#hierarchy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Management
+        Hierarchy
       
     </span>
   </a>
@@ -2110,46 +2160,96 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
+  <a href="#exception-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Links
+        Exception Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exception Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cmdxerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Error
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#inheritance" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#cmdxcoercionerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inheritance
+        CMDx::CoercionError
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#cmdxvalidationerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        CMDx::ValidationError
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#freezing" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#cmdxdeprecationerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Freezing
+        CMDx::DeprecationError
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxundefinedmethoderror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::UndefinedMethodError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxfault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Fault
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxtimeouterror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::TimeoutError
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2178,7 +2278,7 @@
   
   
     <li class="md-path__item">
-      <a href="../.." class="md-path__link">
+      <a href=".." class="md-path__link">
         
   <span class="md-ellipsis">
     Home
@@ -2196,7 +2296,7 @@
     
     
       <li class="md-path__item">
-        <a href="../../getting_started/" class="md-path__link">
+        <a href="../getting_started/" class="md-path__link">
           
   <span class="md-ellipsis">
     Documentation
@@ -2214,10 +2314,10 @@
     
     
       <li class="md-path__item">
-        <a href="../setup/" class="md-path__link">
+        <a href="../testing/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Basics
+    More
   </span>
 
         </a>
@@ -2239,109 +2339,120 @@
   
 
 
-<h1 id="basics-chain">Basics - Chain<a class="headerlink" href="#basics-chain" title="Permanent link">&para;</a></h1>
-<p>Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.</p>
-<h2 id="management">Management<a class="headerlink" href="#management" title="Permanent link">&para;</a></h2>
-<p>Each execution context maintains its own isolated chain. CMDx uses <code>Fiber.storage</code> when available (Ruby 3.2+), falling back to <code>Thread.current</code> on older Rubies.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Chains are scoped to the current fiber or thread. Don't share chain references across fibers or threads—it causes race conditions.</p>
-</div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the <code>async</code> gem out of the box.</p>
-</div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Thread A</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch1.csv&quot;</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">    </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">end</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Thread B (completely separate chain)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch2.csv&quot;</span><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">    </span><span class="c1">#=&gt; &quot;z3a42b95-c821-7892-b156-dd7c921fe2a3&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">end</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Access current thread&#39;s chain</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">current</span><span class="w">  </span><span class="c1">#=&gt; Returns current chain or nil</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span><span class="w">    </span><span class="c1">#=&gt; Clears current thread&#39;s chain</span>
+<h1 id="exceptions-reference">Exceptions Reference<a class="headerlink" href="#exceptions-reference" title="Permanent link">&para;</a></h1>
+<p>CMDx defines a clear exception hierarchy for distinguishing between different failure types. Understanding this hierarchy is essential for writing correct <code>rescue</code> clauses.</p>
+<h2 id="hierarchy">Hierarchy<a class="headerlink" href="#hierarchy" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>StandardError
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── CMDx::Error (alias: CMDx::Exception)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── CMDx::CoercionError
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── CMDx::DeprecationError
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    ├── CMDx::UndefinedMethodError
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── CMDx::ValidationError
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    └── CMDx::Fault
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        ├── CMDx::SkipFault
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        └── CMDx::FailFault
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>Interrupt
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└── CMDx::TimeoutError
 </span></code></pre></div>
-<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
-<p>Tasks automatically create or join the current thread's chain:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Chain management is automatic—no manual lifecycle handling needed.</p>
+<h2 id="exception-types">Exception Types<a class="headerlink" href="#exception-types" title="Permanent link">&para;</a></h2>
+<h3 id="cmdxerror">CMDx::Error<a class="headerlink" href="#cmdxerror" title="Permanent link">&para;</a></h3>
+<p>Base class for all CMDx exceptions. Also aliased as <code>CMDx::Exception</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="c1"># Catches any CMDx-specific error</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxcoercionerror">CMDx::CoercionError<a class="headerlink" href="#cmdxcoercionerror" title="Permanent link">&para;</a></h3>
+<p>Raised internally when a type coercion fails. Custom coercions must raise this to integrate with CMDx's error reporting.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MoneyCoercion</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="no">Money</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">rescue</span><span class="w"> </span><span class="no">ArgumentError</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="k">raise</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">CoercionError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;could not convert into money&quot;</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxvalidationerror">CMDx::ValidationError<a class="headerlink" href="#cmdxvalidationerror" title="Permanent link">&para;</a></h3>
+<p>Raised internally when a custom validator rejects a value. Custom validators must raise this to integrate with CMDx's error reporting.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PhoneValidator</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">unless</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">match?</span><span class="p">(</span><span class="sr">/\A\+?[\d\s\-()]+\z/</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="k">raise</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">ValidationError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;is not a valid phone number&quot;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxdeprecationerror">CMDx::DeprecationError<a class="headerlink" href="#cmdxdeprecationerror" title="Permanent link">&para;</a></h3>
+<p>Raised when a task with <code>settings(deprecate: :raise)</code> is executed. See <a href="../deprecation/">Deprecation</a>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">begin</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="no">LegacyTask</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="n">payload</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Task prohibited: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxundefinedmethoderror">CMDx::UndefinedMethodError<a class="headerlink" href="#cmdxundefinedmethoderror" title="Permanent link">&para;</a></h3>
+<p>Raised when a task is executed without defining a <code>work</code> method.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">IncompleteTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># No `work` method</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">end</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="no">IncompleteTask</span><span class="o">.</span><span class="n">execute</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::UndefinedMethodError</span>
+</span></code></pre></div>
+<h3 id="cmdxfault">CMDx::Fault<a class="headerlink" href="#cmdxfault" title="Permanent link">&para;</a></h3>
+<p>Base class for execution interruptions raised by <code>execute!</code>. All faults carry a <code>result</code> with full execution context. See <a href="../interruptions/faults/">Faults</a> for advanced matching.</p>
+<table>
+<thead>
+<tr>
+<th>Subclass</th>
+<th>Triggered By</th>
+<th>Raised When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CMDx::SkipFault</code></td>
+<td><code>skip!</code></td>
+<td>Task was intentionally skipped</td>
+</tr>
+<tr>
+<td><code>CMDx::FailFault</code></td>
+<td><code>fail!</code>, validation errors, exceptions</td>
+<td>Task execution failed</td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">begin</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="no">MyTask</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="w">    </span><span class="c1">#=&gt; CMDx::Result with full execution data</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="w">      </span><span class="c1">#=&gt; The task instance</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="w">   </span><span class="c1">#=&gt; Task context</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">chain</span><span class="w">     </span><span class="c1">#=&gt; Execution chain</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">SkipFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w"> </span><span class="c1">#=&gt; &quot;Reason for skipping&quot;</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="c1"># Catch-all for any interruption</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxtimeouterror">CMDx::TimeoutError<a class="headerlink" href="#cmdxtimeouterror" title="Permanent link">&para;</a></h3>
+<p>Raised by the <a href="../middlewares/#timeout">Timeout middleware</a> when a task exceeds its time limit.</p>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p><code>TimeoutError</code> inherits from <code>Interrupt</code>, <strong>not</strong> <code>StandardError</code>. This means <code>rescue StandardError</code> will <strong>not</strong> catch timeouts. You must rescue <code>CMDx::TimeoutError</code> or <code>Interrupt</code> explicitly.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># First task creates new chain</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">result1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ValidateHeaders</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">           </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="c1">#=&gt; 1</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="c1"># Second task joins existing chain</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">result2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">SendNotification</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@company.com&quot;</span><span class="p">)</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">  </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w">            </span><span class="c1">#=&gt; 2</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="c1"># Both results reference the same chain</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w"> </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="no">SlowTask</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="n">large_dataset</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">TimeoutError</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Task timed out: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="c1"># Timeouts caught by `execute` are wrapped in a FailFault</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Task failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subtasks automatically inherit the current thread's chain, building a unified execution trail:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Dataset</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1"># Subtasks automatically inherit current chain</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="no">ValidateSchema</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="no">TransformData</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="no">SaveToDatabase</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">end</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># All tasks share the same chain</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="c1">#=&gt; 4 (main task + 3 subtasks)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">r</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1">#=&gt; [ImportDataset, ValidateSchema, TransformData, SaveToDatabase]</span>
-</span></code></pre></div>
-<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Chains expose comprehensive execution information:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Chain state reflects the first (outermost) task result. Subtasks maintain their own states.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using non-bang <code>execute</code>, timeouts are caught internally and converted to a failed result. The <code>TimeoutError</code> distinction matters primarily for <code>execute!</code> or custom middleware error handling.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Chain identification (UUID v7 when available, UUID v4 otherwise)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">        </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w">   </span><span class="c1">#=&gt; Array of all results in execution order</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">chain</span><span class="o">.</span><span class="n">dry_run?</span><span class="w">  </span><span class="c1">#=&gt; true/false</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># State delegation (from first/outer-most result)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">chain</span><span class="o">.</span><span class="n">state</span><span class="w">     </span><span class="c1">#=&gt; &quot;complete&quot;</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">chain</span><span class="o">.</span><span class="n">status</span><span class="w">    </span><span class="c1">#=&gt; &quot;success&quot;</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">chain</span><span class="o">.</span><span class="n">outcome</span><span class="w">   </span><span class="c1">#=&gt; &quot;success&quot;</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1"># Convenience methods (delegated from results array)</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">      </span><span class="c1">#=&gt; 4 (number of results)</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">chain</span><span class="o">.</span><span class="n">first</span><span class="w">     </span><span class="c1">#=&gt; First result (outermost task)</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="n">chain</span><span class="o">.</span><span class="n">last</span><span class="w">      </span><span class="c1">#=&gt; Last result (most recent subtask)</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="c1"># Access individual results</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">each_with_index</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="o">|</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">index</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> - </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="freezing">Freezing<a class="headerlink" href="#freezing" title="Permanent link">&para;</a></h2>
-<p>After the outermost task completes, CMDx freezes the chain, context, and all results to enforce immutability. Subtask results are frozen as part of this top-level freeze—not individually during their own execution.</p>
 
 
 
@@ -2379,7 +2490,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../context/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Context">
+          <a href="../testing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Testing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2389,20 +2500,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Context
+                Testing
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../interruptions/halt/" class="md-footer__link md-footer__link--next" aria-label="Next: Halt">
+          <a href="../tips_and_tricks/" class="md-footer__link md-footer__link--next" aria-label="Next: Tips and Tricks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Halt
+                Tips and Tricks
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2467,10 +2578,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.expand", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.tooltips", "navigation.footer", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.expand", "navigation.path", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

@@ -643,7 +643,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/attribute_value.rb', line 83</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_validate'>validate</span>
-  <span class='id identifier rubyid_registry'>registry</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='lbracket'>[</span><span class='symbol'>:validators</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_registry'>registry</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_validators'>validators</span>
 
   <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>|</span>
     <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
@@ -745,7 +745,7 @@
 </div>
 
       <div id="footer">
-  Generated on Tue Mar 10 02:47:29 2026 by
+  Generated on Tue Mar 10 18:38:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

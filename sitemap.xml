@@ -5,10 +5,6 @@
          <lastmod>2026-03-10</lastmod>
     </url>
     <url>
-         <loc>https://drexed.github.io/cmdx/SKILL/</loc>
-         <lastmod>2026-03-10</lastmod>
-    </url>
-    <url>
          <loc>https://drexed.github.io/cmdx/callbacks/</loc>
          <lastmod>2026-03-10</lastmod>
     </url>
@@ -22,6 +18,10 @@
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/deprecation/</loc>
+         <lastmod>2026-03-10</lastmod>
+    </url>
+    <url>
+         <loc>https://drexed.github.io/cmdx/exceptions/</loc>
          <lastmod>2026-03-10</lastmod>
     </url>
     <url>
@@ -46,6 +46,10 @@
     </url>
     <url>
          <loc>https://drexed.github.io/cmdx/returns/</loc>
+         <lastmod>2026-03-10</lastmod>
+    </url>
+    <url>
+         <loc>https://drexed.github.io/cmdx/testing/</loc>
          <lastmod>2026-03-10</lastmod>
     </url>
     <url>

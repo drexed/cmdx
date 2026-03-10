@@ -28,7 +28,7 @@
         <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1227,6 +1227,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#processing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#declarations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1657,6 +1668,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -2049,6 +2116,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#processing-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#declarations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2197,6 +2275,37 @@
 
 <h1 id="attributes-transformations">Attributes - Transformations<a class="headerlink" href="#attributes-transformations" title="Permanent link">&para;</a></h1>
 <p>Modify attribute values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.</p>
+<h2 id="processing-pipeline">Processing Pipeline<a class="headerlink" href="#processing-pipeline" title="Permanent link">&para;</a></h2>
+<p>Each attribute flows through a fixed pipeline:</p>
+<pre class="mermaid"><code>flowchart LR
+    Source --&gt; Coerce --&gt; Transform --&gt; Validate</code></pre>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source</strong></td>
+<td>Resolve value from context, method, proc, or callable</td>
+</tr>
+<tr>
+<td><strong>Coerce</strong></td>
+<td>Convert to declared <code>type</code> (e.g., string → integer)</td>
+</tr>
+<tr>
+<td><strong>Transform</strong></td>
+<td>Apply <code>transform</code> function to coerced value</td>
+</tr>
+<tr>
+<td><strong>Validate</strong></td>
+<td>Run validators (presence, format, etc.) on final value</td>
+</tr>
+</tbody>
+</table>
+<p>This means transformations receive already-coerced values, and validators see the final transformed output.</p>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
 <p>Reference instance methods by symbol for dynamic value transformations:</p>

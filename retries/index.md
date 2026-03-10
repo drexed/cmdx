@@ -120,6 +120,15 @@ class FetchUserProfile < CMDx::Task
 end
 ```
 
+## Retry Behavior
+
+Understanding how retries work internally helps avoid surprises:
+
+- **Same task instance** — Retries reuse the same task object. Context and attributes from previous attempts persist.
+- **Validation skipped** — `before_validation` callbacks and attribute validation only run on the first attempt. Retries go straight to `before_execution` and `work`.
+- **Errors cleared** — `task.errors` is automatically cleared before each retry so errors from previous attempts don't carry over.
+- **Retry count tracked** — `result.retries` increments before each retry attempt.
+
 ## Retry Results
 
 After execution, the result object provides methods to inspect retry behavior:

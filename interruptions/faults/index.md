@@ -1,6 +1,6 @@
 # Interruptions - Faults
 
-Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns.
+Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns. See the [Exceptions Reference](https://drexed.github.io/cmdx/exceptions/index.md) for the full hierarchy.
 
 ## Fault Types
 
@@ -92,7 +92,11 @@ end
 
 ## Fault Propagation
 
-Propagate failures with `throw!` to preserve context and maintain the error chain:
+Propagate failures with `throw!` to preserve context and maintain the error chain.
+
+Important
+
+`throw!` requires a `CMDx::Result` argument. Passing any other object raises a `TypeError`.
 
 ### Basic Propagation
 
