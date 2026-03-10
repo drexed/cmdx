@@ -12,9 +12,9 @@
   [Changelog](./CHANGELOG.md) ·
   [Report Bug](https://github.com/drexed/cmdx/issues) ·
   [Request Feature](https://github.com/drexed/cmdx/issues) ·
+  [AI Skills](https://github.com/drexed/cmdx/blob/main/skills) ·
   [llms.txt](https://drexed.github.io/cmdx/llms.txt) ·
   [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt) ·
-  [AI Skills](https://github.com/drexed/cmdx/blob/main/skills)
 
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
