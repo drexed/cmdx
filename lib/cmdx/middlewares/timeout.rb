@@ -1,14 +1,6 @@
 # frozen_string_literal: true
 
 module CMDx
-
-  # Error raised when task execution exceeds the configured timeout limit.
-  #
-  # This error occurs when a task takes longer to execute than the specified
-  # time limit. Timeout errors are raised by Ruby's Timeout module and are
-  # caught by the middleware to properly fail the task with timeout information.
-  TimeoutError = Class.new(Interrupt)
-
   module Middlewares
     # Middleware for enforcing execution time limits on tasks.
     #
@@ -71,10 +63,16 @@ module CMDx
 
         ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds", &)
       rescue TimeoutError => e
-        task.result.tap { |r| r.fail!(Utils::Normalize.exception(e), cause: e, limit:) }
+        task.result.tap do |r|
+          r.fail!(
+            Utils::Normalize.exception(e),
+            cause: e,
+            source: :timeout,
+            limit:
+          )
+        end
       end
 
     end
   end
-
 end

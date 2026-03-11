@@ -153,7 +153,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
 
-        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
+        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
 
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
@@ -185,7 +185,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(custom_error)
 
-        expect(task.result).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error)
+        expect(task.result).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error, source: :exception)
 
         allow(task.result).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
@@ -286,7 +286,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
 
-        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error)
+        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
         expect(worker).to receive(:raise_exception).with(standard_error).and_raise(standard_error)
 
         expect { worker.execute! }.to raise_error(standard_error)
@@ -679,6 +679,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "calls fail! on result with error information" do
         expect(task.result).to receive(:fail!).with(
           "Invalid",
+          source: :validation,
           errors: {
             full_message: "Validation failed",
             messages: { name: ["is required"] }
@@ -776,6 +777,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "adds errors for missing returns and fails the result" do
         expect(task.result).to receive(:fail!).with(
           "Invalid",
+          source: :context,
           errors: {
             full_message: "token must be set in the context",
             messages: { token: ["must be set in the context"] }
@@ -795,6 +797,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "adds errors for all missing returns and fails the result" do
         expect(task.result).to receive(:fail!).with(
           "Invalid",
+          source: :context,
           errors: {
             full_message: "user must be set in the context. token must be set in the context",
             messages: {
@@ -1047,7 +1050,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(task.result).to receive(:fail!).with(
           CMDx::Locale.t("cmdx.faults.invalid"),
           halt: false,
-          source: :swallowed_middleware
+          source: :middleware
         )
         expect(task.result).to receive(:executed!)
 
@@ -1083,7 +1086,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         result = swallowing_task_class.execute
 
         expect(result.failed?).to be(true)
-        expect(result.metadata[:source]).to eq(:swallowed_middleware)
+        expect(result.metadata[:source]).to eq(:middleware)
         expect(result.interrupted?).to be(true)
       end
     end

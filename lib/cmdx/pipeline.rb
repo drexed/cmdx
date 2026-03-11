@@ -126,19 +126,16 @@ module CMDx
       end
     end
 
-    # Executes tasks in parallel using the parallel gem.
     # Each task receives a snapshot of the workflow context to prevent
     # unsynchronized concurrent writes to a shared Hash. Snapshots are
     # merged back into the workflow context after all tasks complete.
     #
     # @param group [CMDx::Group] The task group to execute in parallel
     # @param breakpoints [Array<String>] Status values that trigger execution breaks
-    # @option group.options [Integer] :in_threads Number of threads to use
+    # @option group.options [Integer] :pool_size Number of concurrent threads (defaults to task count)
     #
     # @return [void]
     #
-    # @raise [RuntimeError] When parallel gem is not installed
-    # @raise [ArgumentError] When in_processes is specified
     # @raise [Fault] When a task result status matches a breakpoint
     #
     # @example
@@ -146,38 +143,26 @@ module CMDx
     #
     # @rbs (untyped group, Array[String] breakpoints) -> void
     def execute_tasks_in_parallel(group, breakpoints)
-      raise "install the `parallel` gem to use this feature" unless defined?(Parallel)
+      contexts = group.tasks.map { Context.new(workflow.context.to_h) }
+      ctx_pairs = group.tasks.zip(contexts)
+      pool_size = group.options.fetch(:pool_size, ctx_pairs.size)
 
-      if group.options.key?(:in_processes)
-        raise ArgumentError,
-              "in_processes is not supported for parallel workflow tasks " \
-              "because forked processes cannot share chain or context state — use in_threads instead"
-      elsif group.options.key?(:in_reactors)
-        raise ArgumentError,
-              "in_reactors is not supported for parallel workflow tasks " \
-              "because Ractors enforce isolation and cannot share chain or context state — use in_threads instead"
-      end
-
-      parallel_options = group.options.slice(:in_threads)
-      parallel_contexts = group.tasks.map { Context.new(workflow.context.to_h) }
-      throwable_result = nil
-
-      Parallel.each(group.tasks.zip(parallel_contexts), **parallel_options) do |task, context|
+      results = Parallelizer.call(ctx_pairs, pool_size:) do |task, context|
         Chain.current = workflow.chain
-
-        task_result = task.execute(context)
-        next unless breakpoints.include?(task_result.status)
-
-        raise Parallel::Break, throwable_result = task_result
+        task.execute(context)
       end
 
-      parallel_contexts.each do |context|
-        workflow.context.merge!(context)
-      end
+      contexts.each { |ctx| workflow.context.merge!(ctx) }
 
-      return if throwable_result.nil?
+      faulted = results.select { |r| breakpoints.include?(r.status) }
+      return if faulted.empty?
 
-      workflow.throw!(throwable_result)
+      workflow.public_send(
+        :"#{faulted.last.status}!",
+        Locale.t("cmdx.faults.unspecified"),
+        source: :parallel,
+        faults: faulted.map(&:to_h)
+      )
     end
 
   end

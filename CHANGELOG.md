@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### Added
+- Add `Parallelizer` class for bounded thread pool execution
 - Add `Configuration#default_locale` setting to configure which locale YAML file is loaded for built-in translations (defaults to `"en"`)
 - Add `Task.type` to return task mechanics
 - Add `Utils::Normalize` module for normalizing exceptions and statuses into consistent formats
@@ -25,6 +26,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
 
 ### Changed
+- Replace `parallel` gem dependency with native Ruby thread pool (`Parallelizer`) for parallel workflow execution
+- Rename `in_threads` option to `pool_size` for parallel workflow tasks
+- Move `TimeoutError` definition to `exception.rb` for proper Zeitwerk autoloading
 - Modified Rails initializer install script with latest changes
 - Make `AttributeRegistry#define_and_verify` dup attributes before binding to a task, eliminating shared mutable state and making concurrent execution thread-safe
 - Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`

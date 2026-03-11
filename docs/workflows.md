@@ -252,27 +252,19 @@ end
 
 ## Parallel Execution
 
-Run tasks concurrently using the [Parallel](https://github.com/grosser/parallel) gem which automatically uses all available processors for maximum throughput.
+Run tasks concurrently using native Ruby threads for maximum throughput. No external dependencies required.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
   include CMDx::Workflow
 
-  # Default options (dynamically calculated to available processors)
+  # One thread per task (default)
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel
 
-  # Fix number of threads
-  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_threads: 2
+  # Fixed thread pool size
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, pool_size: 2
 end
 ```
-
-!!! note
-
-    This feature depends on the `parallel` gem being installed in your application or execution environment.
-
-!!! warning
-
-    Only `in_threads` is supported. Forked processes (`in_processes`) cannot share chain or context state, and Ractors (`in_reactors`) enforce isolation that prevents state sharing. Both raise `ArgumentError` if specified.
 
 !!! warning
 

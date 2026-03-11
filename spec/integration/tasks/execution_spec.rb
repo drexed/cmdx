@@ -686,7 +686,7 @@ RSpec.describe "Task execution", type: :feature do
           cause: be_a(CMDx::TestError)
         )
         expect(result).to have_matching_context(retries: 1)
-        expect(result).to have_matching_metadata({})
+        expect(result).to have_matching_metadata(source: :exception)
       end
     end
   end

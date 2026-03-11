@@ -81,7 +81,7 @@ module CMDx
         result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e)
+        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
         task.class.settings.exception_handler&.call(task, e)
       ensure
         result.executed!
@@ -121,7 +121,7 @@ module CMDx
         end
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e)
+        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
         raise_exception(e)
       else
         result.executed!
@@ -220,6 +220,7 @@ module CMDx
 
       result.fail!(
         Locale.t("cmdx.faults.invalid"),
+        source: :validation,
         errors: {
           full_message: task.errors.to_s,
           messages: task.errors.to_h
@@ -251,6 +252,7 @@ module CMDx
 
       result.fail!(
         Locale.t("cmdx.faults.invalid"),
+        source: :context,
         errors: {
           full_message: task.errors.to_s,
           messages: task.errors.to_h
@@ -280,7 +282,7 @@ module CMDx
       result.fail!(
         Locale.t("cmdx.faults.invalid"),
         halt: false,
-        source: :swallowed_middleware
+        source: :middleware
       )
       result.executed!
     end

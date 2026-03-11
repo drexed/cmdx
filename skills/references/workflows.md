@@ -35,11 +35,10 @@ tasks StepA, StepB   # same execution group, same options
 
 ```ruby
 tasks StepA, StepB, strategy: :parallel
-tasks StepC, StepD, in_threads: 4
-tasks StepE, StepF, in_processes: 2
+tasks StepC, StepD, strategy: :parallel, pool_size: 4
 ```
 
-Requires the `parallel` gem for `:in_threads` / `:in_processes`.
+Uses native Ruby threads. The `pool_size` option caps the number of concurrent threads (defaults to task count).
 
 ## Breakpoints
 

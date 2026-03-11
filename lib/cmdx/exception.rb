@@ -29,6 +29,13 @@ module CMDx
   # of required functionality.
   UndefinedMethodError = Class.new(Error)
 
+  # Error raised when task execution exceeds the configured timeout limit.
+  #
+  # This error occurs when a task takes longer to execute than the specified
+  # time limit. Timeout errors are raised by Ruby's Timeout module and are
+  # caught by the middleware to properly fail the task with timeout information.
+  TimeoutError = Class.new(Interrupt)
+
   # Raised when attribute validation fails during task execution.
   #
   # This error occurs when a attribute value doesn't meet the validation criteria

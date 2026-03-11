@@ -107,7 +107,6 @@ DEPENDENCIES
   cmdx!
   cmdx-rspec
   i18n
-  parallel
   rake
   rdoc
   rspec
