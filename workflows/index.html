@@ -2607,25 +2607,17 @@
 </span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
-<p>Run tasks concurrently using the <a href="https://github.com/grosser/parallel">Parallel</a> gem which automatically uses all available processors for maximum throughput.</p>
+<p>Run tasks concurrently using native Ruby threads for maximum throughput. No external dependencies required.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="c1"># Default options (dynamically calculated to available processors)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="c1"># One thread per task (default)</span>
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span>
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="c1"># Fix number of threads</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">in_threads</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="c1"># Fixed thread pool size</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">pool_size</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
 </span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This feature depends on the <code>parallel</code> gem being installed in your application or execution environment.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Only <code>in_threads</code> is supported. Forked processes (<code>in_processes</code>) cannot share chain or context state, and Ractors (<code>in_reactors</code>) enforce isolation that prevents state sharing. Both raise <code>ArgumentError</code> if specified.</p>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.</p>
