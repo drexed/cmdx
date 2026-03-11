@@ -161,7 +161,7 @@ module CMDx
     #
     # @rbs (?untyped args) -> self
     def merge!(args = {})
-      args.to_h.each { |key, value| self[key.to_sym] = value }
+      table.merge!(args.to_h.transform_keys(&:to_sym))
       self
     end
     alias merge merge!
@@ -302,8 +302,7 @@ module CMDx
     #
     # @rbs (Symbol method_name, ?bool include_private) -> bool
     def respond_to_missing?(method_name, include_private = false)
-      str_name = method_name.to_s
-      key?(str_name) || str_name.end_with?("=") || super
+      key?(method_name) || method_name.end_with?("=") || super
     end
 
   end

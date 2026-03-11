@@ -57,9 +57,8 @@ module CMDx
     #
     # @rbs (Symbol attribute) -> bool
     def for?(attribute)
-      return false unless messages.key?(attribute)
-
-      !messages[attribute].empty?
+      set = messages[attribute]
+      !set.nil? && !set.empty?
     end
 
     # Convert errors to a hash format with arrays of full messages.

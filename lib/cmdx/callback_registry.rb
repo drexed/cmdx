@@ -131,7 +131,7 @@ module CMDx
       raise TypeError, "unknown callback type #{type.inspect}" unless TYPES_SET.include?(type)
       return unless registry[type]
 
-      Utils::Wrap.array(registry[type]).each do |callables, options|
+      registry[type].each do |callables, options|
         next unless Utils::Condition.evaluate(task, options)
 
         Utils::Wrap.array(callables).each do |callable|

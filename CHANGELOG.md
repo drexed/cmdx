@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### Added
-- Add `Task#type` to return task mechanics
+- Add `Task.type` to return task mechanics
 - Add `Utils::Normalize` module for normalizing exceptions and statuses into consistent formats
 - Add `Utils::Wrap` module for normalizing values into consistent array structures
 - Add `Retry` class to encapsulate retry logic, state tracking, exception matching, and jitter computation

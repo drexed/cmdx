@@ -10,6 +10,14 @@ module CMDx
 
     extend Forwardable
 
+    # @rbs STATE_CALLBACKS: Hash[String, Symbol]
+    STATE_CALLBACKS = Result::STATES.to_h { |s| [s, :"on_#{s}"] }.freeze
+    private_constant :STATE_CALLBACKS
+
+    # @rbs STATUS_CALLBACKS: Hash[String, Symbol]
+    STATUS_CALLBACKS = Result::STATUSES.to_h { |s| [s, :"on_#{s}"] }.freeze
+    private_constant :STATUS_CALLBACKS
+
     # Returns the task being executed.
     #
     # @return [Task] The task instance
@@ -254,10 +262,10 @@ module CMDx
     #
     # @rbs () -> void
     def post_execution!
-      invoke_callbacks(:"on_#{result.state}")
+      invoke_callbacks(STATE_CALLBACKS[result.state])
       invoke_callbacks(:on_executed) if result.executed?
 
-      invoke_callbacks(:"on_#{result.status}")
+      invoke_callbacks(STATUS_CALLBACKS[result.status])
       invoke_callbacks(:on_good) if result.good?
       invoke_callbacks(:on_bad) if result.bad?
     end

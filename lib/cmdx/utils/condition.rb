@@ -54,13 +54,15 @@ module CMDx
       #
       # @rbs (untyped target, Hash[Symbol, untyped] options, *untyped) ?{ () -> untyped } -> bool
       def evaluate(target, options, ...)
-        case options
-        in if: if_cond, unless: unless_cond
-          EVAL.call(target, if_cond, ...) && !EVAL.call(target, unless_cond, ...)
-        in if: if_cond
-          EVAL.call(target, if_cond, ...)
-        in unless: unless_cond
-          !EVAL.call(target, unless_cond, ...)
+        has_if = options.key?(:if)
+        has_unless = options.key?(:unless)
+
+        if has_if && has_unless
+          EVAL.call(target, options[:if], ...) && !EVAL.call(target, options[:unless], ...)
+        elsif has_if
+          EVAL.call(target, options[:if], ...)
+        elsif has_unless
+          !EVAL.call(target, options[:unless], ...)
         else
           true
         end

@@ -41,7 +41,10 @@ module CMDx
       #
       # @rbs (untyped object) -> Array[String]
       def statuses(object)
-        Wrap.array(object).map(&:to_s).uniq
+        ary = Wrap.array(object)
+        return EMPTY_ARRAY if ary.empty?
+
+        ary.map(&:to_s).uniq
       end
 
     end
