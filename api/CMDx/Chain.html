@@ -390,6 +390,30 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#index-instance_method" title="#index (instance method)">#<strong>index</strong>(result)  &#x21d2; Integer<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Thread-safe lookup of a result’s position in the chain.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(dry_run: false)  &#x21d2; Chain </a>
     
 
@@ -1214,12 +1238,12 @@
       <pre class="lines">
 
 
-149
-150
-151</pre>
+160
+161
+162</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 149</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 160</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@dry_run</span>
@@ -1298,17 +1322,112 @@
       <pre class="lines">
 
 
-162
-163
-164
-165</pre>
+173
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 162</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 173</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_freeze'>freeze</span>
   <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
   <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="index-instance_method">
+  
+    #<strong>index</strong>(result)  &#x21d2; <tt>Integer</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Thread-safe lookup of a result’s position in the chain.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>result</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The result to find</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The zero-based index or nil if not found</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Rbs:</p>
+<ul class="rbs">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>(Result result) -&gt; Integer?</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+148
+149
+150</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 148</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1502,16 +1621,16 @@
       <pre class="lines">
 
 
-180
-181
-182
-183
-184
-185
-186</pre>
+191
+192
+193
+194
+195
+196
+197</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 180</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 191</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -1593,12 +1712,12 @@
       <pre class="lines">
 
 
-196
-197
-198</pre>
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 196</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 207</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -1613,7 +1732,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 01:24:10 2026 by
+  Generated on Wed Mar 11 03:45:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

@@ -928,12 +928,12 @@
       <pre class="lines">
 
 
-129
-130
-131</pre>
+132
+133
+134</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 132</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_exception?'>exception?</span><span class='lparen'>(</span><span class='id identifier rubyid_exception'>exception</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_exceptions'>exceptions</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_exception'>exception</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_e'>e</span> <span class='rbrace'>}</span>
@@ -966,7 +966,7 @@
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='id identifier rubyid_retry_instance'>retry_instance</span><span class='period'>.</span><span class='id identifier rubyid_exceptions'>exceptions</span> <span class='comment'># =&gt; [StandardError]</span></code></pre>
+      <pre class="example code"><code><span class='id identifier rubyid_retry_instance'>retry_instance</span><span class='period'>.</span><span class='id identifier rubyid_exceptions'>exceptions</span> <span class='comment'># =&gt; [StandardError, CMDx::TimeoutError]</span></code></pre>
     
   </div>
 
@@ -1013,13 +1013,19 @@
 
 115
 116
-117</pre>
+117
+118
+119
+120</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 115</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_exceptions'>exceptions</span>
-  <span class='ivar'>@exceptions</span> <span class='op'>||=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_retry_on'>retry_on</span> <span class='op'>||</span> <span class='const'>StandardError</span><span class='rparen'>)</span>
+  <span class='ivar'>@exceptions</span> <span class='op'>||=</span> <span class='const'>Array</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_retry_on'>retry_on</span> <span class='op'>||</span>
+    <span class='lbracket'>[</span><span class='const'>StandardError</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CMDx.html#TimeoutError-constant" title="CMDx::TimeoutError (constant)">TimeoutError</a></span></span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1356,9 +1362,6 @@
       <pre class="lines">
 
 
-148
-149
-150
 151
 152
 153
@@ -1368,10 +1371,13 @@
 157
 158
 159
-160</pre>
+160
+161
+162
+163</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 151</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
   <span class='id identifier rubyid_jitter'>jitter</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_retry_jitter'>retry_jitter</span>
@@ -1396,7 +1402,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 01:24:10 2026 by
+  Generated on Wed Mar 11 03:45:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
