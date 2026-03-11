@@ -10,12 +10,24 @@ module CMDx
 
     extend self
 
+    # @rbs RAISE_REGEXP: Regexp
+    RAISE_REGEXP = /\Araise\z/
+    private_constant :RAISE_REGEXP
+
+    # @rbs LOG_REGEXP: Regexp
+    LOG_REGEXP = /\Alog\z/
+    private_constant :LOG_REGEXP
+
+    # @rbs WARN_REGEXP: Regexp
+    WARN_REGEXP = /\Awarn\z/
+    private_constant :WARN_REGEXP
+
     # @rbs EVAL: Proc
     EVAL = proc do |target, callable|
       case callable
       when NilClass, FalseClass, TrueClass then !!callable
       when Proc then target.instance_eval(&callable)
-      when /\Araise\z|\Alog\z|\Awarn\z/ then callable
+      when RAISE_REGEXP, LOG_REGEXP, WARN_REGEXP then callable
       when Symbol then target.send(callable)
       else
         raise "cannot evaluate #{callable.inspect}" unless callable.respond_to?(:call)
@@ -54,9 +66,9 @@ module CMDx
 
       case type = EVAL.call(task, setting)
       when NilClass, FalseClass then nil # Do nothing
-      when TrueClass, /\Araise\z/ then raise DeprecationError, "#{task.class.name} usage prohibited"
-      when /\Alog\z/ then task.logger.warn { "DEPRECATED: migrate to a replacement or discontinue use" }
-      when /\Awarn\z/ then warn("[#{task.class.name}] DEPRECATED: migrate to a replacement or discontinue use", category: :deprecated)
+      when TrueClass, RAISE_REGEXP then raise DeprecationError, "#{task.class.name} usage prohibited"
+      when LOG_REGEXP then task.logger.warn { "DEPRECATED: migrate to a replacement or discontinue use" }
+      when WARN_REGEXP then warn("[#{task.class.name}] DEPRECATED: migrate to a replacement or discontinue use", category: :deprecated)
       else raise "unknown deprecation type #{type.inspect}"
       end
     end
