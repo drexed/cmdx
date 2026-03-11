@@ -80,6 +80,37 @@ module CMDx
       self
     end
 
+    # Eagerly defines attribute reader methods on the task class for all
+    # attributes whose method names can be statically resolved. Called at
+    # class definition time so readers are defined once, not per-execution.
+    #
+    # @param task_class [Class] The task class to define readers on
+    # @param attrs [Array<Attribute>] Attributes to process (defaults to all)
+    #
+    # @rbs (Class task_class, ?Array[Attribute] attrs) -> void
+    def define_readers_on!(task_class, attrs = registry)
+      attrs.each { |attr| define_reader_tree!(task_class, attr) }
+    end
+
+    # Removes eagerly defined reader methods from the task class for
+    # attributes about to be deregistered. Must be called before {#deregister}.
+    #
+    # @param task_class [Class] The task class to undefine readers on
+    # @param names [Array<Symbol, String>] Attribute method names being removed
+    #
+    # @rbs (Class task_class, (Symbol | String | Array[Symbol | String]) names) -> void
+    def undefine_readers_on!(task_class, names)
+      Array(names).each do |name|
+        sym = name.to_sym
+
+        registry.each do |attribute|
+          next unless matches_attribute_tree?(attribute, sym)
+
+          undefine_reader_tree!(task_class, attribute)
+        end
+      end
+    end
+
     # Associates all registered attributes with a task and verifies their definitions.
     # This method is called during task setup to establish attribute-task relationships
     # and validate the attribute hierarchy.
@@ -97,6 +128,44 @@ module CMDx
     end
 
     private
+
+    # Recursively defines reader methods for an attribute and its children
+    # when the method name is statically resolvable.
+    #
+    # @param task_class [Class] The task class to define readers on
+    # @param attribute [Attribute] The attribute to define a reader for
+    #
+    # @rbs (Class task_class, Attribute attribute) -> void
+    def define_reader_tree!(task_class, attribute)
+      name = attribute.static_method_name
+
+      if name && !task_class.method_defined?(name)
+        if task_class.private_method_defined?(name)
+          raise <<~MESSAGE
+            The method #{name.inspect} is already defined on the #{task_class.name} task.
+            This may be due conflicts with one of the task's user defined or internal methods/attributes.
+
+            Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
+          MESSAGE
+        end
+
+        task_class.define_method(name) { attributes[name] }
+      end
+
+      attribute.children.each { |child| define_reader_tree!(task_class, child) }
+    end
+
+    # Recursively removes reader methods for an attribute and its children.
+    #
+    # @param task_class [Class] The task class to undefine readers on
+    # @param attribute [Attribute] The attribute whose readers to remove
+    #
+    # @rbs (Class task_class, Attribute attribute) -> void
+    def undefine_reader_tree!(task_class, attribute)
+      name = attribute.static_method_name
+      task_class.remove_method(name) if name && task_class.method_defined?(name, false)
+      attribute.children.each { |child| undefine_reader_tree!(task_class, child) }
+    end
 
     # Recursively checks if an attribute or any of its children match the given name.
     #

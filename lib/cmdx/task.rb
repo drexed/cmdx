@@ -136,7 +136,9 @@ module CMDx
       # @rbs (Symbol type, untyped object, *untyped) -> void
       def register(type, object, ...)
         case type
-        when :attribute then settings.attributes.register(object, ...)
+        when :attribute
+          settings.attributes.register(object)
+          settings.attributes.define_readers_on!(self, Array(object))
         when :callback then settings.callbacks.register(object, ...)
         when :coercion then settings.coercions.register(object, ...)
         when :middleware then settings.middlewares.register(object, ...)
@@ -157,7 +159,9 @@ module CMDx
       # @rbs (Symbol type, untyped object, *untyped) -> void
       def deregister(type, object, ...)
         case type
-        when :attribute then settings.attributes.deregister(object, ...)
+        when :attribute
+          settings.attributes.undefine_readers_on!(self, object)
+          settings.attributes.deregister(object)
         when :callback then settings.callbacks.deregister(object, ...)
         when :coercion then settings.coercions.deregister(object, ...)
         when :middleware then settings.middlewares.deregister(object, ...)

@@ -194,6 +194,104 @@ RSpec.describe CMDx::AttributeRegistry, type: :unit do
     end
   end
 
+  describe "#define_readers_on!" do
+    let(:task_class) { Class.new(CMDx::Task) }
+
+    context "with static attributes" do
+      it "defines reader methods on the task class" do
+        attr = CMDx::Attribute.new(:username)
+        registry = described_class.new([attr])
+        registry.define_readers_on!(task_class)
+
+        expect(task_class.method_defined?(:username)).to be(true)
+      end
+    end
+
+    context "with nested static attributes" do
+      it "defines readers for parent and children" do
+        attr = CMDx::Attribute.new(:address) do
+          required :street
+          required :city
+        end
+        registry = described_class.new([attr])
+        registry.define_readers_on!(task_class)
+
+        expect(task_class.method_defined?(:address)).to be(true)
+        expect(task_class.method_defined?(:street)).to be(true)
+        expect(task_class.method_defined?(:city)).to be(true)
+      end
+    end
+
+    context "with dynamic (Proc) source" do
+      it "skips the reader definition" do
+        attr = CMDx::Attribute.new(:username, source: -> { :dynamic })
+        registry = described_class.new([attr])
+        registry.define_readers_on!(task_class)
+
+        expect(task_class.method_defined?(:username)).to be(false)
+      end
+    end
+
+    context "when method already exists as private" do
+      before { task_class.define_method(:taken_name) { "private" } }
+
+      it "raises a conflict error" do
+        task_class.send(:private, :taken_name)
+        attr = CMDx::Attribute.new(:taken_name)
+        registry = described_class.new([attr])
+
+        expect { registry.define_readers_on!(task_class) }.to raise_error(/already defined/)
+      end
+    end
+
+    context "with subset of attributes" do
+      it "only defines readers for the given attributes" do
+        attr1 = CMDx::Attribute.new(:first)
+        attr2 = CMDx::Attribute.new(:second)
+        registry = described_class.new([attr1])
+        registry.define_readers_on!(task_class, [attr2])
+
+        expect(task_class.method_defined?(:first)).to be(false)
+        expect(task_class.method_defined?(:second)).to be(true)
+      end
+    end
+  end
+
+  describe "#undefine_readers_on!" do
+    let(:task_class) { Class.new(CMDx::Task) }
+
+    it "removes eagerly defined reader methods" do
+      attr = CMDx::Attribute.new(:username)
+      registry = described_class.new([attr])
+      registry.define_readers_on!(task_class)
+
+      expect(task_class.method_defined?(:username)).to be(true)
+
+      registry.undefine_readers_on!(task_class, [:username])
+
+      expect(task_class.method_defined?(:username, false)).to be(false)
+    end
+
+    it "removes nested readers" do
+      attr = CMDx::Attribute.new(:profile) do
+        required :bio
+      end
+      registry = described_class.new([attr])
+      registry.define_readers_on!(task_class)
+
+      registry.undefine_readers_on!(task_class, [:profile])
+
+      expect(task_class.method_defined?(:profile, false)).to be(false)
+      expect(task_class.method_defined?(:bio, false)).to be(false)
+    end
+
+    it "does not raise for non-existent methods" do
+      registry = described_class.new([])
+
+      expect { registry.undefine_readers_on!(task_class, [:missing]) }.not_to raise_error
+    end
+  end
+
   describe "#define_and_verify" do
     subject(:registry) { described_class.new([attribute1, attribute2]) }
 

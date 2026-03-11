@@ -157,10 +157,11 @@ RSpec.describe CMDx::Task, type: :unit do
     end
 
     context "with :attribute type" do
-      it "registers with attribute registry" do
-        expect(mock_registry).to receive(:register).with("object", "arg1", "arg2")
+      it "registers with attribute registry and defines readers" do
+        expect(mock_registry).to receive(:register).with("object")
+        expect(mock_registry).to receive(:define_readers_on!).with(task_class, ["object"])
 
-        task_class.register(:attribute, "object", "arg1", "arg2")
+        task_class.register(:attribute, "object")
       end
     end
 
@@ -238,6 +239,7 @@ RSpec.describe CMDx::Task, type: :unit do
       mock_registry = instance_double(CMDx::AttributeRegistry)
       allow(task_class.settings).to receive(:attributes).and_return(mock_registry)
 
+      expect(mock_registry).to receive(:undefine_readers_on!).with(task_class, %w[attr1 attr2 attr3])
       expect(mock_registry).to receive(:deregister).with(%w[attr1 attr2 attr3])
 
       task_class.remove_attributes("attr1", "attr2", "attr3")
@@ -247,6 +249,7 @@ RSpec.describe CMDx::Task, type: :unit do
       mock_registry = instance_double(CMDx::AttributeRegistry)
       allow(task_class.settings).to receive(:attributes).and_return(mock_registry)
 
+      expect(mock_registry).to receive(:undefine_readers_on!).with(task_class, ["single_attr"])
       expect(mock_registry).to receive(:deregister).with(["single_attr"])
 
       task_class.remove_attributes("single_attr")

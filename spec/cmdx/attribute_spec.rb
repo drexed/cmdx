@@ -299,6 +299,78 @@ RSpec.describe CMDx::Attribute, type: :unit do
     end
   end
 
+  describe "#static_method_name" do
+    subject(:static_name) { attribute.static_method_name }
+
+    context "when :as option is provided" do
+      let(:attribute_options) { { as: :custom_method } }
+
+      it "returns the custom method name" do
+        expect(static_name).to eq(:custom_method)
+      end
+    end
+
+    context "with static symbol source" do
+      let(:attribute_options) { { source: :params } }
+
+      it "returns the attribute name" do
+        expect(static_name).to eq(attribute_name)
+      end
+    end
+
+    context "with prefix and suffix" do
+      let(:attribute_options) { { prefix: true, suffix: true, source: :params } }
+
+      it "applies prefix and suffix using source" do
+        expect(static_name).to eq(:params_test_attr_params)
+      end
+    end
+
+    context "with Proc source" do
+      let(:attribute_options) { { source: -> { :dynamic } } }
+
+      it "returns nil" do
+        expect(static_name).to be_nil
+      end
+    end
+
+    context "with callable source" do
+      let(:callable) { Class.new { def call(_task) = :dynamic }.new }
+      let(:attribute_options) { { source: callable } }
+
+      it "returns nil" do
+        expect(static_name).to be_nil
+      end
+    end
+
+    context "with static parent" do
+      let(:parent_attribute) { described_class.new(:parent_attr) }
+      let(:attribute_options) { { parent: parent_attribute } }
+
+      it "uses parent static_method_name as source" do
+        expect(static_name).to eq(attribute_name)
+      end
+    end
+
+    context "with dynamic parent" do
+      let(:parent_attribute) { described_class.new(:parent_attr, source: -> { :dynamic }) }
+      let(:attribute_options) { { parent: parent_attribute } }
+
+      it "returns nil" do
+        expect(static_name).to be_nil
+      end
+    end
+
+    context "with memoization" do
+      it "memoizes the result" do
+        first = attribute.static_method_name
+        second = attribute.static_method_name
+
+        expect(first).to equal(second)
+      end
+    end
+  end
+
   describe "#method_name" do
     subject(:method_name_value) { attribute.method_name }
 
