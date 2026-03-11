@@ -3836,6 +3836,14 @@ rails generate cmdx:locale fr
 
 CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.
 
+## Configuration Settings
+
+| Setting        | Type                                  | Default          | Description                           |
+| -------------- | ------------------------------------- | ---------------- | ------------------------------------- |
+| `retries`      | `Integer`                             | `nil` (disabled) | Maximum number of retry attempts      |
+| `retry_on`     | `Class`, `Array<Class>`               | `StandardError`  | Exception types that trigger a retry  |
+| `retry_jitter` | `Numeric`, `Symbol`, `Proc`, callable | `nil` (no delay) | Delay strategy between retry attempts |
+
 ## Basic Usage
 
 Configure retries upto n attempts without any delay.
@@ -3869,22 +3877,22 @@ end
 
 Important
 
-Only exceptions matching the `retry_on` configuration will trigger retries. Uncaught exceptions immediately fail the task.
+Only exceptions matching the `retry_on` configuration trigger retries. Unmatched exceptions immediately fail the task.
 
 ## Retry Jitter
 
-Add delays between retry attempts to avoid overwhelming external services or to implement exponential backoff strategies.
+Add delays between retry attempts to avoid overwhelming external services or to implement exponential backoff strategies. The delay is calculated as `jitter * current_attempt` for numeric values and invoked with the current attempt count for callable types.
 
 ### Fixed Value
 
-Use a numeric value to calculate linear delay (`jitter * current_retry`):
+Use a numeric value to calculate linear delay (`jitter * current_attempt`):
 
 ```ruby
 class ImportRecords < CMDx::Task
   settings retries: 3, retry_jitter: 0.5
 
   def work
-    # Delays: 0s, 0.5s (retry 1), 1.0s (retry 2), 1.5s (retry 3)
+    # Delays: 0.5s (attempt 1), 1.0s (attempt 2), 1.5s (attempt 3)
     context.records = ExternalAPI.fetch_records
   end
 end
@@ -3904,8 +3912,8 @@ class SyncInventory < CMDx::Task
 
   private
 
-  def exponential_backoff(current_retry)
-    2 ** current_retry # 2s, 4s, 8s, 16s, 32s
+  def exponential_backoff(current_attempt)
+    2 ** current_attempt # 2s, 4s, 8s, 16s, 32s
   end
 end
 ```
@@ -3917,10 +3925,10 @@ Pass a proc for inline delay calculations:
 ```ruby
 class PollJobStatus < CMDx::Task
   # Proc
-  settings retries: 10, retry_jitter: proc { |retry_count| [retry_count * 0.5, 5.0].min }
+  settings retries: 10, retry_jitter: proc { |attempt| [attempt * 0.5, 5.0].min }
 
   # Lambda
-  settings retries: 10, retry_jitter: ->(retry_count) { [retry_count * 0.5, 5.0].min }
+  settings retries: 10, retry_jitter: ->(attempt) { [attempt * 0.5, 5.0].min }
 
   def work
     # Delays: 0.5s, 1.0s, 1.5s, 2.0s, 2.5s, 3.0s, 3.5s, 4.0s, 4.5s, 5.0s (capped)
@@ -3935,9 +3943,9 @@ Implement reusable delay logic in dedicated modules and classes:
 
 ```ruby
 class ExponentialBackoff
-  def call(task, retry_count)
+  def call(task, attempt)
     base_delay = task.context.base_delay || 1.0
-    [base_delay * (2 ** retry_count), 60.0].min
+    [base_delay * (2 ** attempt), 60.0].min
   end
 end
 
@@ -3962,6 +3970,11 @@ Understanding how retries work internally helps avoid surprises:
 - **Validation skipped** — `before_validation` callbacks and attribute validation only run on the first attempt. Retries go straight to `before_execution` and `work`.
 - **Errors cleared** — `task.errors` is automatically cleared before each retry so errors from previous attempts don't carry over.
 - **Retry count tracked** — `result.retries` increments before each retry attempt.
+- **Warn-level logging** — Each retry is logged at `warn` with the exception reason and remaining retry count.
+
+Retry + Middleware Interaction
+
+Retries happen inside the middleware stack. The `retry` keyword re-enters the execution block, so middlewares like `Timeout` still apply to each individual retry attempt.
 
 ## Retry Results
 
@@ -3975,6 +3988,21 @@ result.retried?  # => true (whether any retries occurred)
 ```
 
 Use these methods for logging, metrics, or conditional post-processing based on retry activity.
+
+## Error Handling
+
+When all retry attempts are exhausted:
+
+- **`execute`** — The task fails gracefully. `result.failure?` returns `true` and the exception message is captured in the result. If an `exception_handler` is configured, it is invoked.
+- **`execute!`** — The original exception is re-raised after the task is marked as failed.
+
+```ruby
+result = FetchExternalData.execute
+
+if result.failure?
+  Rails.logger.error("Failed after #{result.retries} retries: #{result.message}")
+end
+```
 
 # Task Deprecation
 
@@ -5059,15 +5087,15 @@ CMDx stands apart by combining zero external dependencies with production-grade 
 
 | Feature              | [CMDx](https://github.com/drexed/cmdx) | [Actor](https://github.com/sunny/actor) | [Interactor](https://github.com/collectiveidea/interactor) | [ActiveInteraction](https://github.com/AaronLasseigne/active_interaction) | [LightService](https://github.com/adomokos/light-service) |
 | -------------------- | -------------------------------------- | --------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Zero dependencies    | ✅                                     | ✅                                      | ✅                                                         | ❌                                                                        | ✅                                                        |
+| Zero dependencies    | ✅                                     | ❌                                      | ✅                                                         | ❌                                                                        | ❌                                                        |
 | Typed attributes     | ✅                                     | ✅                                      | ❌                                                         | ✅                                                                        | ❌                                                        |
 | Type coercion        | ✅                                     | ❌                                      | ❌                                                         | ✅                                                                        | ❌                                                        |
 | Attribute validation | ✅                                     | ✅                                      | ❌                                                         | ✅                                                                        | ❌                                                        |
-| Built-in logging     | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ❌                                                        |
+| Built-in logging     | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ✅                                                        |
 | Correlation IDs      | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ❌                                                        |
 | Runtime metrics      | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ❌                                                        |
 | Middleware system    | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ✅                                                        |
-| Batch execution      | ✅                                     | ✅                                      | ❌                                                         | ✅                                                                        | ❌                                                        |
+| Batch execution      | ✅                                     | ✅                                      | ✅                                                         | ✅                                                                        | ✅                                                        |
 | Fault tolerance      | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ❌                                                        |
 | Lifecycle callbacks  | ✅                                     | ✅                                      | ✅                                                         | ✅                                                                        | ✅                                                        |
 | RBS type signatures  | ✅                                     | ❌                                      | ❌                                                         | ❌                                                                        | ❌                                                        |
