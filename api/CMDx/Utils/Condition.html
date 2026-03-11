@@ -355,23 +355,19 @@
 64
 65
 66
-67
-68
-69</pre>
+67</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/utils/condition.rb', line 56</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_evaluate'>evaluate</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_has_if'>has_if</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:if</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_has_unless'>has_unless</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:unless</span><span class='rparen'>)</span>
-
-  <span class='kw'>if</span> <span class='id identifier rubyid_has_if'>has_if</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_has_unless'>has_unless</span>
-    <span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='id identifier rubyid_has_if'>has_if</span>
-    <span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='id identifier rubyid_has_unless'>has_unless</span>
-    <span class='op'>!</span><span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_options'>options</span>
+  <span class='kw'>in</span> <span class='label'>if:</span> <span class='id identifier rubyid_if_cond'>if_cond</span><span class='comma'>,</span> <span class='label'>unless:</span> <span class='id identifier rubyid_unless_cond'>unless_cond</span>
+    <span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_if_cond'>if_cond</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_unless_cond'>unless_cond</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>in</span> <span class='label'>if:</span> <span class='id identifier rubyid_if_cond'>if_cond</span>
+    <span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_if_cond'>if_cond</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>in</span> <span class='label'>unless:</span> <span class='id identifier rubyid_unless_cond'>unless_cond</span>
+    <span class='op'>!</span><span class='const'>EVAL</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_unless_cond'>unless_cond</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
     <span class='kw'>true</span>
   <span class='kw'>end</span>
@@ -386,7 +382,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 19:12:24 2026 by
+  Generated on Wed Mar 11 19:23:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>
