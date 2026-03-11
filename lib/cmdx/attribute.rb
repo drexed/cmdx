@@ -246,7 +246,21 @@ module CMDx
     def static_method_name
       return @static_method_name if defined?(@static_method_name)
 
-      @static_method_name = compute_static_method_name
+      @static_method_name = options[:as] || begin
+        src = options[:source]
+        source_name =
+          if parent
+            parent.static_method_name
+          elsif !src.is_a?(Proc) && !src.respond_to?(:call)
+            src || :context
+          end
+
+        if source_name.is_a?(Symbol)
+          prefix = AFFIX.call(options[:prefix]) { "#{source_name}_" }
+          suffix = AFFIX.call(options[:suffix]) { "_#{source_name}" }
+          :"#{prefix}#{name}#{suffix}"
+        end
+      end
     end
 
     # Generates the method name for accessing this attribute.
@@ -376,32 +390,6 @@ module CMDx
     # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
     def required(*names, **options, &)
       attributes(*names, **options.merge(required: true), &)
-    end
-
-    # Resolves the method name without a task instance.
-    # Returns nil when the source is a Proc or callable object.
-    #
-    # @return [Symbol, nil]
-    #
-    # @rbs () -> Symbol?
-    def compute_static_method_name
-      return options[:as] if options[:as]
-
-      source_name =
-        if parent
-          parent.static_method_name
-        else
-          src = options[:source]
-          return if src.is_a?(Proc) || src.respond_to?(:call)
-
-          src || :context
-        end
-
-      return unless source_name.is_a?(Symbol)
-
-      prefix = AFFIX.call(options[:prefix]) { "#{source_name}_" }
-      suffix = AFFIX.call(options[:suffix]) { "_#{source_name}" }
-      :"#{prefix}#{name}#{suffix}"
     end
 
     # Defines the attribute reader on the task class (once) and
