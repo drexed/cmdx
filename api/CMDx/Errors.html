@@ -696,16 +696,14 @@
 59
 60
 61
-62
-63</pre>
+62</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 59</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_for?'>for?</span><span class='lparen'>(</span><span class='id identifier rubyid_attribute'>attribute</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_attribute'>attribute</span><span class='rparen'>)</span>
-
-  <span class='op'>!</span><span class='id identifier rubyid_messages'>messages</span><span class='lbracket'>[</span><span class='id identifier rubyid_attribute'>attribute</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_set'>set</span> <span class='op'>=</span> <span class='id identifier rubyid_messages'>messages</span><span class='lbracket'>[</span><span class='id identifier rubyid_attribute'>attribute</span><span class='rbracket'>]</span>
+  <span class='op'>!</span><span class='id identifier rubyid_set'>set</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_set'>set</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -780,14 +778,14 @@
       <pre class="lines">
 
 
+72
 73
 74
 75
-76
-77</pre>
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 73</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_full_messages'>full_messages</span>
   <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='lparen'>(</span><span class='id identifier rubyid_attribute'>attribute</span><span class='comma'>,</span> <span class='id identifier rubyid_messages'>messages</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_hash'>hash</span><span class='op'>|</span>
@@ -867,12 +865,12 @@
       <pre class="lines">
 
 
+86
 87
-88
-89</pre>
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_transform_values'>transform_values</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_a</span><span class='rparen'>)</span>
@@ -973,12 +971,12 @@
       <pre class="lines">
 
 
+100
 101
-102
-103</pre>
+102</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 101</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 100</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_hash'>to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_full'>full</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_full'>full</span> <span class='op'>?</span> <span class='id identifier rubyid_full_messages'>full_messages</span> <span class='op'>:</span> <span class='id identifier rubyid_to_h'>to_h</span>
@@ -1056,12 +1054,12 @@
       <pre class="lines">
 
 
+112
 113
-114
-115</pre>
+114</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/errors.rb', line 112</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='id identifier rubyid_full_messages'>full_messages</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>. </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -1076,7 +1074,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 17:14:50 2026 by
+  Generated on Wed Mar 11 18:54:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>

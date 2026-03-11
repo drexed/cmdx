@@ -350,12 +350,12 @@
       <pre class="lines">
 
 
-33
-34
-35</pre>
+41
+42
+43</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 41</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
   <span class='ivar'>@task</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
@@ -440,12 +440,12 @@
       <pre class="lines">
 
 
-21
-22
-23</pre>
+29
+30
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 29</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span>
   <span class='ivar'>@task</span>
@@ -587,13 +587,13 @@
       <pre class="lines">
 
 
-51
-52
-53
-54</pre>
+59
+60
+61
+62</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 51</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 59</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='label'>raise:</span> <span class='kw'>false</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_instance'>instance</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
@@ -679,14 +679,6 @@
       <pre class="lines">
 
 
-65
-66
-67
-68
-69
-70
-71
-72
 73
 74
 75
@@ -699,10 +691,18 @@
 82
 83
 84
-85</pre>
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 73</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span>
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -817,14 +817,6 @@
       <pre class="lines">
 
 
-98
-99
-100
-101
-102
-103
-104
-105
 106
 107
 108
@@ -844,10 +836,18 @@
 122
 123
 124
-125</pre>
+125
+126
+127
+128
+129
+130
+131
+132
+133</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 98</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/executor.rb', line 106</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute!'>execute!</span>
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -887,7 +887,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 17:14:51 2026 by
+  Generated on Wed Mar 11 18:54:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>
