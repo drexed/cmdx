@@ -152,6 +152,10 @@ module CMDx
         raise ArgumentError,
               "in_processes is not supported for parallel workflow tasks " \
               "because forked processes cannot share chain or context state — use in_threads instead"
+      elsif group.options.key?(:in_reactors)
+        raise ArgumentError,
+              "in_reactors is not supported for parallel workflow tasks " \
+              "because Ractors enforce isolation and cannot share chain or context state — use in_threads instead"
       end
 
       parallel_options = group.options.slice(:in_threads)
