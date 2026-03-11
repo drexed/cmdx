@@ -54,13 +54,20 @@ module CMDx
     #
     # @rbs () -> void
     def execute
-      settings = workflow.class.settings
+      default_breakpoints = Utils::Normalize.statuses(
+        workflow.class.settings.breakpoints ||
+        workflow.class.settings.workflow_breakpoints
+      )
 
       workflow.class.pipeline.each do |group|
         next unless Utils::Condition.evaluate(workflow, group.options)
 
-        breakpoints = group.options[:breakpoints] || settings.breakpoints || settings.workflow_breakpoints
-        breakpoints = Utils::Wrap.array(breakpoints).map(&:to_s).uniq
+        breakpoints =
+          if group.options.key?(:breakpoints)
+            Utils::Normalize.statuses(group.options[:breakpoints])
+          else
+            default_breakpoints
+          end
 
         execute_group_tasks(group, breakpoints)
       end

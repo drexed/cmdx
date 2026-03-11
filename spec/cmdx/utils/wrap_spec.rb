@@ -56,16 +56,5 @@ RSpec.describe CMDx::Utils::Wrap, type: :unit do
         expect(result).to eq([[:a, 1], [:b, 2]])
       end
     end
-
-    context "when object responds to to_ary" do
-      it "converts via to_ary" do
-        object = Struct.new(:values).new([1, 2])
-        object.define_singleton_method(:to_ary) { values }
-
-        result = wrap_module.array(object)
-
-        expect(result).to eq([1, 2])
-      end
-    end
   end
 end

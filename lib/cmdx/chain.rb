@@ -128,6 +128,7 @@ module CMDx
     end
 
     # Thread-safe append of a result to the chain.
+    # Caches the result's index to avoid repeated O(n) lookups.
     #
     # @param result [Result] The result to append
     #
@@ -135,7 +136,10 @@ module CMDx
     #
     # @rbs (Result result) -> Array[Result]
     def push(result)
-      @mutex.synchronize { @results << result }
+      @mutex.synchronize do
+        result.instance_variable_set(:@chain_index, @results.size)
+        @results << result
+      end
     end
 
     # Thread-safe lookup of a result's position in the chain.

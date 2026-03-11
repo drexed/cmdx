@@ -387,7 +387,7 @@ module CMDx
     def caused_failure
       return unless failed?
 
-      chain.results.reverse.find(&:failed?)
+      chain.results.reverse_each.find(&:failed?)
     end
 
     # @return [Boolean] Whether this result caused the failure
@@ -415,8 +415,17 @@ module CMDx
       return unless failed?
 
       current = index
-      results = chain.results.select(&:failed?)
-      results.find { |r| r.index > current } || results.last
+      last_failed = nil
+
+      chain.results.each do |r|
+        next unless r.failed?
+
+        return r if r.index > current
+
+        last_failed = r
+      end
+
+      last_failed
     end
 
     # @return [Boolean] Whether this result threw the failure
@@ -473,7 +482,7 @@ module CMDx
     #
     # @rbs () -> Integer
     def index
-      chain.index(self)
+      @chain_index || chain.index(self)
     end
 
     # @return [String] The outcome of the task execution

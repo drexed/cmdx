@@ -670,7 +670,12 @@ RSpec.describe CMDx::Result, type: :unit do
   end
 
   describe "#index" do
-    it "delegates to chain.index" do
+    it "returns the cached chain index set during push" do
+      expect(result.index).to eq(0)
+    end
+
+    it "falls back to chain.index when cache is not set" do
+      result.remove_instance_variable(:@chain_index) if result.instance_variable_defined?(:@chain_index)
       allow(result.chain).to receive(:index).with(result).and_return(42)
 
       expect(result.index).to eq(42)

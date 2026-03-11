@@ -73,7 +73,7 @@ module CMDx
         result.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
+        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e)
         task.class.settings.exception_handler&.call(task, e)
       ensure
         result.executed!
@@ -113,7 +113,7 @@ module CMDx
         end
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!("[#{e.class}] #{e.message}", halt: false, cause: e)
+        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e)
         raise_exception(e)
       else
         result.executed!
@@ -134,11 +134,10 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
-      @halt_statuses ||= begin
-        settings = task.class.settings
-        statuses = settings.breakpoints || settings.task_breakpoints
-        Utils::Wrap.array(statuses).map(&:to_s).uniq
-      end
+      @halt_statuses ||= Utils::Normalize.statuses(
+        task.class.settings.breakpoints ||
+        task.class.settings.task_breakpoints
+      ).freeze
 
       @halt_statuses.include?(exception.result.status)
     end
@@ -159,7 +158,7 @@ module CMDx
       result.retries += 1
 
       task.logger.warn do
-        reason = "[#{exception.class}] #{exception.message}"
+        reason = Utils::Normalize.exception(exception)
         task.to_h.merge!(reason:, remaining_retries: @retry.remaining)
       end
 
@@ -307,7 +306,7 @@ module CMDx
       return if exception.nil? || exception.is_a?(Fault)
 
       task.logger.error do
-        "[#{exception.class}] #{exception.message}\n" <<
+        Utils::Normalize.exception(exception) << "\n" <<
           if (cleaner = task.class.settings.backtrace_cleaner)
             cleaner.call(exception.backtrace).join("\n\t")
           else
@@ -352,7 +351,7 @@ module CMDx
       return if result.rolled_back?
       return unless task.respond_to?(:rollback)
 
-      @rollback_statuses ||= Utils::Wrap.array(task.class.settings.rollback_on).map(&:to_s).uniq
+      @rollback_statuses ||= Utils::Normalize.statuses(task.class.settings.rollback_on).freeze
       return unless @rollback_statuses.include?(result.status)
 
       result.rolled_back = true
