@@ -37,7 +37,7 @@ module CMDx
         )
           JSON.parse(value) || []
         else
-          Array(value)
+          Utils::Wrap.array(value)
         end
       rescue JSON::ParserError
         type = Locale.t("cmdx.types.array")

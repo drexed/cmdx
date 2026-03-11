@@ -113,7 +113,7 @@ module CMDx
     #
     # @rbs () -> Array[Class]
     def exceptions
-      @exceptions ||= Array(
+      @exceptions ||= Utils::Wrap.array(
         task.class.settings.retry_on ||
         [StandardError, CMDx::TimeoutError]
       )

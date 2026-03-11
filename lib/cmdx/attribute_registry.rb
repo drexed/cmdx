@@ -56,7 +56,7 @@ module CMDx
     #
     # @rbs (Attribute | Array[Attribute] attributes) -> self
     def register(attributes)
-      @registry.concat(Array(attributes))
+      @registry.concat(Utils::Wrap.array(attributes))
       self
     end
 
@@ -73,7 +73,7 @@ module CMDx
     #
     # @rbs ((Symbol | String | Array[Symbol | String]) names) -> self
     def deregister(names)
-      Array(names).each do |name|
+      Utils::Wrap.array(names).each do |name|
         @registry.reject! { |attribute| matches_attribute_tree?(attribute, name.to_sym) }
       end
 
@@ -100,7 +100,7 @@ module CMDx
     #
     # @rbs (Class task_class, (Symbol | String | Array[Symbol | String]) names) -> void
     def undefine_readers_on!(task_class, names)
-      Array(names).each do |name|
+      Utils::Wrap.array(names).each do |name|
         sym = name.to_sym
 
         registry.each do |attribute|

@@ -135,7 +135,7 @@ module CMDx
         case type
         when :attribute
           settings.attributes.register(object)
-          settings.attributes.define_readers_on!(self, Array(object))
+          settings.attributes.define_readers_on!(self, Utils::Wrap.array(object))
         when :callback then settings.callbacks.register(object, ...)
         when :coercion then settings.coercions.register(object, ...)
         when :middleware then settings.middlewares.register(object, ...)
@@ -247,7 +247,7 @@ module CMDx
       #
       # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
       def attributes_schema
-        Array(settings.attributes).to_h do |attr|
+        Utils::Wrap.array(settings.attributes).to_h do |attr|
           [attr.method_name, attr.to_h]
         end
       end

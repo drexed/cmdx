@@ -24,7 +24,7 @@ module CMDx
     #
     # @rbs (untyped app) -> void
     initializer("cmdx.configure_locales") do |app|
-      Array(app.config.i18n.available_locales).each do |locale|
+      Utils::Wrap.array(app.config.i18n.available_locales).each do |locale|
         path = CMDx.gem_path.join("lib/locales/#{locale}.yml")
         next unless File.file?(path)
 

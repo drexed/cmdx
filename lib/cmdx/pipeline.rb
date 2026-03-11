@@ -59,7 +59,7 @@ module CMDx
 
         settings = workflow.class.settings
         breakpoints = group.options[:breakpoints] || settings.breakpoints || settings.workflow_breakpoints
-        breakpoints = Array(breakpoints).map(&:to_s).uniq
+        breakpoints = Utils::Wrap.array(breakpoints).map(&:to_s).uniq
 
         execute_group_tasks(group, breakpoints)
       end

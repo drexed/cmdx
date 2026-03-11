@@ -136,7 +136,7 @@ module CMDx
     def halt_execution?(exception)
       settings = task.class.settings
       statuses = settings.breakpoints || settings.task_breakpoints
-      statuses = Array(statuses).map(&:to_s).uniq
+      statuses = Utils::Wrap.array(statuses).map(&:to_s).uniq
 
       statuses.include?(exception.result.status)
     end
@@ -234,7 +234,7 @@ module CMDx
     def verify_returns!
       return unless result.success?
 
-      returns = Array(task.class.settings.returns)
+      returns = Utils::Wrap.array(task.class.settings.returns)
       missing = returns.reject { |name| task.context.key?(name) }
       return if missing.empty?
 
@@ -350,7 +350,7 @@ module CMDx
       return if result.rolled_back?
       return unless task.respond_to?(:rollback)
 
-      statuses = Array(task.class.settings.rollback_on).map(&:to_s).uniq
+      statuses = Utils::Wrap.array(task.class.settings.rollback_on).map(&:to_s).uniq
       return unless statuses.include?(result.status)
 
       result.rolled_back = true

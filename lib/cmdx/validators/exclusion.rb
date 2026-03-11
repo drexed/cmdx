@@ -39,7 +39,7 @@ module CMDx
 
         if values.is_a?(Range)
           raise_within_validation_error!(values.begin, values.end, options) if values.cover?(value)
-        elsif Array(values).any? { |v| v === value }
+        elsif Utils::Wrap.array(values).any? { |v| v === value }
           raise_of_validation_error!(values, options)
         end
       end

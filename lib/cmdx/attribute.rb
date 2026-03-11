@@ -108,7 +108,7 @@ module CMDx
     def initialize(name, options = {}, &)
       @parent = options.delete(:parent)
       @required = options.delete(:required) || false
-      @types = Array(options.delete(:types) || options.delete(:type))
+      @types = Utils::Wrap.array(options.delete(:types) || options.delete(:type))
       @description = options.delete(:description) || options.delete(:desc)
 
       @name = name.to_sym
