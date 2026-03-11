@@ -13,10 +13,10 @@ module CMDx
     # @rbs EVAL: Proc
     EVAL = proc do |target, callable|
       case callable
-      when /\Araise\z|\Alog\z|\Awarn\z/ then callable
       when NilClass, FalseClass, TrueClass then !!callable
-      when Symbol then target.send(callable)
       when Proc then target.instance_eval(&callable)
+      when /\Araise\z|\Alog\z|\Awarn\z/ then callable
+      when Symbol then target.send(callable)
       else
         raise "cannot evaluate #{callable.inspect}" unless callable.respond_to?(:call)
 
@@ -49,10 +49,11 @@ module CMDx
     #
     # @rbs (Task task) -> void
     def restrict(task)
-      type = EVAL.call(task, task.class.settings.deprecate)
+      setting = task.class.settings.deprecate
+      return unless setting
 
-      case type
-      when NilClass, FalseClass # Do nothing
+      case type = EVAL.call(task, setting)
+      when NilClass, FalseClass then nil # Do nothing
       when TrueClass, /\Araise\z/ then raise DeprecationError, "#{task.class.name} usage prohibited"
       when /\Alog\z/ then task.logger.warn { "DEPRECATED: migrate to a replacement or discontinue use" }
       when /\Awarn\z/ then warn("[#{task.class.name}] DEPRECATED: migrate to a replacement or discontinue use", category: :deprecated)

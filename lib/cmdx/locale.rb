@@ -8,15 +8,6 @@ module CMDx
 
     extend self
 
-    # Returns the lazily-loaded English translations hash.
-    #
-    # @return [Hash{String => Object}] The parsed English translations
-    #
-    # @rbs () -> Hash[String, untyped]
-    def translations
-      @translations ||= YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml"))
-    end
-
     # Translates a key to the current locale with optional interpolation.
     # Falls back to English translations if I18n gem is unavailable.
     #
@@ -43,7 +34,7 @@ module CMDx
     #
     # @rbs ((String | Symbol) key, **untyped options) -> String
     def translate(key, **options)
-      options[:default] ||= translations.dig("en", *key.to_s.split("."))
+      options[:default] ||= translation_default(key)
       return ::I18n.t(key, **options) if defined?(::I18n)
 
       case message = options.delete(:default)
@@ -55,6 +46,24 @@ module CMDx
 
     # @see #translate
     alias t translate
+
+    private
+
+    # Resolves and caches the default translation for a key by digging
+    # into the English YAML translations.
+    #
+    # @param key [String, Symbol] The translation key
+    #
+    # @return [String, nil] The resolved translation or nil
+    #
+    # @rbs ((String | Symbol) key) -> String?
+    def translation_default(key)
+      @translation_defaults ||= {}
+      return @translation_defaults[key] if @translation_defaults.key?(key)
+
+      @default_translations ||= YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml"))
+      @translation_defaults[key] = @default_translations.dig("en", *key.to_s.split("."))
+    end
 
   end
 end

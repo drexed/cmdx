@@ -24,6 +24,10 @@ module CMDx
       on_bad
     ].freeze
 
+    # @rbs TYPES_SET: Set[Symbol]
+    TYPES_SET = TYPES.to_set.freeze
+    private_constant :TYPES_SET
+
     # @param registry [Hash, nil] Initial registry hash, defaults to empty
     #
     # @rbs (?Hash[Symbol, Set[Array[untyped]]]? registry) -> void
@@ -124,7 +128,7 @@ module CMDx
     #
     # @rbs (Symbol type, Task task) -> void
     def invoke(type, task)
-      raise TypeError, "unknown callback type #{type.inspect}" unless TYPES.include?(type)
+      raise TypeError, "unknown callback type #{type.inspect}" unless TYPES_SET.include?(type)
 
       Utils::Wrap.array(registry[type]).each do |callables, options|
         next unless Utils::Condition.evaluate(task, options)

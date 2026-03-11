@@ -54,10 +54,11 @@ module CMDx
     #
     # @rbs () -> void
     def execute
+      settings = workflow.class.settings
+
       workflow.class.pipeline.each do |group|
         next unless Utils::Condition.evaluate(workflow, group.options)
 
-        settings = workflow.class.settings
         breakpoints = group.options[:breakpoints] || settings.breakpoints || settings.workflow_breakpoints
         breakpoints = Utils::Wrap.array(breakpoints).map(&:to_s).uniq
 

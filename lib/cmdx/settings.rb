@@ -18,10 +18,11 @@ module CMDx
       # @rbs (*Symbol names) -> void
       def delegate_to_configuration(*names)
         names.each do |name|
+          ivar = :"@#{name}"
+
           attr_writer(name)
 
           define_method(name) do
-            ivar = :"@#{name}"
             return instance_variable_get(ivar) if instance_variable_defined?(ivar)
 
             value = @parent ? @parent.public_send(name) : CMDx.configuration.public_send(name)
@@ -41,10 +42,11 @@ module CMDx
       # @rbs (*Symbol names, with_fallback: bool) -> void
       def delegate_to_parent(*names, with_fallback: false)
         names.each do |name|
+          ivar = :"@#{name}"
+
           attr_writer(name)
 
           define_method(name) do
-            ivar = :"@#{name}"
             return instance_variable_get(ivar) if instance_variable_defined?(ivar)
 
             value = @parent&.public_send(name)
@@ -57,10 +59,6 @@ module CMDx
       end
 
     end
-
-    # @rbs EMPTY_ARRAY: Array[untyped]
-    EMPTY_ARRAY = [].freeze
-    private_constant :EMPTY_ARRAY
 
     # Returns the attribute registry for task parameters.
     #

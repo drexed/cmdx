@@ -513,13 +513,16 @@ module CMDx
     #
     # @example
     #   result.to_s # => "task_id=my_task state=complete status=success"
+    # @example With failure
+    #   result.to_s # => "task_id=my_task state=complete status=failed threw_failure=<[1] MyTask: my_task>"
     #
     # @rbs () -> String
     def to_s
       Utils::Format.to_str(to_h) do |key, value|
-        case key
-        when /failure/ then "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
-        else "#{key}=#{value.inspect}"
+        if key.match?(/_failure$/)
+          "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
+        else
+          "#{key}=#{value.inspect}"
         end
       end
     end

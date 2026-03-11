@@ -709,7 +709,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     end
   end
 
-  describe "#verify_returns!" do
+  describe "#verify_context_returns!" do
     let(:errors) { task.errors }
 
     context "when no returns are declared" do
@@ -721,7 +721,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "does not fail the result" do
         expect(task.result).not_to receive(:fail!)
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
 
@@ -734,7 +734,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "does not fail the result" do
         expect(task.result).not_to receive(:fail!)
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
 
@@ -747,7 +747,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "skips verification" do
         expect(task.result).not_to receive(:fail!)
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
 
@@ -762,7 +762,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       it "does not fail the result" do
         expect(task.result).not_to receive(:fail!)
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
 
@@ -782,7 +782,7 @@ RSpec.describe CMDx::Executor, type: :unit do
           }
         )
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
 
@@ -804,7 +804,7 @@ RSpec.describe CMDx::Executor, type: :unit do
           }
         )
 
-        worker.send(:verify_returns!)
+        worker.send(:verify_context_returns!)
       end
     end
   end
@@ -1037,7 +1037,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     end
   end
 
-  describe "#unswallow_middleware!" do
+  describe "#verify_middleware_yield!" do
     context "when result is still initialized (middleware did not yield)" do
       before do
         allow(task.result).to receive(:initialized?).and_return(true)
@@ -1051,7 +1051,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         )
         expect(task.result).to receive(:executed!)
 
-        worker.send(:unswallow_middleware!)
+        worker.send(:verify_middleware_yield!)
       end
     end
 
@@ -1064,7 +1064,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(task.result).not_to receive(:fail!)
         expect(task.result).not_to receive(:executed!)
 
-        worker.send(:unswallow_middleware!)
+        worker.send(:verify_middleware_yield!)
       end
     end
 

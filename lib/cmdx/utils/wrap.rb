@@ -26,9 +26,11 @@ module CMDx
       #
       # @rbs (untyped object) -> Array[untyped]
       def array(object)
-        return object if object.is_a?(Array)
-
-        Array(object)
+        case object
+        when Array then object
+        when NilClass then EMPTY_ARRAY
+        else Array(object)
+        end
       end
 
     end

@@ -15,6 +15,10 @@ require "zeitwerk"
 
 module CMDx
 
+  # @rbs EMPTY_ARRAY: Array[untyped]
+  EMPTY_ARRAY = [].freeze
+  private_constant :EMPTY_ARRAY
+
   extend self
 
   # Returns the path to the CMDx gem.

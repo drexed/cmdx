@@ -66,7 +66,7 @@ module CMDx
       task.class.settings.middlewares.call!(task) do
         pre_execution! unless @pre_execution
         execution!
-        verify_returns!
+        verify_context_returns!
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
@@ -80,7 +80,7 @@ module CMDx
         post_execution!
       end
 
-      unswallow_middleware!
+      verify_middleware_yield!
       finalize_execution!
     end
 
@@ -99,7 +99,7 @@ module CMDx
       task.class.settings.middlewares.call!(task) do
         pre_execution! unless @pre_execution
         execution!
-        verify_returns!
+        verify_context_returns!
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
@@ -120,7 +120,7 @@ module CMDx
         post_execution!
       end
 
-      unswallow_middleware!
+      verify_middleware_yield!
       finalize_execution!
     end
 
@@ -134,11 +134,13 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
-      settings = task.class.settings
-      statuses = settings.breakpoints || settings.task_breakpoints
-      statuses = Utils::Wrap.array(statuses).map(&:to_s).uniq
+      @halt_statuses ||= begin
+        settings = task.class.settings
+        statuses = settings.breakpoints || settings.task_breakpoints
+        Utils::Wrap.array(statuses).map(&:to_s).uniq
+      end
 
-      statuses.include?(exception.result.status)
+      @halt_statuses.include?(exception.result.status)
     end
 
     # Determines if execution should be retried based on retry configuration.
@@ -231,7 +233,7 @@ module CMDx
     # Verifies that all declared returns are present in the context after execution.
     #
     # @rbs () -> void
-    def verify_returns!
+    def verify_context_returns!
       return unless result.success?
 
       returns = Utils::Wrap.array(task.class.settings.returns)
@@ -259,6 +261,21 @@ module CMDx
       invoke_callbacks(:"on_#{result.status}")
       invoke_callbacks(:on_good) if result.good?
       invoke_callbacks(:on_bad) if result.bad?
+    end
+
+    # Detects if middleware swallowed the block without yielding.
+    # When this happens the result is still in the initialized state.
+    #
+    # @rbs () -> void
+    def verify_middleware_yield!
+      return unless result.initialized?
+
+      result.fail!(
+        Locale.t("cmdx.faults.invalid"),
+        halt: false,
+        source: :swallowed_middleware
+      )
+      result.executed!
     end
 
     # Finalizes execution by freezing the task, logging results, and rolling back work.
@@ -315,21 +332,6 @@ module CMDx
 
       task.context.freeze
       task.chain.freeze
-    end
-
-    # Detects if middleware swallowed the block without yielding.
-    # When this happens the result is still in the initialized state.
-    #
-    # @rbs () -> void
-    def unswallow_middleware!
-      return unless result.initialized?
-
-      result.fail!(
-        Locale.t("cmdx.faults.invalid"),
-        halt: false,
-        source: :swallowed_middleware
-      )
-      result.executed!
     end
 
     # Clears the chain if the task is the outermost (top-level) task

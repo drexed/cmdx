@@ -16,11 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `Attribute#clear_task_tree!` to prevent class-level attributes from retaining last-executed task instance
 - Add thread-safe `Chain#push` and `Chain#index` with `Mutex` synchronization
 - Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
-- Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
+- Add `Executor#verify_middleware_yield!` to detect middlewares that swallow the execution block without yielding
 - Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
 - Add `Attribute#allocation_name` to resolve attribute reader names without a task instance
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
-- Add `dry_run:` keyword to `Task.execute` and `Task.execute!` as a first-class execution parameter
 
 ### Changed
 - Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`
