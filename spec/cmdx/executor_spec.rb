@@ -58,7 +58,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(callbacks).to receive(:invoke)
+      allow(callbacks).to receive_messages(invoke: nil, empty?: false)
       allow(task.class).to receive(:settings).and_return(mock_settings(middlewares: middlewares, callbacks: callbacks))
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
@@ -201,7 +201,7 @@ RSpec.describe CMDx::Executor, type: :unit do
     let(:callbacks) { instance_double(CMDx::CallbackRegistry) }
 
     before do
-      allow(callbacks).to receive(:invoke)
+      allow(callbacks).to receive_messages(invoke: nil, empty?: false)
       allow(task.class).to receive(:settings).and_return(mock_settings(middlewares: middlewares, callbacks: callbacks))
       allow(task).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
@@ -822,8 +822,21 @@ RSpec.describe CMDx::Executor, type: :unit do
       allow(callbacks).to receive(:invoke)
     end
 
+    context "when callback registry is empty" do
+      before do
+        allow(callbacks).to receive(:empty?).and_return(true)
+      end
+
+      it "skips all callback invocations" do
+        expect(callbacks).not_to receive(:invoke)
+
+        worker.send(:post_execution!)
+      end
+    end
+
     context "when result is executed and good" do
       before do
+        allow(callbacks).to receive(:empty?).and_return(false)
         allow(result).to receive_messages(
           state: "complete",
           status: "success",
@@ -845,6 +858,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when result is failed and bad" do
       before do
+        allow(callbacks).to receive(:empty?).and_return(false)
         allow(result).to receive_messages(
           state: "interrupted",
           status: "failed",
@@ -865,6 +879,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
     context "when result is skipped" do
       before do
+        allow(callbacks).to receive(:empty?).and_return(false)
         allow(result).to receive_messages(
           state: "interrupted",
           status: "skipped",

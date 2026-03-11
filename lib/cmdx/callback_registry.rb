@@ -10,6 +10,8 @@ module CMDx
   # data until a write operation triggers materialization.
   class CallbackRegistry
 
+    extend Forwardable
+
     # @rbs TYPES: Array[Symbol]
     TYPES = %i[
       before_validation
@@ -27,6 +29,8 @@ module CMDx
     # @rbs TYPES_SET: Set[Symbol]
     TYPES_SET = TYPES.to_set.freeze
     private_constant :TYPES_SET
+
+    def_delegators :registry, :empty?
 
     # @param registry [Hash, nil] Initial registry hash, defaults to empty
     #

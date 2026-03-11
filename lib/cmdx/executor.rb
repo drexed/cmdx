@@ -264,6 +264,8 @@ module CMDx
     #
     # @rbs () -> void
     def post_execution!
+      return if task.class.settings.callbacks.empty?
+
       invoke_callbacks(STATE_CALLBACKS[result.state])
       invoke_callbacks(:on_executed) if result.executed?
 

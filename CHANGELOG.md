@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### Added
+- Add `CallbackRegistry#empty?` for fast callback presence checking
 - Add `Parallelizer` class for bounded thread pool execution
 - Add `Configuration#default_locale` setting (defaults to `"en"`)
 - Add `Task.type` to return task mechanics
@@ -26,6 +27,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition
 
 ### Changed
+- Short-circuit `Executor#post_execution!` when callback registry is empty
+- Optimize `Context#method_missing` to avoid `String` allocation on getter path
 - Replace `parallel` gem with native `Parallelizer` thread pool
 - Rename `in_threads` option to `pool_size`
 - Move `TimeoutError` to `exception.rb` for Zeitwerk autoloading
