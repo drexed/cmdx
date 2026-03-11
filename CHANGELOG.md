@@ -37,6 +37,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Fix `Attribute#source` and `Attribute#method_name` memoization to avoid caching when no task is present
 - Fix `execute!` fault handling to call `executed!` before `post_execution!` in non-halt path
 - Clear `task.errors` before each retry attempt to prevent error accumulation across retries
+- Fix `Pipeline#execute_tasks_in_parallel` to snapshot context per thread, preventing unsynchronized concurrent writes to a shared Hash
+- Reject `in_processes` option in parallel workflow tasks — forked processes cannot share chain or context state
 
 ### Removed
 - Remove `SKIP_CMDX_FREEZING` env var in favor of `CMDx.configuration.freeze_results`

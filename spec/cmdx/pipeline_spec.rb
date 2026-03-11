@@ -294,7 +294,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     let(:task2) { instance_double("Task2") }
     let(:task3) { instance_double("Task3") }
     let(:breakpoints) { [] }
-    let(:context) { instance_double("Context") }
+    let(:context) { CMDx::Context.new(user_id: 1) }
     let(:result1) { instance_double("Result1") }
     let(:result2) { instance_double("Result2") }
     let(:result3) { instance_double("Result3") }
@@ -303,9 +303,9 @@ RSpec.describe CMDx::Pipeline, type: :unit do
     before do
       allow(workflow).to receive_messages(context: context, chain: chain)
       allow(execution_group).to receive_messages(tasks: tasks, options: {})
-      allow(task1).to receive(:execute).with(context).and_return(result1)
-      allow(task2).to receive(:execute).with(context).and_return(result2)
-      allow(task3).to receive(:execute).with(context).and_return(result3)
+      allow(task1).to receive(:execute).and_return(result1)
+      allow(task2).to receive(:execute).and_return(result2)
+      allow(task3).to receive(:execute).and_return(result3)
       allow(result1).to receive(:status).and_return("success")
       allow(result2).to receive(:status).and_return("success")
       allow(result3).to receive(:status).and_return("success")
@@ -324,6 +324,18 @@ RSpec.describe CMDx::Pipeline, type: :unit do
       end
     end
 
+    context "when in_processes is specified" do
+      before do
+        stub_const("Parallel", class_double("Parallel"))
+        allow(execution_group).to receive(:options).and_return({ in_processes: 2 })
+      end
+
+      it "raises an ArgumentError" do
+        expect { pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints) }
+          .to raise_error(ArgumentError, /in_processes is not supported/)
+      end
+    end
+
     context "when parallel gem is available" do
       let(:parallel_double) { class_double("Parallel") }
 
@@ -332,8 +344,22 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         allow(parallel_double).to receive(:each)
       end
 
-      it "executes all tasks in parallel" do
-        expect(parallel_double).to receive(:each).with(tasks)
+      it "creates context snapshots and passes task-context pairs to parallel" do
+        expect(parallel_double).to receive(:each) do |pairs, **_opts|
+          expect(pairs.size).to eq(3)
+          pairs.each do |task, snapshot|
+            expect(tasks).to include(task)
+            expect(snapshot).to be_a(CMDx::Context)
+            expect(snapshot.to_h).to eq(user_id: 1)
+            expect(snapshot).not_to equal(context)
+          end
+        end
+        pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
+      end
+
+      it "merges context snapshots back into workflow context after execution" do
+        allow(parallel_double).to receive(:each)
+        expect(workflow.context).to receive(:merge!).exactly(3).times
         pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
       end
 
@@ -343,29 +369,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
         end
 
         it "passes in_threads to parallel" do
-          expect(parallel_double).to receive(:each).with(tasks, { in_threads: 4 })
-          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
-        end
-      end
-
-      context "with in_processes option" do
-        before do
-          allow(execution_group).to receive(:options).and_return({ in_processes: 2 })
-        end
-
-        it "passes in_processes to parallel" do
-          expect(parallel_double).to receive(:each).with(tasks, { in_processes: 2 })
-          pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
-        end
-      end
-
-      context "with both parallel options" do
-        before do
-          allow(execution_group).to receive(:options).and_return({ in_threads: 4, in_processes: 2 })
-        end
-
-        it "passes both options to parallel" do
-          expect(parallel_double).to receive(:each).with(tasks, { in_threads: 4, in_processes: 2 })
+          expect(parallel_double).to receive(:each).with(anything, { in_threads: 4 })
           pipeline.send(:execute_tasks_in_parallel, execution_group, breakpoints)
         end
       end

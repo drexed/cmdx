@@ -127,15 +127,19 @@ module CMDx
     end
 
     # Executes tasks in parallel using the parallel gem.
+    # Each task receives a snapshot of the workflow context to prevent
+    # unsynchronized concurrent writes to a shared Hash. Snapshots are
+    # merged back into the workflow context after all tasks complete.
     #
     # @param group [CMDx::Group] The task group to execute in parallel
-    # @param breakpoints [Array<Symbol>] Status values that trigger execution breaks
+    # @param breakpoints [Array<String>] Status values that trigger execution breaks
     # @option group.options [Integer] :in_threads Number of threads to use
-    # @option group.options [Integer] :in_processes Number of processes to use
     #
     # @return [void]
     #
-    # @raise [HaltError] When a task result status matches a breakpoint
+    # @raise [RuntimeError] When parallel gem is not installed
+    # @raise [ArgumentError] When in_processes is specified
+    # @raise [Fault] When a task result status matches a breakpoint
     #
     # @example
     #   execute_tasks_in_parallel(group, ["failed"])
@@ -144,16 +148,27 @@ module CMDx
     def execute_tasks_in_parallel(group, breakpoints)
       raise "install the `parallel` gem to use this feature" unless defined?(Parallel)
 
-      parallel_options = group.options.slice(:in_threads, :in_processes)
+      if group.options.key?(:in_processes)
+        raise ArgumentError,
+              "in_processes is not supported for parallel workflow tasks " \
+              "because forked processes cannot share chain or context state — use in_threads instead"
+      end
+
+      parallel_options = group.options.slice(:in_threads)
+      parallel_contexts = group.tasks.map { Context.new(workflow.context.to_h) }
       throwable_result = nil
 
-      Parallel.each(group.tasks, **parallel_options) do |task|
+      Parallel.each(group.tasks.zip(parallel_contexts), **parallel_options) do |task, context|
         Chain.current = workflow.chain
 
-        task_result = task.execute(workflow.context)
+        task_result = task.execute(context)
         next unless breakpoints.include?(task_result.status)
 
         raise Parallel::Break, throwable_result = task_result
+      end
+
+      parallel_contexts.each do |context|
+        workflow.context.merge!(context)
       end
 
       return if throwable_result.nil?
