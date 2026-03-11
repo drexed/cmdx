@@ -109,6 +109,8 @@
     
 <p>Registry for managing validation rules and their corresponding validator classes. Provides methods to register, deregister, and execute validators against task values.</p>
 
+<p>Supports copy-on-write semantics: a duped registry shares the parent’s data until a write operation triggers materialization.</p>
+
 
   </div>
 </div>
@@ -118,42 +120,6 @@
 </div>
 
 
-
-  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
-  <ul class="summary">
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#registry-instance_method" title="#registry (instance method)">#<strong>registry</strong>  &#x21d2; Hash{Symbol =&gt; Class} </a>
-    
-
-    
-      (also: #to_h)
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the internal registry mapping validator types to classes.</p>
-</div></span>
-  
-</li>
-
-    
-  </ul>
 
 
 
@@ -193,30 +159,6 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#dup-instance_method" title="#dup (instance method)">#<strong>dup</strong>  &#x21d2; ValidatorRegistry </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Create a duplicate of the registry with copied internal state.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(registry = nil)  &#x21d2; ValidatorRegistry </a>
     
 
@@ -243,6 +185,30 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#initialize_dup-instance_method" title="#initialize_dup (instance method)">#<strong>initialize_dup</strong>(source)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets up copy-on-write state when duplicated via dup.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#register-instance_method" title="#register (instance method)">#<strong>register</strong>(name, validator)  &#x21d2; ValidatorRegistry </a>
     
 
@@ -259,6 +225,32 @@
   
     <span class="summary_desc"><div class='inline'>
 <p>Register a new validator class with the given name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry-instance_method" title="#registry (instance method)">#<strong>registry</strong>  &#x21d2; Hash{Symbol =&gt; Class} </a>
+    
+
+    
+      (also: #to_h)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the internal registry mapping validator types to classes.</p>
 </div></span>
   
 </li>
@@ -359,20 +351,20 @@
       <pre class="lines">
 
 
+22
+23
+24
+25
+26
+27
+28
+29
 30
 31
-32
-33
-34
-35
-36
-37
-38
-39
-40</pre>
+32</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 30</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 22</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_registry'>registry</span> <span class='op'>||</span> <span class='lbrace'>{</span>
@@ -391,100 +383,6 @@
 </div>
   
 </div>
-
-  <div id="instance_attr_details" class="attr_details">
-    <h2>Instance Attribute Details</h2>
-    
-      
-      <span id=""></span>
-      <div class="method_details first">
-  <h3 class="signature first" id="registry-instance_method">
-  
-    #<strong>registry</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Class}</tt>  <span class="extras">(readonly)</span>
-  
-
-  
-    <span class="aliases">Also known as:
-    <span class="names"><span id='to_h-instance_method'>to_h</span></span>
-    </span>
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the internal registry mapping validator types to classes.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span> <span class='comment'># =&gt; { presence: Validators::Presence, format: Validators::Format }</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Hash{Symbol =&gt; Class}</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Hash of validator type names to validator classes</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@registry: Hash[Symbol, Class]</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-18
-19
-20</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 18</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_registry'>registry</span>
-  <span class='ivar'>@registry</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-  </div>
 
 
   <div id="instance_method_details" class="method_details_list">
@@ -580,16 +478,20 @@
       <pre class="lines">
 
 
-79
-80
-81
-82</pre>
+89
+90
+91
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 79</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_materialize!'>materialize!</span>
+
+  <span class='ivar'>@registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
   <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -598,9 +500,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="dup-instance_method">
+  <h3 class="signature " id="initialize_dup-instance_method">
   
-    #<strong>dup</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::ValidatorRegistry (class)">ValidatorRegistry</a></span></tt> 
+    #<strong>initialize_dup</strong>(source)  &#x21d2; <tt>Object</tt> 
   
 
   
@@ -609,17 +511,18 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Create a duplicate of the registry with copied internal state.</p>
+<p>Sets up copy-on-write state when duplicated via dup.</p>
 
 
   </div>
 </div>
 <div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
     <li>
+      
+        <span class='name'>source</span>
       
       
         <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::ValidatorRegistry (class)">ValidatorRegistry</a></span></tt>)</span>
@@ -628,12 +531,13 @@
       
         &mdash;
         <div class='inline'>
-<p>A new validator registry with duplicated registry hash</p>
+<p>The registry being duplicated</p>
 </div>
       
     </li>
   
 </ul>
+
 <p class="tag_title">Rbs:</p>
 <ul class="rbs">
   
@@ -644,7 +548,7 @@
       
         
         <div class='inline'>
-<p>() -&gt; ValidatorRegistry</p>
+<p>(ValidatorRegistry source) -&gt; void</p>
 </div>
       
     </li>
@@ -657,15 +561,19 @@
       <pre class="lines">
 
 
-47
-48
-49</pre>
+39
+40
+41
+42
+43</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 39</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_dup'>dup</span>
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_dup'>initialize_dup</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='ivar'>@parent</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span>
+  <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>super</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -777,17 +685,108 @@
       <pre class="lines">
 
 
-63
-64
-65
-66</pre>
+71
+72
+73
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_validator'>validator</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_validator'>validator</span>
+  <span class='id identifier rubyid_materialize!'>materialize!</span>
+
+  <span class='ivar'>@registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_validator'>validator</span>
   <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry-instance_method">
+  
+    #<strong>registry</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Class}</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='to_h-instance_method'>to_h</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the internal registry mapping validator types to classes. Delegates to the parent registry when not yet materialized.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span> <span class='comment'># =&gt; { presence: Validators::Presence, format: Validators::Format }</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Class}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hash of validator type names to validator classes</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Rbs:</p>
+<ul class="rbs">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>() -&gt; Hash[Symbol, Class]</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry'>registry</span>
+  <span class='ivar'>@registry</span> <span class='op'>||</span> <span class='ivar'>@parent</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -961,26 +960,26 @@
       <pre class="lines">
 
 
-99
-100
-101
-102
-103
-104
-105
-106
-107
-108
-109
-110
 111
 112
 113
 114
-115</pre>
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validator_registry.rb', line 111</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown validator type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
@@ -1009,7 +1008,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 03:45:26 2026 by
+  Generated on Wed Mar 11 05:08:42 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>

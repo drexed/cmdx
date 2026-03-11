@@ -415,6 +415,30 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#allocation_name-instance_method" title="#allocation_name (instance method)">#<strong>allocation_name</strong>  &#x21d2; Symbol<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the method name for this attribute when it can be resolved statically (without a task instance).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#clear_task_tree!-instance_method" title="#clear_task_tree! (instance method)">#<strong>clear_task_tree!</strong>  &#x21d2; Object </a>
     
 
@@ -2009,7 +2033,122 @@
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="clear_task_tree!-instance_method">
+  <h3 class="signature first" id="allocation_name-instance_method">
+  
+    #<strong>allocation_name</strong>  &#x21d2; <tt>Symbol</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the method name for this attribute when it can be resolved statically (without a task instance). Returns nil for Proc/callable sources whose method name depends on runtime evaluation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_attribute'>attribute</span><span class='period'>.</span><span class='id identifier rubyid_allocation_name'>allocation_name</span> <span class='comment'># =&gt; :user_name</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The static method name, or nil if dynamic</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Rbs:</p>
+<ul class="rbs">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>() -&gt; Symbol?</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 246</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_allocation_name'>allocation_name</span>
+  <span class='kw'>return</span> <span class='ivar'>@allocation_name</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@allocation_name</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@allocation_name</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:as</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:source</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_source_name'>source_name</span> <span class='op'>=</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_parent'>parent</span>
+        <span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_allocation_name'>allocation_name</span>
+      <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_src'>src</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Proc</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_src'>src</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_src'>src</span> <span class='op'>||</span> <span class='symbol'>:context</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_source_name'>source_name</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Symbol</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='const'>AFFIX</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:prefix</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_source_name'>source_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='const'>AFFIX</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:suffix</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_source_name'>source_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+      <span class='symbol'>:&quot;#{</span><span class='id identifier rubyid_prefix'>prefix</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_suffix'>suffix</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="clear_task_tree!-instance_method">
   
     #<strong>clear_task_tree!</strong>  &#x21d2; <tt>Object</tt> 
   
@@ -2050,13 +2189,13 @@
       <pre class="lines">
 
 
-276
-277
-278
-279</pre>
+306
+307
+308
+309</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 276</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 306</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_clear_task_tree!'>clear_task_tree!</span>
   <span class='ivar'>@task</span> <span class='op'>=</span> <span class='kw'>nil</span>
@@ -2109,17 +2248,17 @@
       <pre class="lines">
 
 
-263
-264
-265
-266
-267
-268
-269
-270</pre>
+293
+294
+295
+296
+297
+298
+299
+300</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 263</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 293</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_define_and_verify_tree'>define_and_verify_tree</span>
   <span class='id identifier rubyid_define_and_verify'>define_and_verify</span>
@@ -2202,24 +2341,24 @@
       <pre class="lines">
 
 
-244
-245
-246
-247
-248
-249
-250
-251
-252
-253
-254
-255
-256
-257
-258</pre>
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 244</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 274</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_name'>method_name</span>
   <span class='kw'>return</span> <span class='ivar'>@method_name</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@method_name</span><span class='rparen'>)</span>
@@ -2589,20 +2728,20 @@ children: []</code></pre>
       <pre class="lines">
 
 
-295
-296
-297
-298
-299
-300
-301
-302
-303
-304
-305</pre>
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 295</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 325</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -2625,7 +2764,7 @@ children: []</code></pre>
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 03:45:26 2026 by
+  Generated on Wed Mar 11 05:08:41 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.8).
 </div>
