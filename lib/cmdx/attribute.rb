@@ -240,17 +240,17 @@ module CMDx
     # @return [Symbol, nil] The static method name, or nil if dynamic
     #
     # @example
-    #   attribute.static_method_name # => :user_name
+    #   attribute.allocation_name # => :user_name
     #
     # @rbs () -> Symbol?
-    def static_method_name
-      return @static_method_name if defined?(@static_method_name)
+    def allocation_name
+      return @allocation_name if defined?(@allocation_name)
 
-      @static_method_name = options[:as] || begin
+      @allocation_name = options[:as] || begin
         src = options[:source]
         source_name =
           if parent
-            parent.static_method_name
+            parent.allocation_name
           elsif !src.is_a?(Proc) && !src.respond_to?(:call)
             src || :context
           end

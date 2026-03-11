@@ -137,7 +137,7 @@ module CMDx
     #
     # @rbs (Class task_class, Attribute attribute) -> void
     def define_reader_tree!(task_class, attribute)
-      name = attribute.static_method_name
+      name = attribute.allocation_name
 
       if name && !task_class.method_defined?(name)
         if task_class.private_method_defined?(name)
@@ -162,7 +162,7 @@ module CMDx
     #
     # @rbs (Class task_class, Attribute attribute) -> void
     def undefine_reader_tree!(task_class, attribute)
-      name = attribute.static_method_name
+      name = attribute.allocation_name
       task_class.remove_method(name) if name && task_class.method_defined?(name, false)
       attribute.children.each { |child| undefine_reader_tree!(task_class, child) }
     end

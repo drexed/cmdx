@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
 - Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
 - Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
-- Add `Attribute#static_method_name` to resolve attribute reader names without a task instance
+- Add `Attribute#allocation_name` to resolve attribute reader names without a task instance
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
 
 ### Changed

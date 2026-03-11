@@ -299,8 +299,8 @@ RSpec.describe CMDx::Attribute, type: :unit do
     end
   end
 
-  describe "#static_method_name" do
-    subject(:static_name) { attribute.static_method_name }
+  describe "#allocation_name" do
+    subject(:static_name) { attribute.allocation_name }
 
     context "when :as option is provided" do
       let(:attribute_options) { { as: :custom_method } }
@@ -347,7 +347,7 @@ RSpec.describe CMDx::Attribute, type: :unit do
       let(:parent_attribute) { described_class.new(:parent_attr) }
       let(:attribute_options) { { parent: parent_attribute } }
 
-      it "uses parent static_method_name as source" do
+      it "uses parent allocation_name as source" do
         expect(static_name).to eq(attribute_name)
       end
     end
@@ -363,8 +363,8 @@ RSpec.describe CMDx::Attribute, type: :unit do
 
     context "with memoization" do
       it "memoizes the result" do
-        first = attribute.static_method_name
-        second = attribute.static_method_name
+        first = attribute.allocation_name
+        second = attribute.allocation_name
 
         expect(first).to equal(second)
       end
