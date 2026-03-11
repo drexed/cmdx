@@ -111,20 +111,20 @@ module CMDx
       end
     end
 
-    # Associates all registered attributes with a task and verifies their definitions.
-    # This method is called during task setup to establish attribute-task relationships
-    # and validate the attribute hierarchy.
+    # Verifies attribute definitions against a task instance.
+    # Each attribute is duped before binding so the class-level originals
+    # are never mutated — this eliminates the concurrency hazard of
+    # shared mutable @task, @source, and @method_name state.
     #
-    # @param task [Task] The task to associate with all attributes
+    # @param task [Task] The task to verify attributes against
     #
     # @rbs (Task task) -> void
     def define_and_verify(task)
       registry.each do |attribute|
-        attribute.task = task
-        attribute.define_and_verify_tree
+        duplicate = attribute.dup
+        duplicate.task = task
+        duplicate.define_and_verify_tree
       end
-    ensure
-      registry.each(&:clear_task_tree!)
     end
 
     private

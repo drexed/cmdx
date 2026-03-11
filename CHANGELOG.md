@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
 
 ### Changed
+- Make `AttributeRegistry#define_and_verify` dup attributes before binding to a task, eliminating shared mutable state and making concurrent execution thread-safe
 - Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`
 - Replace hash-based `settings[:]` access with method-based `settings.` access throughout the codebase
 - Lazy-load English locale translations instead of eager-loading via constant

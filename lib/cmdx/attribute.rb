@@ -118,6 +118,21 @@ module CMDx
       instance_eval(&) if block_given?
     end
 
+    # Deep-copies children and clears task-dependent memoization so that
+    # duped attributes can be safely bound to a task without mutating the
+    # class-level originals. This makes concurrent execution thread-safe.
+    #
+    # @param source [Attribute] The attribute being duplicated
+    #
+    # @rbs (Attribute source) -> void
+    def initialize_dup(source)
+      super
+      @children = source.children.map(&:dup)
+      remove_instance_variable(:@source) if defined?(@source)
+      remove_instance_variable(:@method_name) if defined?(@method_name)
+      @task = nil
+    end
+
     class << self
 
       # Builds multiple attributes with the same configuration.
