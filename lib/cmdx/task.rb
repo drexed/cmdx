@@ -95,9 +95,7 @@ module CMDx
       @id = Identifier.generate
       @context = Context.build(context)
       @result = Result.new(self)
-
-      dry_run = @context.delete(:dry_run)
-      @chain = Chain.build(@result, dry_run:)
+      @chain = Chain.build(@result)
     end
 
     class << self
@@ -275,18 +273,19 @@ module CMDx
 
       # @param args [Array] Arguments to pass to the task constructor
       # @param kwargs [Hash] Keyword arguments to pass to the task constructor
+      # @param dry_run [Boolean] When true, sets the chain to dry-run mode
       # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
       #
       # @example
       #   result = MyTask.execute(name: "example")
-      #   if result.success?
-      #     puts "Task completed successfully"
-      #   end
+      #   result = MyTask.execute(name: "example", dry_run: true)
       #
-      # @rbs (*untyped args, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute(*args, **kwargs)
+      # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
+      def execute(*args, dry_run: false, **kwargs)
+        Chain.current ||= Chain.new(dry_run:)
+
         task = new(*args, **kwargs)
         task.execute(raise: false)
         block_given? ? yield(task.result) : task.result
@@ -294,6 +293,7 @@ module CMDx
 
       # @param args [Array] Arguments to pass to the task constructor
       # @param kwargs [Hash] Keyword arguments to pass to the task constructor
+      # @param dry_run [Boolean] When true, sets the chain to dry-run mode
       # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
@@ -302,10 +302,12 @@ module CMDx
       #
       # @example
       #   result = MyTask.execute!(name: "example")
-      #   # Will raise an exception if execution fails
+      #   result = MyTask.execute!(name: "example", dry_run: true)
       #
-      # @rbs (*untyped args, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute!(*args, **kwargs)
+      # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
+      def execute!(*args, dry_run: false, **kwargs)
+        Chain.current ||= Chain.new(dry_run:)
+
         task = new(*args, **kwargs)
         task.execute(raise: true)
         block_given? ? yield(task.result) : task.result

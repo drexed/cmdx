@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
 - Add `Attribute#allocation_name` to resolve attribute reader names without a task instance
 - Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
+- Add `dry_run:` keyword to `Task.execute` and `Task.execute!` as a first-class execution parameter
 
 ### Changed
 - Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`
@@ -29,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Use `define_method` on task class instead of `define_singleton_method` per instance for attribute readers
 - Tighten `Deprecator` regex patterns to exact word boundaries to prevent partial matches
 - Use `public_send` instead of `send` in `Result` for state/status checks
+- Remove `dry_run` context smuggling from `Task#initialize`; `dry_run` is now chain-authoritative via `execute`/`execute!`
 
 ### Fixed
 - Fix `Attribute#source` and `Attribute#method_name` memoization to avoid caching when no task is present

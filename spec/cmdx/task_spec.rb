@@ -339,11 +339,30 @@ RSpec.describe CMDx::Task, type: :unit do
       expect(task.dry_run?).to be(false)
     end
 
-    context "when initialized with dry_run: true" do
-      let(:task) { task_class.new(dry_run: true) }
+    context "when executed with dry_run: true" do
+      let(:dry_run_class) do
+        create_task_class do
+          def work; end
+        end
+      end
 
-      it "returns true" do
-        expect(task.dry_run?).to be(true)
+      it "returns true via execute" do
+        result = dry_run_class.execute(dry_run: true)
+
+        expect(result).to be_dry_run
+      end
+
+      it "returns true via execute!" do
+        result = dry_run_class.execute!(dry_run: true)
+
+        expect(result).to be_dry_run
+      end
+
+      it "does not leak dry_run into context" do
+        result = dry_run_class.execute(dry_run: true, user_id: 1)
+
+        expect(result.context.to_h).to eq(user_id: 1)
+        expect(result.context).not_to respond_to(:dry_run)
       end
     end
   end
