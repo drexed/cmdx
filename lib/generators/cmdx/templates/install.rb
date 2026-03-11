@@ -32,6 +32,17 @@ CMDx.configure do |config|
     level: Logger::INFO
   )
 
+  # Rollback configuration - controls which statuses trigger task rollback
+  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
+  #
+  # Available statuses: "success", "skipped", "failed"
+  # If set to an empty array, task will never rollback
+  config.rollback_on = %w[failed]
+
+  # Default locale configuration - used for built-in translation lookups
+  # Must match the basename of a YAML file in lib/locales/ (e.g. "en", "es", "ja")
+  # config.default_locale = "en"
+
   # Backtrace configuration - controls whether to log backtraces on faults and exceptions
   # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#backtraces
   # config.backtrace = false
