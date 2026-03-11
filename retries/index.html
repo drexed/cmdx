@@ -1432,17 +1432,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration Settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#basic-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2171,17 +2160,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration Settings
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#basic-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2385,37 +2363,6 @@
 
 <h1 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h1>
 <p>CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.</p>
-<h2 id="configuration-settings">Configuration Settings<a class="headerlink" href="#configuration-settings" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Type</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>retries</code></td>
-<td><code>Integer</code></td>
-<td><code>nil</code> (disabled)</td>
-<td>Maximum number of retry attempts</td>
-</tr>
-<tr>
-<td><code>retry_on</code></td>
-<td><code>Class</code>, <code>Array&lt;Class&gt;</code></td>
-<td><code>StandardError</code></td>
-<td>Exception types that trigger a retry</td>
-</tr>
-<tr>
-<td><code>retry_jitter</code></td>
-<td><code>Numeric</code>, <code>Symbol</code>, <code>Proc</code>, callable</td>
-<td><code>nil</code> (no delay)</td>
-<td>Delay strategy between retry attempts</td>
-</tr>
-</tbody>
-</table>
 <h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
 <p>Configure retries upto n attempts without any delay.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchExternalData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>

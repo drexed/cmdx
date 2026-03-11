@@ -3836,14 +3836,6 @@ rails generate cmdx:locale fr
 
 CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.
 
-## Configuration Settings
-
-| Setting        | Type                                  | Default          | Description                           |
-| -------------- | ------------------------------------- | ---------------- | ------------------------------------- |
-| `retries`      | `Integer`                             | `nil` (disabled) | Maximum number of retry attempts      |
-| `retry_on`     | `Class`, `Array<Class>`               | `StandardError`  | Exception types that trigger a retry  |
-| `retry_jitter` | `Numeric`, `Symbol`, `Proc`, callable | `nil` (no delay) | Delay strategy between retry attempts |
-
 ## Basic Usage
 
 Configure retries upto n attempts without any delay.
