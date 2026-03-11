@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `Context#respond_to_missing?` support for setter methods
 - Add `Attribute#clear_task_tree!` to prevent class-level attributes from retaining last-executed task instance
 - Add thread-safe `Chain#push` with `Mutex` synchronization
+- Add thread-safe `Chain#index` with `Mutex` synchronization
+- Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
 - Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
 
 ### Changed

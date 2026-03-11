@@ -242,6 +242,35 @@ RSpec.describe CMDx::Chain, type: :unit do
     end
   end
 
+  describe "#index" do
+    it "returns the position of a result in the chain" do
+      chain.push(mock_result)
+      chain.push(mock_result2)
+
+      expect(chain.index(mock_result)).to eq(0)
+      expect(chain.index(mock_result2)).to eq(1)
+    end
+
+    it "returns nil for a result not in the chain" do
+      expect(chain.index(mock_result)).to be_nil
+    end
+
+    it "is thread-safe under concurrent push and index" do
+      results = Array.new(100) do |i|
+        instance_double(CMDx::Result, to_h: { id: "result-#{i}" }).tap do |mock|
+          allow(mock).to receive(:is_a?).with(CMDx::Result).and_return(true)
+        end
+      end
+
+      threads = results.map { |r| Thread.new { chain.push(r) } }
+      threads.each(&:join)
+
+      results.each do |r|
+        expect(chain.index(r)).to be_a(Integer)
+      end
+    end
+  end
+
   describe "thread safety" do
     after { described_class.clear }
 

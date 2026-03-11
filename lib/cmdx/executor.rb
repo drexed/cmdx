@@ -332,11 +332,13 @@ module CMDx
       result.executed!
     end
 
-    # Clears the chain if the task is the outermost (top-level) task.
+    # Clears the chain if the task is the outermost (top-level) task
+    # and the current thread's chain is the same instance this task belongs to.
     #
     # @rbs () -> void
     def clear_chain!
       return unless result.index.zero?
+      return unless Chain.current.equal?(task.chain)
 
       Chain.clear
     end

@@ -1088,4 +1088,41 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
     end
   end
+
+  describe "#clear_chain!" do
+    let(:chain) { task.chain }
+
+    after { CMDx::Chain.clear }
+
+    context "when result is the first in the chain" do
+      it "clears the chain when current matches task chain" do
+        expect(task.result.index).to eq(0)
+        expect { worker.send(:clear_chain!) }.to change(CMDx::Chain, :current).to(nil)
+      end
+    end
+
+    context "when result is not the first in the chain" do
+      before do
+        other_task = task_class.new
+        described_class.new(other_task)
+      end
+
+      it "does not clear the chain" do
+        expect(task.result.index).not_to eq(0)
+        expect { worker.send(:clear_chain!) }.not_to change(CMDx::Chain, :current)
+      end
+    end
+
+    context "when current chain is a different instance" do
+      it "does not clear the chain" do
+        worker # force creation so task.chain is established
+
+        other_chain = CMDx::Chain.new
+        CMDx::Chain.current = other_chain
+
+        worker.send(:clear_chain!)
+        expect(CMDx::Chain.current).to equal(other_chain)
+      end
+    end
+  end
 end

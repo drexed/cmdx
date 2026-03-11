@@ -31,7 +31,7 @@ module CMDx
     # @rbs @results: Array[Result]
     attr_reader :results
 
-    def_delegators :results, :index, :first, :last, :size
+    def_delegators :results, :first, :last, :size
     def_delegators :first, :state, :status, :outcome, :runtime
 
     # Creates a new chain with a unique identifier and empty results collection.
@@ -136,6 +136,17 @@ module CMDx
     # @rbs (Result result) -> Array[Result]
     def push(result)
       @mutex.synchronize { @results << result }
+    end
+
+    # Thread-safe lookup of a result's position in the chain.
+    #
+    # @param result [Result] The result to find
+    #
+    # @return [Integer, nil] The zero-based index or nil if not found
+    #
+    # @rbs (Result result) -> Integer?
+    def index(result)
+      @mutex.synchronize { @results.index(result) }
     end
 
     # Returns whether the chain is running in dry-run mode.
