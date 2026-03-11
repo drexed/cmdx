@@ -8,6 +8,16 @@ module CMDx
 
     extend Forwardable
 
+    # Returns the type of the task.
+    #
+    # @return [String] The task type
+    #
+    # @example
+    #   task.type # => "Task"
+    #
+    # @rbs @type: String
+    attr_reader :type
+
     # Returns the hash of processed attribute values for this task.
     #
     # @return [Hash{Symbol => Object}] Hash of attribute names to their values
@@ -88,13 +98,15 @@ module CMDx
     def initialize(context = nil)
       Deprecator.restrict(self)
 
-      @attributes = {}
-      @errors = Errors.new
+      @type = self.class.include?(Workflow) ? "Workflow" : "Task"
 
       @id = Identifier.generate
       @context = Context.build(context)
+      @errors = Errors.new
       @result = Result.new(self)
       @chain = Chain.build(@result, dry_run: @context.delete(:dry_run))
+
+      @attributes = {}
     end
 
     class << self
@@ -380,10 +392,10 @@ module CMDx
       {
         index: result.index,
         chain_id: chain.id,
-        type: self.class.include?(Workflow) ? "Workflow" : "Task",
         tags: self.class.settings.tags,
         class: self.class.name,
         dry_run: dry_run?,
+        type:,
         id:
       }
     end
@@ -397,6 +409,17 @@ module CMDx
     # @rbs () -> String
     def to_s
       Utils::Format.to_str(to_h)
+    end
+
+    private
+
+    # Returns the cached task type string.
+    #
+    # @return [String] "Workflow" or "Task"
+    #
+    # @rbs () -> String
+    def task_type
+      @task_type ||= self.class.include?(Workflow) ? "Workflow" : "Task"
     end
 
   end

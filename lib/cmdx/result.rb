@@ -35,6 +35,10 @@ module CMDx
     end.freeze
     private_constant :STRIP_FAILURE
 
+    # @rbs FAILURE_KEY_REGEX: Regexp
+    FAILURE_KEY_REGEX = /_failure\z/
+    private_constant :FAILURE_KEY_REGEX
+
     # Returns the task instance associated with this result.
     #
     # @return [CMDx::Task] The task instance
@@ -519,7 +523,7 @@ module CMDx
     # @rbs () -> String
     def to_s
       Utils::Format.to_str(to_h) do |key, value|
-        if key.match?(/_failure$/)
+        if FAILURE_KEY_REGEX.match?(key)
           "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
         else
           "#{key}=#{value.inspect}"

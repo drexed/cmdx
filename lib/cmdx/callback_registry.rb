@@ -129,6 +129,7 @@ module CMDx
     # @rbs (Symbol type, Task task) -> void
     def invoke(type, task)
       raise TypeError, "unknown callback type #{type.inspect}" unless TYPES_SET.include?(type)
+      return unless registry[type]
 
       Utils::Wrap.array(registry[type]).each do |callables, options|
         next unless Utils::Condition.evaluate(task, options)

@@ -352,8 +352,8 @@ module CMDx
       return if result.rolled_back?
       return unless task.respond_to?(:rollback)
 
-      statuses = Utils::Wrap.array(task.class.settings.rollback_on).map(&:to_s).uniq
-      return unless statuses.include?(result.status)
+      @rollback_statuses ||= Utils::Wrap.array(task.class.settings.rollback_on).map(&:to_s).uniq
+      return unless @rollback_statuses.include?(result.status)
 
       result.rolled_back = true
       task.rollback
