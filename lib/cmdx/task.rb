@@ -146,9 +146,9 @@ module CMDx
           settings.attributes.register(object)
           settings.attributes.define_readers_on!(self, Utils::Wrap.array(object))
         when :callback then settings.callbacks.register(object, ...)
-        when :coercion then settings.coercions.register(object, ...)
         when :middleware then settings.middlewares.register(object, ...)
         when :validator then settings.validators.register(object, ...)
+        when :coercion then settings.coercions.register(object, ...)
         else raise "unknown registry type #{type.inspect}"
         end
       end
@@ -169,9 +169,9 @@ module CMDx
           settings.attributes.undefine_readers_on!(self, object)
           settings.attributes.deregister(object)
         when :callback then settings.callbacks.deregister(object, ...)
-        when :coercion then settings.coercions.deregister(object, ...)
         when :middleware then settings.middlewares.deregister(object, ...)
         when :validator then settings.validators.deregister(object, ...)
+        when :coercion then settings.coercions.deregister(object, ...)
         else raise "unknown registry type #{type.inspect}"
         end
       end

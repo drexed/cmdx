@@ -38,8 +38,8 @@ module CMDx
       return ::I18n.t(key, **options) if defined?(::I18n)
 
       case message = options.delete(:default)
-      when NilClass then "Translation missing: #{key}"
       when String then message % options
+      when NilClass then "Translation missing: #{key}"
       else message
       end
     end

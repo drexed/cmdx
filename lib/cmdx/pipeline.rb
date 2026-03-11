@@ -6,6 +6,14 @@ module CMDx
   # and handling breakpoints that can interrupt execution at specific task statuses.
   class Pipeline
 
+    # @rbs SEQUENTIAL_REGEXP: Regexp
+    SEQUENTIAL_REGEXP = /\Asequential\z/
+    private_constant :SEQUENTIAL_REGEXP
+
+    # @rbs PARALLEL_REGEXP: Regexp
+    PARALLEL_REGEXP = /\Aparallel\z/
+    private_constant :PARALLEL_REGEXP
+
     # Returns the workflow being executed by this pipeline.
     #
     # @return [Workflow] The workflow instance
@@ -89,8 +97,8 @@ module CMDx
     # @rbs (untyped group, Array[String] breakpoints) -> void
     def execute_group_tasks(group, breakpoints)
       case strategy = group.options[:strategy]
-      when NilClass, /sequential/ then execute_tasks_in_sequence(group, breakpoints)
-      when /parallel/ then execute_tasks_in_parallel(group, breakpoints)
+      when NilClass, SEQUENTIAL_REGEXP then execute_tasks_in_sequence(group, breakpoints)
+      when PARALLEL_REGEXP then execute_tasks_in_parallel(group, breakpoints)
       else raise "unknown execution strategy #{strategy.inspect}"
       end
     end

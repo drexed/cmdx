@@ -26,9 +26,9 @@ module CMDx
     EVAL = proc do |target, callable|
       case callable
       when NilClass, FalseClass, TrueClass then !!callable
-      when Proc then target.instance_eval(&callable)
       when RAISE_REGEXP, LOG_REGEXP, WARN_REGEXP then callable
       when Symbol then target.send(callable)
+      when Proc then target.instance_eval(&callable)
       else
         raise "cannot evaluate #{callable.inspect}" unless callable.respond_to?(:call)
 
