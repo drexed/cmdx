@@ -339,6 +339,14 @@ RSpec.describe CMDx::Task, type: :unit do
       expect(task.dry_run?).to be(false)
     end
 
+    context "when initialized with dry_run: true" do
+      let(:task) { task_class.new(dry_run: true) }
+
+      it "returns true" do
+        expect(task.dry_run?).to be(true)
+      end
+    end
+
     context "when executed with dry_run: true" do
       let(:dry_run_class) do
         create_task_class do

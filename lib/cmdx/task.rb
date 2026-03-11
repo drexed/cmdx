@@ -95,7 +95,9 @@ module CMDx
       @id = Identifier.generate
       @context = Context.build(context)
       @result = Result.new(self)
-      @chain = Chain.build(@result)
+
+      dry_run = context.delete(:dry_run) if context.is_a?(Hash)
+      @chain = Chain.build(@result, dry_run:)
     end
 
     class << self
