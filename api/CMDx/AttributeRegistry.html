@@ -809,7 +809,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/attribute_registry.rb', line 75</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
-  <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Wrap.html" title="CMDx::Utils::Wrap (module)">Wrap</a></span></span><span class='period'>.</span><span class='id identifier rubyid_array'><span class='object_link'><a href="Utils/Wrap.html#array-instance_method" title="CMDx::Utils::Wrap#array (method)">array</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
     <span class='ivar'>@registry</span><span class='period'>.</span><span class='id identifier rubyid_reject!'>reject!</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_attribute'>attribute</span><span class='op'>|</span> <span class='id identifier rubyid_matches_attribute_tree?'>matches_attribute_tree?</span><span class='lparen'>(</span><span class='id identifier rubyid_attribute'>attribute</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
   <span class='kw'>end</span>
 
@@ -1001,7 +1001,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/attribute_registry.rb', line 58</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_attributes'>attributes</span><span class='rparen'>)</span>
-  <span class='ivar'>@registry</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_attributes'>attributes</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='ivar'>@registry</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Wrap.html" title="CMDx::Utils::Wrap (module)">Wrap</a></span></span><span class='period'>.</span><span class='id identifier rubyid_array'><span class='object_link'><a href="Utils/Wrap.html#array-instance_method" title="CMDx::Utils::Wrap#array (method)">array</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_attributes'>attributes</span><span class='rparen'>)</span><span class='rparen'>)</span>
   <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1103,7 +1103,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/attribute_registry.rb', line 102</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_undefine_readers_on!'>undefine_readers_on!</span><span class='lparen'>(</span><span class='id identifier rubyid_task_class'>task_class</span><span class='comma'>,</span> <span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
-  <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Wrap.html" title="CMDx::Utils::Wrap (module)">Wrap</a></span></span><span class='period'>.</span><span class='id identifier rubyid_array'><span class='object_link'><a href="Utils/Wrap.html#array-instance_method" title="CMDx::Utils::Wrap#array (method)">array</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
     <span class='id identifier rubyid_sym'>sym</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
 
     <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_attribute'>attribute</span><span class='op'>|</span>
@@ -1123,9 +1123,9 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 05:08:42 2026 by
+  Generated on Wed Mar 11 16:05:03 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.38 (ruby-3.4.8).
+  0.9.38 (ruby-3.4.9).
 </div>
 
     </div>

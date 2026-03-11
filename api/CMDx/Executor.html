@@ -708,7 +708,7 @@
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
-    <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
+    <span class='id identifier rubyid_verify_context_returns!'>verify_context_returns!</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
@@ -722,7 +722,7 @@
     <span class='id identifier rubyid_post_execution!'>post_execution!</span>
   <span class='kw'>end</span>
 
-  <span class='id identifier rubyid_unswallow_middleware!'>unswallow_middleware!</span>
+  <span class='id identifier rubyid_verify_middleware_yield!'>verify_middleware_yield!</span>
   <span class='id identifier rubyid_finalize_execution!'>finalize_execution!</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -853,7 +853,7 @@
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span><span class='period'>.</span><span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_pre_execution!'>pre_execution!</span> <span class='kw'>unless</span> <span class='ivar'>@pre_execution</span>
     <span class='id identifier rubyid_execution!'>execution!</span>
-    <span class='id identifier rubyid_verify_returns!'>verify_returns!</span>
+    <span class='id identifier rubyid_verify_context_returns!'>verify_context_returns!</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../CMDx.html#UndefinedMethodError-constant" title="CMDx::UndefinedMethodError (constant)">UndefinedMethodError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
     <span class='id identifier rubyid_raise_exception'>raise_exception</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
   <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
@@ -874,7 +874,7 @@
     <span class='id identifier rubyid_post_execution!'>post_execution!</span>
   <span class='kw'>end</span>
 
-  <span class='id identifier rubyid_unswallow_middleware!'>unswallow_middleware!</span>
+  <span class='id identifier rubyid_verify_middleware_yield!'>verify_middleware_yield!</span>
   <span class='id identifier rubyid_finalize_execution!'>finalize_execution!</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -887,9 +887,9 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 05:08:41 2026 by
+  Generated on Wed Mar 11 16:05:02 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.38 (ruby-3.4.8).
+  0.9.38 (ruby-3.4.9).
 </div>
 
     </div>

@@ -1022,7 +1022,7 @@
       <pre class="code"><span class="info file"># File 'lib/cmdx/retry.rb', line 115</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_exceptions'>exceptions</span>
-  <span class='ivar'>@exceptions</span> <span class='op'>||=</span> <span class='const'>Array</span><span class='lparen'>(</span>
+  <span class='ivar'>@exceptions</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Wrap.html" title="CMDx::Utils::Wrap (module)">Wrap</a></span></span><span class='period'>.</span><span class='id identifier rubyid_array'><span class='object_link'><a href="Utils/Wrap.html#array-instance_method" title="CMDx::Utils::Wrap#array (method)">array</a></span></span><span class='lparen'>(</span>
     <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_retry_on'>retry_on</span> <span class='op'>||</span>
     <span class='lbracket'>[</span><span class='const'>StandardError</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CMDx.html#TimeoutError-constant" title="CMDx::TimeoutError (constant)">TimeoutError</a></span></span><span class='rbracket'>]</span>
   <span class='rparen'>)</span>
@@ -1402,9 +1402,9 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 05:08:41 2026 by
+  Generated on Wed Mar 11 16:05:02 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.38 (ruby-3.4.8).
+  0.9.38 (ruby-3.4.9).
 </div>
 
     </div>
