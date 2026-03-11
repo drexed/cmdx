@@ -124,7 +124,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = {})  &#x21d2; Date </a>
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; Date </a>
     
 
     
@@ -157,7 +157,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="call-instance_method">
   
-    #<strong>call</strong>(value, options = {})  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions::Date (module)">Date</a></span></tt> 
+    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions::Date (module)">Date</a></span></tt> 
   
 
   
@@ -228,7 +228,7 @@
         <span class='type'>(<tt><span class='object_link'><a href="Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span></tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{}</tt>)</em>
+        <em class="default">(defaults to: <tt>EMPTY_HASH</tt>)</em>
       
       
         &mdash;
@@ -336,7 +336,7 @@
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/date.rb', line 35</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_date'>to_date</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:to_date</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='op'>::</span><span class='const'>Date</span><span class='period'>.</span><span class='id identifier rubyid_strptime'>strptime</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:strptime</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:strptime</span><span class='rbracket'>]</span>
 
@@ -355,7 +355,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 18:54:05 2026 by
+  Generated on Wed Mar 11 19:08:03 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>
