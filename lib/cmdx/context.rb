@@ -160,7 +160,7 @@ module CMDx
     #   context.to_h # => {name: "John", age: 30, city: "NYC"}
     #
     # @rbs (?untyped args) -> self
-    def merge!(args = {})
+    def merge!(args = EMPTY_HASH)
       table.merge!(args.to_h.transform_keys(&:to_sym))
       self
     end

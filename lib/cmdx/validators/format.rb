@@ -40,7 +40,7 @@ module CMDx
       #   # => raises ValidationError with custom message
       #
       # @rbs (untyped value, (Hash[Symbol, untyped] | Regexp) options) -> nil
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         match =
           if options.is_a?(Regexp)
             value&.match?(options)

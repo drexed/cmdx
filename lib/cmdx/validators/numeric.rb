@@ -50,7 +50,7 @@ module CMDx
       #   # => nil (validation passes - 5 is not in 1..10)
       #
       # @rbs (Numeric value, Hash[Symbol, untyped] options) -> nil
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         case options
         in within:
           raise_within_validation_error!(within.begin, within.end, options) unless within&.cover?(value)

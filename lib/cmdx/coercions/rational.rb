@@ -35,7 +35,7 @@ module CMDx
       #   Rational.call(0)         # => (0/1)
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Rational
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         Rational(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError, ZeroDivisionError
         type = Locale.t("cmdx.types.rational")

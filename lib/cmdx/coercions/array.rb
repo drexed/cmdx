@@ -30,7 +30,7 @@ module CMDx
       #   Array.call("[not json") # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         if value.is_a?(::String) && (
           value.start_with?("[") ||
           value.strip == "null"

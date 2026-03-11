@@ -115,7 +115,7 @@ module CMDx
     #   result = registry.coerce(:boolean, task, "true", strict: true)
     #
     # @rbs (Symbol type, untyped task, untyped value, ?Hash[Symbol, untyped] options) -> untyped
-    def coerce(type, task, value, options = {})
+    def coerce(type, task, value, options = EMPTY_HASH)
       raise TypeError, "unknown coercion type #{type.inspect}" unless registry.key?(type)
 
       Utils::Call.invoke(task, registry[type], value, options)

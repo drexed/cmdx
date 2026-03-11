@@ -34,7 +34,7 @@ module CMDx
       #   Exclusion.call("test", in: ["test", "demo"], message: "value %{values} is forbidden")
       #
       # @rbs (untyped value, Hash[Symbol, untyped] options) -> nil
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         values = options[:in] || options[:within]
 
         if values.is_a?(Range)

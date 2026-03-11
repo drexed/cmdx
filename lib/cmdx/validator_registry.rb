@@ -108,7 +108,7 @@ module CMDx
     #   registry.validate(:length, task, password, { min: 8, allow_nil: false })
     #
     # @rbs (Symbol type, Task task, untyped value, untyped options) -> untyped
-    def validate(type, task, value, options = {})
+    def validate(type, task, value, options = EMPTY_HASH)
       raise TypeError, "unknown validator type #{type.inspect}" unless registry.key?(type)
 
       match =

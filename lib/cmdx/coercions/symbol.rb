@@ -28,7 +28,7 @@ module CMDx
       #   Symbol.call(:existing)         # => :existing
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Symbol
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         value.to_sym
       rescue NoMethodError
         type = Locale.t("cmdx.types.symbol")

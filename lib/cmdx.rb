@@ -19,6 +19,10 @@ module CMDx
   EMPTY_ARRAY = [].freeze
   private_constant :EMPTY_ARRAY
 
+  # @rbs EMPTY_HASH: Hash[untyped, untyped]
+  EMPTY_HASH = {}.freeze
+  private_constant :EMPTY_HASH
+
   extend self
 
   # Returns the path to the CMDx gem.

@@ -31,7 +31,7 @@ module CMDx
       #   BigDecimal.call(3.14159)                    # => #<BigDecimal:7f8b8c0d8e0f '0.314159E1',9(18)>
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> BigDecimal
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
       rescue ArgumentError, TypeError
         type = Locale.t("cmdx.types.big_decimal")

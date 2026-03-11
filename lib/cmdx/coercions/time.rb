@@ -34,7 +34,7 @@ module CMDx
       #   Time.call("12-25-2023", strptime: "%m-%d-%Y")  # => Time object
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Time
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         return value.to_time if value.respond_to?(:to_time)
         return ::Time.strptime(value, options[:strptime]) if options[:strptime]
 

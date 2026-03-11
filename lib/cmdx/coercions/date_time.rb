@@ -32,7 +32,7 @@ module CMDx
       #   DateTime.call(Time.new(2023, 12, 25))     # => #<DateTime: 2023-12-25T00:00:00+00:00>
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> DateTime
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         return value.to_datetime if value.respond_to?(:to_datetime)
         return ::DateTime.strptime(value, options[:strptime]) if options[:strptime]
 

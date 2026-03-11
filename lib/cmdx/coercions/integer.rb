@@ -35,7 +35,7 @@ module CMDx
       #   Integer.call("abc")     # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Integer
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         Integer(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError
         type = Locale.t("cmdx.types.integer")

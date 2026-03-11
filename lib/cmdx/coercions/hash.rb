@@ -33,7 +33,7 @@ module CMDx
       #   Hash.call('{"key": "value"}') # => {"key" => "value"}
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Hash[untyped, untyped]
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         if value.nil?
           {}
         elsif value.is_a?(::Hash)

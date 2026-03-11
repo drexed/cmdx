@@ -53,7 +53,7 @@ module CMDx
       #   # => nil (validation passes - length 5 is not in excluded range)
       #
       # @rbs (untyped value, Hash[Symbol, untyped] options) -> nil
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         length = value&.length
 
         case options

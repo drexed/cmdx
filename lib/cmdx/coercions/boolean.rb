@@ -43,7 +43,7 @@ module CMDx
       #   Boolean.call("abc")    # => raises CoercionError
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         case value.to_s
         when FALSEY, "" then false
         when TRUTHY then true

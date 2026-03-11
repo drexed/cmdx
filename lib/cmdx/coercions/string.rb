@@ -29,7 +29,7 @@ module CMDx
       #   String.call(true)              # => "true"
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> String
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         String(value)
       end
 

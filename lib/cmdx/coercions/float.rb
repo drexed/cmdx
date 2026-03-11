@@ -32,7 +32,7 @@ module CMDx
       #   Float.call(Complex(5.0, 0))      # => 5.0
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Float
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         Float(value)
       rescue ArgumentError, RangeError, TypeError
         type = Locale.t("cmdx.types.float")

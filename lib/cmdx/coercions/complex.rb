@@ -29,7 +29,7 @@ module CMDx
       #   Complex.call(Complex(1, 2))              # => (1+2i)
       #
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Complex
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         Complex(value)
       rescue ArgumentError, TypeError
         type = Locale.t("cmdx.types.complex")

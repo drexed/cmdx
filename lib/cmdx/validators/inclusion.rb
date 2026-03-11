@@ -36,7 +36,7 @@ module CMDx
       #   Inclusion.call("test", in: ["admin", "user"], message: "must be one of: %{values}")
       #
       # @rbs (untyped value, Hash[Symbol, untyped] options) -> nil
-      def call(value, options = {})
+      def call(value, options = EMPTY_HASH)
         values = options[:in] || options[:within]
 
         if values.is_a?(Range)
