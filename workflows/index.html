@@ -2616,12 +2616,7 @@
 </span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
 </span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="c1"># Fix number of threads</span>
 </span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">in_threads</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="c1"># Fix number of forked processes</span>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">in_processes</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">  </span><span class="c1"># NOTE: Reactors are not supported</span>
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="k">end</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2629,7 +2624,11 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Context is read-only during parallel execution. Load all required data beforehand.</p>
+<p>Only <code>in_threads</code> is supported. Forked processes (<code>in_processes</code>) cannot share chain or context state, and Ractors (<code>in_reactors</code>) enforce isolation that prevents state sharing. Both raise <code>ArgumentError</code> if specified.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.</p>
 </div>
 <h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
 <p>Generate new CMDx workflow tasks quickly using the built-in generator:</p>

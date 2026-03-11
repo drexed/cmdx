@@ -25,6 +25,7 @@ Configure framework-wide defaults that apply to all tasks. These settings come w
 | `workflow_breakpoints` | `["failed"]`                                        | Statuses that halt workflow pipelines                                 |
 | `rollback_on`          | `["failed"]`                                        | Statuses that trigger `rollback`                                      |
 | `freeze_results`       | `true`                                              | Freeze results after execution                                        |
+| `default_locale`       | `"en"`                                              | Locale for built-in translation fallbacks                             |
 | `backtrace`            | `false`                                             | Include backtraces for non-fault exceptions                           |
 | `backtrace_cleaner`    | `nil`                                               | Callable to clean backtraces (Rails: `Rails.backtrace_cleaner.clean`) |
 | `exception_handler`    | `nil`                                               | Callable invoked on non-fault exceptions                              |
@@ -71,6 +72,20 @@ end
 Tip
 
 Only disable `freeze_results` in tests. Frozen results prevent accidental mutation in production code.
+
+### Default Locale
+
+Set the locale used for CMDx's built-in translation fallbacks when the `I18n` gem is not available. See [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) for the full locale list.
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "es"
+end
+```
+
+Note
+
+When the `I18n` gem is loaded, CMDx delegates to `I18n.t` and this setting is only used for fallback defaults. Without `I18n`, all built-in messages (validation errors, coercion errors, etc.) are resolved from the configured locale file.
 
 ### Backtraces
 

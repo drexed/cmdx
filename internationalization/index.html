@@ -1427,6 +1427,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#default-locale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Locale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#copy-locale-files" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2117,6 +2128,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#default-locale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Locale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#copy-locale-files" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2248,12 +2270,19 @@
 </span></code></pre></div>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>CMDx uses the <code>I18n</code> gem for localization. In Rails, locales load automatically.</p>
+<h3 id="default-locale">Default Locale<a class="headerlink" href="#default-locale" title="Permanent link">&para;</a></h3>
+<p>When the <code>I18n</code> gem is not available (e.g. plain Ruby scripts), CMDx resolves built-in messages from its own locale files using the <code>default_locale</code> setting:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">default_locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;es&quot;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>See <a href="../configuration/#default-locale">Configuration</a> for more details.</p>
 <h3 id="copy-locale-files">Copy Locale Files<a class="headerlink" href="#copy-locale-files" title="Permanent link">&para;</a></h3>
 <p>Copy locale files to your Rails application's <code>config/locales</code> directory:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:locale<span class="w"> </span><span class="o">[</span>LOCALE<span class="o">]</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Eg: generate french locale</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:locale<span class="w"> </span>fr
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:locale<span class="w"> </span><span class="o">[</span>LOCALE<span class="o">]</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Eg: generate french locale</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:locale<span class="w"> </span>fr
 </span></code></pre></div>
 <h3 id="available-locales">Available Locales<a class="headerlink" href="#available-locales" title="Permanent link">&para;</a></h3>
 <ul>

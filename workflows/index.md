@@ -263,11 +263,6 @@ class SendWelcomeNotifications < CMDx::Task
 
   # Fix number of threads
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_threads: 2
-
-  # Fix number of forked processes
-  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_processes: 2
-
-  # NOTE: Reactors are not supported
 end
 ```
 
@@ -277,7 +272,11 @@ This feature depends on the `parallel` gem being installed in your application o
 
 Warning
 
-Context is read-only during parallel execution. Load all required data beforehand.
+Only `in_threads` is supported. Forked processes (`in_processes`) cannot share chain or context state, and Ractors (`in_reactors`) enforce isolation that prevents state sharing. Both raise `ArgumentError` if specified.
+
+Warning
+
+Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.
 
 ## Task Generator
 

@@ -25,6 +25,18 @@ end
 
 CMDx uses the `I18n` gem for localization. In Rails, locales load automatically.
 
+### Default Locale
+
+When the `I18n` gem is not available (e.g. plain Ruby scripts), CMDx resolves built-in messages from its own locale files using the `default_locale` setting:
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "es"
+end
+```
+
+See [Configuration](https://drexed.github.io/cmdx/configuration/#default-locale) for more details.
+
 ### Copy Locale Files
 
 Copy locale files to your Rails application's `config/locales` directory:

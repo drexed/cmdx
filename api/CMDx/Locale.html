@@ -96,7 +96,7 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     
-<p>Provides internationalization and localization support for CMDx. Handles translation lookups with fallback to default English messages when I18n gem is not available.</p>
+<p>Provides internationalization and localization support for CMDx. Handles translation lookups with fallback to the configured locale’s default messages when I18n gem is not available.</p>
 
 
   </div>
@@ -170,7 +170,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Translates a key to the current locale with optional interpolation. Falls back to English translations if I18n gem is unavailable.</p>
+<p>Translates a key to the current locale with optional interpolation. Falls back to the configured locale’s YAML file translations if I18n gem is unavailable.</p>
 
 
   </div>
@@ -364,7 +364,6 @@
       <pre class="lines">
 
 
-36
 37
 38
 39
@@ -373,10 +372,11 @@
 42
 43
 44
-45</pre>
+45
+46</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/locale.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/locale.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_translate'>translate</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:default</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_translation_default'>translation_default</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
@@ -398,7 +398,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 19:23:07 2026 by
+  Generated on Wed Mar 11 21:40:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>

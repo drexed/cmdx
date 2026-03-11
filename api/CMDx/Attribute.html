@@ -513,6 +513,30 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#initialize_dup-instance_method" title="#initialize_dup (instance method)">#<strong>initialize_dup</strong>(source)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deep-copies children and clears task-dependent memoization so that duped attributes can be safely bound to a task without mutating the class-level originals.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#method_name-instance_method" title="#method_name (instance method)">#<strong>method_name</strong>  &#x21d2; Symbol </a>
     
 
@@ -1677,18 +1701,18 @@
       <pre class="lines">
 
 
-139
-140
-141
-142
-143
-144
-145
-146
-147</pre>
+154
+155
+156
+157
+158
+159
+160
+161
+162</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 154</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span>
@@ -1850,12 +1874,12 @@
       <pre class="lines">
 
 
-163
-164
-165</pre>
+178
+179
+180</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 163</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 178</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional'>optional</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>required:</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2011,12 +2035,12 @@
       <pre class="lines">
 
 
-181
-182
-183</pre>
+196
+197
+198</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 181</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 196</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_names'>names</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>required:</span> <span class='kw'>true</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2100,28 +2124,28 @@
       <pre class="lines">
 
 
-246
-247
-248
-249
-250
-251
-252
-253
-254
-255
-256
-257
-258
-259
-260
 261
 262
 263
-264</pre>
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 246</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 261</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_allocation_name'>allocation_name</span>
   <span class='kw'>return</span> <span class='ivar'>@allocation_name</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@allocation_name</span><span class='rparen'>)</span>
@@ -2189,13 +2213,13 @@
       <pre class="lines">
 
 
-306
-307
-308
-309</pre>
+321
+322
+323
+324</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 306</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 321</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_clear_task_tree!'>clear_task_tree!</span>
   <span class='ivar'>@task</span> <span class='op'>=</span> <span class='kw'>nil</span>
@@ -2248,17 +2272,17 @@
       <pre class="lines">
 
 
-293
-294
-295
-296
-297
-298
-299
-300</pre>
+308
+309
+310
+311
+312
+313
+314
+315</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 293</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 308</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_define_and_verify_tree'>define_and_verify_tree</span>
   <span class='id identifier rubyid_define_and_verify'>define_and_verify</span>
@@ -2267,6 +2291,91 @@
     <span class='id identifier rubyid_child'>child</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
     <span class='id identifier rubyid_child'>child</span><span class='period'>.</span><span class='id identifier rubyid_define_and_verify_tree'>define_and_verify_tree</span>
   <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_dup-instance_method">
+  
+    #<strong>initialize_dup</strong>(source)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deep-copies children and clears task-dependent memoization so that duped attributes can be safely bound to a task without mutating the class-level originals. This makes concurrent execution thread-safe.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Attribute (class)">Attribute</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The attribute being duplicated</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Rbs:</p>
+<ul class="rbs">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>(Attribute source) -&gt; void</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_dup'>initialize_dup</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@children</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_remove_instance_variable'>remove_instance_variable</span><span class='lparen'>(</span><span class='symbol'>:@source</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@source</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_remove_instance_variable'>remove_instance_variable</span><span class='lparen'>(</span><span class='symbol'>:@method_name</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@method_name</span><span class='rparen'>)</span>
+  <span class='ivar'>@task</span> <span class='op'>=</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2341,24 +2450,24 @@
       <pre class="lines">
 
 
-274
-275
-276
-277
-278
-279
-280
-281
-282
-283
-284
-285
-286
-287
-288</pre>
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 274</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 289</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_name'>method_name</span>
   <span class='kw'>return</span> <span class='ivar'>@method_name</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@method_name</span><span class='rparen'>)</span>
@@ -2448,12 +2557,12 @@
       <pre class="lines">
 
 
-195
-196
-197</pre>
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 195</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_optional?'>optional?</span>
   <span class='op'>!</span><span class='id identifier rubyid_required?'>required?</span> <span class='op'>||</span> <span class='op'>!</span><span class='op'>!</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:optional</span><span class='rbracket'>]</span>
@@ -2531,12 +2640,12 @@
       <pre class="lines">
 
 
-207
-208
-209</pre>
+222
+223
+224</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 207</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 222</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_required?'>required?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@required</span>
@@ -2614,24 +2723,24 @@
       <pre class="lines">
 
 
-220
-221
-222
-223
-224
-225
-226
-227
-228
-229
-230
-231
-232
-233
-234</pre>
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 220</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 235</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_source'>source</span>
   <span class='kw'>return</span> <span class='ivar'>@source</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='ivar'>@source</span><span class='rparen'>)</span>
@@ -2728,20 +2837,20 @@ children: []</code></pre>
       <pre class="lines">
 
 
-325
-326
-327
-328
-329
-330
-331
-332
-333
-334
-335</pre>
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 325</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/attribute.rb', line 340</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -2764,7 +2873,7 @@ children: []</code></pre>
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 19:23:08 2026 by
+  Generated on Wed Mar 11 21:40:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>

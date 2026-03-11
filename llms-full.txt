@@ -325,6 +325,7 @@ Configure framework-wide defaults that apply to all tasks. These settings come w
 | `workflow_breakpoints` | `["failed"]`                                        | Statuses that halt workflow pipelines                                 |
 | `rollback_on`          | `["failed"]`                                        | Statuses that trigger `rollback`                                      |
 | `freeze_results`       | `true`                                              | Freeze results after execution                                        |
+| `default_locale`       | `"en"`                                              | Locale for built-in translation fallbacks                             |
 | `backtrace`            | `false`                                             | Include backtraces for non-fault exceptions                           |
 | `backtrace_cleaner`    | `nil`                                               | Callable to clean backtraces (Rails: `Rails.backtrace_cleaner.clean`) |
 | `exception_handler`    | `nil`                                               | Callable invoked on non-fault exceptions                              |
@@ -371,6 +372,20 @@ end
 Tip
 
 Only disable `freeze_results` in tests. Frozen results prevent accidental mutation in production code.
+
+### Default Locale
+
+Set the locale used for CMDx's built-in translation fallbacks when the `I18n` gem is not available. See [Internationalization](https://drexed.github.io/cmdx/internationalization/index.md) for the full locale list.
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "es"
+end
+```
+
+Note
+
+When the `I18n` gem is loaded, CMDx delegates to `I18n.t` and this setting is only used for fallback defaults. Without `I18n`, all built-in messages (validation errors, coercion errors, etc.) are resolved from the configured locale file.
 
 ### Backtraces
 
@@ -3732,6 +3747,18 @@ end
 
 CMDx uses the `I18n` gem for localization. In Rails, locales load automatically.
 
+### Default Locale
+
+When the `I18n` gem is not available (e.g. plain Ruby scripts), CMDx resolves built-in messages from its own locale files using the `default_locale` setting:
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "es"
+end
+```
+
+See [Configuration](https://drexed.github.io/cmdx/configuration/#default-locale) for more details.
+
 ### Copy Locale Files
 
 Copy locale files to your Rails application's `config/locales` directory:
@@ -4497,11 +4524,6 @@ class SendWelcomeNotifications < CMDx::Task
 
   # Fix number of threads
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_threads: 2
-
-  # Fix number of forked processes
-  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, in_processes: 2
-
-  # NOTE: Reactors are not supported
 end
 ```
 
@@ -4511,7 +4533,11 @@ This feature depends on the `parallel` gem being installed in your application o
 
 Warning
 
-Context is read-only during parallel execution. Load all required data beforehand.
+Only `in_threads` is supported. Forked processes (`in_processes`) cannot share chain or context state, and Ractors (`in_reactors`) enforce isolation that prevents state sharing. Both raise `ArgumentError` if specified.
+
+Warning
+
+Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.
 
 ## Task Generator
 
