@@ -38,9 +38,9 @@ module CMDx
     #   Parallelizer.new([1, 2, 3], pool_size: 2)
     #
     # @rbs (Array[untyped] items, ?pool_size: Integer) -> void
-    def initialize(items, pool_size: items.size)
+    def initialize(items, pool_size: nil)
       @items = items
-      @pool_size = pool_size
+      @pool_size = Integer(pool_size || items.size)
     end
 
     # Processes items concurrently and returns results in submission order.
@@ -59,7 +59,7 @@ module CMDx
     #   # => [10, 20, 30]
     #
     # @rbs [T, R] (Array[T] items, ?pool_size: Integer) { (T) -> R } -> Array[R]
-    def self.call(items, pool_size: items.size, &block)
+    def self.call(items, pool_size: nil, &block)
       new(items, pool_size:).call(&block)
     end
 
