@@ -1238,12 +1238,12 @@
       <pre class="lines">
 
 
-160
-161
-162</pre>
+164
+165
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 160</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 164</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span>
   <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@dry_run</span>
@@ -1322,13 +1322,13 @@
       <pre class="lines">
 
 
-173
-174
-175
-176</pre>
+177
+178
+179
+180</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 173</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 177</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_freeze'>freeze</span>
   <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
@@ -1419,12 +1419,12 @@
       <pre class="lines">
 
 
-148
-149
-150</pre>
+152
+153
+154</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 152</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
@@ -1446,7 +1446,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Thread-safe append of a result to the chain.</p>
+<p>Thread-safe append of a result to the chain. Caches the result’s index to avoid repeated O(n) lookups.</p>
 
 
   </div>
@@ -1514,15 +1514,21 @@
       <pre class="lines">
 
 
-137
 138
-139</pre>
+139
+140
+141
+142
+143</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 137</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 138</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span> <span class='rbrace'>}</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@chain_index</span><span class='comma'>,</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
+    <span class='ivar'>@results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1621,16 +1627,16 @@
       <pre class="lines">
 
 
-191
-192
-193
-194
 195
 196
-197</pre>
+197
+198
+199
+200
+201</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 191</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -1712,12 +1718,12 @@
       <pre class="lines">
 
 
-207
-208
-209</pre>
+211
+212
+213</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 207</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 211</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -1732,7 +1738,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Mar 11 16:05:02 2026 by
+  Generated on Wed Mar 11 17:14:50 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>
