@@ -8,43 +8,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - Add `Parallelizer` class for bounded thread pool execution
-- Add `Configuration#default_locale` setting to configure which locale YAML file is loaded for built-in translations (defaults to `"en"`)
+- Add `Configuration#default_locale` setting (defaults to `"en"`)
 - Add `Task.type` to return task mechanics
-- Add `Utils::Normalize` module for normalizing exceptions and statuses into consistent formats
-- Add `Utils::Wrap` module for normalizing values into consistent array structures
-- Add `Retry` class to encapsulate retry logic, state tracking, exception matching, and jitter computation
-- Add `Settings` object to replace hash-based task settings with method-based access
+- Add `Utils::Normalize` module for exception and status normalization
+- Add `Utils::Wrap` module for array value normalization
+- Add `Retry` class for retry logic, state tracking, and jitter computation
+- Add `Settings` object with method-based access
 - Add `freeze_results` configuration option to replace `SKIP_CMDX_FREEZING` env var
 - Add `any?`, `clear`, and `size` delegators to `Errors`
-- Add `Context#respond_to_missing?` support for setter methods
-- Add `Attribute#clear_task_tree!` to prevent class-level attributes from retaining last-executed task instance
-- Add thread-safe `Chain#push` and `Chain#index` with `Mutex` synchronization
-- Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
-- Add `Executor#verify_middleware_yield!` to detect middlewares that swallow the execution block without yielding
+- Add `Context#respond_to_missing?` for setter methods
+- Add `Attribute#clear_task_tree!` to prevent stale task instance retention
+- Add thread-safe `Chain#push` and `Chain#index` via `Mutex`
+- Add identity-aware `Executor#clear_chain!` for parallel execution safety
+- Add `Executor#verify_middleware_yield!` to detect non-yielding middlewares
 - Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
-- Add `Attribute#allocation_name` to resolve attribute reader names without a task instance
-- Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition at class load time
+- Add `Attribute#allocation_name` for task-free reader name resolution
+- Add `AttributeRegistry#define_readers_on!` and `#undefine_readers_on!` for eager reader definition
 
 ### Changed
-- Replace `parallel` gem dependency with native Ruby thread pool (`Parallelizer`) for parallel workflow execution
-- Rename `in_threads` option to `pool_size` for parallel workflow tasks
-- Move `TimeoutError` definition to `exception.rb` for proper Zeitwerk autoloading
-- Modified Rails initializer install script with latest changes
-- Make `AttributeRegistry#define_and_verify` dup attributes before binding to a task, eliminating shared mutable state and making concurrent execution thread-safe
-- Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`
-- Replace hash-based `settings[:]` access with method-based `settings.` access throughout the codebase
-- Lazy-load English locale translations instead of eager-loading via constant
+- Replace `parallel` gem with native `Parallelizer` thread pool
+- Rename `in_threads` option to `pool_size`
+- Move `TimeoutError` to `exception.rb` for Zeitwerk autoloading
+- Update Rails initializer install script
+- Dup attributes in `AttributeRegistry#define_and_verify` for thread-safe concurrent execution
+- Default `retry_on` to `[StandardError, CMDx::TimeoutError]`
+- Replace hash-based `settings[:]` with method-based `settings.` access
+- Lazy-load locale translations instead of eager-loading
 - Use compile-time method definition for `Identifier#generate` and `Chain`/`Correlate` `thread_or_fiber`
-- Use `define_method` on task class instead of `define_singleton_method` per instance for attribute readers
-- Tighten `Deprecator` regex patterns to exact word boundaries to prevent partial matches
+- Use `define_method` on task class for attribute readers
+- Tighten `Deprecator` regex to exact word boundaries
 - Use `public_send` instead of `send` in `Result` for state/status checks
 
 ### Fixed
-- Fix `Attribute#source` and `Attribute#method_name` memoization to avoid caching when no task is present
-- Fix `execute!` fault handling to call `executed!` before `post_execution!` in non-halt path
-- Clear `task.errors` before each retry attempt to prevent error accumulation across retries
-- Fix `Pipeline#execute_tasks_in_parallel` to snapshot context per thread, preventing unsynchronized concurrent writes to a shared Hash
-- Reject `in_processes` and `in_reactors` option in parallel workflow tasks
+- Fix `Attribute#source` and `#method_name` memoization without a task
+- Fix `execute!` to call `executed!` before `post_execution!` on non-halt path
+- Clear `task.errors` before each retry attempt
+- Fix `Pipeline#execute_tasks_in_parallel` to snapshot context per thread
+- Reject `in_processes` and `in_reactors` options in parallel tasks
 
 ### Removed
 - Remove `SKIP_CMDX_FREEZING` env var in favor of `CMDx.configuration.freeze_results`
@@ -52,15 +52,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [1.19.0] - 2026-03-09
 
 ### Changed
-- Add attribute `source` fallback to `:context` when no task is given
+- Fall back attribute `source` to `:context` when no task is given
 - Improve falsy attribute derived hash value lookup
 - Freeze chain results
-- Coerce analogous date, datetime, and time class checks to rely on `to_date`, `to_time`, `to_datetime` methods
+- Use `to_date`, `to_time`, `to_datetime` for date/time coercion checks
 
 ### Fixed
 - Fix missing fault cause `NoMethodError`
 - Fix validator `allow_nil` inverted logic
-- Fix array coercion JSON parse error to now return `CoercionError`
+- Fix array coercion JSON parse error to return `CoercionError`
 - Fix boolean coercions to return `false` for `nil` and `""`
 
 ## [1.18.0] - 2026-03-09
