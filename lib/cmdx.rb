@@ -23,6 +23,10 @@ module CMDx
   EMPTY_HASH = {}.freeze
   private_constant :EMPTY_HASH
 
+  # @rbs EMPTY_STRING: String
+  EMPTY_STRING = ""
+  private_constant :EMPTY_STRING
+
   extend self
 
   # Returns the path to the CMDx gem.

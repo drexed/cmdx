@@ -45,7 +45,7 @@ module CMDx
       # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
       def call(value, options = EMPTY_HASH)
         case value.to_s
-        when FALSEY, "" then false
+        when FALSEY, EMPTY_STRING then false
         when TRUTHY then true
         else
           type = Locale.t("cmdx.types.boolean")
