@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### Added
+- Add `Retry` class to encapsulate retry logic, state tracking, exception matching, and jitter computation
 - Add `Settings` object to replace hash-based task settings with method-based access
 - Add `freeze_results` configuration option to replace `SKIP_CMDX_FREEZING` env var
 - Add `any?`, `clear`, and `size` delegators to `Errors`

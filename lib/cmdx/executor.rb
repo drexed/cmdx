@@ -149,38 +149,22 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def retry_execution?(exception)
-      available_retries = Integer(task.class.settings.retries || 0)
-      return false unless available_retries.positive?
+      @retry ||= Retry.new(task)
 
-      current_retry = result.retries
-      remaining_retries = available_retries - current_retry
-      return false unless remaining_retries.positive?
-
-      exceptions = Array(task.class.settings.retry_on || StandardError)
-      return false unless exceptions.any? { |e| exception.class <= e }
+      return false unless @retry.available? && @retry.remaining?
+      return false unless @retry.exception?(exception)
 
       result.retries += 1
 
       task.logger.warn do
         reason = "[#{exception.class}] #{exception.message}"
-        task.to_h.merge!(reason:, remaining_retries:)
+        task.to_h.merge!(reason:, remaining_retries: @retry.remaining)
       end
 
       task.errors.clear
 
-      jitter = task.class.settings.retry_jitter
-      jitter =
-        if jitter.is_a?(Symbol)
-          task.send(jitter, current_retry)
-        elsif jitter.is_a?(Proc)
-          task.instance_exec(current_retry, &jitter)
-        elsif jitter.respond_to?(:call)
-          jitter.call(task, current_retry)
-        else
-          jitter.to_f * current_retry
-        end
-
-      sleep(jitter) if Float(jitter).positive?
+      wait = @retry.wait
+      sleep(wait) if wait.positive?
 
       true
     end
