@@ -75,7 +75,7 @@ RSpec.describe CMDx::Settings, type: :unit do
           log_level: Logger::WARN,
           log_formatter: proc { |*| "fmt" },
           retries: 3,
-          retry_on: [StandardError],
+          retry_on: [StandardError, CMDx::TimeoutError],
           retry_jitter: :exponential,
           deprecate: :warn,
           returns: %i[user token],
@@ -108,7 +108,7 @@ RSpec.describe CMDx::Settings, type: :unit do
 
       it "inherits task-level values from parent" do
         expect(settings.retries).to eq(3)
-        expect(settings.retry_on).to eq([StandardError])
+        expect(settings.retry_on).to eq([StandardError, CMDx::TimeoutError])
         expect(settings.retry_jitter).to eq(:exponential)
         expect(settings.deprecate).to eq(:warn)
       end

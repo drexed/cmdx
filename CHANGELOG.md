@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
 
 ### Changed
+- Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`
 - Replace hash-based `settings[:]` access with method-based `settings.` access throughout the codebase
 - Lazy-load English locale translations instead of eager-loading via constant
 - Use compile-time method definition for `Identifier#generate` and `Chain`/`Correlate` `thread_or_fiber`

@@ -109,11 +109,14 @@ module CMDx
     # @return [Array<Class>] exception classes that trigger a retry
     #
     # @example
-    #   retry_instance.exceptions # => [StandardError]
+    #   retry_instance.exceptions # => [StandardError, CMDx::TimeoutError]
     #
     # @rbs () -> Array[Class]
     def exceptions
-      @exceptions ||= Array(task.class.settings.retry_on || StandardError)
+      @exceptions ||= Array(
+        task.class.settings.retry_on ||
+        [StandardError, CMDx::TimeoutError]
+      )
     end
 
     # Checks if the given exception matches any configured retry exception.

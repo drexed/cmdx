@@ -200,7 +200,7 @@ RSpec.describe CMDx::Retry, type: :unit do
       end
 
       it "defaults to StandardError" do
-        expect(retry_instance.exceptions).to eq([StandardError])
+        expect(retry_instance.exceptions).to eq([StandardError, CMDx::TimeoutError])
       end
     end
 
@@ -210,7 +210,7 @@ RSpec.describe CMDx::Retry, type: :unit do
       end
 
       it "defaults to StandardError" do
-        expect(retry_instance.exceptions).to eq([StandardError])
+        expect(retry_instance.exceptions).to eq([StandardError, CMDx::TimeoutError])
       end
     end
 
