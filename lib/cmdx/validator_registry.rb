@@ -3,20 +3,12 @@
 module CMDx
   # Registry for managing validation rules and their corresponding validator classes.
   # Provides methods to register, deregister, and execute validators against task values.
+  #
+  # Supports copy-on-write semantics: a duped registry shares the parent's
+  # data until a write operation triggers materialization.
   class ValidatorRegistry
 
     extend Forwardable
-
-    # Returns the internal registry mapping validator types to classes.
-    #
-    # @return [Hash{Symbol => Class}] Hash of validator type names to validator classes
-    #
-    # @example
-    #   registry.registry # => { presence: Validators::Presence, format: Validators::Format }
-    #
-    # @rbs @registry: Hash[Symbol, Class]
-    attr_reader :registry
-    alias to_h registry
 
     def_delegators :registry, :keys
 
@@ -39,14 +31,30 @@ module CMDx
       }
     end
 
-    # Create a duplicate of the registry with copied internal state.
+    # Sets up copy-on-write state when duplicated via dup.
     #
-    # @return [ValidatorRegistry] A new validator registry with duplicated registry hash
+    # @param source [ValidatorRegistry] The registry being duplicated
     #
-    # @rbs () -> ValidatorRegistry
-    def dup
-      self.class.new(registry.dup)
+    # @rbs (ValidatorRegistry source) -> void
+    def initialize_dup(source)
+      @parent = source
+      @registry = nil
+      super
     end
+
+    # Returns the internal registry mapping validator types to classes.
+    # Delegates to the parent registry when not yet materialized.
+    #
+    # @return [Hash{Symbol => Class}] Hash of validator type names to validator classes
+    #
+    # @example
+    #   registry.registry # => { presence: Validators::Presence, format: Validators::Format }
+    #
+    # @rbs () -> Hash[Symbol, Class]
+    def registry
+      @registry || @parent.registry
+    end
+    alias to_h registry
 
     # Register a new validator class with the given name.
     #
@@ -61,7 +69,9 @@ module CMDx
     #
     # @rbs ((String | Symbol) name, Class validator) -> self
     def register(name, validator)
-      registry[name.to_sym] = validator
+      materialize!
+
+      @registry[name.to_sym] = validator
       self
     end
 
@@ -77,7 +87,9 @@ module CMDx
     #
     # @rbs ((String | Symbol) name) -> self
     def deregister(name)
-      registry.delete(name.to_sym)
+      materialize!
+
+      @registry.delete(name.to_sym)
       self
     end
 
@@ -112,6 +124,19 @@ module CMDx
       return unless match
 
       Utils::Call.invoke(task, registry[type], value, options)
+    end
+
+    private
+
+    # Copies the parent's registry data into this instance,
+    # severing the copy-on-write link.
+    #
+    # @rbs () -> void
+    def materialize!
+      return if @registry
+
+      @registry = @parent.registry.dup
+      @parent = nil
     end
 
   end

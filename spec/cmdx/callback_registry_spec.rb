@@ -57,12 +57,22 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
         expect(duplicated).to be_a(described_class)
       end
 
-      it "deep copies the registry values" do
+      it "shares the parent registry until first write" do
         duplicated = registry.dup
 
         expect(duplicated.registry).to eq(registry.registry)
+        expect(duplicated.registry).to be(registry.registry)
+      end
+
+      it "materializes on write and does not affect the parent" do
+        duplicated = registry.dup
+        original_size = registry.registry[:before_execution].size
+
+        duplicated.register(:before_execution, :new_callback)
+
         expect(duplicated.registry).not_to be(registry.registry)
         expect(duplicated.registry[:before_execution]).not_to be(registry.registry[:before_execution])
+        expect(registry.registry[:before_execution].size).to eq(original_size)
       end
     end
 
@@ -73,7 +83,7 @@ RSpec.describe CMDx::CallbackRegistry, type: :unit do
         duplicated = registry.dup
 
         expect(duplicated.registry).to eq({})
-        expect(duplicated.registry).not_to be(registry.registry)
+        expect(duplicated.registry).to be(registry.registry)
       end
     end
   end

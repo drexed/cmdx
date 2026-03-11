@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add thread-safe `Chain#index` with `Mutex` synchronization
 - Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
 - Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
+- Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
 
 ### Changed
 - Updated `retry_on` to default to `[StandardError, CMDx::TimeoutError]`

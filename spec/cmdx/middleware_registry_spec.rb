@@ -58,20 +58,29 @@ RSpec.describe CMDx::MiddlewareRegistry, type: :unit do
       expect(duplicated).not_to be(registry)
     end
 
-    it "duplicates the registry array and its elements" do
+    it "shares the parent registry until first write" do
       duplicated = registry.dup
 
       expect(duplicated.registry).to eq(registry.registry)
-      expect(duplicated.registry).not_to be(registry.registry)
-      expect(duplicated.registry.first).not_to be(registry.registry.first)
+      expect(duplicated.registry).to be(registry.registry)
     end
 
-    it "allows independent modification of the duplicated registry" do
+    it "materializes on write and does not affect the parent" do
       duplicated = registry.dup
 
       duplicated.register(mock_middleware2)
 
       expect(duplicated.registry.size).to eq(2)
+      expect(registry.registry.size).to eq(1)
+      expect(duplicated.registry).not_to be(registry.registry)
+    end
+
+    it "materializes on deregister and does not affect the parent" do
+      duplicated = registry.dup
+
+      duplicated.deregister(mock_middleware1)
+
+      expect(duplicated.registry).to be_empty
       expect(registry.registry.size).to eq(1)
     end
 

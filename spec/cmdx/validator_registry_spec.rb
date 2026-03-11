@@ -76,20 +76,21 @@ RSpec.describe CMDx::ValidatorRegistry, type: :unit do
       expect(duplicated).not_to be(registry)
     end
 
-    it "duplicates the registry hash" do
+    it "shares the parent registry until first write" do
       duplicated = registry.dup
 
       expect(duplicated.registry).to eq(registry.registry)
-      expect(duplicated.registry).not_to be(registry.registry)
+      expect(duplicated.registry).to be(registry.registry)
     end
 
-    it "allows independent modification of the duplicated registry" do
+    it "materializes on write and does not affect the parent" do
       duplicated = registry.dup
 
       duplicated.register(:new_type, mock_validator)
 
       expect(duplicated.registry).to have_key(:new_type)
       expect(registry.registry).not_to have_key(:new_type)
+      expect(duplicated.registry).not_to be(registry.registry)
     end
   end
 

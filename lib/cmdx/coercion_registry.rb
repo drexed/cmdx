@@ -5,18 +5,10 @@ module CMDx
   #
   # Provides a centralized way to register, deregister, and execute type coercions
   # for various data types including arrays, numbers, dates, and other primitives.
+  #
+  # Supports copy-on-write semantics: a duped registry shares the parent's
+  # data until a write operation triggers materialization.
   class CoercionRegistry
-
-    # Returns the internal registry mapping coercion types to handler classes.
-    #
-    # @return [Hash{Symbol => Class}] Hash of coercion type names to coercion classes
-    #
-    # @example
-    #   registry.registry # => { integer: Coercions::Integer, boolean: Coercions::Boolean }
-    #
-    # @rbs @registry: Hash[Symbol, Class]
-    attr_reader :registry
-    alias to_h registry
 
     # Initialize a new coercion registry.
     #
@@ -44,17 +36,30 @@ module CMDx
       }
     end
 
-    # Create a duplicate of this registry.
+    # Sets up copy-on-write state when duplicated via dup.
     #
-    # @return [CoercionRegistry] a new instance with duplicated registry hash
+    # @param source [CoercionRegistry] The registry being duplicated
+    #
+    # @rbs (CoercionRegistry source) -> void
+    def initialize_dup(source)
+      @parent = source
+      @registry = nil
+      super
+    end
+
+    # Returns the internal registry mapping coercion types to handler classes.
+    # Delegates to the parent registry when not yet materialized.
+    #
+    # @return [Hash{Symbol => Class}] Hash of coercion type names to coercion classes
     #
     # @example
-    #   new_registry = registry.dup
+    #   registry.registry # => { integer: Coercions::Integer, boolean: Coercions::Boolean }
     #
-    # @rbs () -> CoercionRegistry
-    def dup
-      self.class.new(registry.dup)
+    # @rbs () -> Hash[Symbol, Class]
+    def registry
+      @registry || @parent.registry
     end
+    alias to_h registry
 
     # Register a new coercion handler for a type.
     #
@@ -69,7 +74,9 @@ module CMDx
     #
     # @rbs ((Symbol | String) name, Class coercion) -> self
     def register(name, coercion)
-      registry[name.to_sym] = coercion
+      materialize!
+
+      @registry[name.to_sym] = coercion
       self
     end
 
@@ -85,7 +92,9 @@ module CMDx
     #
     # @rbs ((Symbol | String) name) -> self
     def deregister(name)
-      registry.delete(name.to_sym)
+      materialize!
+
+      @registry.delete(name.to_sym)
       self
     end
 
@@ -110,6 +119,19 @@ module CMDx
       raise TypeError, "unknown coercion type #{type.inspect}" unless registry.key?(type)
 
       Utils::Call.invoke(task, registry[type], value, options)
+    end
+
+    private
+
+    # Copies the parent's registry data into this instance,
+    # severing the copy-on-write link.
+    #
+    # @rbs () -> void
+    def materialize!
+      return if @registry
+
+      @registry = @parent.registry.dup
+      @parent = nil
     end
 
   end

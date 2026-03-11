@@ -7,43 +7,48 @@ module CMDx
   # that can be inserted, removed, and executed in sequence. Each middleware
   # can be configured with specific options and is executed in the order
   # they were registered.
+  #
+  # Supports copy-on-write semantics: a duped registry shares the parent's
+  # data until a write operation triggers materialization.
   class MiddlewareRegistry
 
+    # Initialize a new middleware registry.
+    #
+    # @param registry [Array, nil] Initial array of middleware entries
+    #
+    # @example
+    #   registry = MiddlewareRegistry.new
+    #   registry = MiddlewareRegistry.new([[MyMiddleware, {option: 'value'}]])
+    #
+    # @rbs (?Array[Array[untyped]]? registry) -> void
+    def initialize(registry = nil)
+      @registry = registry || []
+    end
+
+    # Sets up copy-on-write state when duplicated via dup.
+    #
+    # @param source [MiddlewareRegistry] The registry being duplicated
+    #
+    # @rbs (MiddlewareRegistry source) -> void
+    def initialize_dup(source)
+      @parent = source
+      @registry = nil
+      super
+    end
+
     # Returns the ordered collection of middleware entries.
+    # Delegates to the parent registry when not yet materialized.
     #
     # @return [Array<Array>] Array of middleware-options pairs
     #
     # @example
     #   registry.registry # => [[LoggingMiddleware, {level: :debug}], [AuthMiddleware, {}]]
     #
-    # @rbs @registry: Array[Array[untyped]]
-    attr_reader :registry
+    # @rbs () -> Array[Array[untyped]]
+    def registry
+      @registry || @parent.registry
+    end
     alias to_a registry
-
-    # Initialize a new middleware registry.
-    #
-    # @param registry [Array] Initial array of middleware entries
-    #
-    # @example
-    #   registry = MiddlewareRegistry.new
-    #   registry = MiddlewareRegistry.new([[MyMiddleware, {option: 'value'}]])
-    #
-    # @rbs (?Array[Array[untyped]] registry) -> void
-    def initialize(registry = [])
-      @registry = registry
-    end
-
-    # Create a duplicate of the registry with duplicated middleware entries.
-    #
-    # @return [MiddlewareRegistry] A new registry instance with duplicated entries
-    #
-    # @example
-    #   new_registry = registry.dup
-    #
-    # @rbs () -> MiddlewareRegistry
-    def dup
-      self.class.new(registry.map(&:dup))
-    end
 
     # Register a middleware component in the registry.
     #
@@ -61,7 +66,9 @@ module CMDx
     #
     # @rbs (untyped middleware, ?at: Integer, **untyped options) -> self
     def register(middleware, at: -1, **options)
-      registry.insert(at, [middleware, options])
+      materialize!
+
+      @registry.insert(at, [middleware, options])
       self
     end
 
@@ -76,7 +83,9 @@ module CMDx
     #
     # @rbs (untyped middleware) -> self
     def deregister(middleware)
-      registry.reject! { |mw, _opts| mw == middleware }
+      materialize!
+
+      @registry.reject! { |mw, _opts| mw == middleware }
       self
     end
 
@@ -104,6 +113,17 @@ module CMDx
     end
 
     private
+
+    # Copies the parent's registry data into this instance,
+    # severing the copy-on-write link.
+    #
+    # @rbs () -> void
+    def materialize!
+      return if @registry
+
+      @registry = @parent.registry.map(&:dup)
+      @parent = nil
+    end
 
     # Recursively execute middleware in the chain.
     #

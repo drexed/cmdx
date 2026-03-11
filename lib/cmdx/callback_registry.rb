@@ -5,6 +5,9 @@ module CMDx
   #
   # Callbacks are organized by type and can be registered with optional conditions and options.
   # Each callback type represents a specific execution phase or outcome.
+  #
+  # Supports copy-on-write semantics: a duped registry shares the parent's
+  # data until a write operation triggers materialization.
   class CallbackRegistry
 
     # @rbs TYPES: Array[Symbol]
@@ -21,32 +24,37 @@ module CMDx
       on_bad
     ].freeze
 
+    # @param registry [Hash, nil] Initial registry hash, defaults to empty
+    #
+    # @rbs (?Hash[Symbol, Set[Array[untyped]]]? registry) -> void
+    def initialize(registry = nil)
+      @registry = registry || {}
+    end
+
+    # Sets up copy-on-write state when duplicated via dup.
+    #
+    # @param source [CallbackRegistry] The registry being duplicated
+    #
+    # @rbs (CallbackRegistry source) -> void
+    def initialize_dup(source)
+      @parent = source
+      @registry = nil
+      super
+    end
+
     # Returns the internal registry of callbacks organized by type.
+    # Delegates to the parent registry when not yet materialized.
     #
     # @return [Hash{Symbol => Set<Array>}] Hash mapping callback types to their registered callables
     #
     # @example
     #   registry.registry # => { before_execution: #<Set: [[[:validate], {}]]> }
     #
-    # @rbs @registry: Hash[Symbol, Set[Array[untyped]]]
-    attr_reader :registry
+    # @rbs () -> Hash[Symbol, Set[Array[untyped]]]
+    def registry
+      @registry || @parent.registry
+    end
     alias to_h registry
-
-    # @param registry [Hash] Initial registry hash, defaults to empty
-    #
-    # @rbs (?Hash[Symbol, Set[Array[untyped]]] registry) -> void
-    def initialize(registry = {})
-      @registry = registry
-    end
-
-    # Creates a deep copy of the registry with duplicated callable sets
-    #
-    # @return [CallbackRegistry] A new instance with duplicated registry contents
-    #
-    # @rbs () -> CallbackRegistry
-    def dup
-      self.class.new(registry.transform_values(&:dup))
-    end
 
     # Registers one or more callables for a specific callback type
     #
@@ -70,10 +78,12 @@ module CMDx
     #
     # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
     def register(type, *callables, **options, &block)
+      materialize!
+
       callables << block if block_given?
 
-      registry[type] ||= Set.new
-      registry[type] << [callables, options]
+      @registry[type] ||= Set.new
+      @registry[type] << [callables, options]
       self
     end
 
@@ -92,11 +102,13 @@ module CMDx
     #
     # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
     def deregister(type, *callables, **options, &block)
-      callables << block if block_given?
-      return self unless registry[type]
+      materialize!
 
-      registry[type].delete([callables, options])
-      registry.delete(type) if registry[type].empty?
+      callables << block if block_given?
+      return self unless @registry[type]
+
+      @registry[type].delete([callables, options])
+      @registry.delete(type) if @registry[type].empty?
       self
     end
 
@@ -129,6 +141,19 @@ module CMDx
           end
         end
       end
+    end
+
+    private
+
+    # Copies the parent's registry data into this instance,
+    # severing the copy-on-write link.
+    #
+    # @rbs () -> void
+    def materialize!
+      return if @registry
+
+      @registry = @parent.registry.transform_values(&:dup)
+      @parent = nil
     end
 
   end
