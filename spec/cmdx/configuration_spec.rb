@@ -51,6 +51,10 @@ RSpec.describe CMDx::Configuration, type: :unit do
       expect(configuration.workflow_breakpoints).to eq(%w[failed])
     end
 
+    it "sets locale to en by default" do
+      expect(configuration.default_locale).to eq("en")
+    end
+
     it "initializes logger with default configuration" do
       logger = configuration.logger
 
@@ -182,6 +186,21 @@ RSpec.describe CMDx::Configuration, type: :unit do
       end
     end
 
+    describe "#default_locale" do
+      it "allows setting and getting locale" do
+        configuration.default_locale = "es"
+
+        expect(configuration.default_locale).to eq("es")
+      end
+
+      context "with nil value" do
+        it "accepts nil assignment" do
+          expect { configuration.default_locale = nil }.not_to raise_error
+          expect(configuration.default_locale).to be_nil
+        end
+      end
+    end
+
     describe "#logger" do
       let(:custom_logger) { Logger.new($stderr, progname: "test") }
 
@@ -211,6 +230,7 @@ RSpec.describe CMDx::Configuration, type: :unit do
         validators: configuration.validators,
         task_breakpoints: configuration.task_breakpoints,
         workflow_breakpoints: configuration.workflow_breakpoints,
+        default_locale: configuration.default_locale,
         logger: configuration.logger
       )
     end

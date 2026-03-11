@@ -2,14 +2,15 @@
 
 module CMDx
   # Provides internationalization and localization support for CMDx.
-  # Handles translation lookups with fallback to default English messages
-  # when I18n gem is not available.
+  # Handles translation lookups with fallback to the configured locale's
+  # default messages when I18n gem is not available.
   module Locale
 
     extend self
 
     # Translates a key to the current locale with optional interpolation.
-    # Falls back to English translations if I18n gem is unavailable.
+    # Falls back to the configured locale's YAML file translations if
+    # I18n gem is unavailable.
     #
     # @param key [String, Symbol] The translation key (supports dot notation)
     # @param options [Hash] Translation options
@@ -50,7 +51,7 @@ module CMDx
     private
 
     # Resolves and caches the default translation for a key by digging
-    # into the English YAML translations.
+    # into the configured locale's YAML translations.
     #
     # @param key [String, Symbol] The translation key
     #
@@ -58,11 +59,19 @@ module CMDx
     #
     # @rbs ((String | Symbol) key) -> String?
     def translation_default(key)
-      @translation_defaults ||= {}
-      return @translation_defaults[key] if @translation_defaults.key?(key)
+      tkey = "#{CMDx.configuration.default_locale}.#{key}"
 
-      @default_translations ||= YAML.load_file(CMDx.gem_path.join("lib/locales/en.yml"))
-      @translation_defaults[key] = @default_translations.dig("en", *key.to_s.split("."))
+      @translation_defaults ||= {}
+      return @translation_defaults[tkey] if @translation_defaults.key?(tkey)
+
+      @default_translations ||= begin
+        path = CMDx.gem_path.join("lib/locales/#{CMDx.configuration.default_locale}.yml")
+        raise ArgumentError, "locale file not found: #{path}" unless path.exist?
+
+        YAML.load_file(path).freeze
+      end
+
+      @translation_defaults[tkey] = @default_translations.dig(*tkey.split("."))
     end
 
   end

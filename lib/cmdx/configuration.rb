@@ -134,6 +134,17 @@ module CMDx
     # @rbs @freeze_results: bool
     attr_accessor :freeze_results
 
+    # Returns the default locale used for built-in translation lookups.
+    # Must match the basename of a YAML file in lib/locales/ (e.g. "en", "es", "ja").
+    #
+    # @return [String] The locale identifier (default: "en")
+    #
+    # @example
+    #   config.default_locale = "es"
+    #
+    # @rbs @locale: String
+    attr_accessor :default_locale
+
     # Initializes a new Configuration instance with default values.
     #
     # Creates new registry instances for middlewares, callbacks, coercions, and
@@ -157,6 +168,7 @@ module CMDx
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
       @rollback_on = DEFAULT_ROLLPOINTS
       @freeze_results = true
+      @default_locale = "en"
 
       @backtrace = false
       @backtrace_cleaner = nil
@@ -190,6 +202,7 @@ module CMDx
         workflow_breakpoints: @workflow_breakpoints,
         rollback_on: @rollback_on,
         freeze_results: @freeze_results,
+        default_locale: @default_locale,
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,
         exception_handler: @exception_handler,
