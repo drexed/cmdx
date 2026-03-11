@@ -66,6 +66,9 @@ module CMDx
           else callable.respond_to?(:call) ? callable.call(task) : DEFAULT_LIMIT
           end
 
+        limit = Float(limit)
+        return yield unless limit.positive?
+
         ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds", &)
       rescue TimeoutError => e
         task.result.tap { |r| r.fail!("[#{e.class}] #{e.message}", cause: e, limit:) }
