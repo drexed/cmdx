@@ -13,8 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `any?`, `clear`, and `size` delegators to `Errors`
 - Add `Context#respond_to_missing?` support for setter methods
 - Add `Attribute#clear_task_tree!` to prevent class-level attributes from retaining last-executed task instance
-- Add thread-safe `Chain#push` with `Mutex` synchronization
-- Add thread-safe `Chain#index` with `Mutex` synchronization
+- Add thread-safe `Chain#push` and `Chain#index` with `Mutex` synchronization
 - Add identity-aware `Executor#clear_chain!` to prevent cross-context chain clearing in parallel execution
 - Add `Executor#unswallow_middleware!` to detect middlewares that swallow the execution block without yielding
 - Add copy-on-write semantics to `MiddlewareRegistry`, `CallbackRegistry`, `CoercionRegistry`, and `ValidatorRegistry`
@@ -30,7 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Use `define_method` on task class instead of `define_singleton_method` per instance for attribute readers
 - Tighten `Deprecator` regex patterns to exact word boundaries to prevent partial matches
 - Use `public_send` instead of `send` in `Result` for state/status checks
-- Remove `dry_run` context smuggling from `Task#initialize`; `dry_run` is now chain-authoritative via `execute`/`execute!`
 
 ### Fixed
 - Fix `Attribute#source` and `Attribute#method_name` memoization to avoid caching when no task is present

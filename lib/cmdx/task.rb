@@ -73,20 +73,19 @@ module CMDx
     def_delegators :result, :skip!, :fail!, :throw!
     def_delegators :chain, :dry_run?
 
-    # @param context [Hash, Context] The initial context for the task
-    #
-    # @option context [Object] :* Any key-value pairs to initialize the context
+    # @param context [Hash, Context, nil] The initial context for the task
     #
     # @return [Task] A new task instance
     #
     # @raise [DeprecationError] If the task class is deprecated
     #
     # @example
+    #   task = MyTask.new
     #   task = MyTask.new(name: "example", priority: :high)
     #   task = MyTask.new(Context.build(name: "example"))
     #
     # @rbs (untyped context) -> void
-    def initialize(context = {})
+    def initialize(context = nil)
       Deprecator.restrict(self)
 
       @attributes = {}
@@ -95,9 +94,7 @@ module CMDx
       @id = Identifier.generate
       @context = Context.build(context)
       @result = Result.new(self)
-
-      dry_run = context.delete(:dry_run) if context.is_a?(Hash)
-      @chain = Chain.build(@result, dry_run:)
+      @chain = Chain.build(@result, dry_run: @context.delete(:dry_run))
     end
 
     class << self
@@ -275,19 +272,15 @@ module CMDx
 
       # @param args [Array] Arguments to pass to the task constructor
       # @param kwargs [Hash] Keyword arguments to pass to the task constructor
-      # @param dry_run [Boolean] When true, sets the chain to dry-run mode
       # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
       #
       # @example
       #   result = MyTask.execute(name: "example")
-      #   result = MyTask.execute(name: "example", dry_run: true)
       #
       # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute(*args, dry_run: false, **kwargs)
-        Chain.current ||= Chain.new(dry_run:)
-
+      def execute(*args, **kwargs)
         task = new(*args, **kwargs)
         task.execute(raise: false)
         block_given? ? yield(task.result) : task.result
@@ -295,7 +288,6 @@ module CMDx
 
       # @param args [Array] Arguments to pass to the task constructor
       # @param kwargs [Hash] Keyword arguments to pass to the task constructor
-      # @param dry_run [Boolean] When true, sets the chain to dry-run mode
       # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
       #
       # @return [Result] The execution result
@@ -304,12 +296,9 @@ module CMDx
       #
       # @example
       #   result = MyTask.execute!(name: "example")
-      #   result = MyTask.execute!(name: "example", dry_run: true)
       #
       # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute!(*args, dry_run: false, **kwargs)
-        Chain.current ||= Chain.new(dry_run:)
-
+      def execute!(*args, **kwargs)
         task = new(*args, **kwargs)
         task.execute(raise: true)
         block_given? ? yield(task.result) : task.result

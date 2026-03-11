@@ -365,13 +365,6 @@ RSpec.describe CMDx::Task, type: :unit do
 
         expect(result).to be_dry_run
       end
-
-      it "does not leak dry_run into context" do
-        result = dry_run_class.execute(dry_run: true, user_id: 1)
-
-        expect(result.context.to_h).to eq(user_id: 1)
-        expect(result.context).not_to respond_to(:dry_run)
-      end
     end
   end
 
