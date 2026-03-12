@@ -206,22 +206,22 @@ end
 
     CMDx does **not** automatically rollback previously successful tasks when a later task fails. If you need to undo `ReserveInventory` when `ChargeCard` fails, handle it in `ChargeCard`'s rollback or use a callback on the workflow itself.
 
-    ```ruby
-    class PaymentWorkflow < CMDx::Task
-      include CMDx::Workflow
+```ruby
+class PaymentWorkflow < CMDx::Task
+  include CMDx::Workflow
 
-      on_failed :compensate!
+  on_failed :compensate!
 
-      task ReserveInventory
-      task ChargeCard
+  task ReserveInventory
+  task ChargeCard
 
-      private
+  private
 
-      def compensate!
-        ReleaseInventory.execute(context) if context.reservation_id
-      end
-    end
-    ```
+  def compensate!
+    ReleaseInventory.execute(context) if context.reservation_id
+  end
+end
+```
 
 ## Nested Workflows
 

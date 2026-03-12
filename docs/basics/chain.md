@@ -6,10 +6,6 @@ Chains automatically track related task executions within a thread. Think of the
 
 Each execution context maintains its own isolated chain. CMDx uses `Fiber.storage` when available (Ruby 3.2+), falling back to `Thread.current` on older Rubies.
 
-!!! warning
-
-    Chains are scoped to the current fiber or thread. Don't share chain references across fibers or threads—it causes race conditions.
-
 !!! tip
 
     Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the `async` gem out of the box.

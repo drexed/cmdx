@@ -8,15 +8,15 @@ Attributes define your task's interface with automatic validation, type coercion
 
     Attributes are order-dependent. If one attribute references another as a source or condition, the referenced attribute must be defined first.
 
-    ```ruby
-    # Correct: credentials defined before connection_string
-    required :credentials, source: :database_config
-    attribute :connection_string, source: :credentials
+```ruby
+# Correct: credentials defined before connection_string
+required :credentials, source: :database_config
+attribute :connection_string, source: :credentials
 
-    # Wrong: connection_string references credentials before it exists
-    attribute :connection_string, source: :credentials
-    required :credentials, source: :database_config
-    ```
+# Wrong: connection_string references credentials before it exists
+attribute :connection_string, source: :credentials
+required :credentials, source: :database_config
+```
 
 !!! warning "Important"
 
