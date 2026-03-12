@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [1.20.0] - 2026-03-12
+
 ### Added
 - Add `CallbackRegistry#empty?` for fast callback presence checking
 - Add `Parallelizer` class for bounded thread pool execution
