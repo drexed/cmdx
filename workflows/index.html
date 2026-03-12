@@ -2567,6 +2567,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
 <p>CMDx does <strong>not</strong> automatically rollback previously successful tasks when a later task fails. If you need to undo <code>ReserveInventory</code> when <code>ChargeCard</code> fails, handle it in <code>ChargeCard</code>'s rollback or use a callback on the workflow itself.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
@@ -2582,7 +2583,6 @@
 </span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="k">end</span>
 </span></code></pre></div>
-</div>
 <h2 id="nested-workflows">Nested Workflows<a class="headerlink" href="#nested-workflows" title="Permanent link">&para;</a></h2>
 <p>Build hierarchical workflows by composing workflows within workflows:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailPreparationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>

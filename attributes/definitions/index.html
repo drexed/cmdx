@@ -2445,6 +2445,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
 <p>Attributes are order-dependent. If one attribute references another as a source or condition, the referenced attribute must be defined first.</p>
+</div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Correct: credentials defined before connection_string</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">required</span><span class="w"> </span><span class="ss">:credentials</span><span class="p">,</span><span class="w"> </span><span class="ss">source</span><span class="p">:</span><span class="w"> </span><span class="ss">:database_config</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">attribute</span><span class="w"> </span><span class="ss">:connection_string</span><span class="p">,</span><span class="w"> </span><span class="ss">source</span><span class="p">:</span><span class="w"> </span><span class="ss">:credentials</span>
@@ -2453,7 +2454,6 @@
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">attribute</span><span class="w"> </span><span class="ss">:connection_string</span><span class="p">,</span><span class="w"> </span><span class="ss">source</span><span class="p">:</span><span class="w"> </span><span class="ss">:credentials</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">required</span><span class="w"> </span><span class="ss">:credentials</span><span class="p">,</span><span class="w"> </span><span class="ss">source</span><span class="p">:</span><span class="w"> </span><span class="ss">:database_config</span>
 </span></code></pre></div>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
 <p>Attribute names that conflict with existing Ruby or CMDx methods will raise an error. Use <code>:as</code>, <code>:prefix</code>, or <code>:suffix</code> to resolve naming conflicts. See <a href="../naming/">Naming</a>.</p>

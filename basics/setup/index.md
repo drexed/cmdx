@@ -81,13 +81,13 @@ stateDiagram-v2
     Executing --> Skipped: skip!
     Executing --> Failed: fail! / Exception
     Executed
+    Freeze
 
     state Executed {
         Success
         Skipped
         Failed
         Rollback
-        Freeze
 
         Skipped --> Rollback
         Failed --> Rollback

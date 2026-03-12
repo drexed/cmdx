@@ -2243,10 +2243,6 @@
 <p>Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.</p>
 <h2 id="management">Management<a class="headerlink" href="#management" title="Permanent link">&para;</a></h2>
 <p>Each execution context maintains its own isolated chain. CMDx uses <code>Fiber.storage</code> when available (Ruby 3.2+), falling back to <code>Thread.current</code> on older Rubies.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Chains are scoped to the current fiber or thread. Don't share chain references across fibers or threads—it causes race conditions.</p>
-</div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the <code>async</code> gem out of the box.</p>

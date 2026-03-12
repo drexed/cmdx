@@ -255,19 +255,6 @@ end
 
 ### Settings
 
-Override global configuration for specific tasks using `settings`.
-
-Caution
-
-`settings` is initialized **once per class** on first access. Subsequent calls return the existing instance and ignore any new overrides. Define all overrides in a single `settings` call.
-
-```ruby
-class MyTask < CMDx::Task
-  settings(retries: 3, tags: ["api"])     # These apply
-  settings(retries: 5)                    # Ignored — settings already initialized
-end
-```
-
 Override global configuration for specific tasks:
 
 ```ruby
@@ -299,9 +286,16 @@ class GenerateInvoice < CMDx::Task
 end
 ```
 
-Important
+Caution
 
-Retries reuse the same context. By default, all `StandardError` exceptions (including faults) are retried unless you specify `retry_on` option for specific matches.
+`settings` is initialized **once per class** on first access. Subsequent calls return the existing instance and ignore any new overrides. Define all overrides in a single `settings` call.
+
+```ruby
+class MyTask < CMDx::Task
+  settings(retries: 3, tags: ["api"])     # These apply
+  settings(retries: 5)                    # Ignored — settings already initialized
+end
+```
 
 ### Registrations
 
@@ -357,9 +351,7 @@ end
 
 ### Resetting
 
-Warning
-
-Resetting affects your entire application. Use this primarily in test environments.
+Resetting affects the global CMDx configuration settings.
 
 ```ruby
 # Reset to framework defaults
