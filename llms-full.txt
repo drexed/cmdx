@@ -267,8 +267,6 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-Note
-
 The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
 
 ```ruby
