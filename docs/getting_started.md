@@ -240,23 +240,21 @@ class ModerateBlogPost < CMDx::Task
 end
 ```
 
-!!! note
+The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
 
-    The generator inherits from `ApplicationTask` if defined, falling back to `CMDx::Task`. Define an `ApplicationTask` base class to share configuration across all tasks:
+```ruby
+# app/tasks/application_task.rb
+class ApplicationTask < CMDx::Task
+  register :middleware, CMDx::Middlewares::Correlate
+  before_execution :set_request_context
 
-    ```ruby
-    # app/tasks/application_task.rb
-    class ApplicationTask < CMDx::Task
-      register :middleware, CMDx::Middlewares::Correlate
-      before_execution :set_request_context
+  private
 
-      private
-
-      def set_request_context
-        context.request_id ||= SecureRandom.uuid
-      end
-    end
-    ```
+  def set_request_context
+    context.request_id ||= SecureRandom.uuid
+  end
+end
+```
 
 !!! tip
 
