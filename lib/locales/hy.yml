@@ -13,6 +13,8 @@ hy:
     faults:
       invalid: "Անվավեր"
       unspecified: "Չնշված"
+    reasons:
+      unspecified: "Չնշված"
     types:
       array: "զանգված"
       big_decimal: "մեծ տասնորդական"

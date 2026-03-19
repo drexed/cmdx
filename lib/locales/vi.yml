@@ -13,6 +13,8 @@ vi:
     faults:
       invalid: "Không hợp lệ"
       unspecified: "Không xác định"
+    reasons:
+      unspecified: "Không xác định"
     types:
       array: "mảng"
       big_decimal: "số thập phân lớn"

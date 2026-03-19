@@ -13,6 +13,8 @@ zh-CN:
     faults:
       invalid: "无效"
       unspecified: "未指定"
+    reasons:
+      unspecified: "未指定"
     types:
       array: "数组"
       big_decimal: "大十进制数"

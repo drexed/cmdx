@@ -13,6 +13,8 @@ kk:
     faults:
       invalid: "Жарамсыз"
       unspecified: "Көрсетілмеген"
+    reasons:
+      unspecified: "Көрсетілмеген"
     types:
       array: "массив"
       big_decimal: "үлкен ондық"

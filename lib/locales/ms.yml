@@ -13,6 +13,8 @@ ms:
     faults:
       invalid: "Tidak sah"
       unspecified: "Tidak ditentukan"
+    reasons:
+      unspecified: "Tidak ditentukan"
     types:
       array: "array"
       big_decimal: "perpuluhan besar"

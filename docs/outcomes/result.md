@@ -109,6 +109,29 @@ result.index #=> 0 (first task in chain)
 result.chain.results[result.index] == result #=> true
 ```
 
+## Success Annotation
+
+Use `success!` to annotate a successful result with a reason and metadata without changing state or status:
+
+```ruby
+class ImportRecords < CMDx::Task
+  def work
+    count = import_all(context.records)
+    success!("Imported #{count} records", rows: count)
+  end
+end
+
+result = ImportRecords.execute(records: data)
+
+result.success? #=> true
+result.reason   #=> "Imported 42 records"
+result.metadata #=> { rows: 42 }
+```
+
+!!! note
+
+    `success!` can only be called while the result status is `success`. Calling it after `skip!` or `fail!` raises a `RuntimeError`.
+
 ## Block Yield
 
 Execute code with direct result access:

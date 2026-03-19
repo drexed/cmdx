@@ -269,6 +269,27 @@ module CMDx
       self
     end
 
+    # Sets a reason and optional metadata on a successful result without
+    # changing its state or status. Useful for annotating why a task succeeded.
+    #
+    # @param reason [String, nil] Reason or note for the success
+    # @param metadata [Hash] Additional metadata about the success
+    # @option metadata [Object] :* Any key-value pairs for additional metadata
+    #
+    # @raise [RuntimeError] When status is not success
+    #
+    # @example
+    #   result.success!("Created 42 records")
+    #   result.success!("Imported", rows: 100)
+    #
+    # @rbs (?String? reason, **untyped metadata) -> void
+    def success!(reason = nil, **metadata)
+      raise "can only be used while #{SUCCESS}" unless success?
+
+      @reason = reason
+      @metadata = metadata
+    end
+
     # @param reason [String, nil] Reason for skipping the task
     # @param halt [Boolean] Whether to halt execution after skipping
     # @param cause [Exception, nil] Exception that caused the skip
@@ -289,7 +310,7 @@ module CMDx
 
       @state = INTERRUPTED
       @status = SKIPPED
-      @reason = reason || Locale.t("cmdx.faults.unspecified")
+      @reason = reason || Locale.t("cmdx.reasons.unspecified")
       @cause = cause
       @metadata = metadata
 
@@ -316,7 +337,7 @@ module CMDx
 
       @state = INTERRUPTED
       @status = FAILED
-      @reason = reason || Locale.t("cmdx.faults.unspecified")
+      @reason = reason || Locale.t("cmdx.reasons.unspecified")
       @cause = cause
       @metadata = metadata
 
@@ -499,7 +520,7 @@ module CMDx
     #
     # @example
     #   result.to_h
-    #   # => {state: "complete", status: "success", outcome: "success", metadata: {}}
+    #   # => {state: "complete", status: "success", outcome: "success", reason: "Unspecified", metadata: {}}
     #
     # @rbs () -> Hash[Symbol, untyped]
     def to_h
@@ -507,10 +528,10 @@ module CMDx
         state:,
         status:,
         outcome:,
+        reason:,
         metadata:
       ).tap do |hash|
         if interrupted?
-          hash[:reason] = reason
           hash[:cause] = cause
           hash[:rolled_back] = rolled_back?
         end

@@ -13,6 +13,8 @@ hr:
     faults:
       invalid: "Neispravni"
       unspecified: "Nije naveden"
+    reasons:
+      unspecified: "Nije naveden"
     types:
       array: "niz"
       big_decimal: "veliki decimalni broj"

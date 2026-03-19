@@ -13,6 +13,8 @@ nl:
     faults:
       invalid: "Ongeldig"
       unspecified: "Niet gespecificeerd"
+    reasons:
+      unspecified: "Niet gespecificeerd"
     types:
       array: "array"
       big_decimal: "grote decimaal"

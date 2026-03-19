@@ -13,6 +13,8 @@ id:
     faults:
       invalid: "Tidak valid"
       unspecified: "Tidak ditentukan"
+    reasons:
+      unspecified: "Tidak ditentukan"
     types:
       array: "array"
       big_decimal: "desimal besar"

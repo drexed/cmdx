@@ -13,6 +13,8 @@ mr-IN:
     faults:
       invalid: "अवैध"
       unspecified: "निर्दिष्ट नाही"
+    reasons:
+      unspecified: "निर्दिष्ट नाही"
     types:
       array: "अॅरे"
       big_decimal: "मोठे दशांश"

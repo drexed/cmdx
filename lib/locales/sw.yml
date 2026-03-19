@@ -13,6 +13,8 @@ sw:
     faults:
       invalid: "Zisizofaa"
       unspecified: "Haijaspecifikwa"
+    reasons:
+      unspecified: "Haijaspecifikwa"
     types:
       array: "safu"
       big_decimal: "desimali kubwa"

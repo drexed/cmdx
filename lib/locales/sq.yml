@@ -13,6 +13,8 @@ sq:
     faults:
       invalid: "Të pavlefshme"
       unspecified: "E papërcaktuar"
+    reasons:
+      unspecified: "E papërcaktuar"
     types:
       array: "array"
       big_decimal: "decimal i madh"

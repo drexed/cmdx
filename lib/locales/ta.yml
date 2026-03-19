@@ -13,6 +13,8 @@ ta:
     faults:
       invalid: "தவறான"
       unspecified: "குறிப்பிடப்படாத"
+    reasons:
+      unspecified: "குறிப்பிடப்படாத"
     types:
       array: "வரிசை"
       big_decimal: "பெரிய தசமம்"

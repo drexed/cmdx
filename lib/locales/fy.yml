@@ -13,6 +13,8 @@ fy:
     faults:
       invalid: "Ûnjildige"
       unspecified: "Net spesifisearre"
+    reasons:
+      unspecified: "Net spesifisearre"
     types:
       array: "array"
       big_decimal: "grutte desimaal"

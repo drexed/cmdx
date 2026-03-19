@@ -13,6 +13,8 @@ eo:
     faults:
       invalid: "Nevalidaj"
       unspecified: "Nespecifita"
+    reasons:
+      unspecified: "Nespecifita"
     types:
       array: "tabelo"
       big_decimal: "granda dekuma"

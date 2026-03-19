@@ -13,6 +13,8 @@ ml:
     faults:
       invalid: "അസാധുവായ"
       unspecified: "നിർവചിക്കപ്പെടാത്ത"
+    reasons:
+      unspecified: "നിർവചിക്കപ്പെടാത്ത"
     types:
       array: "അറേ"
       big_decimal: "വലിയ ദശാംശം"

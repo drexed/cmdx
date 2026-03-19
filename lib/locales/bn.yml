@@ -13,6 +13,8 @@ bn:
     faults:
       invalid: "অবৈধ"
       unspecified: "অনির্দিষ্ট"
+    reasons:
+      unspecified: "অনির্দিষ্ট"
     types:
       array: "অ্যারে"
       big_decimal: "বড় দশমিক"

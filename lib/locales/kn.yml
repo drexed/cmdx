@@ -13,6 +13,8 @@ kn:
     faults:
       invalid: "ಅಮಾನ್ಯ"
       unspecified: "ನಿರ್ದಿಷ್ಟವಾಗಿಲ್ಲ"
+    reasons:
+      unspecified: "ನಿರ್ದಿಷ್ಟವಾಗಿಲ್ಲ"
     types:
       array: "ಅರೇ"
       big_decimal: "ದೊಡ್ಡ ದಶಮಾಂಶ"

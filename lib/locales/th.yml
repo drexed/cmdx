@@ -13,6 +13,8 @@ th:
     faults:
       invalid: "ไม่ถูกต้อง"
       unspecified: "ไม่ระบุ"
+    reasons:
+      unspecified: "ไม่ระบุ"
     types:
       array: "อาร์เรย์"
       big_decimal: "ทศนิยมขนาดใหญ่"

@@ -13,6 +13,8 @@ ne:
     faults:
       invalid: "अवैध"
       unspecified: "निर्दिष्ट नभएको"
+    reasons:
+      unspecified: "निर्दिष्ट नभएको"
     types:
       array: "एरे"
       big_decimal: "ठूलो दशमलव"

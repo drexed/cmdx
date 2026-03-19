@@ -13,6 +13,8 @@ sc:
     faults:
       invalid: "Non vàlidos"
       unspecified: "Non specificadu"
+    reasons:
+      unspecified: "Non specificadu"
     types:
       array: "array"
       big_decimal: "decimale mannu"

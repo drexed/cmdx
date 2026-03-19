@@ -13,6 +13,8 @@ sv:
     faults:
       invalid: "Ogiltiga"
       unspecified: "Ospecificerat"
+    reasons:
+      unspecified: "Ospecificerat"
     types:
       array: "array"
       big_decimal: "stort decimaltal"

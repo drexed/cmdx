@@ -13,6 +13,8 @@ ar:
     faults:
       invalid: "غير صالح"
       unspecified: "غير محدد"
+    reasons:
+      unspecified: "غير محدد"
     types:
       array: "مصفوفة"
       big_decimal: "عدد عشري كبير"

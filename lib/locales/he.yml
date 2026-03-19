@@ -13,6 +13,8 @@ he:
     faults:
       invalid: "לא תקינים"
       unspecified: "לא מוגדר"
+    reasons:
+      unspecified: "לא מוגדר"
     types:
       array: "מערך"
       big_decimal: "עשרוני גדול"

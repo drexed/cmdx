@@ -13,6 +13,8 @@ rm:
     faults:
       invalid: "Nunvalidas"
       unspecified: "Betg specificà"
+    reasons:
+      unspecified: "Betg specificà"
     types:
       array: "array"
       big_decimal: "decimal grond"

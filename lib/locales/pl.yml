@@ -13,6 +13,8 @@ pl:
     faults:
       invalid: "Nieprawidłowe"
       unspecified: "Nieokreślone"
+    reasons:
+      unspecified: "Nieokreślone"
     types:
       array: "tablica"
       big_decimal: "duża liczba dziesiętna"

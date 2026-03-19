@@ -13,6 +13,8 @@ fa:
     faults:
       invalid: "نامعتبر"
       unspecified: "نامشخص"
+    reasons:
+      unspecified: "نامشخص"
     types:
       array: "آرایه"
       big_decimal: "اعشاری بزرگ"

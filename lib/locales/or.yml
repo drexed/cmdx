@@ -13,6 +13,8 @@ or:
     faults:
       invalid: "ଅବୈଧ"
       unspecified: "ଅନିର୍ଦ୍ଦିଷ୍ଟ"
+    reasons:
+      unspecified: "ଅନିର୍ଦ୍ଦିଷ୍ଟ"
     types:
       array: "ଏରେ"
       big_decimal: "ବଡ଼ ଦଶମିକ"

@@ -13,6 +13,8 @@ ca:
     faults:
       invalid: "No vàlides"
       unspecified: "No especificat"
+    reasons:
+      unspecified: "No especificat"
     types:
       array: "array"
       big_decimal: "decimal gran"

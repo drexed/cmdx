@@ -13,6 +13,8 @@ de:
     faults:
       invalid: "Ungültig"
       unspecified: "Nicht angegeben"
+    reasons:
+      unspecified: "Nicht angegeben"
     types:
       array: "Array"
       big_decimal: "große Dezimalzahl"

@@ -350,7 +350,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "calls the faulted status method on the workflow" do
         expect(workflow).to receive(:failed!).with(
-          CMDx::Locale.t("cmdx.faults.unspecified"),
+          CMDx::Locale.t("cmdx.reasons.unspecified"),
           source: :parallel,
           faults: [result_hash]
         )
@@ -369,7 +369,7 @@ RSpec.describe CMDx::Pipeline, type: :unit do
 
       it "uses the last faulted result status and includes all faulted results" do
         expect(workflow).to receive(:failed!).with(
-          CMDx::Locale.t("cmdx.faults.unspecified"),
+          CMDx::Locale.t("cmdx.reasons.unspecified"),
           source: :parallel,
           faults: [result_hash, result_hash]
         )

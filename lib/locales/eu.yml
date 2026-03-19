@@ -13,6 +13,8 @@ eu:
     faults:
       invalid: "Baliogabeak"
       unspecified: "Zehaztu gabe"
+    reasons:
+      unspecified: "Zehaztu gabe"
     types:
       array: "array"
       big_decimal: "hamartar handia"

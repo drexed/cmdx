@@ -13,6 +13,8 @@ is:
     faults:
       invalid: "Ógild"
       unspecified: "Ótilgreind"
+    reasons:
+      unspecified: "Ótilgreind"
     types:
       array: "fylki"
       big_decimal: "stór tugabrot"

@@ -13,6 +13,8 @@ be:
     faults:
       invalid: "Няправільныя"
       unspecified: "Не паказана"
+    reasons:
+      unspecified: "Не паказана"
     types:
       array: "масіў"
       big_decimal: "вялікае дзесятковае лік"

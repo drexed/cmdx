@@ -13,6 +13,8 @@ pt:
     faults:
       invalid: "Inválidas"
       unspecified: "Não especificada"
+    reasons:
+      unspecified: "Não especificada"
     types:
       array: "array"
       big_decimal: "decimal grande"

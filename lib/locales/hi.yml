@@ -13,6 +13,8 @@ hi:
     faults:
       invalid: "अमान्य"
       unspecified: "अनिर्दिष्ट"
+    reasons:
+      unspecified: "अनिर्दिष्ट"
     types:
       array: "सरणी"
       big_decimal: "बड़ा दशमलव"

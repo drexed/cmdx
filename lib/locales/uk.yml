@@ -13,6 +13,8 @@ uk:
     faults:
       invalid: "Невірні"
       unspecified: "Не вказано"
+    reasons:
+      unspecified: "Не вказано"
     types:
       array: "масив"
       big_decimal: "велике десяткове число"

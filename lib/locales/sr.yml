@@ -13,6 +13,8 @@ sr:
     faults:
       invalid: "Неисправни"
       unspecified: "Није наведен"
+    reasons:
+      unspecified: "Није наведен"
     types:
       array: "низ"
       big_decimal: "велики децимални број"

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+### Added
+- Add `Result#success!` for annotating successful results
+
+### Changed
+- Move `faults.unspecified` locale key to `reasons.unspecified`
+
 ## [1.20.0] - 2026-03-12
 
 ### Added

@@ -13,6 +13,8 @@ fi:
     faults:
       invalid: "Virheelliset"
       unspecified: "Määrittämätön"
+    reasons:
+      unspecified: "Määrittämätön"
     types:
       array: "taulukko"
       big_decimal: "iso desimaali"

@@ -13,6 +13,8 @@ uz:
     faults:
       invalid: "Noto'g'ri"
       unspecified: "Ko'rsatilmagan"
+    reasons:
+      unspecified: "Ko'rsatilmagan"
     types:
       array: "massiv"
       big_decimal: "katta o'nlik"

@@ -13,6 +13,8 @@ pa:
     faults:
       invalid: "ਅਵੈਧ"
       unspecified: "ਅਨਿਰਧਾਰਿਤ"
+    reasons:
+      unspecified: "ਅਨਿਰਧਾਰਿਤ"
     types:
       array: "ਐਰੇ"
       big_decimal: "ਵੱਡਾ ਦਸ਼ਮਲਵ"

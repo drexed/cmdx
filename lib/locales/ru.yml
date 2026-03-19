@@ -13,6 +13,8 @@ ru:
     faults:
       invalid: "Неверные"
       unspecified: "Не указано"
+    reasons:
+      unspecified: "Не указано"
     types:
       array: "массив"
       big_decimal: "большое десятичное число"

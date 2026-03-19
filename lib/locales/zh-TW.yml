@@ -13,6 +13,8 @@ zh-TW:
     faults:
       invalid: "無效"
       unspecified: "未指定"
+    reasons:
+      unspecified: "未指定"
     types:
       array: "陣列"
       big_decimal: "大十進位"

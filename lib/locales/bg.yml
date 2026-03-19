@@ -13,6 +13,8 @@ bg:
     faults:
       invalid: "Невалидни"
       unspecified: "Не е посочена"
+    reasons:
+      unspecified: "Не е посочена"
     types:
       array: "масив"
       big_decimal: "голямо десетично число"

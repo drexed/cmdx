@@ -13,6 +13,8 @@ az:
     faults:
       invalid: "Etibarsız"
       unspecified: "Göstərilməyib"
+    reasons:
+      unspecified: "Göstərilməyib"
     types:
       array: "massiv"
       big_decimal: "böyük onluq"

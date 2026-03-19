@@ -13,6 +13,8 @@ cnr:
     faults:
       invalid: "Neispravni"
       unspecified: "Nije dat"
+    reasons:
+      unspecified: "Nije dat"
     types:
       array: "niz"
       big_decimal: "veliki decimalni"

@@ -13,6 +13,8 @@ te:
     faults:
       invalid: "చెల్లని"
       unspecified: "నిర్దిష్టం కాదు"
+    reasons:
+      unspecified: "నిర్దిష్టం కాదు"
     types:
       array: "అరే"
       big_decimal: "పెద్ద దశాంశం"

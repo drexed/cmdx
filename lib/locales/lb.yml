@@ -13,6 +13,8 @@ lb:
     faults:
       invalid: "Ongëlteg"
       unspecified: "Net spezifizéiert"
+    reasons:
+      unspecified: "Net spezifizéiert"
     types:
       array: "Array"
       big_decimal: "Grouss Dezimal"

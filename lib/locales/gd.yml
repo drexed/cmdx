@@ -13,6 +13,8 @@ gd:
     faults:
       invalid: "Neo-dhligheach"
       unspecified: "Neo-mhìneachaidh"
+    reasons:
+      unspecified: "Neo-mhìneachaidh"
     types:
       array: "sreath"
       big_decimal: "deicheamh mòr"

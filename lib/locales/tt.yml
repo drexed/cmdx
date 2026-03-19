@@ -13,6 +13,8 @@ tt:
     faults:
       invalid: "Дөрес булмаган"
       unspecified: "Күрсәтелмәгән"
+    reasons:
+      unspecified: "Күрсәтелмәгән"
     types:
       array: "массив"
       big_decimal: "зур унарлы"

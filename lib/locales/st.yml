@@ -13,6 +13,8 @@ st:
     faults:
       invalid: "Tse sa sebetseng"
       unspecified: "Ha e hlalosoe"
+    reasons:
+      unspecified: "Ha e hlalosoe"
     types:
       array: "array"
       big_decimal: "decimal e kgolo"

@@ -13,6 +13,8 @@ hu:
     faults:
       invalid: "Érvénytelen"
       unspecified: "Nincs megadva"
+    reasons:
+      unspecified: "Nincs megadva"
     types:
       array: "tömb"
       big_decimal: "nagy decimális"

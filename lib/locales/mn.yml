@@ -13,6 +13,8 @@ mn:
     faults:
       invalid: "Буруу"
       unspecified: "Тодорхойлогдоогүй"
+    reasons:
+      unspecified: "Тодорхойлогдоогүй"
     types:
       array: "массив"
       big_decimal: "том аравтын"

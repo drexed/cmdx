@@ -13,6 +13,8 @@ lt:
     faults:
       invalid: "Neteisingi"
       unspecified: "Nenurodyta"
+    reasons:
+      unspecified: "Nenurodyta"
     types:
       array: "masyvas"
       big_decimal: "didelis dešimtainis"

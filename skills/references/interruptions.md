@@ -2,6 +2,21 @@
 
 For full documentation, see [docs/interruptions/halt.md](../docs/interruptions/halt.md), [docs/interruptions/faults.md](../docs/interruptions/faults.md), [docs/interruptions/exceptions.md](../docs/interruptions/exceptions.md).
 
+## success!
+
+Annotates a successful result with a reason and metadata. Does not change state or status. Delegated from the task to the result.
+
+```ruby
+success!(reason = nil, **metadata)
+```
+
+| Param | Default | Effect |
+|-------|---------|--------|
+| `reason` | `nil` | Human-readable annotation string |
+| `**metadata` | `{}` | Arbitrary key-value pairs stored in `result.metadata` |
+
+Raises `RuntimeError` if the result is not currently `success`.
+
 ## skip! and fail!
 
 Both are delegated from the task to the result. Callable inside `work`, callbacks, or anywhere with access to the task/result.

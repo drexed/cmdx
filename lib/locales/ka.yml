@@ -13,6 +13,8 @@ ka:
     faults:
       invalid: "არასწორი"
       unspecified: "მითითებული არ არის"
+    reasons:
+      unspecified: "მითითებული არ არის"
     types:
       array: "მასივი"
       big_decimal: "დიდი ათწილადი"

@@ -13,6 +13,8 @@ wo:
     faults:
       invalid: "Ñu waxul"
       unspecified: "Duñu wax"
+    reasons:
+      unspecified: "Duñu wax"
     types:
       array: "array"
       big_decimal: "desimal bu góor"

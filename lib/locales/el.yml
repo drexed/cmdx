@@ -13,6 +13,8 @@ el:
     faults:
       invalid: "Μη έγκυρες"
       unspecified: "Απροσδιόριστο"
+    reasons:
+      unspecified: "Απροσδιόριστο"
     types:
       array: "πίνακας"
       big_decimal: "μεγάλος δεκαδικός"

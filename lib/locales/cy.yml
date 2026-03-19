@@ -13,6 +13,8 @@ cy:
     faults:
       invalid: "Annilys"
       unspecified: "Anhebgor"
+    reasons:
+      unspecified: "Anhebgor"
     types:
       array: "arae"
       big_decimal: "degol mawr"

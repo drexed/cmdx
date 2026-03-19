@@ -13,6 +13,8 @@ dz:
     faults:
       invalid: "ཆ་རྐྱེན་མི་ཆོག"
       unspecified: "མ་བཟུང་།"
+    reasons:
+      unspecified: "མ་བཟུང་།"
     types:
       array: "ཐིག་ཕྲེང་།"
       big_decimal: "ཆེ་བའི་བཅུ་ཆ།"

@@ -13,6 +13,8 @@ ug:
     faults:
       invalid: "ئىناۋەتسىز"
       unspecified: "بەلگىلەنمىگەن"
+    reasons:
+      unspecified: "بەلگىلەنمىگەن"
     types:
       array: "تىزىملىك"
       big_decimal: "چوڭ ئونلۇق"

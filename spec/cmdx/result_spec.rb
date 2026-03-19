@@ -356,6 +356,54 @@ RSpec.describe CMDx::Result, type: :unit do
     end
   end
 
+  describe "#success!" do
+    context "when successful" do
+      it "sets the reason" do
+        result.success!("Created 42 records")
+
+        expect(result.status).to eq(CMDx::Result::SUCCESS)
+        expect(result.reason).to eq("Created 42 records")
+        expect(result.metadata).to eq({})
+      end
+
+      it "accepts metadata" do
+        result.success!("Imported", rows: 100)
+
+        expect(result.reason).to eq("Imported")
+        expect(result.metadata).to eq({ rows: 100 })
+      end
+
+      it "allows nil reason" do
+        result.success!
+
+        expect(result.reason).to be_nil
+      end
+
+      it "does not change state or status" do
+        original_state = result.state
+        original_status = result.status
+        result.success!("note")
+
+        expect(result.state).to eq(original_state)
+        expect(result.status).to eq(original_status)
+      end
+    end
+
+    context "when not successful" do
+      it "raises error when skipped" do
+        result.skip!("test", halt: false)
+
+        expect { result.success!("reason") }.to raise_error(/can only be used while success/)
+      end
+
+      it "raises error when failed" do
+        result.fail!("test", halt: false)
+
+        expect { result.success!("reason") }.to raise_error(/can only be used while success/)
+      end
+    end
+  end
+
   describe "#skip!" do
     context "when successful" do
       it "transitions to skipped status" do
@@ -382,7 +430,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("Unspecified")
+        allow(CMDx::Locale).to receive(:t).with("cmdx.reasons.unspecified").and_return("Unspecified")
 
         result.skip!(halt: false)
 
@@ -443,7 +491,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.faults.unspecified").and_return("Unspecified")
+        allow(CMDx::Locale).to receive(:t).with("cmdx.reasons.unspecified").and_return("Unspecified")
 
         result.fail!(halt: false)
 
@@ -723,6 +771,17 @@ RSpec.describe CMDx::Result, type: :unit do
         id: task_hash[:id],
         class: start_with("TestTask")
       )
+    end
+
+    context "when successful with reason" do
+      it "includes reason without cause or rolled_back" do
+        result.success!("Created 42 records")
+
+        hash = result.to_h
+
+        expect(hash[:reason]).to eq("Created 42 records")
+        expect(hash).not_to include(:cause, :rolled_back)
+      end
     end
 
     context "when interrupted" do

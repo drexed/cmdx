@@ -13,6 +13,8 @@ lv:
     faults:
       invalid: "Nederīgi"
       unspecified: "Nav norādīts"
+    reasons:
+      unspecified: "Nav norādīts"
     types:
       array: "masīvs"
       big_decimal: "liels decimāls"

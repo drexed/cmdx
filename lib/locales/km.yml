@@ -13,6 +13,8 @@ km:
     faults:
       invalid: "មិនត្រឹមត្រូវ"
       unspecified: "មិនបានបញ្ជាក់"
+    reasons:
+      unspecified: "មិនបានបញ្ជាក់"
     types:
       array: "អារេ"
       big_decimal: "ទសភាគធំ"

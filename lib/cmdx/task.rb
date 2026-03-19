@@ -70,7 +70,7 @@ module CMDx
     # @rbs @chain: Chain
     attr_reader :chain
 
-    def_delegators :result, :skip!, :fail!, :throw!
+    def_delegators :result, :success!, :skip!, :fail!, :throw!
     def_delegators :chain, :dry_run?
 
     # @param context [Hash, Context, nil] The initial context for the task

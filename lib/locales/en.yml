@@ -11,6 +11,8 @@ en:
     faults:
       invalid: "Invalid"
       unspecified: "Unspecified"
+    reasons:
+      unspecified: "Unspecified"
     returns:
       missing: "must be set in the context"
     types:

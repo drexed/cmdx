@@ -13,6 +13,8 @@ et:
     faults:
       invalid: "Kehtetud"
       unspecified: "Määramata"
+    reasons:
+      unspecified: "Määramata"
     types:
       array: "massiiv"
       big_decimal: "suur kümnendmurd"

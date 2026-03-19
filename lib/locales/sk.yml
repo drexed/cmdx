@@ -13,6 +13,8 @@ sk:
     faults:
       invalid: "Neplatné"
       unspecified: "Nešpecifikované"
+    reasons:
+      unspecified: "Nešpecifikované"
     types:
       array: "pole"
       big_decimal: "veľké desatinné číslo"

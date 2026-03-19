@@ -13,6 +13,8 @@ mk:
     faults:
       invalid: "Невалидни"
       unspecified: "Не е дадена"
+    reasons:
+      unspecified: "Не е дадена"
     types:
       array: "низа"
       big_decimal: "голем децимален"

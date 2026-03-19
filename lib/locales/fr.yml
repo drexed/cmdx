@@ -13,6 +13,8 @@ fr:
     faults:
       invalid: "Invalides"
       unspecified: "Non spécifié"
+    reasons:
+      unspecified: "Non spécifié"
     types:
       array: "tableau"
       big_decimal: "grand décimal"

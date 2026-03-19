@@ -13,6 +13,8 @@ tl:
     faults:
       invalid: "Hindi wasto"
       unspecified: "Hindi tinukoy"
+    reasons:
+      unspecified: "Hindi tinukoy"
     types:
       array: "array"
       big_decimal: "malaking decimal"

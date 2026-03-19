@@ -13,6 +13,8 @@ ko:
     faults:
       invalid: "잘못된"
       unspecified: "지정되지 않음"
+    reasons:
+      unspecified: "지정되지 않음"
     types:
       array: "배열"
       big_decimal: "큰 소수"

@@ -13,6 +13,8 @@ sl:
     faults:
       invalid: "Neveljavni"
       unspecified: "Nedoločeno"
+    reasons:
+      unspecified: "Nedoločeno"
     types:
       array: "matrika"
       big_decimal: "veliko decimalno število"

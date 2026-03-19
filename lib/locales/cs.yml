@@ -13,6 +13,8 @@ cs:
     faults:
       invalid: "Neplatné"
       unspecified: "Neurčeno"
+    reasons:
+      unspecified: "Neurčeno"
     types:
       array: "pole"
       big_decimal: "velké desetinné číslo"

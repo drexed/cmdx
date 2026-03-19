@@ -13,6 +13,8 @@ ja:
     faults:
       invalid: "無効"
       unspecified: "未指定"
+    reasons:
+      unspecified: "未指定"
     types:
       array: "配列"
       big_decimal: "大きな小数"

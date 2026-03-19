@@ -13,6 +13,8 @@ lo:
     faults:
       invalid: "ບໍ່ຖືກຕ້ອງ"
       unspecified: "ບໍ່ໄດ້ກຳນົດ"
+    reasons:
+      unspecified: "ບໍ່ໄດ້ກຳນົດ"
     types:
       array: "ອາເຣ"
       big_decimal: "ທົດສະນິຍະສູງ"

@@ -13,6 +13,8 @@ da:
     faults:
       invalid: "Ugyldige"
       unspecified: "Uspecificeret"
+    reasons:
+      unspecified: "Uspecificeret"
     types:
       array: "array"
       big_decimal: "stort decimaltal"

@@ -13,6 +13,8 @@ mg:
     faults:
       invalid: "Tsy mety"
       unspecified: "Tsy voafaritra"
+    reasons:
+      unspecified: "Tsy voafaritra"
     types:
       array: "array"
       big_decimal: "desimala lehibe"

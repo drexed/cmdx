@@ -13,6 +13,8 @@ af:
     faults:
       invalid: "Ongeldig"
       unspecified: "Ongespesifiseer"
+    reasons:
+      unspecified: "Ongespesifiseer"
     types:
       array: "skikking"
       big_decimal: "groot desimale"

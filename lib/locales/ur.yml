@@ -13,6 +13,8 @@ ur:
     faults:
       invalid: "غلط"
       unspecified: "غیر متعین"
+    reasons:
+      unspecified: "غیر متعین"
     types:
       array: "آرے"
       big_decimal: "بڑا اعشاری"

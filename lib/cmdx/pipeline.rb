@@ -159,7 +159,7 @@ module CMDx
 
       workflow.public_send(
         :"#{faulted.last.status}!",
-        Locale.t("cmdx.faults.unspecified"),
+        Locale.t("cmdx.reasons.unspecified"),
         source: :parallel,
         faults: faulted.map(&:to_h)
       )

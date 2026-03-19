@@ -13,6 +13,8 @@ oc:
     faults:
       invalid: "Invalidas"
       unspecified: "Non especificada"
+    reasons:
+      unspecified: "Non especificada"
     types:
       array: "array"
       big_decimal: "decimal grand"

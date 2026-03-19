@@ -11,9 +11,9 @@ result.chain          # CMDx::Chain (delegated from task)
 result.errors         # CMDx::Errors (delegated from task)
 result.state          # String: "initialized", "executing", "complete", "interrupted"
 result.status         # String: "success", "skipped", "failed"
-result.reason         # String or nil — skip/fail reason
+result.reason         # String or nil — reason from success!/skip!/fail!
 result.cause          # Exception or nil — originating exception
-result.metadata       # Hash — arbitrary metadata from skip!/fail!/throw!
+result.metadata       # Hash — arbitrary metadata from success!/skip!/fail!/throw!
 result.retries        # Integer — number of retry attempts
 result.index          # Integer — position in chain
 result.outcome        # String — unified outcome (status or state depending on context)
