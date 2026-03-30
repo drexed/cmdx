@@ -309,6 +309,33 @@
       <li class="public ">
   <span class="summary_signature">
     
+      <a href="#dump_context-instance_method" title="#dump_context (instance method)">#<strong>dump_context</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>True if context should be included in Task#to_h.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#exception_handler-instance_method" title="#exception_handler (instance method)">#<strong>exception_handler</strong>  &#x21d2; Proc<sup>?</sup> </a>
     
 
@@ -817,17 +844,17 @@
       <pre class="lines">
 
 
-179
-180
-181
-182
 183
 184
 185
-186</pre>
+186
+187
+188
+189
+190</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 179</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>parent:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_overrides'>overrides</span><span class='rparen'>)</span>
   <span class='ivar'>@parent</span> <span class='op'>=</span> <span class='id identifier rubyid_parent'>parent</span>
@@ -1027,10 +1054,10 @@
       <pre class="lines">
 
 
-130</pre>
+134</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 130</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 134</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:backtrace_cleaner</span><span class='comma'>,</span> <span class='label'>with_fallback:</span> <span class='kw'>true</span></pre>
     </td>
@@ -1084,10 +1111,10 @@
       <pre class="lines">
 
 
-134</pre>
+138</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 134</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 138</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:breakpoints</span></pre>
     </td>
@@ -1295,12 +1322,69 @@
       <pre class="lines">
 
 
-138</pre>
+142</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 138</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 142</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:deprecate</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="dump_context=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="dump_context-instance_method">
+  
+    #<strong>dump_context</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if context should be included in Task#to_h.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if context should be included in Task#to_h</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 118</span>
+
+<span class='id identifier rubyid_delegate_to_configuration'>delegate_to_configuration</span> <span class='symbol'>:dump_context</span></pre>
     </td>
   </tr>
 </table>
@@ -1352,10 +1436,10 @@
       <pre class="lines">
 
 
-142</pre>
+146</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 142</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 146</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:exception_handler</span><span class='comma'>,</span> <span class='label'>with_fallback:</span> <span class='kw'>true</span></pre>
     </td>
@@ -1409,10 +1493,10 @@
       <pre class="lines">
 
 
-150</pre>
+154</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 150</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 154</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:log_formatter</span></pre>
     </td>
@@ -1466,10 +1550,10 @@
       <pre class="lines">
 
 
-154</pre>
+158</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 154</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 158</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:log_level</span></pre>
     </td>
@@ -1523,10 +1607,10 @@
       <pre class="lines">
 
 
-146</pre>
+150</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 146</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 150</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:logger</span><span class='comma'>,</span> <span class='label'>with_fallback:</span> <span class='kw'>true</span></pre>
     </td>
@@ -1657,10 +1741,10 @@
       <pre class="lines">
 
 
-158</pre>
+162</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 158</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 162</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:retries</span></pre>
     </td>
@@ -1714,10 +1798,10 @@
       <pre class="lines">
 
 
-162</pre>
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 162</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 166</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:retry_jitter</span></pre>
     </td>
@@ -1771,10 +1855,10 @@
       <pre class="lines">
 
 
-166</pre>
+170</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 170</span>
 
 <span class='id identifier rubyid_delegate_to_parent'>delegate_to_parent</span> <span class='symbol'>:retry_on</span></pre>
     </td>
@@ -1905,10 +1989,10 @@
       <pre class="lines">
 
 
-118</pre>
+122</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 118</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 122</span>
 
 <span class='id identifier rubyid_delegate_to_configuration'>delegate_to_configuration</span> <span class='symbol'>:rollback_on</span></pre>
     </td>
@@ -2039,10 +2123,10 @@
       <pre class="lines">
 
 
-122</pre>
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 122</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 126</span>
 
 <span class='id identifier rubyid_delegate_to_configuration'>delegate_to_configuration</span> <span class='symbol'>:task_breakpoints</span></pre>
     </td>
@@ -2173,10 +2257,10 @@
       <pre class="lines">
 
 
-126</pre>
+130</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 126</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/settings.rb', line 130</span>
 
 <span class='id identifier rubyid_delegate_to_configuration'>delegate_to_configuration</span> <span class='symbol'>:workflow_breakpoints</span></pre>
     </td>
@@ -2190,7 +2274,7 @@
 </div>
 
       <div id="footer">
-  Generated on Mon Mar 30 14:55:59 2026 by
+  Generated on Mon Mar 30 21:59:34 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>

@@ -3087,7 +3087,6 @@
       <pre class="lines">
 
 
-388
 389
 390
 391
@@ -3097,10 +3096,17 @@
 395
 396
 397
-398</pre>
+398
+399
+400
+401
+402
+403
+404
+405</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 388</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 389</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -3111,7 +3117,13 @@
     <span class='label'>id:</span><span class='comma'>,</span>
     <span class='label'>dry_run:</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span><span class='comma'>,</span>
     <span class='label'>tags:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_tags'>tags</span>
-  <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_dump_context'>dump_context</span>
+      <span class='comment'># Large context can make dumps and logs very noisy,
+</span>      <span class='comment'># so only include it if explicitly enabled
+</span>      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:context</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3187,12 +3199,12 @@
       <pre class="lines">
 
 
-407
-408
-409</pre>
+414
+415
+416</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 407</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/task.rb', line 414</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -3293,7 +3305,7 @@
 </div>
 
       <div id="footer">
-  Generated on Mon Mar 30 14:55:58 2026 by
+  Generated on Mon Mar 30 21:59:33 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>

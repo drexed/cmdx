@@ -2511,6 +2511,10 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
+<p><code>success!</code> will halt any further execution by default.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
 <p><code>success!</code> can only be called while the result status is <code>success</code>. Calling it after <code>skip!</code> or <code>fail!</code> raises a <code>RuntimeError</code>.</p>
 </div>
 <h2 id="block-yield">Block Yield<a class="headerlink" href="#block-yield" title="Permanent link">&para;</a></h2>
