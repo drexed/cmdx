@@ -8,11 +8,11 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 ```ruby
 class ApproveLoan < CMDx::Task
-  on_success :notify_applicant!
-
   required :application_id, type: :integer
 
   optional :override_checks, default: false
+
+  on_success :notify_applicant!
 
   returns :approved_at
 
