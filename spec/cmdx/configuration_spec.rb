@@ -51,6 +51,10 @@ RSpec.describe CMDx::Configuration, type: :unit do
       expect(configuration.workflow_breakpoints).to eq(%w[failed])
     end
 
+    it "sets dump_context to false by default" do
+      expect(configuration.dump_context).to be(false)
+    end
+
     it "sets locale to en by default" do
       expect(configuration.default_locale).to eq("en")
     end
@@ -186,6 +190,14 @@ RSpec.describe CMDx::Configuration, type: :unit do
       end
     end
 
+    describe "#dump_context" do
+      it "allows setting and getting dump_context" do
+        configuration.dump_context = true
+
+        expect(configuration.dump_context).to be(true)
+      end
+    end
+
     describe "#default_locale" do
       it "allows setting and getting locale" do
         configuration.default_locale = "es"
@@ -230,6 +242,7 @@ RSpec.describe CMDx::Configuration, type: :unit do
         validators: configuration.validators,
         task_breakpoints: configuration.task_breakpoints,
         workflow_breakpoints: configuration.workflow_breakpoints,
+        dump_context: configuration.dump_context,
         default_locale: configuration.default_locale,
         logger: configuration.logger
       )

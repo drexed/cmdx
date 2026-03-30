@@ -24,6 +24,7 @@ Configure framework-wide defaults that apply to all tasks. These settings come w
 | `task_breakpoints` | `["failed"]` | Statuses that cause `execute!` to raise |
 | `workflow_breakpoints` | `["failed"]` | Statuses that halt workflow pipelines |
 | `rollback_on` | `["failed"]` | Statuses that trigger `rollback` |
+| `dump_context` | `false` | Include `context` in hash representation |
 | `freeze_results` | `true` | Freeze results after execution |
 | `default_locale` | `"en"` | Locale for built-in translation fallbacks |
 | `backtrace` | `false` | Include backtraces for non-fault exceptions |
@@ -58,6 +59,20 @@ CMDx.configure do |config|
   config.rollback_on = ["failed"] # String or Array[String]
 end
 ```
+
+### Dump Context
+
+Include context in hash representations and by extension log output.
+
+```ruby
+CMDx.configure do |config|
+  config.dump_context = true
+end
+```
+
+!!! note
+
+    Large context can make dumps and logs very noisy, so it is only include it if explicitly enabled. This option is especially helpful for debugging context mutations.
 
 ### Result Freezing
 
@@ -263,6 +278,7 @@ class GenerateInvoice < CMDx::Task
     # Global configuration overrides
     task_breakpoints: ["failed"],                # Breakpoint override
     workflow_breakpoints: ["failed"],            # Breakpoint override
+    dump_context: false,                         # Include context
     backtrace: true,                             # Toggle backtrace
     backtrace_cleaner: ->(bt) { bt[0..5] },      # Backtrace cleaner
     logger: CustomLogger.new($stdout),           # Custom logger

@@ -376,6 +376,7 @@ module CMDx
     # @option return [Array<Symbol>] :tags The task tags
     # @option return [String] :class The task class name
     # @option return [String] :id The task identifier
+    # @option return [Hash] :context The task context (when dump_context is true)
     #
     # @return [Hash] A hash representation of the task
     #
@@ -394,7 +395,13 @@ module CMDx
         id:,
         dry_run: dry_run?,
         tags: self.class.settings.tags
-      }
+      }.tap do |hash|
+        if self.class.settings.dump_context
+          # Large context can make dumps and logs very noisy,
+          # so only include it if explicitly enabled
+          hash[:context] = context.to_h
+        end
+      end
     end
 
     # @return [String] A string representation of the task

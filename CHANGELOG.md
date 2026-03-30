@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [UNRELEASED]
 
 ### Added
+- Add `dump_context` global/local setting to include `context` in `Task#to_h`
 - Add `Result#success!` for annotating successful results
 
 ### Changed

@@ -529,6 +529,44 @@ RSpec.describe CMDx::Task, type: :unit do
         expect(result_hash[:class]).to match(/TestTask\d+/)
         expect(result_hash[:dry_run]).to be(false)
         expect(result_hash[:id]).to eq(task.id)
+        expect(result_hash).not_to have_key(:context)
+      end
+    end
+
+    context "when dump_context is enabled globally" do
+      let(:task) { task_class.new(foo: "bar") }
+
+      before do
+        allow(task.result).to receive(:index).and_return(5)
+        allow(task.chain).to receive(:id).and_return("chain-123")
+        CMDx.configuration.dump_context = true
+      end
+
+      after { CMDx.configuration.dump_context = false }
+
+      it "includes context in hash" do
+        expect(task.to_h[:context]).to eq(foo: "bar")
+      end
+    end
+
+    context "when dump_context is enabled via task settings" do
+      let(:ctx_task_class) do
+        create_task_class(name: "CtxTask") do
+          settings dump_context: true
+        end
+      end
+      let(:task) { ctx_task_class.new(baz: 42) }
+
+      before do
+        allow(task.result).to receive(:index).and_return(0)
+        allow(task.chain).to receive(:id).and_return("chain-456")
+        allow(task.class).to receive(:settings).and_return(
+          mock_settings(tags: [], dump_context: true)
+        )
+      end
+
+      it "includes context in hash" do
+        expect(task.to_h[:context]).to eq(baz: 42)
       end
     end
 

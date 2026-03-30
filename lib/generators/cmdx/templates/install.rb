@@ -52,6 +52,10 @@ CMDx.configure do |config|
   # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#exception-handler
   # config.exception_handler = nil
 
+  # Dump context configuration - include context data in hash representation output
+  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#dump-context
+  # config.dump_context = false
+
   # Additional global configurations - automatically applied to all tasks
   #
   # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md

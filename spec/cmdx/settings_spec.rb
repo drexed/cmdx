@@ -28,6 +28,7 @@ RSpec.describe CMDx::Settings, type: :unit do
         expect(settings.workflow_breakpoints).to eq(CMDx.configuration.workflow_breakpoints)
         expect(settings.rollback_on).to eq(CMDx.configuration.rollback_on)
         expect(settings.backtrace).to eq(CMDx.configuration.backtrace)
+        expect(settings.dump_context).to eq(CMDx.configuration.dump_context)
         expect(settings.logger).to eq(CMDx.configuration.logger)
       end
 

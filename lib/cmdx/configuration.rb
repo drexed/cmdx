@@ -123,6 +123,16 @@ module CMDx
     # @rbs @rollback_on: Array[String]
     attr_accessor :rollback_on
 
+    # Returns whether to include context data in hash representation output.
+    #
+    # @return [Boolean] true if context should be included (default: false)
+    #
+    # @example
+    #   config.dump_context = true
+    #
+    # @rbs @dump_context: bool
+    attr_accessor :dump_context
+
     # Returns whether to freeze task results after execution.
     # Set to false in test environments to allow stubbing on result objects.
     #
@@ -167,6 +177,7 @@ module CMDx
       @task_breakpoints = DEFAULT_BREAKPOINTS
       @workflow_breakpoints = DEFAULT_BREAKPOINTS
       @rollback_on = DEFAULT_ROLLPOINTS
+      @dump_context = false
       @freeze_results = true
       @default_locale = "en"
 
@@ -206,6 +217,7 @@ module CMDx
         backtrace: @backtrace,
         backtrace_cleaner: @backtrace_cleaner,
         exception_handler: @exception_handler,
+        dump_context: @dump_context,
         logger: @logger
       }
     end

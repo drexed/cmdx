@@ -113,6 +113,10 @@ module CMDx
     #   @return [Boolean] true if backtraces should be logged
     delegate_to_configuration :backtrace
 
+    # @!attribute [rw] dump_context
+    #   @return [Boolean] true if context should be included in Task#to_h
+    delegate_to_configuration :dump_context
+
     # @!attribute [rw] rollback_on
     #   @return [Array<String>] Statuses that trigger rollback
     delegate_to_configuration :rollback_on
