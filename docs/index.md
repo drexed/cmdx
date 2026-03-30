@@ -8,11 +8,11 @@ template: home.html
 
 ```ruby
 class ApproveLoan < CMDx::Task
-  on_success :notify_applicant!
-
   required :application_id, type: :integer
 
   optional :override_checks, default: false
+
+  on_success :notify_applicant!
 
   returns :approved_at
 
