@@ -1962,6 +1962,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cmdx-as-a-pragmatic-alternative-to-event-sourcing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx as a Pragmatic Alternative to Event Sourcing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-i-switched-to-cmdx-and-how-you-can-too" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2060,17 +2071,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-interruptions-controlling-flow-when-things-go-sideways" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Interruptions: Controlling Flow When Things Go Sideways
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2085,6 +2085,57 @@
       <header class="md-typeset">
         <h1 id="march-2026">March 2026<a class="headerlink" href="#march-2026" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-03-25 00:00:00+00:00">March 25, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-as-a-pragmatic-alternative-to-event-sourcing"><a class="toclink" href="../../cmdx-as-pragmatic-event-sourcing/">CMDx as a Pragmatic Alternative to Event Sourcing</a></h2>
+<p>Event Sourcing is one of those ideas that sounds perfect in a conference talk and then bankrupts your sprint when you try to implement it. You need an event store, projections, snapshot strategies, a way to replay history, and a team that understands why you can't just <code>UPDATE</code> a row anymore. For some domains—banking, audit-heavy compliance, truly distributed systems—it's worth the cost. For the rest of us, it's a complexity tax we can't afford.</p>
+<p>But the <em>benefits</em> of Event Sourcing are real. An immutable record of what happened. The ability to understand <em>why</em> the system is in its current state. Traceability across complex workflows. I wanted those benefits without the infrastructure.</p>
+<p>That's when I realized CMDx already gives you most of it for free.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../cmdx-as-pragmatic-event-sourcing/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2530,56 +2581,6 @@
     
       <nav class="md-post__action">
         <a href="../../mastering-cmdx-outcomes/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-01-14 00:00:00+00:00">January 14, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              7 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-interruptions-controlling-flow-when-things-go-sideways"><a class="toclink" href="../../mastering-cmdx-interruptions/">Mastering CMDx Interruptions: Controlling Flow When Things Go Sideways</a></h2>
-<p>Business logic isn't always a straight line. Orders get cancelled. Users don't have permissions. External APIs timeout. What separates robust code from fragile code is how gracefully you handle these interruptions.</p>
-<p>CMDx gives you three tools for this: halt methods (<code>skip!</code> and <code>fail!</code>), exception handling, and faults. Together, they form a complete system for controlling execution flow—whether you're stopping intentionally, handling errors, or propagating failures across tasks.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../mastering-cmdx-interruptions/">
           Continue reading
         </a>
       </nav>
