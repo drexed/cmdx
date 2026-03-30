@@ -359,7 +359,7 @@ RSpec.describe CMDx::Result, type: :unit do
   describe "#success!" do
     context "when successful" do
       it "sets the reason" do
-        result.success!("Created 42 records")
+        catch(:cmdx_halt) { result.success!("Created 42 records") }
 
         expect(result.status).to eq(CMDx::Result::SUCCESS)
         expect(result.reason).to eq("Created 42 records")
@@ -367,14 +367,14 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "accepts metadata" do
-        result.success!("Imported", rows: 100)
+        catch(:cmdx_halt) { result.success!("Imported", rows: 100) }
 
         expect(result.reason).to eq("Imported")
         expect(result.metadata).to eq({ rows: 100 })
       end
 
       it "allows nil reason" do
-        result.success!
+        catch(:cmdx_halt) { result.success! }
 
         expect(result.reason).to be_nil
       end
@@ -382,10 +382,18 @@ RSpec.describe CMDx::Result, type: :unit do
       it "does not change state or status" do
         original_state = result.state
         original_status = result.status
-        result.success!("note")
+        catch(:cmdx_halt) { result.success!("note") }
 
         expect(result.state).to eq(original_state)
         expect(result.status).to eq(original_status)
+      end
+
+      it "throws :cmdx_halt by default" do
+        expect { result.success!("done") }.to throw_symbol(:cmdx_halt)
+      end
+
+      it "does not throw when halt is false" do
+        expect { result.success!("done", halt: false) }.not_to throw_symbol(:cmdx_halt)
       end
     end
 
@@ -775,7 +783,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
     context "when successful with reason" do
       it "includes reason without cause or rolled_back" do
-        result.success!("Created 42 records")
+        catch(:cmdx_halt) { result.success!("Created 42 records") }
 
         hash = result.to_h
 

@@ -271,8 +271,10 @@ module CMDx
 
     # Sets a reason and optional metadata on a successful result without
     # changing its state or status. Useful for annotating why a task succeeded.
+    # When halt is true, uses throw/catch to exit the work method early.
     #
     # @param reason [String, nil] Reason or note for the success
+    # @param halt [Boolean] Whether to halt execution after success
     # @param metadata [Hash] Additional metadata about the success
     # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
@@ -280,14 +282,16 @@ module CMDx
     #
     # @example
     #   result.success!("Created 42 records")
-    #   result.success!("Imported", rows: 100)
+    #   result.success!("Imported", halt: false, rows: 100)
     #
-    # @rbs (?String? reason, **untyped metadata) -> void
-    def success!(reason = nil, **metadata)
+    # @rbs (?String? reason, halt: bool, **untyped metadata) -> void
+    def success!(reason = nil, halt: true, **metadata)
       raise "can only be used while #{SUCCESS}" unless success?
 
       @reason = reason
       @metadata = metadata
+
+      throw(:cmdx_halt) if halt
     end
 
     # @param reason [String, nil] Reason for skipping the task

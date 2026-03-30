@@ -75,6 +75,12 @@ RSpec.describe CMDx::Task, type: :unit do
   end
 
   describe "delegated methods" do
+    it "delegates success! to result" do
+      expect(task.result).to receive(:success!).with("reason", metadata: "data")
+
+      task.success!("reason", metadata: "data")
+    end
+
     it "delegates skip! to result" do
       expect(task.result).to receive(:skip!).with("reason", metadata: "data")
 

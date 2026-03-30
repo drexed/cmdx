@@ -229,13 +229,14 @@ module CMDx
     end
 
     # Executes the main task logic.
+    # Wraps task.work in catch(:cmdx_halt) so that success! can halt early.
     #
     # @rbs () -> void
     def execution!
       invoke_callbacks(:before_execution)
 
       result.executing!
-      task.work
+      catch(:cmdx_halt) { task.work }
     end
 
     # Verifies that all declared returns are present in the context after execution.

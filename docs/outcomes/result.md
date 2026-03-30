@@ -130,6 +130,10 @@ result.metadata #=> { rows: 42 }
 
 !!! note
 
+    `success!` will halt any further execution by default.
+
+!!! warning "Important"
+
     `success!` can only be called while the result status is `success`. Calling it after `skip!` or `fail!` raises a `RuntimeError`.
 
 ## Block Yield
