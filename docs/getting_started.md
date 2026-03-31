@@ -246,6 +246,7 @@ The generator inherits from `ApplicationTask` if defined, falling back to `CMDx:
 # app/tasks/application_task.rb
 class ApplicationTask < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate
+
   before_execution :set_request_context
 
   private
