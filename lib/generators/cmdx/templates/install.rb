@@ -10,7 +10,7 @@ CMDx.configure do |config|
 
   # Workflow breakpoint configuration - controls when workflows stop execution
   # When a task returns these statuses, subsequent workflow tasks won't execute
-  # See https://github.com/drexed/cmdx/blob/main/docs/workflow.md for more details
+  # See https://github.com/drexed/cmdx/blob/main/docs/workflows.md for more details
   #
   # Available statuses: "success", "skipped", "failed"
   # If set to an empty array, workflow will never halt
@@ -44,22 +44,22 @@ CMDx.configure do |config|
   # config.default_locale = "en"
 
   # Backtrace configuration - controls whether to log backtraces on faults and exceptions
-  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#backtraces
+  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#backtraces
   # config.backtrace = false
   # config.backtrace_cleaner = nil
 
   # Exception handler configuration - called when non-fault exceptions are raised
-  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#exception-handler
+  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#exception-handlers
   # config.exception_handler = nil
 
   # Dump context configuration - include context data in hash representation output
-  # https://github.com/drexed/cmdx/blob/main/docs/getting_started.md#dump-context
+  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#dump-context
   # config.dump_context = false
 
   # Additional global configurations - automatically applied to all tasks
   #
   # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
   # Callbacks - https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
-  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/coercions.md
-  # Validations - https://github.com/drexed/cmdx/blob/main/docs/validations.md
+  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md
+  # Validations - https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md
 end
