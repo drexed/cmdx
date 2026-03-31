@@ -9,10 +9,12 @@ class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
   register :middleware, CMDx::Middlewares::Correlate
+
   before_execution :load_user
   on_failed :notify_admin!
 
   required :user_id, type: :integer
+
   returns :onboarded_at
 
   task CreateProfile

@@ -273,6 +273,7 @@ The generator inherits from `ApplicationTask` if defined, falling back to `CMDx:
 # app/tasks/application_task.rb
 class ApplicationTask < CMDx::Task
   register :middleware, CMDx::Middlewares::Correlate
+
   before_execution :set_request_context
 
   private
@@ -4299,10 +4300,12 @@ class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
   register :middleware, CMDx::Middlewares::Correlate
+
   before_execution :load_user
   on_failed :notify_admin!
 
   required :user_id, type: :integer
+
   returns :onboarded_at
 
   task CreateProfile
@@ -5049,7 +5052,10 @@ class ExportReport < CMDx::Task
   required :report_id
   optional :format_type
 
-  # 4. Define work method
+  # 4. Returns contract
+  returns :exported_at
+
+  # 5. Define work method
   def work
     report.compile!
     report.export!

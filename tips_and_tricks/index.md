@@ -94,7 +94,10 @@ class ExportReport < CMDx::Task
   required :report_id
   optional :format_type
 
-  # 4. Define work method
+  # 4. Returns contract
+  returns :exported_at
+
+  # 5. Define work method
   def work
     report.compile!
     report.export!
