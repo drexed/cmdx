@@ -22,7 +22,7 @@ module CMDx
     attr_reader :table
     alias to_h table
 
-    def_delegators :table, :each, :map
+    def_delegators :table, :keys, :values, :each, :each_key, :each_value, :map
 
     # Creates a new Context instance from the given arguments.
     #
