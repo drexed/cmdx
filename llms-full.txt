@@ -3611,10 +3611,10 @@ end
 
 result = ProcessExport.execute
 result.metadata #=> {
-#   started_at: "2026-04-01T14:56:58Z",
-#   ended_at: "2026-04-01T14:56:59Z"
-#   runtime: 1247 (ms)
-# } (ms)
+                #     started_at: "2026-04-01T14:56:58Z",
+                #     ended_at: "2026-04-01T14:56:59Z"
+                #     runtime: 1247 (ms)
+                #   }
 ```
 
 # Logging
