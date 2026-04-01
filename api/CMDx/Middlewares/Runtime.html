@@ -139,7 +139,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Middleware entry point that measures task execution runtime.</p>
+<p>Middleware entry point that measures task execution runtime and task execution start and end times.</p>
 </div></span>
   
 </li>
@@ -166,7 +166,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Middleware entry point that measures task execution runtime.</p>
+<p>Middleware entry point that measures task execution runtime and task execution start and end times.</p>
 
 <p>Evaluates the condition from options and measures execution time if enabled. Uses monotonic clock for precise timing measurements and stores the result in task metadata.</p>
 
@@ -333,24 +333,34 @@
       <pre class="lines">
 
 
-37
 38
 39
 40
 41
 42
 43
-44</pre>
+44
+45
+46
+47
+48
+49
+50</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares/runtime.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/middlewares/runtime.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_unow'>unow</span> <span class='op'>=</span> <span class='id identifier rubyid_utc_time'>utc_time</span>
+  <span class='id identifier rubyid_mnow'>mnow</span> <span class='op'>=</span> <span class='id identifier rubyid_monotonic_time'>monotonic_time</span>
   <span class='kw'>return</span> <span class='kw'>yield</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="../Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Utils/Condition.html" title="CMDx::Utils::Condition (module)">Condition</a></span></span><span class='period'>.</span><span class='id identifier rubyid_evaluate'><span class='object_link'><a href="../Utils/Condition.html#evaluate-instance_method" title="CMDx::Utils::Condition#evaluate (method)">evaluate</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_now'>now</span> <span class='op'>=</span> <span class='id identifier rubyid_monotonic_time'>monotonic_time</span>
   <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='kw'>yield</span>
-  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:runtime</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_monotonic_time'>monotonic_time</span> <span class='op'>-</span> <span class='id identifier rubyid_now'>now</span>
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span>
+    <span class='label'>runtime:</span> <span class='id identifier rubyid_monotonic_time'>monotonic_time</span> <span class='op'>-</span> <span class='id identifier rubyid_mnow'>mnow</span><span class='comma'>,</span>
+    <span class='label'>ended_at:</span> <span class='id identifier rubyid_utc_time'>utc_time</span><span class='comma'>,</span>
+    <span class='label'>started_at:</span> <span class='id identifier rubyid_unow'>unow</span>
+  <span class='rparen'>)</span>
   <span class='id identifier rubyid_result'>result</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -363,7 +373,7 @@
 </div>
 
       <div id="footer">
-  Generated on Wed Apr  1 13:56:19 2026 by
+  Generated on Wed Apr  1 14:58:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.4.9).
 </div>
