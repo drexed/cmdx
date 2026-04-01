@@ -2459,6 +2459,8 @@
       </div>
       <div class="showcase-code">
         <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="n">register</span> <span class="ss">:middleware</span>, <span class="nc">CMDx::Middlewares::Runtime</span>
+
   <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
 
   <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>

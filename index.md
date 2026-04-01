@@ -1,5 +1,7 @@
 ```ruby
 class ApproveLoan < CMDx::Task
+  register :middleware, CMDx::Middlewares::Runtime
+
   required :application_id, type: :integer
 
   optional :override_checks, default: false
