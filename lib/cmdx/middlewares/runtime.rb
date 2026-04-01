@@ -11,7 +11,8 @@ module CMDx
 
       extend self
 
-      # Middleware entry point that measures task execution runtime.
+      # Middleware entry point that measures task execution runtime and
+      # task execution start and end times.
       #
       # Evaluates the condition from options and measures execution time
       # if enabled. Uses monotonic clock for precise timing measurements
@@ -35,11 +36,16 @@ module CMDx
       #
       # @rbs (Task task, **untyped options) { () -> untyped } -> untyped
       def call(task, **options)
+        unow = utc_time
+        mnow = monotonic_time
         return yield unless Utils::Condition.evaluate(task, options)
 
-        now = monotonic_time
         result = yield
-        task.result.metadata[:runtime] = monotonic_time - now
+        task.result.metadata.merge!(
+          runtime: monotonic_time - mnow,
+          ended_at: utc_time,
+          started_at: unow
+        )
         result
       end
 
@@ -55,6 +61,15 @@ module CMDx
       # @rbs () -> Integer
       def monotonic_time
         Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+      end
+
+      # Gets the current UTC time in ISO 8601 format.
+      #
+      # @return [String] Current UTC time in ISO 8601 format
+      #
+      # @rbs () -> String
+      def utc_time
+        Time.now.utc.iso8601
       end
 
     end

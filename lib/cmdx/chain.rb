@@ -32,7 +32,7 @@ module CMDx
     attr_reader :results
 
     def_delegators :results, :first, :last, :size
-    def_delegators :first, :state, :status, :outcome, :runtime
+    def_delegators :first, :state, :status, :outcome
 
     # Creates a new chain with a unique identifier and empty results collection.
     #
