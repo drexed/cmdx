@@ -214,7 +214,7 @@ module CMDx
     #
     # @rbs (untyped other) -> bool
     def eql?(other)
-      other.is_a?(self.class) && (to_h == other.to_h)
+      other.is_a?(self.class) && (table == other.to_h)
     end
     alias == eql?
 
