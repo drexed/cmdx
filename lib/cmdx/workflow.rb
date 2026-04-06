@@ -73,6 +73,23 @@ module CMDx
       end
       alias task tasks
 
+      # Returns all tasks in the pipeline.
+      #
+      # @return [Array<Class>] Array of task classes
+      #
+      # @example
+      #   class MyWorkflow
+      #     include CMDx::Workflow
+      #     task Task1
+      #     task Task2
+      #     puts subtasks.size # => 2
+      #   end
+      #
+      # @rbs () -> Array[Class]
+      def subtasks
+        pipeline.flat_map(&:tasks)
+      end
+
     end
 
     # Represents a group of tasks with shared execution options.

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Add `Result#success!` for annotating successful results
 - Add `started_at` and `ended_at` to runtime middleware payload
 - Add `keys`, `values`, `each`, `each_key`, `each_value` methods to context
+- Add `subtasks` to returns tasks defined in a workflow
 
 ### Changed
 - Move `faults.unspecified` locale key to `reasons.unspecified`

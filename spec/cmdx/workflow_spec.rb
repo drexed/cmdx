@@ -122,6 +122,29 @@ RSpec.describe CMDx::Workflow, type: :unit do
         end
       end
     end
+
+    describe "#subtasks" do
+      let(:task1) { create_successful_task(name: "SubTask1") }
+      let(:task2) { create_successful_task(name: "SubTask2") }
+      let(:task3) { create_successful_task(name: "SubTask3") }
+
+      it "returns empty array when pipeline is empty" do
+        expect(workflow_class.subtasks).to eq([])
+      end
+
+      it "returns tasks from a single execution group" do
+        workflow_class.tasks(task1, task2)
+
+        expect(workflow_class.subtasks).to eq([task1, task2])
+      end
+
+      it "returns tasks flattened across multiple execution groups" do
+        workflow_class.tasks(task1)
+        workflow_class.tasks(task2, task3)
+
+        expect(workflow_class.subtasks).to eq([task1, task2, task3])
+      end
+    end
   end
 
   describe "#work" do
