@@ -109,6 +109,18 @@ module CMDx
     # @rbs @retries: Integer
     attr_accessor :retries
 
+    # Returns whether this result is terminal.
+    # When false, {CMDx::Executor#halt_execution?} returns false
+    # regardless of the task's breakpoint settings.
+    #
+    # @return [Boolean] Whether the result is terminal
+    #
+    # @example
+    #   result.terminal # => true
+    #
+    # @rbs @terminal: bool
+    attr_accessor :terminal
+
     # Returns whether the result has been rolled back.
     #
     # @return [Boolean] Whether the result has been rolled back
@@ -143,6 +155,7 @@ module CMDx
       @reason = nil
       @cause = nil
       @retries = 0
+      @terminal = true
       @rolled_back = false
     end
 
@@ -297,6 +310,8 @@ module CMDx
     # @param reason [String, nil] Reason for skipping the task
     # @param halt [Boolean] Whether to halt execution after skipping
     # @param cause [Exception, nil] Exception that caused the skip
+    # @param terminal [Boolean] Whether this skip is terminal (default: true).
+    #   When false, {CMDx::Executor#halt_execution?} returns false regardless of task settings.
     # @param metadata [Hash] Additional metadata about the skip
     # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
@@ -305,9 +320,10 @@ module CMDx
     # @example
     #   result.skip!("Dependencies not met", cause: dependency_error)
     #   result.skip!("Already processed", halt: false)
+    #   result.skip!("Optional step", terminal: false)
     #
-    # @rbs (?String? reason, halt: bool, cause: Exception?, **untyped metadata) -> void
-    def skip!(reason = nil, halt: true, cause: nil, **metadata)
+    # @rbs (?String? reason, halt: bool, cause: Exception?, terminal: bool, **untyped metadata) -> void
+    def skip!(reason = nil, halt: true, cause: nil, terminal: true, **metadata)
       return if skipped?
 
       raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
@@ -316,6 +332,7 @@ module CMDx
       @status = SKIPPED
       @reason = reason || Locale.t("cmdx.reasons.unspecified")
       @cause = cause
+      @terminal = terminal
       @metadata = metadata
 
       halt! if halt
@@ -324,6 +341,8 @@ module CMDx
     # @param reason [String, nil] Reason for task failure
     # @param halt [Boolean] Whether to halt execution after failure
     # @param cause [Exception, nil] Exception that caused the failure
+    # @param terminal [Boolean] Whether this failure is terminal (default: true).
+    #   When false, {CMDx::Executor#halt_execution?} returns false regardless of task settings.
     # @param metadata [Hash] Additional metadata about the failure
     # @option metadata [Object] :* Any key-value pairs for additional metadata
     #
@@ -332,9 +351,10 @@ module CMDx
     # @example
     #   result.fail!("Validation failed", cause: validation_error)
     #   result.fail!("Network timeout", halt: false, timeout: 30)
+    #   result.fail!("Soft failure", terminal: false)
     #
-    # @rbs (?String? reason, halt: bool, cause: Exception?, **untyped metadata) -> void
-    def fail!(reason = nil, halt: true, cause: nil, **metadata)
+    # @rbs (?String? reason, halt: bool, cause: Exception?, terminal: bool, **untyped metadata) -> void
+    def fail!(reason = nil, halt: true, cause: nil, terminal: true, **metadata)
       return if failed?
 
       raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
@@ -343,6 +363,7 @@ module CMDx
       @status = FAILED
       @reason = reason || Locale.t("cmdx.reasons.unspecified")
       @cause = cause
+      @terminal = terminal
       @metadata = metadata
 
       halt! if halt
@@ -487,6 +508,16 @@ module CMDx
     # @rbs () -> bool
     def retried?
       retries.positive?
+    end
+
+    # @return [Boolean] Whether the result is terminal
+    #
+    # @example
+    #   result.terminal? # => true
+    #
+    # @rbs () -> bool
+    def terminal?
+      !!@terminal
     end
 
     # @return [Boolean] Whether the result has been rolled back

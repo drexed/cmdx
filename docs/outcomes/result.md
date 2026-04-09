@@ -50,11 +50,14 @@ result.good?        #=> true (success or skipped)
 result.ok?          #=> true (alias for good?)
 result.bad?         #=> false (skipped or failed)
 
-# Retry Status
+# Retries
 result.retries      #=> 2
 result.retried?     #=> true (execution was retried)
 
-# Rollback Status
+# Terminal
+result.terminal?    #=> false (complete execution when using `execute!`)
+
+# Rollback
 result.rolled_back? #=> true (execution was rolled back)
 ```
 

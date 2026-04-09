@@ -295,8 +295,21 @@ RSpec.describe CMDx::Executor, type: :unit do
   end
 
   describe "#halt_execution?" do
-    let(:fault_result) { instance_double(CMDx::Result, status: "failed", reason: "test failure") }
+    let(:fault_result) { instance_double(CMDx::Result, status: "failed", terminal?: true, reason: "test failure") }
     let(:fault) { CMDx::FailFault.new(fault_result) }
+
+    context "when result has terminal: false" do
+      let(:fault_result) { instance_double(CMDx::Result, status: "failed", terminal?: false, reason: "test failure") }
+      let(:fault) { CMDx::FailFault.new(fault_result) }
+
+      before do
+        allow(task.class).to receive(:settings).and_return(mock_settings(breakpoints: %w[failed skipped]))
+      end
+
+      it "returns false regardless of breakpoints config" do
+        expect(worker.send(:halt_execution?, fault)).to be(false)
+      end
+    end
 
     context "when breakpoints setting exists" do
       before do
@@ -310,7 +323,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       context "when exception result status is not in breakpoints" do
-        let(:success_result) { instance_double(CMDx::Result, status: "success", reason: "test success") }
+        let(:success_result) { instance_double(CMDx::Result, status: "success", terminal?: true, reason: "test success") }
         let(:success_fault) { CMDx::SkipFault.new(success_result) }
 
         it "returns false" do

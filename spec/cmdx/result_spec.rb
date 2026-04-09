@@ -258,6 +258,18 @@ RSpec.describe CMDx::Result, type: :unit do
       end
     end
 
+    describe "#terminal?" do
+      it "returns true by default" do
+        expect(result.terminal?).to be(true)
+      end
+
+      it "returns false when terminal is false" do
+        result.terminal = false
+
+        expect(result.terminal?).to be(false)
+      end
+    end
+
     describe "#rolled_back?" do
       it "returns false by default" do
         expect(result.rolled_back?).to be(false)
