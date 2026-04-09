@@ -295,11 +295,11 @@ RSpec.describe CMDx::Executor, type: :unit do
   end
 
   describe "#halt_execution?" do
-    let(:fault_result) { instance_double(CMDx::Result, status: "failed", terminal?: true, reason: "test failure") }
+    let(:fault_result) { instance_double(CMDx::Result, status: "failed", strict?: true, reason: "test failure") }
     let(:fault) { CMDx::FailFault.new(fault_result) }
 
-    context "when result has terminal: false" do
-      let(:fault_result) { instance_double(CMDx::Result, status: "failed", terminal?: false, reason: "test failure") }
+    context "when result has strict: false" do
+      let(:fault_result) { instance_double(CMDx::Result, status: "failed", strict?: false, reason: "test failure") }
       let(:fault) { CMDx::FailFault.new(fault_result) }
 
       before do
@@ -323,7 +323,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       context "when exception result status is not in breakpoints" do
-        let(:success_result) { instance_double(CMDx::Result, status: "success", terminal?: true, reason: "test success") }
+        let(:success_result) { instance_double(CMDx::Result, status: "success", strict?: true, reason: "test success") }
         let(:success_fault) { CMDx::SkipFault.new(success_result) }
 
         it "returns false" do

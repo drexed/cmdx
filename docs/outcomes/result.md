@@ -54,8 +54,8 @@ result.bad?         #=> false (skipped or failed)
 result.retries      #=> 2
 result.retried?     #=> true (execution was retried)
 
-# Terminal
-result.terminal?    #=> false (complete execution when using `execute!`)
+# Strict
+result.strict?    #=> false (complete execution when using `execute!`)
 
 # Rollback
 result.rolled_back? #=> true (execution was rolled back)

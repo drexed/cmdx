@@ -135,7 +135,7 @@ module CMDx
     protected
 
     # Determines if execution should halt based on breakpoint configuration.
-    # Returns false when the result was created with +terminal: false+.
+    # Returns false when the result was created with +strict: false+.
     #
     # @param exception [Exception] The exception that occurred
     #
@@ -143,7 +143,7 @@ module CMDx
     #
     # @rbs (Exception exception) -> bool
     def halt_execution?(exception)
-      return false unless exception.result.terminal?
+      return false unless exception.result.strict?
 
       @halt_statuses ||= Utils::Normalize.statuses(
         task.class.settings.breakpoints ||
