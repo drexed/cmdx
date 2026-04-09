@@ -1962,6 +1962,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#returns-and-contracts-making-your-tasks-predictable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns and Contracts: Making Your Tasks Predictable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#structuring-large-cmdx-codebases" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2060,17 +2071,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-workflows-orchestrating-complex-business-logic" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Workflows: Orchestrating Complex Business Logic
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2085,6 +2085,57 @@
       <header class="md-typeset">
         <h1 id="april-2026">April 2026<a class="headerlink" href="#april-2026" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-04-08 00:00:00+00:00">April 8, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="returns-and-contracts-making-your-tasks-predictable"><a class="toclink" href="../../returns-and-contracts/">Returns and Contracts: Making Your Tasks Predictable</a></h2>
+<p>I used to have a recurring nightmare. Not the falling kind—the kind where I'm staring at a service object and trying to figure out what it puts into the context. The <code>work</code> method sets <code>context.user</code> on line 12, <code>context.token</code> on line 28, but only if the conditional on line 15 passes. Oh, and there's a <code>context.session_id</code> that gets set inside a private method three screens down.</p>
+<p>Every consumer of that task is making an implicit assumption about what the context will contain after execution. When those assumptions break, the error shows up somewhere else entirely—a <code>NoMethodError</code> in a downstream task, a nil where a mailer expected a user object.</p>
+<p>That's why I built <code>returns</code> into CMDx. It makes the output contract explicit, enforced, and impossible to forget.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="../../returns-and-contracts/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2530,57 +2581,6 @@
     
       <nav class="md-post__action">
         <a href="../../mastering-cmdx-attributes/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-01-28 00:00:00+00:00">January 28, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="../../category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              4 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-workflows-orchestrating-complex-business-logic"><a class="toclink" href="../../mastering-cmdx-workflows/">Mastering CMDx Workflows: Orchestrating Complex Business Logic</a></h2>
-<p>I remember when my service objects started getting messy. I'd have a <code>PlaceOrder</code> service that began as a simple 10-line script but slowly mutated into a 500-line monster handling validation, payments, inventory, shipping, and a dozen notification types. It was a nightmare to test and even harder to read.</p>
-<p>That's exactly why I built CMDx Workflows. They allow you to decompose complex processes into small, focused tasks and orchestrate them declaratively. It turns your business logic from a tangled mess of <code>if</code> statements into a clean, readable pipeline.</p>
-<p>Let's dive into how workflows can transform your Ruby application's architecture.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../mastering-cmdx-workflows/">
           Continue reading
         </a>
       </nav>
