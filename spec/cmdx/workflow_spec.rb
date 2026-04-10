@@ -2,351 +2,110 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Workflow, type: :unit do
-  let(:workflow_class) { create_workflow_class(name: "TestWorkflow") }
-  let(:workflow) { workflow_class.new }
-  let(:context_hash) { { executed: [] } }
-  let(:workflow_with_context) { workflow_class.new(context_hash) }
+RSpec.describe CMDx::Workflow do
+  describe "DSL and execution" do
+    let(:order) { [] }
 
-  describe "module inclusion" do
-    it "extends the class with ClassMethods" do
-      expect(workflow_class).to respond_to(:pipeline)
-      expect(workflow_class).to respond_to(:task)
-      expect(workflow_class).to respond_to(:tasks)
-    end
-
-    it "includes workflow functionality in the instance" do
-      expect(workflow).to respond_to(:work)
-    end
-  end
-
-  describe "ExecutionGroup" do
-    subject(:execution_group) { CMDx::Workflow::ExecutionGroup.new(tasks, options) }
-
-    let(:tasks) { [create_successful_task] }
-    let(:options) { { if: true } }
-
-    it "is a Struct with tasks and options" do
-      expect(execution_group.tasks).to eq(tasks)
-      expect(execution_group.options).to eq(options)
-    end
-  end
-
-  describe "ClassMethods" do
-    describe "#method_added" do
-      context "when redefining work method" do
-        it "raises an error" do
-          expect do
-            workflow_class.class_eval do
-              def work
-                "custom work"
-              end
-            end
-          end.to raise_error(RuntimeError, /cannot redefine.*#work method/)
-        end
+    let(:step_one) do
+      o = order
+      Class.new(CMDx::Task) do
+        define_method(:work) { o << :one }
       end
+    end
 
-      context "when adding other methods" do
-        it "allows normal method definition" do
-          expect do
-            workflow_class.class_eval do
-              def custom_method
-                "allowed"
-              end
-            end
-          end.not_to raise_error
+    let(:step_two) do
+      o = order
+      Class.new(CMDx::Task) do
+        define_method(:work) { o << :two }
+      end
+    end
 
-          expect(workflow_class.new).to respond_to(:custom_method)
+    let(:strict_fail) do
+      Class.new(CMDx::Task) do
+        def work
+          fail!("halt", halt: true, strict: true)
         end
       end
     end
 
-    describe "#pipeline" do
-      it "initializes as empty array" do
-        expect(workflow_class.pipeline).to eq([])
-      end
-
-      it "memoizes the pipeline" do
-        groups = workflow_class.pipeline
-
-        expect(workflow_class.pipeline).to be(groups)
-      end
-    end
-
-    describe "#tasks" do
-      let(:task1) { create_successful_task(name: "Task1") }
-      let(:task2) { create_successful_task(name: "Task2") }
-      let(:options) { { if: true, breakpoints: [:failure] } }
-
-      context "with valid CMDx::Task classes" do
-        it "adds execution group to pipeline" do
-          workflow_class.tasks(task1, task2, **options)
-
-          expect(workflow_class.pipeline.size).to eq(1)
-
-          group = workflow_class.pipeline.first
-
-          expect(group.tasks).to eq([task1, task2])
-          expect(group.options).to eq(options)
-        end
-
-        it "supports multiple task declarations" do
-          workflow_class.tasks(task1, **options)
-          workflow_class.tasks(task2, if: false)
-
-          expect(workflow_class.pipeline.size).to eq(2)
-          expect(workflow_class.pipeline[0].tasks).to eq([task1])
-          expect(workflow_class.pipeline[1].tasks).to eq([task2])
-        end
-      end
-
-      context "with invalid task types" do
-        it "raises TypeError for non-Task classes" do
-          expect do
-            workflow_class.tasks(String, Integer)
-          end.to raise_error(TypeError, "must be a CMDx::Task")
-        end
-
-        it "raises TypeError for regular objects" do
-          expect do
-            workflow_class.tasks("not a task")
-          end.to raise_error(TypeError, "must be a CMDx::Task")
-        end
-      end
-
-      context "with mixed valid and invalid tasks" do
-        it "raises TypeError when any task is invalid" do
-          expect do
-            workflow_class.tasks(task1, String, task2)
-          end.to raise_error(TypeError, "must be a CMDx::Task")
+    let(:soft_fail) do
+      Class.new(CMDx::Task) do
+        def work
+          fail!("soft", halt: true, strict: false)
         end
       end
     end
 
-    describe "#subtasks" do
-      let(:task1) { create_successful_task(name: "SubTask1") }
-      let(:task2) { create_successful_task(name: "SubTask2") }
-      let(:task3) { create_successful_task(name: "SubTask3") }
+    it ".task declares sequential steps and runs in order" do
+      s1 = step_one
+      s2 = step_two
+      wf = Class.new(CMDx::Task) do
+        include CMDx::Workflow
 
-      it "returns empty array when pipeline is empty" do
-        expect(workflow_class.subtasks).to eq([])
+        task s1
+        task s2
       end
-
-      it "returns tasks from a single execution group" do
-        workflow_class.tasks(task1, task2)
-
-        expect(workflow_class.subtasks).to eq([task1, task2])
-      end
-
-      it "returns tasks flattened across multiple execution groups" do
-        workflow_class.tasks(task1)
-        workflow_class.tasks(task2, task3)
-
-        expect(workflow_class.subtasks).to eq([task1, task2, task3])
-      end
-    end
-  end
-
-  describe "#work" do
-    let(:task1) { create_successful_task(name: "Task1") }
-    let(:task2) { create_successful_task(name: "Task2") }
-    let(:task3) { create_successful_task(name: "Task3") }
-
-    before do
-      workflow_class.class_eval do
-        settings workflow_breakpoints: []
-      end
+      wf.execute
+      expect(order).to eq(%i[one two])
     end
 
-    context "with single execution group" do
-      before do
-        workflow_class.tasks(task1, task2, task3)
-      end
+    it ".tasks declares parallel steps that all run" do
+      seen = []
+      a = Class.new(CMDx::Task) { define_method(:work) { seen << :a } }
+      b = Class.new(CMDx::Task) { define_method(:work) { seen << :b } }
+      wf = Class.new(CMDx::Task) do
+        include CMDx::Workflow
 
-      it "executes all tasks in sequence" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success success])
+        tasks a, b, pool_size: 2
       end
+      wf.execute
+      expect(seen.sort).to eq(%i[a b])
     end
 
-    context "with multiple execution groups" do
-      before do
-        workflow_class.tasks(task1)
-        workflow_class.tasks(task2, task3)
-      end
+    it "halts on strict failure" do
+      s1 = step_one
+      s2 = step_two
+      sf = strict_fail
+      wf = Class.new(CMDx::Task) do
+        include CMDx::Workflow
 
-      it "executes all groups in sequence" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success success])
+        task s1
+        task sf
+        task s2
       end
+      wf.execute
+      expect(order).to eq([:one])
     end
 
-    context "with conditional execution" do
-      before do
-        workflow_class.tasks(task1, if: true)
-        workflow_class.tasks(task2, if: false)
-        workflow_class.tasks(task3, unless: false)
-      end
+    it "continues when failure is not strict" do
+      s1 = step_one
+      s2 = step_two
+      sf = soft_fail
+      wf = Class.new(CMDx::Task) do
+        include CMDx::Workflow
 
-      it "only executes tasks when conditions are met" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success])
+        task s1
+        task sf
+        task s2
       end
+      wf.execute
+      expect(order).to eq(%i[one two])
     end
 
-    context "with breakpoints in group options" do
-      let(:failing_task) { create_failing_task(name: "FailingTask") }
+    it "does not halt the pipeline when on_failure is :skip (even if the step fails strict)" do
+      s1 = step_one
+      s2 = step_two
+      sf = strict_fail
+      wf = Class.new(CMDx::Task) do
+        include CMDx::Workflow
 
-      before do
-        workflow_class.tasks(task1, failing_task, task3, breakpoints: [:failed])
+        task s1
+        task sf, on_failure: :skip
+        task s2
       end
-
-      it "stops execution when task status matches breakpoint" do
-        expect { workflow_with_context.work }.to raise_error(CMDx::FailFault)
-
-        expect(workflow_with_context.context.executed).to eq([:success])
-      end
-    end
-
-    context "with breakpoints in class settings" do
-      before do
-        workflow_class.class_eval do
-          settings workflow_breakpoints: [:skipped]
-        end
-
-        workflow_class.tasks(task1, task2, task3)
-      end
-
-      it "executes all tasks when no task matches breakpoints" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success success])
-      end
-    end
-
-    context "with group breakpoints overriding class breakpoints" do
-      before do
-        workflow_class.class_eval do
-          settings workflow_breakpoints: [:skipped]
-        end
-
-        workflow_class.tasks(task1, task2, task3, breakpoints: [:failed])
-      end
-
-      it "uses group breakpoints instead of class breakpoints" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success success])
-      end
-    end
-
-    context "when breakpoints is nil" do
-      before do
-        workflow_class.class_eval do
-          settings workflow_breakpoints: [:failed]
-        end
-
-        workflow_class.tasks(task1, task2, task3, breakpoints: nil)
-      end
-
-      it "uses class-level breakpoints" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success success])
-      end
-    end
-
-    context "with different breakpoint types" do
-      let(:failing_task) { create_nested_task(strategy: :throw, status: :failure) }
-
-      context "when breakpoints is a single symbol" do
-        before do
-          workflow_class.tasks(task1, failing_task, task3, breakpoints: :failed)
-        end
-
-        it "converts single breakpoint to array" do
-          expect(workflow_with_context).to receive(:throw!)
-
-          workflow_with_context.work
-        end
-      end
-
-      context "when breakpoints is a string" do
-        before do
-          workflow_class.tasks(task1, failing_task, task3, breakpoints: "failed")
-        end
-
-        it "converts string breakpoint to array and compares as string" do
-          expect(workflow_with_context).to receive(:throw!)
-
-          workflow_with_context.work
-        end
-      end
-
-      context "when breakpoints contains duplicates" do
-        before do
-          workflow_class.tasks(task1, failing_task, task3, breakpoints: [:failed, :failed, "failed"])
-        end
-
-        it "removes duplicates and converts to strings" do
-          expect(workflow_with_context).to receive(:throw!)
-
-          workflow_with_context.work
-        end
-      end
-    end
-
-    context "when task status does not match breakpoints" do
-      let(:failing_task) { create_nested_task(strategy: :throw, status: :failure) }
-
-      before do
-        workflow_class.tasks(task1, failing_task, task3, breakpoints: [:skipped])
-      end
-
-      it "continues execution" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success])
-      end
-    end
-
-    context "when execution group condition evaluates to false" do
-      before do
-        workflow_class.tasks(task1, if: false)
-        workflow_class.tasks(task2, unless: true)
-        workflow_class.tasks(task3)
-      end
-
-      it "skips groups that do not meet conditions" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq([:success])
-      end
-    end
-
-    context "with complex conditional scenarios" do
-      before do
-        workflow_class.tasks(task1, if: true)
-        workflow_class.tasks(task2, if: false)
-        workflow_class.tasks(task3, unless: false)
-      end
-
-      it "evaluates conditions against workflow instance" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq(%i[success success])
-      end
-    end
-
-    context "with empty execution groups" do
-      it "completes without executing any tasks" do
-        workflow_with_context.work
-
-        expect(workflow_with_context.context.executed).to eq([])
-      end
+      r = wf.execute
+      expect(r.success?).to be(true)
+      expect(order).to eq(%i[one two])
     end
   end
 end

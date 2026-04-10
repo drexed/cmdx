@@ -4,10 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## [2.0.0] - Complete Redesign
+
+### Changed (BREAKING)
+- **Signal-based control flow**: `fail!`, `skip!`, and `success!` now use `throw(:cmdx_signal)` / `catch(:cmdx_signal)` instead of raising `Fault` exceptions. ~3x faster for non-exceptional interruptions.
+- **Immutable Result**: `Result` is now frozen on creation. All fields are `attr_reader` only. No more mutable state transitions.
+- **Unified Runtime**: Replaced `Executor` + `Resolver` with a single `Runtime` orchestrator that owns the entire lifecycle.
+- **Module-based Task composition**: Task is now composed from focused modules (`Signals`, attributes DSL, callbacks DSL, middleware DSL, returns DSL, settings DSL, execution class methods).
+- **Task instance methods reduced to 9**: `context`/`ctx`, `logger`, `work`, `rollback`, `success!`, `skip!`, `fail!`, `throw!`, `dry_run?`. No more `id`, `result`, `chain`, `errors`, `attributes`, `resolver`.
+- **Attribute readers via anonymous modules**: Attribute accessors are defined on included anonymous modules (visible in `ancestors`, overridable with `super`).
+- **Outcome struct**: Internal mutable scratch pad (`Outcome`) used during execution, converted to frozen `Result` at the end.
+- **No circular references**: `Result` stores `task_id` (String) and `task_class` (Class), never the task instance. Task never holds Result.
+- **Callback signature**: Runtime injects `@_result` before callbacks, removes after. Class-based callbacks receive `(task, result)`.
+- **Settings lazy delegation**: Per-task `Settings` delegates to parent then global `Configuration` via `resolved_*` methods.
+- **COW registries**: All 5 registries (Attribute, Callback, Middleware, Validator, Coercion) use copy-on-write for safe inheritance.
 
 ### Added
-- Add `CMDx::Resolver` class to manage result transitions
+- `CMDx::Signals` module with `success!`, `skip!`, `fail!`, `throw!`, `dry_run?`
+- `CMDx::Outcome` struct for mutable execution tracking
+- `CMDx::Runtime` single lifecycle orchestrator
+- `CMDx::RetryStrategy` with configurable delay and jitter
+- `CMDx::ValueResolver` pipeline: source → derive → default → coerce → transform
+- `CMDx::Deprecator` with `:restrict` and `:warn` modes
+- Full test suite (263 examples, 0 failures)
+
+### Removed
+- `CMDx::Executor` (replaced by `Runtime`)
+- `CMDx::Resolver` (replaced by `Runtime`)
+- `CMDx::AttributeValue` (replaced by `ValueResolver`)
+- `CMDx::Retry` (replaced by `RetryStrategy`)
+- Mutable `Result` state transitions
+- Circular references between Task, Result, and Resolver
+- Require `time` in `Coercions::Time` so `Time.parse` is available on Ruby 3.4+
 
 ## [1.21.0] - 2026-04-09
 

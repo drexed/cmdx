@@ -2,46 +2,26 @@
 
 module CMDx
   module Coercions
-    # Converts various input types to Array format
-    #
-    # Handles conversion from strings that look like JSON arrays and other
-    # values that can be wrapped in an array using Ruby's Array() method.
+    # Coerces a value into an Array.
     module Array
 
-      extend self
-
-      # Converts a value to an Array
+      # @param value [Object]
+      # @return [Array]
       #
-      # @param value [Object] The value to convert to an array
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Array] The converted array value
-      #
-      # @raise [CoercionError] If the value cannot be converted to an array
-      #
-      # @example Convert a JSON-like string to an array
-      #   Array.call("[1, 2, 3]") # => [1, 2, 3]
-      # @example Convert other values using Array()
-      #   Array.call("hello")     # => ["hello"]
-      #   Array.call(42)          # => [42]
-      #   Array.call(nil)         # => []
-      # @example Handle invalid JSON-like strings
-      #   Array.call("[not json") # => raises CoercionError
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
-      def call(value, options = EMPTY_HASH)
-        if value.is_a?(::String) && (
-          value.start_with?("[") ||
-          value.strip == "null"
-        )
-          JSON.parse(value) || []
-        else
-          Utils::Wrap.array(value)
+      # @rbs (untyped value) -> Array[untyped]
+      def self.call(value)
+        case value
+        when ::Array then value
+        when ::Hash  then value.to_a
+        when nil     then []
+        else Kernel.Array(value)
         end
-      rescue JSON::ParserError
-        type = Locale.t("cmdx.types.array")
-        raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
+      rescue StandardError
+        raise_coercion_error!("array")
+      end
+
+      def self.raise_coercion_error!(type)
+        raise Error, Locale.t("cmdx.coercions.into_an", type:)
       end
 
     end

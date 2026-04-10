@@ -2,44 +2,20 @@
 
 module CMDx
   module Coercions
-    # Converts various input types to Rational format
-    #
-    # Handles conversion from strings, numbers, and other values to rational
-    # numbers using Ruby's Rational() method. Raises CoercionError for values
-    # that cannot be converted to rational numbers.
+    # Coerces a value into a Rational.
     module Rational
 
-      extend self
-
-      # Converts a value to a Rational
+      # @param value [Object]
+      # @return [Rational]
       #
-      # @param value [Object] The value to convert to a rational number
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Rational] The converted rational number
-      #
-      # @raise [CoercionError] If the value cannot be converted to a rational number
-      #
-      # @example Convert numeric strings to rational numbers
-      #   Rational.call("3/4")     # => (3/4)
-      #   Rational.call("2.5")     # => (5/2)
-      #   Rational.call("0")       # => (0/1)
-      # @example Convert numeric types to rational numbers
-      #   Rational.call(3.14)      # => (157/50)
-      #   Rational.call(2)         # => (2/1)
-      #   Rational.call(0.5)       # => (1/2)
-      # @example Handle edge cases
-      #   Rational.call("")        # => (0/1)
-      #   Rational.call(nil)       # => (0/1)
-      #   Rational.call(0)         # => (0/1)
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Rational
-      def call(value, options = EMPTY_HASH)
-        Rational(value)
-      rescue ArgumentError, FloatDomainError, RangeError, TypeError, ZeroDivisionError
-        type = Locale.t("cmdx.types.rational")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+      # @rbs (untyped value) -> Rational
+      def self.call(value)
+        case value
+        when ::Rational then value
+        else Kernel.Rational(value)
+        end
+      rescue StandardError
+        raise Error, Locale.t("cmdx.coercions.into_a", type: "rational")
       end
 
     end

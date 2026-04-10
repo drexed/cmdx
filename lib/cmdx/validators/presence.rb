@@ -2,58 +2,27 @@
 
 module CMDx
   module Validators
-    # Validates that a value is present and not empty
-    #
-    # This validator ensures that the given value exists and contains meaningful content.
-    # It handles different value types appropriately:
-    # - Strings: checks for non-whitespace characters
-    # - Collections: checks for non-empty collections
-    # - Other objects: checks for non-nil values
+    # Validates that a value is present (not nil, not empty).
     module Presence
 
-      extend self
+      # @param value [Object] the value to validate
+      # @param _options [Hash] unused
+      #
+      # @return [String, nil] error message or nil
+      #
+      # @rbs (untyped value, **untyped) -> String?
+      def self.call(value, **)
+        return if present?(value)
 
-      # Validates that a value is present and not empty
-      #
-      # @param value [Object] The value to validate for presence
-      # @param options [Hash] Validation configuration options
-      # @option options [String] :message Custom error message
-      #
-      # @return [nil] Returns nil if validation passes
-      #
-      # @raise [ValidationError] When the value is empty, nil, or contains only whitespace
-      #
-      # @example Validate string presence
-      #   Presence.call("hello world")
-      #   # => nil (validation passes)
-      # @example Validate empty string
-      #   Presence.call("   ")
-      #   # => raises ValidationError
-      # @example Validate array presence
-      #   Presence.call([1, 2, 3])
-      #   # => nil (validation passes)
-      # @example Validate empty array
-      #   Presence.call([])
-      #   # => raises ValidationError
-      # @example Validate with custom message
-      #   Presence.call(nil, message: "Value cannot be blank")
-      #   # => raises ValidationError with custom message
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> nil
-      def call(value, options = EMPTY_HASH)
-        match =
-          if value.is_a?(String)
-            /\S/.match?(value)
-          elsif value.respond_to?(:empty?)
-            !value.empty?
-          else
-            !value.nil?
-          end
+        Locale.t("cmdx.validators.presence")
+      end
 
-        return if match
+      # @rbs (untyped value) -> bool
+      def self.present?(value)
+        return false if value.nil?
+        return false if value.respond_to?(:empty?) && value.empty?
 
-        message = options[:message] if options.is_a?(Hash)
-        raise ValidationError, message || Locale.t("cmdx.validators.presence")
+        true
       end
 
     end

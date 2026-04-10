@@ -2,45 +2,31 @@
 
 module CMDx
 
-  # Base exception class for all CMDx-related errors.
-  #
-  # This serves as the root exception class for all errors raised by the CMDx
-  # framework. It inherits from StandardError and provides a common base for
-  # handling CMDx-specific exceptions.
-  Exception = Error = Class.new(StandardError)
+  # Base error class for all CMDx exceptions.
+  class Error < StandardError; end
 
-  # Raised when attribute coercion fails during task execution.
-  #
-  # This error occurs when a attribute value cannot be converted to the expected
-  # type using the registered coercion handlers. It indicates that the provided
-  # value is incompatible with the attribute's defined type.
-  CoercionError = Class.new(Error)
+  # Raised when a required method is not implemented by the developer.
+  class UndefinedMethodError < Error; end
 
-  # Raised when a deprecated task is used.
-  #
-  # This error occurs when a deprecated task is called. It indicates that the
-  # task is no longer supported and should be replaced with a newer alternative.
-  DeprecationError = Class.new(Error)
+  # Raised when an attribute declaration is invalid.
+  class AttributeError < Error; end
 
-  # Raised when an abstract method is called without being implemented.
-  #
-  # This error occurs when a subclass fails to implement required abstract
-  # methods such as 'task' in tasks. It indicates incomplete implementation
-  # of required functionality.
-  UndefinedMethodError = Class.new(Error)
+  # Raised when a configuration value is invalid.
+  class ConfigurationError < Error; end
 
-  # Error raised when task execution exceeds the configured timeout limit.
-  #
-  # This error occurs when a task takes longer to execute than the specified
-  # time limit. Timeout errors are raised by Ruby's Timeout module and are
-  # caught by the middleware to properly fail the task with timeout information.
-  TimeoutError = Class.new(Interrupt)
+  # Raised when a coercion type is unknown.
+  class UnknownCoercionError < Error; end
 
-  # Raised when attribute validation fails during task execution.
-  #
-  # This error occurs when a attribute value doesn't meet the validation criteria
-  # defined by the validator. It indicates that the provided value violates
-  # business rules or data integrity constraints.
-  ValidationError = Class.new(Error)
+  # Raised when a validation type is unknown.
+  class UnknownValidatorError < Error; end
+
+  # Raised when middleware does not yield.
+  class MiddlewareError < Error; end
+
+  # Raised when a deprecation restriction is violated.
+  class DeprecationError < Error; end
+
+  # Raised for invalid return declarations.
+  class ReturnError < Error; end
 
 end

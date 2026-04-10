@@ -2,289 +2,53 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::CoercionRegistry, type: :unit do
-  subject(:registry) { described_class.new(initial_registry) }
-
-  let(:initial_registry) { nil }
-  let(:mock_coercion) { instance_double("MockCoercion") }
-  let(:mock_task) { instance_double(CMDx::Task) }
-
-  describe "#initialize" do
-    context "when no registry is provided" do
-      subject(:registry) { described_class.new }
-
-      it "initializes with default coercions" do
-        expect(registry.registry).to include(
-          array: CMDx::Coercions::Array,
-          big_decimal: CMDx::Coercions::BigDecimal,
-          boolean: CMDx::Coercions::Boolean,
-          complex: CMDx::Coercions::Complex,
-          date: CMDx::Coercions::Date,
-          datetime: CMDx::Coercions::DateTime,
-          float: CMDx::Coercions::Float,
-          hash: CMDx::Coercions::Hash,
-          integer: CMDx::Coercions::Integer,
-          rational: CMDx::Coercions::Rational,
-          string: CMDx::Coercions::String,
-          time: CMDx::Coercions::Time
-        )
-      end
+RSpec.describe CMDx::CoercionRegistry do
+  describe "#resolve" do
+    it "returns built-in coercion modules" do
+      reg = described_class.new
+      expect(reg.resolve(:string)).to eq(CMDx::Coercions::String)
+      expect(reg.resolve(:integer)).to eq(CMDx::Coercions::Integer)
     end
 
-    context "when a registry is provided" do
-      let(:initial_registry) { { custom: mock_coercion } }
-
-      it "initializes with the provided registry" do
-        expect(registry.registry).to eq({ custom: mock_coercion })
-      end
-    end
-  end
-
-  describe "#registry" do
-    let(:initial_registry) { { custom: mock_coercion } }
-
-    it "returns the internal registry hash" do
-      expect(registry.registry).to eq({ custom: mock_coercion })
-    end
-  end
-
-  describe "#to_h" do
-    let(:initial_registry) { { custom: mock_coercion } }
-
-    it "returns the registry hash" do
-      expect(registry.to_h).to eq({ custom: mock_coercion })
+    it "returns a Class or Module unchanged" do
+      reg = described_class.new
+      mod = CMDx::Coercions::Hash
+      expect(reg.resolve(mod)).to be(mod)
     end
 
-    it "is an alias for registry" do
-      expect(registry.method(:to_h)).to eq(registry.method(:registry))
-    end
-  end
-
-  describe "#dup" do
-    it "returns a new CoercionRegistry instance" do
-      duplicated = registry.dup
-
-      expect(duplicated).to be_a(described_class)
-      expect(duplicated).not_to be(registry)
-    end
-
-    it "shares the parent registry until first write" do
-      duplicated = registry.dup
-
-      expect(duplicated.registry).to eq(registry.registry)
-      expect(duplicated.registry).to be(registry.registry)
-    end
-
-    it "materializes on write and does not affect the parent" do
-      duplicated = registry.dup
-
-      duplicated.register(:new_type, mock_coercion)
-
-      expect(duplicated.registry).to have_key(:new_type)
-      expect(registry.registry).not_to have_key(:new_type)
-      expect(duplicated.registry).not_to be(registry.registry)
+    it "raises UnknownCoercionError for unknown types" do
+      reg = described_class.new
+      expect { reg.resolve(:not_registered) }.to raise_error(CMDx::UnknownCoercionError)
     end
   end
 
   describe "#register" do
-    context "when registering a coercion with string name" do
-      it "adds the coercion to the registry with symbol key" do
-        registry.register("custom", mock_coercion)
-
-        expect(registry.registry[:custom]).to eq(mock_coercion)
-      end
-
-      it "returns self for method chaining" do
-        result = registry.register("custom", mock_coercion)
-
-        expect(result).to be(registry)
-      end
-    end
-
-    context "when registering a coercion with symbol name" do
-      it "adds the coercion to the registry" do
-        registry.register(:custom, mock_coercion)
-
-        expect(registry.registry[:custom]).to eq(mock_coercion)
-      end
-    end
-
-    context "when registering to an existing registry" do
-      let(:initial_registry) { { existing: "existing_coercion" } }
-
-      it "adds new coercion to existing ones" do
-        registry.register(:new_type, mock_coercion)
-
-        expect(registry.registry).to include(existing: "existing_coercion", new_type: mock_coercion)
-      end
-    end
-
-    context "when registering over an existing coercion" do
-      let(:initial_registry) { { existing: "old_coercion" } }
-
-      it "overwrites the existing coercion" do
-        registry.register(:existing, mock_coercion)
-
-        expect(registry.registry[:existing]).to eq(mock_coercion)
-      end
-    end
-  end
-
-  describe "#deregister" do
-    context "when deregistering with string name" do
-      before do
-        registry.register("custom", mock_coercion)
-      end
-
-      it "removes the coercion from the registry" do
-        registry.deregister("custom")
-
-        expect(registry.registry).not_to have_key(:custom)
-      end
-
-      it "returns self for method chaining" do
-        result = registry.deregister("custom")
-
-        expect(result).to be(registry)
-      end
-    end
-
-    context "when deregistering with symbol name" do
-      before do
-        registry.register(:custom, mock_coercion)
-      end
-
-      it "removes the coercion from the registry" do
-        registry.deregister(:custom)
-
-        expect(registry.registry).not_to have_key(:custom)
-      end
-    end
-
-    context "when deregistering from existing registry" do
-      let(:initial_registry) { { existing: "existing_coercion", custom: mock_coercion } }
-
-      it "removes only the specified coercion" do
-        registry.deregister(:custom)
-
-        expect(registry.registry).to include(existing: "existing_coercion")
-        expect(registry.registry).not_to have_key(:custom)
-      end
-    end
-
-    context "when deregistering non-existent coercion" do
-      it "does not raise an error" do
-        expect { registry.deregister(:nonexistent) }.not_to raise_error
-      end
-
-      it "returns self" do
-        result = registry.deregister(:nonexistent)
-
-        expect(result).to be(registry)
-      end
-
-      it "does not affect existing coercions" do
-        registry.register(:existing, mock_coercion)
-        registry.deregister(:nonexistent)
-
-        expect(registry.registry[:existing]).to eq(mock_coercion)
-      end
-    end
-
-    context "when deregistering from empty registry" do
-      let(:initial_registry) { {} }
-
-      it "does not raise an error" do
-        expect { registry.deregister(:custom) }.not_to raise_error
-      end
-
-      it "returns self" do
-        result = registry.deregister(:custom)
-
-        expect(result).to be(registry)
-      end
-    end
-
-    context "when deregistering default coercions" do
-      subject(:registry) { described_class.new }
-
-      it "removes the default coercion" do
-        registry.deregister(:string)
-
-        expect(registry.registry).not_to have_key(:string)
-      end
-
-      it "does not affect other default coercions" do
-        registry.deregister(:string)
-
-        expect(registry.registry).to have_key(:integer)
-        expect(registry.registry).to have_key(:boolean)
-      end
-    end
-  end
-
-  describe "#coerce" do
-    let(:initial_registry) { { custom: mock_coercion } }
-    let(:value) { "test_value" }
-    let(:options) { { option1: "value1" } }
-
-    context "when coercion type exists" do
-      it "calls Utils::Call.invoke with correct parameters" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(
-          mock_task, mock_coercion, value, options
-        )
-
-        registry.coerce(:custom, mock_task, value, options)
-      end
-
-      it "returns the result from Utils::Call.invoke" do
-        allow(CMDx::Utils::Call).to receive(:invoke).and_return("coerced_value")
-
-        result = registry.coerce(:custom, mock_task, value, options)
-
-        expect(result).to eq("coerced_value")
-      end
-
-      context "with string type name" do
-        let(:initial_registry) { { "custom" => mock_coercion } }
-
-        it "works with string type names" do
-          expect(CMDx::Utils::Call).to receive(:invoke).with(
-            mock_task, mock_coercion, value, options
-          )
-
-          registry.coerce("custom", mock_task, value, options)
+    it "adds a custom coercion" do
+      reg = described_class.new
+      klass = Class.new do
+        def self.call(value)
+          "coerced:#{value}"
         end
       end
+
+      reg.register(:widget, klass)
+      expect(reg.resolve(:widget)).to be(klass)
+      expect(klass.call(1)).to eq("coerced:1")
     end
+  end
 
-    context "when options are not provided" do
-      it "passes empty hash as options" do
-        expect(CMDx::Utils::Call).to receive(:invoke).with(
-          mock_task, mock_coercion, value, {}
-        )
+  describe "#for_child" do
+    it "duplicates the registry for copy-on-write" do
+      parent = described_class.new
+      parent.register(:widget, CMDx::Coercions::String)
 
-        registry.coerce(:custom, mock_task, value)
-      end
-    end
+      child = parent.for_child
+      child.register(:other, CMDx::Coercions::Integer)
 
-    context "when coercion type does not exist" do
-      it "raises TypeError with descriptive message" do
-        expect { registry.coerce(:nonexistent, mock_task, value) }
-          .to raise_error(TypeError, "unknown coercion type :nonexistent")
-      end
-
-      it "raises TypeError for string type names" do
-        expect { registry.coerce("string", mock_task, value) }
-          .to raise_error(TypeError, 'unknown coercion type "string"')
-      end
-    end
-
-    context "when type is nil" do
-      it "raises TypeError" do
-        expect { registry.coerce(nil, mock_task, value) }
-          .to raise_error(TypeError, "unknown coercion type nil")
-      end
+      expect(parent.registry.key?(:other)).to be(false)
+      expect(child.registry.key?(:other)).to be(true)
+      expect(parent.resolve(:widget)).to eq(CMDx::Coercions::String)
+      expect(child.resolve(:widget)).to eq(CMDx::Coercions::String)
     end
   end
 end

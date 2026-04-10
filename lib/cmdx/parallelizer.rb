@@ -1,97 +1,60 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Bounded thread pool that processes items concurrently.
-  #
-  # Distributes work across a fixed number of threads using a queue,
-  # collecting results in submission order.
+  # Bounded thread pool for parallel task execution.
   class Parallelizer
 
-    # Returns the items to process.
-    #
-    # @return [Array] the items to process
-    #
-    # @example
-    #   parallelizer.items # => [1, 2, 3]
-    #
-    # @rbs @items: Array[untyped]
-    attr_reader :items
-
-    # Returns the number of threads in the pool.
-    #
-    # @return [Integer] the thread pool size
-    #
-    # @example
-    #   parallelizer.pool_size # => 4
-    #
+    # @return [Integer] maximum concurrent threads
     # @rbs @pool_size: Integer
     attr_reader :pool_size
 
-    # Creates a new Parallelizer instance.
+    # @param pool_size [Integer] maximum concurrent threads
     #
-    # @param items [Array] the items to process concurrently
-    # @param pool_size [Integer] number of threads (defaults to item count)
-    #
-    # @return [Parallelizer] a new parallelizer instance
-    #
-    # @example
-    #   Parallelizer.new([1, 2, 3], pool_size: 2)
-    #
-    # @rbs (Array[untyped] items, ?pool_size: Integer) -> void
-    def initialize(items, pool_size: nil)
-      @items = items
-      @pool_size = Integer(pool_size || items.size)
+    # @rbs (?Integer pool_size) -> void
+    def initialize(pool_size = 5)
+      @pool_size = pool_size
     end
 
-    # Processes items concurrently and returns results in submission order.
+    # Executes work items in parallel with bounded concurrency.
     #
-    # @param items [Array] the items to process concurrently
-    # @param pool_size [Integer] number of threads (defaults to item count)
+    # @param items [Array] items to process
+    # @yield [item] block to execute per item
     #
-    # @yield [item] block called for each item in a worker thread
-    # @yieldparam item [Object] an item from the items array
-    # @yieldreturn [Object] the result for this item
+    # @return [Array] results in order
     #
-    # @return [Array] results in the same order as input items
-    #
-    # @example
-    #   Parallelizer.call([1, 2, 3], pool_size: 2) { |n| n * 10 }
-    #   # => [10, 20, 30]
-    #
-    # @rbs [T, R] (Array[T] items, ?pool_size: Integer) { (T) -> R } -> Array[R]
-    def self.call(items, pool_size: nil, &block)
-      new(items, pool_size:).call(&block)
-    end
+    # @rbs (Array[untyped] items) { (untyped) -> untyped } -> Array[untyped]
+    def call(items, &block)
+      return [] if items.empty?
+      return items.map(&block) if items.size == 1
 
-    # Distributes items across the thread pool and returns results
-    # in submission order.
-    #
-    # @yield [item] block called for each item in a worker thread
-    # @yieldparam item [Object] an item from the items array
-    # @yieldreturn [Object] the result for this item
-    #
-    # @return [Array] results in the same order as input items
-    #
-    # @example
-    #   Parallelizer.new(%w[a b c]).call { |s| s.upcase }
-    #   # => ["A", "B", "C"]
-    #
-    # @rbs [T, R] () { (T) -> R } -> Array[R]
-    def call(&block)
-      results = Array.new(items.size)
       queue = Queue.new
-
       items.each_with_index { |item, i| queue << [item, i] }
-      pool_size.times { queue << nil }
 
-      Array.new(pool_size) do
+      results = ::Array.new(items.size)
+      errors = []
+      mutex = Mutex.new
+      n_threads = [pool_size, items.size].min
+
+      workers = Array.new(n_threads) do
         Thread.new do
-          while (entry = queue.pop)
-            item, index = entry
-            results[index] = block.call(item) # rubocop:disable Performance/RedundantBlockCall
+          loop do
+            item, idx =
+              begin
+                queue.pop(true)
+              rescue ThreadError
+                break
+              end
+            begin
+              results[idx] = block.call(item) # rubocop:disable Performance/RedundantBlockCall
+            rescue StandardError => e
+              mutex.synchronize { errors << e }
+            end
           end
         end
-      end.each(&:join)
+      end
+
+      workers.each(&:join)
+      raise errors.first if errors.any?
 
       results
     end
