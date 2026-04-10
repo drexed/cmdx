@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [1.21.0] - 2026-04-09
+
 ### Added
 - Add `strict` option to `Result#skip!` and `Result#fail!` to bypass breakpoint halting in `execute!`
 - Add `dump_context` global/local setting to include `context` in `Task#to_h`
