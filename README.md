@@ -28,6 +28,9 @@ Say goodbye to messy service objects. CMDx helps you design business logic with 
 > [!NOTE]
 > [Documentation](https://drexed.github.io/cmdx/getting_started/) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
 
+> [!IMPORTANT]
+> **2.0** rewrote the framework (see [CHANGELOG.md](./CHANGELOG.md) and [UPGRADING.md](./UPGRADING.md)). The published MkDocs site may still describe 1.x until it is regenerated.
+
 ## Requirements
 
 - Ruby: MRI 3.1+ or JRuby 9.4+

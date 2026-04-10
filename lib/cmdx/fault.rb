@@ -2,108 +2,58 @@
 
 module CMDx
 
-  # Base fault class for handling task execution failures and interruptions.
-  #
-  # Faults represent error conditions that occur during task execution, providing
-  # a structured way to handle and categorize different types of failures.
-  # Each fault contains a reference to the result object that caused the fault.
+  # Base fault for +execute!+ when outcome matches {Definition#task_breakpoints}.
   class Fault < Error
 
     extend Forwardable
 
-    # Returns the result that caused this fault.
-    #
-    # @return [Result] The result instance
-    #
-    # @example
-    #   fault.result.reason # => "Validation failed"
-    #
-    # @rbs @result: Result
+    # @return [ExecutionResult]
     attr_reader :result
 
-    def_delegators :result, :task, :context, :chain
+    def_delegators :result, :task, :context, :trace
 
-    # Initialize a new fault with the given result.
-    #
-    # @param result [Result] the result object that caused this fault
-    #
-    # @raise [ArgumentError] if result is nil or invalid
-    #
-    # @example
-    #   fault = Fault.new(task_result)
-    #   fault.result.reason # => "Task validation failed"
-    #
-    # @rbs (Result result) -> void
+    # @param result [ExecutionResult]
     def initialize(result)
       @result = result
-
       super(result.reason)
+    end
+
+    # @return [Trace] v1 compatibility name
+    def chain
+      trace
     end
 
     class << self
 
-      # Create a fault class that matches specific task types.
-      #
-      # @param tasks [Array<Class>] array of task classes to match against
-      #
-      # @return [Class] a new fault class that matches the specified tasks
-      #
-      # @example
-      #   Fault.for?(UserTask, AdminUserTask)
-      #   # => true if fault.task is a UserTask or AdminUserTask
-      #
-      # @rbs (*Class tasks) -> Class
+      # @param tasks [Array<Class>]
+      # @return [Class]
       def for?(*tasks)
-        temp_fault = Class.new(self) do
+        klass = Class.new(self) do
           def self.===(other)
             other.is_a?(superclass) && @tasks.any? { |task| other.task.is_a?(task) }
           end
         end
-
-        temp_fault.tap { |c| c.instance_variable_set(:@tasks, tasks) }
+        klass.tap { |c| c.instance_variable_set(:@tasks, tasks) }
       end
 
-      # Create a fault class that matches based on a custom block.
-      #
-      # @param block [Proc] block that determines if a fault matches
-      #
-      # @return [Class] a new fault class that matches based on the block
-      #
-      # @raise [ArgumentError] if no block is provided
-      #
-      # @example
-      #   Fault.matches? { |fault| fault.result.metadata[:critical] }
-      #   # => true if fault has critical metadata
-      #
-      # @rbs () { (Fault) -> bool } -> Class
+      # @yieldparam fault [Fault]
+      # @return [Class]
       def matches?(&block)
-        raise ArgumentError, "block required" unless block_given?
+        raise ArgumentError, "block required" unless block
 
-        temp_fault = Class.new(self) do
-          def self.===(other)
-            other.is_a?(superclass) && @block.call(other)
-          end
+        blk = block
+        klass = Class.new(self)
+        klass.define_singleton_method(:===) do |other|
+          other.is_a?(Fault) && blk.call(other)
         end
-
-        temp_fault.tap { |c| c.instance_variable_set(:@block, block) }
+        klass
       end
 
     end
 
   end
 
-  # Fault raised when a task is intentionally skipped during execution.
-  #
-  # This fault occurs when a task determines it should not execute based on
-  # its current context or conditions. Skipped tasks are not considered failures
-  # but rather intentional bypasses of task execution logic.
   SkipFault = Class.new(Fault)
-
-  # Fault raised when a task execution fails due to errors or validation failures.
-  #
-  # This fault occurs when a task encounters an error condition, validation failure,
-  # or any other condition that prevents successful completion. Failed tasks indicate
-  # that the intended operation could not be completed successfully.
   FailFault = Class.new(Fault)
 
 end
