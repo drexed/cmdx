@@ -1,134 +1,140 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Provides workflow execution capabilities by organizing tasks into execution groups.
-  # Workflows allow you to define sequences of tasks that can be executed conditionally
-  # with breakpoint handling and context management.
+  # Compose multiple tasks into sequential or parallel pipelines.
+  # Include in a Task subclass -- do NOT define a `work` method.
+  #
+  # @example
+  #   class OnboardUser < CMDx::Task
+  #     include CMDx::Workflow
+  #
+  #     task CreateProfile
+  #     task SetupPreferences
+  #     task SendWelcome, if: :email_enabled?
+  #   end
   module Workflow
+
+    def self.included(base)
+      base.extend(ClassMethods)
+      base.instance_variable_set(:@workflow_tasks, [])
+
+      base.define_method(:work) do
+        self.class.workflow_tasks.each do |group|
+          break unless result.success? || !should_break?(group)
+
+          if group[:strategy] == :parallel
+            execute_parallel(group[:entries])
+          else
+            execute_sequential(group[:entries])
+          end
+        end
+      end
+    end
 
     module ClassMethods
 
-      # Prevents redefinition of the work method to maintain workflow integrity.
-      #
-      # @param method_name [Symbol] The name of the method being added
-      #
-      # @raise [RuntimeError] If attempting to redefine the work method
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     # This would raise an error:
-      #     # def work; end
-      #   end
-      #
-      # @rbs (Symbol method_name) -> void
-      def method_added(method_name)
-        raise "cannot redefine #{name}##{method_name} method" if method_name == :work
-
+      def inherited(subclass)
         super
+        subclass.instance_variable_set(:@workflow_tasks, workflow_tasks.map(&:dup))
       end
 
-      # Returns the collection of execution groups for this workflow.
-      #
-      # @return [Array<ExecutionGroup>] Array of execution groups
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts pipeline.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[ExecutionGroup]
-      def pipeline
-        @pipeline ||= []
+      # @return [Array<Hash>]
+      def workflow_tasks
+        @workflow_tasks ||= []
       end
 
-      # Adds multiple tasks to the workflow with optional configuration.
+      # Declare one or more tasks to run sequentially.
       #
-      # @param tasks [Array<Class>] Array of task classes to add
-      # @param options [Hash] Configuration options for the task execution
-      # @option options [Hash] :breakpoints Breakpoints that trigger workflow interruption
-      # @option options [Hash] :conditions Conditional logic for task execution
-      #
-      # @raise [TypeError] If any task is not a CMDx::Task subclass
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
-      #   end
-      #
-      # @rbs (*untyped tasks, **untyped options) -> void
-      def tasks(*tasks, **options)
-        pipeline << ExecutionGroup.new(
-          tasks.map do |task|
-            next task if task.is_a?(Class) && (task <= Task)
+      # @param task_classes [Array<Class>]
+      # @param options [Hash] :if, :unless, :breakpoints, :strategy
+      def task(*task_classes, **options)
+        strategy = options.delete(:strategy) || :sequential
+        entries = task_classes.map do |klass|
+          {
+            task_class: klass,
+            if: options[:if],
+            unless: options[:unless]
+          }
+        end
 
-            raise TypeError, "must be a CMDx::Task"
-          end,
-          options
-        )
+        workflow_tasks << {
+          entries: entries,
+          strategy: strategy,
+          breakpoints: options[:breakpoints]
+        }
       end
-      alias task tasks
-
-      # Returns all tasks in the pipeline.
-      #
-      # @return [Array<Class>] Array of task classes
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts subtasks.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[Class]
-      def subtasks
-        pipeline.flat_map(&:tasks)
-      end
+      alias tasks task
 
     end
 
-    # Represents a group of tasks with shared execution options.
-    # @attr tasks [Array<Class>] Array of task classes in this group
-    # @attr options [Hash] Configuration options for the group
-    ExecutionGroup = Struct.new(:tasks, :options)
+    private
 
-    # Extends the including class with workflow capabilities.
-    #
-    # @param base [Class] The class including this module
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     # Now has access to task, tasks, and work methods
-    #   end
-    #
-    # @rbs (Class base) -> void
-    def self.included(base)
-      base.extend(ClassMethods)
+    def execute_sequential(entries)
+      entries.each do |entry|
+        break unless result.success? || !should_break_entry?(entry)
+        next unless should_run?(entry)
+
+        run_workflow_task(entry[:task_class])
+      end
     end
 
-    # Executes the workflow by processing all tasks in the pipeline.
-    # This method delegates execution to the Pipeline class which handles
-    # the processing of tasks with proper error handling and context management.
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     task ValidateTask
-    #     task ProcessTask
-    #   end
-    #
-    #   workflow = MyWorkflow.new
-    #   result = workflow.work
-    #
-    # @rbs () -> void
-    def work
-      Pipeline.execute(self)
+    def execute_parallel(entries)
+      runnable = entries.select { |e| should_run?(e) }
+      return if runnable.empty?
+
+      threads = runnable.map do |entry|
+        ctx_copy = Context.build(context.to_h)
+        Thread.new(entry, ctx_copy) do |ent, ctx|
+          ent[:task_class].execute(ctx)
+        end
+      end
+
+      threads.each do |thread|
+        task_result = thread.value
+        context.merge!(task_result.context.to_h)
+
+        result.throw!(task_result) if task_result.failed?
+      end
+    end
+
+    def run_workflow_task(task_class)
+      task_result = task_class.execute(context)
+
+      maybe_rollback_workflow_task(task_class, task_result)
+
+      return unless task_result.failed? || (task_result.skipped? && should_break_on_skip?)
+
+      result.throw!(task_result)
+    end
+
+    def maybe_rollback_workflow_task(_task_class, task_result)
+      rollback_statuses = Array(self.class.task_settings.rollback_on)
+      return unless rollback_statuses.include?(task_result.status)
+
+      task_result.task.rollback if task_result.task.respond_to?(:rollback)
+      task_result.mark_rolled_back!
+    end
+
+    def should_run?(entry)
+      return false if entry[:if] && !Callable.evaluate(entry[:if], self)
+
+      return false if entry[:unless] && Callable.evaluate(entry[:unless], self)
+
+      true
+    end
+
+    def should_break?(group)
+      breakpoints = group[:breakpoints] || Array(self.class.task_settings.workflow_breakpoints)
+      breakpoints.include?(result.status)
+    end
+
+    def should_break_entry?(_entry)
+      should_break?({ breakpoints: nil })
+    end
+
+    def should_break_on_skip?
+      breakpoints = Array(self.class.task_settings.workflow_breakpoints)
+      breakpoints.include?("skipped")
     end
 
   end

@@ -1,117 +1,89 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Collection of validation and execution errors organized by attribute.
-  # Provides methods to add, query, and format error messages for different
-  # attributes in a task or workflow execution.
-  class Errors
 
-    extend Forwardable
+  # @abstract Base class for all CMDx exceptions.
+  class Error < StandardError; end
 
-    # Returns the internal hash of error messages by attribute.
-    #
-    # @return [Hash{Symbol => Set<String>}] Hash mapping attribute names to error message sets
-    #
-    # @example
-    #   errors.messages # => { email: #<Set: ["must be valid", "is required"]> }
-    #
-    # @rbs @messages: Hash[Symbol, Set[String]]
-    attr_reader :messages
+  Exception = Error
 
-    def_delegators :messages, :any?, :clear, :empty?, :size
+  # @abstract Raised when a type coercion fails.
+  class CoercionError < Error; end
 
-    # Initialize a new error collection.
-    #
-    # @rbs () -> void
-    def initialize
-      @messages = {}
+  # @abstract Raised when a deprecated task is executed with `deprecate: :raise`.
+  class DeprecationError < Error; end
+
+  # @abstract Raised when a task is executed without defining a `work` method.
+  class UndefinedMethodError < Error; end
+
+  # @abstract Raised when a custom validator rejects a value.
+  class ValidationError < Error; end
+
+  # @abstract Base class for execution interruptions raised by `execute!`.
+  #   Carries a `result` with full execution context.
+  class Fault < Error
+
+    attr_reader :result
+
+    def initialize(message = nil, result: nil)
+      @result = result
+      super(message)
     end
 
-    # Add an error message for a specific attribute.
-    #
-    # @param attribute [Symbol] The attribute name associated with the error
-    # @param message [String] The error message to add
-    #
-    # @example
-    #   errors = CMDx::Errors.new
-    #   errors.add(:email, "must be valid format")
-    #   errors.add(:email, "cannot be blank")
-    #
-    # @rbs (Symbol attribute, String message) -> void
-    def add(attribute, message)
-      return if message.empty?
-
-      messages[attribute] ||= Set.new
-      messages[attribute] << message
+    # @return [CMDx::Task, nil]
+    def task
+      result&.task
     end
 
-    # Check if there are any errors for a specific attribute.
-    #
-    # @param attribute [Symbol] The attribute name to check for errors
-    #
-    # @return [Boolean] true if the attribute has errors, false otherwise
-    #
-    # @example
-    #   errors.for?(:email) # => true
-    #   errors.for?(:name)  # => false
-    #
-    # @rbs (Symbol attribute) -> bool
-    def for?(attribute)
-      set = messages[attribute]
-      !set.nil? && !set.empty?
+    # @return [CMDx::Context, nil]
+    def context
+      result&.context
     end
 
-    # Convert errors to a hash format with arrays of full messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
+    # @return [CMDx::Chain, nil]
+    def chain
+      result&.chain
+    end
+
+    # Matches faults originating from specific task classes.
     # @example
-    #   errors.full_messages # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
-    def full_messages
-      messages.each_with_object({}) do |(attribute, messages), hash|
-        hash[attribute] = messages.map { |message| "#{attribute} #{message}" }
+    #   rescue CMDx::FailFault.for?(MyTask, OtherTask) => e
+    # @param classes [Array<Class>] task classes to match
+    # @return [Module] module with `===` defined for rescue matching
+    def self.for?(*classes)
+      fault_class = self
+      matcher = Object.new
+      matcher.define_singleton_method(:===) do |fault|
+        fault.is_a?(fault_class) && fault.task && classes.any? { |klass| fault.task.is_a?(klass) }
       end
+      matcher
     end
 
-    # Convert errors to a hash format with arrays of messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
+    # Matches faults using custom block logic.
     # @example
-    #   errors.to_h # => { email: ["must be valid format", "cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
-    def to_h
-      messages.transform_values(&:to_a)
-    end
-
-    # Convert errors to a hash format with optional full messages.
-    #
-    # @param full [Boolean] Whether to include full messages with attribute names
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.to_hash # => { email: ["must be valid format", "cannot be blank"] }
-    #   errors.to_hash(true) # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs (?bool full) -> Hash[Symbol, Array[String]]
-    def to_hash(full = false)
-      full ? full_messages : to_h
-    end
-
-    # Convert errors to a human-readable string format.
-    #
-    # @return [String] Formatted error messages joined with periods
-    #
-    # @example
-    #   errors.to_s # => "email must be valid format. email cannot be blank"
-    #
-    # @rbs () -> String
-    def to_s
-      full_messages.values.flatten.join(". ")
+    #   rescue CMDx::Fault.matches? { |f| f.context.amount > 1000 } => e
+    # @yield [fault] block that receives the fault and returns truthy/falsy
+    # @return [Object] object with `===` defined for rescue matching
+    def self.matches?(&)
+      fault_class = self
+      matcher = Object.new
+      matcher.define_singleton_method(:===) do |fault|
+        fault.is_a?(fault_class) && yield(fault)
+      end
+      matcher
     end
 
   end
+
+  # @abstract Raised when a task is skipped via `skip!` during `execute!`.
+  class SkipFault < Fault; end
+
+  # @abstract Raised when a task fails via `fail!`, validation errors,
+  #   or exceptions during `execute!`.
+  class FailFault < Fault; end
+
+  # @abstract Raised when a task exceeds its timeout limit.
+  #   Inherits from Interrupt so `rescue StandardError` won't catch it.
+  class TimeoutError < Interrupt; end
+
 end

@@ -1,439 +1,193 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Represents a configurable attribute within a CMDx task.
-  # Attributes define the data structure and validation rules for task parameters.
-  # They can be nested to create complex hierarchical data structures.
+  # Defines a single task attribute with its full processing pipeline:
+  # source resolution -> coercion -> transformation -> validation.
   class Attribute
 
-    # @rbs AFFIX: Proc
-    AFFIX = proc do |value, &block|
-      value == true ? block.call : value
-    end.freeze
-    private_constant :AFFIX
+    RESERVED_NAMES = %i[
+      id context ctx result res errors work execute execute! rollback
+      skip! fail! success! throw! dry_run? logger class freeze frozen?
+    ].to_set.freeze
 
-    # Returns the task instance associated with this attribute.
-    #
-    # @return [CMDx::Task] The task instance
-    #
-    # @example
-    #   attribute.task.context[:user_id] # => 42
-    #
-    # @rbs @task: Task
-    attr_accessor :task
+    VALIDATOR_KEYS = %i[presence absence format inclusion exclusion length numeric].freeze
+    OPTION_KEYS = %i[required default type source transform as prefix suffix description desc if unless].freeze
+    COERCION_OPTION_KEYS = %i[strptime precision].freeze
 
-    # Returns the name of this attribute.
-    #
-    # @return [Symbol] The attribute name
-    #
-    # @example
-    #   attribute.name # => :user_id
-    #
-    # @rbs @name: Symbol
-    attr_reader :name
+    attr_reader :name, :options, :children
 
-    # Returns the configuration options for this attribute.
-    #
-    # @return [Hash{Symbol => Object}] Configuration options hash
-    #
-    # @example
-    #   attribute.options # => { required: true, default: 0 }
-    #
-    # @rbs @options: Hash[Symbol, untyped]
-    attr_reader :options
-
-    # Returns the child attributes for nested structures.
-    #
-    # @return [Array<Attribute>] Array of child attributes
-    #
-    # @example
-    #   attribute.children # => [#<Attribute @name=:street>, #<Attribute @name=:city>]
-    #
-    # @rbs @children: Array[Attribute]
-    attr_reader :children
-
-    # Returns the parent attribute if this is a nested attribute.
-    #
-    # @return [Attribute, nil] The parent attribute, or nil if root-level
-    #
-    # @example
-    #   attribute.parent # => #<Attribute @name=:address>
-    #
-    # @rbs @parent: (Attribute | nil)
-    attr_reader :parent
-
-    # Returns the expected type(s) for this attribute's value.
-    #
-    # @return [Array<Class>] Array of expected type classes
-    #
-    # @example
-    #   attribute.types # => [Integer, String]
-    #
-    # @rbs @types: Array[Class]
-    attr_reader :types
-
-    # Returns the description of the attribute.
-    #
-    # @return [String] The description of the attribute
-    #
-    # @example
-    #   attribute.description # => "The user's name"
-    #
-    # @rbs @description: String
-    attr_reader :description
-
-    # Creates a new attribute with the specified name and configuration.
-    #
-    # @param name [Symbol, String] The name of the attribute
-    # @param options [Hash] Configuration options for the attribute
-    # @option options [Attribute] :parent The parent attribute for nested structures
-    # @option options [Boolean] :required Whether the attribute is required (default: false)
-    # @option options [Array<Class>, Class] :types The expected type(s) for the attribute value
-    # @option options [String] :description The description of the attribute
-    # @option options [Symbol, String, Proc] :source The source of the attribute value
-    # @option options [Symbol, String] :as The method name to use for this attribute
-    # @option options [Symbol, String, Boolean] :prefix The prefix to add to the method name
-    # @option options [Symbol, String, Boolean] :suffix The suffix to add to the method name
-    # @option options [Object] :default The default value for the attribute
-    #
-    # @yield [self] Block to configure nested attributes
-    #
-    # @example
-    #   Attribute.new(:user_id, required: true, types: [Integer, String]) do
-    #     required :name, types: String
-    #     optional :email, types: String
-    #   end
-    #
-    # @rbs ((Symbol | String) name, ?Hash[Symbol, untyped] options) ?{ () -> void } -> void
-    def initialize(name, options = {}, &)
-      @parent = options.delete(:parent)
-      @required = options.delete(:required) || false
-      @types = Utils::Wrap.array(options.delete(:types) || options.delete(:type))
-      @description = options.delete(:description) || options.delete(:desc)
-
+    # @param name [Symbol]
+    # @param options [Hash]
+    # @param children [CMDx::AttributeSet, nil]
+    def initialize(name, options = {}, children: nil)
       @name = name.to_sym
-      @options = options
-      @children = []
-
-      instance_eval(&) if block_given?
+      @options = options.freeze
+      @children = children
     end
 
-    # Deep-copies children and clears task-dependent memoization so that
-    # duped attributes can be safely bound to a task without mutating the
-    # class-level originals. This makes concurrent execution thread-safe.
-    #
-    # @param source [Attribute] The attribute being duplicated
-    #
-    # @rbs (Attribute source) -> void
-    def initialize_dup(source)
-      super
-      @children = source.children.map(&:dup)
-      remove_instance_variable(:@source) if defined?(@source)
-      remove_instance_variable(:@method_name) if defined?(@method_name)
-      @task = nil
-    end
-
-    class << self
-
-      # Builds multiple attributes with the same configuration.
-      #
-      # @param names [Array<Symbol, String>] The names of the attributes to create
-      # @param options [Hash] Configuration options for the attributes
-      # @option options [Object] :* Any attribute configuration option
-      #
-      # @yield [self] Block to configure nested attributes
-      #
-      # @return [Array<Attribute>] Array of created attributes
-      #
-      # @raise [ArgumentError] When no names are provided or :as is used with multiple attributes
-      #
-      # @example
-      #   Attribute.build(:first_name, :last_name, required: true, types: String)
-      #
-      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-      def build(*names, **options, &)
-        if names.none?
-          raise ArgumentError, "no attributes given"
-        elsif (names.size > 1) && options.key?(:as)
-          raise ArgumentError, "the :as option only supports one attribute per definition"
-        end
-
-        names.filter_map { |name| new(name, **options, &) }
-      end
-
-      # Creates optional attributes (not required).
-      #
-      # @param names [Array<Symbol, String>] The names of the attributes to create
-      # @param options [Hash] Configuration options for the attributes
-      # @option options [Object] :* Any attribute configuration option
-      #
-      # @yield [self] Block to configure nested attributes
-      #
-      # @return [Array<Attribute>] Array of created optional attributes
-      #
-      # @example
-      #   Attribute.optional(:description, :tags, types: String)
-      #
-      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-      def optional(*names, **options, &)
-        build(*names, **options.merge(required: false), &)
-      end
-
-      # Creates required attributes.
-      #
-      # @param names [Array<Symbol, String>] The names of the attributes to create
-      # @param options [Hash] Configuration options for the attributes
-      # @option options [Object] :* Any attribute configuration option
-      #
-      # @yield [self] Block to configure nested attributes
-      #
-      # @return [Array<Attribute>] Array of created required attributes
-      #
-      # @example
-      #   Attribute.required(:id, :name, types: [Integer, String])
-      #
-      # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-      def required(*names, **options, &)
-        build(*names, **options.merge(required: true), &)
-      end
-
-    end
-
-    # Checks if the attribute is optional.
-    #
-    # @return [Boolean] true if the attribute is optional, false otherwise
-    #
-    # @example
-    #   attribute.optional? # => true
-    #
-    # @rbs () -> bool
-    def optional?
-      !required? || !!options[:optional]
-    end
-
-    # Checks if the attribute is required.
-    #
-    # @return [Boolean] true if the attribute is required, false otherwise
-    #
-    # @example
-    #   attribute.required? # => true
-    #
-    # @rbs () -> bool
+    # @return [Boolean]
     def required?
-      !!@required
+      !!@options[:required]
     end
 
-    # Determines the source of the attribute value. Returns :context
-    # as a safe fallback when task is not yet set (e.g., schema introspection).
-    #
-    # @return [Symbol] The source identifier for the attribute value
-    #
-    # @example
-    #   attribute.source # => :context
-    #
-    # @rbs () -> untyped
-    def source
-      return @source if defined?(@source)
+    # @return [Symbol] the method name for the accessor
+    def accessor_name
+      return @options[:as].to_sym if @options[:as]
 
-      parent&.method_name || begin
-        value = options[:source]
+      base = @name.to_s
+      prefix = @options[:prefix]
+      suffix = @options[:suffix]
 
-        if value.is_a?(Proc)
-          task ? @source = task.instance_eval(&value) : :context
-        elsif value.respond_to?(:call)
-          task ? @source = value.call(task) : :context
-        else
-          @source = value || :context
-        end
-      end
+      prefix = prefix == true ? "context_" : prefix.to_s if prefix
+      suffix = suffix == true ? "_context" : suffix.to_s if suffix
+
+      :"#{prefix}#{base}#{suffix}"
     end
 
-    # Returns the method name for this attribute when it can be resolved
-    # statically (without a task instance). Returns nil for Proc/callable
-    # sources whose method name depends on runtime evaluation.
-    #
-    # @return [Symbol, nil] The static method name, or nil if dynamic
-    #
-    # @example
-    #   attribute.allocation_name # => :user_name
-    #
-    # @rbs () -> Symbol?
-    def allocation_name
-      return @allocation_name if defined?(@allocation_name)
-
-      @allocation_name = options[:as] || begin
-        src = options[:source]
-        source_name =
-          if parent
-            parent.allocation_name
-          elsif !src.is_a?(Proc) && !src.respond_to?(:call)
-            src || :context
-          end
-
-        if source_name.is_a?(Symbol)
-          prefix = AFFIX.call(options[:prefix]) { "#{source_name}_" }
-          suffix = AFFIX.call(options[:suffix]) { "_#{source_name}" }
-          :"#{prefix}#{name}#{suffix}"
-        end
-      end
+    # @return [String, nil]
+    def description
+      @options[:description] || @options[:desc]
     end
 
-    # Generates the method name for accessing this attribute.
+    # Process this attribute for a given task: resolve source, coerce,
+    # transform, validate. Returns the final value and appends any
+    # errors to the provided ErrorSet.
     #
-    # @return [Symbol] The method name for the attribute
-    #
-    # @example
-    #   attribute.method_name # => :user_name
-    #
-    # @rbs () -> Symbol
-    def method_name
-      return @method_name if defined?(@method_name)
+    # @param task [CMDx::Task]
+    # @param error_set [CMDx::ErrorSet]
+    # @param task_coercions [Hash, nil]
+    # @param task_validators [Hash, nil]
+    # @return [Object] the processed value
+    def process(task, error_set, task_coercions: nil, task_validators: nil)
+      value = resolve_source(task)
+      value = apply_default(task, value)
 
-      result = options[:as] || begin
-        prefix = AFFIX.call(options[:prefix]) { "#{source}_" }
-        suffix = AFFIX.call(options[:suffix]) { "_#{source}" }
-        :"#{prefix}#{name}#{suffix}"
+      if required_for?(task) && value.nil?
+        error_set.add(@name, Messages.resolve("attribute.required"))
+        return value
       end
 
-      # Only memoize if @source is defined to avoid memoizing method
-      # name when no task is present.
-      return result unless defined?(@source)
+      value = coerce(value, error_set, task_coercions: task_coercions)
+      return value if error_set.for?(@name)
 
-      @method_name = result
-    end
+      value = transform(task, value)
 
-    # Defines and verifies the entire attribute tree including nested children.
-    #
-    # @rbs () -> void
-    def define_and_verify_tree
-      define_and_verify
+      validate(value, task, error_set, task_validators: task_validators)
 
-      children.each do |child|
-        child.task = task
-        child.define_and_verify_tree
+      if @children && value.is_a?(Hash) && !error_set.for?(@name)
+        process_children(task, value, error_set,
+                         task_coercions: task_coercions,
+                         task_validators: task_validators)
       end
+
+      value
     end
 
-    # Recursively clears the task reference from this attribute and all children.
-    # Prevents the class-level attribute from retaining the last-executed task instance.
-    #
-    # @rbs () -> void
-    def clear_task_tree!
-      @task = nil
-      children.each(&:clear_task_tree!)
-    end
+    # @return [Hash] introspection schema
+    def to_schema
+      schema = { required: required? }
+      schema[:types] = Array(@options[:type]) if @options[:type]
+      schema[:default] = @options[:default] if @options.key?(:default)
+      schema[:description] = description if description
+      schema[:source] = @options[:source] if @options[:source]
 
-    # @return [Hash] A hash representation of the attribute
-    #
-    # @example
-    #   attribute.to_h # => {
-    #   name: :user_id,
-    #   method_name: :current_user_id,
-    #   description: "The user's name",
-    #   required: true,
-    #   types: [:integer],
-    #   options: {},
-    #   children: []
-    # }
-    #
-    # @rbs () -> Hash[Symbol, untyped]
-    def to_h
-      {
-        name: name,
-        method_name: method_name,
-        description: description,
-        required: required?,
-        types: types,
-        options: options.except(:if, :unless),
-        children: children.map(&:to_h)
-      }
+      VALIDATOR_KEYS.each do |key|
+        schema[key] = @options[key] if @options.key?(key)
+      end
+
+      schema[:children] = @children.schema if @children
+
+      schema
     end
 
     private
 
-    # Creates nested attributes as children of this attribute.
-    #
-    # @param names [Array<Symbol, String>] The names of the child attributes
-    # @param options [Hash] Configuration options for the child attributes
-    # @option options [Object] :* Any attribute configuration option
-    #
-    # @yield [self] Block to configure the child attributes
-    #
-    # @return [Array<Attribute>] Array of created child attributes
-    #
-    # @example
-    #   attributes :street, :city, :zip, types: String
-    #
-    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-    def attributes(*names, **options, &)
-      attrs = self.class.build(*names, **options.merge(parent: self), &)
-      children.concat(attrs)
-    end
-    alias attribute attributes
+    def resolve_source(task)
+      source = @options[:source]
 
-    # Creates optional nested attributes.
-    #
-    # @param names [Array<Symbol, String>] The names of the optional child attributes
-    # @param options [Hash] Configuration options for the child attributes
-    # @option options [Object] :* Any attribute configuration option
-    #
-    # @yield [self] Block to configure the child attributes
-    #
-    # @return [Array<Attribute>] Array of created optional child attributes
-    #
-    # @example
-    #   optional :middle_name, :nickname, types: String
-    #
-    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-    def optional(*names, **options, &)
-      attributes(*names, **options.merge(required: false), &)
+      case source
+      when nil, :context
+        task.context[@name]
+      when Symbol
+        src = Callable.resolve(source, task)
+        src.respond_to?(:[]) ? src[@name] : src
+      else
+        Callable.resolve(source, task)
+      end
     end
 
-    # Creates required nested attributes.
-    #
-    # @param names [Array<Symbol, String>] The names of the required child attributes
-    # @param options [Hash] Configuration options for the child attributes
-    # @option options [Object] :* Any attribute configuration option
-    #
-    # @yield [self] Block to configure the child attributes
-    #
-    # @return [Array<Attribute>] Array of created required child attributes
-    #
-    # @example
-    #   required :first_name, :last_name, types: String
-    #
-    # @rbs (*untyped names, **untyped options) ?{ () -> void } -> Array[Attribute]
-    def required(*names, **options, &)
-      attributes(*names, **options.merge(required: true), &)
+    def apply_default(task, value)
+      return value unless value.nil? && @options.key?(:default)
+
+      default = @options[:default]
+      case default
+      when Symbol then Callable.resolve(default, task)
+      when Proc   then default.call
+      else default
+      end
     end
 
-    # Defines the attribute reader on the task class (once) and
-    # generates/validates the per-instance value (every execution).
-    #
-    # @raise [RuntimeError] When the method name is already defined on the task
-    #
-    # @rbs () -> void
-    def define_and_verify
-      name_of_method = method_name
+    def required_for?(task)
+      return false unless required?
 
-      unless task.class.method_defined?(name_of_method)
-        if task.respond_to?(name_of_method, true)
-          raise <<~MESSAGE
-            The method #{name_of_method.inspect} is already defined on the #{task.class.name} task.
-            This may be due conflicts with one of the task's user defined or internal methods/attributes.
+      req_if = @options[:if]
+      req_unless = @options[:unless]
 
-            Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
-          MESSAGE
-        end
+      return !Callable.evaluate(req_unless, task) if req_unless
+      return Callable.evaluate(req_if, task) if req_if
 
-        task.class.define_method(name_of_method) do
-          attributes[name_of_method]
-        end
+      true
+    end
+
+    def coerce(value, error_set, task_coercions: nil)
+      return value unless @options[:type] && !value.nil?
+
+      Coercions.coerce(@options[:type], value, @options, task_registry: task_coercions)
+    rescue CoercionError => e
+      error_set.add(@name, e.message)
+      value
+    end
+
+    def transform(task, value)
+      return value unless @options[:transform] && !value.nil?
+
+      Callable.resolve(@options[:transform], task, value)
+    end
+
+    def validate(value, task, error_set, task_validators: nil)
+      return if value.nil? && !required?
+
+      VALIDATOR_KEYS.each do |key|
+        next unless @options.key?(key)
+
+        msg = Validators.validate(key, value, @options[key],
+                                  task: task, task_registry: task_validators)
+        error_set.add(@name, msg) if msg
       end
 
-      attribute_value = AttributeValue.new(self)
-      attribute_value.generate
-      attribute_value.validate
+      custom_validators(value, task, error_set, task_validators: task_validators)
+    end
+
+    def custom_validators(value, task, error_set, task_validators: nil)
+      @options.each do |key, opts|
+        next if VALIDATOR_KEYS.include?(key)
+        next if OPTION_KEYS.include?(key)
+        next if COERCION_OPTION_KEYS.include?(key)
+
+        msg = Validators.validate(key, value, opts,
+                                  task: task, task_registry: task_validators)
+        error_set.add(@name, msg) if msg
+      end
+    end
+
+    def process_children(task, parent_value, error_set, task_coercions: nil, task_validators: nil)
+      @children.each_attribute do |child_attr|
+        child_value = parent_value[child_attr.name]
+        child_attr.process(task, error_set,
+                           task_coercions: task_coercions,
+                           task_validators: task_validators)
+        task.context[child_attr.name] = child_value if child_value
+      end
     end
 
   end

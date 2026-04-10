@@ -1,309 +1,163 @@
 # frozen_string_literal: true
 
 module CMDx
-  # A hash-like context object that provides a flexible way to store and access
-  # key-value pairs during task execution. Keys are automatically converted to
-  # symbols for consistency.
-  #
-  # The Context class extends Forwardable to delegate common hash methods and
-  # provides additional convenience methods for working with context data.
+  # Data container for task inputs, intermediate values, and outputs.
+  # Wraps a Hash internally for fast lookups with dynamic method access.
   class Context
 
-    extend Forwardable
-
-    # Returns the internal hash storing context data.
+    # Build a Context from various input types.
     #
-    # @return [Hash{Symbol => Object}] The internal hash table
-    #
-    # @example
-    #   context.table # => { name: "John", age: 30 }
-    #
-    # @rbs @table: Hash[Symbol, untyped]
-    attr_reader :table
-    alias to_h table
-
-    def_delegators :table, :keys, :values, :each, :each_key, :each_value, :map
-
-    # Creates a new Context instance from the given arguments.
-    #
-    # @param args [Hash, Object] arguments to initialize the context with
-    # @option args [Object] :key the key-value pairs to store in the context
-    #
-    # @return [Context] a new Context instance
-    #
-    # @raise [ArgumentError] when args doesn't respond to `to_h` or `to_hash`
-    #
-    # @example
-    #   context = Context.new(name: "John", age: 30)
-    #   context[:name] # => "John"
-    #
-    # @rbs (untyped args) -> void
-    def initialize(args = {})
-      @table =
-        if args.respond_to?(:to_hash)
-          args.to_hash
-        elsif args.respond_to?(:to_h)
-          args.to_h
-        else
-          raise ArgumentError, "must respond to `to_h` or `to_hash`"
-        end.transform_keys(&:to_sym)
-    end
-
-    # Builds a Context instance, reusing existing unfrozen contexts when possible.
-    #
-    # @param context [Context, Object] the context to build from
-    # @option context [Object] :key the key-value pairs to store in the context
-    #
-    # @return [Context] a Context instance, either new or reused
-    #
-    # @example
-    #   existing = Context.new(name: "John")
-    #   built = Context.build(existing) # reuses existing context
-    #   built.object_id == existing.object_id # => true
-    #
-    # @rbs (untyped context) -> Context
-    def self.build(context = {})
-      if context.is_a?(self) && !context.frozen?
-        context
-      elsif context.respond_to?(:context)
-        build(context.context)
+    # @param input [Hash, Context, Result, Task, nil] the input to build from
+    # @return [CMDx::Context]
+    # @raise [ArgumentError] if input can't be converted to a hash
+    def self.build(input = nil)
+      case input
+      when nil          then new
+      when Context      then input.frozen? ? new(input.to_h) : input
+      when Hash         then new(input)
       else
-        new(context)
+        if input.respond_to?(:context)
+          ctx = input.context
+          ctx.frozen? ? new(ctx.to_h) : ctx
+        elsif input.respond_to?(:to_h)
+          new(input.to_h)
+        else
+          raise ArgumentError, "Cannot build Context from #{input.class}"
+        end
       end
     end
 
-    # Retrieves a value from the context by key.
-    #
-    # @param key [String, Symbol] the key to retrieve
-    #
-    # @return [Object, nil] the value associated with the key, or nil if not found
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context[:name] # => "John"
-    #   context["name"] # => "John" (automatically converted to symbol)
-    #
-    # @rbs ((String | Symbol) key) -> untyped
+    def initialize(data = {})
+      @data = {}
+      data.each { |k, v| @data[k.to_sym] = v }
+    end
+
+    # @return [Object, nil]
     def [](key)
-      table[key.to_sym]
+      @data[key.to_sym]
     end
 
-    # Stores a key-value pair in the context.
-    #
-    # @param key [String, Symbol] the key to store
-    # @param value [Object] the value to store
-    #
-    # @return [Object] the stored value
-    #
-    # @example
-    #   context = Context.new
-    #   context.store(:name, "John")
-    #   context[:name] # => "John"
-    #
-    # @rbs ((String | Symbol) key, untyped value) -> untyped
-    def store(key, value)
-      table[key.to_sym] = value
+    # @return [Object]
+    def []=(key, value)
+      @data[key.to_sym] = value
     end
-    alias []= store
 
-    # Fetches a value from the context by key, with optional default value.
-    #
-    # @param key [String, Symbol] the key to fetch
-    #
-    # @yield [key] a block to compute the default value
-    #
-    # @return [Object] the value associated with the key, or the default/default block result
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.fetch(:name) # => "John"
-    #   context.fetch(:age, 25) # => 25
-    #   context.fetch(:city) { |key| "Unknown #{key}" } # => "Unknown city"
-    #
-    # @rbs ((String | Symbol) key, *untyped) ?{ ((String | Symbol)) -> untyped } -> untyped
+    # @param key [Symbol, String]
+    # @param default [Object]
+    # @return [Object]
     def fetch(key, ...)
-      table.fetch(key.to_sym, ...)
+      @data.fetch(key.to_sym, ...)
     end
 
-    # Fetches a value from the context by key, or stores and returns a default value if not found.
-    #
-    # @param key [String, Symbol] the key to fetch or store
-    # @param value [Object] the default value to store if key is not found
-    #
-    # @yield [key] a block to compute the default value to store
-    #
-    # @return [Object] the existing value if key is found, otherwise the stored default value
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.fetch_or_store(:name, "Default") # => "John" (existing value)
-    #   context.fetch_or_store(:age, 25) # => 25 (stored and returned)
-    #   context.fetch_or_store(:city) { |key| "Unknown #{key}" } # => "Unknown city" (stored and returned)
-    #
-    # @rbs ((String | Symbol) key, ?untyped value) ?{ () -> untyped } -> untyped
-    def fetch_or_store(key, value = nil)
-      table.fetch(key.to_sym) do
-        table[key.to_sym] = block_given? ? yield : value
-      end
+    # @param keys [Array<Symbol, String>]
+    # @return [Object, nil]
+    def dig(*keys)
+      @data.dig(*keys.map { |k| k.is_a?(String) ? k.to_sym : k })
     end
 
-    # Merges the given arguments into the current context, modifying it in place.
-    #
-    # @param args [Hash, Object] arguments to merge into the context
-    # @option args [Object] :key the key-value pairs to merge
-    #
-    # @return [Context] self for method chaining
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.merge!(age: 30, city: "NYC")
-    #   context.to_h # => {name: "John", age: 30, city: "NYC"}
-    #
-    # @rbs (?untyped args) -> self
-    def merge!(args = EMPTY_HASH)
-      table.merge!(args.to_h.transform_keys(&:to_sym))
-      self
-    end
-    alias merge merge!
-
-    # Deletes a key-value pair from the context.
-    #
-    # @param key [String, Symbol] the key to delete
-    #
-    # @yield [key] a block to handle the case when key is not found
-    #
-    # @return [Object, nil] the deleted value, or the block result if key not found
-    #
-    # @example
-    #   context = Context.new(name: "John", age: 30)
-    #   context.delete!(:age) # => 30
-    #   context.delete!(:city) { |key| "Key #{key} not found" } # => "Key city not found"
-    #
-    # @rbs ((String | Symbol) key) ?{ ((String | Symbol)) -> untyped } -> untyped
-    def delete!(key, &)
-      table.delete(key.to_sym, &)
-    end
-    alias delete delete!
-
-    # Clears all key-value pairs from the context.
-    #
-    # @return [Context] self for method chaining
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.clear!
-    #   context.to_h # => {}
-    #
-    # @rbs () -> self
-    def clear!
-      table.clear
-      self
-    end
-    alias clear clear!
-
-    # Compares this context with another object for equality.
-    #
-    # @param other [Object] the object to compare with
-    #
-    # @return [Boolean] true if other is a Context with the same data
-    #
-    # @example
-    #   context1 = Context.new(name: "John")
-    #   context2 = Context.new(name: "John")
-    #   context1 == context2 # => true
-    #
-    # @rbs (untyped other) -> bool
-    def eql?(other)
-      other.is_a?(self.class) && (table == other.to_h)
-    end
-    alias == eql?
-
-    # Checks if the context contains a specific key.
-    #
-    # @param key [String, Symbol] the key to check
-    #
-    # @return [Boolean] true if the key exists in the context
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.key?(:name) # => true
-    #   context.key?(:age) # => false
-    #
-    # @rbs ((String | Symbol) key) -> bool
+    # @return [Boolean]
     def key?(key)
-      table.key?(key.to_sym)
+      @data.key?(key.to_sym)
     end
 
-    # Digs into nested structures using the given keys.
+    # Fetch existing value or store and return the default.
     #
-    # @param key [String, Symbol] the first key to dig with
-    # @param keys [Array<String, Symbol>] additional keys for deeper digging
-    #
-    # @return [Object, nil] the value found by digging, or nil if not found
-    #
-    # @example
-    #   context = Context.new(user: {profile: {name: "John"}})
-    #   context.dig(:user, :profile, :name) # => "John"
-    #   context.dig(:user, :profile, :age) # => nil
-    #
-    # @rbs ((String | Symbol) key, *(String | Symbol) keys) -> untyped
-    def dig(key, *keys)
-      table.dig(key.to_sym, *keys)
+    # @param key [Symbol, String]
+    # @param default [Object]
+    # @return [Object]
+    def fetch_or_store(key, default = nil)
+      sym = key.to_sym
+      return @data[sym] if @data.key?(sym)
+
+      @data[sym] = default
     end
 
-    # Converts the context to a string representation.
-    #
-    # @return [String] a formatted string representation of the context data
-    #
-    # @example
-    #   context = Context.new(name: "John", age: 30)
-    #   context.to_s # => "name: John, age: 30"
-    #
-    # @rbs () -> String
-    def to_s
-      Utils::Format.to_str(to_h)
+    # @param other [Hash]
+    # @return [self]
+    def merge!(other)
+      other.each { |k, v| @data[k.to_sym] = v }
+      self
+    end
+
+    # @param key [Symbol, String]
+    # @return [Object, nil]
+    def delete!(key)
+      @data.delete(key.to_sym)
+    end
+
+    # @return [self]
+    def clear!
+      @data.clear
+      self
+    end
+
+    # @yield [key, value]
+    def each(&)
+      @data.each(&)
+    end
+
+    # @yield [key, value]
+    # @return [Array]
+    def map(&)
+      @data.map(&)
+    end
+
+    # @return [Hash] a duplicate of the internal data
+    def to_h
+      @data.dup
+    end
+    alias to_hash to_h
+
+    # @return [Boolean]
+    def empty?
+      @data.empty?
+    end
+
+    # @return [Integer]
+    def size
+      @data.size
+    end
+
+    # @return [Array<Symbol>]
+    def keys
+      @data.keys
+    end
+
+    # @return [Array]
+    def values
+      @data.values
+    end
+
+    def freeze
+      @data.freeze
+      super
+    end
+
+    def inspect
+      "#<#{self.class} #{@data.inspect}>"
     end
 
     private
 
-    # Handles method calls that don't match defined methods.
-    # Supports assignment-style calls (e.g., `name=`) and key access.
-    #
-    # @param method_name [Symbol] the method name that was called
-    # @param args [Array<Object>] arguments passed to the method
-    # @param _kwargs [Hash] keyword arguments (unused)
-    # @option _kwargs [Object] :* Any keyword arguments (unused)
-    #
-    # @yield [Object] optional block
-    #
-    # @return [Object] the result of the method call
-    #
-    # @rbs (Symbol method_name, *untyped args, **untyped _kwargs) ?{ () -> untyped } -> untyped
-    def method_missing(method_name, *args, **_kwargs, &)
-      if method_name.end_with?("=")
-        store(method_name.name.chop, args.first)
-      else
-        table[method_name]
-      end
+    def respond_to_missing?(name, include_private = false)
+      writer = name.to_s.end_with?("=")
+      key = writer ? name.to_s.chomp("=").to_sym : name.to_sym
+      writer || @data.key?(key) || super
     end
 
-    # Checks if the object responds to a given method.
-    # Supports both getter access for existing keys and setter methods.
-    #
-    # @param method_name [Symbol] the method name to check
-    # @param include_private [Boolean] whether to include private methods
-    #
-    # @return [Boolean] true if the method can be called
-    #
-    # @example
-    #   context = Context.new(name: "John")
-    #   context.respond_to?(:name) # => true
-    #   context.respond_to?(:name=) # => true
-    #   context.respond_to?(:age) # => false
-    #
-    # @rbs (Symbol method_name, ?bool include_private) -> bool
-    def respond_to_missing?(method_name, include_private = false)
-      key?(method_name) || method_name.end_with?("=") || super
+    def method_missing(name, *args)
+      method_name = name.to_s
+
+      if method_name.end_with?("=")
+        key = method_name.chomp("=").to_sym
+        @data[key] = args.first
+      elsif @data.key?(name)
+        @data[name]
+      elsif args.empty?
+        nil
+      else
+        super
+      end
     end
 
   end

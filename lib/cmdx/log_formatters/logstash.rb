@@ -2,39 +2,31 @@
 
 module CMDx
   module LogFormatters
-    # Formats log messages as Logstash-compatible JSON for structured logging
-    #
-    # This formatter converts log entries into Logstash-compatible JSON format with
-    # standardized fields including @version, @timestamp, severity, program name,
-    # process ID, and formatted message. The output follows Logstash event format
-    # specifications for seamless integration with ELK stack and similar systems.
+    # Logstash-compatible JSON formatter with @version and @timestamp.
     class Logstash
 
-      # Formats a log entry as a Logstash-compatible JSON string
-      #
-      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
-      # @param time [Time] The timestamp when the log entry was created
-      # @param progname [String, nil] The program name or identifier
-      # @param message [Object] The log message content
-      #
-      # @return [String] A Logstash-compatible JSON-formatted log entry with a trailing newline
-      #
-      # @example Basic usage
-      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
-      #   # => '{"severity":"INFO","progname":"MyApp","pid":12345,"message":"User logged in","@version":"1","@timestamp":"2024-01-15T10:30:45.123456Z"}\n'
-      #
-      # @rbs (String severity, Time time, String? progname, String message) -> String
-      def call(severity, time, progname, message)
-        hash = {
-          severity:,
-          progname:,
-          pid: Process.pid,
-          message: Utils::Format.to_log(message),
+      # @param data [Hash] structured log data
+      # @return [String]
+      def call(data)
+        entry = {
           "@version" => "1",
-          "@timestamp" => time.utc.iso8601(6)
+          "@timestamp" => Time.now.utc.iso8601(6),
+          "progname" => "cmdx",
+          "message" => deep_serialize(data)
         }
+        JSON.generate(entry)
+      end
 
-        ::JSON.dump(hash) << "\n"
+      private
+
+      def deep_serialize(obj)
+        case obj
+        when Hash        then obj.transform_keys(&:to_s).transform_values { |v| deep_serialize(v) }
+        when Array       then obj.map { |v| deep_serialize(v) }
+        when ::Exception then "#{obj.class}: #{obj.message}"
+        when Symbol      then obj.to_s
+        else obj
+        end
       end
 
     end

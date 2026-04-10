@@ -2,137 +2,82 @@
 
 module CMDx
   module Middlewares
-    # Middleware for correlating task executions with unique identifiers.
-    #
-    # The Correlate middleware provides thread and fiber safe correlation ID management
-    # for tracking task execution flows across different operations. It automatically
-    # generates correlation IDs when none are provided and stores them in task result
-    # metadata for traceability.
-    module Correlate
+    # Adds correlation IDs for distributed tracing.
+    # Thread/fiber-safe via the same storage mechanism as Chain.
+    class Correlate
 
-      extend self
+      STORAGE_KEY = :cmdx_correlation_id
+      private_constant :STORAGE_KEY
 
-      # @rbs CONCURRENCY_KEY: Symbol
-      CONCURRENCY_KEY = :cmdx_correlate
+      class << self
 
-      # Retrieves the current correlation ID from local storage.
-      #
-      # @return [String, nil] The current correlation ID or nil if not set
-      #
-      # @example Get current correlation ID
-      #   Correlate.id # => "550e8400-e29b-41d4-a716-446655440000"
-      #
-      # @rbs () -> String?
-      def id
-        thread_or_fiber[CONCURRENCY_KEY]
-      end
-
-      # Sets the correlation ID in local storage.
-      #
-      # @param id [String] The correlation ID to set
-      # @return [String] The set correlation ID
-      #
-      # @example Set correlation ID
-      #   Correlate.id = "abc-123-def"
-      #
-      # @rbs (String id) -> String
-      def id=(id)
-        thread_or_fiber[CONCURRENCY_KEY] = id
-      end
-
-      # Clears the current correlation ID from local storage.
-      #
-      # @return [nil] Always returns nil
-      #
-      # @example Clear correlation ID
-      #   Correlate.clear
-      #
-      # @rbs () -> nil
-      def clear
-        thread_or_fiber[CONCURRENCY_KEY] = nil
-      end
-
-      # Temporarily uses a new correlation ID for the duration of a block.
-      # Restores the previous ID after the block completes, even if an error occurs.
-      #
-      # @param new_id [String] The correlation ID to use temporarily
-      # @yield The block to execute with the new correlation ID
-      # @return [Object] The result of the yielded block
-      #
-      # @example Use temporary correlation ID
-      #   Correlate.use("temp-id") do
-      #     # Operations here use "temp-id"
-      #     perform_operation
-      #   end
-      #   # Previous ID is restored
-      #
-      # @rbs (String new_id) { () -> untyped } -> untyped
-      def use(new_id)
-        old_id = id
-        self.id = new_id
-        yield
-      ensure
-        self.id = old_id
-      end
-
-      # Middleware entry point that applies correlation ID logic to task execution.
-      #
-      # Evaluates the condition from options and applies correlation ID handling
-      # if enabled. Generates or retrieves correlation IDs based on the :id option
-      # and stores them in task result metadata.
-      #
-      # @param task [Task] The task being executed
-      # @param options [Hash] Configuration options for correlation
-      # @option options [Symbol, Proc, Object, nil] :id The correlation ID source
-      # @option options [Symbol, Proc, Object, nil] :if Condition to enable correlation
-      # @option options [Symbol, Proc, Object, nil] :unless Condition to disable correlation
-      #
-      # @yield The task execution block
-      #
-      # @return [Object] The result of task execution
-      #
-      # @example Basic usage with automatic ID generation
-      #   Correlate.call(task, &block)
-      # @example Use custom correlation ID
-      #   Correlate.call(task, id: "custom-123", &block)
-      # @example Use task method for ID
-      #   Correlate.call(task, id: :correlation_id, &block)
-      # @example Use proc for dynamic ID generation
-      #   Correlate.call(task, id: -> { "dynamic-#{Time.now.to_i}" }, &block)
-      # @example Conditional correlation
-      #   Correlate.call(task, if: :enable_correlation, &block)
-      #
-      # @rbs (Task task, **untyped options) { () -> untyped } -> untyped
-      def call(task, **options, &)
-        return yield unless Utils::Condition.evaluate(task, options)
-
-        correlation_id = task.result.metadata[:correlation_id] ||=
-          id ||
-          case callable = options[:id]
-          when Symbol then task.send(callable)
-          when Proc then task.instance_eval(&callable)
+        # @return [String, nil]
+        def id
+          if Chain::FIBER_STORAGE
+            Fiber[STORAGE_KEY]
           else
-            if callable.respond_to?(:call)
-              callable.call(task)
-            else
-              callable || id || Identifier.generate
-            end
+            Thread.current[STORAGE_KEY]
           end
+        end
 
-        use(correlation_id, &)
+        # @param value [String, nil]
+        def id=(value)
+          if Chain::FIBER_STORAGE
+            Fiber[STORAGE_KEY] = value
+          else
+            Thread.current[STORAGE_KEY] = value
+          end
+        end
+
+        # Scoped block with a specific correlation ID.
+        # Restores the previous ID after the block completes.
+        #
+        # @param correlation_id [String]
+        # @yield
+        def use(correlation_id)
+          previous = id
+          self.id = correlation_id
+          yield
+        ensure
+          self.id = previous
+        end
+
+        # Clear the current correlation ID.
+        def clear
+          self.id = nil
+        end
+
+      end
+
+      def call(task, options = {})
+        return yield if options.key?(:if) && !Callable.evaluate(options[:if], task)
+
+        return yield if options.key?(:unless) && Callable.evaluate(options[:unless], task)
+
+        correlation_id = resolve_id(task, options)
+        self.class.id ||= correlation_id
+
+        result = yield
+        result.metadata[:correlation_id] = self.class.id if result
+        result
       end
 
       private
 
-      # Returns the thread or fiber storage for the current execution context.
-      #
-      # @return [Hash] The thread or fiber storage
-      #
-      # @rbs () -> Hash
-      if Fiber.respond_to?(:storage)
-        def thread_or_fiber = Fiber.storage
-      else
-        def thread_or_fiber = Thread.current
+      def resolve_id(task, options)
+        value = options[:id]
+        case value
+        when nil     then self.class.id || generate_uuid
+        when String  then value
+        when Symbol  then task.send(value)
+        when Proc    then value.call(task)
+        else
+          value.respond_to?(:call) ? value.call(task) : generate_uuid
+        end
+      end
+
+      def generate_uuid
+        Chain::UUID_V7 ? SecureRandom.uuid_v7 : SecureRandom.uuid
       end
 
     end
