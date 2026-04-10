@@ -7,73 +7,73 @@ require "json"
 require "logger"
 require "pathname"
 require "securerandom"
-require "set"
 require "time"
 require "timeout"
-require "yaml"
-require "zeitwerk"
+
+require_relative "cmdx/version"
+require_relative "cmdx/errors"
+require_relative "cmdx/messages"
+require_relative "cmdx/callable"
+require_relative "cmdx/context"
+require_relative "cmdx/error_set"
+require_relative "cmdx/result"
+require_relative "cmdx/chain"
+require_relative "cmdx/coercions"
+require_relative "cmdx/validators"
+require_relative "cmdx/attribute"
+require_relative "cmdx/attribute_set"
+require_relative "cmdx/configuration"
+require_relative "cmdx/settings"
+require_relative "cmdx/callbacks"
+require_relative "cmdx/middleware_stack"
+require_relative "cmdx/returns"
+require_relative "cmdx/task"
+require_relative "cmdx/workflow"
+require_relative "cmdx/log_entry"
+require_relative "cmdx/log_formatters/line"
+require_relative "cmdx/log_formatters/json"
+require_relative "cmdx/log_formatters/key_value"
+require_relative "cmdx/log_formatters/logstash"
+require_relative "cmdx/log_formatters/raw"
+require_relative "cmdx/middlewares/timeout"
+require_relative "cmdx/middlewares/correlate"
+require_relative "cmdx/middlewares/runtime"
 
 module CMDx
 
-  # @rbs EMPTY_ARRAY: Array[untyped]
   EMPTY_ARRAY = [].freeze
   private_constant :EMPTY_ARRAY
 
-  # @rbs EMPTY_HASH: Hash[untyped, untyped]
   EMPTY_HASH = {}.freeze
   private_constant :EMPTY_HASH
 
-  # @rbs EMPTY_STRING: String
   EMPTY_STRING = ""
   private_constant :EMPTY_STRING
 
   extend self
 
-  # Returns the path to the CMDx gem.
-  #
-  # @return [Pathname] the path to the CMDx gem
-  #
-  # @example
-  #   CMDx.gem_path # => Pathname.new("/path/to/cmdx")
-  #
-  # @rbs return: Pathname
+  # @return [Pathname]
   def gem_path
     @gem_path ||= Pathname.new(__dir__).parent
   end
 
+  # @return [CMDx::Configuration]
+  def configuration
+    @configuration ||= Configuration.new
+  end
+
+  # @yield [CMDx::Configuration]
+  def configure
+    yield(configuration)
+  end
+
+  # Reset global configuration to defaults.
+  # @return [void]
+  def reset_configuration!
+    @configuration = Configuration.new
+  end
+
+  # @return [#call, nil] custom message resolver for i18n integration
+  attr_accessor :message_resolver
+
 end
-
-# Set up Zeitwerk loader for the CMDx gem
-loader = Zeitwerk::Loader.for_gem
-loader.inflector.inflect("cmdx" => "CMDx", "json" => "JSON")
-loader.ignore("#{__dir__}/cmdx/configuration")
-loader.ignore("#{__dir__}/cmdx/exception")
-loader.ignore("#{__dir__}/cmdx/fault")
-loader.ignore("#{__dir__}/cmdx/railtie")
-loader.ignore("#{__dir__}/generators")
-loader.ignore("#{__dir__}/locales")
-loader.setup
-
-# Pre-load configuration to make module methods available
-# This is acceptable since configuration is fundamental to the framework
-require_relative "cmdx/configuration"
-
-# Pre-load exceptions to make them available at the top level
-# This ensures CMDx::Error and its descendants are always available
-require_relative "cmdx/exception"
-
-# Pre-load fault classes to make them available at the top level
-# This ensures CMDx::FailFault and CMDx::SkipFault are always available
-require_relative "cmdx/fault"
-
-# Conditionally load Rails components if Rails is available
-if defined?(Rails::Generators)
-  require_relative "generators/cmdx/install_generator"
-  require_relative "generators/cmdx/locale_generator"
-  require_relative "generators/cmdx/task_generator"
-  require_relative "generators/cmdx/workflow_generator"
-end
-
-# Load the Railtie last after everything else is required so we don't
-# need to load any CMDx components when we use this Railtie.
-require_relative "cmdx/railtie" if defined?(Rails::Railtie)

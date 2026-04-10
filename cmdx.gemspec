@@ -56,7 +56,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "bigdecimal"
   spec.add_dependency "logger"
-  spec.add_dependency "zeitwerk"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "cmdx-rspec"
