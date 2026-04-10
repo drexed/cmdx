@@ -1,10 +1,9 @@
 PATH
   remote: .
   specs:
-    cmdx (1.21.0)
+    cmdx (2.0.0)
       bigdecimal
       logger
-      zeitwerk
 
 GEM
   remote: https://rubygems.org/
