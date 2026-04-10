@@ -99,6 +99,18 @@ module CMDx
     # @rbs @cause: (Exception | nil)
     attr_reader :cause
 
+    # Returns whether this result transitions are strict.
+    # When false, {CMDx::Executor#halt_execution?} returns false
+    # regardless of the task's breakpoint settings.
+    #
+    # @return [Boolean] Whether the result transitions are strict
+    #
+    # @example
+    #   result.strict? # => true
+    #
+    # @rbs @strict: bool
+    attr_reader :strict
+
     # Returns the number of retries attempted.
     #
     # @return [Integer] The number of retries attempted
@@ -108,18 +120,6 @@ module CMDx
     #
     # @rbs @retries: Integer
     attr_accessor :retries
-
-    # Returns whether this result is strict.
-    # When false, {CMDx::Executor#halt_execution?} returns false
-    # regardless of the task's breakpoint settings.
-    #
-    # @return [Boolean] Whether the result is strict
-    #
-    # @example
-    #   result.strict? # => true
-    #
-    # @rbs @strict: bool
-    attr_reader :strict
 
     # Returns whether the result has been rolled back.
     #
@@ -154,8 +154,8 @@ module CMDx
       @metadata = {}
       @reason = nil
       @cause = nil
-      @retries = 0
       @strict = true
+      @retries = 0
       @rolled_back = false
     end
 
@@ -170,16 +170,6 @@ module CMDx
       define_method(:"#{s}?") { state == s }
     end
 
-    # @return [self] Returns self for method chaining
-    #
-    # @example
-    #   result.executed! # Transitions to complete or interrupted
-    #
-    # @rbs () -> self
-    def executed!
-      success? ? complete! : interrupt!
-    end
-
     # @return [Boolean] Whether the task has been executed (complete or interrupted)
     #
     # @example
@@ -188,48 +178,6 @@ module CMDx
     # @rbs () -> bool
     def executed?
       complete? || interrupted?
-    end
-
-    # @raise [RuntimeError] When attempting to transition from invalid state
-    #
-    # @example
-    #   result.executing! # Transitions from initialized to executing
-    #
-    # @rbs () -> void
-    def executing!
-      return if executing?
-
-      raise "can only transition to #{EXECUTING} from #{INITIALIZED}" unless initialized?
-
-      @state = EXECUTING
-    end
-
-    # @raise [RuntimeError] When attempting to transition from invalid state
-    #
-    # @example
-    #   result.complete! # Transitions from executing to complete
-    #
-    # @rbs () -> void
-    def complete!
-      return if complete?
-
-      raise "can only transition to #{COMPLETE} from #{EXECUTING}" unless executing?
-
-      @state = COMPLETE
-    end
-
-    # @raise [RuntimeError] When attempting to transition from invalid state
-    #
-    # @example
-    #   result.interrupt! # Transitions from executing to interrupted
-    #
-    # @rbs () -> void
-    def interrupt!
-      return if interrupted?
-
-      raise "cannot transition to #{INTERRUPTED} from #{COMPLETE}" if complete?
-
-      @state = INTERRUPTED
     end
 
     STATUSES.each do |s|
@@ -280,147 +228,6 @@ module CMDx
 
       yield(self) if states_or_statuses.any? { |s| public_send(:"#{s}?") }
       self
-    end
-
-    # Sets a reason and optional metadata on a successful result without
-    # changing its state or status. Useful for annotating why a task succeeded.
-    # When halt is true, uses throw/catch to exit the work method early.
-    #
-    # @param reason [String, nil] Reason or note for the success
-    # @param halt [Boolean] Whether to halt execution after success
-    # @param metadata [Hash] Additional metadata about the success
-    # @option metadata [Object] :* Any key-value pairs for additional metadata
-    #
-    # @raise [RuntimeError] When status is not success
-    #
-    # @example
-    #   result.success!("Created 42 records")
-    #   result.success!("Imported", halt: false, rows: 100)
-    #
-    # @rbs (?String? reason, halt: bool, **untyped metadata) -> void
-    def success!(reason = nil, halt: true, **metadata)
-      raise "can only be used while #{SUCCESS}" unless success?
-
-      @reason = reason
-      @metadata = metadata
-
-      throw(:cmdx_halt) if halt
-    end
-
-    # @param reason [String, nil] Reason for skipping the task
-    # @param halt [Boolean] Whether to halt execution after skipping
-    # @param cause [Exception, nil] Exception that caused the skip
-    # @param strict [Boolean] Whether this skip is strict (default: true).
-    #   When false, {CMDx::Executor#halt_execution?} returns false regardless of task settings.
-    # @param metadata [Hash] Additional metadata about the skip
-    # @option metadata [Object] :* Any key-value pairs for additional metadata
-    #
-    # @raise [RuntimeError] When attempting to skip from invalid status
-    #
-    # @example
-    #   result.skip!("Dependencies not met", cause: dependency_error)
-    #   result.skip!("Already processed", halt: false)
-    #   result.skip!("Optional step", strict: false)
-    #
-    # @rbs (?String? reason, halt: bool, cause: Exception?, strict: bool, **untyped metadata) -> void
-    def skip!(reason = nil, halt: true, cause: nil, strict: true, **metadata)
-      return if skipped?
-
-      raise "can only transition to #{SKIPPED} from #{SUCCESS}" unless success?
-
-      @state = INTERRUPTED
-      @status = SKIPPED
-      @reason = reason || Locale.t("cmdx.reasons.unspecified")
-      @cause = cause
-      @strict = strict
-      @metadata = metadata
-
-      halt! if halt
-    end
-
-    # @param reason [String, nil] Reason for task failure
-    # @param halt [Boolean] Whether to halt execution after failure
-    # @param cause [Exception, nil] Exception that caused the failure
-    # @param strict [Boolean] Whether this failure is strict (default: true).
-    #   When false, {CMDx::Executor#halt_execution?} returns false regardless of task settings.
-    # @param metadata [Hash] Additional metadata about the failure
-    # @option metadata [Object] :* Any key-value pairs for additional metadata
-    #
-    # @raise [RuntimeError] When attempting to fail from invalid status
-    #
-    # @example
-    #   result.fail!("Validation failed", cause: validation_error)
-    #   result.fail!("Network timeout", halt: false, timeout: 30)
-    #   result.fail!("Soft failure", strict: false)
-    #
-    # @rbs (?String? reason, halt: bool, cause: Exception?, strict: bool, **untyped metadata) -> void
-    def fail!(reason = nil, halt: true, cause: nil, strict: true, **metadata)
-      return if failed?
-
-      raise "can only transition to #{FAILED} from #{SUCCESS}" unless success?
-
-      @state = INTERRUPTED
-      @status = FAILED
-      @reason = reason || Locale.t("cmdx.reasons.unspecified")
-      @cause = cause
-      @strict = strict
-      @metadata = metadata
-
-      halt! if halt
-    end
-
-    # @raise [SkipFault] When task was skipped
-    # @raise [FailFault] When task failed
-    #
-    # @example
-    #   result.halt! # Raises appropriate fault based on status
-    #
-    # @rbs () -> void
-    def halt!
-      return if success?
-
-      klass = skipped? ? SkipFault : FailFault
-      fault = klass.new(self)
-
-      # Strip the first two frames (this method and the delegator)
-      frames = caller_locations(3..-1)
-
-      unless frames.empty?
-        frames = frames.map(&:to_s)
-
-        if (cleaner = task.class.settings.backtrace_cleaner)
-          cleaner.call(frames)
-        end
-
-        fault.set_backtrace(frames)
-      end
-
-      raise(fault)
-    end
-
-    # @param result [CMDx::Result] Result to throw from current result
-    # @param halt [Boolean] Whether to halt execution after throwing
-    # @param cause [Exception, nil] Exception that caused the throw
-    # @param metadata [Hash] Additional metadata to merge
-    # @option metadata [Object] :* Any key-value pairs for additional metadata
-    #
-    # @raise [TypeError] When result is not a CMDx::Result instance
-    #
-    # @example
-    #   other_result = OtherTask.execute
-    #   result.throw!(other_result, cause: upstream_error)
-    #
-    # @rbs (Result result, halt: bool, cause: Exception?, **untyped metadata) -> void
-    def throw!(result, halt: true, cause: nil, **metadata)
-      raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
-
-      @state = result.state
-      @status = result.status
-      @reason = result.reason
-      @cause = cause || result.cause
-      @metadata = result.metadata.merge(metadata)
-
-      halt! if halt
     end
 
     # @return [CMDx::Result, nil] The result that caused this failure, or nil
@@ -500,6 +307,16 @@ module CMDx
       failed? && !caused_failure?
     end
 
+    # @return [Boolean] Whether the result transitions are strict
+    #
+    # @example
+    #   result.strict? # => true
+    #
+    # @rbs () -> bool
+    def strict?
+      !!@strict
+    end
+
     # @return [Boolean] Whether the result has been retried
     #
     # @example
@@ -508,16 +325,6 @@ module CMDx
     # @rbs () -> bool
     def retried?
       retries.positive?
-    end
-
-    # @return [Boolean] Whether the result is strict
-    #
-    # @example
-    #   result.strict? # => true
-    #
-    # @rbs () -> bool
-    def strict?
-      !!@strict
     end
 
     # @return [Boolean] Whether the result has been rolled back
@@ -620,12 +427,12 @@ module CMDx
     # @rbs (*untyped) -> Hash[Symbol, untyped]
     def deconstruct_keys(*)
       {
-        state: state,
-        status: status,
-        reason: reason,
-        cause: cause,
-        metadata: metadata,
-        outcome: outcome,
+        state:,
+        status:,
+        reason:,
+        cause:,
+        metadata:,
+        outcome:,
         executed: executed?,
         good: good?,
         bad: bad?

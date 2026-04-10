@@ -5,14 +5,14 @@ require "spec_helper"
 RSpec.describe CMDx::Middlewares::Timeout, type: :unit do
   subject(:timeout_middleware) { described_class }
 
-  let(:task) { double("CMDx::Task", result: result) } # rubocop:disable RSpec/VerifiedDoubles
+  let(:task) { double("CMDx::Task", result: result, resolver: resolver) } # rubocop:disable RSpec/VerifiedDoubles
   let(:result) { instance_double(CMDx::Result) }
+  let(:resolver) { instance_double(CMDx::Resolver) }
   let(:block_result) { "block executed" }
   let(:test_block) { proc { block_result } }
 
   before do
-    allow(result).to receive(:fail!)
-    allow(result).to receive(:tap).and_return(result)
+    allow(resolver).to receive(:fail!)
   end
 
   describe ".call" do
@@ -191,7 +191,7 @@ RSpec.describe CMDx::Middlewares::Timeout, type: :unit do
       it "re-raises non-timeout errors without calling fail!" do
         expect(Timeout).to receive(:timeout).and_yield.and_raise(standard_error)
 
-        expect(result).not_to receive(:fail!)
+        expect(resolver).not_to receive(:fail!)
 
         expect do
           timeout_middleware.call(task, seconds: 5, &error_block)

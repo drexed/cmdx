@@ -6,9 +6,8 @@ RSpec.describe CMDx::Fault, type: :unit do
   let(:task_class) { create_successful_task(name: "TestTask") }
   let(:task) { task_class.new }
   let(:result) do
-    task.result.tap do |r|
-      r.fail!("test failure reason", halt: false)
-    end
+    task.resolver.fail!("test failure reason", halt: false)
+    task.result
   end
 
   describe "#initialize" do
@@ -110,10 +109,8 @@ RSpec.describe CMDx::Fault, type: :unit do
 
   describe ".matches?" do
     let(:fault_with_metadata) do
-      result_with_metadata = task.result.tap do |r|
-        r.fail!("failure", halt: false, metadata: { error_code: 500 })
-      end
-      described_class.new(result_with_metadata)
+      task.resolver.fail!("failure", halt: false, metadata: { error_code: 500 })
+      described_class.new(task.result)
     end
 
     context "when block is provided" do

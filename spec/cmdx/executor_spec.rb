@@ -66,8 +66,8 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       # Setup result state to support proper transitions
       allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
-      allow(task.result).to receive(:complete!)
-      allow(task.result).to receive(:executed!)
+      allow(task.resolver).to receive(:complete!)
+      allow(task.resolver).to receive(:executed!)
     end
 
     context "when execution is successful" do
@@ -75,7 +75,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(middlewares).to receive(:call!).with(task).and_yield
         expect(worker).to receive(:pre_execution!)
         expect(worker).to receive(:execution!)
-        expect(task.result).to receive(:executed!)
+        expect(task.resolver).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(worker).to receive(:freeze_execution!)
 
@@ -87,7 +87,7 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!)
-        allow(task.result).to receive(:executed!)
+        allow(task.resolver).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
         expect(logger).to receive(:info)
@@ -121,9 +121,9 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(fault)
 
-        expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+        expect(task.resolver).to receive(:throw!).with(fault_result, halt: false, cause: fault)
 
-        allow(task.result).to receive(:executed!)
+        allow(task.resolver).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
         worker.execute
@@ -134,9 +134,9 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(fault)
-        allow(task.result).to receive(:throw!)
+        allow(task.resolver).to receive(:throw!)
 
-        expect(task.result).to receive(:executed!)
+        expect(task.resolver).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(worker).to receive(:freeze_execution!)
 
@@ -153,9 +153,9 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
 
-        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
+        expect(task.resolver).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
 
-        allow(task.result).to receive(:executed!)
+        allow(task.resolver).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
         worker.execute
@@ -166,9 +166,9 @@ RSpec.describe CMDx::Executor, type: :unit do
 
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
-        allow(task.result).to receive(:fail!)
+        allow(task.resolver).to receive(:fail!)
 
-        expect(task.result).to receive(:executed!)
+        expect(task.resolver).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(worker).to receive(:freeze_execution!)
 
@@ -185,9 +185,9 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(custom_error)
 
-        expect(task.result).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error, source: :exception)
+        expect(task.resolver).to receive(:fail!).with("[CMDx::TestError] test error", halt: false, cause: custom_error, source: :exception)
 
-        allow(task.result).to receive(:executed!)
+        allow(task.resolver).to receive(:executed!)
         allow(worker).to receive(:post_execution!)
 
         worker.execute
@@ -209,8 +209,8 @@ RSpec.describe CMDx::Executor, type: :unit do
 
       # Setup result state to support proper transitions
       allow(task.result).to receive_messages(to_h: { test: "data" }, state: "executing", executing?: true, executed?: true, success?: true)
-      allow(task.result).to receive(:complete!)
-      allow(task.result).to receive(:executed!)
+      allow(task.resolver).to receive(:complete!)
+      allow(task.resolver).to receive(:executed!)
     end
 
     context "when execution is successful" do
@@ -218,7 +218,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         expect(middlewares).to receive(:call!).with(task).and_yield
         expect(worker).to receive(:pre_execution!)
         expect(worker).to receive(:execution!)
-        expect(task.result).to receive(:executed!)
+        expect(task.resolver).to receive(:executed!)
         expect(worker).to receive(:post_execution!)
         expect(worker).to receive(:freeze_execution!)
 
@@ -252,8 +252,8 @@ RSpec.describe CMDx::Executor, type: :unit do
           allow(worker).to receive(:pre_execution!)
           allow(worker).to receive(:execution!).and_raise(fault)
 
-          expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
-          expect(task.result).to receive(:executed!)
+          expect(task.resolver).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+          expect(task.resolver).to receive(:executed!)
           expect(worker).to receive(:halt_execution?).with(fault).and_return(false)
           expect(worker).to receive(:post_execution!)
 
@@ -268,7 +268,7 @@ RSpec.describe CMDx::Executor, type: :unit do
           allow(worker).to receive(:pre_execution!)
           allow(worker).to receive(:execution!).and_raise(fault)
 
-          expect(task.result).to receive(:throw!).with(fault_result, halt: false, cause: fault)
+          expect(task.resolver).to receive(:throw!).with(fault_result, halt: false, cause: fault)
           expect(worker).to receive(:halt_execution?).with(fault).and_return(true)
           expect(worker).to receive(:raise_exception).with(fault).and_raise(fault)
 
@@ -286,7 +286,7 @@ RSpec.describe CMDx::Executor, type: :unit do
         allow(worker).to receive(:pre_execution!)
         allow(worker).to receive(:execution!).and_raise(standard_error)
 
-        expect(task.result).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
+        expect(task.resolver).to receive(:fail!).with("[StandardError] something went wrong", halt: false, cause: standard_error, source: :exception)
         expect(worker).to receive(:raise_exception).with(standard_error).and_raise(standard_error)
 
         expect { worker.execute! }.to raise_error(standard_error)
@@ -295,12 +295,13 @@ RSpec.describe CMDx::Executor, type: :unit do
   end
 
   describe "#halt_execution?" do
-    let(:fault_result) { instance_double(CMDx::Result, status: "failed", strict?: true, reason: "test failure") }
+    let(:fault_resolver) { instance_double(CMDx::Resolver) }
+    let(:fault_task) { instance_double(CMDx::Task, resolver: fault_resolver) }
+    let(:fault_result) { instance_double(CMDx::Result, status: "failed", task: fault_task, reason: "test failure", strict?: true) }
     let(:fault) { CMDx::FailFault.new(fault_result) }
 
-    context "when result has strict: false" do
-      let(:fault_result) { instance_double(CMDx::Result, status: "failed", strict?: false, reason: "test failure") }
-      let(:fault) { CMDx::FailFault.new(fault_result) }
+    context "when resolver has strict: false" do
+      let(:fault_result) { instance_double(CMDx::Result, status: "failed", task: fault_task, reason: "test failure", strict?: false) }
 
       before do
         allow(task.class).to receive(:settings).and_return(mock_settings(breakpoints: %w[failed skipped]))
@@ -323,7 +324,9 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       context "when exception result status is not in breakpoints" do
-        let(:success_result) { instance_double(CMDx::Result, status: "success", strict?: true, reason: "test success") }
+        let(:success_resolver) { instance_double(CMDx::Resolver) }
+        let(:success_task) { instance_double(CMDx::Task, resolver: success_resolver) }
+        let(:success_result) { instance_double(CMDx::Result, status: "success", task: success_task, reason: "test success", strict?: true) }
         let(:success_fault) { CMDx::SkipFault.new(success_result) }
 
         it "returns false" do
@@ -686,11 +689,11 @@ RSpec.describe CMDx::Executor, type: :unit do
           to_s: "Validation failed",
           to_h: { name: ["is required"] }
         )
-        allow(task.result).to receive(:fail!)
+        allow(task.resolver).to receive(:fail!)
       end
 
       it "calls fail! on result with error information" do
-        expect(task.result).to receive(:fail!).with(
+        expect(task.resolver).to receive(:fail!).with(
           "Invalid",
           source: :validation,
           errors: {
@@ -710,13 +713,13 @@ RSpec.describe CMDx::Executor, type: :unit do
     before do
       allow(task.class).to receive(:settings).and_return(mock_settings(callbacks: callbacks))
       allow(callbacks).to receive(:invoke)
-      allow(task.result).to receive(:executing!)
+      allow(task.resolver).to receive(:executing!)
       allow(task).to receive(:work)
     end
 
     it "invokes before_execution callback, sets executing state, and calls work" do
       expect(callbacks).to receive(:invoke).with(:before_execution, task)
-      expect(task.result).to receive(:executing!)
+      expect(task.resolver).to receive(:executing!)
       expect(task).to receive(:work)
 
       worker.send(:execution!)
@@ -788,7 +791,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "adds errors for missing returns and fails the result" do
-        expect(task.result).to receive(:fail!).with(
+        expect(task.resolver).to receive(:fail!).with(
           "Invalid",
           source: :context,
           errors: {
@@ -808,7 +811,7 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "adds errors for all missing returns and fails the result" do
-        expect(task.result).to receive(:fail!).with(
+        expect(task.resolver).to receive(:fail!).with(
           "Invalid",
           source: :context,
           errors: {
@@ -1075,12 +1078,12 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "marks result as failed and transitions to executed" do
-        expect(task.result).to receive(:fail!).with(
+        expect(task.resolver).to receive(:fail!).with(
           CMDx::Locale.t("cmdx.faults.invalid"),
           halt: false,
           source: :middleware
         )
-        expect(task.result).to receive(:executed!)
+        expect(task.resolver).to receive(:executed!)
 
         worker.send(:verify_middleware_yield!)
       end
@@ -1092,8 +1095,8 @@ RSpec.describe CMDx::Executor, type: :unit do
       end
 
       it "does nothing" do
-        expect(task.result).not_to receive(:fail!)
-        expect(task.result).not_to receive(:executed!)
+        expect(task.resolver).not_to receive(:fail!)
+        expect(task.resolver).not_to receive(:executed!)
 
         worker.send(:verify_middleware_yield!)
       end

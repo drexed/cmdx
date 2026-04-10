@@ -28,7 +28,7 @@ module CMDx
     # @rbs @task: Task
     attr_reader :task
 
-    def_delegators :task, :result
+    def_delegators :task, :result, :resolver
 
     # @param task [CMDx::Task] The task to execute
     #
@@ -78,13 +78,13 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
-        result.throw!(e.result, halt: false, cause: e)
+        resolver.throw!(e.result, halt: false, cause: e)
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
+        resolver.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
         task.class.settings.exception_handler&.call(task, e)
       ensure
-        result.executed!
+        resolver.executed!
         post_execution!
       end
 
@@ -111,20 +111,20 @@ module CMDx
       rescue UndefinedMethodError => e
         raise_exception(e)
       rescue Fault => e
-        result.throw!(e.result, halt: false, cause: e)
+        resolver.throw!(e.result, halt: false, cause: e)
 
         if halt_execution?(e)
           raise_exception(e)
         else
-          result.executed!
+          resolver.executed!
           post_execution!
         end
       rescue StandardError => e
         retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
+        resolver.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
         raise_exception(e)
       else
-        result.executed!
+        resolver.executed!
         post_execution!
       end
 
@@ -221,7 +221,7 @@ module CMDx
       task.class.settings.attributes.define_and_verify(task)
       return if task.errors.empty?
 
-      result.fail!(
+      resolver.fail!(
         Locale.t("cmdx.faults.invalid"),
         source: :validation,
         errors: {
@@ -238,7 +238,7 @@ module CMDx
     def execution!
       invoke_callbacks(:before_execution)
 
-      result.executing!
+      resolver.executing!
       catch(:cmdx_halt) { task.work }
     end
 
@@ -254,7 +254,7 @@ module CMDx
 
       missing.each { |name| task.errors.add(name, Locale.t("cmdx.returns.missing")) }
 
-      result.fail!(
+      resolver.fail!(
         Locale.t("cmdx.faults.invalid"),
         source: :context,
         errors: {
@@ -285,12 +285,12 @@ module CMDx
     def verify_middleware_yield!
       return unless result.initialized?
 
-      result.fail!(
+      resolver.fail!(
         Locale.t("cmdx.faults.invalid"),
         halt: false,
         source: :middleware
       )
-      result.executed!
+      resolver.executed!
     end
 
     # Finalizes execution by freezing the task, logging results, and rolling back work.
@@ -339,6 +339,7 @@ module CMDx
       return unless CMDx.configuration.freeze_results
 
       task.freeze
+      resolver.freeze
       result.freeze
 
       # Freezing the context and chain can only be done once the outer-most

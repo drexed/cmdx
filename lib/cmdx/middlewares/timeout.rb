@@ -63,14 +63,12 @@ module CMDx
 
         ::Timeout.timeout(limit, TimeoutError, "execution exceeded #{limit} seconds", &)
       rescue TimeoutError => e
-        task.result.tap do |r|
-          r.fail!(
-            Utils::Normalize.exception(e),
-            cause: e,
-            source: :timeout,
-            limit:
-          )
-        end
+        task.resolver.fail!(
+          Utils::Normalize.exception(e),
+          cause: e,
+          source: :timeout,
+          limit:
+        )
       end
 
     end

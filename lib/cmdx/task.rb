@@ -70,7 +70,17 @@ module CMDx
     # @rbs @chain: Chain
     attr_reader :chain
 
-    def_delegators :result, :success!, :skip!, :fail!, :throw!
+    # Returns the resolver for managing result state transitions.
+    #
+    # @return [Resolver] The resolver instance
+    #
+    # @example
+    #   task.resolver.fail!("Validation failed")
+    #
+    # @rbs @resolver: Resolver
+    attr_reader :resolver
+
+    def_delegators :resolver, :success!, :skip!, :fail!, :throw!
     def_delegators :chain, :dry_run?
 
     # @param context [Hash, Context, nil] The initial context for the task
@@ -92,6 +102,7 @@ module CMDx
       @context = Context.build(context)
       @errors = Errors.new
       @result = Result.new(self)
+      @resolver = Resolver.new(@result)
       @chain = Chain.build(@result, dry_run: @context.delete(:dry_run))
 
       @attributes = {}

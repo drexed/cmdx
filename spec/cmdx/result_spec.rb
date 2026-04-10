@@ -6,6 +6,7 @@ RSpec.describe CMDx::Result, type: :unit do
   let(:task_class) { create_successful_task(name: "TestTask") }
   let(:task) { task_class.new }
   let(:result) { task.result }
+  let(:resolver) { task.resolver }
 
   describe "#initialize" do
     context "with valid task" do
@@ -38,7 +39,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns false when state is not initialized" do
-        result.executing!
+        resolver.executing!
 
         expect(result.initialized?).to be(false)
       end
@@ -50,7 +51,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when state is executing" do
-        result.executing!
+        resolver.executing!
 
         expect(result.executing?).to be(true)
       end
@@ -62,8 +63,8 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when state is complete" do
-        result.executing!
-        result.complete!
+        resolver.executing!
+        resolver.complete!
 
         expect(result.complete?).to be(true)
       end
@@ -75,8 +76,8 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when state is interrupted" do
-        result.executing!
-        result.interrupt!
+        resolver.executing!
+        resolver.interrupt!
 
         expect(result.interrupted?).to be(true)
       end
@@ -87,15 +88,15 @@ RSpec.describe CMDx::Result, type: :unit do
     describe "#executing!" do
       context "when initialized" do
         it "transitions to executing state" do
-          result.executing!
+          resolver.executing!
 
           expect(result.state).to eq(CMDx::Result::EXECUTING)
         end
 
         it "returns early if already executing" do
-          result.executing!
+          resolver.executing!
           initial_state = result.state
-          result.executing!
+          resolver.executing!
 
           expect(result.state).to eq(initial_state)
         end
@@ -103,35 +104,35 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when not initialized" do
         it "raises error when trying to transition from complete" do
-          result.executing!
-          result.complete!
+          resolver.executing!
+          resolver.complete!
 
-          expect { result.executing! }.to raise_error(/can only transition to executing from initialized/)
+          expect { resolver.executing! }.to raise_error(/can only transition to executing from initialized/)
         end
 
         it "raises error when trying to transition from interrupted" do
-          result.executing!
-          result.interrupt!
+          resolver.executing!
+          resolver.interrupt!
 
-          expect { result.executing! }.to raise_error(/can only transition to executing from initialized/)
+          expect { resolver.executing! }.to raise_error(/can only transition to executing from initialized/)
         end
       end
     end
 
     describe "#complete!" do
       context "when executing" do
-        before { result.executing! }
+        before { resolver.executing! }
 
         it "transitions to complete state" do
-          result.complete!
+          resolver.complete!
 
           expect(result.state).to eq(CMDx::Result::COMPLETE)
         end
 
         it "returns early if already complete" do
-          result.complete!
+          resolver.complete!
           initial_state = result.state
-          result.complete!
+          resolver.complete!
 
           expect(result.state).to eq(initial_state)
         end
@@ -139,7 +140,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when not executing" do
         it "raises error when trying to transition from initialized" do
-          expect { result.complete! }.to raise_error(/can only transition to complete from executing/)
+          expect { resolver.complete! }.to raise_error(/can only transition to complete from executing/)
         end
       end
     end
@@ -147,22 +148,22 @@ RSpec.describe CMDx::Result, type: :unit do
     describe "#interrupt!" do
       context "when not complete" do
         it "transitions to interrupted from initialized" do
-          result.interrupt!
+          resolver.interrupt!
 
           expect(result.state).to eq(CMDx::Result::INTERRUPTED)
         end
 
         it "transitions to interrupted from executing" do
-          result.executing!
-          result.interrupt!
+          resolver.executing!
+          resolver.interrupt!
 
           expect(result.state).to eq(CMDx::Result::INTERRUPTED)
         end
 
         it "returns early if already interrupted" do
-          result.interrupt!
+          resolver.interrupt!
           initial_state = result.state
-          result.interrupt!
+          resolver.interrupt!
 
           expect(result.state).to eq(initial_state)
         end
@@ -170,10 +171,10 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when complete" do
         it "raises error when trying to transition from complete" do
-          result.executing!
-          result.complete!
+          resolver.executing!
+          resolver.complete!
 
-          expect { result.interrupt! }.to raise_error(/cannot transition to interrupted from complete/)
+          expect { resolver.interrupt! }.to raise_error(/cannot transition to interrupted from complete/)
         end
       end
     end
@@ -186,13 +187,13 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns false after skip!" do
-        result.skip!("test reason", halt: false)
+        resolver.skip!("test reason", halt: false)
 
         expect(result.success?).to be(false)
       end
 
       it "returns false after fail!" do
-        result.fail!("test reason", halt: false)
+        resolver.fail!("test reason", halt: false)
 
         expect(result.success?).to be(false)
       end
@@ -204,7 +205,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true after skip!" do
-        result.skip!("test reason", halt: false)
+        resolver.skip!("test reason", halt: false)
 
         expect(result.skipped?).to be(true)
       end
@@ -216,7 +217,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true after fail!" do
-        result.fail!("test reason", halt: false)
+        resolver.fail!("test reason", halt: false)
 
         expect(result.failed?).to be(true)
       end
@@ -228,13 +229,13 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when skipped" do
-        result.skip!("test reason", halt: false)
+        resolver.skip!("test reason", halt: false)
 
         expect(result.good?).to be(true)
       end
 
       it "returns false when failed" do
-        result.fail!("test reason", halt: false)
+        resolver.fail!("test reason", halt: false)
 
         expect(result.good?).to be(false)
       end
@@ -246,27 +247,15 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when skipped" do
-        result.skip!("test reason", halt: false)
+        resolver.skip!("test reason", halt: false)
 
         expect(result.bad?).to be(true)
       end
 
       it "returns true when failed" do
-        result.fail!("test reason", halt: false)
+        resolver.fail!("test reason", halt: false)
 
         expect(result.bad?).to be(true)
-      end
-    end
-
-    describe "#strict?" do
-      it "returns true by default" do
-        expect(result.strict?).to be(true)
-      end
-
-      it "returns false when strict is false" do
-        result.fail!("test reason", halt: false, strict: false)
-
-        expect(result.strict?).to be(false)
       end
     end
 
@@ -299,8 +288,8 @@ RSpec.describe CMDx::Result, type: :unit do
     describe "#executed!" do
       context "when successful" do
         it "calls complete!" do
-          result.executing!
-          result.executed!
+          resolver.executing!
+          resolver.executed!
 
           expect(result.complete?).to be(true)
         end
@@ -308,15 +297,15 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when not successful" do
         it "calls interrupt! when skipped" do
-          result.skip!("test reason", halt: false)
-          result.executed!
+          resolver.skip!("test reason", halt: false)
+          resolver.executed!
 
           expect(result.interrupted?).to be(true)
         end
 
         it "calls interrupt! when failed" do
-          result.fail!("test reason", halt: false)
-          result.executed!
+          resolver.fail!("test reason", halt: false)
+          resolver.executed!
 
           expect(result.interrupted?).to be(true)
         end
@@ -329,14 +318,14 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "returns true when complete" do
-        result.executing!
-        result.complete!
+        resolver.executing!
+        resolver.complete!
 
         expect(result.executed?).to be(true)
       end
 
       it "returns true when interrupted" do
-        result.interrupt!
+        resolver.interrupt!
 
         expect(result.executed?).to be(true)
       end
@@ -348,7 +337,7 @@ RSpec.describe CMDx::Result, type: :unit do
       end
 
       it "calls block when executed" do
-        result.interrupt!
+        resolver.interrupt!
         called = false
         result.on(:executed) { |_r| called = true }
 
@@ -364,279 +353,6 @@ RSpec.describe CMDx::Result, type: :unit do
 
       it "returns self" do
         expect(result.on(:executed) { "test" }).to eq(result)
-      end
-    end
-  end
-
-  describe "#success!" do
-    context "when successful" do
-      it "sets the reason" do
-        catch(:cmdx_halt) { result.success!("Created 42 records") }
-
-        expect(result.status).to eq(CMDx::Result::SUCCESS)
-        expect(result.reason).to eq("Created 42 records")
-        expect(result.metadata).to eq({})
-      end
-
-      it "accepts metadata" do
-        catch(:cmdx_halt) { result.success!("Imported", rows: 100) }
-
-        expect(result.reason).to eq("Imported")
-        expect(result.metadata).to eq({ rows: 100 })
-      end
-
-      it "allows nil reason" do
-        catch(:cmdx_halt) { result.success! }
-
-        expect(result.reason).to be_nil
-      end
-
-      it "does not change state or status" do
-        original_state = result.state
-        original_status = result.status
-        catch(:cmdx_halt) { result.success!("note") }
-
-        expect(result.state).to eq(original_state)
-        expect(result.status).to eq(original_status)
-      end
-
-      it "throws :cmdx_halt by default" do
-        expect { result.success!("done") }.to throw_symbol(:cmdx_halt)
-      end
-
-      it "does not throw when halt is false" do
-        expect { result.success!("done", halt: false) }.not_to throw_symbol(:cmdx_halt)
-      end
-    end
-
-    context "when not successful" do
-      it "raises error when skipped" do
-        result.skip!("test", halt: false)
-
-        expect { result.success!("reason") }.to raise_error(/can only be used while success/)
-      end
-
-      it "raises error when failed" do
-        result.fail!("test", halt: false)
-
-        expect { result.success!("reason") }.to raise_error(/can only be used while success/)
-      end
-    end
-  end
-
-  describe "#skip!" do
-    context "when successful" do
-      it "transitions to skipped status" do
-        result.skip!("test reason", halt: false)
-
-        expect(result.status).to eq(CMDx::Result::SKIPPED)
-        expect(result.state).to eq(CMDx::Result::INTERRUPTED)
-        expect(result.reason).to eq("test reason")
-        expect(result.cause).to be_nil
-        expect(result.metadata).to eq({})
-      end
-
-      it "accepts metadata" do
-        result.skip!("test reason", halt: false, foo: "bar")
-
-        expect(result.metadata).to eq({ foo: "bar" })
-      end
-
-      it "accepts cause" do
-        cause = StandardError.new("cause")
-        result.skip!("test reason", halt: false, cause: cause)
-
-        expect(result.cause).to eq(cause)
-      end
-
-      it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.reasons.unspecified").and_return("Unspecified")
-
-        result.skip!(halt: false)
-
-        expect(result.reason).to eq("Unspecified")
-      end
-
-      it "calls halt! by default" do
-        expect { result.skip!("test reason") }.to raise_error(CMDx::SkipFault)
-      end
-
-      it "does not call halt! when halt: false" do
-        expect { result.skip!("test reason", halt: false) }.not_to raise_error
-      end
-    end
-
-    context "when already skipped" do
-      it "returns early without changes" do
-        result.skip!("first reason", halt: false)
-        original_reason = result.reason
-        result.skip!("second reason", halt: false)
-
-        expect(result.reason).to eq(original_reason)
-      end
-    end
-
-    context "when not successful" do
-      it "raises error when trying to skip from failed" do
-        result.fail!("test reason", halt: false)
-
-        expect { result.skip!("another reason", halt: false) }.to raise_error(/can only transition to skipped from success/)
-      end
-    end
-  end
-
-  describe "#fail!" do
-    context "when successful" do
-      it "transitions to failed status" do
-        result.fail!("test reason", halt: false)
-
-        expect(result.status).to eq(CMDx::Result::FAILED)
-        expect(result.state).to eq(CMDx::Result::INTERRUPTED)
-        expect(result.reason).to eq("test reason")
-        expect(result.cause).to be_nil
-        expect(result.metadata).to eq({})
-      end
-
-      it "accepts metadata" do
-        result.fail!("test reason", halt: false, foo: "bar")
-
-        expect(result.metadata).to eq({ foo: "bar" })
-      end
-
-      it "accepts cause" do
-        cause = StandardError.new("cause")
-        result.fail!("test reason", halt: false, cause: cause)
-
-        expect(result.cause).to eq(cause)
-      end
-
-      it "uses default reason when none provided" do
-        allow(CMDx::Locale).to receive(:t).with("cmdx.reasons.unspecified").and_return("Unspecified")
-
-        result.fail!(halt: false)
-
-        expect(result.reason).to eq("Unspecified")
-      end
-
-      it "calls halt! by default" do
-        expect { result.fail!("test reason") }.to raise_error(CMDx::FailFault)
-      end
-
-      it "does not call halt! when halt: false" do
-        expect { result.fail!("test reason", halt: false) }.not_to raise_error
-      end
-    end
-
-    context "when already failed" do
-      it "returns early without changes" do
-        result.fail!("first reason", halt: false)
-        original_reason = result.reason
-        result.fail!("second reason", halt: false)
-
-        expect(result.reason).to eq(original_reason)
-      end
-    end
-
-    context "when not successful" do
-      it "raises error when trying to fail from skipped" do
-        result.skip!("test reason", halt: false)
-
-        expect { result.fail!("another reason", halt: false) }.to raise_error(/can only transition to failed from success/)
-      end
-    end
-  end
-
-  describe "#halt!" do
-    context "when successful" do
-      it "returns early without raising" do
-        expect { result.halt! }.not_to raise_error
-      end
-    end
-
-    context "when skipped" do
-      it "raises SkipFault" do
-        result.skip!("test reason", halt: false)
-
-        expect { result.halt! }.to raise_error(CMDx::SkipFault) do |fault|
-          expect(fault.result).to eq(result)
-          expect(fault.message).to eq("test reason")
-        end
-      end
-
-      it "sets proper backtrace" do
-        result.skip!("test reason", halt: false)
-
-        begin
-          result.halt!
-        rescue CMDx::SkipFault => e
-          expect(e.backtrace).to be_an(Array)
-          expect(e.backtrace).not_to be_empty
-        end
-      end
-    end
-
-    context "when failed" do
-      it "raises FailFault" do
-        result.fail!("test reason", halt: false)
-
-        expect { result.halt! }.to raise_error(CMDx::FailFault) do |fault|
-          expect(fault.result).to eq(result)
-          expect(fault.message).to eq("test reason")
-        end
-      end
-    end
-  end
-
-  describe "#throw!" do
-    let(:other_task) { create_failing_task.new }
-    let(:other_result) { other_task.result }
-
-    before do
-      other_result.fail!("source failure", halt: false, foo: "bar")
-    end
-
-    context "with valid result" do
-      it "copies state and status from other result" do
-        result.throw!(other_result, halt: false)
-
-        expect(result.state).to eq(other_result.state)
-        expect(result.status).to eq(other_result.status)
-        expect(result.reason).to eq(other_result.reason)
-      end
-
-      it "merges metadata" do
-        result.throw!(other_result, halt: false, baz: "qux")
-
-        expect(result.metadata).to eq({ foo: "bar", baz: "qux" })
-      end
-
-      it "uses provided cause over other result's cause" do
-        custom_cause = StandardError.new("custom")
-
-        result.throw!(other_result, halt: false, cause: custom_cause)
-        expect(result.cause).to eq(custom_cause)
-      end
-
-      it "uses other result's cause when none provided" do
-        other_cause = StandardError.new("other")
-        other_result.instance_variable_set(:@cause, other_cause)
-        result.throw!(other_result, halt: false)
-
-        expect(result.cause).to eq(other_cause)
-      end
-
-      it "calls halt! by default" do
-        expect { result.throw!(other_result) }.to raise_error(CMDx::FailFault)
-      end
-
-      it "does not call halt! when halt: false" do
-        expect { result.throw!(other_result, halt: false) }.not_to raise_error
-      end
-    end
-
-    context "with invalid result" do
-      it "raises TypeError when not a CMDx::Result" do
-        expect { result.throw!("not a result", halt: false) }.to raise_error(TypeError, "must be a CMDx::Result")
       end
     end
   end
@@ -657,7 +373,7 @@ RSpec.describe CMDx::Result, type: :unit do
         r.instance_variable_set(:@chain, chain)
       end
 
-      second_result.fail!("test failure", halt: false)
+      second_task.resolver.fail!("test failure", halt: false)
     end
 
     describe "#caused_failure" do
@@ -697,7 +413,7 @@ RSpec.describe CMDx::Result, type: :unit do
           chain.results << fourth_result
 
           fourth_result.instance_variable_set(:@chain, chain)
-          fourth_result.fail!("another failure", halt: false)
+          fourth_task.resolver.fail!("another failure", halt: false)
         end
 
         it "returns the next failed result after current" do
@@ -767,7 +483,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
     context "when not initialized and not thrown failure" do
       it "returns status" do
-        result.executing!
+        resolver.executing!
 
         expect(result.outcome).to eq(result.status)
       end
@@ -795,7 +511,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
     context "when successful with reason" do
       it "includes reason without cause or rolled_back" do
-        catch(:cmdx_halt) { result.success!("Created 42 records") }
+        catch(:cmdx_halt) { resolver.success!("Created 42 records") }
 
         hash = result.to_h
 
@@ -806,7 +522,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
     context "when interrupted" do
       it "includes reason, cause and rolled_back status" do
-        result.skip!("test reason", halt: false, cause: StandardError.new("test"))
+        resolver.skip!("test reason", halt: false, cause: StandardError.new("test"))
 
         hash = result.to_h
 
@@ -818,7 +534,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
     context "when failed" do
       it "includes failure information" do
-        result.fail!("test failure", halt: false)
+        resolver.fail!("test failure", halt: false)
 
         # Create mock objects that avoid calling to_h to prevent infinite recursion
         threw_failure_mock = instance_double(described_class, to_h: { index: 1, class: "Test", id: "123" })
@@ -913,12 +629,12 @@ RSpec.describe CMDx::Result, type: :unit do
               when CMDx::Result::INITIALIZED
                 # Already in initialized state
               when CMDx::Result::EXECUTING
-                result.executing!
+                resolver.executing!
               when CMDx::Result::COMPLETE
-                result.executing!
-                result.complete!
+                resolver.executing!
+                resolver.complete!
               when CMDx::Result::INTERRUPTED
-                result.interrupt!
+                resolver.interrupt!
               end
             end
 
@@ -941,7 +657,7 @@ RSpec.describe CMDx::Result, type: :unit do
             before do
               case state
               when CMDx::Result::INITIALIZED
-                result.executing!
+                resolver.executing!
               when CMDx::Result::EXECUTING
                 # Stay in initialized state
               when CMDx::Result::COMPLETE
@@ -979,9 +695,9 @@ RSpec.describe CMDx::Result, type: :unit do
               when CMDx::Result::SUCCESS
                 # Already in success status
               when CMDx::Result::SKIPPED
-                result.skip!("test", halt: false)
+                resolver.skip!("test", halt: false)
               when CMDx::Result::FAILED
-                result.fail!("test", halt: false)
+                resolver.fail!("test", halt: false)
               end
             end
 
@@ -1004,7 +720,7 @@ RSpec.describe CMDx::Result, type: :unit do
             before do
               case status
               when CMDx::Result::SUCCESS
-                result.skip!("test", halt: false)
+                resolver.skip!("test", halt: false)
               when CMDx::Result::SKIPPED
                 # Stay in success status
               when CMDx::Result::FAILED
@@ -1041,7 +757,7 @@ RSpec.describe CMDx::Result, type: :unit do
         end
 
         it "calls the block for skipped" do
-          result.skip!("test", halt: false)
+          resolver.skip!("test", halt: false)
           called = false
           result.on(:good) { |_r| called = true }
 
@@ -1051,7 +767,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when not good" do
         it "does not call the block for failed" do
-          result.fail!("test", halt: false)
+          resolver.fail!("test", halt: false)
           called = false
           result.on(:good) { |_r| called = true }
 
@@ -1071,7 +787,7 @@ RSpec.describe CMDx::Result, type: :unit do
 
       context "when bad" do
         it "calls the block for skipped" do
-          result.skip!("test", halt: false)
+          resolver.skip!("test", halt: false)
           called = false
           result.on(:bad) { |_r| called = true }
 
@@ -1079,7 +795,7 @@ RSpec.describe CMDx::Result, type: :unit do
         end
 
         it "calls the block for failed" do
-          result.fail!("test", halt: false)
+          resolver.fail!("test", halt: false)
           called = false
           result.on(:bad) { |_r| called = true }
 
