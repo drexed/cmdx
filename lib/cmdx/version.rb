@@ -5,6 +5,6 @@ module CMDx
   # @return [String] the version of the CMDx gem
   #
   # @rbs return: String
-  VERSION = "1.21.0"
+  VERSION = "2.0.0"
 
 end

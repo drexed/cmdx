@@ -1,377 +1,228 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Executes CMDx tasks with middleware support, error handling, and lifecycle management.
-  #
-  # The Executor class is responsible for orchestrating task execution, including
-  # pre-execution validation, execution with middleware, post-execution callbacks,
-  # and proper error handling for different types of failures.
+  # Phases: middleware, validation, work, returns, callbacks, telemetry, freeze.
   class Executor
 
-    extend Forwardable
+    STATE_CALLBACKS = {
+      complete: :on_complete,
+      interrupted: :on_interrupted
+    }.freeze
 
-    # @rbs STATE_CALLBACKS: Hash[String, Symbol]
-    STATE_CALLBACKS = Result::STATES.to_h { |s| [s, :"on_#{s}"] }.freeze
-    private_constant :STATE_CALLBACKS
+    STATUS_CALLBACKS = {
+      success: :on_success,
+      skipped: :on_skipped,
+      failed: :on_failed
+    }.freeze
 
-    # @rbs STATUS_CALLBACKS: Hash[String, Symbol]
-    STATUS_CALLBACKS = Result::STATUSES.to_h { |s| [s, :"on_#{s}"] }.freeze
-    private_constant :STATUS_CALLBACKS
-
-    # Returns the task being executed.
-    #
-    # @return [Task] The task instance
-    #
-    # @example
-    #   executor.task.id # => "abc123"
-    #
-    # @rbs @task: Task
-    attr_reader :task
-
-    def_delegators :task, :result
-
-    # @param task [CMDx::Task] The task to execute
-    #
-    # @return [CMDx::Executor] A new executor instance
-    #
-    # @example
-    #   executor = CMDx::Executor.new(my_task)
-    #
-    # @rbs (Task task) -> void
-    def initialize(task)
-      @task = task
+    # @param handler [Task]
+    def initialize(handler)
+      @handler = handler
     end
 
-    # Executes a task with optional exception raising.
-    #
-    # @param task [CMDx::Task] The task to execute
-    # @param raise [Boolean] Whether to raise exceptions (default: false)
-    #
-    # @return [CMDx::Result] The execution result
-    #
-    # @raise [StandardError] When raise is true and execution fails
-    #
-    # @example
-    #   CMDx::Executor.execute(my_task)
-    #   CMDx::Executor.execute(my_task, raise: true)
-    #
-    # @rbs (Task task, raise: bool) -> Result
-    def self.execute(task, raise: false)
-      instance = new(task)
-      raise ? instance.execute! : instance.execute
-    end
+    # @param raise_on_fault [Boolean]
+    # @return [ExecutionResult]
+    def run(raise_on_fault: false)
+      Deprecator.restrict(@handler)
+      definition = Definition.fetch(@handler.class)
+      trace = @handler.execution_trace || Trace.root(id_generator: CMDx.configuration.id_generator)
+      logger = resolve_logger(definition)
+      raw = @handler.raw_input_hash
+      session = Session.new(definition:, handler: @handler, raw_input: raw, trace:, logger:)
+      @handler.setup_session!(session)
 
-    # Executes the task with graceful error handling.
-    #
-    # @return [CMDx::Result] The execution result
-    #
-    # @example
-    #   executor = CMDx::Executor.new(my_task)
-    #   result = executor.execute
-    #
-    # @rbs () -> Result
-    def execute
-      task.class.settings.middlewares.call!(task) do
-        pre_execution! unless @pre_execution
-        execution!
-        verify_context_returns!
-      rescue UndefinedMethodError => e
-        raise_exception(e)
-      rescue Fault => e
-        result.throw!(e.result, halt: false, cause: e)
-      rescue StandardError => e
-        retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
-        task.class.settings.exception_handler&.call(task, e)
-      ensure
-        result.executed!
-        post_execution!
-      end
+      env = MiddlewareEnv.new(session:, handler: @handler)
+      definition.middleware_stack.call(env) { inner_run(session) }
 
-      verify_middleware_yield!
-      finalize_execution!
-    end
+      verify_middleware_completed!(session)
+      finalize!(session)
+      result = ExecutionResult.new(session:, handler: @handler)
 
-    # Executes the task with exception raising on failure.
-    #
-    # @return [CMDx::Result] The execution result
-    #
-    # @raise [StandardError] When execution fails
-    #
-    # @example
-    #   executor = CMDx::Executor.new(my_task)
-    #   result = executor.execute!
-    #
-    # @rbs () -> Result
-    def execute!
-      task.class.settings.middlewares.call!(task) do
-        pre_execution! unless @pre_execution
-        execution!
-        verify_context_returns!
-      rescue UndefinedMethodError => e
-        raise_exception(e)
-      rescue Fault => e
-        result.throw!(e.result, halt: false, cause: e)
-
-        if halt_execution?(e)
-          raise_exception(e)
-        else
-          result.executed!
-          post_execution!
-        end
-      rescue StandardError => e
-        retry if retry_execution?(e)
-        result.fail!(Utils::Normalize.exception(e), halt: false, cause: e, source: :exception)
-        raise_exception(e)
-      else
-        result.executed!
-        post_execution!
-      end
-
-      verify_middleware_yield!
-      finalize_execution!
-    end
-
-    protected
-
-    # Determines if execution should halt based on breakpoint configuration.
-    # Returns false when the result was created with +strict: false+.
-    #
-    # @param exception [Exception] The exception that occurred
-    #
-    # @return [Boolean] Whether execution should halt
-    #
-    # @rbs (Exception exception) -> bool
-    def halt_execution?(exception)
-      return false unless exception.result.strict?
-
-      @halt_statuses ||= Utils::Normalize.statuses(
-        task.class.settings.breakpoints ||
-        task.class.settings.task_breakpoints
-      ).freeze
-
-      @halt_statuses.include?(exception.result.status)
-    end
-
-    # Determines if execution should be retried based on retry configuration.
-    #
-    # @param exception [Exception] The exception that occurred
-    #
-    # @return [Boolean] Whether execution should be retried
-    #
-    # @rbs (Exception exception) -> bool
-    def retry_execution?(exception)
-      @retry ||= Retry.new(task)
-
-      return false unless @retry.available? && @retry.remaining?
-      return false unless @retry.exception?(exception)
-
-      result.retries += 1
-
-      task.logger.warn do
-        reason = Utils::Normalize.exception(exception)
-        task.to_h.merge!(reason:, remaining_retries: @retry.remaining)
-      end
-
-      task.errors.clear
-
-      wait = @retry.wait
-      sleep(wait) if wait.positive?
-
-      true
-    end
-
-    # Raises an exception and clears the chain.
-    #
-    # @param exception [Exception] The exception to raise
-    #
-    # @raise [Exception] The provided exception
-    #
-    # @rbs (Exception exception) -> void
-    def raise_exception(exception)
-      Chain.clear
-
-      raise(exception)
-    end
-
-    # Invokes callbacks of a specific type for the task.
-    #
-    # @param type [Symbol] The type of callback to invoke
-    #
-    # @return [void]
-    #
-    # @example
-    #   invoke_callbacks(:before_execution)
-    #
-    # @rbs (Symbol type) -> void
-    def invoke_callbacks(type)
-      task.class.settings.callbacks.invoke(type, task)
+      raise_fault!(result, raise_on_fault:)
+      result
     end
 
     private
 
-    # Performs pre-execution tasks including validation and attribute verification.
-    #
-    # @rbs () -> void
-    def pre_execution!
-      @pre_execution = true
+    # @param definition [Definition]
+    # @return [Logger]
+    def resolve_logger(_definition)
+      CMDx.configuration.logger
+    end
 
-      invoke_callbacks(:before_validation)
+    # @param session [Session]
+    # @return [void]
+    def inner_run(session)
+      CallbackRunner.run(session, :before_validation)
+      AttributePipeline.apply_all(session)
 
-      task.class.settings.attributes.define_and_verify(task)
-      return if task.errors.empty?
+      if session.errors.empty?
+        CallbackRunner.run(session, :before_execution)
+        session.outcome.executing!
+        catch(Outcome::HALT_TAG) do
+          if session.definition.workflow
+            WorkflowRunner.run(session)
+          else
+            session.handler.work
+          end
+        end
+        verify_returns!(session) if session.outcome.success?
+      else
+        session.outcome.fail!(
+          Locale.t("cmdx.faults.invalid"),
+          halt: false,
+          source: :validation,
+          errors: session.errors.to_h
+        )
+      end
+    rescue UndefinedMethodError => e
+      session.handler.class.reset_cmdx_definition!
+      raise e
+    rescue CMDx::Fault => e
+      raise e
+    rescue StandardError => e
+      retry if retry?(session, e)
 
-      result.fail!(
-        Locale.t("cmdx.faults.invalid"),
-        source: :validation,
-        errors: {
-          full_message: task.errors.to_s,
-          messages: task.errors.to_h
-        }
+      session.outcome.fail!(
+        Utils::Normalize.exception(e),
+        halt: false,
+        cause: e,
+        source: :exception
       )
+      session.definition.exception_handler&.call(session.handler, e)
+    ensure
+      session.outcome.executed! if session.outcome.executing?
+      post_execution_callbacks(session)
     end
 
-    # Executes the main task logic.
-    # Wraps task.work in catch(:cmdx_halt) so that success! can halt early.
-    #
-    # @rbs () -> void
-    def execution!
-      invoke_callbacks(:before_execution)
-
-      result.executing!
-      catch(:cmdx_halt) { task.work }
-    end
-
-    # Verifies that all declared returns are present in the context after execution.
-    #
-    # @rbs () -> void
-    def verify_context_returns!
-      return unless result.success?
-
-      returns = Utils::Wrap.array(task.class.settings.returns)
-      missing = returns.reject { |name| task.context.key?(name) }
+    # @param session [Session]
+    # @return [void]
+    def verify_returns!(session)
+      missing = session.definition.returns.reject { |k| session.context.key?(k) }
       return if missing.empty?
 
-      missing.each { |name| task.errors.add(name, Locale.t("cmdx.returns.missing")) }
-
-      result.fail!(
-        Locale.t("cmdx.faults.invalid"),
-        source: :context,
-        errors: {
-          full_message: task.errors.to_s,
-          messages: task.errors.to_h
-        }
-      )
-    end
-
-    # Performs post-execution tasks including callback invocation.
-    #
-    # @rbs () -> void
-    def post_execution!
-      return if task.class.settings.callbacks.empty?
-
-      invoke_callbacks(STATE_CALLBACKS[result.state])
-      invoke_callbacks(:on_executed) if result.executed?
-
-      invoke_callbacks(STATUS_CALLBACKS[result.status])
-      invoke_callbacks(:on_good) if result.good?
-      invoke_callbacks(:on_bad) if result.bad?
-    end
-
-    # Detects if middleware swallowed the block without yielding.
-    # When this happens the result is still in the initialized state.
-    #
-    # @rbs () -> void
-    def verify_middleware_yield!
-      return unless result.initialized?
-
-      result.fail!(
+      missing.each { |name| session.errors.add(name, Locale.t("cmdx.returns.missing")) }
+      session.outcome.fail!(
         Locale.t("cmdx.faults.invalid"),
         halt: false,
-        source: :middleware
+        source: :context,
+        errors: session.errors.to_h
       )
-      result.executed!
     end
 
-    # Finalizes execution by freezing the task, logging results, and rolling back work.
-    #
-    # @rbs () -> void
-    def finalize_execution!
-      log_execution!
-      log_backtrace! if task.class.settings.backtrace
+    # @param session [Session]
+    # @return [void]
+    def post_execution_callbacks(session)
+      outcome = session.outcome
+      return if session.definition.callbacks.values.all?(&:empty?)
 
-      rollback_execution!
-      freeze_execution!
-      clear_chain!
+      CallbackRunner.run(session, STATE_CALLBACKS[outcome.state]) if STATE_CALLBACKS.key?(outcome.state)
+      CallbackRunner.run(session, :on_executed) if outcome.executed?
+      CallbackRunner.run(session, STATUS_CALLBACKS[outcome.status]) if STATUS_CALLBACKS.key?(outcome.status)
+      CallbackRunner.run(session, :on_good) if outcome.good?
+      CallbackRunner.run(session, :on_bad) if outcome.bad?
     end
 
-    # Logs the execution result at the configured log level.
-    #
-    # @rbs () -> void
-    def log_execution!
-      task.logger.info { result.to_h }
+    # @param session [Session]
+    # @return [void]
+    def verify_middleware_completed!(session)
+      return unless session.outcome.initialized?
+
+      session.outcome.fail!(Locale.t("cmdx.faults.invalid"), halt: false, source: :middleware)
+      session.outcome.executed!
     end
 
-    # Logs the backtrace of the exception if the task failed.
-    #
-    # @rbs () -> void
-    def log_backtrace!
-      return unless result.failed?
+    # @param session [Session]
+    # @return [void]
+    def finalize!(session)
+      emit_telemetry(session)
+      log_backtrace(session) if session.definition.backtrace && session.outcome.failed?
+      rollback_if_needed(session)
+      freeze_all!(session)
+    end
 
-      exception = result.caused_failure&.cause
-      return if exception.nil? || exception.is_a?(Fault)
-
-      task.logger.error do
-        Utils::Normalize.exception(exception) << "\n" <<
-          if (cleaner = task.class.settings.backtrace_cleaner)
-            cleaner.call(exception.backtrace).join("\n\t")
-          else
-            exception.full_message(highlight: false)
-          end
+    # @param session [Session]
+    # @return [void]
+    def emit_telemetry(session)
+      sink = CMDx.configuration.telemetry
+      if sink.is_a?(Telemetry)
+        sink.emit(:cmdx_execute, session.handler.to_h.merge(session.outcome.metadata))
+      else
+        session.logger.info { session.handler.to_h.merge(session.outcome.metadata).inspect }
       end
     end
 
-    # Freezes the task and its associated objects to prevent modifications.
-    #
-    # @rbs () -> void
-    def freeze_execution!
-      # Stubbing on frozen objects is not allowed in most test environments.
-      return unless CMDx.configuration.freeze_results
+    # @param session [Session]
+    # @return [void]
+    def log_backtrace(session)
+      exc = session.outcome.cause
+      return if exc.nil? || exc.is_a?(Fault)
 
-      task.freeze
-      result.freeze
-
-      # Freezing the context and chain can only be done once the outer-most
-      # task has completed.
-      return unless result.index.zero?
-
-      task.context.freeze
-      task.chain.freeze
+      session.logger.error do
+        Utils::Normalize.exception(exc) << "\n" << format_backtrace(session, exc)
+      end
     end
 
-    # Clears the chain if the task is the outermost (top-level) task
-    # and the current thread's chain is the same instance this task belongs to.
-    #
-    # @rbs () -> void
-    def clear_chain!
-      return unless result.index.zero?
-      return unless Chain.current.equal?(task.chain)
-
-      Chain.clear
+    # @param session [Session]
+    # @param exc [Exception]
+    # @return [String]
+    def format_backtrace(session, exc)
+      if (cleaner = session.definition.backtrace_cleaner)
+        cleaner.call(Array(exc.backtrace)).join("\n\t")
+      else
+        exc.full_message(highlight: false)
+      end
     end
 
-    # Rolls back the work of a task.
-    #
-    # @rbs () -> void
-    def rollback_execution!
-      return if result.rolled_back?
-      return unless task.respond_to?(:rollback)
+    # @param session [Session]
+    # @return [void]
+    def rollback_if_needed(session)
+      return if session.outcome.rolled_back?
+      return unless session.handler.respond_to?(:rollback)
 
-      @rollback_statuses ||= Utils::Normalize.statuses(task.class.settings.rollback_on).freeze
-      return unless @rollback_statuses.include?(result.status)
+      return unless session.definition.rollback_on.include?(session.outcome.status)
 
-      result.rolled_back = true
-      task.rollback
+      session.outcome.rolled_back = true
+      session.handler.rollback
+    end
+
+    # @param session [Session]
+    # @return [void]
+    def freeze_all!(session)
+      return unless session.definition.freeze_results
+
+      session.handler.freeze
+      session.outcome.freeze
+      session.context.freeze
+    end
+
+    # @param session [Session]
+    # @param exception [Exception]
+    # @return [Boolean]
+    def retry?(session, exception)
+      policy = session.definition.retry_policy
+      return false if policy.nil? || !policy.retry_exception?(exception)
+      return false unless session.outcome.retries < policy.max_attempts
+
+      session.outcome.retries += 1
+      session.errors.clear
+      wait = policy.wait_seconds(session)
+      CMDx.configuration.sleep_impl.call(wait) if wait.positive?
+      true
+    end
+
+    # @param result [ExecutionResult]
+    # @param raise_on_fault [Boolean]
+    # @return [void]
+    def raise_fault!(result, raise_on_fault:)
+      return unless raise_on_fault
+      return if result.success?
+
+      bps = result.handler.class.definition.task_breakpoints
+      return unless bps.include?(result.status)
+
+      fault_class = result.skipped? ? SkipFault : FailFault
+      raise fault_class, result
     end
 
   end

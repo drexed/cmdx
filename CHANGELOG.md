@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [UNRELEASED]
 
+## [2.0.0] - 2026-04-09
+
+### Changed
+
+- **Breaking:** Rebuilt the runtime around immutable `Definition`, per-run `Session`, `Outcome`, and `ExecutionResult`.
+- **Breaking:** Removed `Settings`, separate registry classes, `Result`/`Resolver`, `Chain`, `Attribute`/`AttributeValue`, `Parallelizer`, and built-in log formatter types; added `ExtensionSet`, `Trace`, `WorkflowRunner`, `Parallel::Threads`, and `Telemetry`.
+- **Breaking:** Middleware uses `call(env, **options) { ... }` with `MiddlewareEnv`.
+- **Breaking:** Removed `CMDx::Exception` alias; use `CMDx::Error`.
+- **Breaking:** `Definition.for` renamed to `Definition.fetch` for Ruby keyword compatibility.
+
+### Added
+
+- `CMDx.reset_configuration!` for test isolation.
+- `docs/v2/V1_AUDIT.md` and `UPGRADING.md`.
+
 ## [1.21.0] - 2026-04-09
 
 ### Added

@@ -1,65 +1,25 @@
 # frozen_string_literal: true
 
 CMDx.configure do |config|
-  # Task breakpoint configuration - controls when execute! raises faults
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never halt
-  config.task_breakpoints = %w[failed]
+  # Statuses for which +execute!+ raises {CMDx::FailFault} / {CMDx::SkipFault}
+  config.task_breakpoints = %i[failed]
 
-  # Workflow breakpoint configuration - controls when workflows stop execution
-  # When a task returns these statuses, subsequent workflow tasks won't execute
-  # See https://github.com/drexed/cmdx/blob/main/docs/workflows.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, workflow will never halt
-  config.workflow_breakpoints = %w[failed]
+  # Workflow groups stop when a subtask finishes with one of these statuses
+  config.workflow_breakpoints = %i[failed]
 
-  # Logger configuration - choose from multiple formatters
-  # See https://github.com/drexed/cmdx/blob/main/docs/logging.md for more details
-  #
-  # Available formatters:
-  # - CMDx::LogFormatters::Json
-  # - CMDx::LogFormatters::KeyValue
-  # - CMDx::LogFormatters::Line
-  # - CMDx::LogFormatters::Logstash
-  # - CMDx::LogFormatters::Raw
-  config.logger = Logger.new(
-    $stdout,
-    progname: "cmdx",
-    formatter: CMDx::LogFormatters::Line.new,
-    level: Logger::INFO
-  )
+  config.logger = Logger.new($stdout, progname: "CMDx", level: Logger::INFO)
 
-  # Rollback configuration - controls which statuses trigger task rollback
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never rollback
-  config.rollback_on = %w[failed]
+  # Statuses that call +rollback+ on the task when defined
+  config.rollback_on = %i[failed]
 
-  # Default locale configuration - used for built-in translation lookups
-  # Must match the basename of a YAML file in lib/locales/ (e.g. "en", "es", "ja")
-  # config.default_locale = "en"
+  # Optional: structured sink (defaults to +Logger#info+ with a hash inspect)
+  # config.telemetry = CMDx::Telemetry.new(logger: config.logger)
 
-  # Backtrace configuration - controls whether to log backtraces on faults and exceptions
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#backtraces
   # config.backtrace = false
   # config.backtrace_cleaner = nil
-
-  # Exception handler configuration - called when non-fault exceptions are raised
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#exception-handlers
   # config.exception_handler = nil
-
-  # Dump context configuration - include context data in hash representation output
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#dump-context
   # config.dump_context = false
-
-  # Additional global configurations - automatically applied to all tasks
+  # config.freeze_results = true
   #
-  # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
-  # Callbacks - https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
-  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md
-  # Validations - https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md
+  # Global defaults use {CMDx::ExtensionSet.build_defaults}. Override per task with +register+.
 end

@@ -1,418 +1,412 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Represents a task that can be executed within the CMDx framework.
-  # Tasks define attributes, callbacks, and execution logic that can be
-  # chained together to form workflows.
+  # Command object: declare inputs with +required+ / +optional+, implement +work+.
   class Task
 
-    extend Forwardable
+    # @return [Session, nil]
+    attr_reader :session
 
-    # Returns the hash of processed attribute values for this task.
-    #
-    # @return [Hash{Symbol => Object}] Hash of attribute names to their values
-    #
-    # @example
-    #   task.attributes # => { user_id: 42, user_name: "John" }
-    #
-    # @rbs @attributes: Hash[Symbol, untyped]
+    # @return [Hash{Symbol => Object}]
     attr_reader :attributes
-
-    # Returns the collection of validation and execution errors.
-    #
-    # @return [Errors] The errors collection
-    #
-    # @example
-    #   task.errors.to_h # => { email: ["must be valid"] }
-    #
-    # @rbs @errors: Errors
-    attr_reader :errors
-
-    # Returns the unique identifier for this task instance.
-    #
-    # @return [String] The task identifier
-    #
-    # @example
-    #   task.id # => "abc123xyz"
-    #
-    # @rbs @id: String
-    attr_reader :id
-
-    # Returns the execution context for this task.
-    #
-    # @return [Context] The context instance
-    #
-    # @example
-    #   task.context[:user_id] # => 42
-    #
-    # @rbs @context: Context
-    attr_reader :context
-    alias ctx context
-
-    # Returns the execution result for this task.
-    #
-    # @return [Result] The result instance
-    #
-    # @example
-    #   task.result.status # => "success"
-    #
-    # @rbs @result: Result
-    attr_reader :result
-    alias res result
-
-    # Returns the execution chain containing all task results.
-    #
-    # @return [Chain] The chain instance
-    #
-    # @example
-    #   task.chain.results.size # => 3
-    #
-    # @rbs @chain: Chain
-    attr_reader :chain
-
-    def_delegators :result, :success!, :skip!, :fail!, :throw!
-    def_delegators :chain, :dry_run?
-
-    # @param context [Hash, Context, nil] The initial context for the task
-    #
-    # @return [Task] A new task instance
-    #
-    # @raise [DeprecationError] If the task class is deprecated
-    #
-    # @example
-    #   task = MyTask.new
-    #   task = MyTask.new(name: "example", priority: :high)
-    #   task = MyTask.new(Context.build(name: "example"))
-    #
-    # @rbs (untyped context) -> void
-    def initialize(context = nil)
-      Deprecator.restrict(self)
-
-      @id = Identifier.generate
-      @context = Context.build(context)
-      @errors = Errors.new
-      @result = Result.new(self)
-      @chain = Chain.build(@result, dry_run: @context.delete(:dry_run))
-
-      @attributes = {}
-    end
 
     class << self
 
-      # Returns the cached task type string for this class.
-      #
-      # @return [String] "Workflow" or "Task"
-      #
-      # @rbs () -> String
-      def type
-        @type ||= include?(Workflow) ? "Workflow" : "Task"
+      # @param sub [Class]
+      # @return [void]
+      def inherited(sub)
+        super
+        reset_cmdx_definition!(sub)
       end
 
-      # Returns (and lazily creates) the task-level Settings object.
-      # On first access, inherits from the superclass settings or
-      # the global Configuration. Optional overrides are applied once.
-      #
-      # @param overrides [Hash] Configuration overrides applied on first access
-      # @option overrides [Object] :* Any configuration override key-value pairs
-      #
-      # @return [Settings] The settings instance for this task class
-      #
-      # @example
-      #   class MyTask < Task
-      #     settings deprecate: true, tags: [:experimental]
-      #   end
-      #
-      # @rbs (**untyped overrides) -> Settings
-      def settings(**overrides)
-        @settings ||= begin
-          parent = superclass.settings if superclass.respond_to?(:settings)
-          Settings.new(parent:, **overrides)
-        end
+      # @param klass [Class]
+      # @return [void]
+      def reset_cmdx_definition!(klass = self)
+        klass.remove_instance_variable(:@cmdx_definition) if klass.instance_variable_defined?(:@cmdx_definition)
       end
 
-      # @param type [Symbol] The type of registry to register with
-      # @param object [Object] The object to register
-      #
-      # @raise [RuntimeError] If the registry type is unknown
-      #
-      # @example
-      #   register(:attribute, MyAttribute.new)
-      #   register(:callback, :before, -> { puts "before" })
-      #
-      # @rbs (Symbol type, untyped object, *untyped) -> void
-      def register(type, object, ...)
+      # @return [Definition]
+      def definition
+        Definition.fetch(self)
+      end
+
+      # @return [Boolean]
+      def cmdx_workflow?
+        false
+      end
+
+      # @return [Array<Hash>]
+      def cmdx_workflow_pipeline
+        @cmdx_workflow_pipeline ||= []
+      end
+
+      # @return [Hash]
+      def cmdx_extension_delta
+        @cmdx_extension_delta ||= { coercions: {}, validators: {}, middleware: [] }
+      end
+
+      # @return [Array<AttributeSpec>]
+      def cmdx_declared_attributes
+        @cmdx_declared_attributes ||= []
+      end
+
+      # @return [Array<Symbol>]
+      def cmdx_returns
+        @cmdx_returns ||= []
+      end
+
+      # @return [Hash{Symbol => Array}]
+      def cmdx_callback_deltas
+        @cmdx_callback_deltas ||= Hash.new { |h, k| h[k] = [] }
+      end
+
+      # @return [String]
+      def task_kind
+        cmdx_workflow? ? "Workflow" : "Task"
+      end
+
+      # @param input [Hash]
+      # @param trace [Trace, nil]
+      # @param raise_on_fault [Boolean]
+      # @return [ExecutionResult]
+      def execute(input = {}, trace: nil, raise_on_fault: false, **kwargs, &block)
+        merged = merge_input(input, kwargs)
+        handler = new(merged, trace: trace)
+        result = Executor.new(handler).run(raise_on_fault: raise_on_fault)
+        yield result if block_given?
+        result
+      end
+
+      # @param input [Hash]
+      # @param trace [Trace, nil]
+      # @param kwargs [Hash]
+      # @return [ExecutionResult]
+      def execute!(input = {}, trace: nil, **kwargs, &block)
+        execute(input, trace: trace, raise_on_fault: true, **kwargs, &block)
+      end
+
+      # @param input [Object]
+      # @param kwargs [Hash]
+      # @return [Hash{Symbol => Object}]
+      def merge_input(input, kwargs)
+        base = input.is_a?(Hash) ? input : input.to_h
+        base.merge(kwargs).transform_keys(&:to_sym)
+      end
+
+      # @param opts [Hash]
+      # @return [void]
+      def settings(**opts)
+        deprecate(opts[:deprecate]) if opts.key?(:deprecate)
+        tags(*opts[:tags]) if opts[:tags]
+      end
+
+      # @param type [Symbol]
+      # @param args [Array]
+      # @param kwargs [Hash]
+      # @return [void]
+      def register(type, *args, **kwargs)
         case type
-        when :attribute
-          settings.attributes.register(object)
-          settings.attributes.define_readers_on!(self, Utils::Wrap.array(object))
-        when :callback then settings.callbacks.register(object, ...)
-        when :middleware then settings.middlewares.register(object, ...)
-        when :validator then settings.validators.register(object, ...)
-        when :coercion then settings.coercions.register(object, ...)
-        else raise "unknown registry type #{type.inspect}"
+        when :middleware
+          cmdx_extension_delta[:middleware] << [args.first, kwargs]
+        when :coercion
+          cmdx_extension_delta[:coercions][args.first.to_sym] = ExtensionSet.wrap_coercion(args.last)
+        when :validator
+          cmdx_extension_delta[:validators][args.first.to_sym] = ExtensionSet.wrap_validator(args.last)
+        else
+          raise ArgumentError, "unknown registry type #{type.inspect}"
         end
+        reset_cmdx_definition!
       end
 
-      # @param type [Symbol] The type of registry to deregister from
-      # @param object [Object] The object to deregister
-      #
-      # @raise [RuntimeError] If the registry type is unknown
-      #
-      # @example
-      #   deregister(:attribute, :name)
-      #   deregister(:callback, :before, MyCallback)
-      #
-      # @rbs (Symbol type, untyped object, *untyped) -> void
-      def deregister(type, object, ...)
-        case type
-        when :attribute
-          settings.attributes.undefine_readers_on!(self, object)
-          settings.attributes.deregister(object)
-        when :callback then settings.callbacks.deregister(object, ...)
-        when :middleware then settings.middlewares.deregister(object, ...)
-        when :validator then settings.validators.deregister(object, ...)
-        when :coercion then settings.coercions.deregister(object, ...)
-        else raise "unknown registry type #{type.inspect}"
-        end
-      end
-
-      # @example
-      #   attributes :name, :email
-      #   attributes :age, type: Integer, default: 18
-      #
-      # @rbs (*untyped) -> void
-      def attributes(...)
-        register(:attribute, Attribute.build(...))
+      # @param names [Array]
+      # @param options [Hash]
+      # @return [void]
+      def attributes(*names, **options)
+        names.flatten.each { |n| declare_attribute(n, required: false, **options) }
       end
       alias attribute attributes
 
-      # @example
-      #   optional :description, :notes
-      #   optional :priority, type: Symbol, default: :normal
-      #
-      # @rbs (*untyped) -> void
-      def optional(...)
-        register(:attribute, Attribute.optional(...))
+      # @param names [Array]
+      # @param options [Hash]
+      # @return [void]
+      def optional(*names, **options)
+        names.flatten.each { |n| declare_attribute(n, required: false, **options) }
       end
 
-      # @example
-      #   required :name, :email
-      #   required :age, type: Integer, min: 0
-      #
-      # @rbs (*untyped) -> void
-      def required(...)
-        register(:attribute, Attribute.required(...))
+      # @param names [Array]
+      # @param options [Hash]
+      # @return [void]
+      def required(*names, **options)
+        names.flatten.each { |n| declare_attribute(n, required: true, **options) }
       end
 
-      # @param names [Array<Symbol>] Names of attributes to remove
-      #
-      # @example
-      #   remove_attributes :old_field, :deprecated_field
-      #
-      # @rbs (*Symbol names) -> void
-      def remove_attributes(*names)
-        deregister(:attribute, names)
-      end
-      alias remove_attribute remove_attributes
-
-      # Declares expected context returns that must be set after task execution.
-      # If any declared return is missing from the context after {#work} completes
-      # successfully, the task will fail with a validation error.
-      #
-      # @param names [Array<Symbol, String>] Names of expected return keys in the context
-      #
-      # @example
-      #   returns :user, :token
-      #
-      # @rbs (*untyped names) -> void
+      # @param names [Array<Symbol>]
+      # @return [void]
       def returns(*names)
-        settings.returns |= names.map(&:to_sym)
+        cmdx_returns.concat(names.map(&:to_sym))
+        reset_cmdx_definition!
       end
 
-      # Removes declared returns from the task.
-      #
-      # @param names [Array<Symbol>] Names of returns to remove
-      #
-      # @example
-      #   remove_returns :old_return
-      #
-      # @rbs (*Symbol names) -> void
-      def remove_returns(*names)
-        settings.returns -= names.map(&:to_sym)
+      # @param count [Integer]
+      # @param opts [Hash]
+      # @return [void]
+      def retries(count, **opts)
+        @cmdx_retry_policy = RetryPolicy.new(
+          max_attempts: count,
+          retry_on: Array(opts[:retry_on] || []),
+          jitter: opts[:retry_jitter]
+        )
+        reset_cmdx_definition!
       end
-      alias remove_return remove_returns
 
-      # @return [Hash] Hash of attribute names to their configurations
-      #
-      # @example
-      #   MyTask.attributes_schema #=> {
-      #     user_id: { name: :user_id, method_name: :user_id, required: true, types: [:integer], options: {}, children: [] },
-      #     email: { name: :email, method_name: :email, required: false, types: [:string], options: { default: nil }, children: [] },
-      #     profile: { name: :profile, method_name: :profile, required: false, types: [:hash], options: {}, children: [
-      #       { name: :bio, method_name: :bio, required: false, types: [:string], options: {}, children: [] },
-      #       { name: :name, method_name: :name, required: true, types: [:string], options: {}, children: [] }
-      #     ] }
-      #   }
-      #
-      # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
-      def attributes_schema
-        Utils::Wrap.array(settings.attributes).to_h do |attr|
-          [attr.method_name, attr.to_h]
+      # @param statuses [Array<Symbol, String>]
+      # @return [void]
+      def rollback_on(*statuses)
+        @cmdx_rollback_on = Utils::Normalize.statuses(statuses).map(&:to_sym)
+        reset_cmdx_definition!
+      end
+
+      # @param statuses [Array]
+      # @return [void]
+      def task_breakpoints(*statuses)
+        @cmdx_task_breakpoints = Utils::Normalize.statuses(statuses).map(&:to_sym)
+        reset_cmdx_definition!
+      end
+
+      # @param statuses [Array]
+      # @return [void]
+      def workflow_breakpoints(*statuses)
+        @cmdx_workflow_breakpoints = Utils::Normalize.statuses(statuses).map(&:to_sym)
+        reset_cmdx_definition!
+      end
+
+      # @param tags [Array<Symbol>]
+      # @return [void]
+      def tags(*tags)
+        @cmdx_tags ||= []
+        @cmdx_tags |= tags.flatten.map(&:to_sym)
+        reset_cmdx_definition!
+      end
+
+      # @param value [Object]
+      # @return [void]
+      def deprecate(value)
+        @cmdx_deprecate = value
+        reset_cmdx_definition!
+      end
+
+      # @param flag [Boolean]
+      # @return [void]
+      def strong_context(flag = true)
+        @cmdx_strong_context = flag
+        reset_cmdx_definition!
+      end
+
+      # @param flag [Boolean]
+      # @return [void]
+      def dump_context(flag = true)
+        @cmdx_dump_context = flag
+        reset_cmdx_definition!
+      end
+
+      # @param flag [Boolean]
+      # @return [void]
+      def freeze_results(flag = true)
+        @cmdx_freeze_results = flag
+        reset_cmdx_definition!
+      end
+
+      # @param flag [Boolean]
+      # @return [void]
+      def backtrace(flag = true)
+        @cmdx_backtrace = flag
+        reset_cmdx_definition!
+      end
+
+      # @param proc [Proc]
+      # @return [void]
+      def backtrace_cleaner(proc)
+        @cmdx_backtrace_cleaner = proc
+        reset_cmdx_definition!
+      end
+
+      # @param proc [Proc]
+      # @return [void]
+      def exception_handler(proc)
+        @cmdx_exception_handler = proc
+        reset_cmdx_definition!
+      end
+
+      Definition::CALLBACK_PHASES.each do |phase|
+        define_method(phase) do |*methods, **options, &block|
+          methods.each { |m| cmdx_callback_deltas[phase] << [m, options] }
+          cmdx_callback_deltas[phase] << [block, options] if block
+          Task.reset_cmdx_definition!(self)
         end
       end
 
-      CallbackRegistry::TYPES.each do |callback|
-        # @param callables [Array] Callable objects to register as callbacks
-        # @param options [Hash] Options for the callback registration
-        # @option options [Symbol] :priority Priority of the callback
-        # @option options [Boolean] :async Whether the callback should run asynchronously
-        # @param block [Proc] Block to register as a callback
-        #
-        # @example
-        #   before { puts "before execution" }
-        #   after :cleanup, priority: :high
-        #   around ->(task) { task.logger.info("starting") }
-        #
-        # @rbs (*untyped callables, **untyped options) ?{ () -> void } -> void
-        define_method(callback) do |*callables, **options, &block|
-          register(:callback, callback, *callables, **options, &block)
+      private
+
+      # @param name [Symbol]
+      # @param required [Boolean]
+      # @param options [Hash]
+      # @return [void]
+      def declare_attribute(name, required:, **options)
+        type_keys = type_keys_from(options)
+        validators = validator_entries_from(options)
+        coerce_opts = coerce_options_only(options)
+        reader = (options[:as] || name).to_sym
+
+        cmdx_declared_attributes << AttributeSpec.new(
+          name: name.to_sym,
+          required: required,
+          type_keys: type_keys,
+          reader_name: reader,
+          options: coerce_opts,
+          validators: validators
+        )
+        define_attribute_reader!(reader)
+        reset_cmdx_definition!
+      end
+
+      # @param options [Hash]
+      # @return [Array<Symbol>]
+      def type_keys_from(options)
+        t = options[:type] || options[:types]
+        return [] if t.nil?
+
+        Array(t).map(&:to_sym)
+      end
+
+      # @param options [Hash]
+      # @return [Array<Hash>]
+      def validator_entries_from(options)
+        list = []
+        %i[presence absence format inclusion exclusion length numeric].each do |k|
+          next unless options.key?(k)
+
+          v = options[k]
+          list << { name: k, options: v.is_a?(Hash) ? v : { k => v } }
         end
+        list
       end
 
-      # @param args [Array] Arguments to pass to the task constructor
-      # @param kwargs [Hash] Keyword arguments to pass to the task constructor
-      # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
-      #
-      # @return [Result] The execution result
-      #
-      # @example
-      #   result = MyTask.execute(name: "example")
-      #
-      # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute(*args, **kwargs)
-        task = new(*args, **kwargs)
-        task.execute(raise: false)
-        block_given? ? yield(task.result) : task.result
+      # @param options [Hash]
+      # @return [Hash]
+      def coerce_options_only(options)
+        options.except(
+          :type, :types, :required, :optional, :as,
+          :presence, :absence, :format, :inclusion, :exclusion, :length, :numeric,
+          :if, :unless, :allow_nil
+        )
       end
 
-      # @param args [Array] Arguments to pass to the task constructor
-      # @param kwargs [Hash] Keyword arguments to pass to the task constructor
-      # @option kwargs [Object] :* Any key-value pairs to pass to the task constructor
-      #
-      # @return [Result] The execution result
-      #
-      # @raise [ExecutionError] If the task execution fails
-      #
-      # @example
-      #   result = MyTask.execute!(name: "example")
-      #
-      # @rbs (*untyped args, dry_run: bool, **untyped kwargs) ?{ (Result) -> void } -> Result
-      def execute!(*args, **kwargs)
-        task = new(*args, **kwargs)
-        task.execute(raise: true)
-        block_given? ? yield(task.result) : task.result
+      # @param reader_name [Symbol]
+      # @return [void]
+      def define_attribute_reader!(reader_name)
+        return if method_defined?(reader_name)
+        return if private_method_defined?(reader_name)
+
+        class_eval <<~RUBY, __FILE__, __LINE__ + 1
+          def #{reader_name}
+            @attributes[:#{reader_name}]
+          end
+        RUBY
       end
 
     end
 
-    # @param raise [Boolean] Whether to raise exceptions on failure
-    #
-    # @return [Result] The execution result
-    #
-    # @example
-    #   result = task.execute
-    #   result = task.execute(raise: true)
-    #
-    # @rbs (raise: bool) ?{ (Result) -> void } -> Result
-    def execute(raise: false)
-      Executor.execute(self, raise:)
-      block_given? ? yield(result) : result
+    # @param input [Hash]
+    # @param trace [Trace, nil]
+    def initialize(input = {}, trace: nil)
+      @raw_input = self.class.merge_input(input, {})
+      @execution_trace = trace
+      @attributes = {}
+      @session = nil
     end
 
-    # @raise [UndefinedMethodError] Always raised as this method must be overridden
-    #
-    # @example
-    #   class MyTask < Task
-    #     def work
-    #       # Custom work logic here
-    #       puts "Performing work..."
-    #     end
-    #   end
-    #
-    # @rbs () -> void
+    # @return [Hash{Symbol => Object}]
+    def raw_input_hash
+      @raw_input
+    end
+
+    # @return [Trace, nil]
+    attr_reader :execution_trace
+
+    # @param sess [Session]
+    # @return [void]
+    def setup_session!(sess)
+      @session = sess
+    end
+
+    # @return [Context]
+    def context
+      session.context
+    end
+
+    # @return [Errors]
+    def errors
+      session.errors
+    end
+
+    # @param name [Symbol]
+    # @param value [Object]
+    # @return [void]
+    def write_attribute!(name, value)
+      @attributes[name.to_sym] = value
+    end
+
+    # @param raise_on_fault [Boolean]
+    # @return [ExecutionResult]
+    def execute(raise_on_fault: false)
+      Executor.new(self).run(raise_on_fault: raise_on_fault)
+    end
+
+    # @return [ExecutionResult]
+    def execute!
+      execute(raise_on_fault: true)
+    end
+
+    # @raise [UndefinedMethodError]
+    # @return [void]
     def work
       raise UndefinedMethodError, "undefined method #{self.class.name}#work"
     end
 
-    # Returns a logger for this task. When a custom log_level or
-    # log_formatter is configured, the shared logger is duplicated
-    # so the original instance is never mutated.
-    #
-    # @return [Logger] The logger instance for this task
-    #
-    # @example
-    #   logger.info "Starting task execution"
-    #   logger.error "Task failed", error: exception
-    #
-    # @rbs () -> Logger
-    def logger
-      @logger ||= begin
-        settings = self.class.settings
-        log_instance = settings.logger || CMDx.configuration.logger
-
-        if settings.log_level || settings.log_formatter
-          log_instance = log_instance.dup
-          log_instance.level = settings.log_level if settings.log_level
-          log_instance.formatter = settings.log_formatter if settings.log_formatter
-        end
-
-        log_instance
-      end
+    # @return [void]
+    def success!(...)
+      outcome.success!(...)
     end
 
-    # @option return [Integer] :index The result index
-    # @option return [String] :chain_id The chain identifier
-    # @option return [String] :type The task type ("Task" or "Workflow")
-    # @option return [Array<Symbol>] :tags The task tags
-    # @option return [String] :class The task class name
-    # @option return [String] :id The task identifier
-    # @option return [Hash] :context The task context (when dump_context is true)
-    #
-    # @return [Hash] A hash representation of the task
-    #
-    # @example
-    #   task_hash = task.to_h
-    #   puts "Task type: #{task_hash[:type]}"
-    #   puts "Task tags: #{task_hash[:tags].join(', ')}"
-    #
-    # @rbs () -> Hash[Symbol, untyped]
+    # @return [void]
+    def skip!(...)
+      outcome.skip!(...)
+    end
+
+    # @return [void]
+    def fail!(...)
+      outcome.fail!(...)
+    end
+
+    # @return [Outcome]
+    def outcome
+      session&.outcome || raise("task is not executing")
+    end
+
+    # @return [Logger]
+    def logger
+      session&.logger || CMDx.configuration.logger
+    end
+
+    # @return [Hash{Symbol => Object}]
     def to_h
       {
-        index: result.index,
-        chain_id: chain.id,
-        type: self.class.type,
+        trace_id: session&.trace&.id,
+        type: self.class.task_kind,
         class: self.class.name,
-        id:,
-        dry_run: dry_run?,
-        tags: self.class.settings.tags
-      }.tap do |hash|
-        if self.class.settings.dump_context
-          # Large context can make dumps and logs very noisy,
-          # so only include it if explicitly enabled
-          hash[:context] = context.to_h
-        end
-      end
-    end
-
-    # @return [String] A string representation of the task
-    #
-    # @example
-    #   puts task.to_s
-    #   # Output: "Task[MyTask] tags: [:important] id: abc123"
-    #
-    # @rbs () -> String
-    def to_s
-      Utils::Format.to_str(to_h)
+        tags: self.class.definition.tags,
+        dry_run: false
+      }
     end
 
   end

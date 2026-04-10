@@ -1,116 +1,56 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Collection of validation and execution errors organized by attribute.
-  # Provides methods to add, query, and format error messages for different
-  # attributes in a task or workflow execution.
+  # Structured errors keyed by attribute, with optional codes.
   class Errors
 
-    extend Forwardable
+    # @return [Array<ErrorDetail>]
+    attr_reader :details
 
-    # Returns the internal hash of error messages by attribute.
-    #
-    # @return [Hash{Symbol => Set<String>}] Hash mapping attribute names to error message sets
-    #
-    # @example
-    #   errors.messages # => { email: #<Set: ["must be valid", "is required"]> }
-    #
-    # @rbs @messages: Hash[Symbol, Set[String]]
-    attr_reader :messages
-
-    def_delegators :messages, :any?, :clear, :empty?, :size
-
-    # Initialize a new error collection.
-    #
-    # @rbs () -> void
     def initialize
-      @messages = {}
+      @details = []
     end
 
-    # Add an error message for a specific attribute.
-    #
-    # @param attribute [Symbol] The attribute name associated with the error
-    # @param message [String] The error message to add
-    #
-    # @example
-    #   errors = CMDx::Errors.new
-    #   errors.add(:email, "must be valid format")
-    #   errors.add(:email, "cannot be blank")
-    #
-    # @rbs (Symbol attribute, String message) -> void
-    def add(attribute, message)
-      return if message.empty?
+    # @param attribute [Symbol]
+    # @param message [String]
+    # @param code [Symbol, nil]
+    # @return [void]
+    def add(attribute, message, code = nil)
+      return if message.nil? || message.empty?
 
-      messages[attribute] ||= Set.new
-      messages[attribute] << message
+      @details << ErrorDetail.new(attribute, message, code)
     end
 
-    # Check if there are any errors for a specific attribute.
-    #
-    # @param attribute [Symbol] The attribute name to check for errors
-    #
-    # @return [Boolean] true if the attribute has errors, false otherwise
-    #
-    # @example
-    #   errors.for?(:email) # => true
-    #   errors.for?(:name)  # => false
-    #
-    # @rbs (Symbol attribute) -> bool
+    # @return [Boolean]
+    def empty?
+      @details.empty?
+    end
+
+    # @return [Boolean]
+    def any?
+      !empty?
+    end
+
+    # @return [void]
+    def clear
+      @details.clear
+    end
+
+    # @param attribute [Symbol]
+    # @return [Boolean]
     def for?(attribute)
-      set = messages[attribute]
-      !set.nil? && !set.empty?
+      sym = attribute.to_sym
+      @details.any? { |d| d.attribute == sym }
     end
 
-    # Convert errors to a hash format with arrays of full messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.full_messages # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
-    def full_messages
-      messages.each_with_object({}) do |(attribute, messages), hash|
-        hash[attribute] = messages.map { |message| "#{attribute} #{message}" }
-      end
-    end
-
-    # Convert errors to a hash format with arrays of messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.to_h # => { email: ["must be valid format", "cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
+    # @return [Hash{Symbol => Array<String>}]
     def to_h
-      messages.transform_values(&:to_a)
+      @details.group_by(&:attribute).transform_values { |list| list.map(&:message) }
     end
 
-    # Convert errors to a hash format with optional full messages.
-    #
-    # @param full [Boolean] Whether to include full messages with attribute names
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.to_hash # => { email: ["must be valid format", "cannot be blank"] }
-    #   errors.to_hash(true) # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs (?bool full) -> Hash[Symbol, Array[String]]
-    def to_hash(full = false)
-      full ? full_messages : to_h
-    end
-
-    # Convert errors to a human-readable string format.
-    #
-    # @return [String] Formatted error messages joined with periods
-    #
-    # @example
-    #   errors.to_s # => "email must be valid format. email cannot be blank"
-    #
-    # @rbs () -> String
+    # @return [String]
     def to_s
-      full_messages.values.flatten.join(". ")
+      @details.map(&:full_message).join(", ")
     end
 
   end
