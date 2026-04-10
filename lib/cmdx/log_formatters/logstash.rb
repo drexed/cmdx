@@ -1,40 +1,42 @@
 # frozen_string_literal: true
 
+require "json"
+
 module CMDx
   module LogFormatters
-    # Formats log messages as Logstash-compatible JSON for structured logging
-    #
-    # This formatter converts log entries into Logstash-compatible JSON format with
-    # standardized fields including @version, @timestamp, severity, program name,
-    # process ID, and formatted message. The output follows Logstash event format
-    # specifications for seamless integration with ELK stack and similar systems.
+    # Formats log output in Logstash-compatible JSON format.
     class Logstash
 
-      # Formats a log entry as a Logstash-compatible JSON string
+      # @param severity [String] log level
+      # @param datetime [Time] timestamp
+      # @param _progname [String, nil] program name
+      # @param result [Result] the result to format
       #
-      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
-      # @param time [Time] The timestamp when the log entry was created
-      # @param progname [String, nil] The program name or identifier
-      # @param message [Object] The log message content
+      # @return [String] Logstash-compatible JSON log line
       #
-      # @return [String] A Logstash-compatible JSON-formatted log entry with a trailing newline
-      #
-      # @example Basic usage
-      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
-      #   # => '{"severity":"INFO","progname":"MyApp","pid":12345,"message":"User logged in","@version":"1","@timestamp":"2024-01-15T10:30:45.123456Z"}\n'
-      #
-      # @rbs (String severity, Time time, String? progname, String message) -> String
-      def call(severity, time, progname, message)
-        hash = {
-          severity:,
-          progname:,
-          pid: Process.pid,
-          message: Utils::Format.to_log(message),
+      # @rbs (String severity, Time datetime, String? _progname, untyped result) -> String
+      def call(severity, datetime, _progname, result)
+        data = {
+          "@timestamp" => datetime&.iso8601,
           "@version" => "1",
-          "@timestamp" => time.utc.iso8601(6)
+          "level" => severity
         }
 
-        ::JSON.dump(hash) << "\n"
+        if result.is_a?(Result)
+          data.merge!(
+            "task" => result.task_class&.name,
+            "task_id" => result.task_id,
+            "task_type" => result.task_type,
+            "status" => result.status,
+            "state" => result.state,
+            "reason" => result.reason,
+            "retries" => result.retries
+          )
+        else
+          data["message"] = result.to_s
+        end
+
+        "#{::JSON.generate(data)}\n"
       end
 
     end

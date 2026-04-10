@@ -2,55 +2,24 @@
 
 module CMDx
   module Coercions
-    # Converts various input types to Boolean format
-    #
-    # Handles conversion from strings, numbers, and other values to boolean
-    # using predefined truthy and falsey patterns.
+    # Coerces a value into a Boolean (true/false).
     module Boolean
 
-      extend self
+      # @rbs TRUTHY: Array[untyped]
+      TRUTHY = [true, 1, "1", "true", "yes", "on", "t", "y"].freeze
 
-      # @rbs FALSEY: Regexp
-      FALSEY = /\A(false|f|no|n|0)\z/i
+      # @rbs FALSY: Array[untyped]
+      FALSY = [false, 0, "0", "false", "no", "off", "f", "n", nil].freeze
 
-      # @rbs TRUTHY: Regexp
-      TRUTHY = /\A(true|t|yes|y|1)\z/i
+      # @param value [Object]
+      # @return [Boolean]
+      #
+      # @rbs (untyped value) -> bool
+      def self.call(value)
+        return true if TRUTHY.include?(value)
+        return false if FALSY.include?(value)
 
-      # Converts a value to a Boolean
-      #
-      # @param value [Object] The value to convert to boolean
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Boolean] The converted boolean value
-      #
-      # @raise [CoercionError] If the value cannot be converted to boolean
-      #
-      # @example Convert truthy strings to true
-      #   Boolean.call("true")   # => true
-      #   Boolean.call("yes")    # => true
-      #   Boolean.call("1")      # => true
-      # @example Convert falsey strings to false
-      #   Boolean.call("false")  # => false
-      #   Boolean.call("no")     # => false
-      #   Boolean.call("0")      # => false
-      #   Boolean.call(nil)      # => false
-      #   Boolean.call("")       # => false
-      # @example Handle case-insensitive input
-      #   Boolean.call("TRUE")   # => true
-      #   Boolean.call("False")  # => false
-      # @example Handle edge cases
-      #   Boolean.call("abc")    # => raises CoercionError
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
-      def call(value, options = EMPTY_HASH)
-        case value.to_s
-        when FALSEY, EMPTY_STRING then false
-        when TRUTHY then true
-        else
-          type = Locale.t("cmdx.types.boolean")
-          raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
-        end
+        !!value
       end
 
     end

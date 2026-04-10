@@ -1,168 +1,92 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Registry for managing callbacks that can be executed at various points during task execution.
-  #
-  # Callbacks are organized by type and can be registered with optional conditions and options.
-  # Each callback type represents a specific execution phase or outcome.
-  #
-  # Supports copy-on-write semantics: a duped registry shares the parent's
-  # data until a write operation triggers materialization.
+  # Registry of lifecycle callbacks organized by type.
+  # Uses copy-on-write for safe inheritance across task classes.
   class CallbackRegistry
-
-    extend Forwardable
 
     # @rbs TYPES: Array[Symbol]
     TYPES = %i[
       before_validation
       before_execution
-      on_complete
-      on_interrupted
-      on_executed
       on_success
       on_skipped
       on_failed
+      on_complete
+      on_interrupted
+      on_executed
       on_good
       on_bad
     ].freeze
 
-    # @rbs TYPES_SET: Set[Symbol]
-    TYPES_SET = TYPES.to_set.freeze
-    private_constant :TYPES_SET
+    # @rbs @callbacks: Hash[Symbol, Array[untyped]]
+    attr_reader :callbacks
 
-    def_delegators :registry, :empty?
-
-    # @param registry [Hash, nil] Initial registry hash, defaults to empty
-    #
-    # @rbs (?Hash[Symbol, Set[Array[untyped]]]? registry) -> void
-    def initialize(registry = nil)
-      @registry = registry || {}
+    # @rbs (?Hash[Symbol, Array[untyped]]? callbacks) -> void
+    def initialize(callbacks = nil)
+      @callbacks = callbacks || TYPES.to_h { |t| [t, []] }
     end
 
-    # Sets up copy-on-write state when duplicated via dup.
+    # Registers a callback for a lifecycle type.
     #
-    # @param source [CallbackRegistry] The registry being duplicated
+    # @param type [Symbol] the callback type
+    # @param callable [Symbol, Proc, Object] the callable
+    # @param options [Hash] condition options (:if, :unless)
     #
-    # @rbs (CallbackRegistry source) -> void
-    def initialize_dup(source)
-      @parent = source
-      @registry = nil
-      super
+    # @rbs (Symbol type, untyped callable, **untyped options) -> void
+    def register(type, callable, **options)
+      callbacks[type] << { callable:, **options }
     end
 
-    # Returns the internal registry of callbacks organized by type.
-    # Delegates to the parent registry when not yet materialized.
+    # Returns all registered callbacks for a type.
     #
-    # @return [Hash{Symbol => Set<Array>}] Hash mapping callback types to their registered callables
+    # @param type [Symbol] the callback type
     #
-    # @example
-    #   registry.registry # => { before_execution: #<Set: [[[:validate], {}]]> }
+    # @return [Array<Hash>] callback entries
     #
-    # @rbs () -> Hash[Symbol, Set[Array[untyped]]]
-    def registry
-      @registry || @parent.registry
-    end
-    alias to_h registry
-
-    # Registers one or more callables for a specific callback type
-    #
-    # @param type [Symbol] The callback type from TYPES
-    # @param callables [Array<#call>] Callable objects to register
-    # @param options [Hash] Options to pass to the callback
-    # @param block [Proc] Optional block to register as a callable
-    # @option options [Hash] :if Condition hash for conditional execution
-    # @option options [Hash] :unless Inverse condition hash for conditional execution
-    #
-    # @return [CallbackRegistry] self for method chaining
-    #
-    # @raise [ArgumentError] When type is not a valid callback type
-    #
-    # @example Register a method callback
-    #   registry.register(:before_execution, :validate_inputs)
-    # @example Register a block with conditions
-    #   registry.register(:on_success, if: { status: :completed }) do |task|
-    #     task.log("Success callback executed")
-    #   end
-    #
-    # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
-    def register(type, *callables, **options, &block)
-      materialize!
-
-      callables << block if block_given?
-
-      @registry[type] ||= Set.new
-      @registry[type] << [callables, options]
-      self
+    # @rbs (Symbol type) -> Array[Hash[Symbol, untyped]]
+    def for_type(type)
+      callbacks.fetch(type, EMPTY_ARRAY)
     end
 
-    # Removes one or more callables for a specific callback type
+    # Invokes all callbacks for a type.
     #
-    # @param type [Symbol] The callback type from TYPES
-    # @param callables [Array<#call>] Callable objects to remove
-    # @param options [Hash] Options that were used during registration
-    # @param block [Proc] Optional block to remove
-    # @option options [Object] :* Any option key-value pairs
+    # @param type [Symbol] the callback type
+    # @param task [Task] the task instance
+    # @param result [Result] the result instance
     #
-    # @return [CallbackRegistry] self for method chaining
-    #
-    # @example Remove a specific callback
-    #   registry.deregister(:before_execution, :validate_inputs)
-    #
-    # @rbs (Symbol type, *untyped callables, **untyped options) ?{ (Task) -> void } -> self
-    def deregister(type, *callables, **options, &block)
-      materialize!
+    # @rbs (Symbol type, untyped task, untyped result) -> void
+    def invoke(type, task, result)
+      for_type(type).each do |entry|
+        next unless evaluate_conditions(entry, task)
 
-      callables << block if block_given?
-      return self unless @registry[type]
-
-      @registry[type].delete([callables, options])
-      @registry.delete(type) if @registry[type].empty?
-      self
-    end
-
-    # Invokes all registered callbacks for a given type
-    #
-    # @param type [Symbol] The callback type to invoke
-    # @param task [Task] The task instance to pass to callbacks
-    #
-    # @raise [TypeError] When type is not a valid callback type
-    #
-    # @example Invoke all before_execution callbacks
-    #   registry.invoke(:before_execution, task)
-    #
-    # @rbs (Symbol type, Task task) -> void
-    def invoke(type, task)
-      raise TypeError, "unknown callback type #{type.inspect}" unless TYPES_SET.include?(type)
-      return unless registry[type]
-
-      registry[type].each do |callables, options|
-        next unless Utils::Condition.evaluate(task, options)
-
-        Utils::Wrap.array(callables).each do |callable|
-          if callable.is_a?(Symbol)
-            task.send(callable)
-          elsif callable.is_a?(Proc)
-            task.instance_exec(&callable)
-          elsif callable.respond_to?(:call)
-            callable.call(task)
-          else
-            raise "cannot invoke #{callable}"
-          end
-        end
+        Utils::Call.invoke_callback(entry[:callable], task, result)
       end
+    end
+
+    # @return [Boolean] true if any callbacks are registered
+    #
+    # @rbs () -> bool
+    def any?
+      callbacks.any? { |_type, list| !list.empty? }
+    end
+
+    # @return [CallbackRegistry] a duplicated registry for child classes
+    #
+    # @rbs () -> CallbackRegistry
+    def for_child
+      duped = callbacks.transform_values(&:dup)
+      self.class.new(duped)
     end
 
     private
 
-    # Copies the parent's registry data into this instance,
-    # severing the copy-on-write link.
-    #
-    # @rbs () -> void
-    def materialize!
-      return if @registry
+    # @rbs (Hash[Symbol, untyped] entry, untyped task) -> bool
+    def evaluate_conditions(entry, task) # rubocop:disable Naming/PredicateMethod
+      return false if entry[:if] && !Utils::Condition.truthy?(entry[:if], task)
+      return false if entry[:unless] && !Utils::Condition.falsy?(entry[:unless], task)
 
-      @registry = @parent.registry.transform_values(&:dup)
-      @parent = nil
+      true
     end
 
   end

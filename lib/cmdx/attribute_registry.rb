@@ -1,184 +1,126 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Manages a collection of attributes for task definition and verification.
-  # The registry provides methods to register, deregister, and process attributes
-  # in a hierarchical structure, supporting nested attribute definitions.
+  # Registry of attribute definitions for a task class.
+  # Manages attribute reader modules and COW semantics for inheritance.
   class AttributeRegistry
 
-    # Returns the collection of registered attributes.
-    #
-    # @return [Array<Attribute>] Array of registered attributes
-    #
-    # @example
-    #   registry.registry # => [#<Attribute @name=:name>, #<Attribute @name=:email>]
-    #
-    # @rbs @registry: Array[Attribute]
-    attr_reader :registry
-    alias to_a registry
+    # @rbs @definitions: Hash[Symbol, Attribute]
+    # @rbs @reader_module: Module?
+    attr_reader :definitions
 
-    # Creates a new attribute registry with an optional initial collection.
-    #
-    # @param registry [Array<Attribute>] Initial attributes to register
-    #
-    # @return [AttributeRegistry] A new registry instance
-    #
-    # @example
-    #   registry = AttributeRegistry.new
-    #   registry = AttributeRegistry.new([attr1, attr2])
-    #
-    # @rbs (?Array[Attribute] registry) -> void
-    def initialize(registry = [])
-      @registry = registry
+    # @rbs (?Hash[Symbol, Attribute]? definitions) -> void
+    def initialize(definitions = nil)
+      @definitions = definitions || {}
+      @reader_module = nil
     end
 
-    # Creates a duplicate of this registry with copied attributes.
+    # Registers an attribute definition.
     #
-    # @return [AttributeRegistry] A new registry with duplicated attributes
+    # @param attribute [Attribute] the attribute to register
     #
-    # @example
-    #   new_registry = registry.dup
+    # @rbs (Attribute attribute) -> void
+    def register(attribute)
+      definitions[attribute.name] = attribute
+    end
+
+    # Removes an attribute definition.
+    #
+    # @param name [Symbol] the attribute name
+    #
+    # @rbs (Symbol name) -> void
+    def deregister(name)
+      definitions.delete(name.to_sym)
+    end
+
+    # Looks up an attribute by name.
+    #
+    # @param name [Symbol] the attribute name
+    #
+    # @return [Attribute, nil]
+    #
+    # @rbs (Symbol name) -> Attribute?
+    def [](name)
+      definitions[name.to_sym]
+    end
+
+    # @return [Boolean]
+    #
+    # @rbs () -> bool
+    def any?
+      !definitions.empty?
+    end
+
+    # @return [Integer]
+    #
+    # @rbs () -> Integer
+    def size
+      definitions.size
+    end
+
+    # @rbs () { (Symbol, Attribute) -> void } -> void
+    def each(&)
+      definitions.each(&)
+    end
+
+    # Builds the reader module for the task class and includes it.
+    # This creates accessor methods for all attributes on an anonymous module.
+    #
+    # @param task_class [Class] the task class to include the module into
+    #
+    # @rbs (untyped task_class) -> void
+    def define_readers!(task_class)
+      return if definitions.empty?
+
+      mod = Module.new
+      definitions.each_value do |attr|
+        alloc_name = attr.allocation_name
+        next unless alloc_name
+
+        mod.define_method(alloc_name) { @_attributes[alloc_name] }
+      end
+      task_class.include(mod)
+      @reader_module = mod
+    end
+
+    # Resolves all attribute values from the given context into a hash.
+    #
+    # @param task [Task] the task instance
+    # @param context [Context] the execution context
+    # @param errors [Errors] the error collection
+    #
+    # @return [Hash{Symbol => Object}] resolved attribute values
+    #
+    # @rbs (untyped task, Context context, Errors errors) -> Hash[Symbol, untyped]
+    def resolve(task, context, errors)
+      definitions.each_with_object({}) do |(_name, attr), resolved|
+        value = ValueResolver.call(attr, task, context)
+        resolved[attr.allocation_name || attr.name] = value
+
+        attr.validations.each do |type, options|
+          validator = ValidatorRegistry.new.resolve(type)
+          opts = options.is_a?(Hash) ? options : {}
+          message = validator.call(value, **opts)
+          errors.add(attr.name, message) if message
+        end
+      end
+    end
+
+    # Returns a schema representation of all attributes.
+    #
+    # @return [Hash{Symbol => Hash}]
+    #
+    # @rbs () -> Hash[Symbol, Hash[Symbol, untyped]]
+    def schema
+      definitions.transform_values(&:to_h)
+    end
+
+    # @return [AttributeRegistry] a duplicated registry for child classes
     #
     # @rbs () -> AttributeRegistry
-    def dup
-      self.class.new(registry.dup)
-    end
-
-    # Registers one or more attributes to the registry.
-    #
-    # @param attributes [Attribute, Array<Attribute>] Attribute(s) to register
-    #
-    # @return [AttributeRegistry] Self for method chaining
-    #
-    # @example
-    #   registry.register(attribute)
-    #   registry.register([attr1, attr2])
-    #
-    # @rbs (Attribute | Array[Attribute] attributes) -> self
-    def register(attributes)
-      @registry.concat(Utils::Wrap.array(attributes))
-      self
-    end
-
-    # Removes attributes from the registry by name.
-    # Supports hierarchical attribute removal by matching the entire attribute tree.
-    #
-    # @param names [Symbol, String, Array<Symbol, String>] Name(s) of attributes to remove
-    #
-    # @return [AttributeRegistry] Self for method chaining
-    #
-    # @example
-    #   registry.deregister(:name)
-    #   registry.deregister(['name1', 'name2'])
-    #
-    # @rbs ((Symbol | String | Array[Symbol | String]) names) -> self
-    def deregister(names)
-      Utils::Wrap.array(names).each do |name|
-        @registry.reject! { |attribute| matches_attribute_tree?(attribute, name.to_sym) }
-      end
-
-      self
-    end
-
-    # Eagerly defines attribute reader methods on the task class for all
-    # attributes whose method names can be statically resolved. Called at
-    # class definition time so readers are defined once, not per-execution.
-    #
-    # @param task_class [Class] The task class to define readers on
-    # @param attrs [Array<Attribute>] Attributes to process (defaults to all)
-    #
-    # @rbs (Class task_class, ?Array[Attribute] attrs) -> void
-    def define_readers_on!(task_class, attrs = registry)
-      attrs.each { |attr| define_reader_tree!(task_class, attr) }
-    end
-
-    # Removes eagerly defined reader methods from the task class for
-    # attributes about to be deregistered. Must be called before {#deregister}.
-    #
-    # @param task_class [Class] The task class to undefine readers on
-    # @param names [Array<Symbol, String>] Attribute method names being removed
-    #
-    # @rbs (Class task_class, (Symbol | String | Array[Symbol | String]) names) -> void
-    def undefine_readers_on!(task_class, names)
-      Utils::Wrap.array(names).each do |name|
-        sym = name.to_sym
-
-        registry.each do |attribute|
-          next unless matches_attribute_tree?(attribute, sym)
-
-          undefine_reader_tree!(task_class, attribute)
-        end
-      end
-    end
-
-    # Verifies attribute definitions against a task instance.
-    # Each attribute is duped before binding so the class-level originals
-    # are never mutated — this eliminates the concurrency hazard of
-    # shared mutable @task, @source, and @method_name state.
-    #
-    # @param task [Task] The task to verify attributes against
-    #
-    # @rbs (Task task) -> void
-    def define_and_verify(task)
-      registry.each do |attribute|
-        duplicate = attribute.dup
-        duplicate.task = task
-        duplicate.define_and_verify_tree
-      end
-    end
-
-    private
-
-    # Recursively defines reader methods for an attribute and its children
-    # when the method name is statically resolvable.
-    #
-    # @param task_class [Class] The task class to define readers on
-    # @param attribute [Attribute] The attribute to define a reader for
-    #
-    # @rbs (Class task_class, Attribute attribute) -> void
-    def define_reader_tree!(task_class, attribute)
-      name = attribute.allocation_name
-
-      if name && !task_class.method_defined?(name)
-        if task_class.private_method_defined?(name)
-          raise <<~MESSAGE
-            The method #{name.inspect} is already defined on the #{task_class.name} task.
-            This may be due conflicts with one of the task's user defined or internal methods/attributes.
-
-            Use :as, :prefix, and/or :suffix attribute options to avoid conflicts with existing methods.
-          MESSAGE
-        end
-
-        task_class.define_method(name) { attributes[name] }
-      end
-
-      attribute.children.each { |child| define_reader_tree!(task_class, child) }
-    end
-
-    # Recursively removes reader methods for an attribute and its children.
-    #
-    # @param task_class [Class] The task class to undefine readers on
-    # @param attribute [Attribute] The attribute whose readers to remove
-    #
-    # @rbs (Class task_class, Attribute attribute) -> void
-    def undefine_reader_tree!(task_class, attribute)
-      name = attribute.allocation_name
-      task_class.remove_method(name) if name && task_class.method_defined?(name, false)
-      attribute.children.each { |child| undefine_reader_tree!(task_class, child) }
-    end
-
-    # Recursively checks if an attribute or any of its children match the given name.
-    #
-    # @param attribute [Attribute] The attribute to check
-    # @param name [Symbol] The name to match against
-    #
-    # @return [Boolean] True if the attribute or any child matches the name
-    #
-    # @rbs (Attribute attribute, Symbol name) -> bool
-    def matches_attribute_tree?(attribute, name)
-      return true if attribute.method_name == name
-
-      attribute.children.any? { |child| matches_attribute_tree?(child, name) }
+    def for_child
+      duped = definitions.transform_values(&:dup)
+      self.class.new(duped)
     end
 
   end

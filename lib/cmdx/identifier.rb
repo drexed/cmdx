@@ -1,29 +1,21 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Generates unique identifiers for tasks, workflows, and other CMDx components.
+  # Generates unique identifiers for tasks and chains.
   #
-  # The Identifier module provides a consistent way to generate unique identifiers
-  # across the CMDx system, with fallback support for different Ruby versions.
+  # Uses SecureRandom.uuid for globally unique IDs.
   module Identifier
 
-    extend self
-
-    # Generates a unique identifier string.
+    # Generates a new unique identifier string.
     #
-    # @return [String] A unique identifier string (UUID v7 if available, otherwise UUID v4)
+    # @return [String] a UUID string
     #
-    # @raise [StandardError] If SecureRandom is unavailable or fails to generate an identifier
-    #
-    # @example Generate a unique identifier
-    #   CMDx::Identifier.generate
-    #   # => "01890b2c-1234-5678-9abc-def123456789"
+    # @example
+    #   Identifier.generate # => "550e8400-e29b-41d4-a716-446655440000"
     #
     # @rbs () -> String
-    if SecureRandom.respond_to?(:uuid_v7)
-      def generate = SecureRandom.uuid_v7
-    else
-      def generate = SecureRandom.uuid
+    def self.generate
+      SecureRandom.uuid
     end
 
   end

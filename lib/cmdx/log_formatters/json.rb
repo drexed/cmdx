@@ -1,38 +1,27 @@
 # frozen_string_literal: true
 
+require "json"
+
 module CMDx
   module LogFormatters
-    # Formats log messages as JSON for structured logging
-    #
-    # This formatter converts log entries into JSON format with standardized fields
-    # including severity, timestamp, program name, process ID, and formatted message.
-    # The output is suitable for log aggregation systems and structured analysis.
-    class JSON
+    # Formats log output as JSON.
+    class Json
 
-      # Formats a log entry as a JSON string
+      # @param severity [String] log level
+      # @param datetime [Time] timestamp
+      # @param _progname [String, nil] program name
+      # @param result [Result] the result to format
       #
-      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
-      # @param time [Time] The timestamp when the log entry was created
-      # @param progname [String, nil] The program name or identifier
-      # @param message [Object] The log message content
+      # @return [String] JSON-formatted log line
       #
-      # @return [String] A JSON-formatted log entry with a trailing newline
-      #
-      # @example Basic usage
-      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
-      #   # => '{"severity":"INFO","timestamp":"2024-01-15T10:30:45.123456Z","progname":"MyApp","pid":12345,"message":"User logged in"}\n'
-      #
-      # @rbs (String severity, Time time, String? progname, String message) -> String
-      def call(severity, time, progname, message)
-        hash = {
-          severity:,
-          timestamp: time.utc.iso8601(6),
-          progname:,
-          pid: Process.pid,
-          message: Utils::Format.to_log(message)
-        }
-
-        ::JSON.dump(hash) << "\n"
+      # @rbs (String severity, Time datetime, String? _progname, untyped result) -> String
+      def call(severity, datetime, _progname, result)
+        data = if result.is_a?(Result)
+                 result.to_h.merge(severity:, timestamp: datetime&.iso8601)
+               else
+                 { message: result.to_s, severity:, timestamp: datetime&.iso8601 }
+               end
+        "#{::JSON.generate(data)}\n"
       end
 
     end

@@ -1,77 +1,67 @@
 # frozen_string_literal: true
 
+require "yaml"
+
 module CMDx
-  # Provides internationalization and localization support for CMDx.
-  # Handles translation lookups with fallback to the configured locale's
-  # default messages when I18n gem is not available.
+  # Handles internationalization of messages and error strings.
+  # Uses I18n when available, falls back to built-in YAML translations.
   module Locale
 
-    extend self
+    # @rbs LOCALE_PATH: String
+    LOCALE_PATH = File.expand_path("../locales", __dir__)
 
-    # Translates a key to the current locale with optional interpolation.
-    # Falls back to the configured locale's YAML file translations if
-    # I18n gem is unavailable.
-    #
-    # @param key [String, Symbol] The translation key (supports dot notation)
-    # @param options [Hash] Translation options
-    # @option options [String] :default Fallback message if translation missing
-    # @option options [String] :locale Target locale (when I18n available)
-    # @option options [Hash] :scope Translation scope (when I18n available)
-    # @option options [Object] :* Any other options passed to I18n.t or string interpolation
-    #
-    # @return [String] The translated message
-    #
-    # @raise [ArgumentError] When interpolation fails due to missing keys
-    #
-    # @example Basic translation
-    #   Locale.translate("errors.invalid_input")
-    #   # => "Invalid input provided"
-    # @example With interpolation
-    #   Locale.translate("welcome.message", name: "John")
-    #   # => "Welcome, John!"
-    # @example With fallback
-    #   Locale.translate("missing.key", default: "Custom fallback message")
-    #   # => "Custom fallback message"
-    #
-    # @rbs ((String | Symbol) key, **untyped options) -> String
-    def translate(key, **options)
-      options[:default] ||= translation_default(key)
-      return ::I18n.t(key, **options) if defined?(::I18n)
+    # @rbs @translations: Hash[String, untyped]
 
-      case message = options.delete(:default)
-      when String then message % options
-      when NilClass then "Translation missing: #{key}"
-      else message
+    # Translates a key with optional interpolation.
+    #
+    # @param key [String] dot-separated translation key (e.g., "cmdx.errors.blank")
+    # @param options [Hash] interpolation values
+    #
+    # @return [String] translated string
+    #
+    # @rbs (String key, **untyped options) -> String
+    def self.t(key, **options)
+      if defined?(I18n)
+        I18n.t(key, **options, default: fallback(key, **options))
+      else
+        fallback(key, **options)
       end
     end
 
-    # @see #translate
-    alias t translate
-
-    private
-
-    # Resolves and caches the default translation for a key by digging
-    # into the configured locale's YAML translations.
+    # @param locale [Symbol, String] locale code
     #
-    # @param key [String, Symbol] The translation key
+    # @return [Hash] loaded translations
     #
-    # @return [String, nil] The resolved translation or nil
+    # @rbs (?Symbol locale) -> Hash[String, untyped]
+    def self.translations(locale = :en)
+      @translations ||= {}
+      @translations[locale.to_s] ||= begin
+        file = File.join(LOCALE_PATH, "#{locale}.yml")
+        data = File.exist?(file) ? YAML.safe_load_file(file) : {}
+        data[locale.to_s] || {}
+      end
+    end
+
+    # @param key [String] dot-separated translation key
+    # @param options [Hash] interpolation values
     #
-    # @rbs ((String | Symbol) key) -> String?
-    def translation_default(key)
-      tkey = "#{CMDx.configuration.default_locale}.#{key}"
+    # @return [String] translated string or key as fallback
+    #
+    # @rbs (String key, **untyped options) -> String
+    def self.fallback(key, **options)
+      locale = options.delete(:locale) || :en
+      keys = key.split(".")
+      value = keys.reduce(translations(locale)) do |hash, k|
+        break nil unless hash.is_a?(Hash)
 
-      @translation_defaults ||= {}
-      return @translation_defaults[tkey] if @translation_defaults.key?(tkey)
-
-      @default_translations ||= begin
-        path = CMDx.gem_path.join("lib/locales/#{CMDx.configuration.default_locale}.yml")
-        raise ArgumentError, "locale file not found: #{path}" unless path.exist?
-
-        YAML.load_file(path).freeze
+        hash[k]
       end
 
-      @translation_defaults[tkey] = @default_translations.dig(*tkey.split("."))
+      return key unless value.is_a?(String)
+
+      options.reduce(value) do |str, (k, v)|
+        str.gsub("%{#{k}}", v.to_s)
+      end
     end
 
   end

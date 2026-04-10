@@ -2,30 +2,20 @@
 
 module CMDx
   module LogFormatters
-    # Formats log messages as raw text without additional formatting
-    #
-    # This formatter outputs log messages in their original form with minimal
-    # processing, adding only a trailing newline. It's useful for scenarios
-    # where you want to preserve the exact message content without metadata
-    # or structured formatting.
+    # Passes through the raw result hash without formatting.
     class Raw
 
-      # Formats a log entry as raw text
+      # @param _severity [String] log level
+      # @param _datetime [Time] timestamp
+      # @param _progname [String, nil] program name
+      # @param result [Result] the result to format
       #
-      # @param severity [String] The log level (e.g., "INFO", "ERROR", "DEBUG")
-      # @param time [Time] The timestamp when the log entry was created
-      # @param progname [String, nil] The program name or identifier
-      # @param message [Object] The log message content
+      # @return [String] raw string representation
       #
-      # @return [String] The raw message with a trailing newline
-      #
-      # @example Basic usage
-      #   logger_formatter.call("INFO", Time.now, "MyApp", "User logged in")
-      #   # => "User logged in\n"
-      #
-      # @rbs (String severity, Time time, String? progname, String message) -> String
-      def call(severity, time, progname, message)
-        "#{message}\n"
+      # @rbs (String _severity, Time _datetime, String? _progname, untyped result) -> String
+      def call(_severity, _datetime, _progname, result)
+        data = result.is_a?(Result) ? result.to_h : result
+        "#{data}\n"
       end
 
     end

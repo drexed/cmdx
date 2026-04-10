@@ -2,49 +2,38 @@
 
 module CMDx
   module Utils
-    # Provides normalization utilities for a variety of objects
-    # into consistent formats.
+    # Normalizes input values for attribute processing.
     module Normalize
 
-      extend self
+      # Normalizes a value to nil when it is blank (empty string or nil).
+      #
+      # @param value [Object]
+      #
+      # @return [Object, nil]
+      #
+      # @rbs (untyped value) -> untyped
+      def self.blank_to_nil(value)
+        return nil if value.nil?
+        return nil if value.respond_to?(:empty?) && value.empty?
 
-      # Normalizes an exception into a string representation.
-      #
-      # @param exception [Exception] The exception to normalize
-      #
-      # @return [String] The normalized exception string
-      #
-      # @example From exception
-      #   Normalize.exception(StandardError.new("test"))
-      #   # => "[StandardError] test"
-      #
-      # @rbs (Exception exception) -> String
-      def exception(exception)
-        "[#{exception.class}] #{exception.message}"
+        value
       end
 
-      # Normalizes an object into an array of unique status strings.
+      # Extracts a nested value using a dot-separated path.
       #
-      # @param object [Object] The object to normalize into status strings
+      # @param source [Hash] the source data
+      # @param path [String] dot-separated path
       #
-      # @return [Array<String>] Unique status strings
+      # @return [Object, nil]
       #
-      # @example From array of symbols
-      #   Normalize.statuses([:success, :pending, :success])
-      #   # => ["success", "pending"]
-      # @example From single value
-      #   Normalize.statuses(:success)
-      #   # => ["success"]
-      # @example From nil
-      #   Normalize.statuses(nil)
-      #   # => []
-      #
-      # @rbs (untyped object) -> Array[String]
-      def statuses(object)
-        ary = Wrap.array(object)
-        return EMPTY_ARRAY if ary.empty?
+      # @rbs (Hash[untyped, untyped] source, String path) -> untyped
+      def self.dig(source, path)
+        keys = path.split(".")
+        keys.reduce(source) do |obj, key|
+          break nil unless obj.respond_to?(:[])
 
-        ary.map(&:to_s).uniq
+          obj[key.to_sym] || obj[key]
+        end
       end
 
     end

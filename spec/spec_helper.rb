@@ -1,53 +1,33 @@
 # frozen_string_literal: true
 
-ENV["TZ"] = "Etc/UTC"
-
-require "bundler/setup"
-require "rspec"
-
 require "cmdx"
-require "cmdx/rspec"
-
-spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
-
-%w[config helpers].each do |dir|
-  Dir.glob(spec_path.join("support/#{dir}/**/*.rb"))
-     .sort_by { |f| [f.split("/").size, f] }
-     .each { |f| load(f) }
-end
 
 RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
   config.shared_context_metadata_behavior = :apply_to_host_groups
-
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
-
-  # Disable RSpec exposing methods globally on Module and main
+  config.filter_run_when_matching :focus
+  config.example_status_persistence_file_path = "spec/examples.txt"
   config.disable_monkey_patching!
+  config.warnings = true
 
-  config.define_derived_metadata do |meta|
-    meta[:aggregate_failures] = true
-  end
+  config.default_formatter = "doc" if config.files_to_run.one?
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-  end
-
-  config.include CMDx::RSpec::Helpers
-  config.include CMDx::Testing::TaskBuilders
-  config.include CMDx::Testing::WorkflowBuilders
+  config.order = :random
+  Kernel.srand config.seed
 
   config.before do
     CMDx.reset_configuration!
-    CMDx.configuration.logger = Logger.new(nil)
-    CMDx.configuration.freeze_results = false
+    CMDx.configuration.logger = Logger.new(File::NULL)
     CMDx::Chain.clear
-    CMDx::Middlewares::Correlate.clear
-  end
-
-  config.after do
-    CMDx.reset_configuration!
-    CMDx::Chain.clear
-    CMDx::Middlewares::Correlate.clear
+    CMDx::Locale.instance_variable_set(:@translations, nil)
   end
 end
+
+Dir[File.join(__dir__, "support/**/*.rb")].each { |f| require f }

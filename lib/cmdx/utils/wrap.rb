@@ -2,34 +2,21 @@
 
 module CMDx
   module Utils
-    # Provides array wrapping utilities for normalizing input values
-    # into consistent array structures.
+    # Wraps values into arrays.
     module Wrap
 
-      extend self
-
-      # Wraps an object in an array if it is not already an array.
+      # Ensures a value is wrapped in an array.
       #
-      # @param object [Object] The object to wrap in an array
+      # @param value [Object] the value to wrap
       #
-      # @return [Array] The wrapped array
+      # @return [Array]
       #
-      # @example Already an array
-      #   Wrap.array([1, 2, 3])
-      #   # => [1, 2, 3]
-      # @example Single value
-      #   Wrap.array(1)
-      #   # => [1]
-      # @example Nil value
-      #   Wrap.array(nil)
-      #   # => []
-      #
-      # @rbs (untyped object) -> Array[untyped]
-      def array(object)
-        case object
-        when Array then object
-        when NilClass then EMPTY_ARRAY
-        else Array(object)
+      # @rbs (untyped value) -> Array[untyped]
+      def self.call(value)
+        case value
+        when nil then []
+        when Array then value
+        else [value]
         end
       end
 

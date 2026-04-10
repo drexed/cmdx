@@ -1,134 +1,69 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Provides workflow execution capabilities by organizing tasks into execution groups.
-  # Workflows allow you to define sequences of tasks that can be executed conditionally
-  # with breakpoint handling and context management.
+  # Module providing workflow DSL for orchestrating multiple tasks.
+  #
+  # @example
+  #   class OnboardUser < CMDx::Task
+  #     include CMDx::Workflow
+  #
+  #     task CreateAccount
+  #     task SendWelcomeEmail, on_failure: :skip
+  #     tasks CreateProfile, SetupPreferences, parallel: true
+  #   end
   module Workflow
 
-    module ClassMethods
-
-      # Prevents redefinition of the work method to maintain workflow integrity.
-      #
-      # @param method_name [Symbol] The name of the method being added
-      #
-      # @raise [RuntimeError] If attempting to redefine the work method
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     # This would raise an error:
-      #     # def work; end
-      #   end
-      #
-      # @rbs (Symbol method_name) -> void
-      def method_added(method_name)
-        raise "cannot redefine #{name}##{method_name} method" if method_name == :work
-
-        super
-      end
-
-      # Returns the collection of execution groups for this workflow.
-      #
-      # @return [Array<ExecutionGroup>] Array of execution groups
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts pipeline.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[ExecutionGroup]
-      def pipeline
-        @pipeline ||= []
-      end
-
-      # Adds multiple tasks to the workflow with optional configuration.
-      #
-      # @param tasks [Array<Class>] Array of task classes to add
-      # @param options [Hash] Configuration options for the task execution
-      # @option options [Hash] :breakpoints Breakpoints that trigger workflow interruption
-      # @option options [Hash] :conditions Conditional logic for task execution
-      #
-      # @raise [TypeError] If any task is not a CMDx::Task subclass
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
-      #   end
-      #
-      # @rbs (*untyped tasks, **untyped options) -> void
-      def tasks(*tasks, **options)
-        pipeline << ExecutionGroup.new(
-          tasks.map do |task|
-            next task if task.is_a?(Class) && (task <= Task)
-
-            raise TypeError, "must be a CMDx::Task"
-          end,
-          options
-        )
-      end
-      alias task tasks
-
-      # Returns all tasks in the pipeline.
-      #
-      # @return [Array<Class>] Array of task classes
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts subtasks.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[Class]
-      def subtasks
-        pipeline.flat_map(&:tasks)
-      end
-
-    end
-
-    # Represents a group of tasks with shared execution options.
-    # @attr tasks [Array<Class>] Array of task classes in this group
-    # @attr options [Hash] Configuration options for the group
-    ExecutionGroup = Struct.new(:tasks, :options)
-
-    # Extends the including class with workflow capabilities.
-    #
-    # @param base [Class] The class including this module
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     # Now has access to task, tasks, and work methods
-    #   end
-    #
-    # @rbs (Class base) -> void
+    # @rbs (untyped base) -> void
     def self.included(base)
       base.extend(ClassMethods)
     end
 
-    # Executes the workflow by processing all tasks in the pipeline.
-    # This method delegates execution to the Pipeline class which handles
-    # the processing of tasks with proper error handling and context management.
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     task ValidateTask
-    #     task ProcessTask
-    #   end
-    #
-    #   workflow = MyWorkflow.new
-    #   result = workflow.work
+    # Class-level DSL for declaring workflow steps.
+    module ClassMethods
+
+      # @return [Array<Hash>] ordered list of task entries
+      #
+      # @rbs () -> Array[Hash[Symbol, untyped]]
+      def workflow_entries
+        @workflow_entries ||= if superclass.respond_to?(:workflow_entries)
+                                superclass.workflow_entries.dup
+                              else
+                                []
+                              end
+      end
+
+      # Declares a single task step in the workflow.
+      #
+      # @param task_class [Class] the task class
+      # @param options [Hash] execution options (:on_failure, :if, :unless)
+      #
+      # @rbs (untyped task_class, **untyped options) -> void
+      def task(task_class, **options)
+        workflow_entries << { task: task_class, options: }
+      end
+
+      # Declares parallel task steps in the workflow.
+      #
+      # @param task_classes [Array<Class>] task classes to run in parallel
+      # @param options [Hash] execution options (:pool_size, :on_failure)
+      #
+      # @rbs (*untyped task_classes, **untyped options) -> void
+      def tasks(*task_classes, **options)
+        entries = task_classes.map { |tc| { task: tc, options: } }
+        workflow_entries << { parallel: true, tasks: entries }
+      end
+
+    end
+
+    # Override work to execute the workflow pipeline (must be public; Runtime invokes it).
     #
     # @rbs () -> void
     def work
-      Pipeline.execute(self)
+      entries = self.class.workflow_entries
+      chain = Chain.current || Chain.new(dry_run: dry_run?)
+      Chain.current = chain
+
+      Pipeline.call(entries, context, chain)
     end
 
   end

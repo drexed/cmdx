@@ -2,49 +2,52 @@
 
 module CMDx
   module Utils
-    # Utility module for invoking callable objects with different invocation strategies.
-    #
-    # This module provides a unified interface for calling methods, procs, and other
-    # callable objects on target objects, handling the appropriate invocation method
-    # based on the callable type.
+    # Invokes a callable in the appropriate context.
     module Call
 
-      extend self
-
-      # Invokes a callable object on the target with the given arguments.
+      # Invokes a callable reference.
       #
-      # @param target [Object] The target object to invoke the callable on
-      # @param callable [Symbol, Proc, #call] The callable to invoke
-      # @param args [Array] Positional arguments to pass to the callable
-      # @param kwargs [Hash] Keyword arguments to pass to the callable
-      # @option kwargs [Object] :* Any keyword arguments to pass to the callable
+      # @param callable [Symbol, Proc, Object] the callable
+      # @param task [Task, nil] the context for symbol/instance_exec
+      # @param args [Array] arguments to pass
       #
-      # @yield [Object] Block to pass to the callable
+      # @return [Object] the return value
       #
-      # @return [Object] The result of invoking the callable
-      #
-      # @raise [RuntimeError] When the callable cannot be invoked
-      #
-      # @example Invoking a method by symbol
-      #   Call.invoke(user, :name)
-      #   Call.invoke(user, :update, { name: 'John' })
-      # @example Invoking a proc
-      #   proc = ->(name) { "Hello #{name}" }
-      #   Call.invoke(user, proc, 'John')
-      # @example Invoking a callable object
-      #   callable = MyCallable.new
-      #   Call.invoke(user, callable, 'data')
-      #
-      # @rbs (untyped target, (Symbol | Proc | untyped) callable, *untyped args, **untyped kwargs) ?{ () -> untyped } -> untyped
-      def invoke(target, callable, *args, **kwargs, &)
-        if callable.is_a?(Symbol)
-          target.send(callable, *args, **kwargs, &)
-        elsif callable.is_a?(Proc)
-          target.instance_exec(*args, **kwargs, &callable)
-        elsif callable.respond_to?(:call)
-          callable.call(*args, **kwargs, &)
+      # @rbs (untyped callable, untyped task, *untyped args) -> untyped
+      def self.invoke(callable, task, *args)
+        case callable
+        when Symbol
+          task.__send__(callable)
+        when Proc
+          if callable.arity.zero?
+            task.instance_exec(&callable)
+          else
+            task.instance_exec(*args, &callable)
+          end
         else
-          raise "cannot invoke #{callable}"
+          callable.call(*args)
+        end
+      end
+
+      # Invokes a callable with task and result arguments (for callbacks).
+      #
+      # @param callable [Symbol, Proc, Object] the callable
+      # @param task [Task] the task instance
+      # @param result [Result] the result instance
+      #
+      # @rbs (untyped callable, untyped task, untyped result) -> untyped
+      def self.invoke_callback(callable, task, result)
+        case callable
+        when Symbol
+          task.__send__(callable)
+        when Proc
+          if callable.arity.zero?
+            task.instance_exec(&callable)
+          else
+            task.instance_exec(result, &callable)
+          end
+        else
+          callable.call(task, result)
         end
       end
 

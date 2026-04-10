@@ -1,79 +1,71 @@
 # frozen_string_literal: true
 
 require "bigdecimal"
-require "date"
-require "forwardable"
-require "json"
 require "logger"
-require "pathname"
 require "securerandom"
 require "set"
-require "time"
-require "timeout"
-require "yaml"
 require "zeitwerk"
 
 module CMDx
 
-  # @rbs EMPTY_ARRAY: Array[untyped]
-  EMPTY_ARRAY = [].freeze
-  private_constant :EMPTY_ARRAY
-
   # @rbs EMPTY_HASH: Hash[untyped, untyped]
   EMPTY_HASH = {}.freeze
-  private_constant :EMPTY_HASH
+
+  # @rbs EMPTY_ARRAY: Array[untyped]
+  EMPTY_ARRAY = [].freeze
 
   # @rbs EMPTY_STRING: String
   EMPTY_STRING = ""
-  private_constant :EMPTY_STRING
 
-  extend self
+  class << self
 
-  # Returns the path to the CMDx gem.
-  #
-  # @return [Pathname] the path to the CMDx gem
-  #
-  # @example
-  #   CMDx.gem_path # => Pathname.new("/path/to/cmdx")
-  #
-  # @rbs return: Pathname
-  def gem_path
-    @gem_path ||= Pathname.new(__dir__).parent
+    # Returns the global configuration instance.
+    #
+    # @return [Configuration]
+    #
+    # @rbs () -> Configuration
+    def configuration
+      @configuration ||= Configuration.new
+    end
+
+    # Yields the global configuration for modification.
+    #
+    # @yield [Configuration]
+    #
+    # @rbs () { (Configuration) -> void } -> Configuration
+    def configure
+      yield(configuration)
+      configuration
+    end
+
+    # Resets the global configuration to defaults.
+    #
+    # @return [Configuration]
+    #
+    # @rbs () -> Configuration
+    def reset_configuration!
+      @configuration = Configuration.new
+    end
+
   end
 
 end
 
-# Set up Zeitwerk loader for the CMDx gem
+# Manually require files that Zeitwerk should not autoload
+require_relative "cmdx/version"
+require_relative "cmdx/exception"
+require_relative "cmdx/fault"
+require_relative "cmdx/configuration"
+
 loader = Zeitwerk::Loader.for_gem
-loader.inflector.inflect("cmdx" => "CMDx", "json" => "JSON")
-loader.ignore("#{__dir__}/cmdx/configuration")
-loader.ignore("#{__dir__}/cmdx/exception")
-loader.ignore("#{__dir__}/cmdx/fault")
-loader.ignore("#{__dir__}/cmdx/railtie")
+loader.inflector.inflect("cmdx" => "CMDx")
+loader.ignore("#{__dir__}/cmdx/version.rb")
+loader.ignore("#{__dir__}/cmdx/exception.rb")
+loader.ignore("#{__dir__}/cmdx/fault.rb")
+loader.ignore("#{__dir__}/cmdx/configuration.rb")
+loader.ignore("#{__dir__}/cmdx/railtie.rb")
 loader.ignore("#{__dir__}/generators")
 loader.ignore("#{__dir__}/locales")
 loader.setup
 
-# Pre-load configuration to make module methods available
-# This is acceptable since configuration is fundamental to the framework
-require_relative "cmdx/configuration"
-
-# Pre-load exceptions to make them available at the top level
-# This ensures CMDx::Error and its descendants are always available
-require_relative "cmdx/exception"
-
-# Pre-load fault classes to make them available at the top level
-# This ensures CMDx::FailFault and CMDx::SkipFault are always available
-require_relative "cmdx/fault"
-
-# Conditionally load Rails components if Rails is available
-if defined?(Rails::Generators)
-  require_relative "generators/cmdx/install_generator"
-  require_relative "generators/cmdx/locale_generator"
-  require_relative "generators/cmdx/task_generator"
-  require_relative "generators/cmdx/workflow_generator"
-end
-
-# Load the Railtie last after everything else is required so we don't
-# need to load any CMDx components when we use this Railtie.
 require_relative "cmdx/railtie" if defined?(Rails::Railtie)
