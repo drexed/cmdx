@@ -27,23 +27,32 @@ module CMDx
   EMPTY_STRING = ""
   private_constant :EMPTY_STRING
 
-  extend self
-
-  # Returns the path to the CMDx gem.
+  # @return [Pathname]
   #
-  # @return [Pathname] the path to the CMDx gem
-  #
-  # @example
-  #   CMDx.gem_path # => Pathname.new("/path/to/cmdx")
-  #
-  # @rbs return: Pathname
-  def gem_path
+  # @rbs () -> Pathname
+  def self.gem_path
     @gem_path ||= Pathname.new(__dir__).parent
+  end
+
+  # @return [Configuration]
+  #
+  # @rbs () -> Configuration
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  # @rbs () { (Configuration) -> void } -> void
+  def self.configure
+    yield configuration
+  end
+
+  # @rbs () -> void
+  def self.reset_configuration!
+    @configuration = Configuration.new
   end
 
 end
 
-# Set up Zeitwerk loader for the CMDx gem
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cmdx" => "CMDx", "json" => "JSON")
 loader.ignore("#{__dir__}/cmdx/configuration")
@@ -54,26 +63,14 @@ loader.ignore("#{__dir__}/generators")
 loader.ignore("#{__dir__}/locales")
 loader.setup
 
-# Pre-load configuration to make module methods available
-# This is acceptable since configuration is fundamental to the framework
 require_relative "cmdx/configuration"
-
-# Pre-load exceptions to make them available at the top level
-# This ensures CMDx::Error and its descendants are always available
 require_relative "cmdx/exception"
-
-# Pre-load fault classes to make them available at the top level
-# This ensures CMDx::FailFault and CMDx::SkipFault are always available
 require_relative "cmdx/fault"
 
-# Conditionally load Rails components if Rails is available
 if defined?(Rails::Generators)
   require_relative "generators/cmdx/install_generator"
-  require_relative "generators/cmdx/locale_generator"
   require_relative "generators/cmdx/task_generator"
   require_relative "generators/cmdx/workflow_generator"
 end
 
-# Load the Railtie last after everything else is required so we don't
-# need to load any CMDx components when we use this Railtie.
 require_relative "cmdx/railtie" if defined?(Rails::Railtie)

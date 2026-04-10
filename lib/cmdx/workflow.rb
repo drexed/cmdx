@@ -1,134 +1,68 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Provides workflow execution capabilities by organizing tasks into execution groups.
-  # Workflows allow you to define sequences of tasks that can be executed conditionally
-  # with breakpoint handling and context management.
+  # Include in a Task subclass to declare a pipeline of child tasks
+  # instead of implementing +#work+ directly.
   module Workflow
+
+    def self.included(base)
+      base.extend(ClassMethods)
+      base.define_method(:work) { run_workflow }
+    end
+
+    # @return [void]
+    #
+    # @rbs () -> void
+    def run_workflow
+      pipeline = self.class.cmdx_workflow_pipeline
+      chain = Chain.current
+      trace = Trace.root
+
+      Pipeline.call(pipeline, context, chain, trace, self.class.definition.on_failure)
+    end
 
     module ClassMethods
 
-      # Prevents redefinition of the work method to maintain workflow integrity.
+      # @return [Boolean]
       #
-      # @param method_name [Symbol] The name of the method being added
-      #
-      # @raise [RuntimeError] If attempting to redefine the work method
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     # This would raise an error:
-      #     # def work; end
-      #   end
-      #
-      # @rbs (Symbol method_name) -> void
-      def method_added(method_name)
-        raise "cannot redefine #{name}##{method_name} method" if method_name == :work
-
-        super
+      # @rbs () -> bool
+      def cmdx_workflow?
+        true
       end
 
-      # Returns the collection of execution groups for this workflow.
+      # @return [Array<Hash>]
       #
-      # @return [Array<ExecutionGroup>] Array of execution groups
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts pipeline.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[ExecutionGroup]
-      def pipeline
-        @pipeline ||= []
+      # @rbs () -> Array[Hash[Symbol, untyped]]
+      def cmdx_workflow_pipeline
+        @cmdx_workflow_pipeline ||= []
       end
 
-      # Adds multiple tasks to the workflow with optional configuration.
+      # Declares a sequential child task.
       #
-      # @param tasks [Array<Class>] Array of task classes to add
-      # @param options [Hash] Configuration options for the task execution
-      # @option options [Hash] :breakpoints Breakpoints that trigger workflow interruption
-      # @option options [Hash] :conditions Conditional logic for task execution
+      # @param task_class [Class<Task>]
+      # @param options [Hash]
       #
-      # @raise [TypeError] If any task is not a CMDx::Task subclass
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     tasks ValidateTask, ProcessTask, NotifyTask, breakpoints: [:failure, :halt]
-      #   end
-      #
-      # @rbs (*untyped tasks, **untyped options) -> void
-      def tasks(*tasks, **options)
-        pipeline << ExecutionGroup.new(
-          tasks.map do |task|
-            next task if task.is_a?(Class) && (task <= Task)
-
-            raise TypeError, "must be a CMDx::Task"
-          end,
-          options
-        )
-      end
-      alias task tasks
-
-      # Returns all tasks in the pipeline.
-      #
-      # @return [Array<Class>] Array of task classes
-      #
-      # @example
-      #   class MyWorkflow
-      #     include CMDx::Workflow
-      #     task Task1
-      #     task Task2
-      #     puts subtasks.size # => 2
-      #   end
-      #
-      # @rbs () -> Array[Class]
-      def subtasks
-        pipeline.flat_map(&:tasks)
+      # @rbs (Class task_class, **untyped options) -> void
+      def task(task_class, **options)
+        cmdx_workflow_pipeline << { task_class:, options: }
       end
 
-    end
+      # Declares multiple tasks. Use +parallel: true+ for parallel execution.
+      #
+      # @param task_classes [Array<Class<Task>>]
+      # @param parallel [Boolean]
+      # @param options [Hash]
+      #
+      # @rbs (*Class task_classes, ?parallel: bool, **untyped options) -> void
+      def tasks(*task_classes, parallel: false, **options)
+        if parallel
+          entries = task_classes.map { |tc| [tc, options] }
+          cmdx_workflow_pipeline << { parallel: true, tasks: entries }
+        else
+          task_classes.each { |tc| task(tc, **options) }
+        end
+      end
 
-    # Represents a group of tasks with shared execution options.
-    # @attr tasks [Array<Class>] Array of task classes in this group
-    # @attr options [Hash] Configuration options for the group
-    ExecutionGroup = Struct.new(:tasks, :options)
-
-    # Extends the including class with workflow capabilities.
-    #
-    # @param base [Class] The class including this module
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     # Now has access to task, tasks, and work methods
-    #   end
-    #
-    # @rbs (Class base) -> void
-    def self.included(base)
-      base.extend(ClassMethods)
-    end
-
-    # Executes the workflow by processing all tasks in the pipeline.
-    # This method delegates execution to the Pipeline class which handles
-    # the processing of tasks with proper error handling and context management.
-    #
-    # @example
-    #   class MyWorkflow
-    #     include CMDx::Workflow
-    #     task ValidateTask
-    #     task ProcessTask
-    #   end
-    #
-    #   workflow = MyWorkflow.new
-    #   result = workflow.work
-    #
-    # @rbs () -> void
-    def work
-      Pipeline.execute(self)
     end
 
   end

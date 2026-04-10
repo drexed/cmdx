@@ -2,49 +2,18 @@
 
 module CMDx
   module Utils
-    # Provides normalization utilities for a variety of objects
-    # into consistent formats.
     module Normalize
 
-      extend self
-
-      # Normalizes an exception into a string representation.
+      # Normalizes input args by merging positional hash and keyword args.
       #
-      # @param exception [Exception] The exception to normalize
+      # @param input [Hash]
+      # @param kwargs [Hash]
+      # @return [Hash{Symbol => Object}]
       #
-      # @return [String] The normalized exception string
-      #
-      # @example From exception
-      #   Normalize.exception(StandardError.new("test"))
-      #   # => "[StandardError] test"
-      #
-      # @rbs (Exception exception) -> String
-      def exception(exception)
-        "[#{exception.class}] #{exception.message}"
-      end
-
-      # Normalizes an object into an array of unique status strings.
-      #
-      # @param object [Object] The object to normalize into status strings
-      #
-      # @return [Array<String>] Unique status strings
-      #
-      # @example From array of symbols
-      #   Normalize.statuses([:success, :pending, :success])
-      #   # => ["success", "pending"]
-      # @example From single value
-      #   Normalize.statuses(:success)
-      #   # => ["success"]
-      # @example From nil
-      #   Normalize.statuses(nil)
-      #   # => []
-      #
-      # @rbs (untyped object) -> Array[String]
-      def statuses(object)
-        ary = Wrap.array(object)
-        return EMPTY_ARRAY if ary.empty?
-
-        ary.map(&:to_s).uniq
+      # @rbs (Hash[untyped, untyped] input, Hash[Symbol, untyped] kwargs) -> Hash[Symbol, untyped]
+      def self.args(input, kwargs)
+        merged = input.merge(kwargs)
+        merged.transform_keys(&:to_sym)
       end
 
     end
