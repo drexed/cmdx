@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cmdx (1.21.0)
+    cmdx (3.0.0)
       bigdecimal
       logger
       zeitwerk

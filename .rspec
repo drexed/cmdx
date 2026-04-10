@@ -2,3 +2,4 @@
 --color
 --format progress
 --order random
+--require spec_helper

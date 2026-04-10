@@ -1,169 +1,75 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Executes workflows by processing task groups with conditional logic and breakpoint handling.
-  # The Pipeline class manages the execution flow of workflow tasks, evaluating conditions
-  # and handling breakpoints that can interrupt execution at specific task statuses.
-  class Pipeline
+  # Runs a sequence of child tasks within a workflow.
+  # Supports sequential steps and parallel groups.
+  module Pipeline
 
-    # @rbs SEQUENTIAL_REGEXP: Regexp
-    SEQUENTIAL_REGEXP = /\Asequential\z/
-    private_constant :SEQUENTIAL_REGEXP
-
-    # @rbs PARALLEL_REGEXP: Regexp
-    PARALLEL_REGEXP = /\Aparallel\z/
-    private_constant :PARALLEL_REGEXP
-
-    # Returns the workflow being executed by this pipeline.
-    #
-    # @return [Workflow] The workflow instance
-    #
-    # @example
-    #   pipeline.workflow.context[:status] # => "processing"
-    #
-    # @rbs @workflow: Workflow
-    attr_reader :workflow
-
-    # @param workflow [Workflow] The workflow to execute
-    #
-    # @return [Pipeline] A new pipeline instance
-    #
-    # @example
-    #   pipeline = Pipeline.new(my_workflow)
-    #
-    # @rbs (Workflow workflow) -> void
-    def initialize(workflow)
-      @workflow = workflow
-    end
-
-    # Executes a workflow using a new pipeline instance.
-    #
-    # @param workflow [Workflow] The workflow to execute
-    #
+    # @param entries [Array<Hash>] workflow pipeline entries
+    # @param context [Context]
+    # @param chain [Chain]
+    # @param trace [Trace]
+    # @param on_failure [Symbol, nil]
     # @return [void]
     #
-    # @example
-    #   Pipeline.execute(my_workflow)
-    #
-    # @rbs (Workflow workflow) -> void
-    def self.execute(workflow)
-      new(workflow).execute
-    end
-
-    # Executes the workflow by processing all task groups in sequence.
-    # Each group is evaluated against its conditions, and breakpoints are checked
-    # after each task execution to determine if workflow should continue or halt.
-    #
-    # @return [void]
-    #
-    # @example
-    #   pipeline = Pipeline.new(my_workflow)
-    #   pipeline.execute
-    #
-    # @rbs () -> void
-    def execute
-      default_breakpoints = Utils::Normalize.statuses(
-        workflow.class.settings.breakpoints ||
-        workflow.class.settings.workflow_breakpoints
-      )
-
-      workflow.class.pipeline.each do |group|
-        next unless Utils::Condition.evaluate(workflow, group.options)
-
-        breakpoints =
-          if group.options.key?(:breakpoints)
-            Utils::Normalize.statuses(group.options[:breakpoints])
-          else
-            default_breakpoints
-          end
-
-        execute_group_tasks(group, breakpoints)
+    # @rbs (Array[Hash[Symbol, untyped]] entries, Context context, Chain chain, Trace trace, ?Symbol? on_failure) -> void
+    def self.call(entries, context, chain, trace, on_failure = nil)
+      entries.each do |entry|
+        if entry[:parallel]
+          run_parallel(entry[:tasks], context, chain, trace, on_failure)
+        else
+          run_sequential(entry, context, chain, trace, on_failure)
+        end
       end
     end
 
-    private
+    # @rbs (Hash[Symbol, untyped] entry, Context context, Chain chain, Trace trace, Symbol? on_failure) -> void
+    def self.run_sequential(entry, context, _chain, trace, on_failure)
+      task_class = entry[:task_class]
+      options = entry[:options] || {}
 
-    # Executes a group of tasks using the specified execution strategy.
-    #
-    # @param group [CMDx::Group] The task group to execute
-    # @param breakpoints [Array<Symbol>] Status values that trigger execution breaks
-    # @option group.options [Symbol, String] :strategy Execution strategy (:sequential, :parallel, or nil for default)
-    #
-    # @return [void]
-    #
-    # @example
-    #   execute_group_tasks(group, ["failed", "skipped"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_group_tasks(group, breakpoints)
-      case strategy = group.options[:strategy]
-      when NilClass, SEQUENTIAL_REGEXP then execute_tasks_in_sequence(group, breakpoints)
-      when PARALLEL_REGEXP then execute_tasks_in_parallel(group, breakpoints)
-      else raise "unknown execution strategy #{strategy.inspect}"
+      return unless condition_met?(options, context)
+
+      trace.child
+      result = task_class.execute(**context.to_h)
+      context.merge!(result.context.to_h) if result.success?
+
+      return if result.success?
+
+      handle_failure(result, on_failure, entry)
+    end
+
+    # @rbs (Array[Array[untyped]] tasks, Context context, Chain chain, Trace trace, Symbol? on_failure) -> void
+    def self.run_parallel(tasks, context, chain, trace, on_failure)
+      results = Parallelizer.call(tasks, context, chain, trace)
+
+      results.each do |result|
+        context.merge!(result.context.to_h) if result.success?
+        handle_failure(result, on_failure, {}) unless result.success?
       end
     end
 
-    # Executes tasks sequentially within a group, checking breakpoints after each task.
-    # If a task result status matches a breakpoint, the workflow is interrupted.
-    #
-    # @param group [ExecutionGroup] The group of tasks to execute
-    # @param breakpoints [Array<String>] Breakpoint statuses that trigger workflow interruption
-    #
-    # @return [void]
-    #
-    # @raise [HaltError] When a task result status matches a breakpoint
-    #
-    # @example
-    #   execute_tasks_in_sequence(group, ["failed", "skipped"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_tasks_in_sequence(group, breakpoints)
-      group.tasks.each do |task|
-        task_result = task.execute(workflow.context)
-        next unless breakpoints.include?(task_result.status)
+    # @rbs (Hash[Symbol, untyped] options, Context context) -> bool
+    def self.condition_met?(options, context)
+      return Utils::Condition.evaluate(context, options[:if]) if options[:if]
 
-        workflow.throw!(task_result)
+      return !Utils::Condition.evaluate(context, options[:unless]) if options[:unless]
+
+      true
+    end
+
+    # @rbs (Result result, Symbol? on_failure, Hash[Symbol, untyped] entry) -> void
+    def self.handle_failure(result, on_failure, entry)
+      strategy = entry.dig(:options, :on_failure) || on_failure
+
+      case strategy
+      when :skip, :none then nil
+      else
+        raise FailFault.new(result.reason, result:) if result.strict?
       end
     end
 
-    # Each task receives a snapshot of the workflow context to prevent
-    # unsynchronized concurrent writes to a shared Hash. Snapshots are
-    # merged back into the workflow context after all tasks complete.
-    #
-    # @param group [CMDx::Group] The task group to execute in parallel
-    # @param breakpoints [Array<String>] Status values that trigger execution breaks
-    # @option group.options [Integer] :pool_size Number of concurrent threads (defaults to task count)
-    #
-    # @return [void]
-    #
-    # @raise [Fault] When a task result status matches a breakpoint
-    #
-    # @example
-    #   execute_tasks_in_parallel(group, ["failed"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_tasks_in_parallel(group, breakpoints)
-      contexts = group.tasks.map { Context.new(workflow.context.to_h) }
-      ctx_pairs = group.tasks.zip(contexts)
-      pool_size = group.options.fetch(:pool_size, ctx_pairs.size)
-
-      results = Parallelizer.call(ctx_pairs, pool_size:) do |task, context|
-        Chain.current = workflow.chain
-        task.execute(context)
-      end
-
-      contexts.each { |ctx| workflow.context.merge!(ctx) }
-
-      faulted = results.select { |r| breakpoints.include?(r.status) }
-      return if faulted.empty?
-
-      workflow.public_send(
-        :"#{faulted.last.status}!",
-        Locale.t("cmdx.reasons.unspecified"),
-        source: :parallel,
-        faults: faulted.map(&:to_h)
-      )
-    end
+    private_class_method :run_sequential, :run_parallel, :condition_met?, :handle_failure
 
   end
 end

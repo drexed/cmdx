@@ -2,66 +2,23 @@
 
 module CMDx
   module Coercions
-    # Coerces various input types into Hash objects
-    #
-    # Supports conversion from:
-    # - Nil values (converted to empty Hash)
-    # - Hash objects (returned as-is)
-    # - Array objects (converted using Hash[*array])
-    # - JSON strings starting with "{" (parsed into Hash)
-    # - JSON strings that are "null" (parsed into empty Hash)
-    # - Other types raise CoercionError
     module Hash
 
-      extend self
+      # @rbs (untyped value) -> Hash[untyped, untyped]
+      def self.call(value)
+        return value if value.is_a?(::Hash)
 
-      # Coerces a value into a Hash
-      #
-      # @param value [Object] The value to coerce
-      # @param options [Hash] Additional options (currently unused)
-      # @option options [Symbol] :strict Whether to enforce strict conversion
-      #
-      # @return [Hash] The coerced hash value
-      #
-      # @raise [CoercionError] When the value cannot be coerced to a Hash
-      #
-      # @example Coerce from existing Hash
-      #   Hash.call({a: 1, b: 2}) # => {a: 1, b: 2}
-      # @example Coerce from Array
-      #   Hash.call([:a, 1, :b, 2]) # => {a: 1, b: 2}
-      # @example Coerce from JSON string
-      #   Hash.call('{"key": "value"}') # => {"key" => "value"}
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Hash[untyped, untyped]
-      def call(value, options = EMPTY_HASH)
-        if value.nil?
-          {}
-        elsif value.is_a?(::Hash)
-          value
-        elsif value.is_a?(::Array)
-          ::Hash[*value]
-        elsif value.is_a?(::String) && (
-          value.start_with?("{") ||
-          value.strip == "null"
-        )
-          JSON.parse(value) || {}
-        elsif value.respond_to?(:to_h)
+        if value.respond_to?(:to_h)
           value.to_h
+        elsif value.respond_to?(:to_hash)
+          value.to_hash
         else
-          raise_coercion_error!
+          raise CoercionError, Locale.t("cmdx.coercions.into_a", type: Locale.t("cmdx.types.hash"))
         end
-      rescue ArgumentError, TypeError, JSON::ParserError
-        raise_coercion_error!
-      end
+      rescue StandardError => e
+        raise e if e.is_a?(CoercionError)
 
-      private
-
-      # Raises a CoercionError with localized message
-      #
-      # @raise [CoercionError] Always raised with localized error message
-      def raise_coercion_error!
-        type = Locale.t("cmdx.types.hash")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        raise CoercionError, Locale.t("cmdx.coercions.into_a", type: Locale.t("cmdx.types.hash"))
       end
 
     end
