@@ -1,14 +1,14 @@
 # Retries
 
-CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.
+CMDx retries `work` automatically when it raises an exception that matches a class-level `retry_on` declaration. Retries are scoped to `work` itself — input resolution, output verification, and lifecycle callbacks run only once.
 
 ## Basic Usage
 
-Configure retries upto n attempts without any delay.
+`retry_on` takes one or more exception classes and an options hash. With no exceptions declared (the default), no retries happen.
 
 ```ruby
 class FetchExternalData < CMDx::Task
-  settings retries: 3
+  retry_on Net::OpenTimeout, Net::ReadTimeout
 
   def work
     response = HTTParty.get("https://api.example.com/data")
@@ -17,52 +17,70 @@ class FetchExternalData < CMDx::Task
 end
 ```
 
-When an exception occurs during execution, CMDx automatically retries up to the configured limit. Each retry attempt is logged at the `warn` level with retry metadata. If all retries are exhausted, the task fails with the original exception.
-
-## Selective Retries
-
-By default, CMDx retries on `StandardError` and its subclasses. Narrow this to specific exception types:
+| Option       | Default | Description                                                    |
+|--------------|---------|----------------------------------------------------------------|
+| `limit:`     | `3`     | Maximum retry attempts (total invocations = `limit + 1`); `0` disables retries entirely |
+| `delay:`     | `0.5`   | Base delay in seconds; `0` disables sleeping between attempts  |
+| `max_delay:` | `nil`   | Upper bound clamp applied after jitter is computed             |
+| `jitter:`    | `nil`   | Strategy for spreading delays — see [Jitter](#jitter) below    |
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  settings retries: 5, retry_on: [Stripe::RateLimitError, Net::ReadTimeout]
+  retry_on Stripe::RateLimitError, Net::ReadTimeout,
+           limit: 5, delay: 1.0, max_delay: 30.0, jitter: :exponential
 
   def work
-    # Your logic here...
+    # ...
   end
 end
 ```
 
 !!! warning "Important"
 
-    Only exceptions matching the `retry_on` configuration trigger retries. Unmatched exceptions immediately fail the task.
+    Only exceptions matching `retry_on` retry. Anything else — or a matching exception after the limit is exhausted — is captured by Runtime and turned into a failed result with the exception attached as `result.cause`.
 
-## Retry Jitter
+## Inheritance
 
-Add delays between retry attempts to avoid overwhelming external services or to implement exponential backoff strategies. The delay is calculated as `jitter * current_attempt` for numeric values and invoked with the current attempt count for callable types.
-
-### Fixed Value
-
-Use a numeric value to calculate linear delay (`jitter * current_attempt`):
+`retry_on` accumulates across inheritance — subclasses extend the parent's exceptions and merge options instead of replacing them.
 
 ```ruby
-class ImportRecords < CMDx::Task
-  settings retries: 3, retry_jitter: 0.5
+class ApplicationTask < CMDx::Task
+  retry_on Net::OpenTimeout, limit: 2
+end
 
-  def work
-    # Delays: 0.5s (attempt 1), 1.0s (attempt 2), 1.5s (attempt 3)
-    context.records = ExternalAPI.fetch_records
-  end
+class FetchProfile < ApplicationTask
+  retry_on Net::ReadTimeout, max_delay: 5.0
+  # Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0
 end
 ```
 
-### Symbol References
+## Jitter
 
-Define an instance method for custom delay logic:
+Jitter spreads delay across attempts. Strategies receive `(attempt, delay)` where `attempt` is zero-based and `delay` is the base delay. The result is clamped to `max_delay` if set.
+
+### Built-in Strategies
+
+```ruby
+retry_on TransientError, delay: 1.0, jitter: :exponential
+# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, ...
+
+retry_on TransientError, delay: 2.0, jitter: :half_random
+# delay/2 .. delay      → 1.0s .. 2.0s
+
+retry_on TransientError, delay: 2.0, jitter: :full_random
+# 0       .. delay      → 0.0s .. 2.0s
+
+retry_on TransientError, delay: 2.0, jitter: :bounded_random
+# delay   .. 2*delay    → 2.0s .. 4.0s
+```
+
+### Symbol (Instance Method)
+
+A `Symbol` resolves to an instance method on the task. The method receives `(attempt, delay)` and must return the desired sleep duration in seconds.
 
 ```ruby
 class SyncInventory < CMDx::Task
-  settings retries: 5, retry_jitter: :exponential_backoff
+  retry_on InventoryAPI::ServerError, limit: 5, jitter: :exponential_backoff
 
   def work
     context.inventory = InventoryAPI.sync
@@ -70,94 +88,99 @@ class SyncInventory < CMDx::Task
 
   private
 
-  def exponential_backoff(current_attempt)
-    2 ** current_attempt # 2s, 4s, 8s, 16s, 32s
+  def exponential_backoff(attempt, delay)
+    delay * (2**attempt)
   end
 end
 ```
 
 ### Proc or Lambda
 
-Pass a proc for inline delay calculations:
+Procs and lambdas are evaluated with `instance_exec` against the task, so they have access to `context` and other instance methods.
 
 ```ruby
 class PollJobStatus < CMDx::Task
-  # Proc
-  settings retries: 10, retry_jitter: proc { |attempt| [attempt * 0.5, 5.0].min }
-
-  # Lambda
-  settings retries: 10, retry_jitter: ->(attempt) { [attempt * 0.5, 5.0].min }
+  retry_on JobAPI::Pending,
+           limit: 10,
+           delay: 0.5,
+           max_delay: 5.0,
+           jitter: ->(attempt, delay) { delay * (attempt + 1) }
 
   def work
-    # Delays: 0.5s, 1.0s, 1.5s, 2.0s, 2.5s, 3.0s, 3.5s, 4.0s, 4.5s, 5.0s (capped)
     context.status = JobAPI.check_status(context.job_id)
   end
 end
 ```
 
-### Class or Module
+### Callable (Class or Module)
 
-Implement reusable delay logic in dedicated modules and classes:
+Anything responding to `#call(attempt, delay)` works. The task is **not** passed in — capture state in the callable instead.
 
 ```ruby
 class ExponentialBackoff
-  def call(task, attempt)
-    base_delay = task.context.base_delay || 1.0
-    [base_delay * (2 ** attempt), 60.0].min
+  def initialize(base: 1.0, cap: 60.0)
+    @base = base
+    @cap  = cap
+  end
+
+  def call(attempt, _delay)
+    [@base * (2**attempt), @cap].min
   end
 end
 
 class FetchUserProfile < CMDx::Task
-  # Class or Module
-  settings retries: 4, retry_jitter: ExponentialBackoff
-
-  # Instance
-  settings retries: 4, retry_jitter: ExponentialBackoff.new
+  retry_on Net::ReadTimeout, limit: 4, jitter: ExponentialBackoff.new(base: 0.5)
 
   def work
-    # Your logic here...
+    # ...
   end
 end
 ```
 
-## Retry Behavior
+### Custom Block
 
-Understanding how retries work internally helps avoid surprises:
-
-- **Same task instance** — Retries reuse the same task object. Context and attributes from previous attempts persist.
-- **Validation skipped** — `before_validation` callbacks and attribute validation only run on the first attempt. Retries go straight to `before_execution` and `work`.
-- **Errors cleared** — `task.errors` is automatically cleared before each retry so errors from previous attempts don't carry over.
-- **Retry count tracked** — `result.retries` increments before each retry attempt.
-- **Warn-level logging** — Each retry is logged at `warn` with the exception reason and remaining retry count.
-
-!!! note "Retry + Middleware Interaction"
-
-    Retries happen inside the middleware stack. The `retry` keyword re-enters the execution block, so middlewares like `Timeout` still apply to each individual retry attempt.
-
-## Retry Results
-
-After execution, the result object provides methods to inspect retry behavior:
+When no `:jitter` option is given, you can pass a block to `retry_on` instead. It runs in the task's instance scope.
 
 ```ruby
-result = FetchExternalData.execute
-
-result.retries   # => 2 (number of retry attempts made)
-result.retried?  # => true (whether any retries occurred)
+class FetchAnalytics < CMDx::Task
+  retry_on Analytics::Throttled, limit: 3, delay: 1.0 do |attempt, delay|
+    delay + (attempt ** 1.5)
+  end
+end
 ```
 
-Use these methods for logging, metrics, or conditional post-processing based on retry activity.
+## Behavior
 
-## Error Handling
+- **Same task instance** — retries reuse the same task object. `context` and any side effects from previous attempts persist.
+- **Only `work` repeats** — input resolution, output verification, and `before_execution` / `before_validation` callbacks run once. Retries wrap `work` only.
+- **Errors carry over** — `task.errors` accumulates across attempts; entries added during a previous attempt remain. Clear them at the start of `work` if you re-add per attempt, otherwise a successful retry will still finalize as failed once `signal_errors!` runs.
+- **Telemetry** — Runtime emits a `:task_retried` event for each retry (`attempt:` is zero-based; the initial call is `attempt = 0` and is not emitted).
+- **Outside the middleware stack** — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried `work` call is *inside* every middleware; middlewares do not see individual attempts.
 
-When all retry attempts are exhausted:
+## Inspecting Retries
 
-- **`execute`** — The task fails gracefully. `result.failure?` returns `true` and the exception message is captured in the result. If an `exception_handler` is configured, it is invoked.
-- **`execute!`** — The original exception is re-raised after the task is marked as failed.
+`Result` exposes retry metadata after execution:
 
 ```ruby
 result = FetchExternalData.execute
 
-if result.failure?
-  Rails.logger.error("Failed after #{result.retries} retries: #{result.message}")
+result.retries   #=> 2  (number of *retry* attempts; 0 if first attempt succeeded)
+result.retried?  #=> true
+```
+
+These are also surfaced in the structured log output (`retried`, `retries`).
+
+## When Retries Are Exhausted
+
+Once `limit` retries are spent, the last exception is re-raised inside `work` and Runtime converts it:
+
+- `execute` — captured by `rescue StandardError`; produces a failed result with `result.cause` set to the exception and `result.reason` set to `"[ExceptionClass] message"`.
+- `execute!` — same conversion, but Runtime re-raises the original exception (not a `Fault`) after the lifecycle finalizes.
+
+```ruby
+result = FetchExternalData.execute
+
+if result.failed?
+  Rails.logger.error("Failed after #{result.retries} retries: #{result.reason}")
 end
 ```

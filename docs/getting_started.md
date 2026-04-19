@@ -14,21 +14,21 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 
 **Common challenges:**
 
-- Inconsistent service object patterns across your codebase
-- Black boxes make debugging a nightmare
+- Inconsistent service object patterns across the codebase
+- Opaque control flow makes debugging hard
 - Fragile error handling erodes confidence
 
 **What you get:**
 
-- Consistent, standardized architecture
+- A standardized task contract
 - Built-in flow control and error handling
 - Composable, reusable workflows
-- Comprehensive logging for observability
-- Attribute validation with type coercions
+- Structured logging for observability
+- Input validation with type coercions
 
 ## Requirements
 
-- Ruby: MRI 3.1+ or JRuby 9.4+
+- Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release
 - Dependencies: None
 
 Rails support is built-in, but it's framework-agnostic at its core.
@@ -63,7 +63,7 @@ A self-contained example you can run in `irb` or a plain Ruby script — no Rail
 require "cmdx"
 
 class Greet < CMDx::Task
-  required :name, type: :string, presence: true
+  required :name, coerce: :string, presence: true
 
   def work
     context.greeting = "Hello, #{name}!"
@@ -76,25 +76,27 @@ result.context.greeting  #=> "Hello, World!"
 
 result = Greet.execute(name: "")
 result.failed?           #=> true
-result.reason            #=> "Invalid"
+result.reason            #=> "name cannot be empty"
+result.errors.to_h       #=> { name: ["cannot be empty"] }
 ```
 
-From here, you can progressively add features as needed:
+From here, layer in features as you need them:
 
-| Need | Feature | Docs |
-|------|---------|------|
-| Type safety on inputs | [Coercions](attributes/coercions.md) | `type: :integer` |
-| Input constraints | [Validations](attributes/validations.md) | `numeric: { min: 1 }` |
-| Conditional stops | [Halt](interruptions/halt.md) | `skip!`, `fail!` |
+| Need | Feature | Example |
+|------|---------|---------|
+| Type safety on inputs | [Coercions](inputs/coercions.md) | `coerce: :integer` |
+| Input constraints | [Validations](inputs/validations.md) | `numeric: { min: 1 }` |
+| Conditional stops | [Signals](interruptions/signals.md) | `skip!`, `fail!` |
 | Multi-task pipelines | [Workflows](workflows.md) | `include CMDx::Workflow` |
 | Cross-cutting concerns | [Middlewares](middlewares.md) | `register :middleware` |
 | Lifecycle hooks | [Callbacks](callbacks.md) | `on_success`, `before_execution` |
-| Output contracts | [Returns](returns.md) | `returns :user, :token` |
+| Output contracts | [Outputs](outputs.md) | `output :user, :token` |
+| Retry policies | [Retries](retries.md) | `retry_on Net::OpenTimeout, limit: 3` |
 | Structured logs | [Logging](logging.md) | Automatic |
 
 ## The CERO Pattern
 
-CMDx embraces the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern—a simple yet powerful approach to building reliable business logic.
+CMDx organizes business logic around the Compose, Execute, React, Observe (CERO, pronounced "zero") pattern.
 
 ```mermaid
 flowchart LR
@@ -105,21 +107,21 @@ flowchart LR
 
 ### Compose
 
-Build reusable, single-responsibility tasks with typed attributes, validation, and callbacks. Tasks can be chained together in workflows to create complex business processes from simple building blocks.
+Build single-responsibility tasks with typed inputs, validation, and callbacks. Compose them into workflows to assemble larger processes from small, reusable pieces.
 
 === "Full Featured Task"
 
     ```ruby
     class AnalyzeMetrics < CMDx::Task
-      register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+      retry_on Net::OpenTimeout, limit: 3, jitter: :exponential
 
       on_success :track_analysis_completion!
 
-      required :dataset_id, type: :integer, numeric: { min: 1 }
+      required :dataset_id, coerce: :integer, numeric: { min: 1 }
 
       optional :analysis_type, default: "standard"
 
-      returns :result, :analyzed_at
+      output :result, :analyzed_at
 
       def work
         if dataset.nil?
@@ -159,12 +161,12 @@ Build reusable, single-responsibility tasks with typed attributes, validation, a
 
 ### Execute
 
-Invoke tasks with a consistent API that always returns a result object. Execution automatically handles validation, type coercion, error handling, and logging. Arguments are validated and coerced before your task logic runs.
+Every task invocation returns a `Result`. Runtime coerces and validates inputs, runs your `work`, handles exceptions, verifies declared outputs, and logs the outcome — automatically.
 
 === "With args"
 
     ```ruby
-    result = AnalyzeMetrics.execute(model: "blackbox", "sensitivity" => 3)
+    result = AnalyzeMetrics.execute(dataset_id: 42, analysis_type: "bayesian")
     ```
 
 === "Without args"
@@ -175,43 +177,41 @@ Invoke tasks with a consistent API that always returns a result object. Executio
 
 ### React
 
-Every execution returns a result object with a clear outcome. Check the result's state (`success?`, `failed?`, `skipped?`) and access returned values, error messages, and metadata to make informed decisions.
+Branch on the result's status (`success?`, `skipped?`, `failed?`) and read values, reasons, or metadata from it. See [Outcomes](outcomes/result.md) for the full surface.
 
 ```ruby
 if result.success?
   puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
-  puts "Skipping analyzation due to: #{result.reason}"
+  puts "Skipped: #{result.reason}"
 elsif result.failed?
-  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
+  puts "Failed: #{result.reason} (code #{result.metadata[:code]})"
 end
 ```
 
 ### Observe
 
-Every task execution generates structured logs with execution chains, runtime metrics, and contextual metadata. Logs can be automatically correlated using chain IDs, making it easy to trace complex workflows and debug issues.
+Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, duration, and tags — enough to correlate nested tasks and reconstruct what happened. See [Logging](logging.md) for the full field reference.
 
 ```log
-I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: chain_id="018c2b95-b764-7fff-a1d2-..." chain_index=1 chain_root=false type="Task" task=SendAnalyzedEmail id="018c2b95-c091-..." state="complete" status="success" reason=nil metadata={} duration=347.21 ...
 
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: chain_id="018c2b95-b764-7fff-a1d2-..." chain_index=0 chain_root=true type="Task" task=AnalyzeMetrics id="018c2b95-b764-..." state="complete" status="success" reason=nil metadata={} duration=1872.04 ...
 ```
 
 !!! note
 
-    This represents a log-only event-sourcing approach, enabling full traceability and a complete, time-ordered view of system behavior.
+    With a durable log sink, these lines double as a log-only event sourcing record — a time-ordered history of every task execution, its inputs, and its outcome.
 
 ## Domain Driven Design
 
-CMDx facilitates Domain Driven Design (DDD) by making business processes explicit and structural.
+CMDx makes business processes explicit and structural — a natural fit for Domain Driven Design (DDD).
 
-- **Ubiquitous Language:** Task names like `ApproveLoan` or `ShipOrder` mirror the language of domain experts, creating a shared vocabulary that eliminates translation gaps between business requirements and code.
+- **Ubiquitous Language:** Task names like `ApproveLoan` or `ShipOrder` mirror the language of domain experts.
 
-- **Bounded Contexts:** Namespaces naturally enforce boundaries. `Billing::GenerateInvoice` and `Shipping::GenerateLabel` encapsulate logic within their specific domains, preventing leakage and "God objects."
+- **Bounded Contexts:** Namespaces enforce boundaries — `Billing::GenerateInvoice` and `Shipping::GenerateLabel` keep logic within their domains.
 
-- **Rich Domain Layer:** Move orchestration and rules out of Controllers and ActiveRecord models. Entities focus on state; CMDx tasks handle behavior. This separation prevents "Fat Models" and keeps business logic testable and isolated.
+- **Rich Domain Layer:** Move orchestration out of Controllers and ActiveRecord models. Entities hold state; tasks hold behavior. Business logic stays testable and isolated.
 
 ## Task Generator
 
@@ -245,7 +245,7 @@ The generator inherits from `ApplicationTask` if defined, falling back to `CMDx:
 ```ruby
 # app/tasks/application_task.rb
 class ApplicationTask < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate
+  retry_on Net::OpenTimeout, Net::ReadTimeout, limit: 3, jitter: :exponential
 
   before_execution :set_request_context
 
@@ -261,11 +261,10 @@ end
 
     Use **present tense verbs + noun** for task names, eg: `ModerateBlogPost`, `ScheduleAppointment`, `ValidateDocument`
 
-## Type safety
+## Documentation & Editor Support
 
-CMDx includes built-in RBS (Ruby Type Signature) inline annotations throughout the codebase, providing type information for static analysis and editor support.
+The codebase ships with comprehensive YARD annotations on every public class, method, and option. Combined with the structured DSL (`required`, `optional`, `output`, `coerce:`, `validate:`, `on_success`, ...), this gives you:
 
-- **Type checking** — Catch type errors before runtime using tools like Steep or TypeProf
-- **Better IDE support** — Enhanced autocomplete, navigation, and inline documentation
-- **Self-documenting code** — Clear method signatures and return types
-- **Refactoring confidence** — Type-aware refactoring reduces bugs
+- **Self-documenting tasks** — declared inputs and outputs read like a contract
+- **IDE awareness** — autocomplete and inline docs in editors that consume YARD (Solargraph, RubyMine, etc.)
+- **Generated reference** — run `bundle exec yard doc` (or browse [the published docs](https://drexed.github.io/cmdx/api/index.html))

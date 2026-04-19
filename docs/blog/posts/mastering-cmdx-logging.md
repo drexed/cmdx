@@ -9,6 +9,8 @@ slug: mastering-cmdx-logging
 
 # Mastering CMDx: The Art of Observability with Logging
 
+*Targets CMDx v1.17.*
+
 We've all been there. A production incident report lands on your desk. "Transaction failed for user X." You open the logs, grep for the user ID, and... silence. Or worse, a wall of unstructured text that tells you everything except what you need to know.
 
 Logging is often an afterthought—something we sprinkle in `rescue` blocks when we're debugging. But in CMDx, the Ruby framework for business logic, observability isn't an add-on; it's a first-class citizen.

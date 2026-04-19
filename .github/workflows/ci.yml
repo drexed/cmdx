@@ -1,21 +1,21 @@
 name: CI
 on:
   pull_request:
-    branches: [main]
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        ruby-version: ["3.2", "3.3", "3.4", "4.0"]
+        ruby-version: [ "3.3", "3.4", "4.0" ]
     env:
       FORCE_COLOR: 1
       CLICOLOR_FORCE: 1
       BUNDLE_GEMFILE: Gemfile
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
         with:

@@ -9,6 +9,8 @@ slug: returns-and-contracts
 
 # Returns and Contracts: Making Your Tasks Predictable
 
+*Targets CMDx v1.20.*
+
 I used to have a recurring nightmare. Not the falling kind—the kind where I'm staring at a service object and trying to figure out what it puts into the context. The `work` method sets `context.user` on line 12, `context.token` on line 28, but only if the conditional on line 15 passes. Oh, and there's a `context.session_id` that gets set inside a private method three screens down.
 
 Every consumer of that task is making an implicit assumption about what the context will contain after execution. When those assumptions break, the error shows up somewhere else entirely—a `NoMethodError` in a downstream task, a nil where a mailer expected a user object.

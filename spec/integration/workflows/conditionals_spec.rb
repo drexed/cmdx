@@ -3,182 +3,155 @@
 require "spec_helper"
 
 RSpec.describe "Workflow conditionals", type: :feature do
-  context "when using if conditionals" do
-    it "executes task when condition is true" do
-      task1 = create_successful_task(name: "Task1")
+  after { CMDx::Chain.clear }
 
+  let(:guarded_task) do
+    create_task_class(name: "Guarded") { define_method(:work) { context.ran = true } }
+  end
+
+  describe "if: conditionals" do
+    it "runs when a Symbol resolves truthy" do
+      t = guarded_task
       workflow = create_workflow_class do
-        task task1, if: :should_execute?
-
-        def should_execute?
-          context.execute_task == true
-        end
+        task t, if: :enabled?
+        define_method(:enabled?) { context[:enabled] }
       end
 
-      enabled_result = workflow.execute(execute_task: true)
-      disabled_result = workflow.execute(execute_task: false)
-
-      expect(enabled_result).to be_successful
-      expect(enabled_result.chain.results.size).to eq(2)
-
-      expect(disabled_result).to be_successful
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(workflow.execute(enabled: true).context[:ran]).to be(true)
     end
 
-    it "uses proc for if condition" do
-      task1 = create_successful_task(name: "Task1")
-
+    it "skips when a Symbol resolves falsy" do
+      t = guarded_task
       workflow = create_workflow_class do
-        task task1, if: -> { context.enabled == true }
+        task t, if: :enabled?
+        define_method(:enabled?) { context[:enabled] }
       end
 
-      enabled_result = workflow.execute(enabled: true)
-      disabled_result = workflow.execute(enabled: false)
-
-      expect(enabled_result.chain.results.size).to eq(2)
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(workflow.execute(enabled: false).context[:ran]).to be_nil
     end
 
-    it "uses lambda for if condition" do
-      task1 = create_successful_task(name: "Task1")
+    it "runs when a Proc resolves truthy (evaluated in the workflow instance)" do
+      t = guarded_task
+      workflow = create_workflow_class { task t, if: proc { context[:flag] } }
 
-      workflow = create_workflow_class do
-        task task1, if: proc { context.enabled == true }
-      end
+      expect(workflow.execute(flag: true).context[:ran]).to be(true)
+    end
 
-      enabled_result = workflow.execute(enabled: true)
-      disabled_result = workflow.execute(enabled: false)
+    it "supports a lambda" do
+      t = guarded_task
+      workflow = create_workflow_class { task t, if: -> { context.key?(:trigger) } }
 
-      expect(enabled_result.chain.results.size).to eq(2)
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(workflow.execute.context[:ran]).to be_nil
+      expect(workflow.execute(trigger: :go).context[:ran]).to be(true)
+    end
+
+    it "supports a callable object that receives the workflow" do
+      checker = Class.new do
+        def call(task) = task.context[:allowed]
+      end.new
+      t = guarded_task
+      workflow = create_workflow_class { task t, if: checker }
+
+      expect(workflow.execute(allowed: true).context[:ran]).to be(true)
+      expect(workflow.execute(allowed: false).context[:ran]).to be_nil
     end
   end
 
-  context "when using unless conditionals" do
-    it "executes task when condition is false" do
-      task1 = create_successful_task(name: "Task1")
-
+  describe "unless: conditionals" do
+    it "runs when the guard is falsy" do
+      t = guarded_task
       workflow = create_workflow_class do
-        task task1, unless: :should_skip?
-
-        def should_skip?
-          context.skip_task == true
-        end
+        task t, unless: :disabled?
+        define_method(:disabled?) { context[:disabled] }
       end
 
-      enabled_result = workflow.execute(skip_task: false)
-      disabled_result = workflow.execute(skip_task: true)
-
-      expect(enabled_result.chain.results.size).to eq(2)
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(workflow.execute(disabled: false).context[:ran]).to be(true)
     end
 
-    it "uses proc for unless condition" do
-      task1 = create_successful_task(name: "Task1")
-
+    it "skips when the guard is truthy" do
+      t = guarded_task
       workflow = create_workflow_class do
-        task task1, unless: -> { context.disabled == true }
+        task t, unless: :disabled?
+        define_method(:disabled?) { context[:disabled] }
       end
 
-      enabled_result = workflow.execute(disabled: false)
-      disabled_result = workflow.execute(disabled: true)
-
-      expect(enabled_result.chain.results.size).to eq(2)
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(workflow.execute(disabled: true).context[:ran]).to be_nil
     end
   end
 
-  context "when combining if and unless" do
-    it "requires both conditions to be satisfied" do
-      task1 = create_successful_task(name: "Task1")
+  describe "combining if: and unless:" do
+    it "skips when both are specified and unless is truthy" do
+      t = guarded_task
+      workflow = create_workflow_class { task t, if: proc { true }, unless: proc { true } }
 
-      workflow = create_workflow_class do
-        task task1,
-             if: :should_execute?,
-             unless: :should_skip?
+      expect(workflow.execute.context[:ran]).to be_nil
+    end
 
-        def should_execute?
-          context.enabled == true
-        end
+    it "runs only when if: is truthy and unless: is falsy" do
+      t = guarded_task
+      workflow = create_workflow_class { task t, if: proc { true }, unless: proc { false } }
 
-        def should_skip?
-          context.override == true
-        end
-      end
-
-      both_satisfied = workflow.execute(enabled: true, override: false)
-      if_false = workflow.execute(enabled: false, override: false)
-      unless_false = workflow.execute(enabled: true, override: true)
-
-      expect(both_satisfied.chain.results.size).to eq(2)
-      expect(if_false.chain.results.size).to eq(1)
-      expect(unless_false.chain.results.size).to eq(1)
+      expect(workflow.execute.context[:ran]).to be(true)
     end
   end
 
-  context "when using conditionals with groups" do
-    it "applies condition to all tasks in group" do
-      task1 = create_successful_task(name: "Task1")
-      task2 = create_successful_task(name: "Task2")
-      task3 = create_successful_task(name: "Task3")
+  describe "group scoping" do
+    it "applies conditionals to every task in a sequential group" do
+      a = create_task_class(name: "A") { define_method(:work) { context.a = true } }
+      b = create_task_class(name: "B") { define_method(:work) { context.b = true } }
 
       workflow = create_workflow_class do
-        tasks task1, task2, task3, if: :group_enabled?
-
-        def group_enabled?
-          context.enable_group == true
-        end
+        tasks a, b, if: proc { !context[:skip_group] }
       end
 
-      enabled_result = workflow.execute(enable_group: true)
-      disabled_result = workflow.execute(enable_group: false)
+      result = workflow.execute(skip_group: true)
 
-      expect(enabled_result.chain.results.size).to eq(4)
-      expect(disabled_result.chain.results.size).to eq(1)
+      expect(result.context[:a]).to be_nil
+      expect(result.context[:b]).to be_nil
+    end
+
+    it "applies conditionals to every task in a parallel group" do
+      a = create_task_class(name: "A") { define_method(:work) { context.a = true } }
+      b = create_task_class(name: "B") { define_method(:work) { context.b = true } }
+
+      workflow = create_workflow_class do
+        tasks a, b, strategy: :parallel, if: proc { context[:run] }
+      end
+
+      result = workflow.execute(run: false)
+
+      expect(result.context[:a]).to be_nil
+      expect(result.context[:b]).to be_nil
     end
   end
 
-  context "when conditionals affect execution flow" do
-    it "skips tasks based on runtime conditions" do
-      setup_task = create_task_class(name: "SetupTask") do
-        def work
-          context.setup_complete = true
-        end
-      end
-      conditional_task = create_successful_task(name: "ConditionalTask")
-      final_task = create_successful_task(name: "FinalTask")
+  describe "mixing groups with different conditions" do
+    it "runs groups whose conditions match and skips the rest" do
+      a = create_task_class(name: "A") { define_method(:work) { (context.log ||= []) << :a } }
+      b = create_task_class(name: "B") { define_method(:work) { (context.log ||= []) << :b } }
+      c = create_task_class(name: "C") { define_method(:work) { (context.log ||= []) << :c } }
 
       workflow = create_workflow_class do
-        task setup_task
-        task conditional_task, if: proc { context.setup_complete == true }
-        task final_task
+        task a, if: proc { true }
+        task b, unless: proc { true }
+        task c
       end
 
-      result = workflow.execute
-
-      expect(result).to be_successful
-      expect(result.chain.results.size).to eq(4)
-      expect(result).to have_matching_context(setup_complete: true)
+      expect(workflow.execute.context[:log]).to eq(%i[a c])
     end
   end
 
-  context "when using complex conditional logic" do
-    it "evaluates complex conditions" do
-      task1 = create_successful_task(name: "Task1")
+  describe "condition visibility into the workflow" do
+    it "Proc conditions can reach task-level context that earlier tasks populated" do
+      first = create_task_class(name: "First") { define_method(:work) { context.gate = true } }
+      second = create_task_class(name: "Second") { define_method(:work) { context.second_ran = true } }
 
       workflow = create_workflow_class do
-        task task1, if: proc {
-          context.env == "production" && context.feature_enabled == true
-        }
+        task first
+        task second, if: proc { context[:gate] }
       end
 
-      prod_enabled = workflow.execute(env: "production", feature_enabled: true)
-      prod_disabled = workflow.execute(env: "production", feature_enabled: false)
-      dev_enabled = workflow.execute(env: "development", feature_enabled: true)
-
-      expect(prod_enabled.chain.results.size).to eq(2)
-      expect(prod_disabled.chain.results.size).to eq(1)
-      expect(dev_enabled.chain.results.size).to eq(1)
+      expect(workflow.execute.context[:second_ran]).to be(true)
     end
   end
 end

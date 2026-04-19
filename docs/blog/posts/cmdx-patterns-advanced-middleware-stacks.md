@@ -11,6 +11,8 @@ slug: cmdx-patterns-advanced-middleware-stacks
 
 *Part 2 of the CMDx Patterns series*
 
+*Targets CMDx v1.21.*
+
 Middleware is one of those features that's easy to understand and hard to use well. You write a simple wrapper, register it, and it works. Then you write another. And another. Before long, you've got six middlewares on every task, they're firing in an order you didn't intend, and you're spending more time debugging the middleware stack than the business logic it wraps.
 
 I've been through that cycle enough times to develop opinions about how to compose middleware stacks in CMDx. This post covers the patterns that survived contact with production Ruby applications—from simple wrappers to sophisticated multi-layer stacks.

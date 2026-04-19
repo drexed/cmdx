@@ -1,45 +1,20 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to Integer format
-    #
-    # Handles conversion from strings, numbers, and other values to integers
-    # using Ruby's Integer() method. Raises CoercionError for values that
-    # cannot be converted to integers.
+  class Coercions
+    # Coerces to Integer via `Kernel#Integer` (strict; rejects floats-as-strings).
     module Integer
 
       extend self
 
-      # Converts a value to an Integer
-      #
-      # @param value [Object] The value to convert to an integer
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Integer] The converted integer value
-      #
-      # @raise [CoercionError] If the value cannot be converted to an integer
-      #
-      # @example Convert numeric strings to integers
-      #   Integer.call("42")      # => 42
-      #   Integer.call("-123")    # => -123
-      #   Integer.call("0")       # => 0
-      # @example Convert numeric types to integers
-      #   Integer.call(42.0)      # => 42
-      #   Integer.call(3.14)      # => 3
-      #   Integer.call(0.0)       # => 0
-      # @example Handle edge cases
-      #   Integer.call("")        # => raises CoercionError
-      #   Integer.call(nil)       # => raises CoercionError
-      #   Integer.call("abc")     # => raises CoercionError
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Integer
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}] unused
+      # @return [Integer, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
         Integer(value)
       rescue ArgumentError, FloatDomainError, RangeError, TypeError
-        type = Locale.t("cmdx.types.integer")
-        raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
+        type = I18nProxy.t("cmdx.types.integer")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_an", type:))
       end
 
     end

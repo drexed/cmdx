@@ -9,6 +9,8 @@ slug: structuring-large-cmdx-codebases
 
 # Structuring Large CMDx Codebases
 
+*Targets CMDx v1.20.*
+
 Your first CMDx task is easy. Your tenth is manageable. But what about your hundredth? I've seen projects where the `app/tasks/` directory becomes a dumping ground—flat files with no organization, inconsistent naming, duplicated middleware registrations, and base classes that try to do everything.
 
 Scaling a CMDx codebase isn't about the framework. It's about the conventions you establish early and enforce consistently. This post is the playbook I wish I had when my first CMDx project grew from 10 tasks to 200.

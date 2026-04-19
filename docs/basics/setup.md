@@ -1,6 +1,6 @@
 # Basics - Setup
 
-Tasks are the heart of CMDx—self-contained units of business logic with built-in validation, error handling, and execution tracking.
+Tasks are the unit of work in CMDx: self-contained business logic with built-in input validation, error handling, and execution tracking.
 
 ## Structure
 
@@ -14,44 +14,49 @@ class ValidateDocument < CMDx::Task
 end
 ```
 
-Without a `work` method, execution raises `CMDx::UndefinedMethodError`.
+Without a `work` method, execution raises `CMDx::ImplementationError` from both `execute` and `execute!`.
 
 ```ruby
 class IncompleteTask < CMDx::Task
   # No `work` method defined
 end
 
-IncompleteTask.execute #=> raises CMDx::UndefinedMethodError
+IncompleteTask.execute  #=> raises CMDx::ImplementationError
+IncompleteTask.execute! #=> raises CMDx::ImplementationError
 ```
 
 ## Rollback
 
-Undo any operations linked to the given status, helping to restore a pristine state. Configure which statuses trigger rollback via [`rollback_on`](../configuration.md#rollback) (default: `["failed"]`).
+Define a `rollback` method to undo side effects when the task fails. Runtime calls it after `work` (and before completion callbacks) when the signal is `failed`, flags `result.rolled_back?`, and emits the `:task_rolled_back` telemetry event.
 
 ```ruby
 class ChargeCard < CMDx::Task
   def work
-    # Your logic here, ex: charge $100
+    context.charge = Stripe::Charge.create(amount: context.amount, source: context.source)
   end
 
-  # Called automatically if a later step in the workflow fails
+  # Called automatically when this task fails
   def rollback
-    # Your undo logic, ex: void $100 charge
+    Stripe::Refund.create(charge: context.charge.id) if context.charge
   end
 end
 ```
 
+!!! tip
+
+    Rollback fires only on `failed?`. To undo on skip, halt with `fail!` instead of `skip!`, or invoke your cleanup explicitly from a callback.
+
 ## Inheritance
 
-Share configuration across tasks using inheritance:
+Share configuration through inheritance. Every inheritable surface — `settings`, `retry_on`, `deprecation`, and the registries (`middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `inputs`, `outputs`) — lazily clones from the superclass on first access, so subclasses extend rather than replace.
 
 ```ruby
 class ApplicationTask < CMDx::Task
-  register :middleware, SecurityMiddleware
+  register :middleware, SecurityMiddleware.new
 
   before_execution :initialize_request_tracking
 
-  attribute :session_id
+  input :session_id
 
   private
 
@@ -69,40 +74,48 @@ end
 
 ## Lifecycle
 
-Tasks follow a predictable execution pattern:
+Tasks follow a predictable execution pattern. Halt primitives — `success!`, `skip!`, `fail!`, and `throw!` — are control-flow tokens: they `throw` a `Signal` caught by `Runtime`, so any code after a halt is unreachable. See [Signals](../interruptions/signals.md) for the full halt API.
 
 ```mermaid
 stateDiagram-v2
-    Initialized: Instantiation
-    Initialized --> Validating: execute
-    Validating --> Executing: Valid?
-    Validating --> Failed: Invalid
-    Executing --> Success: Work done
-    Executing --> Skipped: skip!
-    Executing --> Failed: fail! / Exception
-    Executed
-    Freeze
+    [*] --> Instantiation
+    Instantiation --> BeforeExecution: execute
+    BeforeExecution --> BeforeValidation: callbacks
+    BeforeValidation --> Validating: callbacks
+    Validating --> Working: inputs ok
+    Validating --> Failed: input errors
+    Working --> VerifyOutputs: work returned
+    Working --> Success: success!
+    Working --> Skipped: skip!
+    Working --> Failed: fail! / throw! / Exception
+    VerifyOutputs --> Success: outputs ok
+    VerifyOutputs --> Failed: missing/invalid outputs
 
-    state Executed {
+    Failed --> Rollback: rollback (if defined)
+    Rollback --> Terminal
+
+    state Terminal {
         Success
         Skipped
         Failed
-        Rollback
-
-        Skipped --> Rollback
-        Failed --> Rollback
     }
+
+    Terminal --> Freeze: completion callbacks + finalize
+    Freeze --> [*]
 ```
 
 !!! danger "Caution"
 
-    Tasks are single-use objects. Once executed, they're frozen and immutable.
+    Tasks are single-use objects. After execution, the task, its root context, and its errors are frozen by `Runtime` teardown.
 
-| Stage | State | Status | Description |
-|-------|-------|--------|-------------|
-| **Instantiation** | `initialized` | `success` | Task created with context |
-| **Validation** | `executing` | `success`/`failed` | Attributes validated |
-| **Execution** | `executing` | `success`/`failed`/`skipped` | `work` method runs |
-| **Completion** | `executed` | `success`/`failed`/`skipped` | Result finalized |
-| **Freezing** | `executed` | `success`/`failed`/`skipped` | Task becomes immutable |
-| **Rollback** | `executed` | `failed`/`skipped` | Work undone |
+| Stage | Description |
+|-------|-------------|
+| **Before execution** | `before_execution` callbacks run first |
+| **Before validation** | `before_validation` callbacks run next |
+| **Validation** | Inputs are coerced/validated; failures halt with `failed` |
+| **Work** | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries |
+| **Output verification** | Declared `output` keys are coerced/validated |
+| **Rollback** | `rollback` runs when the signal is `failed` (before completion callbacks) |
+| **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order |
+| **Result finalization** | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed) |
+| **Teardown** | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber |

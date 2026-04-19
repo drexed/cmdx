@@ -1,89 +1,147 @@
 # Logging
 
-CMDx automatically logs every task execution with structured data, making debugging and monitoring effortless. Choose from multiple formatters to match your logging infrastructure.
+CMDx logs every task execution at `INFO` with the full `Result#to_h` payload, giving you a structured event stream for free. Pick a formatter that matches your logging infrastructure.
 
 ## Formatters
 
-Choose the format that works best for your logging system:
-
 | Formatter | Use Case | Output Style |
 |-----------|----------|--------------|
-| `Line` | Traditional logging | Single-line format |
-| `Json` | Structured systems | Compact JSON |
-| `KeyValue` | Log parsing | `key=value` pairs |
-| `Logstash` | ELK stack | JSON with @version/@timestamp |
-| `Raw` | Minimal output | Message content only |
+| `Line` | Traditional logging (default) | Single-line `Logger::Formatter` style |
+| `JSON` | Structured systems | Compact JSON, one object per line |
+| `KeyValue` | Log parsing | `key=value.inspect` pairs |
+| `Logstash` | ELK stack | JSON with `@version` / `@timestamp` |
+| `Raw` | Minimal output | Message body only (no severity/timestamp) |
 
-Sample output:
+!!! note
+
+    The class name is `CMDx::LogFormatters::JSON` (uppercase). The other formatter classes use CamelCase: `Line`, `KeyValue`, `Logstash`, `Raw`.
+
+=== "Line (default)"
+
+    ```log
+    I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: chain_id="..." chain_index=0 ... state="complete" status="success" ...
+    ```
+
+=== "JSON"
+
+    ```json
+    {"severity":"INFO","timestamp":"2026-04-19T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{"chain_id":"...","chain_index":0,"chain_root":true,"type":"Task","task":"MyTask","id":"...","state":"complete","status":"success","reason":null,"metadata":{},"strict":false,"deprecated":false,"retried":false,"retries":0,"duration":12.34,"tags":[]}}
+    ```
+
+=== "KeyValue"
+
+    ```log
+    severity="INFO" timestamp="2026-04-19T10:30:45.123456Z" progname="cmdx" pid=12345 message={chain_id: "...", chain_index: 0, ...}
+    ```
+
+=== "Logstash"
+
+    ```json
+    {"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2026-04-19T10:30:45.123456Z"}
+    ```
+
+=== "Raw"
+
+    ```log
+    chain_id="..." chain_index=0 chain_root=true type="Task" task=MyTask id="..." state="complete" status="success" ...
+    ```
+
+## Sample Lifecycle
+
+A single chain emitting a successful task, a skipped task, a failed leaf, and the workflow that propagated the failure:
 
 ```log
-<!-- Success (INFO level) -->
-I, [2025-12-23T17:04:07.292614Z #20108] INFO -- cmdx: {index: 1, chain_id: "019b4c2b-087b-79be-8ef2-96c11b659df5", type: "Task", tags: [], class: "GenerateInvoice", dry_run: false, id: "019b4c2b-0878-704d-ba0b-daa5410123ec", state: "complete", status: "success", outcome: "success", metadata: {runtime: 187}}
+# Success
+I, [2026-04-19T17:04:07.292614Z #20108] INFO -- cmdx: chain_id="019b4c2b-087b-79be-8ef2-96c11b659df5" chain_index=0 chain_root=true type="Task" task=GenerateInvoice id="019b4c2b-0878-704d-ba0b-daa5410123ec" context=#<CMDx::Context ...> state="complete" status="success" reason=nil metadata={} strict=false deprecated=false retried=false retries=0 duration=12.34 tags=[]
 
-<!-- Skipped (INFO level) -->
-I, [2025-12-23T17:04:11.496881Z #20139] INFO -- cmdx: {index: 2, chain_id: "019b4c2b-18e8-7af6-a38b-63b042c4fbed", type: "Task", tags: [], class: "ValidateCustomer", dry_run: false, id: "019b4c2b-18e5-7230-af7e-5b4a4bd7cda2", state: "interrupted", status: "skipped", outcome: "skipped", metadata: {}, reason: "Customer already validated", cause: #<CMDx::SkipFault: Customer already validated>, rolled_back: false}
+# Skipped
+I, [2026-04-19T17:04:11.496881Z #20139] INFO -- cmdx: chain_id="019b4c2b-18e8-7af6-a38b-63b042c4fbed" chain_index=0 chain_root=true type="Task" task=ValidateCustomer id="019b4c2b-18e5-7230-af7e-5b4a4bd7cda2" context=#<CMDx::Context ...> state="interrupted" status="skipped" reason="Customer already validated" metadata={} strict=false deprecated=false retried=false retries=0 duration=2.18 tags=[]
 
-<!-- Failed (INFO level) -->
-I, [2025-12-23T17:04:15.875306Z #20173] INFO -- cmdx: {index: 3, chain_id: "019b4c2b-2a02-7dbc-b713-b20a7379704f", type: "Task", tags: [], class: "CalculateTax", dry_run: false, id: "019b4c2b-2a00-70b7-9fab-2f14db9139ef", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}
+# Failed (root cause via fail!)
+I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: chain_id="019b4c2b-2a02-7dbc-b713-b20a7379704f" chain_index=1 chain_root=false type="Task" task=CalculateTax id="019b4c2b-2a00-70b7-9fab-2f14db9139ef" context=#<CMDx::Context ...> state="interrupted" status="failed" reason="tax service unavailable" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"} strict=false deprecated=false retried=false retries=0 duration=8.92 tags=[] cause=nil origin=nil threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
 
-<!-- Failed Chain -->
-I, [2025-12-23T17:04:20.972539Z #20209] INFO -- cmdx: {index: 0, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Workflow", tags: [], class: "BillingWorkflow", dry_run: false, id: "019b4c2b-3de6-70b9-9c16-5be13b1a463c", state: "interrupted", status: "failed", outcome: "interrupted", metadata: {}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false, threw_failure: {index: 3, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Task", tags: [], class: "CalculateTax", id: "019b4c2b-3dec-70b3-969b-c5b7896e3b27", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}, caused_failure: {index: 3, chain_id: "019b4c2b-3de9-71f7-bcc3-2a98836bcfd7", type: "Task", tags: [], class: "CalculateTax", id: "019b4c2b-3dec-70b3-969b-c5b7896e3b27", state: "interrupted", status: "failed", outcome: "failed", metadata: {error_code: "TAX_SERVICE_UNAVAILABLE"}, reason: "Validation failed", cause: #<CMDx::FailFault: Validation failed>, rolled_back: false}}
+# Failed workflow that propagated the above failure
+I, [2026-04-19T17:04:15.876012Z #20173] INFO -- cmdx: chain_id="019b4c2b-2a02-7dbc-b713-b20a7379704f" chain_index=0 chain_root=true type="Workflow" task=BillingWorkflow id="019b4c2b-3de6-70b9-9c16-5be13b1a463c" ... state="interrupted" status="failed" reason="tax service unavailable" cause=nil origin=<CalculateTax 019b4c2b-2a00-...> threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
 ```
 
 !!! tip
 
-    Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.
+    Use logging as a low-level event stream to track every task in a request. Pair `chain_id` with your APM's correlation field for distributed tracing.
+
+!!! note
+
+    A rescued `StandardError` (not a `fail!` call) sets `cause=#<TheError: …>` and rewrites `reason` to `"[TheError] message"` with empty metadata.
 
 ## Structure
 
-Every log entry includes rich metadata. Available fields depend on execution context and outcome.
+Every log entry is built from `Result#to_h`. Available fields:
 
-### Core Fields
+### Severity / Time (added by formatter)
 
 | Field | Description | Example |
 |-------|-------------|---------|
-| `severity` | Log level | `INFO`, `WARN`, `ERROR` |
-| `timestamp` | ISO 8601 execution time | `2022-07-17T18:43:15.000000` |
+| `severity` | Logger level name | `INFO`, `WARN`, `ERROR` |
+| `timestamp` | UTC ISO 8601 with microseconds | `2026-04-19T18:43:15.000000Z` |
 | `pid` | Process ID | `3784` |
+| `progname` | Logger progname | `cmdx` (default) |
 
-### Task Information
+`Raw` is the exception — it emits only the `message` body.
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `index` | Execution sequence position | `0`, `1`, `2` |
-| `chain_id` | Unique execution chain ID | `018c2b95-b764-7615...` |
-| `type` | Execution unit type | `Task`, `Workflow` |
-| `class` | Task class name | `GenerateInvoiceTask` |
-| `id` | Unique task instance ID | `018c2b95-b764-7615...` |
-| `tags` | Custom categorization | `["billing", "financial"]` |
-
-### Execution Data
+### Identity
 
 | Field | Description | Example |
 |-------|-------------|---------|
-| `state` | Lifecycle state | `complete`, `interrupted` |
-| `status` | Business outcome | `success`, `skipped`, `failed` |
-| `outcome` | Final classification | `success`, `interrupted` |
-| `metadata` | Custom task data | `{order_id: 123, amount: 99.99}` |
+| `chain_id` | Chain UUID (uuid_v7) | `"018c2b95-b764-7615-..."` |
+| `chain_index` | Position in chain (root is 0) | `0`, `1`, `2` |
+| `chain_root` | `true` for the root task's result | `true`, `false` |
+| `type` | `"Task"` or `"Workflow"` | `"Task"` |
+| `task` | Task class | `GenerateInvoice` |
+| `id` | Result UUID (uuid_v7) | `"018c2b95-..."` |
+| `context` | Frozen `CMDx::Context` (root teardown) | `#<CMDx::Context ...>` |
+| `tags` | Tags from `settings(tags: [...])` | `["billing"]` |
 
-### Failure Chain
+### Outcome
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `state` | Lifecycle state | `"complete"`, `"interrupted"` |
+| `status` | Business outcome | `"success"`, `"skipped"`, `"failed"` |
+| `reason` | String passed to halt method | `"payment declined"` or `nil` |
+| `metadata` | Hash passed to halt method | `{ code: "INSUFFICIENT_FUNDS" }` |
+
+### Lifecycle
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `strict` | `true` when produced via `execute!` | `false` |
+| `deprecated` | `true` when the task class is deprecated | `false` |
+| `retried` | `true` when at least one retry happened | `false` |
+| `retries` | Number of retry attempts performed | `0` |
+| `duration` | Lifecycle duration in milliseconds | `12.34` |
+
+### Failure-only fields
+
+These are present **only** when `status == "failed"`:
 
 | Field | Description |
 |-------|-------------|
-| `reason` | Reason given for the stoppage |
-| `caused` | Cause exception details |
-| `caused_failure` | Original failing task details |
-| `threw_failure` | Task that propagated the failure |
+| `cause` | Underlying exception (or `nil` for `fail!`) |
+| `origin` | `{ task:, id: }` of the upstream `Result` this failure was echoed from, or `nil` for a locally originated failure |
+| `threw_failure` | `{ task:, id: }` of the nearest upstream failed result, or this result |
+| `caused_failure` | `{ task:, id: }` of the originating failed result, or this result |
+| `rolled_back` | `true` when the task's `#rollback` ran |
 
-## Formatter Configuration
+## Configuration
 
-Set the formatter globally or per-task:
+Configure the formatter and level globally or per-task:
 
 === "Global"
 
     ```ruby
     CMDx.configure do |config|
-      config.logger.formatter = CMDx::LogFormatters::Json.new
+      config.log_formatter = CMDx::LogFormatters::JSON.new
+      config.log_level     = Logger::DEBUG
+      config.logger        = Logger.new($stdout, progname: "cmdx")
     end
     ```
 
@@ -91,62 +149,70 @@ Set the formatter globally or per-task:
 
     ```ruby
     class ProcessSubscription < CMDx::Task
-      settings(log_formatter: CMDx::LogFormatters::Json.new)
+      settings(
+        log_formatter: CMDx::LogFormatters::JSON.new,
+        log_level: Logger::DEBUG
+      )
     end
     ```
 
-### Formatter Output Examples
+!!! note
 
-=== "Line (default)"
+    When a task overrides `:log_level` or `:log_formatter`, `LoggerProxy` `dup`s the global logger so settings don't leak across sibling tasks.
 
-    ```log
-    I, [2025-01-15T10:30:45.123456Z #12345] INFO -- cmdx: {index: 0, class: "MyTask", state: "complete", ...}
-    ```
+### Custom Logger
 
-=== "Json"
-
-    ```json
-    {"severity":"INFO","timestamp":"2025-01-15T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{...}}
-    ```
-
-=== "KeyValue"
-
-    ```log
-    severity="INFO" timestamp="2025-01-15T10:30:45.123456Z" progname="cmdx" pid=12345 message={...}
-    ```
-
-=== "Logstash"
-
-    ```json
-    {"severity":"INFO","progname":"cmdx","pid":12345,"message":{...},"@version":"1","@timestamp":"2025-01-15T10:30:45.123456Z"}
-    ```
-
-=== "Raw"
-
-    ```log
-    {index: 0, class: "MyTask", state: "complete", status: "success", ...}
-    ```
-
-## Log Levels
-
-CMDx logs task execution at `INFO` level, retries at `WARN`, and backtraces at `ERROR`. Override the log level per-task:
+Swap the underlying `Logger` instance per task to route lifecycle entries to a different sink (separate file, syslog, structured-log gem, etc.):
 
 ```ruby
-class VerboseTask < CMDx::Task
-  settings(log_level: :debug)
+class AuditTransfer < CMDx::Task
+  settings(
+    logger: Logger.new(Rails.root.join("log/audit.log"), progname: "audit"),
+    log_formatter: CMDx::LogFormatters::JSON.new
+  )
 end
 ```
 
-## Usage
+The given logger is used as-is — `LoggerProxy` only `dup`s it when `:log_level` or `:log_formatter` differ from what the logger already has set.
 
-Access the framework logger directly within tasks:
+### Silencing a Task
+
+Raise the per-task level above `INFO` to suppress the lifecycle log line:
+
+```ruby
+class QuietTask < CMDx::Task
+  settings(log_level: Logger::WARN)
+end
+```
+
+## Log Levels
+
+CMDx logs each task result at `INFO` once the lifecycle completes. The framework itself emits no `WARN` or `ERROR` lines — use callbacks (`on_failed`, `on_skipped`) or telemetry subscribers (`:task_retried`, `:task_executed`) to log at higher severities.
+
+```ruby
+class VerboseTask < CMDx::Task
+  settings(log_level: Logger::DEBUG)
+
+  def work
+    logger.debug { "feature flags: #{Features.active_flags.inspect}" }
+    # ...
+  end
+end
+```
+
+!!! note
+
+    Strict-mode failures (`execute!`) still produce the lifecycle log line and the `:task_executed` telemetry event — `Runtime` finalizes the result *before* re-raising the `Fault`.
+
+## Usage Inside Work
+
+`Task#logger` returns the per-task `Logger` (with the task's overrides applied):
 
 ```ruby
 class ProcessSubscription < CMDx::Task
   def work
-    logger.debug { "Activated feature flags: #{Features.active_flags}" }
-    # Your logic here...
-    logger.info("Subscription processed")
+    logger.debug { "subscriber: #{context.subscriber_id}" }
+    logger.info  { "starting subscription processing" }
   end
 end
 ```

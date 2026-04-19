@@ -1,65 +1,81 @@
 # frozen_string_literal: true
 
 CMDx.configure do |config|
-  # Task breakpoint configuration - controls when execute! raises faults
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
+  # ===========================================================================
+  # Locale
+  # ===========================================================================
+  # Fallback locale for built-in messages (validation, coercion, etc.) when
+  # the I18n gem is not present. With I18n loaded, CMDx follows `I18n.locale`.
   #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never halt
-  config.task_breakpoints = %w[failed]
-
-  # Workflow breakpoint configuration - controls when workflows stop execution
-  # When a task returns these statuses, subsequent workflow tasks won't execute
-  # See https://github.com/drexed/cmdx/blob/main/docs/workflows.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, workflow will never halt
-  config.workflow_breakpoints = %w[failed]
-
-  # Logger configuration - choose from multiple formatters
-  # See https://github.com/drexed/cmdx/blob/main/docs/logging.md for more details
-  #
-  # Available formatters:
-  # - CMDx::LogFormatters::Json
-  # - CMDx::LogFormatters::KeyValue
-  # - CMDx::LogFormatters::Line
-  # - CMDx::LogFormatters::Logstash
-  # - CMDx::LogFormatters::Raw
-  config.logger = Logger.new(
-    $stdout,
-    progname: "cmdx",
-    formatter: CMDx::LogFormatters::Line.new,
-    level: Logger::INFO
-  )
-
-  # Rollback configuration - controls which statuses trigger task rollback
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never rollback
-  config.rollback_on = %w[failed]
-
-  # Default locale configuration - used for built-in translation lookups
-  # Must match the basename of a YAML file in lib/locales/ (e.g. "en", "es", "ja")
   # config.default_locale = "en"
 
-  # Backtrace configuration - controls whether to log backtraces on faults and exceptions
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#backtraces
-  # config.backtrace = false
-  # config.backtrace_cleaner = nil
-
-  # Exception handler configuration - called when non-fault exceptions are raised
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#exception-handlers
-  # config.exception_handler = nil
-
-  # Dump context configuration - include context data in hash representation output
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#dump-context
-  # config.dump_context = false
-
-  # Additional global configurations - automatically applied to all tasks
+  # ===========================================================================
+  # Logging
+  # ===========================================================================
+  # In Rails, the Railtie already wires `config.logger = Rails.logger` and a
+  # backtrace cleaner — override here only if you need something different.
   #
-  # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
-  # Callbacks - https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
-  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md
-  # Validations - https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md
+  # Formatters: Line (default), Json, KeyValue, Logstash, Raw
+  #
+  # config.logger        = Logger.new($stdout, progname: "cmdx")
+  # config.log_level     = Logger::INFO
+  # config.log_formatter = CMDx::LogFormatters::Line.new
+  # config.backtrace_cleaner = ->(bt) { Rails.backtrace_cleaner.clean(bt) }
+
+  # ===========================================================================
+  # Middlewares
+  # ===========================================================================
+  # Wrap every task's execution. Must respond to `call(task) { ... }`.
+  #
+  # Example — run each task under the current user's locale:
+  #
+  # config.middlewares.register(proc do |task, &next_link|
+  #   locale = task.context.current_user&.locale || I18n.default_locale
+  #   I18n.with_locale(locale) { next_link.call }
+  # end)
+
+  # ===========================================================================
+  # Callbacks
+  # ===========================================================================
+  # Events:
+  #   :before_validation, :before_execution,
+  #   :on_complete, :on_interrupted,
+  #   :on_success, :on_skipped, :on_failed,
+  #   :on_ok, :on_ko
+  #
+  # config.callbacks.register(:on_failed, proc do |task|
+  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{task.result.metadata[:reason]}")
+  # end)
+
+  # ===========================================================================
+  # Telemetry
+  # ===========================================================================
+  # Events:
+  #   :task_started, :task_deprecated, :task_retried,
+  #   :task_rolled_back, :task_executed
+  #
+  # config.telemetry.subscribe(:task_executed, proc do |event|
+  #   StatsD.timing("cmdx.#{event.name}", event.payload[:runtime])
+  # end)
+
+  # ===========================================================================
+  # Coercions
+  # ===========================================================================
+  # Register custom type coercions. Callable receives `(value, **options)`.
+  #
+  # config.coercions.register(:currency, proc do |value, **|
+  #   BigDecimal(value.to_s.gsub(/[^\d.-]/, ""))
+  # end)
+
+  # ===========================================================================
+  # Validators
+  # ===========================================================================
+  # Register custom validators. Callable receives `(value, options)` and
+  # returns a `CMDx::Validators::Failure.new(message)` on failure.
+  #
+  # config.validators.register(:uuid, proc do |value, _options|
+  #   unless value.to_s.match?(/\A[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\z/i)
+  #     CMDx::Validators::Failure.new("is not a valid UUID")
+  #   end
+  # end)
 end

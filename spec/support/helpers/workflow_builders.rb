@@ -10,6 +10,7 @@ module CMDx
         workflow_class = Class.new(base)
         workflow_class.include(CMDx::Workflow)
         workflow_class.define_singleton_method(:name) { @name ||= name.to_s + rand(9999).to_s.rjust(4, "0") }
+        workflow_class.define_singleton_method(:type) { @type ||= "Workflow" }
         workflow_class.class_eval(&) if block_given?
         workflow_class
       end

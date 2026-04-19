@@ -2,424 +2,194 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Errors, type: :unit do
+RSpec.describe CMDx::Errors do
   subject(:errors) { described_class.new }
 
   describe "#initialize" do
-    it "initializes with empty messages hash" do
-      expect(errors.messages).to eq({})
-    end
-
-    it "is empty by default" do
+    it "starts empty" do
       expect(errors).to be_empty
+      expect(errors.messages).to eq({})
     end
   end
 
   describe "#add" do
-    context "when adding a valid message" do
-      it "adds a message for an attribute" do
-        errors.add(:name, "is required")
-
-        expect(errors.messages[:name]).to include("is required")
-      end
-
-      it "creates a Set for the attribute if it doesn't exist" do
-        errors.add(:email, "is invalid")
-
-        expect(errors.messages[:email]).to be_a(Set)
-      end
-
-      it "adds multiple messages for the same attribute" do
-        errors.add(:password, "is too short")
-        errors.add(:password, "must contain numbers")
-
-        expect(errors.messages[:password]).to include("is too short", "must contain numbers")
-        expect(errors.messages[:password].size).to eq(2)
-      end
-
-      it "does not duplicate the same message for an attribute" do
-        errors.add(:username, "is taken")
-        errors.add(:username, "is taken")
-
-        expect(errors.messages[:username].size).to eq(1)
-        expect(errors.messages[:username]).to include("is taken")
-      end
-
-      it "handles string attributes" do
-        errors.add("category", "is invalid")
-
-        expect(errors.messages["category"]).to include("is invalid")
-      end
-
-      it "handles symbol attributes" do
-        errors.add(:status, "is not allowed")
-
-        expect(errors.messages[:status]).to include("is not allowed")
-      end
+    it "appends a message under the key" do
+      errors.add(:name, "is required")
+      expect(errors[:name]).to include("is required")
     end
 
-    context "when adding an empty message" do
-      it "does not add empty string messages" do
-        errors.add(:name, "")
+    it "deduplicates identical messages" do
+      errors.add(:name, "is required")
+      errors.add(:name, "is required")
+      expect(errors[:name].size).to eq(1)
+    end
 
-        expect(errors.messages).to eq({})
-        expect(errors).to be_empty
-      end
+    it "accumulates distinct messages under the same key" do
+      errors.add(:name, "is required")
+      errors.add(:name, "is too short")
+      expect(errors[:name]).to contain_exactly("is required", "is too short")
+    end
 
-      it "raises an error when trying to add nil messages" do
-        expect { errors.add(:name, nil) }.to raise_error(NoMethodError, /undefined method.*empty.*for nil/)
-      end
+    it "is aliased as []=" do
+      errors[:name] = "is required"
+      expect(errors[:name]).to include("is required")
     end
   end
 
-  describe "#for?" do
-    context "when attribute has errors" do
-      before do
-        errors.add(:email, "is required")
-      end
-
-      it "returns true for attributes with errors" do
-        expect(errors.for?(:email)).to be(true)
-      end
+  describe "#[]" do
+    it "returns the array of messages for a key" do
+      errors.add(:age, "too young")
+      expect(errors[:age]).to be_a(Array)
+      expect(errors[:age]).to include("too young")
     end
 
-    context "when attribute has no errors" do
-      it "returns false for attributes without errors" do
-        expect(errors.for?(:name)).to be(false)
-      end
-
-      it "returns false for non-existent attributes" do
-        expect(errors.for?(:nonexistent)).to be(false)
-      end
-    end
-
-    context "when attribute exists but has empty errors" do
-      before do
-        errors.messages[:status] = Set.new
-      end
-
-      it "returns false for attributes with empty error sets" do
-        expect(errors.for?(:status)).to be(false)
-      end
+    it "returns an empty set when the key is absent" do
+      expect(errors[:missing]).to be_empty
     end
   end
 
-  describe "#any?" do
-    context "when no errors have been added" do
-      it "returns false" do
-        expect(errors.any?).to be(false)
-      end
+  describe "#added?" do
+    it "is true when the exact message was added" do
+      errors.add(:name, "is required")
+      expect(errors.added?(:name, "is required")).to be(true)
     end
 
-    context "when errors have been added" do
-      before do
-        errors.add(:name, "is required")
-      end
+    it "is false for a different message" do
+      errors.add(:name, "is required")
+      expect(errors.added?(:name, "is too short")).to be(false)
+    end
 
-      it "returns true" do
-        expect(errors.any?).to be(true)
-      end
+    it "is false when the key is absent" do
+      expect(errors.added?(:missing, "x")).to be(false)
+    end
+  end
+
+  describe "#key?" do
+    it "is true only for keys that have at least one message" do
+      errors.add(:name, "bad")
+      expect(errors.key?(:name)).to be(true)
+      expect(errors.key?(:age)).to be(false)
+    end
+  end
+
+  describe "#keys" do
+    it "lists keys in insertion order" do
+      errors.add(:a, "x")
+      errors.add(:b, "y")
+      expect(errors.keys).to eq(%i[a b])
+    end
+  end
+
+  describe "#size and #count" do
+    before do
+      errors.add(:a, "x")
+      errors.add(:a, "y")
+      errors.add(:b, "z")
+    end
+
+    it "size returns the number of keys" do
+      expect(errors.size).to eq(2)
+    end
+
+    it "count returns the total number of messages" do
+      expect(errors.count).to eq(3)
+    end
+  end
+
+  describe "iteration" do
+    before do
+      errors.add(:a, "x")
+      errors.add(:b, "y")
+    end
+
+    it "each yields [key, set] pairs" do
+      pairs = []
+      errors.each { |k, v| pairs << [k, v.to_a] } # rubocop:disable Style/MapIntoArray
+      expect(pairs).to eq([[:a, ["x"]], [:b, ["y"]]])
+    end
+
+    it "each_key yields each key" do
+      expect(errors.each_key.to_a).to eq(%i[a b])
+    end
+
+    it "each_value yields each set" do
+      expect(errors.each_value.map(&:to_a)).to eq([["x"], ["y"]])
+    end
+  end
+
+  describe "#delete" do
+    it "removes all messages for the key" do
+      errors.add(:a, "x")
+      errors.delete(:a)
+      expect(errors).to be_empty
     end
   end
 
   describe "#clear" do
-    context "when errors have been added" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:email, "is invalid")
-      end
-
-      it "removes all errors" do
-        errors.clear
-
-        expect(errors).to be_empty
-      end
-    end
-  end
-
-  describe "#size" do
-    context "when no errors have been added" do
-      it "returns 0" do
-        expect(errors.size).to eq(0)
-      end
-    end
-
-    context "when errors have been added for multiple attributes" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:email, "is invalid")
-      end
-
-      it "returns the number of attributes with errors" do
-        expect(errors.size).to eq(2)
-      end
-    end
-  end
-
-  describe "#empty?" do
-    context "when no errors have been added" do
-      it "returns true" do
-        expect(errors).to be_empty
-      end
-    end
-
-    context "when errors have been added" do
-      before do
-        errors.add(:name, "is required")
-      end
-
-      it "returns false" do
-        expect(errors).not_to be_empty
-      end
-    end
-
-    context "when only empty messages were attempted to be added" do
-      before do
-        errors.add(:name, "")
-      end
-
-      it "returns true" do
-        expect(errors).to be_empty
-      end
-    end
-  end
-
-  describe "#to_h" do
-    context "when there are no errors" do
-      it "returns an empty hash" do
-        expect(errors.to_h).to eq({})
-      end
-    end
-
-    context "when there are errors" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:name, "is too short")
-        errors.add(:email, "is invalid")
-      end
-
-      it "returns a hash with arrays as values" do
-        result = errors.to_h
-
-        expect(result[:name]).to be_a(Array)
-        expect(result[:email]).to be_a(Array)
-      end
-
-      it "converts Sets to Arrays for each attribute" do
-        result = errors.to_h
-
-        expect(result[:name]).to contain_exactly("is required", "is too short")
-        expect(result[:email]).to contain_exactly("is invalid")
-      end
-
-      it "preserves all error messages" do
-        result = errors.to_h
-
-        expect(result[:name].size).to eq(2)
-        expect(result[:email].size).to eq(1)
-      end
+    it "removes all messages" do
+      errors.add(:a, "x")
+      errors.add(:b, "y")
+      errors.clear
+      expect(errors).to be_empty
     end
   end
 
   describe "#full_messages" do
-    context "when there are no errors" do
-      it "returns an empty hash" do
-        expect(errors.full_messages).to eq({})
-      end
+    it "prefixes each message with its key" do
+      errors.add(:name, "is required")
+      errors.add(:age, "too young")
+
+      expect(errors.full_messages).to eq(
+        name: ["name is required"],
+        age: ["age too young"]
+      )
     end
+  end
 
-    context "when there are errors" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:name, "is too short")
-        errors.add(:email, "is invalid")
-      end
+  describe "#to_h" do
+    it "converts sets to arrays" do
+      errors.add(:name, "is required")
+      errors.add(:name, "is too short")
 
-      it "returns a hash with full messages as values" do
-        result = errors.full_messages
-
-        expect(result[:name]).to be_a(Array)
-        expect(result[:email]).to be_a(Array)
-      end
-
-      it "includes attribute names in the messages" do
-        result = errors.full_messages
-
-        expect(result[:name]).to contain_exactly("name is required", "name is too short")
-        expect(result[:email]).to contain_exactly("email is invalid")
-      end
-
-      it "preserves all error messages" do
-        result = errors.full_messages
-
-        expect(result[:name].size).to eq(2)
-        expect(result[:email].size).to eq(1)
-      end
-    end
-
-    context "when there are mixed attribute types" do
-      before do
-        errors.add(:symbol_attr, "symbol error")
-        errors.add("string_attr", "string error")
-      end
-
-      it "handles both string and symbol attributes" do
-        result = errors.full_messages
-
-        expect(result[:symbol_attr]).to contain_exactly("symbol_attr symbol error")
-        expect(result["string_attr"]).to contain_exactly("string_attr string error")
-      end
+      expect(errors.to_h[:name]).to contain_exactly("is required", "is too short")
     end
   end
 
   describe "#to_hash" do
-    context "when there are no errors" do
-      it "returns an empty hash when full is false" do
-        expect(errors.to_hash).to eq({})
-      end
-
-      it "returns an empty hash when full is true" do
-        expect(errors.to_hash(true)).to eq({})
-      end
+    before do
+      errors.add(:name, "is required")
     end
 
-    context "when there are errors" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:name, "is too short")
-        errors.add(:email, "is invalid")
-      end
-
-      context "when full is false (default)" do
-        it "returns a hash with arrays as values" do
-          result = errors.to_hash
-
-          expect(result[:name]).to be_a(Array)
-          expect(result[:email]).to be_a(Array)
-        end
-
-        it "converts Sets to Arrays for each attribute" do
-          result = errors.to_hash
-
-          expect(result[:name]).to contain_exactly("is required", "is too short")
-          expect(result[:email]).to contain_exactly("is invalid")
-        end
-
-        it "preserves all error messages" do
-          result = errors.to_hash
-
-          expect(result[:name].size).to eq(2)
-          expect(result[:email].size).to eq(1)
-        end
-      end
-
-      context "when full is true" do
-        it "returns a hash with full messages as values" do
-          result = errors.to_hash(true)
-
-          expect(result[:name]).to be_a(Array)
-          expect(result[:email]).to be_a(Array)
-        end
-
-        it "includes attribute names in the messages" do
-          result = errors.to_hash(true)
-
-          expect(result[:name]).to contain_exactly("name is required", "name is too short")
-          expect(result[:email]).to contain_exactly("email is invalid")
-        end
-
-        it "preserves all error messages" do
-          result = errors.to_hash(true)
-
-          expect(result[:name].size).to eq(2)
-          expect(result[:email].size).to eq(1)
-        end
-      end
+    it "returns the plain hash when full is false" do
+      expect(errors.to_hash).to eq(name: ["is required"])
     end
 
-    context "when there are mixed attribute types" do
-      before do
-        errors.add(:symbol_attr, "symbol error")
-        errors.add("string_attr", "string error")
-      end
-
-      it "handles both string and symbol attributes when full is false" do
-        result = errors.to_hash
-
-        expect(result[:symbol_attr]).to contain_exactly("symbol error")
-        expect(result["string_attr"]).to contain_exactly("string error")
-      end
-
-      it "handles both string and symbol attributes when full is true" do
-        result = errors.to_hash(true)
-
-        expect(result[:symbol_attr]).to contain_exactly("symbol_attr symbol error")
-        expect(result["string_attr"]).to contain_exactly("string_attr string error")
-      end
+    it "returns full messages when full is true" do
+      expect(errors.to_hash(true)).to eq(name: ["name is required"])
     end
   end
 
   describe "#to_s" do
-    context "when there are no errors" do
-      it "returns an empty string" do
-        expect(errors.to_s).to eq("")
-      end
+    it "joins full messages with '. '" do
+      errors.add(:name, "is required")
+      errors.add(:age, "too young")
+
+      expect(errors.to_s).to eq("name is required. age too young")
     end
 
-    context "when there is one error for one attribute" do
-      before do
-        errors.add(:name, "is required")
-      end
-
-      it "returns a formatted string" do
-        expect(errors.to_s).to eq("name is required")
-      end
+    it "returns an empty string when no messages are present" do
+      expect(errors.to_s).to eq("")
     end
+  end
 
-    context "when there are multiple errors for one attribute" do
-      before do
-        errors.add(:password, "is too short")
-        errors.add(:password, "must contain numbers")
-      end
+  describe "#freeze" do
+    it "freezes the messages hash and each message set" do
+      errors.add(:name, "is required")
+      errors.freeze
 
-      it "returns all errors for the attribute separated by periods" do
-        result = errors.to_s
-
-        expect(result).to include("password is too short")
-        expect(result).to include("password must contain numbers")
-        expect(result.split(". ").length).to eq(2)
-      end
-    end
-
-    context "when there are errors for multiple attributes" do
-      before do
-        errors.add(:name, "is required")
-        errors.add(:email, "is invalid")
-        errors.add(:password, "is too short")
-      end
-
-      it "returns all errors separated by periods" do
-        result = errors.to_s
-
-        expect(result).to include("name is required")
-        expect(result).to include("email is invalid")
-        expect(result).to include("password is too short")
-        expect(result.split(". ").length).to eq(3)
-      end
-    end
-
-    context "when there are mixed attribute types" do
-      before do
-        errors.add(:symbol_attr, "symbol error")
-        errors.add("string_attr", "string error")
-      end
-
-      it "handles both string and symbol attributes" do
-        result = errors.to_s
-
-        expect(result).to include("symbol_attr symbol error")
-        expect(result).to include("string_attr string error")
-      end
+      expect(errors).to be_frozen
+      expect(errors.messages).to be_frozen
+      expect(errors.messages[:name]).to be_frozen
     end
   end
 end

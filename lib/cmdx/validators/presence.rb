@@ -1,47 +1,19 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Validators
-    # Validates that a value is present and not empty
-    #
-    # This validator ensures that the given value exists and contains meaningful content.
-    # It handles different value types appropriately:
-    # - Strings: checks for non-whitespace characters
-    # - Collections: checks for non-empty collections
-    # - Other objects: checks for non-nil values
+  class Validators
+    # Validates that a value is present: non-`nil`, non-empty, and (for
+    # strings) not whitespace-only.
     module Presence
 
       extend self
 
-      # Validates that a value is present and not empty
-      #
-      # @param value [Object] The value to validate for presence
-      # @param options [Hash] Validation configuration options
-      # @option options [String] :message Custom error message
-      #
-      # @return [nil] Returns nil if validation passes
-      #
-      # @raise [ValidationError] When the value is empty, nil, or contains only whitespace
-      #
-      # @example Validate string presence
-      #   Presence.call("hello world")
-      #   # => nil (validation passes)
-      # @example Validate empty string
-      #   Presence.call("   ")
-      #   # => raises ValidationError
-      # @example Validate array presence
-      #   Presence.call([1, 2, 3])
-      #   # => nil (validation passes)
-      # @example Validate empty array
-      #   Presence.call([])
-      #   # => raises ValidationError
-      # @example Validate with custom message
-      #   Presence.call(nil, message: "Value cannot be blank")
-      #   # => raises ValidationError with custom message
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> nil
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :message override for the failure message
+      # @return [Validators::Failure, nil]
       def call(value, options = EMPTY_HASH)
-        match =
+        present =
           if value.is_a?(String)
             /\S/.match?(value)
           elsif value.respond_to?(:empty?)
@@ -50,10 +22,9 @@ module CMDx
             !value.nil?
           end
 
-        return if match
+        return if present
 
-        message = options[:message] if options.is_a?(Hash)
-        raise ValidationError, message || Locale.t("cmdx.validators.presence")
+        Failure.new(options[:message] || I18nProxy.t("cmdx.validators.presence"))
       end
 
     end

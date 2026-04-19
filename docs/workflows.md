@@ -1,21 +1,19 @@
 # Workflows
 
-Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.
+Compose multiple tasks into ordered pipelines. A workflow is a `Task` subclass that includes `CMDx::Workflow`; the module supplies a `#work` that delegates to `CMDx::Pipeline`, which runs the declared task groups against a shared context.
 
-Since workflows are Task subclasses, they inherit all Task features: [attributes](attributes/definitions.md), [callbacks](callbacks.md), [middlewares](middlewares.md), [settings](configuration.md#task-configuration), and [returns](returns.md). Use these to validate workflow-level inputs, set up shared state, or track workflow outcomes.
+Because workflows are tasks, they inherit every Task feature: [inputs](inputs/definitions.md), [callbacks](callbacks.md), [middlewares](middlewares.md), [settings](configuration.md#settings), [outputs](outputs.md), and [retries](retries.md). Use these to validate workflow-level inputs, set up shared state, or react to workflow outcomes.
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  register :middleware, CMDx::Middlewares::Correlate
-
   before_execution :load_user
   on_failed :notify_admin!
 
-  required :user_id, type: :integer
+  required :user_id, coerce: :integer
 
-  returns :onboarded_at
+  output :onboarded_at
 
   task CreateProfile
   task SetupPreferences
@@ -35,15 +33,15 @@ end
 
 ## Declarations
 
-Tasks run in declaration order (FIFO), sharing a common context across the pipeline.
+Tasks run in declaration order, sharing the workflow's context.
 
 !!! warning
 
-    Don't define a `work` method in workflows—the module handles execution automatically. Attempting to do so raises a `RuntimeError`.
+    Don't define `#work` on a workflow — `Workflow#work` delegates to `Pipeline`. Defining your own raises `CMDx::ImplementationError`.
 
 ### Task
 
-`task` and `tasks` are aliases—use either interchangeably.
+`task` and `tasks` are aliases — use either interchangeably. Each call appends a new group to the pipeline.
 
 ```ruby
 class OnboardingWorkflow < CMDx::Task
@@ -56,140 +54,92 @@ class OnboardingWorkflow < CMDx::Task
 end
 ```
 
-### Group
+Every entry must be a `Task` subclass; anything else raises `TypeError` at declaration time.
 
-Group related tasks to share configuration:
+### Group Options
 
-!!! warning "Important"
+Options apply to the entire group:
 
-    Settings and conditionals apply to all tasks in the group.
-
-```ruby
-class ContentModerationWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  # Screening phase
-  tasks ScanForProfanity, CheckForSpam, ValidateImages, breakpoints: ["skipped"]
-
-  # Review phase
-  tasks ApplyFilters, ScoreContent, FlagSuspicious
-
-  # Decision phase
-  tasks PublishContent, QueueForReview, NotifyModerators
-end
-```
+| Option        | Default        | Description                                            |
+|---------------|----------------|--------------------------------------------------------|
+| `strategy:`   | `:sequential`  | `:sequential` or `:parallel`                           |
+| `pool_size:`  | `tasks.size`   | Worker count when `strategy: :parallel`                |
+| `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
 ### Conditionals
 
-Conditionals support multiple syntaxes for flexible execution control:
+Conditionals support multiple syntaxes for flexible execution control. They're evaluated against the workflow instance.
 
 ```ruby
 class ContentAccessCheck
-  def call(task)
-    task.context.user.can?(:publish_content)
+  def call(workflow)
+    workflow.context.user.can?(:publish_content)
   end
 end
 
 class OnboardingWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  # If and/or Unless
-  task SendWelcomeEmail, if: :email_configured?, unless: :email_disabled?
+  # Symbols resolve to instance methods on the workflow
+  task SendWelcomeEmail, if: :email_configured?
 
-  # Proc
-  task SendWelcomeEmail, if: -> { Rails.env.production? && self.class.name.include?("Premium") }
-
-  # Lambda
+  # Procs and lambdas are instance_exec'd against the workflow
+  task SendWelcomeEmail, if: -> { Rails.env.production? }
   task SendWelcomeEmail, if: proc { context.features_enabled? }
 
-  # Class or Module
+  # Class or instance: must respond to #call(workflow)
   task SendWelcomeEmail, unless: ContentAccessCheck
-
-  # Instance
   task SendWelcomeEmail, if: ContentAccessCheck.new
 
-  # Conditional applies to all tasks of this declaration group
+  # The conditional applies to every task in the group
   tasks SendWelcomeEmail, CreateDashboard, SetupTutorial, if: :email_configured?
 
   private
 
   def email_configured?
-    context.user.email_address == true
-  end
-
-  def email_disabled?
-    context.user.communication_preference == :disabled
+    context.user.email_address.matches?(/@mycompany.com/)
   end
 end
 ```
 
 ## Halt Behavior
 
-By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally via [`workflow_breakpoints`](configuration.md#breakpoints) or per-task to customize this behavior.
+A workflow halts on the **first failed result** in any group. Skipped tasks never halt the pipeline — they're treated as no-ops and the next task runs as normal.
+
+When a task fails, the pipeline echoes its `reason`, `state`, and `status` through the workflow via `throw!`, so the workflow's own result is `failed?` with the same `reason`. The propagated signal carries the failed leaf as its `origin`, so `result.origin` / `result.threw_failure` / `result.caused_failure` all point at the originating task without scanning the chain:
+
+```ruby
+result = AnalyticsWorkflow.execute
+
+result.failed?                  #=> true
+result.reason                   #=> "metrics service unreachable"
+result.origin.task              #=> CollectMetrics
+result.caused_failure.task      #=> CollectMetrics
+```
 
 ```ruby
 class AnalyticsWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  task CollectMetrics      # If fails → workflow stops
+  task CollectMetrics      # If fails → workflow stops, AnalyticsWorkflow is failed
   task FilterOutliers      # If skipped → workflow continues
-  task GenerateDashboard   # Only runs if no failures occurred
+  task GenerateDashboard   # Only runs if no upstream failure occurred
 end
 ```
 
-### Task Configuration
-
-Configure halt behavior for the entire workflow:
-
-```ruby
-class SecurityWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  # Halt on both failed and skipped results
-  settings(workflow_breakpoints: ["skipped", "failed"])
-
-  task PerformSecurityScan
-  task ValidateSecurityRules
-end
-
-class OptionalTasksWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  # Never halt, always continue
-  settings(breakpoints: [])
-
-  task TryBackupData
-  task TryCleanupLogs
-  task TryOptimizeCache
-end
-```
-
-### Group Configuration
-
-Different task groups can have different halt behavior:
-
-```ruby
-class SubscriptionWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  task CreateSubscription, ValidatePayment, breakpoints: ["skipped", "failed"]
-
-  # Never halt, always continue
-  task SendConfirmationEmail, UpdateBilling, breakpoints: []
-end
-```
+To make a "soft" failure non-halting, have the task `skip!` instead of `fail!`. There is no per-group or per-workflow setting to ignore failures.
 
 ## Rollback in Workflows
 
-Each task in a workflow handles its own rollback independently. When a task's status matches the `rollback_on` setting (default: `["failed"]`), that task's `rollback` method is called immediately after its execution — not retroactively for previously completed tasks.
+When a task fails, Runtime calls its `#rollback` method (if defined) immediately after `work` returns and *before* the failure is `throw!`n up to the workflow. Concretely, the failed leaf task's lifecycle is: `perform_work` → `perform_rollback` → `on_*` callbacks → result finalization → throw to workflow. Rollback is **per-task**: previously successful tasks in the same workflow are not rolled back automatically.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
   include CMDx::Workflow
 
   task ReserveInventory   # Succeeds → no rollback
-  task ChargeCard          # Fails → ChargeCard.rollback called
-  task SendConfirmation    # Never runs (workflow halts on failure)
+  task ChargeCard         # Fails    → ChargeCard#rollback runs
+  task SendConfirmation   # Never runs (workflow halts on failure)
 end
 
 class ChargeCard < CMDx::Task
@@ -199,14 +149,14 @@ class ChargeCard < CMDx::Task
   end
 
   def rollback
-    PaymentGateway.void(context.charge.id)
+    PaymentGateway.void(context.charge.id) if context.charge
   end
 end
 ```
 
-!!! warning "Important"
+!!! warning "Compensation across tasks"
 
-    CMDx does **not** automatically rollback previously successful tasks when a later task fails. If you need to undo `ReserveInventory` when `ChargeCard` fails, handle it in `ChargeCard`'s rollback or use a callback on the workflow itself.
+    To undo earlier successful tasks when a later one fails, handle it on the workflow itself with an `on_failed` callback. The callback runs after the pipeline halts but before teardown, with full access to `context`.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
@@ -227,7 +177,7 @@ end
 
 ## Nested Workflows
 
-Build hierarchical workflows by composing workflows within workflows:
+Workflows are tasks, so they nest naturally:
 
 ```ruby
 class EmailPreparationWorkflow < CMDx::Task
@@ -252,9 +202,11 @@ class CompleteEmailWorkflow < CMDx::Task
 end
 ```
 
+A nested workflow's failure echoes through its parent the same way a leaf task's failure does, and the chain captures every result for traceability.
+
 ## Parallel Execution
 
-Run tasks concurrently using native Ruby threads for maximum throughput. No external dependencies required.
+Run a group concurrently using native Ruby threads. No external dependencies required.
 
 ```ruby
 class SendWelcomeNotifications < CMDx::Task
@@ -263,34 +215,37 @@ class SendWelcomeNotifications < CMDx::Task
   # One thread per task (default)
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel
 
-  # Fixed thread pool size
-  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush, strategy: :parallel, pool_size: 2
+  # Bounded thread pool
+  tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush,
+        strategy: :parallel, pool_size: 2
 end
 ```
 
 !!! warning
 
-    Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.
+    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. If any parallel task fails, the failed result is propagated through `throw!` (the other tasks still complete first; they just don't merge back).
 
 ## Task Generator
 
-Generate new CMDx workflow tasks quickly using the built-in generator:
+Generate a workflow scaffold:
 
 ```bash
 rails generate cmdx:workflow SendNotifications
 ```
 
-This creates a new workflow task file with the basic structure:
+Produces:
 
 ```ruby
 # app/tasks/send_notifications.rb
-class SendNotifications < CMDx::Task
+class SendNotifications < ApplicationTask
   include CMDx::Workflow
 
-  tasks Task1, Task2
+  # Docs: https://drexed.github.io/cmdx/workflows
 end
 ```
 
+If `ApplicationTask` isn't defined the generator falls back to `CMDx::Task`.
+
 !!! tip
 
-    Use **present tense verbs + pluralized noun** for workflow task names, eg: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`
+    Use **present-tense verb + pluralized noun** for workflow names: `SendNotifications`, `DownloadFiles`, `ValidateDocuments`.

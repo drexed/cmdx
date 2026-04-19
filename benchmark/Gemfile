@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+# CMDx runtime deps (needed for v1 on Ruby 4.0+)
+gem "bigdecimal"
+gem "logger"
+gem "zeitwerk"
+
+# Benchmark tooling
+gem "benchmark"
+gem "benchmark-ips", "~> 2.14"
+gem "get_process_mem", "~> 1.0"
+gem "memory_profiler", "~> 1.1"

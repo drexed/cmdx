@@ -2,354 +2,271 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Chain, type: :unit do
+RSpec.describe CMDx::Chain do
   subject(:chain) { described_class.new }
 
-  let(:fiber_or_thread) { Fiber.respond_to?(:storage) ? Fiber.storage : Thread.current }
-  let(:mock_task) { instance_double(CMDx::Task) }
-  let(:mock_result) do
-    instance_double(CMDx::Result, to_h: { id: "result-1" }).tap do |mock|
-      allow(mock).to receive(:is_a?) do |klass|
-        klass == CMDx::Result
-      end
-    end
-  end
-  let(:mock_result2) do
-    instance_double(CMDx::Result, to_h: { id: "result-2" }).tap do |mock|
-      allow(mock).to receive(:is_a?) do |klass|
-        klass == CMDx::Result
-      end
-    end
+  let(:task_class) { create_task_class(name: "ChainSampleTask") }
+  let(:task) { task_class.new }
+
+  def build_result(signal = CMDx::Signal::Success, **opts)
+    CMDx::Result.new(chain, task, signal, **opts)
   end
 
-  before do
-    allow(CMDx::Identifier).to receive(:generate).and_return("chain-id-123")
-  end
-
-  describe "#initialize" do
-    it "generates a unique id" do
-      expect(CMDx::Identifier).to receive(:generate)
-
-      chain
-    end
-
-    it "initializes with an empty results array" do
-      expect(chain.results).to eq([])
-    end
-
-    it "sets the id from Identifier.generate" do
-      expect(chain.id).to eq("chain-id-123")
-    end
-  end
-
-  describe "attr_readers" do
-    it "provides read access to id" do
-      expect(chain.id).to eq("chain-id-123")
-    end
-
-    it "provides read access to results" do
-      expect(chain.results).to eq([])
-    end
-  end
+  after { described_class.clear }
 
   describe ".current" do
-    after { described_class.clear }
-
-    context "when no chain is set" do
-      it "returns nil" do
-        expect(described_class.current).to be_nil
-      end
+    it "returns nil when nothing is stored" do
+      expect(described_class.current).to be_nil
     end
 
-    context "when a chain is set in current thread" do
-      it "returns the current chain" do
-        described_class.current = chain
-        expect(described_class.current).to eq(chain)
-      end
+    it "reads the chain from fiber-local storage" do
+      described_class.current = chain
+      expect(described_class.current).to be(chain)
     end
   end
 
   describe ".current=" do
-    after { described_class.clear }
-
-    it "sets the current chain in thread storage" do
+    it "writes to fiber-local storage" do
       described_class.current = chain
-      expect(fiber_or_thread[described_class::CONCURRENCY_KEY]).to eq(chain)
+
+      expect(Fiber[described_class::STORAGE_KEY]).to be(chain)
     end
 
-    it "allows setting to nil" do
+    it "does not leak writes from child fibers to the parent" do
       described_class.current = chain
-      described_class.current = nil
-      expect(described_class.current).to be_nil
+
+      Fiber.new { described_class.current = described_class.new }.resume
+
+      expect(described_class.current).to be(chain)
     end
   end
 
   describe ".clear" do
-    before { described_class.current = chain }
-
-    it "sets current chain to nil" do
+    it "nils out fiber-local storage" do
+      described_class.current = chain
       described_class.clear
+
       expect(described_class.current).to be_nil
     end
+  end
 
-    it "clears thread storage" do
-      described_class.clear
-      expect(fiber_or_thread[described_class::CONCURRENCY_KEY]).to be_nil
+  describe "#initialize" do
+    it "assigns a UUIDv7 id" do
+      expect(chain.id).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
+    end
+
+    it "starts with an empty results array" do
+      expect(chain.results).to eq([])
+      expect(chain).to be_empty
+    end
+
+    it "generates a unique id per instance" do
+      expect(chain.id).not_to eq(described_class.new.id)
     end
   end
 
-  describe ".build" do
-    after { described_class.clear }
+  describe "#push" do
+    it "appends the result and returns self" do
+      result = Object.new
 
-    context "when result is not a CMDx::Result" do
-      it "raises TypeError" do
-        expect { described_class.build("not-a-result") }.to raise_error(
-          TypeError, "must be a CMDx::Result"
-        )
-      end
-
-      it "raises TypeError for nil" do
-        expect { described_class.build(nil) }.to raise_error(
-          TypeError, "must be a CMDx::Result"
-        )
-      end
+      expect(chain.push(result)).to be(chain)
+      expect(chain.results).to eq([result])
     end
 
-    context "when result is a valid CMDx::Result" do
-      context "when no current chain exists" do
-        it "creates a new chain and sets it as current" do
-          result_chain = described_class.build(mock_result)
+    it "is aliased as <<" do
+      result = Object.new
+      chain << result
 
-          expect(result_chain).to be_a(described_class)
-          expect(described_class.current).to eq(result_chain)
-          expect(result_chain.results).to contain_exactly(mock_result)
-        end
+      expect(chain.results).to eq([result])
+    end
+
+    it "preserves insertion order" do
+      a = Object.new
+      b = Object.new
+      c = Object.new
+      chain.push(a).push(b).push(c)
+
+      expect(chain.results).to eq([a, b, c])
+    end
+
+    it "is safe under concurrent pushes" do
+      threads = Array.new(10) do |i|
+        Thread.new { 20.times { |j| chain.push([i, j]) } }
       end
+      threads.each(&:join)
 
-      context "when a current chain already exists" do
-        before { described_class.current = chain }
-
-        it "uses the existing chain and adds the result" do
-          result_chain = described_class.build(mock_result)
-
-          expect(result_chain).to eq(chain)
-          expect(chain.results).to contain_exactly(mock_result)
-        end
-      end
-
-      context "when building multiple results" do
-        before { described_class.current = chain }
-
-        it "adds results in order" do
-          described_class.build(mock_result)
-          described_class.build(mock_result2)
-
-          expect(chain.results).to eq([mock_result, mock_result2])
-        end
-      end
-
-      context "with dry_run option" do
-        context "when no current chain exists" do
-          it "creates a new chain with dry_run set to true" do
-            result_chain = described_class.build(mock_result, dry_run: true)
-
-            expect(result_chain.dry_run?).to be(true)
-          end
-
-          it "creates a new chain with dry_run set to false" do
-            result_chain = described_class.build(mock_result, dry_run: false)
-
-            expect(result_chain.dry_run?).to be(false)
-          end
-        end
-
-        context "when a current chain already exists" do
-          before { described_class.current = chain }
-
-          it "does not update existing chain dry_run status" do
-            result_chain = described_class.build(mock_result, dry_run: true)
-
-            expect(result_chain).to eq(chain)
-            expect(result_chain.dry_run?).to be(false)
-          end
-        end
-      end
+      expect(chain.results.size).to eq(200)
     end
   end
 
-  describe "#to_h" do
-    let(:result_hash1) { { id: "result-1", status: "success" } }
-    let(:result_hash2) { { id: "result-2", status: "failed" } }
+  describe "#unshift" do
+    it "prepends the result and returns self" do
+      result = Object.new
 
-    before do
-      allow(mock_result).to receive(:to_h).and_return(result_hash1)
-      allow(mock_result2).to receive(:to_h).and_return(result_hash2)
+      expect(chain.unshift(result)).to be(chain)
+      expect(chain.results).to eq([result])
     end
 
-    context "when results array is empty" do
-      it "returns hash with id and empty results array" do
-        expect(chain.to_h).to eq(
-          {
-            id: "chain-id-123",
-            dry_run: false,
-            results: []
-          }
-        )
-      end
+    it "places the new result before existing ones" do
+      a = Object.new
+      b = Object.new
+      chain.push(a)
+      chain.unshift(b)
+
+      expect(chain.results).to eq([b, a])
     end
 
-    context "when results array has results" do
-      before do
-        chain.results << mock_result
-        chain.results << mock_result2
-
-        allow(mock_result).to receive(:to_h).and_return(result_hash1)
-        allow(mock_result2).to receive(:to_h).and_return(result_hash2)
+    it "is safe under concurrent unshifts" do
+      threads = Array.new(10) do |i|
+        Thread.new { 20.times { |j| chain.unshift([i, j]) } }
       end
+      threads.each(&:join)
 
-      it "returns hash with id and results converted to hashes" do
-        expect(chain.to_h).to eq(
-          {
-            id: "chain-id-123",
-            dry_run: false,
-            results: [result_hash1, result_hash2]
-          }
-        )
-      end
-
-      it "calls to_h on each result" do
-        expect(mock_result).to receive(:to_h)
-        expect(mock_result2).to receive(:to_h)
-
-        chain.to_h
-      end
+      expect(chain.results.size).to eq(200)
     end
   end
 
-  describe "#to_s" do
-    let(:formatted_string) { "id=\"chain-id-123\" dry_run=false results=[]" }
+  describe "#root" do
+    it "returns the result flagged as chain_root" do
+      non_root = build_result
+      root     = build_result(root: true)
+      chain.push(non_root).push(root)
 
-    it "converts to hash and formats as string" do
-      expect(CMDx::Utils::Format).to receive(:to_str).with(
-        {
-          id: "chain-id-123",
-          dry_run: false,
-          results: []
-        }
-      )
+      expect(chain.root).to be(root)
+    end
 
-      chain.to_s
+    it "returns nil when no root is present" do
+      chain.push(build_result)
+
+      expect(chain.root).to be_nil
+    end
+
+    it "returns nil for an empty chain" do
+      expect(chain.root).to be_nil
+    end
+
+    it "returns the first root when multiple are present" do
+      first  = build_result(root: true)
+      second = build_result(root: true)
+      chain.push(first).push(second)
+
+      expect(chain.root).to be(first)
+    end
+  end
+
+  describe "#state" do
+    it "returns the state of the root result" do
+      chain.push(build_result(CMDx::Signal::Success, root: true))
+
+      expect(chain.state).to eq(CMDx::Signal::COMPLETE)
+    end
+
+    it "returns nil when no root exists" do
+      chain.push(build_result)
+
+      expect(chain.state).to be_nil
+    end
+
+    it "returns nil for an empty chain" do
+      expect(chain.state).to be_nil
+    end
+  end
+
+  describe "#status" do
+    it "returns the status of the root result" do
+      chain.push(build_result(CMDx::Signal::Success, root: true))
+
+      expect(chain.status).to eq(CMDx::Signal::SUCCESS)
+    end
+
+    it "returns nil when no root exists" do
+      chain.push(build_result)
+
+      expect(chain.status).to be_nil
+    end
+
+    it "returns nil for an empty chain" do
+      expect(chain.status).to be_nil
     end
   end
 
   describe "#index" do
-    it "returns the position of a result in the chain" do
-      chain.push(mock_result)
-      chain.push(mock_result2)
+    it "returns the position of a known result" do
+      a = Object.new
+      b = Object.new
+      chain.push(a).push(b)
 
-      expect(chain.index(mock_result)).to eq(0)
-      expect(chain.index(mock_result2)).to eq(1)
+      expect(chain.index(a)).to eq(0)
+      expect(chain.index(b)).to eq(1)
     end
 
-    it "returns nil for a result not in the chain" do
-      expect(chain.index(mock_result)).to be_nil
-    end
-
-    it "is thread-safe under concurrent push and index" do
-      results = Array.new(100) do |i|
-        instance_double(CMDx::Result, to_h: { id: "result-#{i}" }).tap do |mock|
-          allow(mock).to receive(:is_a?).with(CMDx::Result).and_return(true)
-        end
-      end
-
-      threads = results.map { |r| Thread.new { chain.push(r) } }
-      threads.each(&:join)
-
-      results.each do |r|
-        expect(chain.index(r)).to be_a(Integer)
-      end
+    it "returns nil when the result is absent" do
+      expect(chain.index(Object.new)).to be_nil
     end
   end
 
-  describe "thread safety" do
-    after { described_class.clear }
-
-    it "maintains separate chains per thread" do
-      thread1_chain = nil
-      thread2_chain = nil
-
-      thread1 = Thread.new do
-        described_class.current = described_class.new
-        thread1_chain = described_class.current
-      end
-
-      thread2 = Thread.new do
-        described_class.current = described_class.new
-        thread2_chain = described_class.current
-      end
-
-      thread1.join
-      thread2.join
-
-      expect(thread1_chain).not_to eq(thread2_chain)
-      expect(thread1_chain).to be_a(described_class)
-      expect(thread2_chain).to be_a(described_class)
+  describe "#empty?" do
+    it "is true for a fresh chain" do
+      expect(chain).to be_empty
     end
 
-    it "does not interfere with main thread chain" do
-      main_chain = described_class.new
-      described_class.current = main_chain
-
-      thread_chain = nil
-      thread = Thread.new do
-        described_class.current = described_class.new
-        thread_chain = described_class.current
-      end
-      thread.join
-
-      expect(described_class.current).to eq(main_chain)
-      expect(thread_chain).not_to eq(main_chain)
+    it "is false once a result is pushed" do
+      chain.push(Object.new)
+      expect(chain).not_to be_empty
     end
   end
 
-  describe "fiber safety" do
-    after { described_class.clear }
+  describe "#size" do
+    it "returns the number of results" do
+      expect(chain.size).to eq(0)
+      chain.push(Object.new).push(Object.new)
+      expect(chain.size).to eq(2)
+    end
+  end
 
-    it "maintains separate chains per fiber" do
-      fiber1_chain = nil
-      fiber2_chain = nil
+  describe "#each" do
+    it "yields each result in insertion order" do
+      a = Object.new
+      b = Object.new
+      chain.push(a).push(b)
 
-      fiber1 = Fiber.new do
-        described_class.current = described_class.new
-        fiber1_chain = described_class.current
-      end
+      yielded = []
+      chain.each { |r| yielded << r } # rubocop:disable Style/MapIntoArray
 
-      fiber2 = Fiber.new do
-        described_class.current = described_class.new
-        fiber2_chain = described_class.current
-      end
-
-      fiber1.resume
-      fiber2.resume
-
-      expect(fiber1_chain).not_to eq(fiber2_chain)
-      expect(fiber1_chain).to be_a(described_class)
-      expect(fiber2_chain).to be_a(described_class)
+      expect(yielded).to eq([a, b])
     end
 
-    it "does not interfere with main fiber chain" do
-      main_chain = described_class.new
-      described_class.current = main_chain
+    it "returns an Enumerator without a block" do
+      chain.push(:a).push(:b)
 
-      fiber_chain = nil
-      fiber = Fiber.new do
-        described_class.current = described_class.new
-        fiber_chain = described_class.current
-      end
-      fiber.resume
+      expect(chain.each).to be_a(Enumerator)
+      expect(chain.each.to_a).to eq(%i[a b])
+    end
+  end
 
-      expect(described_class.current).to eq(main_chain)
-      expect(fiber_chain).not_to eq(main_chain)
+  describe "#freeze" do
+    it "freezes the chain and returns self" do
+      expect(chain.freeze).to be(chain)
+      expect(chain).to be_frozen
+    end
+
+    it "freezes the underlying results array" do
+      chain.push(Object.new)
+      chain.freeze
+
+      expect(chain.results).to be_frozen
+    end
+
+    it "prevents further mutation via push" do
+      chain.freeze
+
+      expect { chain.push(Object.new) }.to raise_error(FrozenError)
+    end
+
+    it "prevents further mutation via unshift" do
+      chain.freeze
+
+      expect { chain.unshift(Object.new) }.to raise_error(FrozenError)
     end
   end
 end

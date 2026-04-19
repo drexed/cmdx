@@ -2,359 +2,208 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Retry, type: :unit do
-  subject(:retry_instance) { described_class.new(task) }
-
-  let(:task_class) { create_successful_task(name: "RetryTask") }
-  let(:task) { task_class.new }
+RSpec.describe CMDx::Retry do
+  let(:error_class) { Class.new(StandardError) }
 
   describe "#initialize" do
-    it "assigns the task" do
-      expect(retry_instance.task).to eq(task)
-    end
-
-    it "provides read access to task attribute" do
-      expect(described_class.instance_methods).to include(:task)
-      expect(described_class.private_instance_methods).not_to include(:task)
+    it "flattens the exceptions argument" do
+      retry_ = described_class.new([[error_class]])
+      expect(retry_.exceptions).to eq([error_class])
     end
   end
 
-  describe "#available" do
-    context "when retries is configured" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3))
-      end
-
-      it "returns the configured retry count" do
-        expect(retry_instance.available).to eq(3)
-      end
+  describe "#build" do
+    it "returns self when no additional exceptions are given" do
+      retry_ = described_class.new([error_class])
+      expect(retry_.build([], {})).to be(retry_)
     end
 
-    context "when retries is nil" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: nil))
-      end
+    it "unions exceptions and merges options" do
+      other_error = Class.new(StandardError)
+      retry_ = described_class.new([error_class], limit: 1)
+      rebuilt = retry_.build([other_error], limit: 5)
 
-      it "returns 0" do
-        expect(retry_instance.available).to eq(0)
-      end
+      expect(rebuilt.exceptions).to contain_exactly(error_class, other_error)
+      expect(rebuilt.limit).to eq(5)
     end
 
-    context "when retries is not configured" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings)
-      end
+    it "preserves the original block when no new block is given" do
+      original_block = proc { :orig }
+      retry_ = described_class.new([error_class], {}, &original_block)
+      rebuilt = retry_.build([Class.new(StandardError)], {})
 
-      it "returns 0" do
-        expect(retry_instance.available).to eq(0)
-      end
-    end
-  end
-
-  describe "#available?" do
-    context "when retries are configured" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 2))
-      end
-
-      it "returns true" do
-        expect(retry_instance.available?).to be(true)
-      end
+      expect(rebuilt.jitter).to be(original_block)
     end
 
-    context "when retries is 0" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 0))
-      end
+    it "replaces the block when a new one is given" do
+      new_block = proc { :new }
+      retry_ = described_class.new([error_class], {}) { :orig }
+      rebuilt = retry_.build([Class.new(StandardError)], {}, &new_block)
 
-      it "returns false" do
-        expect(retry_instance.available?).to be(false)
-      end
-    end
-
-    context "when retries is nil" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: nil))
-      end
-
-      it "returns false" do
-        expect(retry_instance.available?).to be(false)
-      end
+      expect(rebuilt.jitter).to be(new_block)
     end
   end
 
-  describe "#attempts" do
-    context "when no retries have occurred" do
-      it "returns 0" do
-        expect(retry_instance.attempts).to eq(0)
-      end
+  describe "default options" do
+    subject(:retry_) { described_class.new([error_class]) }
+
+    it "limit defaults to 3" do
+      expect(retry_.limit).to eq(3)
     end
 
-    context "when retries have occurred" do
-      before do
-        task.result.retries = 2
-      end
-
-      it "returns the number of attempts" do
-        expect(retry_instance.attempts).to eq(2)
-      end
-    end
-  end
-
-  describe "#retried?" do
-    context "when no retries have occurred" do
-      it "returns false" do
-        expect(retry_instance.retried?).to be(false)
-      end
+    it "delay defaults to 0.5" do
+      expect(retry_.delay).to eq(0.5)
     end
 
-    context "when at least one retry has occurred" do
-      before do
-        task.result.retries = 1
-      end
+    it "max_delay defaults to nil" do
+      expect(retry_.max_delay).to be_nil
+    end
 
-      it "returns true" do
-        expect(retry_instance.retried?).to be(true)
-      end
+    it "jitter defaults to nil" do
+      expect(retry_.jitter).to be_nil
     end
   end
 
-  describe "#remaining" do
-    before do
-      allow(task.class).to receive(:settings).and_return(mock_settings(retries: 5))
+  describe "#jitter" do
+    it "returns the block when no :jitter option is set" do
+      block = proc { :j }
+      retry_ = described_class.new([error_class], {}, &block)
+      expect(retry_.jitter).to be(block)
     end
 
-    context "when no retries have occurred" do
-      it "returns the full retry count" do
-        expect(retry_instance.remaining).to eq(5)
-      end
-    end
-
-    context "when some retries have occurred" do
-      before do
-        task.result.retries = 2
-      end
-
-      it "returns the difference between available and attempts" do
-        expect(retry_instance.remaining).to eq(3)
-      end
-    end
-
-    context "when all retries are exhausted" do
-      before do
-        task.result.retries = 5
-      end
-
-      it "returns 0" do
-        expect(retry_instance.remaining).to eq(0)
-      end
-    end
-  end
-
-  describe "#remaining?" do
-    before do
-      allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3))
-    end
-
-    context "when retries remain" do
-      it "returns true" do
-        expect(retry_instance.remaining?).to be(true)
-      end
-    end
-
-    context "when all retries are exhausted" do
-      before do
-        task.result.retries = 3
-      end
-
-      it "returns false" do
-        expect(retry_instance.remaining?).to be(false)
-      end
-    end
-  end
-
-  describe "#exceptions" do
-    context "when retry_on is configured with specific exceptions" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: [ArgumentError, RuntimeError]))
-      end
-
-      it "returns the configured exception classes" do
-        expect(retry_instance.exceptions).to eq([ArgumentError, RuntimeError])
-      end
-    end
-
-    context "when retry_on is a single exception class" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: ArgumentError))
-      end
-
-      it "wraps it in an array" do
-        expect(retry_instance.exceptions).to eq([ArgumentError])
-      end
-    end
-
-    context "when retry_on is nil" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: nil))
-      end
-
-      it "defaults to StandardError" do
-        expect(retry_instance.exceptions).to eq([StandardError, CMDx::TimeoutError])
-      end
-    end
-
-    context "when retry_on is not configured" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings)
-      end
-
-      it "defaults to StandardError" do
-        expect(retry_instance.exceptions).to eq([StandardError, CMDx::TimeoutError])
-      end
-    end
-
-    it "memoizes the result" do
-      allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: [ArgumentError]))
-
-      first_call = retry_instance.exceptions
-      second_call = retry_instance.exceptions
-
-      expect(first_call).to equal(second_call)
-    end
-  end
-
-  describe "#exception?" do
-    context "with default retry_on (StandardError)" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: nil))
-      end
-
-      it "returns true for StandardError" do
-        expect(retry_instance.exception?(StandardError.new)).to be(true)
-      end
-
-      it "returns true for subclass of StandardError" do
-        expect(retry_instance.exception?(ArgumentError.new)).to be(true)
-      end
-
-      it "returns false for non-matching exception" do
-        expect(retry_instance.exception?(Exception.new)).to be(false)
-      end
-    end
-
-    context "with specific retry_on" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: [ArgumentError]))
-      end
-
-      it "returns true for exact match" do
-        expect(retry_instance.exception?(ArgumentError.new)).to be(true)
-      end
-
-      it "returns false for non-matching exception" do
-        expect(retry_instance.exception?(RuntimeError.new)).to be(false)
-      end
-
-      it "returns false for parent class of configured exception" do
-        expect(retry_instance.exception?(StandardError.new)).to be(false)
-      end
-    end
-
-    context "with multiple retry_on exceptions" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retry_on: [ArgumentError, RuntimeError]))
-      end
-
-      it "returns true when matching any configured exception" do
-        expect(retry_instance.exception?(ArgumentError.new)).to be(true)
-        expect(retry_instance.exception?(RuntimeError.new)).to be(true)
-      end
+    it "prefers the :jitter option over the block" do
+      block = proc { :b }
+      retry_ = described_class.new([error_class], { jitter: :exponential }, &block)
+      expect(retry_.jitter).to eq(:exponential)
     end
   end
 
   describe "#wait" do
-    context "with numeric jitter" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: 0.5))
-      end
+    let(:sleeps) { [] }
 
-      it "returns jitter multiplied by attempts" do
-        task.result.retries = 2
-
-        expect(retry_instance.wait).to eq(1.0)
-      end
-
-      it "returns 0.0 when no attempts have been made" do
-        expect(retry_instance.wait).to eq(0.0)
-      end
+    before do
+      s = sleeps
+      allow(Kernel).to receive(:sleep) { |d| s << d }
     end
 
-    context "with symbol jitter" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: :custom_wait))
-        allow(task).to receive(:custom_wait).with(1).and_return(2.5)
-        task.result.retries = 1
-      end
-
-      it "calls the named method on the task with attempts" do
-        expect(task).to receive(:custom_wait).with(1)
-
-        retry_instance.wait
-      end
-
-      it "returns the method result as a float" do
-        expect(retry_instance.wait).to eq(2.5)
-      end
+    it "does nothing when delay is zero" do
+      described_class.new([error_class], delay: 0).wait(1)
+      expect(sleeps).to be_empty
     end
 
-    context "with proc jitter" do
-      let(:jitter_proc) { ->(retries) { retries * 0.75 } }
-
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: jitter_proc))
-        task.result.retries = 2
-      end
-
-      it "instance_execs the proc with attempts" do
-        expect(retry_instance.wait).to eq(1.5)
-      end
+    it "sleeps for the configured delay with no jitter" do
+      described_class.new([error_class], delay: 0.25).wait(2)
+      expect(sleeps).to eq([0.25])
     end
 
-    context "with callable object jitter" do
-      let(:jitter_callable) do
-        Class.new do
-          def call(_task, retries)
-            retries * 1.25
-          end
-        end.new
-      end
-
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: jitter_callable))
-        task.result.retries = 2
-      end
-
-      it "calls the object with task and attempts" do
-        expect(jitter_callable).to receive(:call).with(task, 2).and_call_original
-
-        retry_instance.wait
-      end
-
-      it "returns the callable result as a float" do
-        expect(retry_instance.wait).to eq(2.5)
-      end
+    it "computes exponential backoff" do
+      described_class.new([error_class], delay: 0.25, jitter: :exponential).wait(3)
+      expect(sleeps).to eq([0.25 * (2**3)])
     end
 
-    context "with nil jitter" do
-      before do
-        allow(task.class).to receive(:settings).and_return(mock_settings(retries: 3, retry_jitter: nil))
-        task.result.retries = 2
+    it "clamps to max_delay" do
+      described_class.new([error_class], delay: 0.25, jitter: :exponential, max_delay: 1.0).wait(5)
+      expect(sleeps).to eq([1.0])
+    end
+
+    it "half_random produces delays in [delay/2, delay]" do
+      retry_ = described_class.new([error_class], delay: 1.0, jitter: :half_random)
+      allow(retry_).to receive(:rand).and_return(0.0, 1.0)
+
+      retry_.wait(0)
+      retry_.wait(0)
+      expect(sleeps).to eq([0.5, 1.0])
+    end
+
+    it "full_random produces a delay in [0, delay]" do
+      retry_ = described_class.new([error_class], delay: 2.0, jitter: :full_random)
+      allow(retry_).to receive(:rand).and_return(0.25)
+
+      retry_.wait(0)
+      expect(sleeps).to eq([0.5])
+    end
+
+    it "bounded_random produces a delay in [delay, 2*delay]" do
+      retry_ = described_class.new([error_class], delay: 2.0, jitter: :bounded_random)
+      allow(retry_).to receive(:rand).and_return(0.5)
+
+      retry_.wait(0)
+      expect(sleeps).to eq([3.0])
+    end
+
+    it "calls a Symbol jitter on the task" do
+      task = Class.new { def jitter_calc(attempt, delay) = delay * attempt }.new
+      described_class.new([error_class], delay: 1.0, jitter: :jitter_calc).wait(4, task)
+
+      expect(sleeps).to eq([4.0])
+    end
+
+    it "evaluates a Proc jitter via instance_exec on the task" do
+      retry_ = described_class.new([error_class], delay: 1.0) { |attempt, delay| attempt + delay }
+      retry_.wait(2, Object.new)
+
+      expect(sleeps).to eq([3.0])
+    end
+
+    it "calls a callable jitter" do
+      callable = ->(attempt, delay) { attempt + delay + 1 }
+      described_class.new([error_class], delay: 1.0, jitter: callable).wait(1)
+
+      expect(sleeps).to eq([3.0])
+    end
+  end
+
+  describe "#process" do
+    it "yields once with attempt 0 when there are no exceptions" do
+      retry_ = described_class.new([])
+      attempts = []
+      retry_.process { |attempt| attempts << attempt }
+      expect(attempts).to eq([0])
+    end
+
+    it "yields once when limit is zero" do
+      retry_ = described_class.new([error_class], limit: 0)
+      attempts = []
+      retry_.process { |a| attempts << a }
+      expect(attempts).to eq([0])
+    end
+
+    it "retries up to the limit on matching exceptions" do
+      retry_ = described_class.new([error_class], limit: 2, delay: 0)
+      count = 0
+
+      retry_.process do |_attempt|
+        count += 1
+        raise error_class, "boom" if count < 3
       end
 
-      it "returns 0.0" do
-        expect(retry_instance.wait).to eq(0.0)
+      expect(count).to eq(3)
+    end
+
+    it "re-raises after the limit is exceeded" do
+      retry_ = described_class.new([error_class], limit: 1, delay: 0)
+
+      expect { retry_.process { raise error_class, "boom" } }
+        .to raise_error(error_class, "boom")
+    end
+
+    it "does not rescue non-matching exceptions" do
+      retry_ = described_class.new([error_class], limit: 3, delay: 0)
+
+      expect { retry_.process { raise "other" } }
+        .to raise_error(RuntimeError, "other")
+    end
+
+    it "passes the attempt number to the block" do
+      retry_ = described_class.new([error_class], limit: 2, delay: 0)
+      attempts = []
+
+      retry_.process do |attempt|
+        attempts << attempt
+        raise error_class if attempts.size < 3
       end
+
+      expect(attempts).to eq([0, 1, 2])
     end
   end
 end

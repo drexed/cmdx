@@ -1,12 +1,12 @@
 # Tips and Tricks
 
-Best practices, patterns, and techniques to build maintainable CMDx applications.
+Patterns and conventions for building maintainable CMDx applications.
 
 ## Project Organization
 
 ### Directory Structure
 
-Create a well-organized command structure for maintainable applications:
+A predictable layout keeps tasks discoverable as a project grows:
 
 ```text
 /app/
@@ -28,7 +28,7 @@ Create a well-organized command structure for maintainable applications:
 
 ### Naming Conventions
 
-Follow consistent naming patterns for clarity and maintainability:
+Follow consistent naming patterns for clarity:
 
 ```ruby
 # Verb + Noun
@@ -36,7 +36,7 @@ class ExportData < CMDx::Task; end
 class CompressFile < CMDx::Task; end
 class ValidateSchema < CMDx::Task; end
 
-# Use present tense verbs for actions
+# Use present-tense verbs for actions
 class GenerateToken < CMDx::Task; end      # ✓ Good
 class GeneratingToken < CMDx::Task; end    # ❌ Avoid
 class TokenGeneration < CMDx::Task; end    # ❌ Avoid
@@ -44,7 +44,7 @@ class TokenGeneration < CMDx::Task; end    # ❌ Avoid
 
 ### Story Telling
 
-Break down complex logic into descriptive methods that read like a narrative:
+Break complex logic into descriptively named methods so `work` reads like a narrative:
 
 ```ruby
 class ProcessOrder < CMDx::Task
@@ -81,23 +81,27 @@ Follow this order for consistent, readable tasks:
 ```ruby
 class ExportReport < CMDx::Task
 
-  # 1. Register functions
-  register :middleware, CMDx::Middlewares::Correlate
-  register :validator, :format, FormatValidator
+  # 1. Settings, retries, deprecation
+  settings tags: [:reporting]
+  retry_on Net::ReadTimeout, limit: 3, jitter: :exponential
 
-  # 2. Define callbacks
+  # 2. Register custom extensions
+  register :middleware, Telemetry::Middleware.new
+  register :validator, :phone, PhoneValidator
+
+  # 3. Define callbacks
   before_execution :find_report
   on_complete :track_export_metrics, if: ->(task) { Current.tenant.analytics? }
 
-  # 3. Declare attributes
-  attributes :user_id
-  required :report_id
-  optional :format_type
+  # 4. Declare inputs
+  optional :user_id
+  required :report_id, coerce: :integer
+  optional :format_type, coerce: :string, inclusion: { in: %w[pdf csv] }
 
-  # 4. Returns contract
-  returns :exported_at
+  # 5. Declare outputs (the contract)
+  output :exported_at, required: true
 
-  # 5. Define work method
+  # 6. Define work
   def work
     report.compile!
     report.export!
@@ -108,7 +112,7 @@ class ExportReport < CMDx::Task
   # TIP: Favor private business logic to reduce the surface of the public API.
   private
 
-  # 5. Build helper functions
+  # 7. Helpers
   def find_report
     @report ||= Report.find(report_id)
   end
@@ -120,37 +124,67 @@ class ExportReport < CMDx::Task
 end
 ```
 
-## Attribute Options
+## Sharing Input Options
 
-Use `with_options` to reduce duplication.
+Use `with_options` to factor out repeated options across input declarations.
 
 !!! note
 
-    `with_options` is provided by ActiveSupport and is available automatically in Rails applications. For plain Ruby projects, add `require "active_support/core_ext/object/with_options"` or apply shared options manually.
+    `with_options` is provided by ActiveSupport and is available automatically in Rails. For plain Ruby projects, add `require "active_support/core_ext/object/with_options"` or apply shared options manually.
 
 ```ruby
 class ConfigureCompany < CMDx::Task
-  # Apply common options to multiple attributes
-  with_options(type: :string, presence: true) do
-    attributes :website, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) }
+  with_options(coerce: :string, presence: true) do
+    optional :website, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) }
     required :company_name, :industry
     optional :description, format: { with: /\A[\w\s\-\.,!?]+\z/ }
   end
 
-  # Nested attributes with shared prefix
   required :headquarters do
-    with_options(prefix: :hq_) do
-      attributes :street, :city, :zip_code, type: :string
-      required :country, type: :string, inclusion: { in: VALID_COUNTRIES }
-      optional :region, type: :string
+    with_options(coerce: :string) do
+      optional :street, :city, :zip_code
+      required :country, inclusion: { in: VALID_COUNTRIES }
+      optional :region
     end
   end
 
   def work
-    # Your logic here...
+    # ...
   end
 end
 ```
+
+`with_options` works inside nested-input blocks too because the child DSL is evaluated with `instance_eval`.
+
+## Sharing Behavior via a Base Class
+
+Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `telemetry`, and `retry_on` automatically.
+
+```ruby
+class ApplicationTask < CMDx::Task
+  settings tags: [:app]
+
+  retry_on Net::OpenTimeout, Net::ReadTimeout, limit: 2
+
+  before_execution :ensure_current_tenant!
+
+  private
+
+  def ensure_current_tenant!
+    fail!("missing tenant") if Current.tenant.nil?
+  end
+end
+
+class ProcessInvoice < ApplicationTask
+  required :invoice_id, coerce: :integer
+
+  def work
+    # Inherits settings, retry_on, and the before_execution callback
+  end
+end
+```
+
+Inherited registries (callbacks, middlewares, validators, coercions) accumulate — declaring more in a subclass appends to the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
 
 ## Useful Examples
 
@@ -159,6 +193,7 @@ end
 - [Active Record Query Tagging](https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md)
 - [Active Support Instrumentation](https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md)
 - [Flipper Feature Flags](https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md)
+- [OpenAPI Schema Generation](https://github.com/drexed/cmdx/blob/main/examples/openapi_schema_generation.md)
 - [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
 - [PubSub Task Chaining](https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md)
 - [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md)

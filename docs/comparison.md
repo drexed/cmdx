@@ -2,43 +2,42 @@
 
 ## Alternative Frameworks
 
-CMDx stands apart by combining zero external dependencies with production-grade observability and a comprehensive type coercion system—all in a single, cohesive package. While other gems excel in specific areas, CMDx delivers the full stack: structured logging with correlation IDs, automatic runtime metrics, 20+ built-in type coercers, extensible middleware, and fault tolerance patterns—without pulling in a single additional dependency.
+CMDx bundles structured logging, telemetry hooks, type coercion, middleware, and retry/fault primitives into a single package with a stdlib-only runtime footprint. The table below maps feature coverage across the common service-object gems — use it to pick based on what you actually need, not on marketing.
 
 | Feature | [CMDx](https://github.com/drexed/cmdx) | [Actor](https://github.com/sunny/actor) | [Interactor](https://github.com/collectiveidea/interactor) | [ActiveInteraction](https://github.com/AaronLasseigne/active_interaction) | [LightService](https://github.com/adomokos/light-service) |
 |---------|------|------------|------------|-------------------|--------------|
-| Zero dependencies | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Typed attributes | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Stdlib-only runtime deps | ✅ | ❌ | ✅ | ❌ | ❌ |
+| Typed inputs | ✅ | ✅ | ❌ | ✅ | ❌ |
 | Type coercion | ✅ | ❌ | ❌ | ✅ | ❌ |
-| Attribute validation | ✅ | ✅ | ❌ | ✅ | ❌ |
+| Input validation | ✅ | ✅ | ❌ | ✅ | ❌ |
 | Built-in logging | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Correlation IDs | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Telemetry hooks | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Runtime metrics | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Middleware system | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Batch execution | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Workflow execution | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Fault tolerance | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Lifecycle callbacks | ✅ | ✅ | ✅ | ✅ | ✅ |
-| RBS type signatures | ✅ | ❌ | ❌ | ❌ | ❌ |
 
-**Key differentiators:**
+**What you get in the box:**
 
-- **Observability out of the box** — Structured logging, chain correlation, and runtime metrics are built-in, not bolted on. Trace complex workflows across services without additional instrumentation.
+- **Observability** — structured logging, telemetry events, and chain-aware result tracking, no extra instrumentation required.
 
-- **Comprehensive type system** — 20+ coercers handle everything from primitives to dates, arrays, and custom types. Validation rules like `numeric`, `format`, and `inclusion` ensure data integrity before execution.
+- **Type system** — 13 built-in coercers (primitives, dates, arrays, hashes, etc.) and 7 validators (`absence`, `exclusion`, `format`, `inclusion`, `length`, `numeric`, `presence`), both pluggable.
 
-- **Extensible middleware** — Inject cross-cutting concerns (authentication, rate limiting, telemetry) without modifying task logic. Middleware composes cleanly and executes in predictable order.
+- **Middleware** — wrap the task lifecycle for auth, caching, telemetry, etc., without touching `work`.
 
-- **Fault tolerance patterns** — Built-in retry policies with configurable jitter, timeout middleware, and graceful degradation via `skip!`/`fail!`. Production-ready resilience without external gems.
+- **Retries and faults** — declarative `retry_on` with configurable jitter, halt primitives (`success!` / `skip!` / `fail!`), and `throw!` for propagating peer failures.
 
-- **Framework agnostic** — Works seamlessly with Rails, Hanami, Sinatra, or plain Ruby. No ActiveSupport dependency, no framework lock-in.
+- **Framework agnostic** — runs under Rails, Hanami, Sinatra, or plain Ruby. Runtime deps are limited to `bigdecimal` and `logger`; no ActiveSupport requirement.
 
 ## Event Sourcing Replacement
 
-Traditional Event Sourcing architectures impose a significant "complexity tax"—requiring specialized event stores, snapshots, and complex state rehydration logic. CMDx offers a pragmatic alternative: **Log-Based Event Sourcing**.
+Full Event Sourcing requires an event store, snapshots, and rehydration logic. If you don't need strict replay guarantees, routing state changes through CMDx tasks and shipping the structured logs to a durable sink gets you most of the benefit for a fraction of the complexity.
 
-By ensuring all state changes occur through CMDx tasks, your structured logs become a complete, immutable ledger of system behavior.
+CMDx supplies the structured payload; your log sink and retention policy supply the durability.
 
-- **Audit Trail:** Every execution is automatically logged with its inputs, status, and metadata. This provides a detailed history of *intent* (arguments) and *outcome* (success/failure) without extra coding.
+- **Audit trail** — every execution is logged with its inputs, status, and metadata, giving you a record of both intent (arguments) and outcome (status/reason).
 
-- **Reconstructability** Because commands encapsulate all inputs required for an action, you can reconstruct past system states or replay business logic by inspecting the command history, giving you the traceability of Event Sourcing without the infrastructure overhead.
+- **Reconstructability** — because tasks capture all inputs required for an action, you can rebuild past state or replay logic by walking the log stream.
 
-- **Simplified Architecture** Keep your standard relational database for current state queries (the "Read Model") while using CMDx logs as your historical record (the "Write Model"). This gives you CQRS-like benefits without the complexity of maintaining separate projections.
+- **Simpler architecture** — keep the relational database for the read model and treat the log stream as the write model. You get CQRS-style separation without maintaining bespoke projections.

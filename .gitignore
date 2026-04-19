@@ -8,6 +8,11 @@
 /spec/reports/
 /tmp/
 
+# benchmark artifacts
+/benchmark/vendor/
+/benchmark/.bundle/
+/benchmark/Gemfile.lock
+
 # rspec failure tracking
 .rspec_status
 

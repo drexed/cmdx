@@ -9,6 +9,8 @@ slug: mastering-cmdx-retries-deprecation-i18n
 
 # Mastering CMDx: Retries, Deprecation, and Internationalization
 
+*Targets CMDx v1.16.*
+
 As developers, we often obsess over the "happy path"—that perfect scenario where networks never time out, requirements never change, and every user speaks English. But the real world isn't so accommodating. Services fail, code evolves, and your application needs to speak more than just one language.
 
 In this post, I want to dive into three CMDx features that help you handle these realities: **Retries** for resilience, **Deprecation** for lifecycle management, and **Internationalization** for global reach. These tools might seem distinct, but together they elevate your business logic from "functional" to "production-grade."

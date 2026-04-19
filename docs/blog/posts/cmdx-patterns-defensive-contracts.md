@@ -11,6 +11,8 @@ slug: cmdx-patterns-defensive-contracts
 
 *Part 1 of the CMDx Patterns series*
 
+*Targets CMDx v1.21.*
+
 I have a rule when building Ruby tasks: if a task can be misused, it will be misused. Not out of malice—out of haste, incomplete documentation, or the natural entropy of a growing codebase. Someone passes a string where you expected an integer. Someone forgets to read the context key you set. Someone calls your task from a new workflow and the whole pipeline falls over because the inputs were subtly wrong.
 
 Defensive contracts are CMDx's answer to this. By combining `required`/`optional` attributes, validations, coercions, and `returns`, you build tasks that are impossible to misuse silently. Bad data fails loudly at the boundary. Missing outputs fail immediately at the source. The contract is the code, and the code enforces itself.

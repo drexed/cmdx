@@ -1,0 +1,294 @@
+# Interruptions - Signals
+
+Halt `work` intentionally with `success!`, `skip!`, `fail!`, or `throw!`. Each signals a clear intent and can carry a reason and metadata.
+
+Internally these methods `throw` a `CMDx::Signal` that Runtime catches around `work`, breaking out of the current call stack the moment they fire — nothing after them runs.
+
+!!! note
+
+    `success!` is the third halt method; it produces a `complete`/`success` result with a custom reason and metadata. See [Annotating a Successful Result](../outcomes/result.md#annotating-a-successful-result).
+
+## Skipping
+
+Use `skip!` when the task doesn't need to run. It's a controlled no-op, not an error.
+
+!!! warning "Important"
+
+    Skipped tasks are considered "ok" outcomes (`result.ok? #=> true`). `execute!` does **not** raise on a skip — only on a failure.
+
+```ruby
+class ProcessInventory < CMDx::Task
+  def work
+    # Without a reason
+    skip! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
+
+    # With a reason
+    skip!("Warehouse closed") unless Time.now.hour.between?(8, 18)
+
+    inventory = Inventory.find(context.inventory_id)
+
+    if inventory.already_counted?
+      skip!("Inventory already counted today")
+    else
+      inventory.count!
+    end
+  end
+end
+
+result = ProcessInventory.execute(inventory_id: 456)
+
+# Executed
+result.status #=> "skipped"
+
+# Without a reason
+result.reason #=> nil
+
+# With a reason
+result.reason #=> "Warehouse closed"
+```
+
+## Failing
+
+Use `fail!` when the task can't complete successfully. It signals controlled, intentional failure:
+
+```ruby
+class ProcessRefund < CMDx::Task
+  def work
+    # Without a reason
+    fail! if Array(ENV["DISABLED_TASKS"]).include?(self.class.name)
+
+    refund = Refund.find(context.refund_id)
+
+    # With a reason
+    if refund.expired?
+      fail!("Refund period has expired")
+    elsif !refund.amount.positive?
+      fail!("Refund amount must be positive")
+    else
+      refund.process!
+    end
+  end
+end
+
+result = ProcessRefund.execute(refund_id: 789)
+
+# Executed
+result.status #=> "failed"
+
+# Without a reason
+result.reason #=> nil
+
+# With a reason
+result.reason #=> "Refund period has expired"
+```
+
+!!! note
+
+    `result.reason` is exactly what you passed (or `nil`). The `"Unspecified"` fallback only appears on `Fault#message` when `execute!` raises with no reason.
+
+## Metadata Enrichment
+
+Enrich halt calls with metadata for better debugging and error handling:
+
+```ruby
+class ProcessRenewal < CMDx::Task
+  def work
+    license = License.find(context.license_id)
+
+    if license.already_renewed?
+      # Without metadata
+      skip!("License already renewed")
+    end
+
+    unless license.renewal_eligible?
+      # With metadata
+      fail!(
+        "License not eligible for renewal",
+        error_code: "LICENSE.NOT_ELIGIBLE",
+        retry_after: Time.current + 30.days
+      )
+    end
+
+    process_renewal
+  end
+end
+
+result = ProcessRenewal.execute(license_id: 567)
+
+# Without metadata
+result.metadata #=> {}
+
+# With metadata
+result.metadata #=> {
+                #     error_code: "LICENSE.NOT_ELIGIBLE",
+                #     retry_after: <Time 30 days from now>
+                #   }
+```
+
+## Short-Circuit Behavior
+
+Halt methods always `throw` — they never return. The first one to fire ends `work` immediately, so any subsequent halt calls are unreachable:
+
+```ruby
+class ProcessOrder < CMDx::Task
+  def work
+    fail!("Out of stock") if out_of_stock?
+    fail!("Insufficient funds") if insufficient_funds?
+    # If both conditions are true, only the first fail! ever runs.
+  end
+end
+```
+
+!!! warning "Important"
+
+    Halt methods only work inside `work` (and anything called from it). Runtime's `catch(:cmdx_signal)` wraps just the work body; throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`. On a frozen task (post-teardown) they raise `FrozenError`.
+
+## State Transitions
+
+Halt methods trigger specific state and status transitions:
+
+| Method | State | Status | Outcome |
+|--------|-------|--------|---------|
+| `skip!` | `interrupted` | `skipped` | `ok? = true`, `ko? = true` |
+| `fail!` | `interrupted` | `failed` | `ok? = false`, `ko? = true` |
+
+```ruby
+result = ProcessRenewal.execute(license_id: 567)
+
+# State information
+result.state        #=> "interrupted"
+result.status       #=> "skipped" or "failed"
+result.interrupted? #=> true
+result.complete?    #=> false
+
+# Outcome categorization
+result.ok?          #=> true for skipped, false for failed
+result.ko?          #=> true for both skipped and failed
+```
+
+## Execution Behavior
+
+Halt methods behave differently depending on the entry point used:
+
+### Non-bang execution
+
+Returns the result object regardless of outcome; nothing raises:
+
+```ruby
+result = ProcessRefund.execute(refund_id: 789)
+
+case result.status
+when "success"
+  puts "Refund processed: $#{result.context.refund.amount}"
+when "skipped"
+  puts "Refund skipped: #{result.reason}"
+when "failed"
+  puts "Refund failed: #{result.reason}"
+  handle_refund_error(result.metadata[:error_code])
+end
+```
+
+### Bang execution
+
+Raises `CMDx::Fault` only when the result is `failed?`. Skipped results return normally:
+
+```ruby
+begin
+  result = ProcessRefund.execute!(refund_id: 789)
+
+  if result.skipped?
+    puts "Skipped: #{result.reason}"
+  else
+    puts "Success: Refund processed"
+  end
+rescue CMDx::Fault => e
+  puts "Failed: #{e.message}"
+  handle_refund_failure(e.result.metadata[:error_code])
+end
+```
+
+## Rethrowing a Peer Failure
+
+Use `throw!` to halt the current task by echoing another task's failed result. It's a no-op when the other result isn't `failed?`:
+
+```ruby
+class ReportMonthlyMetrics < CMDx::Task
+  def work
+    result = BuildReport.execute(context)
+    throw!(result) # bubbles up with the same reason, metadata, origin
+
+    # ...happy path continues here when result isn't failed
+  end
+end
+```
+
+The resulting `Result` carries the upstream failure in `result.origin`; `result.thrown_failure?` is `true`. See [Result - Chain Analysis](../outcomes/result.md#chain-analysis).
+
+## Best Practices
+
+Prefer specific reasons — they become `result.reason`, `Fault#message`, and end up in logs and telemetry:
+
+```ruby
+# Best: Specific reason + structured metadata
+fail!("File format not supported by processor", code: "FORMAT_UNSUPPORTED")
+
+# Good: Clear reason
+skip!("Document processing paused for compliance review")
+
+# Avoid: nil reason (Fault#message falls back to the localized "Unspecified")
+skip!
+fail!
+```
+
+## Manual Errors
+
+Add structured errors to `task.errors` to fail the task with a rich, multi-key error sentence. Errors accumulated during `work` are inspected after `work` returns; if any are present, `Runtime` automatically throws a failed signal whose reason is the joined error messages.
+
+!!! note
+
+    You don't need to call `fail!` after `errors.add` — the post-`work` check does it for you. Calling `fail!` explicitly still works and short-circuits immediately.
+
+### Errors API
+
+The `errors` object is keyed by attribute name; each value is a deduplicating set of messages:
+
+```ruby
+errors.add(:email, "is invalid")
+errors.add(:email, "is required")
+errors.add(:name, "is too short")
+
+errors.empty?            #=> false
+errors.any?              #=> true (via Enumerable)
+errors.size              #=> 2 (number of keys)
+errors.count             #=> 3 (total messages across all keys)
+errors.key?(:email)      #=> true
+errors.key?(:phone)      #=> false
+errors.added?(:email, "is invalid") #=> true
+errors[:email]           #=> ["is invalid", "is required"]
+
+errors.to_h              #=> { email: ["is invalid", "is required"], name: ["is too short"] }
+errors.full_messages     #=> { email: ["email is invalid", "email is required"], name: ["name is too short"] }
+errors.to_s              #=> "email is invalid. email is required. name is too short"
+```
+
+### Usage
+
+```ruby
+class ProcessRenewal < CMDx::Task
+  def work
+    document = Document.find(context.document_id)
+
+    if document.nonrenewable?
+      errors.add(:document, "is not renewable")
+      return # Runtime sees errors and throws a failed signal automatically
+    end
+
+    document.renew!
+  end
+end
+
+result = ProcessRenewal.execute(document_id: 42)
+result.status      #=> "failed"
+result.reason      #=> "document is not renewable"
+result.errors.to_h #=> { document: ["is not renewable"] }
+```

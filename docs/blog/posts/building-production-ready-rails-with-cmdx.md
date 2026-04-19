@@ -9,6 +9,8 @@ slug: building-production-ready-rails-with-cmdx
 
 # Building Production-Ready Rails Applications with CMDx: A Complete Guide
 
+*Targets CMDx v1.17.*
+
 I've been building Ruby on Rails applications for over a decade, and if there's one thing that keeps me up at night, it's the state of business logic in most codebases. You know what I'm talking about—fat controllers, bloated models, service objects that look like they were written by five different people on five different days. We've all inherited that one `OrderService` class with 800 lines of spaghetti code and a comment at the top that says "TODO: refactor this."
 
 This guide is everything I wish I had when I started taking service objects seriously. We're going to build a complete order processing system from scratch, and by the end, you'll understand how CMDx transforms chaotic business logic into clean, observable, maintainable code.

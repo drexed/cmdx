@@ -1,19 +1,14 @@
 en:
   cmdx:
     attributes:
-      required: "must be accessible via the %{method} source method"
-      undefined: "delegates to undefined method %{method}"
+      required: "is required"
     coercions:
       into_a: "could not coerce into a %{type}"
       into_an: "could not coerce into an %{type}"
       into_any: "could not coerce into one of: %{types}"
-      unknown: "unknown %{type} coercion type"
-    faults:
-      invalid: "Invalid"
-      unspecified: "Unspecified"
     reasons:
       unspecified: "Unspecified"
-    returns:
+    outputs:
       missing: "must be set in the context"
     types:
       array: "array"
@@ -43,6 +38,9 @@ en:
         is_not: "length must not be %{is_not}"
         min: "length must be at least %{min}"
         max: "length must be at most %{max}"
+        gt: "length must be greater than %{gt}"
+        lt: "length must be less than %{lt}"
+        nil_value: "must have a length"
         not_within: "length must not be within %{min} and %{max}"
         within: "length must be within %{min} and %{max}"
       numeric:
@@ -50,6 +48,9 @@ en:
         is_not: "must not be %{is_not}"
         min: "must be at least %{min}"
         max: "must be at most %{max}"
+        gt: "must be greater than %{gt}"
+        lt: "must be less than %{lt}"
+        nil_value: "must be numeric"
         not_within: "must not be within %{min} and %{max}"
         within: "must be within %{min} and %{max}"
       presence: "cannot be empty"

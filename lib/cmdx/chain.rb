@@ -1,215 +1,114 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Manages a collection of task execution results in a thread and fiber safe manner.
-  # Chains provide a way to track related task executions and their outcomes
-  # within the same execution context.
+  # Ordered collection of {Result}s produced by a top-level task and any nested
+  # tasks it triggers. A Chain is stored per-fiber so concurrent workflows
+  # (see Pipeline parallel strategy) each get their own. The root Runtime
+  # clears the chain on teardown.
   class Chain
 
-    extend Forwardable
+    include Enumerable
 
-    # @rbs CONCURRENCY_KEY: Symbol
-    CONCURRENCY_KEY = :cmdx_chain
-
-    # Returns the unique identifier for this chain.
-    #
-    # @return [String] The chain identifier
-    #
-    # @example
-    #   chain.id # => "abc123xyz"
-    #
-    # @rbs @id: String
-    attr_reader :id
-
-    # Returns the collection of execution results in this chain.
-    #
-    # @return [Array<Result>] Array of task results
-    #
-    # @example
-    #   chain.results # => [#<Result>, #<Result>]
-    #
-    # @rbs @results: Array[Result]
-    attr_reader :results
-
-    def_delegators :results, :first, :last, :size
-    def_delegators :first, :state, :status, :outcome
-
-    # Creates a new chain with a unique identifier and empty results collection.
-    #
-    # @return [Chain] A new chain instance
-    #
-    # @rbs () -> void
-    def initialize(dry_run: false)
-      @mutex = Mutex.new
-      @id = Identifier.generate
-      @results = []
-      @dry_run = !!dry_run
-    end
+    # Fiber-local storage key used by {.current}/{.current=}/{.clear}.
+    STORAGE_KEY = :cmdx_chain
 
     class << self
 
-      # Retrieves the current chain for the current execution context.
-      #
-      # @return [Chain, nil] The current chain or nil if none exists
-      #
-      # @example
-      #   chain = Chain.current
-      #   if chain
-      #     puts "Current chain: #{chain.id}"
-      #   end
-      #
-      # @rbs () -> Chain?
+      # @return [Chain, nil] the chain active on the current fiber, or nil outside execution
       def current
-        thread_or_fiber[CONCURRENCY_KEY]
+        Fiber[STORAGE_KEY]
       end
 
-      # Sets the current chain for the current execution context.
-      #
-      # @param chain [Chain] The chain to set as current
-      #
-      # @return [Chain] The set chain
-      #
-      # @example
-      #   Chain.current = my_chain
-      #
-      # @rbs (Chain chain) -> Chain
+      # Installs `chain` as the active chain on the current fiber.
+      # @param chain [Chain, nil]
+      # @return [Chain, nil]
       def current=(chain)
-        thread_or_fiber[CONCURRENCY_KEY] = chain
+        Fiber[STORAGE_KEY] = chain
       end
 
-      # Clears the current chain for the current execution context.
-      #
-      # @return [nil] Always returns nil
-      #
-      # @example
-      #   Chain.clear
-      #
-      # @rbs () -> nil
+      # Clears the fiber-local chain reference.
+      # @return [nil]
       def clear
-        thread_or_fiber[CONCURRENCY_KEY] = nil
-      end
-
-      # Builds or extends the current chain by adding a result.
-      # Creates a new chain if none exists, otherwise appends to the current one.
-      #
-      # @param result [Result] The task execution result to add
-      #
-      # @return [Chain] The current chain (newly created or existing)
-      #
-      # @raise [TypeError] If result is not a CMDx::Result instance
-      #
-      # @example
-      #   result = task.execute
-      #   chain = Chain.build(result)
-      #   puts "Chain size: #{chain.size}"
-      #
-      # @rbs (Result result) -> Chain
-      def build(result, dry_run: false)
-        raise TypeError, "must be a CMDx::Result" unless result.is_a?(Result)
-
-        self.current ||= new(dry_run:)
-        current.push(result)
-        current
-      end
-
-      private
-
-      # Returns the thread or fiber storage for the current execution context.
-      #
-      # @return [Hash] The thread or fiber storage
-      #
-      # @rbs () -> Hash
-      if Fiber.respond_to?(:storage)
-        def thread_or_fiber = Fiber.storage
-      else
-        def thread_or_fiber = Thread.current
+        Fiber[STORAGE_KEY] = nil
       end
 
     end
 
-    # Thread-safe append of a result to the chain.
-    # Caches the result's index to avoid repeated O(n) lookups.
+    attr_reader :id, :results
+
+    def initialize
+      @mutex   = Mutex.new
+      @id      = SecureRandom.uuid_v7
+      @results = []
+    end
+
+    # Appends `result` to the chain. Thread-safe to support parallel pipelines.
     #
-    # @param result [Result] The result to append
-    #
-    # @return [Array<Result>] The updated results array
-    #
-    # @rbs (Result result) -> Array[Result]
+    # @param result [Result]
+    # @return [Chain] self for chaining
     def push(result)
-      @mutex.synchronize do
-        result.instance_variable_set(:@chain_index, @results.size)
-        @results << result
-      end
+      @mutex.synchronize { @results << result }
+      self
+    end
+    alias << push
+
+    # Prepends `result` to the chain. Thread-safe to support parallel pipelines.
+    #
+    # @param result [Result]
+    # @return [Chain] self for chaining
+    def unshift(result)
+      @mutex.synchronize { @results.unshift(result) }
+      self
     end
 
-    # Thread-safe lookup of a result's position in the chain.
-    #
-    # @param result [Result] The result to find
-    #
-    # @return [Integer, nil] The zero-based index or nil if not found
-    #
-    # @rbs (Result result) -> Integer?
+    # @param result [Result]
+    # @return [Integer, nil] zero-based position of `result`, or nil when absent
     def index(result)
-      @mutex.synchronize { @results.index(result) }
+      @results.index(result)
     end
 
-    # Returns whether the chain is running in dry-run mode.
-    #
-    # @return [Boolean] Whether the chain is running in dry-run mode
-    #
-    # @example
-    #   chain.dry_run? # => true
-    #
-    # @rbs () -> bool
-    def dry_run?
-      !!@dry_run
+    # @return [Result, nil] the most recently appended result
+    def last
+      @results.last
     end
 
-    # Freezes the chain and its internal results to prevent modifications.
+    # @return [Result, nil] the root result, or nil when absent
+    def root
+      @results.find(&:chain_root?)
+    end
+
+    # @return [String, nil] the state of the root result, or nil when absent
+    def state
+      root&.state
+    end
+
+    # @return [String, nil] the status of the root result, or nil when absent
+    def status
+      root&.status
+    end
+
+    # @return [Boolean]
+    def empty?
+      @results.empty?
+    end
+
+    # @return [Integer]
+    def size
+      @results.size
+    end
+
+    # @yield [Result] each result in insertion order
+    # @return [Enumerator, Chain]
+    def each(&)
+      @results.each(&)
+    end
+
+    # Freezes the chain and its results. Called by Runtime teardown.
     #
-    # @return [Chain] the frozen chain
-    #
-    # @example
-    #   chain.freeze
-    #   chain.results << result # => raises FrozenError
-    #
-    # @rbs () -> self
+    # @return [Chain] self
     def freeze
-      results.freeze
+      @mutex.synchronize { @results.freeze }
       super
-    end
-
-    # Converts the chain to a hash representation.
-    #
-    # @option return [String] :id The chain identifier
-    # @option return [Array<Hash>] :results Array of result hashes
-    #
-    # @return [Hash] Hash containing chain id and serialized results
-    #
-    # @example
-    #   chain_hash = chain.to_h
-    #   puts chain_hash[:id]
-    #   puts chain_hash[:results].size
-    #
-    # @rbs () -> Hash[Symbol, untyped]
-    def to_h
-      {
-        id:,
-        dry_run: dry_run?,
-        results: results.map(&:to_h)
-      }
-    end
-
-    # Converts the chain to a string representation.
-    #
-    # @return [String] Formatted string representation of the chain
-    #
-    # @example
-    #   puts chain.to_s
-    #
-    # @rbs () -> String
-    def to_s
-      Utils::Format.to_str(to_h)
     end
 
   end

@@ -1,202 +1,143 @@
-# Workflow Reference
+# Workflows Reference
 
-For full documentation, see [docs/workflows.md](../docs/workflows.md).
+Docs: [docs/workflows.md](../../docs/workflows.md).
+
+Workflows compose ordered groups of tasks. A workflow is a `Task` subclass that `include`s `CMDx::Workflow`. Inputs, outputs, callbacks, middleware, retries, and settings all work the same as on a plain task.
 
 ## Setup
 
-Include `CMDx::Workflow` in a `CMDx::Task` subclass:
-
 ```ruby
-class MyWorkflow < CMDx::Task
+class OnboardCustomer < CMDx::Task
   include CMDx::Workflow
 
-  task StepOne
-  task StepTwo
-  task StepThree
+  required :email, coerce: :string
+
+  task ValidateIdentity
+  task CreateAccount
+  tasks SendWelcomeEmail, SendWelcomeSms, strategy: :parallel
 end
+
+OnboardCustomer.execute(email: "user@example.com")
 ```
 
-## Task Groups
+Defining `def work` on a workflow raises `CMDx::ImplementationError` — `#work` is auto-generated to delegate to `Pipeline`.
 
-### Sequential (default)
+## Groups
 
-```ruby
-task StepOne
-task StepTwo         # runs after StepOne completes
-```
+`task` / `tasks` (aliases) register one group per call. Groups run in declaration order and share the workflow's `context`.
 
-### Grouped
+### Options
 
-```ruby
-tasks StepA, StepB   # same execution group, same options
-```
+| Option | Description |
+|--------|-------------|
+| `strategy:` | `:sequential` (default) or `:parallel`. |
+| `pool_size:` | Parallel worker thread count. Defaults to `tasks.size`. |
+| `if:` / `unless:` | Gate the whole group. Signature `(workflow)` (Symbol → task method; Proc → `instance_exec`; `#call`-able → `callable.call(workflow)`). |
 
-### Parallel
+Every task class must be a `CMDx::Task` subclass — otherwise registration raises `TypeError`.
 
-```ruby
-tasks StepA, StepB, strategy: :parallel
-tasks StepC, StepD, strategy: :parallel, pool_size: 4
-```
+## Sequential groups
 
-Uses native Ruby threads. The `pool_size` option caps the number of concurrent threads (defaults to task count).
-
-## Breakpoints
-
-Breakpoints control when a workflow halts on task failure or skip.
-
-### Workflow-level (class setting)
+Default strategy. Each task runs in order on the shared context. The first `failed?` result halts the pipeline and propagates via `throw!`, failing the workflow. A `skipped?` result does **not** halt — the next task still runs.
 
 ```ruby
-class MyWorkflow < CMDx::Task
-  include CMDx::Workflow
-  settings workflow_breakpoints: %w[skipped failed]
-
-  task StepOne
-  task StepTwo
-end
-```
-
-### Group-level (overrides workflow-level)
-
-```ruby
-task StepOne, breakpoints: %w[failed]
-task StepTwo, breakpoints: %w[skipped failed]
-tasks StepThree, StepFour, breakpoints: []   # never halt
-```
-
-### Defaults
-
-- `workflow_breakpoints`: `["failed"]` (halt on failure)
-- Group breakpoints inherit from workflow setting unless overridden
-- Empty `[]` means never halt — all tasks run regardless of status
-
-### Behavior
-
-When a task's result status matches the group's breakpoints, the workflow calls `throw!(task_result)` which raises a `Fault` and stops further execution.
-
-## Conditional Execution
-
-### Method reference
-
-```ruby
-task SendEmail, if: :email_configured?
-task SkipAudit, unless: :audit_disabled?
-
-private
-
-def email_configured?
-  context.email.present?
-end
-```
-
-### Lambda/Proc
-
-```ruby
-task ApplyDiscount, if: -> { context.total > 100 }
-task SendSms, unless: -> { context.phone.blank? }
-```
-
-### Combined
-
-```ruby
-task SpecialOffer, if: :eligible?, unless: :already_applied?
-```
-
-### Group-level conditions
-
-```ruby
-tasks TaskA, TaskB, TaskC, if: :group_enabled?
-```
-
-## Context Sharing
-
-All tasks in a workflow share the same `Context` object:
-
-```ruby
-class Workflow < CMDx::Task
+class ProcessOrder < CMDx::Task
   include CMDx::Workflow
 
-  task CreateUser      # sets context.user
-  task CreateProfile   # reads context.user, sets context.profile
-  task SendWelcome     # reads context.user and context.profile
+  task ValidateOrder
+  task ChargePayment
+  task ShipOrder
 end
-
-result = Workflow.execute(email: "user@example.com")
-result.context.user     # set by CreateUser
-result.context.profile  # set by CreateProfile
 ```
 
-## Error Propagation
+## Parallel groups
 
-### Default: halt on failure
+Runs the group's tasks concurrently on a Thread pool.
 
 ```ruby
-class Workflow < CMDx::Task
+tasks SendReceipt, NotifyWarehouse, UpdateAnalytics,
+  strategy: :parallel, pool_size: 3
+```
+
+Behavior:
+
+- Each task receives `context.deep_dup` — mutations are isolated per thread.
+- On success, each duplicated context is merged back into the workflow context.
+- The first failed result halts the workflow; successful siblings still merge.
+- Chain storage is propagated through fiber-local state so nested tasks see the same `CMDx::Chain`.
+
+Because parallel tasks receive deep-duplicated contexts, a task that relies on mutations performed by a sibling in the same group will not see them. Split such dependencies into separate groups.
+
+## Conditional groups
+
+```ruby
+task SetupBilling, if: :paid_plan?
+task SendTrialEmail, unless: -> { context.plan == "enterprise" }
+tasks NotifyOpsA, NotifyOpsB, strategy: :parallel, if: SupportGateCallback
+```
+
+## Nested workflows
+
+Workflows are `Task` subclasses, so they compose as groups:
+
+```ruby
+class Onboard < CMDx::Task
+  include CMDx::Workflow
+  task Identity
+  task BillingWorkflow   # another workflow
+  task SendWelcome
+end
+```
+
+Result chain analysis still works: `result.origin` walks back to the failing leaf, `result.caused_failure` and `result.threw_failure` identify the root cause vs. the re-thrower.
+
+## Halt behavior
+
+- The workflow halts on **the first `failed?` result only**.
+- `skip!` never halts a workflow.
+- The failed leaf's signal is re-thrown through the workflow via `throw!`, so the workflow's `result.reason`/`.metadata`/`.cause` mirror the originating task.
+- There is no `breakpoints:` option.
+
+## Rollback & compensation
+
+Rollback is **per-task** — each task that defines `#rollback` gets called when that task itself fails. To compensate for **earlier successful tasks** in a failed workflow, use a workflow-level callback:
+
+```ruby
+class ProvisionTenant < CMDx::Task
   include CMDx::Workflow
 
-  task ValidateInput      # fails → workflow halts here
-  task ProcessData        # never runs
-  task SendNotification   # never runs
+  on_failed :tear_down
+
+  task CreateSchema
+  task SeedDefaults
+  task ActivateBilling
+
+  private
+
+  def tear_down
+    CleanupTenantJob.perform_later(result.context.tenant_id) if result.context.tenant_id
+  end
 end
 ```
 
-### Swallow failures (empty breakpoints)
+## Inspecting results
 
 ```ruby
-tasks OptionalStepA, OptionalStepB, breakpoints: []
-task RequiredStep   # always runs regardless of above
+result = Onboard.execute(email: "x@y.com")
+
+result.success?          # workflow-level status
+result.origin            # leaf Result that actually failed
+result.caused_failure    # first task in the chain whose rescue caused it
+result.threw_failure     # last task that re-threw the signal
+
+result.chain.size        # total Results in the chain (workflow + leaves)
+result.chain.map(&:task) # [Onboard, ValidateIdentity, CreateAccount, ...]
 ```
 
-### Mixed strategies
+## Invariants
 
-```ruby
-class OrderWorkflow < CMDx::Task
-  include CMDx::Workflow
-
-  task ValidateOrder, breakpoints: %w[failed]
-  task ChargePayment, breakpoints: %w[failed]
-  tasks SendEmail, SendSms, breakpoints: [], strategy: :parallel
-  task UpdateAnalytics, breakpoints: []
-end
-```
-
-## Nested Workflows
-
-Workflows can include other workflows as tasks:
-
-```ruby
-class InnerWorkflow < CMDx::Task
-  include CMDx::Workflow
-  task StepA
-  task StepB
-end
-
-class OuterWorkflow < CMDx::Task
-  include CMDx::Workflow
-  task Setup
-  task InnerWorkflow
-  task Finalize
-end
-```
-
-## Execution
-
-```ruby
-# Non-raising: returns Result even on failure
-result = MyWorkflow.execute(input: data)
-
-# Raising: raises FailFault/SkipFault on breakpoint match
-result = MyWorkflow.execute!(input: data)
-```
-
-## Result Metadata for Failures
-
-When a workflow is interrupted, the result contains failure provenance:
-
-```ruby
-result = MyWorkflow.execute(data: input)
-if result.failed?
-  result.metadata[:threw_failure]   # { index:, class:, ... } — task that threw
-  result.metadata[:caused_failure]  # { index:, class:, ... } — root cause task
-end
-```
+- `def work` on a workflow → `CMDx::ImplementationError` at load time.
+- Empty groups (`tasks` with no args inside a group block) → `ArgumentError` at execute time.
+- Invalid `strategy:` → `ArgumentError`.
+- Parallel groups cannot share mutable state via context mutations within the same group.
+- Workflows inherit the parent class's pipeline via `dup` on inheritance.

@@ -4,10 +4,97 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## [2.0.0] - UNRELEASED
+
+Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replaced by an explicit signal-based runtime, immutable results, fiber-local chains, and a slimmer registry surface. See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide.
 
 ### Added
-- Add `CMDx::Resolver` class to manage result transitions
+- Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`), with `Signal::Success` / `Signal::Skipped` / `Signal::Failed` frozen singleton constants, `Signal.success` / `.skipped` / `.failed` class methods that return them when called with no args, and `Signal.echoed(other)` for propagating nested fault outcomes (auto-sets `:origin` to the upstream `Result`)
+- Add `Signal#ok?` / `Signal#ko?` predicates
+- Add `CMDx::Runtime` orchestrating the full task lifecycle and building the final `Result`
+- Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, `timestamp`
+- Add `CMDx::Deprecation` for declarative class-level deprecation (`:log`, `:warn`, `:error`, Symbol, Proc, callable) with `:if` / `:unless` gating
+- Add `CMDx::Input` / `CMDx::Inputs` (replaces `Attribute` / `AttributeRegistry` / `AttributeValue`) supporting `:source`, `:default`, `:transform`, `:as`, `:prefix` / `:suffix`, and nested children via DSL block
+- Add `CMDx::Output` / `CMDx::Outputs` for first-class declared outputs verified against `task.context` after `work` (required-presence, default application, coercion, transformation, validation, write-back of final value); `:default` and `:transform` mirror input semantics — defaults fire for nil/absent values and can satisfy `:required`, transforms run between coerce and validate
+- Add `CMDx::Util` single conditional-evaluation module (`evaluate`, `if?`, `unless?`, `satisfied?`) consolidating the v1 `Utils::*` modules
+- Add `CMDx::I18nProxy` translation façade that delegates to `I18n` when available, otherwise loads the bundled YAML and percent-interpolates with memoization
+- Add `CMDx::LoggerProxy` returning a per-task logger, `dup`-ing the base only when the task overrides `log_level` or `log_formatter`
+- Add new exception classes: `DefinitionError`, `DeprecationError`, `ImplementationError`, `MiddlewareError`
+- Add `Task#work` abstract method (raises `ImplementationError` when not defined)
+- Add `Task#rollback` lifecycle hook, auto-invoked by Runtime on failed results when defined; surfaced via `Result#rolled_back?` and the `:task_rolled_back` event
+- Add `Task#success!` for signaling a successful halt, joining `skip!` / `fail!` / `throw!`
+- Add `Task.execute` / `Task.execute!` as the execution entry points (aliased as `call` / `call!` for backward compatibility)
+- Add `Result#on(:success, :failed, ...)` chainable predicate-dispatch helper
+- Add `Result#deconstruct` / `Result#deconstruct_keys` for pattern matching; `deconstruct` returns `[type, task, state, status, reason, metadata, cause, origin]`
+- Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#chain_index`, `Result#chain_root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias
+- Add `Signal#origin` / `Result#origin` — upstream `Result` a signal/result was echoed from (`nil` for locally originated failures); set by `Task#throw!`, `Pipeline` when propagating workflow failures, and `Runtime` when rescuing a `Fault` inside `work`
+- Add `Chain#unshift`, `Chain#root`, `Chain#state`, `Chain#status`, `Chain#last`, `Chain#freeze`; Runtime `unshift`s the root result (so `chain.root` and `chain[0]` point to the outermost task) and freezes the chain on root teardown
+- Add `Fault.for?(*tasks)` and `Fault.matches?(&block)` anonymous matcher subclasses suitable for `rescue`
+- Add `include Enumerable` to `Errors`, `Chain`, and `Context`, exposing `map`, `select`, `find`, `include?`, `to_a`, `any?`, `all?`, `group_by`, `partition`, etc.
+- Add `Set`-backed deduping per key on `Errors`, plus `keys`, `each_key`, `each_value`, `count`, `delete`, `clear`, `full_messages`, `to_hash(full)`
+- Add `Context#keys`, `values`, `empty?`, `size`, `delete`, `clear`, `eql?` / `==`, `hash`, `deep_dup`, `respond_to_missing?`, and `Context#merge` that accepts any context-like object
+- Add `Coercions::Coerce` and `Validators::Validate` inline-callable handlers for `:coerce` / `:validate` hash entries; generic callables receive `(value, task)`, Symbol and Proc handlers still resolve against the task
+- Add `Configuration#backtrace_cleaner` and `Configuration#telemetry`
+- Add `CMDx.reset_configuration!` which clears global registry ivars on `Task` for clean test setup/teardown; subclasses that already cloned their registries are unaffected
+- Add `:if` / `:unless` gates to `Callbacks#register` (Symbol, Proc, or any `#call`-able); per-event DSL helpers (`before_execution`, `on_success`, etc.) forward the options through
+
+### Changed
+- **BREAKING**: Rename `#call` → `#work` on task subclasses; `Task.execute` / `Task.execute!` are the new entry points (`call` / `call!` kept as aliases)
+- **BREAKING**: `Result` is now frozen and read-only; all state lives in the embedded `Signal`, built once during `Runtime#finalize_result`
+- **BREAKING**: Move `STATES` / `STATUSES` constants and the `initialized` / `executing` / `executed!` transitions from `Result` to `Signal::STATES` / `Signal::STATUSES` (only `complete` / `interrupted` and `success` / `skipped` / `failed` remain)
+- **BREAKING**: Halt mechanism uses `catch(Signal::TAG)` + `throw` instead of mutating result state; `success!` / `skip!` / `fail!` / `throw!` are now private `Task` instance methods (no longer delegated through `Result`) and raise `FrozenError` when called after teardown
+- **BREAKING**: `Chain` is now fiber-local (was thread-local), keyed on `Fiber[:cmdx_chain]`, with internal `Mutex` on `push` / `unshift`; root Runtime clears the chain on teardown
+- **BREAKING**: `Result#chain` now returns the owning `Chain` object directly instead of its results array (use `result.chain.to_a` / `result.chain.results`, or iterate via `Chain`'s new Enumerable methods)
+- **BREAKING**: Drive `Result#caused_failure` / `threw_failure` / `caused_failure?` / `thrown_failure?` off `Signal#origin` instead of `signal.cause`; `caused_failure` walks `origin` recursively to the originating leaf, `threw_failure` returns `origin || self`, `caused_failure?` is true when the result originated the failure chain, `thrown_failure?` is true when the result re-threw an upstream failure
+- Generated input accessors are now plain instance methods backed by `@_input_<name>` ivars set during input resolution; outputs have no accessors and are read/written directly on `task.context`
+- `Workflow` declares groups via `task` / `tasks` (still aliased) and supports `:strategy => :parallel`, `:pool_size`, `:if` / `:unless` per group; defining `#work` on a workflow raises `ImplementationError`
+- `Pipeline` gains a `:parallel` strategy with `:pool_size` (replacing the removed `Parallelizer`); parallel workers share the parent fiber's chain, each get a `deep_dup`-ed context, successful child contexts are merged back into the workflow's context, and the first failed result is echoed via `throw!` to halt the pipeline
+- `Task.callbacks`, `Task.middlewares`, `Task.coercions`, `Task.validators`, `Task.telemetry`, `Task.inputs`, `Task.outputs` lazy-clone from the superclass (or global `Configuration`) on first access — subclasses extend rather than replace
+- `Settings` is now a frozen value object holding only `logger`, `log_formatter`, `log_level`, `backtrace_cleaner`, `tags`; every getter falls back to `CMDx.configuration`
+- `Context.build` accepts anything that responds to `#context` (e.g. another `Task`), unwraps repeatedly, and only re-wraps frozen contexts; symbolizes hash keys via `#to_hash` / `#to_h`
+- `Retry` becomes a value object; `Task.retry_on` accumulates exceptions and options across the inheritance chain via `Retry#build`; supports built-in jitter strategies (`:exponential`, `:half_random`, `:full_random`, `:bounded_random`) plus Symbol / Proc / callable; retry wraps `work` only (input resolution and output verification run once, outside the retry loop)
+- All registries (`Callbacks`, `Middlewares`, `Coercions`, `Validators`, `Telemetry`, `Inputs`, `Outputs`) implement `initialize_copy` for cheap copy-on-write inheritance; `register` / `deregister` validate types up-front and raise `ArgumentError` on misuse
+- `Coercions#coerce` returns a `Coercions::Failure` sentinel with an i18n message recorded on `task.errors`; when multiple declared coercion rules match none (and none were inline), an aggregated `cmdx.coercions.into_any` message is reported instead of the per-rule messages
+- `Validators#validate` records a message on `task.errors` for each failed rule (the individual built-in validators return `Validators::Failure`)
+- Extend `Validators::Numeric` and `Validators::Length` with `:gt` / `:lt` (strict comparison, with `:gt_message` / `:lt_message` overrides and `cmdx.validators.{numeric,length}.{gt,lt}` i18n keys), plus `:gte` / `:lte` / `:eq` / `:not_eq` aliases that normalize to `:min` / `:max` / `:is` / `:is_not`
+- `Fault#initialize` takes a single `Result`; `task`, `context`, and `chain` delegate to it; `Runtime` raises `Fault.new(@result.caused_failure)` so `fault.task` always points at the originating leaf (including in workflows and nested `execute!` chains)
+- `Runtime` finalizes the `Result` before `raise_signal!` so the `Fault` it raises always carries a fully-built `Result`
+- `Result#to_h` / `to_s` / `deconstruct_keys` now include `:origin` (compact `{ task:, id: }` hash, or `nil` for locally originated failures)
+- Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
+- Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
+- Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
+
+### Removed
+- **BREAKING**: Remove `Result::STATES = [INITIALIZED, EXECUTING, COMPLETE, INTERRUPTED]`, the `executed!` / `executing!` transitions, and the `executed?` / `initialized?` / `executing?` predicates
+- **BREAKING**: Remove `Task#id`, `Task#result`, `Task#chain` direct accessors — read these off the `Result` returned by `execute`
+- **BREAKING**: Remove `Result#threw_failure?` predicate (`result.thrown_failure?` remains, with semantics flipped — true when the result re-threw an upstream failure)
+- **BREAKING**: Remove `Result#chain_id` — read it off the chain: `result.chain.id`
+- **BREAKING**: `Result#to_h` no longer produces nested `caused_failure` / `threw_failure` hashes; failure references render as `{ task:, id: }` and `to_s` formats them as `<TaskClass uuid>`
+- Remove `CMDx::Executor` (replaced by `CMDx::Runtime`)
+- Remove `CMDx::Attribute`, `CMDx::AttributeRegistry`, `CMDx::AttributeValue` (replaced by `Input` / `Inputs` and `Output` / `Outputs`)
+- Remove `CMDx::Resolver` (value resolution is owned by `Input#resolve`)
+- Remove `CMDx::Identifier` (Runtime / Chain use `SecureRandom.uuid_v7` directly)
+- Remove `CMDx::Locale` (superseded by `I18nProxy`)
+- Remove `CMDx::Deprecator` (superseded by `Deprecation` declared per task class)
+- Remove `CMDx::Parallelizer` (parallelism now lives in `Pipeline#run_parallel`)
+- Remove `CMDx::CallbackRegistry`, `CMDx::MiddlewareRegistry`, `CMDx::CoercionRegistry`, `CMDx::ValidatorRegistry` (replaced by the simpler `Callbacks`, `Middlewares`, `Coercions`, `Validators` plain classes)
+- Remove `CMDx::Utils::Call`, `CMDx::Utils::Condition`, `CMDx::Utils::Format`, `CMDx::Utils::Normalize`, `CMDx::Utils::Wrap` (collapsed into `CMDx::Util`)
+- Remove built-in `CMDx::Middlewares::Correlate`, `CMDx::Middlewares::Runtime`, `CMDx::Middlewares::Timeout` — register equivalents on `config.middlewares` if needed
+- Remove `CMDx::Exception` file — `CMDx::Error` / `Exception` and friends are now defined in `lib/cmdx.rb`
+- Remove Zeitwerk autoloading (replaced by explicit `require_relative` ordering in `lib/cmdx.rb`); drop `forwardable`, `pathname`, `timeout`, and `zeitwerk` requires
+- Remove `CMDx.gem_path` top-level helper
+- Remove `Configuration#task_breakpoints`, `Configuration#workflow_breakpoints`, `Configuration#freeze_results`, `Configuration#exception_handler`, and the `SKIP_CMDX_FREEZING` env var — failure halting is now intrinsic to Runtime via `Signal` and `execute!` strict mode
+- Remove `Chain#dry_run?` and the `dry_run:` context flag
+
+### Migration notes
+
+See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide. At minimum:
+
+- Rename `def call` → `def work`; `MyTask.call(ctx)` still works (aliased) but prefer `MyTask.execute(ctx)`
+- Replace `register :attribute, ...` with `required :name, ...` / `optional :name, ...` / `output :name, ...`
+- Replace `result.chain_id` with `result.chain.id`
+- Replace `task.id` / `task.result` / `task.chain` with reads off the `Result` returned by `execute`
+- Subscribe to lifecycle observability via `config.telemetry.subscribe(:task_executed) { |event| ... }` instead of the removed `Runtime` / `Correlate` middlewares
 
 ## [1.21.0] - 2026-04-09
 

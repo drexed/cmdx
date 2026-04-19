@@ -2,464 +2,281 @@
 
 require "spec_helper"
 
-RSpec.describe CMDx::Context, type: :unit do
-  subject(:context) { described_class.new(initial_data) }
+RSpec.describe CMDx::Context do
+  describe ".build" do
+    it "returns the same instance when given an unfrozen Context" do
+      ctx = described_class.new(a: 1)
+      expect(described_class.build(ctx)).to be(ctx)
+    end
 
-  let(:initial_data) { { name: "John", age: 30 } }
+    it "wraps a frozen Context in a new instance" do
+      ctx = described_class.new(a: 1).freeze
+      built = described_class.build(ctx)
+
+      expect(built).not_to be(ctx)
+      expect(built.to_h).to eq(a: 1)
+    end
+
+    it "unwraps an object that responds to #context" do
+      ctx = described_class.new(a: 1)
+      holder = Struct.new(:context).new(ctx)
+
+      expect(described_class.build(holder)).to be(ctx)
+    end
+
+    it "builds from a hash" do
+      built = described_class.build(a: 1, b: 2)
+      expect(built.to_h).to eq(a: 1, b: 2)
+    end
+
+    it "builds an empty context by default" do
+      expect(described_class.build).to be_empty
+    end
+  end
 
   describe "#initialize" do
-    context "when given a hash" do
-      let(:initial_data) { { name: "Alice", age: 25 } }
-
-      it "converts keys to symbols and stores the data" do
-        expect(context.table).to eq(name: "Alice", age: 25)
-      end
+    it "accepts a hash and stringified keys are symbolized" do
+      ctx = described_class.new("a" => 1, b: 2)
+      expect(ctx.to_h).to eq(a: 1, b: 2)
     end
 
-    context "when given an object that responds to to_hash" do
-      let(:initial_data) do
-        object = Object.new
-        def object.to_hash
-          { "city" => "NYC", "country" => "USA" }
-        end
-        object
-      end
-
-      it "converts to hash and symbolizes keys" do
-        expect(context.table).to eq(city: "NYC", country: "USA")
-      end
+    it "accepts any object with to_hash" do
+      hashable = Class.new { def to_hash = { x: 1 } }.new
+      expect(described_class.new(hashable).to_h).to eq(x: 1)
     end
 
-    context "when given an object that responds to to_h" do
-      let(:initial_data) do
-        object = Object.new
-        def object.to_h
-          { "score" => 100, "level" => 5 }
-        end
-        object
-      end
-
-      it "converts to hash and symbolizes keys" do
-        expect(context.table).to eq(score: 100, level: 5)
-      end
+    it "accepts any object with to_h" do
+      hashish = Class.new { def to_h = { y: 2 } }.new
+      expect(described_class.new(hashish).to_h).to eq(y: 2)
     end
 
-    context "when given an object that responds to neither to_h nor to_hash" do
-      let(:initial_data) { "invalid" }
-
-      it "raises ArgumentError" do
-        expect { context }.to raise_error(ArgumentError, "must respond to `to_h` or `to_hash`")
-      end
-    end
-
-    context "when given string keys" do
-      let(:initial_data) { { "name" => "Bob", "active" => true } }
-
-      it "converts string keys to symbols" do
-        expect(context.table).to eq(name: "Bob", active: true)
-      end
-    end
-
-    context "when given no arguments" do
-      subject(:context) { described_class.new }
-
-      it "creates empty context" do
-        expect(context.table).to eq({})
-      end
+    it "raises ArgumentError for objects that respond to neither" do
+      expect { described_class.new(Object.new) }
+        .to raise_error(ArgumentError, "must respond to `to_h` or `to_hash`")
     end
   end
 
-  describe ".build" do
-    context "when given a Context instance that is not frozen" do
-      let(:existing_context) { described_class.new(name: "test") }
+  describe "key access" do
+    subject(:ctx) { described_class.new(a: 1, b: 2) }
 
-      it "returns the same instance" do
-        result = described_class.build(existing_context)
-
-        expect(result).to be(existing_context)
-      end
+    it "reads via []" do
+      expect(ctx[:a]).to eq(1)
+      expect(ctx["a"]).to eq(1)
     end
 
-    context "when given a frozen Context instance" do
-      let(:frozen_context) { described_class.new(name: "test").freeze }
-
-      it "creates a new Context instance" do
-        result = described_class.build(frozen_context)
-
-        expect(result).not_to be(frozen_context)
-        expect(result.table).to eq(name: "test")
-      end
+    it "writes via store / []=" do
+      ctx.store(:c, 3)
+      ctx["d"] = 4
+      expect(ctx.to_h).to eq(a: 1, b: 2, c: 3, d: 4)
     end
 
-    context "when given an object that responds to context" do
-      let(:object_with_context) do
-        object = Object.new
-        def object.context
-          { user_id: 123 }
-        end
-        object
-      end
-
-      it "recursively builds from the context method result" do
-        result = described_class.build(object_with_context)
-
-        expect(result).to be_a(described_class)
-        expect(result.table).to eq(user_id: 123)
-      end
+    it "fetches with a default" do
+      expect(ctx.fetch(:missing, :default)).to eq(:default)
+      expect(ctx.fetch(:a)).to eq(1)
     end
 
-    context "when given a hash" do
-      let(:hash_data) { { role: "admin", permissions: %w[read write] } }
-
-      it "creates new Context instance" do
-        result = described_class.build(hash_data)
-
-        expect(result).to be_a(described_class)
-        expect(result.table).to eq(role: "admin", permissions: %w[read write])
-      end
+    it "fetches with a block" do
+      expect(ctx.fetch(:missing) { :block }).to eq(:block) # rubocop:disable Style/RedundantFetchBlock
     end
 
-    context "when given nil" do
-      it "creates empty Context instance" do
-        result = described_class.build(nil)
+    it "raises on fetch miss without default" do
+      expect { ctx.fetch(:missing) }.to raise_error(KeyError)
+    end
 
-        expect(result).to be_a(described_class)
-        expect(result.table).to eq({})
-      end
+    it "digs into nested values" do
+      nested = described_class.new(a: { b: { c: 1 } })
+      expect(nested.dig(:a, :b, :c)).to eq(1)
     end
   end
 
-  describe "#[]" do
-    it "retrieves value by symbol key" do
-      expect(context[:name]).to eq("John")
+  describe "#retrieve" do
+    subject(:ctx) { described_class.new }
+
+    it "returns the existing value without writing when present" do
+      ctx.store(:a, 1)
+      expect(ctx.retrieve(:a, 99)).to eq(1)
+      expect(ctx[:a]).to eq(1)
     end
 
-    it "retrieves value by string key converted to symbol" do
-      expect(context["name"]).to eq("John")
+    it "stores and returns the default when missing" do
+      expect(ctx.retrieve(:a, 42)).to eq(42)
+      expect(ctx[:a]).to eq(42)
     end
 
-    it "returns nil for non-existent key" do
-      expect(context[:missing]).to be_nil
-    end
-  end
-
-  describe "#store and #[]=" do
-    it "stores value with symbol key" do
-      context.store(:email, "john@example.com")
-
-      expect(context[:email]).to eq("john@example.com")
+    it "stores and returns the block result when missing" do
+      expect(ctx.retrieve(:a) { :computed }).to eq(:computed)
+      expect(ctx[:a]).to eq(:computed)
     end
 
-    it "stores value with string key converted to symbol" do
-      context["phone"] = "555-1234"
-
-      expect(context[:phone]).to eq("555-1234")
-    end
-
-    it "overwrites existing value" do
-      context[:age] = 35
-
-      expect(context[:age]).to eq(35)
+    it "prefers the block over the default" do
+      expect(ctx.retrieve(:a, :fallback) { :block }).to eq(:block)
     end
   end
 
-  describe "#fetch" do
-    it "retrieves existing value" do
-      expect(context.fetch(:name)).to eq("John")
-    end
-
-    it "retrieves value with string key converted to symbol" do
-      expect(context.fetch("age")).to eq(30)
-    end
-
-    it "returns default value for missing key" do
-      expect(context.fetch(:missing, "default")).to eq("default")
-    end
-
-    it "executes block for missing key" do
-      result = context.fetch(:missing) { 1 + 1 }
-
-      expect(result).to eq(2)
-    end
-
-    it "raises KeyError for missing key without default" do
-      expect { context.fetch(:missing) }.to raise_error(KeyError)
-    end
-  end
-
-  describe "#fetch_or_store" do
-    it "returns existing value when key exists" do
-      result = context.fetch_or_store(:name, "Default")
-
-      expect(result).to eq("John")
-      expect(context.table).to include(name: "John")
-    end
-
-    it "stores and returns default value when key does not exist" do
-      result = context.fetch_or_store(:email, "john@example.com")
-
-      expect(result).to eq("john@example.com")
-      expect(context.table).to include(email: "john@example.com")
-    end
-
-    it "converts string key to symbol" do
-      result = context.fetch_or_store("phone", "555-1234")
-
-      expect(result).to eq("555-1234")
-      expect(context.table).to include(phone: "555-1234")
-    end
-
-    it "returns existing value and does not execute block when key exists" do
-      block_called = false
-      result = context.fetch_or_store(:name) do
-        block_called = true
-        "Default"
-      end
-
-      expect(result).to eq("John")
-      expect(block_called).to be(false)
-    end
-
-    it "stores nil when no value or block provided" do
-      result = context.fetch_or_store(:status)
-
-      expect(result).to be_nil
-      expect(context.table).to include(status: nil)
-    end
-
-    it "overwrites existing value when block is provided and key exists" do
-      context[:counter] = 5
-      result = context.fetch_or_store(:counter) { 10 }
-
-      expect(result).to eq(5)
-      expect(context.table).to include(counter: 5)
-    end
-
-    it "handles complex default values" do
-      default_hash = { active: true, role: "admin" }
-      result = context.fetch_or_store(:settings, default_hash)
-
-      expect(result).to eq(default_hash)
-      expect(context.table).to include(settings: default_hash)
-    end
-  end
-
-  describe "#merge!" do
-    context "when given a hash" do
-      it "merges new data and returns self" do
-        result = context.merge!(email: "john@example.com", active: true)
-
-        expect(result).to be(context)
-        expect(context.table).to include(
-          name: "John",
-          age: 30,
-          email: "john@example.com",
-          active: true
-        )
-      end
-    end
-
-    context "when given object with to_h" do
-      let(:mergeable) do
-        object = Object.new
-        def object.to_h
-          { "status" => "active", "role" => "user" }
-        end
-        object
-      end
-
-      it "converts to hash and merges with symbol keys" do
-        context.merge!(mergeable)
-
-        expect(context.table).to include(status: "active", role: "user")
-      end
-    end
-
-    context "when given empty hash" do
-      it "returns self without changes" do
-        original_table = context.table.dup
-        result = context.merge!({})
-
-        expect(result).to be(context)
-        expect(context.table).to eq(original_table)
-      end
+  describe "#merge" do
+    it "returns self after merging a hash" do
+      ctx = described_class.new(a: 1)
+      expect(ctx.merge(b: 2)).to be(ctx)
+      expect(ctx.to_h).to eq(a: 1, b: 2)
     end
 
     it "overwrites existing keys" do
-      context.merge!(name: "Jane", age: 25)
+      ctx = described_class.new(a: 1)
+      ctx.merge(a: 99)
+      expect(ctx[:a]).to eq(99)
+    end
 
-      expect(context.table).to eq(name: "Jane", age: 25)
+    it "accepts another Context" do
+      ctx = described_class.new(a: 1)
+      other = described_class.new(b: 2)
+      ctx.merge(other)
+      expect(ctx.to_h).to eq(a: 1, b: 2)
     end
   end
 
-  describe "#delete!" do
-    it "deletes existing key and returns value" do
-      result = context.delete!(:name)
+  describe "predicates and introspection" do
+    subject(:ctx) { described_class.new(a: 1) }
 
-      expect(result).to eq("John")
-      expect(context.table).not_to have_key(:name)
+    it "key? uses symbol-coerced keys" do
+      expect(ctx.key?(:a)).to be(true)
+      expect(ctx.key?("a")).to be(true)
+      expect(ctx.key?(:b)).to be(false)
     end
 
-    it "deletes key with string converted to symbol" do
-      result = context.delete!("age")
-
-      expect(result).to eq(30)
-      expect(context.table).not_to have_key(:age)
+    it "keys and values" do
+      expect(ctx.keys).to eq([:a])
+      expect(ctx.values).to eq([1])
     end
 
-    it "returns nil for non-existent key" do
-      result = context.delete!(:missing)
-
-      expect(result).to be_nil
-    end
-
-    it "executes block for non-existent key" do
-      result = context.delete!(:missing) { "not found" }
-
-      expect(result).to eq("not found")
+    it "empty? and size" do
+      expect(ctx).not_to be_empty
+      expect(ctx.size).to eq(1)
+      expect(described_class.new).to be_empty
     end
   end
 
-  describe "#clear!" do
-    it "clears all data and returns self" do
-      result = context.clear!
+  describe "iteration" do
+    subject(:ctx) { described_class.new(a: 1, b: 2) }
 
-      expect(result).to be(context)
-      expect(context.table).to be_empty
+    it "each yields symbol/value pairs" do
+      pairs = []
+      ctx.each { |k, v| pairs << [k, v] } # rubocop:disable Style/MapIntoArray
+      expect(pairs).to eq([[:a, 1], [:b, 2]])
+    end
+
+    it "each_key and each_value" do
+      expect(ctx.each_key.to_a).to eq(%i[a b])
+      expect(ctx.each_value.to_a).to eq([1, 2])
     end
   end
 
-  describe "#eql? and #==" do
-    let(:other_context) { described_class.new(name: "John", age: 30) }
-    let(:different_context) { described_class.new(name: "Jane", age: 25) }
-
-    it "returns true for contexts with same data" do
-      expect(context).to eql(other_context)
-      expect(context).to eq(other_context)
+  describe "#delete and #clear" do
+    it "delete removes the key and returns its value" do
+      ctx = described_class.new(a: 1)
+      expect(ctx.delete(:a)).to eq(1)
+      expect(ctx).to be_empty
     end
 
-    it "returns false for contexts with different data" do
-      expect(context).not_to eql(different_context)
-      expect(context).not_to eq(different_context)
+    it "delete uses the block when absent" do
+      ctx = described_class.new
+      result = ctx.delete(:missing) { :default }
+      expect(result).to eq(:default)
     end
 
-    it "returns false when compared to non-Context object" do
-      expect(context).not_to eql({ name: "John", age: 30 })
-      expect(context).not_to eq({ name: "John", age: 30 })
-    end
-  end
-
-  describe "#key?" do
-    it "returns true for existing symbol key" do
-      expect(context.key?(:name)).to be(true)
-    end
-
-    it "returns true for existing key given as string" do
-      expect(context.key?("name")).to be(true)
-    end
-
-    it "returns false for non-existent key" do
-      expect(context.key?(:missing)).to be(false)
+    it "clear empties the table and returns self" do
+      ctx = described_class.new(a: 1)
+      expect(ctx.clear).to be(ctx)
+      expect(ctx).to be_empty
     end
   end
 
-  describe "#dig" do
-    let(:initial_data) do
-      {
-        user: {
-          profile: {
-            name: "John",
-            settings: { theme: "dark" }
-          }
-        }
-      }
+  describe "equality" do
+    it "eql? is true for contexts with equal hashes" do
+      a = described_class.new(a: 1)
+      b = described_class.new(a: 1)
+      expect(a).to eql(b)
     end
 
-    it "digs into nested hash with symbol keys" do
-      expect(context.dig(:user, :profile, :name)).to eq("John")
+    it "eql? is false for different classes" do
+      expect(described_class.new(a: 1)).not_to eql({ a: 1 })
     end
 
-    it "digs into nested hash with string key converted to symbol" do
-      expect(context.dig("user", :profile, :settings, :theme)).to eq("dark")
-    end
-
-    it "returns nil for non-existent nested path" do
-      expect(context.dig(:user, :missing, :key)).to be_nil
-    end
-
-    it "returns nil for partial path" do
-      expect(context.dig(:user, :profile, :missing)).to be_nil
-    end
-  end
-
-  describe "#to_h" do
-    it "returns the internal table" do
-      expect(context.to_h).to eq(context.table)
-      expect(context.to_h).to be(context.table)
+    it "hash matches the underlying table" do
+      ctx = described_class.new(a: 1)
+      expect(ctx.hash).to eq({ a: 1 }.hash)
     end
   end
 
   describe "#to_s" do
-    it "delegates to Utils::Format.to_str" do
-      allow(CMDx::Utils::Format).to receive(:to_str).with(context.table).and_return("formatted string")
-
-      expect(context.to_s).to eq("formatted string")
+    it "renders space-separated k=value.inspect pairs" do
+      ctx = described_class.new(a: 1, name: "Jane")
+      expect(ctx.to_s).to eq('a=1 name="Jane"')
     end
   end
 
-  describe "#each" do
-    it "delegates to table" do
-      result = []
-      context.each { |key, value| result << [key, value] } # rubocop:disable Style/MapIntoArray
+  describe "#deep_dup" do
+    it "returns a new context with independent nested data" do
+      ctx = described_class.new(a: { b: [1, 2] })
+      copy = ctx.deep_dup
 
-      expect(result).to contain_exactly([:name, "John"], [:age, 30])
+      copy[:a][:b] << 3
+
+      expect(ctx[:a][:b]).to eq([1, 2])
+      expect(copy[:a][:b]).to eq([1, 2, 3])
+      expect(copy).not_to be(ctx)
+    end
+
+    it "preserves immutable scalars" do
+      ctx = described_class.new(n: 1, s: :x, t: true, f: false, z: nil)
+      copy = ctx.deep_dup
+      expect(copy.to_h).to eq(n: 1, s: :x, t: true, f: false, z: nil)
+    end
+
+    it "falls back to the original value when dup raises" do
+      unduppable = Class.new { def dup = raise "nope" }.new
+      ctx = described_class.new(val: unduppable)
+
+      expect(ctx.deep_dup[:val]).to be(unduppable)
     end
   end
 
-  describe "#map" do
-    it "delegates to table" do
-      result = context.map { |key, value| "#{key}:#{value}" }
-
-      expect(result).to contain_exactly("name:John", "age:30")
+  describe "#freeze" do
+    it "freezes both the context and its table" do
+      ctx = described_class.new(a: 1).freeze
+      expect(ctx).to be_frozen
+      expect(ctx.to_h).to be_frozen
     end
   end
 
-  describe "method_missing and respond_to_missing?" do
-    context "when method name matches existing key" do
-      it "returns the value" do
-        expect(context.name).to eq("John")
-        expect(context.age).to eq(30)
-      end
+  describe "dynamic accessors" do
+    subject(:ctx) { described_class.new(name: "Jane") }
 
-      it "responds to the method" do
-        expect(context).to respond_to(:name)
-        expect(context).to respond_to(:age)
-      end
+    it "reads via method name" do
+      expect(ctx.name).to eq("Jane")
     end
 
-    context "when method name does not match any key" do
-      it "returns nil" do
-        expect(context.missing_method).to be_nil
-      end
-
-      it "does not respond to the method" do
-        expect(context).not_to respond_to(:missing_method)
-      end
+    it "writes via foo= method" do
+      ctx.age = 30
+      expect(ctx[:age]).to eq(30)
     end
 
-    context "when method name ends with equals sign" do
-      it "stores the value" do
-        context.email = "john@example.com"
+    it "foo? returns boolean based on truthiness" do
+      ctx.enabled = false
+      ctx.ready = "yes"
 
-        expect(context.table).to include(email: "john@example.com")
-      end
+      expect(ctx.enabled?).to be(false)
+      expect(ctx.ready?).to be(true)
+      expect(ctx.unknown?).to be(false)
     end
 
-    context "when checking private method visibility" do
-      it "delegates to super for respond_to_missing?" do
-        expect(context.respond_to?(:name, true)).to be(true)
-        expect(context.respond_to?(:missing, true)).to be(false)
-      end
+    it "returns nil for unknown keys (dynamic reader)" do
+      expect(ctx.missing).to be_nil
+    end
+
+    it "respond_to? is true for existing keys and setter suffixes" do
+      expect(ctx.respond_to?(:name)).to be(true)
+      expect(ctx.respond_to?(:new_thing=)).to be(true)
+      expect(ctx.respond_to?(:ready?)).to be(true)
     end
   end
 end

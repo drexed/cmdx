@@ -9,6 +9,8 @@ slug: mastering-cmdx-callbacks-and-middlewares
 
 # Mastering CMDx Callbacks and Middlewares: Hooks and Wrappers
 
+*Targets CMDx v1.16.*
+
 When I'm writing complex business logic in Ruby, I often find that the core "work" is only half the battle. The other half is everything around it: logging, error handling, notifications, database transactions, and performance tracking.
 
 If you put all that code inside your main method, you end up with a mess. That's where CMDx's **Callbacks** and **Middlewares** come in. They let you separate the "what" from the "how" and the "when," keeping your tasks clean and focused.

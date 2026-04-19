@@ -1,69 +1,68 @@
 # Outcomes - Statuses
 
-Statuses represent the business outcome—did the task succeed, skip, or fail? This differs from state, which tracks the execution lifecycle.
+Statuses represent the business outcome — did the task succeed, skip, or fail? This is independent of state, which only tracks whether the lifecycle ran to completion or was interrupted.
 
 ## Definitions
 
 | Status | Description |
 | ------ | ----------- |
-| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks. |
-| `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary. |
-| `failed` | Task stopped execution due to business rule violations, validation errors, or exceptions. |
+| `success` | Task `work` ran to completion (and any declared outputs verified). Default outcome. |
+| `skipped` | Task halted via `skip!`. Treated as a non-failure outcome. |
+| `failed`  | Task halted via `fail!`, `throw!`, an unrescued `StandardError`, or accumulated `task.errors`. |
 
-## Transitions
+!!! note
 
-!!! warning "Important"
+    `throw!` isn't a primitive halt — it re-throws a peer's already-`failed?` result through the current task. See [Fault Propagation](../interruptions/faults.md#fault-propagation).
 
-    Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
+## Single Final Status
 
-```ruby
-# Valid status transitions
-success → skipped    # via skip!
-success → failed     # via fail! or exception
-
-# Invalid transitions (will raise errors)
-skipped → success    # ❌ Cannot transition
-skipped → failed     # ❌ Cannot transition
-failed → success     # ❌ Cannot transition
-failed → skipped     # ❌ Cannot transition
-```
-
-## Predicates
-
-Use status predicates to check execution outcomes:
+Statuses don't transition. The first `skip!` / `fail!` inside `work` throws out of the call stack, so the result is built once with a single, final status:
 
 ```ruby
-result = ProcessNotification.execute
-
-# Individual status checks
-result.success? #=> true/false
-result.skipped? #=> true/false
-result.failed?  #=> true/false
-
-# Outcome categorization
-result.good?    #=> true if success OR skipped (alias: ok?)
-result.bad?     #=> true if skipped OR failed (not success)
+def work
+  fail!("first")    # Runtime catches this and finalizes the result
+  skip!("second")   # Unreachable
+end
 ```
 
 !!! note
 
-    `skipped` is intentionally both `good?` and `bad?`. This reflects that skipping is a valid outcome (good — nothing broke) but also a non-success (bad — work wasn't done). Use `success?` when you need a strict success check.
+    Calling `skip!` or `fail!` on a frozen task (after `Runtime` teardown) raises `FrozenError` — they can't mutate a finalized result.
 
-## Handlers
-
-Branch business logic with status-based handlers. Use `on(:good)` and `on(:bad)` for success/skip vs failed outcomes:
+## Predicates
 
 ```ruby
 result = ProcessNotification.execute
 
-# Individual status handlers
+# Direct status checks
+result.success? #=> true / false
+result.skipped? #=> true / false
+result.failed?  #=> true / false
+
+# Outcome categorization
+result.ok?      #=> true for success and skipped (anything but failed)
+result.ko?      #=> true for skipped and failed (anything but success)
+```
+
+!!! note
+
+    `skipped` is intentionally both `ok?` and `ko?`. It's a valid outcome (`ok` — nothing broke) and a non-success (`ko` — work wasn't done). Use `success?` when you need a strict success check.
+
+## Handlers
+
+Branch business logic with status-based handlers. `:ok` and `:ko` are first-class event keys — not aliases of any combination:
+
+```ruby
+result = ProcessNotification.execute
+
+# Direct status handlers
 result
-  .on(:success) { |result| mark_notification_sent(result) }
-  .on(:skipped) { |result| log_notification_skipped(result) }
-  .on(:failed){ |result| queue_retry_notification(result) }
+  .on(:success) { |r| mark_notification_sent(r) }
+  .on(:skipped) { |r| log_notification_skipped(r) }
+  .on(:failed)  { |r| queue_retry_notification(r) }
 
 # Outcome-based handlers
 result
-  .on(:good) { |result| update_message_stats(result) }  #=> .on(:success, :skipped)
-  .on(:bad) { |result| track_delivery_failure(result) } #=> .on(:failed, :skipped)
+  .on(:ok) { |r| update_message_stats(r) }      # success or skipped
+  .on(:ko) { |r| track_delivery_failure(r) }    # skipped or failed
 ```

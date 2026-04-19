@@ -1,5 +1,5 @@
 ---
-date: 2026-05-20
+date: 2026-05-27
 authors:
   - drexed
 categories:
@@ -10,6 +10,8 @@ slug: real-world-cmdx-external-apis
 # Real-World CMDx: Integrating External APIs
 
 *Part 2 of the Real-World CMDx series*
+
+*Built on CMDx 2.0 — see the [v2 release post](cmdx-v2-the-runtime-rewrite.md) for the runtime changes this post depends on, especially [`Task#rollback`](cmdx-v2-the-runtime-rewrite.md) and the [`output` pipeline](https://drexed.github.io/cmdx/outputs/).*
 
 External APIs are where clean code goes to die. You write a beautiful service object, ship it, and then the real world hits: Stripe times out, the shipping API returns HTML instead of JSON, the geocoding service rate-limits you at 2 PM on a Tuesday. Suddenly your elegant `PaymentService` is a nest of `rescue` blocks, retry loops, and sleep statements.
 
@@ -57,15 +59,25 @@ With CMDx, we separate infrastructure concerns from business logic using middlew
 
 ### Timeout
 
-Don't let a slow API call hold up your web request:
+Don't let a slow API call hold up your web request. v2 ships no built-in `Timeout` middleware (the v1 trio was removed — see the [migration guide](https://drexed.github.io/cmdx/v2-migration/#built-ins-removed)), but the replacement is six lines:
 
 ```ruby
+class Timeout
+  def initialize(seconds:) = @seconds = seconds
+
+  def call(task)
+    ::Timeout.timeout(@seconds) { yield }
+  rescue ::Timeout::Error => e
+    throw(CMDx::Signal::TAG, CMDx::Signal.failed("timed out after #{@seconds}s", cause: e))
+  end
+end
+
 class ExternalApiTask < ApplicationTask
-  register :middleware, CMDx::Middlewares::Timeout, seconds: 10
+  register :middleware, Timeout.new(seconds: 10)
 end
 ```
 
-Any task inheriting from `ExternalApiTask` will fail after 10 seconds with a `CMDx::TimeoutError`. The caller gets a structured failure—no hanging requests, no thread starvation.
+Any task inheriting from `ExternalApiTask` fails after 10 seconds with a structured `Signal.failed`. The caller gets a real failure result—no hanging requests, no thread starvation. Throwing `Signal::TAG` short-circuits Runtime cleanly; you do not (and cannot) mutate `task.result` from inside a middleware in v2.
 
 ### Circuit Breaker
 
@@ -73,25 +85,24 @@ When Stripe is down, stop hammering it:
 
 ```ruby
 class CircuitBreaker
-  def call(task, options)
-    service_name = options[:name] || task.class.name
-    light = Stoplight(service_name)
-    light.run { yield }
+  def initialize(name:) = @name = name
+
+  def call(task)
+    Stoplight(@name).run { yield }
   rescue Stoplight::Error::RedLight => e
-    task.result.tap { |r| r.fail!("[#{e.class}] #{e.message}", cause: e) }
+    throw(CMDx::Signal::TAG, CMDx::Signal.failed("[#{e.class}] #{e.message}", cause: e))
   end
 end
 
 class Stripe::BaseTask < ExternalApiTask
-  register :middleware, CircuitBreaker, name: "stripe"
+  register :middleware, CircuitBreaker.new(name: "stripe")
 
-  settings(
-    retries: 3,
-    retry_on: [Stripe::APIConnectionError, Net::OpenTimeout, Faraday::ConnectionFailed],
-    retry_jitter: ->(retry_num) { 2**retry_num }
-  )
+  retry_on Stripe::APIConnectionError, Net::OpenTimeout, Faraday::ConnectionFailed,
+    limit: 3, delay: 1.0, jitter: :exponential, max_delay: 30
 end
 ```
+
+`Task.retry_on` is the v2 retry API; `:jitter` accepts the built-in `:exponential | :half_random | :full_random | :bounded_random` strategies, or any `#call`-able. The `settings(...)` DSL is for tags and logger config only.
 
 The inheritance chain builds naturally:
 
@@ -107,28 +118,29 @@ Every Stripe task gets all of this automatically.
 
 ```ruby
 class ErrorTracking
-  def call(task, options)
+  def call(task)
     Sentry.with_scope do |scope|
       scope.set_tags(
         task_class: task.class.name,
-        task_id: task.id,
-        chain_id: task.chain.id
+        chain_id: CMDx::Chain.current&.id
       )
 
-      yield.tap do |result|
-        if result.failed? && result.cause && !result.cause.is_a?(CMDx::Fault)
-          Sentry.capture_exception(result.cause)
-        end
-      end
+      yield
     end
-  rescue => e
-    Sentry.capture_exception(e)
-    raise
+  end
+end
+
+CMDx.configure do |config|
+  config.telemetry.subscribe(:task_executed) do |event|
+    result = event.payload[:result]
+    next unless result.failed? && result.cause
+
+    Sentry.capture_exception(result.cause)
   end
 end
 ```
 
-The `!result.cause.is_a?(CMDx::Fault)` check is key. When `fail!` is called, CMDx wraps the result's cause in a `FailFault`. We don't want to report those to Sentry — they're intentional business logic, not bugs. Only unexpected exceptions (caught by `execute` and stored as the raw exception) should trigger an alert.
+In v2, exceptions are surfaced via `result.cause` ([lib/cmdx/runtime.rb#L162](https://github.com/drexed/cmdx/blob/main/lib/cmdx/runtime.rb)) and `fail!` populates `signal.cause` only when you pass `cause:` explicitly — bare `fail!("...")` calls (intentional business failures) carry no cause, so the subscriber naturally ignores them. Telemetry is the v2-native place for cross-cutting reporting; the middleware just adds Sentry scope tags.
 
 ## The Payment Tasks
 
@@ -140,7 +152,7 @@ With infrastructure handled, the tasks themselves are pure business logic.
 class Stripe::CreateCustomer < Stripe::BaseTask
   required :user
 
-  returns :stripe_customer
+  output :stripe_customer, required: true
 
   def work
     if user.stripe_customer_id.present?
@@ -173,12 +185,12 @@ The `rollback` method reverses the operation if a downstream task fails. CMDx ca
 ```ruby
 class Stripe::ChargeCard < Stripe::BaseTask
   required :stripe_customer
-  required :amount_cents, type: :integer, numeric: { min: 50, max: 99_999_999 }
+  required :amount_cents, coerce: :integer, numeric: { min: 50, max: 99_999_999 }
   required :currency, inclusion: { in: %w[usd eur gbp] }
   optional :description
   optional :idempotency_key, default: -> { SecureRandom.uuid }
 
-  returns :charge
+  output :charge, required: true
 
   def work
     context.charge = ::Stripe::Charge.create(
@@ -217,10 +229,10 @@ The `idempotency_key` default ensures that retries don't create duplicate charge
 class Payments::Record < ApplicationTask
   required :user
   required :charge
-  required :amount_cents, type: :integer
+  required :amount_cents, coerce: :integer
   required :currency
 
-  returns :payment
+  output :payment, required: true
 
   def work
     context.payment = Payment.create!(
@@ -261,10 +273,7 @@ end
 class Payments::Charge < CMDx::Task
   include CMDx::Workflow
 
-  settings(
-    workflow_breakpoints: ["failed"],
-    tags: ["payments", "stripe"]
-  )
+  settings(tags: ["payments", "stripe"])
 
   task Stripe::CreateCustomer
   task Stripe::ChargeCard
@@ -355,31 +364,18 @@ The charge was real money. CMDx's automatic rollback calls `Stripe::ChargeCard#r
 
 ## Reusing the Stack for Other APIs
 
-The middleware stack isn't Stripe-specific. Build base classes for any external service:
+The middleware stack isn't Stripe-specific. Build a base class per external service with the appropriate resilience settings:
 
 ```ruby
 class Shipping::BaseTask < ExternalApiTask
-  register :middleware, CircuitBreaker, name: "shippo"
+  register :middleware, CircuitBreaker.new(name: "shippo")
 
-  settings(
-    retries: 2,
-    retry_on: [Shippo::ConnectionError, Net::ReadTimeout],
-    retry_jitter: 1
-  )
-end
-
-class Geocoding::BaseTask < ExternalApiTask
-  register :middleware, CircuitBreaker, name: "google_maps"
-
-  settings(
-    retries: 1,
-    retry_on: [Google::Apis::TransmissionError],
-    retry_jitter: 2
-  )
+  retry_on Shippo::ConnectionError, Net::ReadTimeout,
+    limit: 2, delay: 1.0, jitter: :half_random
 end
 ```
 
-Same pattern, different thresholds. A shipping API might be slower (allow more retries), while geocoding is a nice-to-have (fail fast with fewer retries).
+Same pattern as `Stripe::BaseTask`, different thresholds. A geocoding nice-to-have can `limit: 1`; a shipping API that's slow but reliable can bump `delay:` and `max_delay:`. The `CircuitBreaker.new(name:)` argument scopes the Stoplight per service, so an outage in one doesn't trip the others.
 
 ## Testing External APIs
 
@@ -437,7 +433,7 @@ Test the middleware stack separately. Test the workflow as an integration. The e
 
 4. **Rollback compensates for real side effects.** When you charge a credit card and a downstream step fails, the rollback issues a refund. CMDx calls it automatically.
 
-5. **Build reusable base classes per service.** `Stripe::BaseTask`, `Shipping::BaseTask`, `Geocoding::BaseTask` — each with appropriate resilience settings.
+5. **Build reusable base classes per service.** One per external API (`Stripe::BaseTask`, `Shipping::BaseTask`, ...) — each with appropriate `retry_on` thresholds and a service-named circuit breaker.
 
 The middleware stack does the hard, boring, critical work of making external API calls reliable. Your tasks just do the work.
 
@@ -446,6 +442,7 @@ Happy coding!
 ## References
 
 - [Middlewares](https://drexed.github.io/cmdx/middlewares/)
-- [Configuration](https://drexed.github.io/cmdx/configuration/)
-- [Halt](https://drexed.github.io/cmdx/interruptions/halt/)
+- [Outputs](https://drexed.github.io/cmdx/outputs/)
+- [Retries](https://drexed.github.io/cmdx/retries/)
 - [Faults](https://drexed.github.io/cmdx/interruptions/faults/)
+- [Built-ins Removed in v2](https://drexed.github.io/cmdx/v2-migration/#built-ins-removed)

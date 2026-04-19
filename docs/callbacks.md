@@ -1,6 +1,10 @@
 # Callbacks
 
-Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.
+Run custom logic at specific points during task execution. Callbacks have full access to the task and its context — perfect for logging, notifications, and cleanup.
+
+!!! note
+
+    The `Result` isn't built yet when callbacks run, so `task.result` isn't available. Branch on outcome by registering separate `on_success` / `on_failed` / `on_skipped` callbacks, or subscribe to Telemetry's `:task_executed` event when you need the finalized result.
 
 See [Global Configuration](configuration.md#callbacks) for framework-wide callback setup.
 
@@ -13,15 +17,15 @@ See [Global Configuration](configuration.md#callbacks) for framework-wide callba
 Callbacks execute in a predictable lifecycle order:
 
 ```ruby
-1. before_validation           # Pre-validation setup
-2. before_execution            # Prepare for execution
+1. before_execution            # Prepare for execution
+2. before_validation           # Pre-validation setup
 
-# --- Task#work executes ---
+# --- inputs resolved, Task#work runs (with retries), outputs verified ---
+# --- #rollback runs here when failed ---
 
 3. on_[complete|interrupted]   # State-based (execution lifecycle)
-4. on_executed                 # Always runs after work completes
-5. on_[success|skipped|failed] # Status-based (business outcome)
-6. on_[good|bad]               # Outcome-based (success/skip vs fail)
+4. on_[success|skipped|failed] # Status-based (business outcome)
+5. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
 ```
 
 ## Declarations
@@ -48,11 +52,11 @@ class ProcessBooking < CMDx::Task
   end
 
   def notify_guest
-    GuestNotifier.call(context.guest, result)
+    GuestNotifier.call(context.guest)
   end
 
   def update_availability
-    AvailabilityService.update(context.room_ids, result)
+    AvailabilityService.update(context.room_ids)
   end
 end
 ```
@@ -78,11 +82,13 @@ Implement reusable callback logic in dedicated modules and classes:
 ```ruby
 class BookingConfirmationCallback
   def call(task)
-    if task.result.success?
-      MessagingApi.send_confirmation(task.context.guest)
-    else
-      MessagingApi.send_issue_alert(task.context.manager)
-    end
+    MessagingApi.send_confirmation(task.context.guest)
+  end
+end
+
+class BookingIssueCallback
+  def call(task)
+    MessagingApi.send_issue_alert(task.context.manager)
   end
 end
 
@@ -91,7 +97,7 @@ class ProcessBooking < CMDx::Task
   on_success BookingConfirmationCallback
 
   # Instance
-  on_interrupted BookingConfirmationCallback.new
+  on_interrupted BookingIssueCallback.new
 end
 ```
 
@@ -111,7 +117,7 @@ class ProcessBooking < CMDx::Task
   before_execution :notify_guest, if: :messaging_enabled?, unless: :messaging_blocked?
 
   # Proc
-  on_failure :increment_failure, if: -> { Rails.env.production? && self.class.name.include?("Legacy") }
+  on_failed :increment_failure, if: -> { Rails.env.production? && self.class.name.include?("Legacy") }
 
   # Lambda
   on_success :ping_housekeeping, if: proc { context.rooms_need_cleaning? }
@@ -140,18 +146,36 @@ end
 
 ## Callback Removal
 
-Remove unwanted callbacks dynamically:
-
-!!! warning "Important"
-
-    Each `deregister` call removes one callback. Use multiple calls for batch removals.
+`deregister :callback, event` drops **every** callback for the event. Pass an
+optional callable to drop only matching entries — matched by `==`, which works
+for Symbol method names and classes/modules (Procs/Lambdas match by identity,
+so you must hold the original reference). Unknown events raise `ArgumentError`;
+unknown callables are a silent no-op.
 
 ```ruby
 class ProcessBooking < CMDx::Task
-  # Symbol
+  # Drops every :before_execution callback (inherited or local)
+  deregister :callback, :before_execution
+
+  # Drops only the :notify_guest method callback for :before_execution
   deregister :callback, :before_execution, :notify_guest
 
-  # Class or Module (no instances)
+  # Drops only the BookingConfirmationCallback class for :on_complete
   deregister :callback, :on_complete, BookingConfirmationCallback
 end
 ```
+
+!!! note
+
+    Procs and Lambdas are matched by identity, so removing them requires
+    holding the original reference:
+
+    ```ruby
+    HOOK = ->(task) { Audit.log(task) }
+
+    class ProcessBooking < CMDx::Task
+      on_success HOOK
+      deregister :callback, :on_success, HOOK   # works
+      # deregister :callback, :on_success, ->(task) { Audit.log(task) }  # would NOT match
+    end
+    ```

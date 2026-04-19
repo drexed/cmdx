@@ -1,442 +1,358 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Represents the execution result of a CMDx task, tracking state transitions,
-  # status changes, and providing methods for handling different outcomes.
+  # Frozen outcome of a task execution. Provides read-only access to the
+  # task's signal (state/status/reason/metadata/cause), the chain it belongs
+  # to, its context, and lifecycle metadata (retries, duration, rollback,
+  # deprecated). Constructed by Runtime at the end of `execute`.
   #
-  # The Result class manages the lifecycle of task execution from initialization
-  # through completion or interruption, offering a fluent interface for status
-  # checking and conditional handling.
+  # @see Runtime#finalize_result
+  # @see Signal
   class Result
 
-    extend Forwardable
+    EVENTS = Set[
+      *Signal::STATES,
+      *Signal::STATUSES,
+      :ok,
+      :ko
+    ].map!(&:to_sym).freeze
+    private_constant :EVENTS
 
-    # @rbs STATES: Array[String]
-    STATES = [
-      INITIALIZED = "initialized",  # Initial state before execution
-      EXECUTING = "executing",      # Currently executing task logic
-      COMPLETE = "complete",        # Successfully completed execution
-      INTERRUPTED = "interrupted"   # Execution was halted due to failure
-    ].freeze
+    attr_reader :chain
 
-    # @rbs STATUSES: Array[String]
-    STATUSES = [
-      SUCCESS = "success",  # Task completed successfully
-      SKIPPED = "skipped",  # Task was skipped intentionally
-      FAILED = "failed"     # Task failed due to error or validation
-    ].freeze
+    # @param chain [Chain] the chain this result belongs to
+    # @param task [Task] the executed task instance
+    # @param signal [Signal] the final signal from the task's lifecycle
+    # @param options [Hash{Symbol => Object}] frozen execution metadata
+    # @option options [String] :id
+    # @option options [Boolean] :strict
+    # @option options [Boolean] :deprecated
+    # @option options [Boolean] :rolled_back
+    # @option options [Integer] :retries
+    # @option options [Float] :duration milliseconds
+    def initialize(chain, task, signal, **options)
+      @chain   = chain
+      @task    = task
+      @signal  = signal
+      @options = options.freeze
+    end
 
-    # @rbs STRIP_FAILURE: Proc
-    STRIP_FAILURE = proc do |hash, result, key|
-      unless result.public_send(:"#{key}?")
-        # Strip caused/threw failures since its the same info as the log line
-        hash[key] = result.public_send(key).to_h.except(:caused_failure, :threw_failure)
-      end
-    end.freeze
-    private_constant :STRIP_FAILURE
+    # @return [String] uuid_v7 identifier for this execution
+    def id
+      @options[:id]
+    end
 
-    # @rbs FAILURE_KEY_REGEX: Regexp
-    FAILURE_KEY_REGEX = /_failure\z/
-    private_constant :FAILURE_KEY_REGEX
+    # @return [Class<Task>] the task class that ran
+    def task
+      @task.class
+    end
 
-    # Returns the task instance associated with this result.
-    #
-    # @return [CMDx::Task] The task instance
-    #
-    # @example
-    #   result.task.id # => "users/create"
-    #
-    # @rbs @task: Task
-    attr_reader :task
+    # @return [String] `"Task"` or `"Workflow"`
+    def type
+      task.type
+    end
 
-    # Returns the current execution state of the result.
-    #
-    # @return [String] One of: "initialized", "executing", "complete", "interrupted"
-    #
-    # @example
-    #   result.state # => "complete"
-    #
-    # @rbs @state: String
-    attr_reader :state
+    # @return [Integer, nil] this result's position in the chain
+    def chain_index
+      @chain.index(self)
+    end
 
-    # Returns the execution status of the result.
-    #
-    # @return [String] One of: "success", "skipped", "failed"
-    #
-    # @example
-    #   result.status # => "success"
-    #
-    # @rbs @status: String
-    attr_reader :status
+    # @return [Boolean] true when this result is the root of the chain
+    def chain_root?
+      !!@options[:root]
+    end
 
-    # Returns additional metadata about the result.
-    #
-    # @return [Hash{Symbol => Object}] Metadata hash
-    #
-    # @example
-    #   result.metadata # => { duration: 1.5, code: 200, message: "Success" }
-    #
-    # @rbs @metadata: Hash[Symbol, untyped]
-    attr_reader :metadata
-
-    # Returns the reason for interruption (skip or failure).
-    #
-    # @return [String, nil] The reason message, or nil if not interrupted
-    #
-    # @example
-    #   result.reason # => "Validation failed"
-    #
-    # @rbs @reason: (String | nil)
-    attr_reader :reason
-
-    # Returns the exception that caused the interruption.
-    #
-    # @return [Exception, nil] The causing exception, or nil if not interrupted
-    #
-    # @example
-    #   result.cause # => #<StandardError: Connection timeout>
-    #
-    # @rbs @cause: (Exception | nil)
-    attr_reader :cause
-
-    # Returns whether this result transitions are strict.
-    # When false, {CMDx::Executor#halt_execution?} returns false
-    # regardless of the task's breakpoint settings.
-    #
-    # @return [Boolean] Whether the result transitions are strict
-    #
-    # @example
-    #   result.strict? # => true
-    #
-    # @rbs @strict: bool
-    attr_reader :strict
-
-    # Returns the number of retries attempted.
-    #
-    # @return [Integer] The number of retries attempted
-    #
-    # @example
-    #   result.retries # => 2
-    #
-    # @rbs @retries: Integer
-    attr_accessor :retries
-
-    # Returns whether the result has been rolled back.
-    #
-    # @return [Boolean] Whether the result has been rolled back
-    #
-    # @example
-    #   result.rolled_back? # => true
-    #
-    # @rbs @rolled_back: bool
-    attr_accessor :rolled_back
-
-    def_delegators :task, :context, :chain, :errors, :dry_run?
+    # @return [Context] frozen after the root task's teardown
+    def context
+      @task.context
+    end
     alias ctx context
 
-    # @param task [CMDx::Task] The task instance this result represents
+    # @return [Errors] frozen by Runtime teardown
+    def errors
+      @task.errors
+    end
+
+    # @return [String] one of {Signal::STATES}
+    def state
+      @signal.state
+    end
+
+    # @return [Boolean]
+    def complete?
+      @signal.complete?
+    end
+
+    # @return [Boolean]
+    def interrupted?
+      @signal.interrupted?
+    end
+
+    # @return [String] one of {Signal::STATUSES}
+    def status
+      @signal.status
+    end
+
+    # @return [Boolean]
+    def success?
+      @signal.success?
+    end
+
+    # @return [Boolean]
+    def skipped?
+      @signal.skipped?
+    end
+
+    # @return [Boolean]
+    def failed?
+      @signal.failed?
+    end
+
+    # @return [Boolean]
+    def ok?
+      @signal.ok?
+    end
+
+    # @return [Boolean]
+    def ko?
+      @signal.ko?
+    end
+
+    # Dispatches the block when any of `keys` matches a truthy predicate on
+    # this result. Returns `self` for chaining.
     #
-    # @return [CMDx::Result] A new result instance for the task
-    #
-    # @raise [TypeError] When task is not a CMDx::Task instance
+    # @param keys [Array<Symbol, String>] any of the predicate bases:
+    #   `complete`, `interrupted`, `success`, `skipped`, `failed`, `ok`, `ko`
+    # @yieldparam result [Result] this result
+    # @return [Result] self for chaining
+    # @raise [ArgumentError] when no block is given or a key is unknown
     #
     # @example
-    #   result = CMDx::Result.new(my_task)
-    #   result.state # => "initialized"
-    #
-    # @rbs (Task) -> void
-    def initialize(task)
-      raise TypeError, "must be a CMDx::Task" unless task.is_a?(CMDx::Task)
-
-      @task = task
-      @state = INITIALIZED
-      @status = SUCCESS
-      @metadata = {}
-      @reason = nil
-      @cause = nil
-      @strict = true
-      @retries = 0
-      @rolled_back = false
-    end
-
-    STATES.each do |s|
-      # @return [Boolean] Whether the result is in the specified state
-      #
-      # @example
-      #   result.initialized? # => true
-      #   result.executing?   # => false
-      #
-      # @rbs () -> bool
-      define_method(:"#{s}?") { state == s }
-    end
-
-    # @return [Boolean] Whether the task has been executed (complete or interrupted)
-    #
-    # @example
-    #   result.executed? # => true if complete? || interrupted?
-    #
-    # @rbs () -> bool
-    def executed?
-      complete? || interrupted?
-    end
-
-    STATUSES.each do |s|
-      # @return [Boolean] Whether the result has the specified status
-      #
-      # @example
-      #   result.success? # => true
-      #   result.failed?  # => false
-      #
-      # @rbs () -> bool
-      define_method(:"#{s}?") { status == s }
-    end
-
-    # @return [Boolean] Whether the task execution was successful (not failed)
-    #
-    # @example
-    #   result.good? # => true if !failed?
-    #
-    # @rbs () -> bool
-    def good?
-      !failed?
-    end
-    alias ok? good?
-
-    # @return [Boolean] Whether the task execution was unsuccessful (not success)
-    #
-    # @example
-    #   result.bad? # => true if !success?
-    #
-    # @rbs () -> bool
-    def bad?
-      !success?
-    end
-
-    # @yield [self] Executes the block if task status or state matches
-    #
-    # @return [self] Returns self for method chaining
-    #
-    # @raise [ArgumentError] When no block is provided
-    #
-    # @example
-    #   result.on(:bad) { |r| puts "Task had issues: #{r.reason}" }
-    #   result.on(:success, :complete) { |r| puts "Task completed successfully" }
-    #
-    # @rbs () { (Result) -> void } -> self
-    def on(*states_or_statuses, &)
+    #   result
+    #     .on(:success) { |r| deliver(r.context) }
+    #     .on(:failed)  { |r| alert(r.reason) }
+    def on(*keys)
       raise ArgumentError, "block required" unless block_given?
 
-      yield(self) if states_or_statuses.any? { |s| public_send(:"#{s}?") }
+      yield(self) if keys.any? do |k|
+        unless EVENTS.include?(k.to_sym)
+          raise ArgumentError,
+            "unknown event #{k.inspect}, must be one of #{EVENTS.join(', ')}"
+        end
+
+        public_send(:"#{k}?")
+      end
+
       self
     end
 
-    # @return [CMDx::Result, nil] The result that caused this failure, or nil
+    # @return [String, nil]
+    def reason
+      @signal.reason
+    end
+
+    # @return [Hash{Symbol => Object}] frozen empty hash when none provided
+    def metadata
+      @signal.metadata
+    end
+
+    # The upstream failed result this one was echoed from (via `Task#throw!`
+    # or a rescued {Fault} inside `work`). `nil` when this is a locally
+    # originated failure or the result didn't fail.
     #
-    # @example
-    #   cause = result.caused_failure
-    #   puts "Caused by: #{cause.task.id}" if cause
+    # @return [Result, nil]
+    def origin
+      @signal.origin
+    end
+
+    # @return [Exception, nil]
+    def cause
+      @signal.cause
+    end
+
+    # The originating failed result at the bottom of the propagation chain.
+    # Walks `origin` recursively. `self` when this result is the originator;
+    # `nil` when not failed.
     #
-    # @rbs () -> Result?
+    # @return [Result, nil]
     def caused_failure
       return unless failed?
 
-      chain.results.reverse_each.find(&:failed?)
+      @caused_failure ||= origin ? origin.caused_failure : self
     end
 
-    # @return [Boolean] Whether this result caused the failure
-    #
-    # @example
-    #   if result.caused_failure?
-    #     puts "This task caused the failure"
-    #   end
-    #
-    # @rbs () -> bool
+    # @return [Boolean] true when this result originated the failure chain
     def caused_failure?
-      return false unless failed?
-
-      caused_failure == self
+      failed? && origin.nil?
     end
 
-    # @return [CMDx::Result, nil] The result that threw this failure, or nil
+    # The nearest upstream failed result. `self` when this result is the
+    # originator; `nil` when not failed.
     #
-    # @example
-    #   thrown = result.threw_failure
-    #   puts "Thrown by: #{thrown.task.id}" if thrown
-    #
-    # @rbs () -> Result?
+    # @return [Result, nil]
     def threw_failure
       return unless failed?
 
-      current = index
-      last_failed = nil
-
-      chain.results.each do |r|
-        next unless r.failed?
-
-        return r if r.index > current
-
-        last_failed = r
-      end
-
-      last_failed
+      origin || self
     end
 
-    # @return [Boolean] Whether this result threw the failure
-    #
-    # @example
-    #   if result.threw_failure?
-    #     puts "This task threw the failure"
-    #   end
-    #
-    # @rbs () -> bool
-    def threw_failure?
-      return false unless failed?
-
-      threw_failure == self
-    end
-
-    # @return [Boolean] Whether this result is a thrown failure
-    #
-    # @example
-    #   if result.thrown_failure?
-    #     puts "This failure was thrown from another task"
-    #   end
-    #
-    # @rbs () -> bool
+    # @return [Boolean] true when this result re-threw an upstream failure
     def thrown_failure?
-      failed? && !caused_failure?
+      failed? && !origin.nil?
     end
 
-    # @return [Boolean] Whether the result transitions are strict
+    # The backtrace captured by `fail!` / `throw!` for Fault propagation.
+    # `nil` when this result is not a failure or the failure didn't capture
+    # a backtrace.
     #
-    # @example
-    #   result.strict? # => true
-    #
-    # @rbs () -> bool
-    def strict?
-      !!@strict
+    # @return [Array<String>, nil]
+    def backtrace
+      @signal.backtrace
     end
 
-    # @return [Boolean] Whether the result has been retried
-    #
-    # @example
-    #   result.retried? # => true
-    #
-    # @rbs () -> bool
+    # @return [Integer]
+    def retries
+      @options[:retries] || 0
+    end
+
+    # @return [Boolean]
     def retried?
       retries.positive?
     end
 
-    # @return [Boolean] Whether the result has been rolled back
-    #
-    # @example
-    #   result.rolled_back? # => true
-    #
-    # @rbs () -> bool
+    # @return [Boolean] true when produced via `execute!`
+    def strict?
+      !!@options[:strict]
+    end
+
+    # @return [Boolean] true when the task class is marked deprecated
+    def deprecated?
+      !!@options[:deprecated]
+    end
+
+    # @return [Boolean] true when a failing task's `rollback` ran
     def rolled_back?
-      !!@rolled_back
+      !!@options[:rolled_back]
     end
 
-    # @return [Integer] Index of this result in the chain
-    #
-    # @example
-    #   position = result.index
-    #   puts "Task #{position + 1} of #{chain.results.count}"
-    #
-    # @rbs () -> Integer
-    def index
-      @chain_index || chain.index(self)
+    # @return [Float, nil] lifecycle duration in milliseconds
+    def duration
+      @options[:duration]
     end
 
-    # @return [String] The outcome of the task execution
-    #
-    # @example
-    #   result.outcome # => "success" or "interrupted"
-    #
-    # @rbs () -> String
-    def outcome
-      initialized? || thrown_failure? ? state : status
+    # @return [Array<Symbol, String>]
+    def tags
+      task.settings.tags
     end
 
-    # @return [Hash] Hash representation of the result
-    #
-    # @example
-    #   result.to_h
-    #   # => {state: "complete", status: "success", outcome: "success", reason: "Unspecified", metadata: {}}
-    #
-    # @rbs () -> Hash[Symbol, untyped]
+    # @return [Hash{Symbol => Object}] memoized serialization. Includes
+    #   `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`
+    #   on failure.
     def to_h
-      task.to_h.merge!(
+      @to_h ||= {
+        chain_id: chain.id,
+        chain_index:,
+        chain_root: chain_root?,
+        type:,
+        task:,
+        id:,
+        context:,
         state:,
         status:,
-        outcome:,
         reason:,
-        metadata:
-      ).tap do |hash|
-        if interrupted?
+        metadata:,
+        strict: strict?,
+        deprecated: deprecated?,
+        retried: retried?,
+        retries:,
+        duration:,
+        tags:
+      }.tap do |hash|
+        if failed?
           hash[:cause] = cause
+          hash[:origin] = hash_for_failure(:origin)
+          hash[:threw_failure] = hash_for_failure(:threw_failure)
+          hash[:caused_failure] = hash_for_failure(:caused_failure)
           hash[:rolled_back] = rolled_back?
         end
-
-        if failed?
-          STRIP_FAILURE.call(hash, self, :threw_failure)
-          STRIP_FAILURE.call(hash, self, :caused_failure)
-        end
       end
     end
 
-    # @return [String] String representation of the result
-    #
-    # @example
-    #   result.to_s # => "task_id=my_task state=complete status=success"
-    # @example With failure
-    #   result.to_s # => "task_id=my_task state=complete status=failed threw_failure=<[1] MyTask: my_task>"
-    #
-    # @rbs () -> String
+    # @return [String] space-separated `key=value.inspect` pairs; failure
+    #   references render as `<TaskClass uuid>`.
     def to_s
-      Utils::Format.to_str(to_h) do |key, value|
-        if FAILURE_KEY_REGEX.match?(key)
-          "#{key}=<[#{value[:index]}] #{value[:class]}: #{value[:id]}>"
-        else
-          "#{key}=#{value.inspect}"
+      @to_s ||= begin
+        buf = String.new(capacity: 256)
+
+        to_h.each_with_object(buf) do |(k, v), buf|
+          buf << " " unless buf.empty?
+
+          ks = k.name
+
+          if v.nil?
+            buf << ks << "=nil"
+          elsif ks == "origin" || ks.end_with?("_failure")
+            buf << ks << "=<" << v[:task].to_s << " " << v[:id] << ">"
+          else
+            buf << ks << "=" << v.inspect
+          end
         end
       end
     end
 
-    # @return [Array] Array containing state, status, reason, cause, and metadata
+    # Pattern-matching support for `case result in [...]`.
+    #
+    # @return [Array(String, Class<Task>, String, String, String, Hash, Exception)]
+    #   `[type, task, state, status, reason, metadata, cause, origin]`
     #
     # @example
-    #   state, status = result.deconstruct
-    #   puts "State: #{state}, Status: #{status}"
-    #
-    # @rbs (*untyped) -> Array[untyped]
-    def deconstruct(*)
-      [state, status, reason, cause, metadata]
+    #   case result
+    #   in [_, _, "complete", "success", *]  then handle_success(result)
+    #   in [_, _, _, "failed", reason, *]    then handle_failure(reason)
+    #   end
+    def deconstruct
+      [
+        type,
+        task,
+        state,
+        status,
+        reason,
+        metadata,
+        cause,
+        origin
+      ]
     end
 
-    # @return [Hash] Hash with key-value pairs for pattern matching
+    # Pattern-matching support for `case result in {...}`.
     #
-    # @example
-    #   case result.deconstruct_keys
-    #   in {state: "complete", good: true}
-    #     puts "Task completed successfully"
-    #   in {bad: true}
-    #     puts "Task had issues"
-    #   end
-    #
-    # @rbs (*untyped) -> Hash[Symbol, untyped]
+    # @param keys [Array<Symbol>, nil] restrict the returned hash to these keys
+    # @return [Hash{Symbol => Object}]
     def deconstruct_keys(*)
       {
+        chain_root: chain_root?,
+        type:,
+        task:,
         state:,
         status:,
         reason:,
-        cause:,
         metadata:,
-        outcome:,
-        executed: executed?,
-        good: good?,
-        bad: bad?
+        cause:,
+        origin:,
+        strict: strict?,
+        deprecated: deprecated?,
+        retries:,
+        rolled_back: rolled_back?,
+        duration:
       }
+    end
+
+    private
+
+    def hash_for_failure(key)
+      r = public_send(key)
+      return if r.nil?
+
+      { task: r.task, id: r.id }
     end
 
   end

@@ -2,488 +2,1520 @@
 
 {% block content %}
 <style>
-/* Reset & Base */
-.md-main__inner {
-  margin-top: 0 !important;
-  max-width: none;
-}
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+.md-main__inner { margin-top: 0 !important; max-width: none; }
 .md-content__inner { padding: 0; }
 .md-content__inner > :first-child { margin-top: 0; }
+.md-content__button { display: none; }
 
+/* ============================================================
+   Design Tokens
+   ============================================================ */
 :root {
   --cmdx-red: #fe1817;
   --cmdx-red-glow: rgba(254, 24, 23, 0.5);
-  --cmdx-gradient: linear-gradient(135deg, #fe1817 0%, #ff5f57 100%);
-  --cmdx-surface: #1a1a1a;
-  --cmdx-surface-hover: #252525;
-  --cmdx-border: rgba(255, 255, 255, 0.1);
+  --cmdx-green: #28c840;
+  --cmdx-amber: #ffbd2e;
+  --cmdx-terminal-bg: #0d0d0d;
+  --cmdx-terminal-surface: #161616;
+  --cmdx-terminal-fg: #d4d4d4;
+  --cmdx-terminal-dim: #7a8290;
+  --cmdx-terminal-border: rgba(255, 255, 255, 0.08);
+  --cmdx-terminal-rule: rgba(255, 255, 255, 0.04);
+  --cmdx-mono: var(--md-code-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
 [data-md-color-scheme="default"] {
-  --cmdx-surface: #ffffff;
-  --cmdx-surface-hover: #f8f8f8;
-  --cmdx-border: rgba(0, 0, 0, 0.1);
+  --cmdx-terminal-bg: #fafafa;
+  --cmdx-terminal-surface: #ffffff;
+  --cmdx-terminal-fg: #1a1a1a;
+  --cmdx-terminal-dim: #6a6a6a;
+  --cmdx-terminal-border: rgba(0, 0, 0, 0.08);
+  --cmdx-terminal-rule: rgba(0, 0, 0, 0.04);
 }
 
-/* Hero Section */
+.home {
+  background: var(--cmdx-terminal-bg);
+  color: var(--cmdx-terminal-fg);
+  font-family: var(--md-text-font-family);
+}
+
+.home a { text-decoration: none; }
+
+.home p code,
+.home h1 code,
+.home h2 code,
+.home h3 code,
+.home li code,
+.home .tagline code,
+.home .section-sub code {
+  background: rgba(254, 24, 23, 0.08);
+  border: 1px solid rgba(254, 24, 23, 0.2);
+  color: var(--cmdx-red);
+  padding: 0.08em 0.4em;
+  border-radius: 4px;
+  font-size: 0.88em;
+  font-family: var(--cmdx-mono);
+}
+
+[data-md-color-scheme="default"] .home p code,
+[data-md-color-scheme="default"] .home h1 code,
+[data-md-color-scheme="default"] .home h2 code,
+[data-md-color-scheme="default"] .home h3 code,
+[data-md-color-scheme="default"] .home li code,
+[data-md-color-scheme="default"] .home .tagline code,
+[data-md-color-scheme="default"] .home .section-sub code {
+  background: rgba(254, 24, 23, 0.06);
+  border-color: rgba(254, 24, 23, 0.18);
+}
+
+/* ============================================================
+   Window chrome (shared)
+   ============================================================ */
+.win {
+  background: var(--cmdx-terminal-surface);
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.win-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--cmdx-terminal-border);
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  color: var(--cmdx-terminal-dim);
+}
+
+.win-dots { display: flex; gap: 0.35rem; }
+.win-dots span {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--cmdx-terminal-border);
+}
+.win-dots span:nth-child(1) { background: #ff5f57; }
+.win-dots span:nth-child(2) { background: var(--cmdx-amber); }
+.win-dots span:nth-child(3) { background: var(--cmdx-green); }
+
+.win-path { margin-left: 0.75rem; }
+.win-tag {
+  margin-left: auto;
+  color: var(--cmdx-red);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+/* ============================================================
+   1. HERO
+   ============================================================ */
 .hero {
   position: relative;
-  padding: 6rem 1rem 4rem;
+  padding: 5rem 1.5rem 4rem;
   text-align: center;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 0%, rgba(254, 24, 23, 0.08) 0%, transparent 60%);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  background:
+    radial-gradient(ellipse 800px 400px at 50% 0%, rgba(254, 24, 23, 0.12) 0%, transparent 70%),
+    var(--cmdx-terminal-bg);
+  border-bottom: 1px solid var(--cmdx-terminal-border);
 }
 
-.hero .logo {
-  margin-bottom: 2.5rem;
-  animation: fadeUp 0.8s ease-out;
+.hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--cmdx-terminal-rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cmdx-terminal-rule) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+  pointer-events: none;
 }
+
+.hero-inner {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--cmdx-red);
+  border-radius: 999px;
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  color: var(--cmdx-red) !important;
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.hero-badge:hover {
+  background: rgba(254, 24, 23, 0.08);
+  box-shadow: 0 0 0 4px rgba(254, 24, 23, 0.08);
+  transform: translateY(-1px);
+}
+
+.hero-badge .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--cmdx-red);
+  box-shadow: 0 0 12px var(--cmdx-red-glow);
+  transition: box-shadow 0.2s ease;
+}
+
+.hero-badge:hover .dot { box-shadow: 0 0 18px var(--cmdx-red); }
+
+.hero-badge .arrow {
+  opacity: 0.6;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hero-badge:hover .arrow { opacity: 1; transform: translateX(2px); }
 
 .hero h1 {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(2.4rem, 6.5vw, 5rem);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  color: var(--md-typeset-color);
-  animation: fadeUp 0.8s ease-out 0.1s backwards;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: 0 0 1.25rem;
+  color: var(--cmdx-terminal-fg);
 }
 
-.hero h1 span {
-  background: var(--cmdx-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: inline-block;
+.hero h1 .accent {
+  color: var(--cmdx-red);
 }
 
 .hero .tagline {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  color: var(--md-typeset-color);
-  opacity: 0.7;
-  max-width: 700px;
-  margin: 0 auto 3rem;
+  font-family: var(--cmdx-mono);
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  color: var(--cmdx-terminal-dim);
+  max-width: 620px;
+  margin: 0 auto 2.5rem;
   line-height: 1.6;
-  animation: fadeUp 0.8s ease-out 0.2s backwards;
 }
 
-.hero .buttons {
+/* Hero chain */
+.hero-chain {
+  margin: 0 auto 2.5rem;
+  max-width: 720px;
+  padding: 0 1rem;
+}
+
+.hero-chain svg { width: 100%; height: auto; display: block; }
+
+.chain-node circle { fill: var(--cmdx-terminal-surface); stroke: var(--cmdx-terminal-border); stroke-width: 1.5; }
+.chain-node text { fill: var(--cmdx-terminal-dim); font-family: var(--cmdx-mono); font-size: 9px; text-anchor: middle; }
+.chain-line { stroke: var(--cmdx-terminal-border); stroke-width: 1.5; fill: none; }
+
+.chain-signal {
+  fill: var(--cmdx-red);
+  filter: drop-shadow(0 0 6px var(--cmdx-red-glow));
+}
+
+/* Buttons */
+.hero-cta {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
-  margin-bottom: 0;
-  animation: fadeUp 0.8s ease-out 0.3s backwards;
+  flex-wrap: wrap;
+  font-family: var(--cmdx-mono);
 }
 
-.buttons a {
-  padding: 0.9rem 2.2rem;
-  border-radius: 50px;
+.cmd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
   font-weight: 600;
-  font-size: 1.05rem;
-  text-decoration: none;
-  transition: all 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font-family: var(--cmdx-mono);
+  border: 1px solid transparent;
 }
 
-.buttons .primary {
+.cmd-btn .prompt { color: inherit; opacity: 0.6; }
+
+.cmd-btn.primary {
   background: var(--cmdx-red);
-  color: white !important;
-  box-shadow: 0 4px 20px rgba(254, 24, 23, 0.3);
+  color: #fff !important;
+  box-shadow: 0 0 0 0 var(--cmdx-red-glow), 0 8px 30px -10px var(--cmdx-red-glow);
 }
-
-.buttons .primary:hover {
+.cmd-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(254, 24, 23, 0.4);
+  box-shadow: 0 0 0 3px rgba(254,24,23,0.18), 0 12px 40px -8px var(--cmdx-red-glow);
 }
 
-.buttons .secondary {
+.cmd-btn.ghost {
   background: transparent;
-  color: var(--md-typeset-color) !important;
-  border: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--cmdx-terminal-fg) !important;
+  border-color: var(--cmdx-terminal-border);
 }
-
-.buttons .secondary:hover {
+.cmd-btn.ghost:hover {
   border-color: var(--cmdx-red);
   color: var(--cmdx-red) !important;
 }
 
-/* See it in Action — Tabbed Showcase */
-.showcase-section {
-  background: var(--md-code-bg-color);
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+.hero-caret {
+  display: inline-block;
+  margin-top: 1.75rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.9rem;
+  color: var(--cmdx-terminal-dim);
+}
+.hero-caret .blink {
+  display: inline-block;
+  width: 8px; height: 1rem;
+  background: var(--cmdx-terminal-fg);
+  vertical-align: text-bottom;
+  margin-left: 3px;
 }
 
-.showcase-tabs {
+/* ============================================================
+   Section shell
+   ============================================================ */
+.section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  font-family: var(--cmdx-mono);
+  font-size: 0.75rem;
+  color: var(--cmdx-red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  color: var(--cmdx-terminal-fg);
+}
+
+.section-sub {
+  color: var(--cmdx-terminal-dim);
+  font-family: var(--cmdx-mono);
+  font-size: 0.95rem;
+  max-width: 620px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.section-head { margin-bottom: 3rem; }
+.section-head.center { text-align: center; }
+.section-head.center .section-sub { margin: 0 auto; }
+
+/* ============================================================
+   2. THE PROBLEM (before / after)
+   ============================================================ */
+.problem-section {
+  position: relative;
+  background: var(--cmdx-terminal-surface);
+  border-top: 1px solid var(--cmdx-terminal-border);
+  border-bottom: 1px solid var(--cmdx-terminal-border);
+}
+
+.problem-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  position: relative;
+}
+
+.problem-arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--cmdx-red);
+  color: #fff;
   display: flex;
+  align-items: center;
   justify-content: center;
+  font-family: var(--cmdx-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 6px var(--cmdx-terminal-surface), 0 0 20px var(--cmdx-red-glow);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.problem-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--cmdx-terminal-bg);
+}
+
+.problem-panel.before { border-color: rgba(255, 189, 46, 0.25); }
+.problem-panel.after  { border-color: rgba(254, 24, 23, 0.35); box-shadow: 0 0 0 1px rgba(254, 24, 23, 0.05); }
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--cmdx-terminal-border);
+  font-family: var(--cmdx-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cmdx-terminal-dim);
+  background: var(--cmdx-terminal-surface);
+}
+
+.problem-panel.before .panel-head { color: var(--cmdx-amber); }
+.problem-panel.after  .panel-head { color: var(--cmdx-red); }
+
+.panel-head .tag {
+  font-size: 0.65rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+
+.problem-code {
+  overflow-x: auto;
+  margin: 0;
+  padding: 1.25rem 1.35rem;
+  background: #0d0d0d;
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: #d4d4d4;
+  flex: 1;
+}
+
+[data-md-color-scheme="default"] .problem-code {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+[data-md-color-scheme="default"] .problem-code .k  { color: #cf222e; }
+[data-md-color-scheme="default"] .problem-code .nc { color: #953800; }
+[data-md-color-scheme="default"] .problem-code .n  { color: #1a1a1a; }
+[data-md-color-scheme="default"] .problem-code .s  { color: #0a3069; }
+[data-md-color-scheme="default"] .problem-code .c  { color: #6e7781; }
+[data-md-color-scheme="default"] .problem-code .ss { color: #0550ae; }
+[data-md-color-scheme="default"] .problem-code .mi { color: #0550ae; }
+[data-md-color-scheme="default"] .problem-code .o  { color: #cf222e; }
+
+.problem-code code { font-family: inherit; color: inherit; }
+.problem-code .k  { color: #c586c0; }
+.problem-code .nc { color: #4ec9b0; }
+.problem-code .n  { color: #9cdcfe; }
+.problem-code .s  { color: #ce9178; }
+.problem-code .c  { color: #6a9955; }
+.problem-code .ss { color: #4fc1ff; }
+.problem-code .mi { color: #b5cea8; }
+.problem-code .o  { color: #d4d4d4; }
+
+.problem-annos {
+  list-style: none;
+  padding: 1rem 1.35rem 1.35rem;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem 1rem;
+  background: var(--cmdx-terminal-bg);
+  border-top: 1px solid var(--cmdx-terminal-border);
+  font-family: var(--cmdx-mono);
+  font-size: 0.72rem;
+}
+
+.problem-annos li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--cmdx-terminal-dim);
+}
+
+.problem-annos li::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.problem-panel.before .problem-annos li::before { background: var(--cmdx-amber); opacity: 0.7; }
+.problem-panel.after  .problem-annos li::before { background: var(--cmdx-green); }
+
+.problem-panel.after .problem-annos li { color: var(--cmdx-terminal-fg); }
+
+.problem-caller {
+  margin: 2.5rem auto 0;
+  max-width: 760px;
+  border-color: var(--cmdx-terminal-border);
+  box-shadow: none;
+  position: relative;
+}
+
+.problem-caller::before {
+  content: "";
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  width: 1px;
+  height: 2.5rem;
+  background: linear-gradient(to bottom, transparent, rgba(254, 24, 23, 0.4));
+}
+
+.problem-caller .caller-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cmdx-terminal-dim);
+  padding: 0.85rem 1.35rem 0.25rem;
+}
+
+.problem-caller .caller-label::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cmdx-red);
+  box-shadow: 0 0 8px var(--cmdx-red-glow);
+}
+
+.problem-caller .problem-code {
+  padding: 0.5rem 1.35rem 1.35rem;
+  background: transparent;
+  border: none;
+}
+
+[data-md-color-scheme="default"] .problem-caller .problem-code { background: transparent; }
+
+/* ============================================================
+   3. CERO PIPELINE
+   ============================================================ */
+.cero-section {
+  background: var(--cmdx-terminal-bg);
+}
+
+.cero-rail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  margin-top: 3rem;
+  position: relative;
+  align-items: stretch;
+}
+
+.cero-stage {
+  padding: 1.75rem 1.25rem;
+  background: var(--cmdx-terminal-surface);
+  border: 1px solid var(--cmdx-terminal-border);
+  position: relative;
+  min-width: 0;
+}
+
+.cero-stage:not(:last-child) { border-right: none; }
+.cero-stage:first-child { border-radius: 12px 0 0 12px; }
+.cero-stage:last-child  { border-radius: 0 12px 12px 0; }
+
+.cero-stage::after {
+  content: "";
+  position: absolute;
+  top: 50%; right: -8px;
+  width: 16px; height: 16px;
+  background: var(--cmdx-terminal-bg);
+  border-top: 1px solid var(--cmdx-terminal-border);
+  border-right: 1px solid var(--cmdx-terminal-border);
+  transform: translateY(-50%) rotate(45deg);
+  z-index: 2;
+}
+.cero-stage:last-child::after { display: none; }
+
+.cero-stage .idx {
+  font-family: var(--cmdx-mono);
+  font-size: 0.7rem;
+  color: var(--cmdx-red);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.cero-stage h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--cmdx-terminal-fg);
+}
+
+.cero-stage p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--cmdx-terminal-dim);
+  margin: 0 0 0.85rem;
+}
+
+.cero-stage code {
+  display: block;
+  font-family: var(--cmdx-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--cmdx-terminal-fg);
+  background: var(--cmdx-terminal-bg);
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.cero-stage code .tk { color: var(--cmdx-red); }
+
+.cero-pulse {
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent, var(--cmdx-red) 50%, transparent);
+  opacity: 0.15;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================================
+   4. SHOWCASE (IDE tabs)
+   ============================================================ */
+.showcase {
+  background: var(--cmdx-terminal-surface);
+  border-top: 1px solid var(--cmdx-terminal-border);
+  border-bottom: 1px solid var(--cmdx-terminal-border);
+}
+
+.showcase-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 5rem 0 0;
+}
+
+.showcase-wrap .section-head {
+  padding: 0 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.showcase-frame {
+  margin: 0 1.5rem 5rem;
+  background: #0d0d0d;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.showcase-tabbar {
+  display: flex;
+  align-items: center;
+  background: #161616;
+  border-bottom: 1px solid var(--cmdx-terminal-border);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-
-.showcase-tabs::-webkit-scrollbar { display: none; }
+.showcase-tabbar::-webkit-scrollbar { display: none; }
 
 .showcase-tab {
-  padding: 1rem 1.6rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--md-default-fg-color--light);
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-right: 1px solid var(--cmdx-terminal-border);
+  border-top: 2px solid transparent;
+  color: #8a8a8a;
+  font-family: var(--cmdx-mono);
+  font-size: 0.82rem;
   cursor: pointer;
-  transition: all 0.2s ease;
   white-space: nowrap;
-  font-family: var(--md-text-font-family);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.showcase-tab:hover {
-  color: var(--cmdx-red);
-}
+.showcase-tab:hover { color: #d4d4d4; background: rgba(255,255,255,0.02); }
 
 .showcase-tab.active {
-  color: var(--cmdx-red);
-  border-bottom-color: var(--cmdx-red);
+  background: #0d0d0d;
+  color: #ffffff;
+  border-top-color: var(--cmdx-red);
 }
 
-.showcase-panels {
-  position: relative;
+.showcase-tab .ext { color: var(--cmdx-red); opacity: 0.8; }
+
+[data-md-color-scheme="default"] .showcase-frame { background: #ffffff; }
+[data-md-color-scheme="default"] .showcase-tabbar { background: #fafafa; }
+[data-md-color-scheme="default"] .showcase-tab { color: #57606a; }
+[data-md-color-scheme="default"] .showcase-tab:hover {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.04);
 }
+[data-md-color-scheme="default"] .showcase-tab.active {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.showcase-body { position: relative; }
 
 .showcase-panel {
   display: none;
-  animation: fadeUp 0.4s ease-out;
 }
+.showcase-panel.active { display: grid; }
 
-.showcase-panel.active {
-  display: flex;
-  align-items: stretch;
+.showcase-panel {
+  grid-template-columns: 1fr;
   gap: 0;
 }
 
-@media (max-width: 900px) {
-  .showcase-panel.active {
-    flex-direction: column;
-  }
+.showcase-panel.has-output {
+  grid-template-columns: 1.35fr 1fr;
 }
 
-.showcase-info {
-  flex: 0 0 320px;
-  padding: 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-right: 1px solid var(--md-default-fg-color--lightest);
-}
-
-@media (max-width: 900px) {
-  .showcase-info {
-    flex: none;
-    border-right: none;
-    border-bottom: 1px solid var(--md-default-fg-color--lightest);
-    padding: 2rem 1.5rem;
-  }
-}
-
-.showcase-info h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--md-typeset-color);
-}
-
-.showcase-info p {
-  color: var(--md-default-fg-color--light);
-  line-height: 1.6;
-  margin: 0;
-  font-size: 0.95rem;
+@media (max-width: 1024px) {
+  .showcase-panel.has-output { grid-template-columns: 1fr; }
 }
 
 .showcase-code {
-  flex: 1;
-  min-width: 0;
   overflow-x: auto;
+  border-right: 1px solid var(--cmdx-terminal-border);
 }
+.showcase-panel:not(.has-output) .showcase-code { border-right: none; }
 
 .showcase-code pre {
   margin: 0 !important;
   border-radius: 0 !important;
   border: none !important;
-  padding: 2rem !important;
+  padding: 1.75rem 1.75rem 2.25rem !important;
   font-size: 0.85rem !important;
-  line-height: 1.6 !important;
-  background: #1e1e1e !important;
+  line-height: 1.7 !important;
+  background: #0d0d0d !important;
   min-height: 100%;
 }
 
 .showcase-code code {
-  font-family: var(--md-code-font-family) !important;
+  font-family: var(--cmdx-mono) !important;
   color: #d4d4d4 !important;
 }
 
-/* Syntax highlighting colors */
-.showcase-code .k  { color: #c586c0; } /* keyword */
-.showcase-code .nc { color: #4ec9b0; } /* class name */
-.showcase-code .nb { color: #4fc1ff; } /* builtin */
-.showcase-code .n  { color: #9cdcfe; } /* name */
-.showcase-code .s  { color: #ce9178; } /* string */
-.showcase-code .c  { color: #6a9955; } /* comment */
-.showcase-code .ss { color: #4fc1ff; } /* symbol */
-.showcase-code .mi { color: #b5cea8; } /* integer */
-.showcase-code .o  { color: #d4d4d4; } /* operator */
-.showcase-code .p  { color: #d4d4d4; } /* punctuation */
+.showcase-code .k  { color: #c586c0; }
+.showcase-code .nc { color: #4ec9b0; }
+.showcase-code .nb { color: #4fc1ff; }
+.showcase-code .n  { color: #9cdcfe; }
+.showcase-code .s  { color: #ce9178; }
+.showcase-code .c  { color: #6a9955; }
+.showcase-code .ss { color: #4fc1ff; }
+.showcase-code .mi { color: #b5cea8; }
+.showcase-code .o  { color: #d4d4d4; }
+.showcase-code .p  { color: #d4d4d4; }
 
-/* Features Grid */
-.section {
-  padding: 6rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+[data-md-color-scheme="default"] .showcase-code pre { background: #ffffff !important; }
+[data-md-color-scheme="default"] .showcase-code code { color: #1a1a1a !important; }
+[data-md-color-scheme="default"] .showcase-code .k  { color: #cf222e; }
+[data-md-color-scheme="default"] .showcase-code .nc { color: #953800; }
+[data-md-color-scheme="default"] .showcase-code .nb { color: #0550ae; }
+[data-md-color-scheme="default"] .showcase-code .n  { color: #1a1a1a; }
+[data-md-color-scheme="default"] .showcase-code .s  { color: #0a3069; }
+[data-md-color-scheme="default"] .showcase-code .c  { color: #6e7781; }
+[data-md-color-scheme="default"] .showcase-code .ss { color: #0550ae; }
+[data-md-color-scheme="default"] .showcase-code .mi { color: #0550ae; }
+[data-md-color-scheme="default"] .showcase-code .o  { color: #1a1a1a; }
+[data-md-color-scheme="default"] .showcase-code .p  { color: #1a1a1a; }
+
+.showcase-output {
+  background: #0a0a0a;
+  padding: 1.75rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: #d4d4d4;
+  overflow-x: auto;
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 4rem;
+.showcase-output .label {
+  display: block;
+  color: #6a6a6a;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
 }
 
-.section-header h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
+.showcase-output .line { display: block; padding: 0.1rem 0; white-space: pre; }
+.showcase-output .ok { color: var(--cmdx-green); }
+.showcase-output .warn { color: var(--cmdx-amber); }
+.showcase-output .err { color: var(--cmdx-red); }
+.showcase-output .dim { color: #6a6a6a; }
+.showcase-output .level-i { color: #4fc1ff; }
+.showcase-output .level-w { color: var(--cmdx-amber); }
+.showcase-output .level-e { color: var(--cmdx-red); }
+.showcase-output .ts      { color: #6a6a6a; }
+.showcase-output .kv      { color: #9cdcfe; }
+.showcase-output .val     { color: #ce9178; }
+.showcase-output .okv     { color: var(--cmdx-green); }
+.showcase-output .skv     { color: var(--cmdx-amber); }
+.showcase-output .erv     { color: var(--cmdx-red); }
 
-.section-header p {
-  font-size: 1.2rem;
-  color: var(--md-default-fg-color--light);
-  max-width: 600px;
-  margin: 0 auto;
+[data-md-color-scheme="default"] .showcase-output {
+  background: #fafafa;
+  color: #1a1a1a;
+}
+[data-md-color-scheme="default"] .showcase-output .label,
+[data-md-color-scheme="default"] .showcase-output .dim,
+[data-md-color-scheme="default"] .showcase-output .ts { color: #6a6a6a; }
+[data-md-color-scheme="default"] .showcase-output .level-i { color: #0550ae; }
+[data-md-color-scheme="default"] .showcase-output .level-w,
+[data-md-color-scheme="default"] .showcase-output .skv { color: #9a6700; }
+[data-md-color-scheme="default"] .showcase-output .kv { color: #0550ae; }
+[data-md-color-scheme="default"] .showcase-output .val { color: #0a3069; }
+
+/* ============================================================
+   5. FEATURES GRID
+   ============================================================ */
+.features {
+  background: var(--cmdx-terminal-bg);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 900px) {
+  .features-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 .feature-card {
-  padding: 2rem;
-  border-radius: 16px;
-  background: var(--md-default-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-  transition: all 0.3s ease;
+  padding: 1.75rem;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 12px;
+  background: var(--cmdx-terminal-surface);
   position: relative;
-  overflow: hidden;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
   border-color: var(--cmdx-red);
-  box-shadow: 0 10px 40px -10px rgba(254, 24, 23, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -14px var(--cmdx-red-glow);
 }
 
 .feature-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(254, 24, 23, 0.1);
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(254, 24, 23, 0.08);
+  border: 1px solid rgba(254, 24, 23, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.5rem;
   color: var(--cmdx-red);
-  font-size: 1.5rem;
+}
+
+.feature-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .feature-card h3 {
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin: 0;
+  color: var(--cmdx-terminal-fg);
 }
 
 .feature-card p {
-  color: var(--md-default-fg-color--light);
+  font-size: 0.88rem;
   line-height: 1.6;
+  color: var(--cmdx-terminal-dim);
   margin: 0;
 }
 
-/* Comparison / Stats Section */
-.stats-section {
-  background: var(--md-code-bg-color);
-  border: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 3rem;
+.features-footer {
+  margin-top: 2.5rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.88rem;
+  color: var(--cmdx-terminal-dim);
   text-align: center;
 }
 
-.stat-item .number {
-  font-size: 3.5rem;
-  font-weight: 800;
-  background: var(--cmdx-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.stat-item .label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--md-default-fg-color--light);
-}
-
-/* CERO Pattern Section */
-.cero-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
-  margin: 3rem auto 0;
-  max-width: 1200px;
-}
-
-.cero-step {
-  text-align: center;
-  padding: 1.5rem;
-  position: relative;
-}
-
-.cero-step::after {
-  content: "→";
-  position: absolute;
-  right: -1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2rem;
-  color: var(--md-default-fg-color--lightest);
-}
-
-.cero-step:last-child::after { display: none; }
-
-@media (max-width: 1024px) {
-  .cero-step::after {
-    right: 50%;
-    top: auto;
-    bottom: -2rem;
-    transform: translateX(50%) rotate(90deg);
-  }
-}
-
-.cero-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  display: block;
-}
-
-.cero-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+.features-footer a {
   color: var(--cmdx-red);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
+.features-footer a:hover { border-bottom-color: var(--cmdx-red); }
 
-/* Comparison Table */
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 2rem;
-  background: var(--md-default-bg-color);
-  border-radius: 12px;
+/* ============================================================
+   6. TELEMETRY STREAM
+   ============================================================ */
+.telemetry {
+  position: relative;
+  background: #070707;
+  border-top: 1px solid var(--cmdx-terminal-border);
+  border-bottom: 1px solid var(--cmdx-terminal-border);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 2rem 0;
 }
 
-.comparison-table th,
-.comparison-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+[data-md-color-scheme="default"] .telemetry {
+  background: #fafafa;
+  color: #1a1a1a;
+}
+[data-md-color-scheme="default"] .telemetry-head { color: #57606a; }
+[data-md-color-scheme="default"] .telemetry-track .line { color: #1a1a1a; }
+[data-md-color-scheme="default"] .telemetry-track .level-i { color: #0550ae; }
+[data-md-color-scheme="default"] .telemetry-track .level-w,
+[data-md-color-scheme="default"] .telemetry-track .skv { color: #9a6700; }
+[data-md-color-scheme="default"] .telemetry-track .ts { color: #6a6a6a; }
+[data-md-color-scheme="default"] .telemetry-track .kv { color: #0550ae; }
+[data-md-color-scheme="default"] .telemetry-track .val { color: #0a3069; }
+
+.telemetry-head {
+  max-width: 1200px;
+  margin: 0 auto 1.25rem;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.72rem;
+  color: #7a8290;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
-.comparison-table th {
-  background: var(--md-code-bg-color);
-  font-weight: 600;
+.telemetry-head .live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--cmdx-green);
+  box-shadow: 0 0 10px rgba(40, 200, 64, 0.6);
 }
 
-.comparison-table tr:last-child td { border-bottom: none; }
+.telemetry-viewport {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 15%, #000 85%, transparent 100%);
+}
 
-.comparison-table .check { color: #28c840; }
-.comparison-table .cross { color: #ff5f57; opacity: 0.5; }
+.telemetry-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
 
-/* Animations */
+.telemetry-track .line {
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #d4d4d4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.telemetry-track .level-i { color: #4fc1ff; }
+.telemetry-track .level-w { color: var(--cmdx-amber); }
+.telemetry-track .level-e { color: var(--cmdx-red); }
+.telemetry-track .ts     { color: #6a6a6a; }
+.telemetry-track .kv     { color: #9cdcfe; }
+.telemetry-track .val    { color: #ce9178; }
+.telemetry-track .okv    { color: var(--cmdx-green); }
+.telemetry-track .skv    { color: var(--cmdx-amber); }
+.telemetry-track .erv    { color: var(--cmdx-red); }
+
+/* ============================================================
+   7. USE CASES
+   ============================================================ */
+.usecases {
+  background: var(--cmdx-terminal-bg);
+}
+
+.usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 900px) {
+  .usecase-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.usecase-card {
+  padding: 1.75rem;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 12px;
+  background: var(--cmdx-terminal-surface);
+  position: relative;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.usecase-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--cmdx-red);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.usecase-card:hover {
+  border-color: rgba(254, 24, 23, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -14px var(--cmdx-red-glow);
+}
+
+.usecase-card:hover::before { opacity: 1; }
+
+.usecase-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.usecase-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(254, 24, 23, 0.08);
+  border: 1px solid rgba(254, 24, 23, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cmdx-red);
+  flex-shrink: 0;
+}
+
+.usecase-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.usecase-card h3 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--cmdx-terminal-fg);
+}
+
+.usecase-card p {
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--cmdx-terminal-dim);
+  margin: 0;
+}
+
+.usecase-card .tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.usecase-card .tag-row span {
+  font-family: var(--cmdx-mono);
+  font-size: 0.68rem;
+  color: var(--cmdx-terminal-dim);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 999px;
+}
+
+/* ============================================================
+   8. FOOTER CTA
+   ============================================================ */
+.cta-footer {
+  background: var(--cmdx-terminal-surface);
+  border-top: 1px solid var(--cmdx-terminal-border);
+  padding: 5rem 1.5rem 6rem;
+  text-align: center;
+}
+
+.cta-footer h2 {
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 2rem;
+  color: var(--cmdx-terminal-fg);
+}
+
+.install-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem 0.85rem 1.15rem;
+  background: var(--cmdx-terminal-bg);
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 10px;
+  font-family: var(--cmdx-mono);
+  font-size: 1rem;
+  color: var(--cmdx-terminal-fg);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.install-box .prompt { color: var(--cmdx-red); }
+
+.install-box code {
+  background: transparent;
+  padding: 0;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--cmdx-terminal-border);
+  border-radius: 6px;
+  color: var(--cmdx-terminal-dim);
+  cursor: pointer;
+  font-family: var(--cmdx-mono);
+  font-size: 0.78rem;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.copy-btn:hover { border-color: var(--cmdx-red); color: var(--cmdx-red); }
+.copy-btn.copied { border-color: var(--cmdx-green); color: var(--cmdx-green); }
+
+.cta-links {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2rem;
+  font-family: var(--cmdx-mono);
+  font-size: 0.9rem;
+  color: var(--cmdx-terminal-dim);
+}
+
+.cta-links a {
+  color: var(--cmdx-terminal-fg);
+  border-bottom: 1px solid var(--cmdx-terminal-border);
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.cta-links a:hover {
+  color: var(--cmdx-red);
+  border-bottom-color: var(--cmdx-red);
+}
+
+/* ============================================================
+   Animations (gated by prefers-reduced-motion)
+   ============================================================ */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 768px) {
-  .hero h1 { font-size: 2.5rem; }
-  .buttons { flex-direction: column; }
-  .buttons a { width: 100%; text-align: center; }
-  .cero-step::after { display: none; }
+@keyframes blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes signalPulse {
+  0%   { offset-distance: 0%;   opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes ceroPulse {
+  0%   { transform: translate(0, -50%) scaleX(0); opacity: 0; transform-origin: left; }
+  20%  { opacity: 1; }
+  100% { transform: translate(0, -50%) scaleX(1); opacity: 0; transform-origin: left; }
+}
+
+@keyframes chainDotFlash {
+  0%, 100% { fill: var(--cmdx-terminal-surface); }
+  50%      { fill: var(--cmdx-green); }
+}
+
+@keyframes scrollLogs {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1,
+  .hero .tagline,
+  .hero-cta,
+  .hero-badge,
+  .hero-chain,
+  .hero-caret {
+    animation: fadeUp 0.7s ease-out both;
+  }
+  .hero-badge    { animation-delay: 0s; }
+  .hero h1       { animation-delay: 0.08s; }
+  .hero .tagline { animation-delay: 0.16s; }
+  .hero-chain    { animation-delay: 0.24s; }
+  .hero-cta      { animation-delay: 0.32s; }
+  .hero-caret    { animation-delay: 0.4s; }
+
+  .hero-caret .blink { animation: blink 1.1s steps(1) infinite; }
+
+  .chain-signal {
+    offset-path: path("M 50,30 L 190,30 L 330,30 L 470,30 L 610,30");
+    animation: signalPulse 5.5s ease-in-out infinite;
+  }
+
+  .chain-node.n1 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 0.2s; }
+  .chain-node.n2 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 1.4s; }
+  .chain-node.n3 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 2.6s; }
+  .chain-node.n4 circle { animation: chainDotFlash 5.5s ease-in-out infinite; animation-delay: 3.8s; }
+
+  .cero-pulse { animation: ceroPulse 4s ease-in-out infinite; }
+
+  .telemetry-track { animation: scrollLogs 45s linear infinite; }
+  .telemetry:hover .telemetry-track { animation-play-state: paused; }
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 900px) {
+  .problem-grid    { grid-template-columns: 1fr; gap: 1.5rem; }
+  .problem-arrow   { display: none; }
+  .problem-annos   { grid-template-columns: 1fr 1fr; }
+  .cero-rail       { grid-template-columns: 1fr; }
+  .cero-stage      { border-right: 1px solid var(--cmdx-terminal-border) !important; }
+  .cero-stage:first-child { border-radius: 12px 12px 0 0; }
+  .cero-stage:last-child  { border-radius: 0 0 12px 12px; }
+  .cero-stage:not(:last-child) { border-bottom: none; }
+  .cero-stage::after {
+    top: auto; bottom: -9px; right: 50%;
+    transform: translateX(50%) rotate(135deg);
+  }
+  .cero-pulse      { display: none; }
+}
+
+@media (max-width: 640px) {
+  .hero          { padding: 3.5rem 1rem 3rem; }
+  .section       { padding: 4rem 1rem; }
+  .problem-wrap  { padding: 4rem 1rem; }
+  .showcase-wrap { padding-top: 4rem; }
+  .showcase-frame, .showcase-wrap .section-head { margin-left: 1rem; margin-right: 1rem; }
+  .cta-footer    { padding: 4rem 1rem 5rem; }
+  .hero-cta      { flex-direction: column; }
+  .cmd-btn       { width: 100%; justify-content: center; }
+  .install-box   { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+  .install-box code { text-align: center; }
 }
 </style>
 
-<!-- Hero -->
-<div class="hero">
-  <div class="logo">
-    <img src="assets/cmdx-light-logo.png" alt="CMDx" class="only-light" />
-    <img src="assets/cmdx-dark-logo.png" alt="CMDx" class="only-dark" />
+<div class="home">
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-inner">
+
+    <a class="hero-badge" href="v2-migration/">
+      <span class="dot"></span>
+      <span>v2.0 &middot; Signal</span>
+      <span class="arrow">&rarr;</span>
+    </a>
+
+    <h1>
+      The runtime,<br>
+      <span class="accent">rewritten.</span>
+    </h1>
+
+    <p class="tagline">
+      Signals in. Immutable results out.<br>
+      A business-logic framework powered by an explicit signal-based runtime.
+    </p>
+
+    <div class="hero-chain" aria-hidden="true">
+      <svg viewBox="0 0 660 60" preserveAspectRatio="xMidYMid meet">
+        <line class="chain-line" x1="50" y1="30" x2="610" y2="30" />
+
+        <g class="chain-node n1">
+          <circle cx="50" cy="30" r="12" />
+          <text x="50" y="55">work</text>
+        </g>
+        <g class="chain-node n2">
+          <circle cx="190" cy="30" r="12" />
+          <text x="190" y="55">signal</text>
+        </g>
+        <g class="chain-node n3">
+          <circle cx="330" cy="30" r="12" />
+          <text x="330" y="55">result</text>
+        </g>
+        <g class="chain-node n4">
+          <circle cx="470" cy="30" r="12" />
+          <text x="470" y="55">telemetry</text>
+        </g>
+        <g class="chain-node n5">
+          <circle cx="610" cy="30" r="12" style="stroke: var(--cmdx-red);" />
+          <text x="610" y="55" style="fill: var(--cmdx-red);">done</text>
+        </g>
+
+        <circle class="chain-signal" cx="0" cy="0" r="5" />
+      </svg>
+    </div>
+
+    <div class="hero-cta">
+      <a href="getting_started/" class="cmd-btn primary">
+        <span class="prompt">$</span>
+        <span>get-started</span>
+      </a>
+      <a href="https://github.com/drexed/cmdx" class="cmd-btn ghost">
+        <span class="prompt">&gt;</span>
+        <span>view on github</span>
+      </a>
+    </div>
+
+    <div class="hero-caret">
+      <span>$ gem install cmdx</span><span class="blink"></span>
+    </div>
+
   </div>
+</section>
 
-  <h1>
-    The <span>Business Logic</span><br>
-    Framework for Ruby
-  </h1>
+<!-- ===================== 01. THE PROBLEM ===================== -->
+<section class="problem-section">
+  <div class="problem-wrap">
 
-  <p class="tagline">
-    Build maintainable systems, not just scripts.
-  </p>
+    <div class="section-head center">
+      <span class="section-eyebrow">&middot; 01 &middot; the problem</span>
+      <h2 class="section-title">The code you keep rewriting.</h2>
+      <p class="section-sub">
+        Every Rails app has a 300-line controller like this. CMDx gives it a home.
+      </p>
+    </div>
 
-  <div class="buttons">
-    <a href="getting_started/" class="primary">Get Started</a>
-    <a href="https://github.com/drexed/cmdx" class="secondary">View on GitHub</a>
-  </div>
-</div>
+    <div class="problem-grid">
+      <span class="problem-arrow" aria-hidden="true">&rarr;</span>
 
-<!-- See it in Action -->
-<div class="showcase-section">
-  <div class="section-header" style="padding: 4rem 2rem 0;">
-    <h2>See it in Action</h2>
-    <p>From simple tasks to complex workflows, see how CMDx brings clarity to your business logic.</p>
-  </div>
-
-  <div class="showcase-tabs" role="tablist">
-    <button class="showcase-tab active" data-panel="define" role="tab">Define a Task</button>
-    <button class="showcase-tab" data-panel="execute" role="tab">Execute & React</button>
-    <button class="showcase-tab" data-panel="workflow" role="tab">Compose Workflows</button>
-    <button class="showcase-tab" data-panel="retries" role="tab">Fault Tolerance</button>
-    <button class="showcase-tab" data-panel="observe" role="tab">Observe</button>
-  </div>
-
-  <div class="showcase-panels">
-    <!-- Define a Task -->
-    <div class="showcase-panel active" id="panel-define">
-      <div class="showcase-info">
-        <h3>Define a Task</h3>
-        <p>Declare typed attributes with validation, coercion, and defaults. Write your business logic in a single <code>work</code> method with built-in flow control for success, failure, and skip states.</p>
+      <!-- BEFORE -->
+      <div class="problem-panel before">
+        <div class="panel-head">
+          <span>today, in every rails app</span>
+        </div>
+        <pre class="problem-code"><code><span class="k">class</span> <span class="nc">PaymentsController</span> <span class="o">&lt;</span> <span class="nc">ApplicationController</span>
+  <span class="k">def</span> <span class="n">create</span>
+    <span class="n">order</span> = <span class="nc">Order</span>.<span class="n">find</span>(<span class="n">params</span>[<span class="ss">:order_id</span>])
+    <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
+      <span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(
+        <span class="ss">amount:</span>   <span class="n">order</span>.<span class="n">total_cents</span>,
+        <span class="ss">currency:</span> <span class="s">"usd"</span>,
+        <span class="ss">source:</span>   <span class="n">params</span>[<span class="ss">:token</span>]
+      )
+      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">charged:</span> <span class="n">true</span>, <span class="ss">charge_id:</span> <span class="n">charge</span>.<span class="n">id</span>)
+      <span class="nc">OrderMailer</span>.<span class="n">receipt</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
+    <span class="k">end</span>
+    <span class="n">redirect_to</span> <span class="n">order</span>
+  <span class="k">rescue</span> <span class="nc">Stripe::CardError</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="n">flash</span>[<span class="ss">:error</span>] = <span class="n">e</span>.<span class="n">message</span>
+    <span class="n">render</span> <span class="ss">:new</span>
+  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+    <span class="nc">Rails</span>.<span class="n">logger</span>.<span class="n">error</span>(<span class="n">e</span>)
+    <span class="n">render</span> <span class="ss">:new</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        <ul class="problem-annos">
+          <li>mixed concerns</li>
+          <li>rescue-driven flow</li>
+          <li>not reusable</li>
+          <li>untyped inputs</li>
+        </ul>
       </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="n">register</span> <span class="ss">:middleware</span>, <span class="nc">CMDx::Middlewares::Runtime</span>
 
-  <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
+      <!-- AFTER -->
+      <div class="problem-panel after">
+        <div class="panel-head">
+          <span>with cmdx</span>
+        </div>
+        <pre class="problem-code"><code><span class="k">class</span> <span class="nc">ProcessPayment</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="n">required</span> <span class="ss">:order_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
+  <span class="n">required</span> <span class="ss">:token</span>,    <span class="ss">coerce:</span> <span class="ss">:string</span>
+
+  <span class="n">output</span> <span class="ss">:order</span>
+
+  <span class="n">on_success</span> <span class="ss">:send_receipt!</span>
+
+  <span class="k">def</span> <span class="n">work</span>
+    <span class="nc">ActiveRecord::Base</span>.<span class="n">transaction</span> <span class="k">do</span>
+      <span class="n">order</span>.<span class="n">update!</span>(<span class="ss">charged:</span> <span class="n">true</span>, <span class="ss">charge_id:</span> <span class="n">charge</span>.<span class="n">id</span>)
+    <span class="k">end</span>
+    <span class="n">context</span>.<span class="n">order</span> = <span class="n">order</span>
+  <span class="k">end</span>
+
+  <span class="k">private</span>
+
+  <span class="k">def</span> <span class="n">order</span>  = <span class="n">@order</span> <span class="o">||=</span> <span class="nc">Order</span>.<span class="n">find</span>(<span class="n">order_id</span>)
+  <span class="k">def</span> <span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(<span class="ss">amount:</span> <span class="n">order</span>.<span class="n">total_cents</span>, <span class="ss">currency:</span> <span class="s">"usd"</span>, <span class="ss">source:</span> <span class="n">token</span>)
+  <span class="k">def</span> <span class="n">send_receipt!</span> = <span class="nc">OrderMailer</span>.<span class="n">receipt</span>(<span class="n">order</span>).<span class="n">deliver_later</span>
+<span class="k">end</span></code></pre>
+        <ul class="problem-annos">
+          <li>typed inputs</li>
+          <li>one responsibility</li>
+          <li>reusable anywhere</li>
+          <li>predictable result</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Caller -->
+    <div class="problem-panel problem-caller">
+      <div class="caller-label">your controller, now</div>
+      <pre class="problem-code"><code><span class="k">def</span> <span class="n">create</span>
+  <span class="n">result</span> = <span class="nc">ProcessPayment</span>.<span class="n">execute</span>(<span class="ss">order_id:</span> <span class="n">params</span>[<span class="ss">:order_id</span>], <span class="ss">token:</span> <span class="n">params</span>[<span class="ss">:token</span>])
+  <span class="k">return</span> <span class="n">redirect_to</span>(<span class="n">result</span>.<span class="n">context</span>.<span class="n">order</span>) <span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
+
+  <span class="n">render</span> <span class="ss">:new</span>, <span class="ss">alert:</span> <span class="n">result</span>.<span class="n">reason</span>
+<span class="k">end</span></code></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== 02. CERO PIPELINE ===================== -->
+<section class="cero-section">
+  <div class="section">
+
+    <div class="section-head center">
+      <span class="section-eyebrow">&middot; 02 &middot; the pipeline</span>
+      <h2 class="section-title">CERO &mdash; the four-step flow.</h2>
+      <p class="section-sub">A single, repeatable shape behind every task.</p>
+    </div>
+
+    <div class="cero-rail">
+      <div class="cero-pulse" aria-hidden="true"></div>
+
+      <div class="cero-stage">
+        <div class="idx">01 &middot; C</div>
+        <h3>Compose</h3>
+        <p>Define typed inputs and the business rules they enforce.</p>
+        <code><span class="tk">required</span> :id, <span class="tk">coerce:</span> :integer</code>
+      </div>
+
+      <div class="cero-stage">
+        <div class="idx">02 &middot; E</div>
+        <h3>Execute</h3>
+        <p>Run tasks anywhere &mdash; controllers, jobs, scripts, tests.</p>
+        <code>Task.<span class="tk">execute</span>(id: 42)</code>
+      </div>
+
+      <div class="cero-stage">
+        <div class="idx">03 &middot; R</div>
+        <h3>React</h3>
+        <p>Branch on success, skip, or fail &mdash; no rescues for control flow.</p>
+        <code><span class="tk">result</span>.success?<br><span class="tk">result</span>.skipped?<br><span class="tk">result</span>.failed?</code>
+      </div>
+
+      <div class="cero-stage">
+        <div class="idx">04 &middot; O</div>
+        <h3>Observe</h3>
+        <p>Every run ships structured logs and telemetry.</p>
+        <code>configuration.telemetry.<span class="tk">subscribe</span>(...)</code>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== 03. SHOWCASE IDE ===================== -->
+<section class="showcase">
+  <div class="showcase-wrap">
+
+    <div class="section-head">
+      <span class="section-eyebrow">&middot; 03 &middot; see it in action</span>
+      <h2 class="section-title">From one task to full workflows.</h2>
+      <p class="section-sub">From a single command to an orchestrated pipeline. Click through the files.</p>
+    </div>
+
+    <div class="showcase-frame">
+
+      <div class="showcase-tabbar" role="tablist">
+        <button class="showcase-tab active" data-panel="define"  role="tab">
+          <span>task</span><span class="ext">.rb</span>
+        </button>
+        <button class="showcase-tab" data-panel="workflow" role="tab">
+          <span>workflow</span><span class="ext">.rb</span>
+        </button>
+        <button class="showcase-tab" data-panel="execute"  role="tab">
+          <span>execute</span><span class="ext">.sh</span>
+        </button>
+        <button class="showcase-tab" data-panel="observe"  role="tab">
+          <span>log</span><span class="ext">.txt</span>
+        </button>
+      </div>
+
+      <div class="showcase-body">
+
+        <!-- Define -->
+        <div class="showcase-panel active" id="panel-define">
+          <div class="showcase-code">
+            <pre><code><span class="k">class</span> <span class="nc">ApproveLoan</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+  <span class="n">required</span> <span class="ss">:application_id</span>, <span class="ss">coerce:</span> <span class="ss">:integer</span>
 
   <span class="n">optional</span> <span class="ss">:override_checks</span>, <span class="ss">default:</span> <span class="nb">false</span>
 
   <span class="n">on_success</span> <span class="ss">:notify_applicant!</span>
 
-  <span class="n">returns</span> <span class="ss">:approved_at</span>
+  <span class="n">output</span> <span class="ss">:approved_at</span>
 
   <span class="k">def</span> <span class="n">work</span>
     <span class="k">if</span> <span class="n">application</span>.<span class="n">nil?</span>
@@ -506,45 +1538,13 @@
     <span class="nc">ApprovalMailer</span>.<span class="n">approved</span>(<span class="n">application</span>).<span class="n">deliver_later</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
-      </div>
-    </div>
+          </div>
+        </div>
 
-    <!-- Execute & React -->
-    <div class="showcase-panel" id="panel-execute">
-      <div class="showcase-info">
-        <h3>Execute & React</h3>
-        <p>Every execution returns a standardized Result object. No more rescuing exceptions for control flow. Check the outcome and access returned values, error messages, and metadata.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="c"># Execute with typed, validated arguments</span>
-<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
-
-<span class="c"># React to the outcome</span>
-<span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
-  <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
-
-<span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
-  <span class="n">puts</span> <span class="s">"Skipped: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
-
-<span class="k">elsif</span> <span class="n">result</span>.<span class="n">failed?</span>
-  <span class="n">puts</span> <span class="s">"Failed: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
-  <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
-<span class="k">end</span>
-
-<span class="c"># Bang variant raises on failure</span>
-<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute!</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
-<span class="c"># => raises CMDx::ExecutionError on failure</span></code></pre>
-      </div>
-    </div>
-
-    <!-- Compose Workflows -->
-    <div class="showcase-panel" id="panel-workflow">
-      <div class="showcase-info">
-        <h3>Compose Workflows</h3>
-        <p>Chain tasks into declarative pipelines with shared context, conditional execution, and configurable halt behavior. Run tasks in parallel for maximum throughput.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
+        <!-- Workflow -->
+        <div class="showcase-panel" id="panel-workflow">
+          <div class="showcase-code">
+            <pre><code><span class="k">class</span> <span class="nc">OnboardCustomer</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
   <span class="k">include</span> <span class="nc">CMDx::Workflow</span>
 
   <span class="c"># Sequential pipeline</span>
@@ -567,292 +1567,385 @@
   <span class="k">def</span> <span class="n">premium_plan?</span>
     <span class="n">context</span>.<span class="n">plan</span>.<span class="n">tier</span> == <span class="ss">:premium</span>
   <span class="k">end</span>
+<span class="k">end</span></code></pre>
+          </div>
+        </div>
+
+        <!-- Execute -->
+        <div class="showcase-panel has-output" id="panel-execute">
+          <div class="showcase-code">
+            <pre><code><span class="c"># Execute with typed, validated arguments</span>
+<span class="n">result</span> = <span class="nc">ApproveLoan</span>.<span class="n">execute</span>(<span class="ss">application_id:</span> <span class="mi">42</span>)
+
+<span class="c"># React to the outcome</span>
+<span class="k">if</span> <span class="n">result</span>.<span class="n">success?</span>
+  <span class="n">puts</span> <span class="s">"Approved at </span><span class="c">#{</span><span class="n">result</span>.<span class="n">context</span>.<span class="n">approved_at</span><span class="c">}</span><span class="s">"</span>
+
+<span class="k">elsif</span> <span class="n">result</span>.<span class="n">skipped?</span>
+  <span class="n">puts</span> <span class="s">"Skipped: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
+
+<span class="k">elsif</span> <span class="n">result</span>.<span class="n">failed?</span>
+  <span class="n">puts</span> <span class="s">"Failed: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">reason</span><span class="c">}</span><span class="s">"</span>
+  <span class="n">puts</span> <span class="s">"Code: </span><span class="c">#{</span><span class="n">result</span>.<span class="n">metadata</span>[<span class="ss">:code</span>]<span class="c">}</span><span class="s">"</span>
 <span class="k">end</span>
 
-<span class="c"># Run the entire workflow</span>
-<span class="n">result</span> = <span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
-      </div>
-    </div>
+<span class="c"># Bang variant raises on failure</span>
+<span class="n">result</span> = <span class="nc">OnboardCustomer</span>.<span class="n">execute!</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)
+<span class="c"># =&gt; raises CMDx::Fault on failure</span></code></pre>
+          </div>
+          <aside class="showcase-output">
+            <span class="label">&gt; stdout</span>
+            <span class="line"><span class="dim">$</span> bin/execute.sh</span>
+            <span class="line"><span class="ok">Approved at 2026-04-20 14:22:01 UTC</span></span>
+            <span class="line">&nbsp;</span>
+            <span class="line"><span class="dim">&#35;</span> result.success?  <span class="ok">=&gt; true</span></span>
+            <span class="line"><span class="dim">&#35;</span> result.state     =&gt; <span class="val">"complete"</span></span>
+            <span class="line"><span class="dim">&#35;</span> result.duration  =&gt; 12</span>
+            <span class="line"><span class="dim">&#35;</span> result.chain.id  =&gt; <span class="val">"018c..e5"</span></span>
+          </aside>
+        </div>
 
-    <!-- Fault Tolerance -->
-    <div class="showcase-panel" id="panel-retries">
-      <div class="showcase-info">
-        <h3>Fault Tolerance</h3>
-        <p>Handle transient failures automatically with configurable retries, selective exception matching, and exponential backoff. No manual intervention needed.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="k">class</span> <span class="nc">ProcessPayment</span> <span class="o">&lt;</span> <span class="nc">CMDx::Task</span>
-  <span class="n">settings</span> <span class="ss">retries:</span> <span class="mi">5</span>,
-           <span class="ss">retry_on:</span> [<span class="nc">Stripe::RateLimitError</span>,
-                      <span class="nc">Net::ReadTimeout</span>],
-           <span class="ss">retry_jitter:</span> <span class="ss">:exponential_backoff</span>
-
-  <span class="n">required</span> <span class="ss">:payment_id</span>, <span class="ss">type:</span> <span class="ss">:integer</span>
-
-  <span class="k">def</span> <span class="n">work</span>
-    <span class="n">payment</span> = <span class="nc">Payment</span>.<span class="n">find</span>(<span class="n">payment_id</span>)
-    <span class="n">context</span>.<span class="n">charge</span> = <span class="nc">Stripe::Charge</span>.<span class="n">create</span>(
-      <span class="ss">amount:</span> <span class="n">payment</span>.<span class="n">amount_cents</span>,
-      <span class="ss">currency:</span> <span class="s">"usd"</span>,
-      <span class="ss">source:</span> <span class="n">payment</span>.<span class="n">token</span>
-    )
-  <span class="k">end</span>
-
-  <span class="k">private</span>
-
-  <span class="k">def</span> <span class="n">exponential_backoff</span>(<span class="n">current_retry</span>)
-    <span class="mi">2</span> ** <span class="n">current_retry</span> <span class="c"># 2s, 4s, 8s, 16s, 32s</span>
+        <!-- Observe -->
+        <div class="showcase-panel has-output" id="panel-observe">
+          <div class="showcase-code">
+            <pre><code><span class="c"># Plug into any observability stack</span>
+<span class="nc">CMDx</span>.<span class="n">configure</span> <span class="k">do</span> |<span class="n">c</span>|
+  <span class="n">c</span>.<span class="n">telemetry</span>.<span class="n">subscribe</span>(<span class="ss">:task_executed</span>) <span class="k">do</span> |<span class="n">event</span>|
+    <span class="nc">Datadog</span>.<span class="n">increment</span>(<span class="s">"cmdx.executed"</span>, <span class="ss">tags:</span> [
+      <span class="s">"task:</span><span class="c">#{</span><span class="n">event</span>.<span class="n">task_class</span><span class="c">}</span><span class="s">"</span>,
+      <span class="s">"status:</span><span class="c">#{</span><span class="n">event</span>.<span class="n">payload</span>[<span class="ss">:result</span>].<span class="n">status</span><span class="c">}</span><span class="s">"</span>
+    ])
   <span class="k">end</span>
 <span class="k">end</span>
 
-<span class="n">result</span> = <span class="nc">ProcessPayment</span>.<span class="n">execute</span>(<span class="ss">payment_id:</span> <span class="mi">99</span>)
-<span class="n">result</span>.<span class="n">retried?</span>  <span class="c"># => true</span>
-<span class="n">result</span>.<span class="n">retries</span>   <span class="c"># => 2</span></code></pre>
+<span class="c"># Every event ships with a chain_id, task_id,</span>
+<span class="c"># runtime, origin, and correlation metadata.</span>
+
+<span class="c"># Structured logs are emitted automatically.</span>
+<span class="nc">OnboardCustomer</span>.<span class="n">execute</span>(<span class="ss">email:</span> <span class="s">"jane@co.com"</span>)</code></pre>
+          </div>
+          <aside class="showcase-output">
+            <span class="label">&gt; stderr</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.000]</span> <span class="kv">task</span>=<span class="val">CreateAccount</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=12</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.050]</span> <span class="kv">task</span>=<span class="val">SetupBilling</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=45</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.200]</span> <span class="kv">task</span>=<span class="val">SendWelcomeSms</span> <span class="kv">state</span>=<span class="val">interrupted</span> <span class="kv">status</span>=<span class="skv">skipped</span> <span class="kv">runtime</span>=2</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.210]</span> <span class="kv">task</span>=<span class="val">SendWelcomeEmail</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=18</span>
+            <span class="line"><span class="level-i">I,</span> <span class="ts">[14:22:01.250]</span> <span class="kv">task</span>=<span class="val">OnboardCustomer</span> <span class="kv">state</span>=<span class="val">complete</span> <span class="kv">status</span>=<span class="okv">success</span> <span class="kv">runtime</span>=250</span>
+          </aside>
+        </div>
+
       </div>
     </div>
 
-    <!-- Observe -->
-    <div class="showcase-panel" id="panel-observe">
-      <div class="showcase-info">
-        <h3>Observe Everything</h3>
-        <p>Every execution automatically generates structured logs with chain IDs, runtime metrics, and contextual metadata. Trace complex workflows and debug issues with ease.</p>
-      </div>
-      <div class="showcase-code">
-        <pre><code><span class="c"># Structured logs are generated automatically</span>
-<span class="c"># with correlation IDs for full traceability</span>
-
-<span class="c">I, [2026-02-06T14:22:01.000 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">1</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"CreateAccount"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">12</span>}
-
-<span class="c">I, [2026-02-06T14:22:01.050 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">2</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SetupBilling"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">45</span>}
-
-<span class="c">W, [2026-02-06T14:22:01.200 #4891] WARN -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">3</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Task"</span> <span class="n">class</span>=<span class="s">"SendWelcomeEmail"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"skipped"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">2</span>, <span class="ss">reason:</span> <span class="s">"Email not configured"</span>}
-
-<span class="c">I, [2026-02-06T14:22:01.250 #4891] INFO -- CMDx:</span>
-<span class="n">index</span>=<span class="mi">0</span> <span class="n">chain_id</span>=<span class="s">"018c..e5"</span>
-<span class="n">type</span>=<span class="s">"Workflow"</span> <span class="n">class</span>=<span class="s">"OnboardCustomer"</span>
-<span class="n">state</span>=<span class="s">"complete"</span> <span class="n">status</span>=<span class="s">"success"</span>
-<span class="n">metadata</span>={<span class="ss">runtime:</span> <span class="mi">250</span>}</code></pre>
-      </div>
-    </div>
   </div>
-</div>
+</section>
 
-<!-- Key Features -->
-<div class="section">
-  <div class="section-header">
-    <h2>Why CMDx?</h2>
-    <p>Designed for developers who value clarity, consistency, and reliability.</p>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⚡️</div>
-      <h3>Zero Dependencies</h3>
-      <p>Lightweight and pure Ruby. Drop it into Rails, Sinatra, Hanami, or any plain Ruby script without bloating your Gemfile.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🛡️</div>
-      <h3>Type Safety</h3>
-      <p>Declare inputs with strict typing, coercion, and validation. Catch bad data at the boundary, before it corrupts your logic.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
-      <h3>Observability</h3>
-      <p>Built-in tracing, structured logging, and error tracking. Know exactly what happened, when, and why.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🧩</div>
-      <h3>Composability</h3>
-      <p>Chain small, focused commands into complex workflows. Reuse logic across your application with confidence.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">✅</div>
-      <h3>Predictable Results</h3>
-      <p>No more rescuing exceptions for control flow. Every command returns a standardized Result object.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌍</div>
-      <h3>Production Ready</h3>
-      <p>Includes I18n, retries, deprecation handling, and middleware support out of the box.</p>
-    </div>
-  </div>
-</div>
-
-<!-- The CERO Pattern -->
-<div class="stats-section">
-  <div class="section-header">
-    <h2>The CERO Pattern</h2>
-    <p>A simple mental model for reliable logic.</p>
-  </div>
-
-  <div class="cero-grid">
-    <div class="cero-step">
-      <span class="cero-icon">🏗️</span>
-      <div class="cero-title">Compose</div>
-      <p>Build reusable, single-responsibility tasks with typed attributes and validation.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">⚡️</span>
-      <div class="cero-title">Execute</div>
-      <p>Invoke tasks with a consistent API that handles errors and logging automatically.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">🎯</span>
-      <div class="cero-title">React</div>
-      <p>Handle standardized result objects with clear success, failure, or skipped states.</p>
-    </div>
-    <div class="cero-step">
-      <span class="cero-icon">📊</span>
-      <div class="cero-title">Observe</div>
-      <p>Trace execution with structured logs, correlation IDs, and runtime metrics.</p>
-    </div>
-  </div>
-</div>
-
-<!-- Comparison -->
-<div class="section">
-  <div class="section-header">
-    <h2>How We Compare</h2>
-    <p>CMDx delivers the full stack without the bloat.</p>
-  </div>
-
-  <div style="overflow-x: auto;">
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>CMDx</th>
-          <th>Actor</th>
-          <th>Interactor</th>
-          <th>ActiveInteraction</th>
-          <th>LightService</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Zero Dependencies</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Typed Attributes</td>
-          <td class="check">✅</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Type Coercion</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-        </tr>
-        <tr>
-          <td>Built-in Logging</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-        </tr>
-        <tr>
-          <td>Middleware System</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="check">✅</td>
-        </tr>
-        <tr>
-          <td>Fault Tolerance</td>
-          <td class="check">✅</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-          <td class="cross">❌</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Stats / Impact -->
-<div class="stats-section">
+<!-- ===================== 04. FEATURES ===================== -->
+<section class="features">
   <div class="section">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="number">100%</span>
-        <span class="label">Pure Ruby</span>
-      </div>
-      <div class="stat-item">
-        <span class="number">0</span>
-        <span class="label">Dependencies</span>
-      </div>
-      <div class="stat-item">
-        <span class="number">Type</span>
-        <span class="label">Safe Inputs</span>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Use Cases -->
-<div class="section">
-  <div class="section-header">
-    <h2>Built For Real World Logic</h2>
-    <p>From simple scripts to complex enterprise workflows.</p>
+    <div class="section-head center">
+      <span class="section-eyebrow">&middot; 04 &middot; features</span>
+      <h2 class="section-title">Everything your tasks need.</h2>
+      <p class="section-sub">Batteries included. No external dependencies required.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5 h16 l-6 7 v6 l-4 2 v-8 z" />
+          </svg>
+        </div>
+        <h3>Typed inputs</h3>
+        <p>Declare inputs with coercion, defaults, and validation. Invalid data fails before <code>work</code> runs, never mid-method.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 12 a9 9 0 1 1 -3.5 -7.1" />
+            <polyline points="21 3 21 9 15 9" />
+          </svg>
+        </div>
+        <h3>Automatic retries</h3>
+        <p>Configurable retries with exponential backoff, scoped to the exception classes you choose. Declared per task with <code>retry_on</code>.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="5" cy="12" r="2.5" />
+            <circle cx="12" cy="5" r="2.5" />
+            <circle cx="12" cy="19" r="2.5" />
+            <circle cx="19" cy="12" r="2.5" />
+            <path d="M7 11 L10 6.5 M7 13 L10 17.5 M14 6.5 L17 11 M14 17.5 L17 13" />
+          </svg>
+        </div>
+        <h3>Workflows</h3>
+        <p>Chain tasks into sequential or parallel pipelines. Conditional steps, shared context, halt-aware error propagation.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <line x1="7" y1="9" x2="14" y2="9" />
+            <line x1="7" y1="13" x2="17" y2="13" />
+            <line x1="7" y1="17" x2="12" y2="17" />
+          </svg>
+        </div>
+        <h3>Structured logging</h3>
+        <p>Each execution emits a chain id, task, state, status, runtime, and metadata as a structured key-value line.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 3 22 8 12 13 2 8 12 3" />
+            <polyline points="2 13 12 18 22 13" />
+            <polyline points="2 18 12 23 22 18" />
+          </svg>
+        </div>
+        <h3>Middleware &amp; callbacks</h3>
+        <p>Wrap tasks with auth, caching, timing, and other cross-cutting concerns. Hook lifecycle events with <code>on_success</code>, <code>on_skipped</code>, and <code>on_failed</code>.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12 h18 M12 3 a14 14 0 0 1 0 18 M12 3 a14 14 0 0 0 0 18" />
+          </svg>
+        </div>
+        <h3>I18n messages</h3>
+        <p>Translatable error messages built on the standard I18n backend. English ships with the gem; bring your own locale files for everything else.</p>
+      </div>
+
+    </div>
+
+    <p class="features-footer">
+      Full capability list in the <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md">changelog</a> &rarr;
+    </p>
+
+  </div>
+</section>
+
+<!-- ===================== TELEMETRY STREAM (decorative) ===================== -->
+<section class="telemetry" aria-hidden="true">
+  <div class="telemetry-head">
+    <span class="live-dot"></span>
+    <span>observability out of the box &middot; tail -f chain</span>
+  </div>
+  <div class="telemetry-viewport">
+    <div class="telemetry-track" id="telemetryTrack">
+      <!-- duplicated at runtime for seamless loop -->
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 05. USE CASES ===================== -->
+<section class="usecases">
+  <div class="section">
+
+    <div class="section-head center">
+      <span class="section-eyebrow">&middot; 05 &middot; built for</span>
+      <h2 class="section-title">Built for real workloads.</h2>
+      <p class="section-sub">From core business logic to external integrations.</p>
+    </div>
+
+    <div class="usecase-grid">
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="6" width="18" height="13" rx="2" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <line x1="7" y1="15" x2="10" y2="15" />
+            </svg>
+          </div>
+          <h3>Payment processing</h3>
+        </div>
+        <p>Charges, refunds, ledgers, and reconciliation with audit-friendly result objects and automatic retries on gateway errors.</p>
+        <div class="tag-row"><span>stripe</span><span>braintree</span><span>ledgers</span></div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 21 v-2 a5 5 0 0 1 5 -5 h5 a5 5 0 0 1 5 5 v2" />
+              <circle cx="10.5" cy="8" r="4" />
+              <polyline points="17 11 19 13 22 10" />
+            </svg>
+          </div>
+          <h3>User onboarding</h3>
+        </div>
+        <p>Orchestrate signup &rarr; billing &rarr; welcome emails with parallel fan-out and conditional steps for paid tiers.</p>
+        <div class="tag-row"><span>signup</span><span>billing</span><span>welcome</span></div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <polyline points="22 8 18 12 22 16" />
+              <polyline points="2 8 6 12 2 16" />
+              <line x1="15" y1="4" x2="9" y2="20" />
+            </svg>
+          </div>
+          <h3>Webhook handlers</h3>
+        </div>
+        <p>Validate, dispatch, and retry Stripe, GitHub, or Twilio events with one task per event type and typed payloads.</p>
+        <div class="tag-row"><span>stripe</span><span>github</span><span>twilio</span></div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <polyline points="12 7 12 12 15 14" />
+            </svg>
+          </div>
+          <h3>Background jobs</h3>
+        </div>
+        <p>Give Sidekiq or async-job workers structured inputs, predictable results, and retry-aware error handling.</p>
+        <div class="tag-row"><span>sidekiq</span><span>async-job</span><span>solid_queue</span></div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <ellipse cx="12" cy="5" rx="8" ry="3" />
+              <path d="M4 5 v14 a8 3 0 0 0 16 0 v-14" />
+              <path d="M4 12 a8 3 0 0 0 16 0" />
+            </svg>
+          </div>
+          <h3>ETL &amp; data sync</h3>
+        </div>
+        <p>Compose import &rarr; transform &rarr; load pipelines with per-step checkpoints and parallel stages for throughput.</p>
+        <div class="tag-row"><span>extract</span><span>transform</span><span>load</span></div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-header">
+          <div class="usecase-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="4" y="8" width="16" height="12" rx="2" />
+              <path d="M12 8 v-4 M8 4 h8" />
+              <circle cx="9" cy="14" r="1" />
+              <circle cx="15" cy="14" r="1" />
+            </svg>
+          </div>
+          <h3>AI agent flows</h3>
+        </div>
+        <p>Wrap LLM tool calls, embeddings, and vector writes with timeouts, retries, and telemetry you can observe.</p>
+        <div class="tag-row"><span>openai</span><span>tools</span><span>vectors</span></div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================== 06. FOOTER CTA ===================== -->
+<section class="cta-footer">
+  <h2>Start building.</h2>
+
+  <div class="install-box">
+    <span class="prompt">$</span>
+    <code id="installCmd">gem install cmdx</code>
+    <button class="copy-btn" id="copyBtn" aria-label="Copy install command">
+      <span class="icon">&#x2398;</span>
+      <span class="txt">copy</span>
+    </button>
   </div>
 
-  <div class="features-grid">
-    <div class="feature-card">
-      <h3>🏦 Financial Operations</h3>
-      <p>Handle payments, loans, and ledgers with audit trails and transactional integrity.</p>
-    </div>
-    <div class="feature-card">
-      <h3>🔄 Data Pipelines</h3>
-      <p>Structure ETL processes with clear steps, error handling, and resumption capabilities.</p>
-    </div>
-    <div class="feature-card">
-      <h3>🛒 E-commerce</h3>
-      <p>Orchestrate order fulfillment, inventory checks, and shipping logistics reliably.</p>
-    </div>
+  <div class="cta-links">
+    <a href="getting_started/">docs</a>
+    <a href="https://github.com/drexed/cmdx/blob/main/CHANGELOG.md">changelog</a>
+    <a href="https://github.com/drexed/cmdx">github</a>
   </div>
-</div>
+</section>
+
+</div><!-- /.home -->
 
 <script>
-  (function () {
-    var tabs = document.querySelectorAll(".showcase-tab");
-    var panels = document.querySelectorAll(".showcase-panel");
+(function () {
+  /* -----------------------------------------------------------
+     Tab switcher (showcase)
+     ----------------------------------------------------------- */
+  var tabs = document.querySelectorAll(".showcase-tab");
+  var panels = document.querySelectorAll(".showcase-panel");
 
-    tabs.forEach(function (tab) {
-      tab.addEventListener("click", function () {
-        tabs.forEach(function (t) { t.classList.remove("active"); });
-        panels.forEach(function (p) { p.classList.remove("active"); });
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) { t.classList.remove("active"); });
+      panels.forEach(function (p) { p.classList.remove("active"); });
+      tab.classList.add("active");
+      var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
+      if (panel) panel.classList.add("active");
+    });
+  });
 
-        tab.classList.add("active");
-        var panel = document.getElementById("panel-" + tab.getAttribute("data-panel"));
-        if (panel) panel.classList.add("active");
+  /* -----------------------------------------------------------
+     Telemetry marquee: generate log lines and duplicate for loop
+     ----------------------------------------------------------- */
+  var track = document.getElementById("telemetryTrack");
+  if (track) {
+    var lines = [
+      ['I', '14:22:01.000', 'CreateAccount',       'success', 12,  'ok'],
+      ['I', '14:22:01.050', 'SetupBilling',        'success', 45,  'ok'],
+      ['I', '14:22:01.100', 'AssignPlan',          'success', 22,  'ok'],
+      ['I', '14:22:01.200', 'SendWelcomeSms',      'skipped', 2,   'skip'],
+      ['I', '14:22:01.210', 'SendWelcomeEmail',    'success', 18,  'ok'],
+      ['I', '14:22:01.215', 'CreateDashboard',     'success', 31,  'ok'],
+      ['I', '14:22:01.220', 'ScheduleOnboardCall', 'success', 9,   'ok'],
+      ['I', '14:22:01.250', 'OnboardCustomer',     'success', 250, 'ok'],
+      ['I', '14:22:02.001', 'ProcessPayment',      'failed',  140, 'err'],
+      ['I', '14:22:02.190', 'ProcessPayment',      'success', 138, 'ok'],
+      ['I', '14:22:03.000', 'ApproveLoan',         'success', 12,  'ok']
+    ];
+    var statusClass = { ok: 'okv', skip: 'skv', err: 'erv' };
+    function renderLine(l) {
+      var lvl = l[0];
+      var lvlCls = lvl === 'W' ? 'level-w' : lvl === 'E' ? 'level-e' : 'level-i';
+      var chainId = '018c' + Math.floor(Math.random() * 0xffff).toString(16).padStart(4, '0');
+      return '<span class="line">' +
+        '<span class="' + lvlCls + '">' + lvl + ',</span> ' +
+        '<span class="ts">[' + l[1] + ']</span> ' +
+        '<span class="kv">chain_id</span>=<span class="val">"' + chainId + '"</span> ' +
+        '<span class="kv">task</span>=<span class="val">' + l[2] + '</span> ' +
+        '<span class="kv">status</span>=<span class="' + statusClass[l[5]] + '">' + l[3] + '</span> ' +
+        '<span class="kv">runtime</span>=' + l[4] +
+      '</span>';
+    }
+    var html = lines.map(renderLine).join('');
+    track.innerHTML = html + html;
+  }
+
+  /* -----------------------------------------------------------
+     Copy-to-clipboard for gem install
+     ----------------------------------------------------------- */
+  var copyBtn = document.getElementById("copyBtn");
+  var installCmd = document.getElementById("installCmd");
+  if (copyBtn && installCmd && navigator.clipboard) {
+    copyBtn.addEventListener("click", function () {
+      navigator.clipboard.writeText(installCmd.textContent.trim()).then(function () {
+        copyBtn.classList.add("copied");
+        copyBtn.querySelector(".txt").textContent = "copied";
+        setTimeout(function () {
+          copyBtn.classList.remove("copied");
+          copyBtn.querySelector(".txt").textContent = "copy";
+        }, 1600);
       });
     });
-  })();
+  }
+})();
 </script>
 
 {% endblock %}

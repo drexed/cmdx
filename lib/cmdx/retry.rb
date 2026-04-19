@@ -1,165 +1,117 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Manages retry logic and state for task execution.
-  #
-  # The Retry class tracks retry availability, attempt counts, and
-  # remaining retries for a given task. It also resolves exception
-  # matching and computes wait times using configurable jitter strategies.
+  # Configurable retry-on-exception wrapper around a task's `work`. Supports
+  # exception list, attempt `:limit`, base `:delay`, `:max_delay` cap, and
+  # `:jitter` strategy (symbol, proc, or a configured block). Declared via
+  # `Task.retry_on` and accumulates across inheritance.
   class Retry
 
-    # Returns the task instance associated with this retry.
-    #
-    # @return [Task] the task being retried
-    #
-    # @example
-    #   retry_instance.task # => #<CreateUser ...>
-    #
-    # @rbs @task: Task
-    attr_reader :task
+    attr_reader :exceptions
 
-    # Creates a new Retry instance for the given task.
-    #
-    # @param task [Task] the task to manage retries for
-    #
-    # @return [Retry] a new Retry instance
-    #
-    # @example
-    #   retry_instance = Retry.new(task)
-    #
-    # @rbs (Task task) -> void
-    def initialize(task)
-      @task = task
+    # @param exceptions [Array<Class>] exceptions to retry on
+    # @param options [Hash{Symbol => Object}]
+    # @option options [Integer] :limit (3) maximum retry attempts
+    # @option options [Float] :delay (0.5) base delay in seconds between attempts
+    # @option options [Float] :max_delay clamp for computed delays
+    # @option options [Symbol, Proc, #call] :jitter built-in strategy (`:exponential`,
+    #   `:half_random`, `:full_random`, `:bounded_random`) or custom
+    # @yield [attempt, delay] optional custom jitter block, used when `:jitter` isn't set
+    def initialize(exceptions, options = EMPTY_HASH, &block)
+      @exceptions = exceptions.flatten
+      @options    = options.freeze
+      @block      = block
     end
 
-    # Returns the total number of retries configured for the task.
+    # Returns a new Retry layering `new_exceptions` and `new_options` onto the
+    # current one. Used for inheritance so subclasses extend rather than
+    # replace.
     #
-    # @return [Integer] the configured retry count
-    #
-    # @example
-    #   retry_instance.available # => 3
-    #
-    # @rbs () -> Integer
-    def available
-      Integer(task.class.settings.retries || 0)
+    # @param new_exceptions [Array<Class>]
+    # @param new_options [Hash{Symbol => Object}]
+    # @yield [attempt, delay] optional replacement jitter block
+    # @return [Retry]
+    def build(new_exceptions, new_options, &block)
+      return self if new_exceptions.empty?
+
+      merged_exceptions = exceptions | new_exceptions.flatten
+      merged_options    = @options.merge(new_options)
+
+      self.class.new(merged_exceptions, merged_options, &block || @block)
     end
 
-    # Checks if the task has any retries configured.
-    #
-    # @return [Boolean] true if retries are configured
-    #
-    # @example
-    #   retry_instance.available? # => true
-    #
-    # @rbs () -> bool
-    def available?
-      available.positive?
+    # @return [Integer]
+    def limit
+      @options[:limit] || 3
     end
 
-    # Returns the number of retry attempts already made.
-    #
-    # @return [Integer] the current retry attempt count
-    #
-    # @example
-    #   retry_instance.attempts # => 1
-    #
-    # @rbs () -> Integer
-    def attempts
-      Integer(task.result.retries || 0)
+    # @return [Float] base delay in seconds
+    def delay
+      @options[:delay] || 0.5
     end
 
-    # Checks if the task has been retried at least once.
-    #
-    # @return [Boolean] true if at least one retry has occurred
-    #
-    # @example
-    #   retry_instance.retried? # => true
-    #
-    # @rbs () -> bool
-    def retried?
-      attempts.positive?
+    # @return [Float, nil] upper bound for computed delays
+    def max_delay
+      @options[:max_delay]
     end
 
-    # Returns the number of retries still available.
-    #
-    # @return [Integer] the remaining retry count
-    #
-    # @example
-    #   retry_instance.remaining # => 2
-    #
-    # @rbs () -> Integer
-    def remaining
-      available - attempts
+    # @return [Symbol, Proc, #call, nil] jitter strategy or the block given to {#initialize}
+    def jitter
+      @options[:jitter] || @block
     end
 
-    # Checks if there are retries still available.
+    # Sleeps `attempt`'s jittered/bounded delay. No-op when the base delay is zero.
     #
-    # @return [Boolean] true if remaining retries exist
-    #
-    # @example
-    #   retry_instance.remaining? # => true
-    #
-    # @rbs () -> bool
-    def remaining?
-      remaining.positive?
+    # @param attempt [Integer] zero-based retry attempt number
+    # @param task [Task, nil] used as receiver for Symbol/Proc jitter strategies
+    # @return [void]
+    def wait(attempt, task = nil)
+      return unless delay.positive?
+
+      d =
+        case jitter
+        when :exponential
+          delay * (2**attempt)
+        when :half_random
+          (delay / 2.0) + (rand * delay / 2.0)
+        when :full_random
+          rand * delay
+        when :bounded_random
+          delay + (rand * delay)
+        when Symbol
+          task.send(jitter, attempt, delay)
+        when Proc
+          task.instance_exec(attempt, delay, &jitter)
+        else
+          if jitter.respond_to?(:call)
+            jitter.call(attempt, delay)
+          else
+            delay
+          end
+        end
+
+      d = d.clamp(0, max_delay) if max_delay
+      Kernel.sleep(d) if d.positive?
     end
 
-    # Returns the list of exception classes eligible for retry.
+    # Executes the block up to `limit + 1` times. Re-raises the last
+    # exception when attempts are exhausted.
     #
-    # @return [Array<Class>] exception classes that trigger a retry
-    #
-    # @example
-    #   retry_instance.exceptions # => [StandardError, CMDx::TimeoutError]
-    #
-    # @rbs () -> Array[Class]
-    def exceptions
-      @exceptions ||= Utils::Wrap.array(
-        task.class.settings.retry_on ||
-        [StandardError, CMDx::TimeoutError]
-      )
-    end
+    # @param task [Task, nil] passed to {#wait} so jitter strategies can use it
+    # @yieldparam attempt [Integer] zero-based attempt index
+    # @yieldreturn [Object] the block's successful return value
+    # @return [Object] the block's successful return value
+    # @raise [Exception] the last caught exception once retries exhaust
+    def process(task = nil, &)
+      return yield(0) if exceptions.empty? || !limit.positive?
 
-    # Checks if the given exception matches any configured retry exception.
-    #
-    # @param exception [Exception] the exception to check
-    #
-    # @return [Boolean] true if the exception qualifies for retry
-    #
-    # @example
-    #   retry_instance.exception?(RuntimeError.new("fail")) # => true
-    #
-    # @rbs (Exception exception) -> bool
-    def exception?(exception)
-      exceptions.any? { |e| exception.class <= e }
-    end
+      (limit + 1).times do |attempt|
+        return yield(attempt)
+      rescue *exceptions => e
+        raise(e) if attempt >= limit
 
-    # Computes the wait time before the next retry attempt.
-    #
-    # Supports multiple jitter strategies: a Symbol calls a task method,
-    # a Proc is evaluated in the task instance context, a callable object
-    # receives the task and attempts, and a Numeric is multiplied by the
-    # attempt count.
-    #
-    # @return [Float] the wait duration in seconds
-    #
-    # @example With numeric jitter (0.5 * attempts)
-    #   retry_instance.wait # => 1.0
-    # @example With symbol jitter referencing a task method
-    #   retry_instance.wait # => 2.5
-    #
-    # @rbs () -> Float
-    def wait
-      jitter = task.class.settings.retry_jitter
-
-      if jitter.is_a?(Symbol)
-        task.send(jitter, attempts)
-      elsif jitter.is_a?(Proc)
-        task.instance_exec(attempts, &jitter)
-      elsif jitter.respond_to?(:call)
-        jitter.call(task, attempts)
-      else
-        jitter.to_f * attempts
-      end.to_f
+        wait(attempt, task)
+      end
     end
 
   end

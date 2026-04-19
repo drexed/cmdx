@@ -11,6 +11,8 @@ slug: cmdx-patterns-error-handling-playbook
 
 *Part 3 of the CMDx Patterns series*
 
+*Targets CMDx v1.21.*
+
 I used to think error handling was simple. Something goes wrong, you rescue it, done. Then I started building systems where "something went wrong" had fifteen different flavors—each requiring a different response. A missing record is not the same as a network timeout. A user's expired subscription is not the same as a billing system outage. Treating them identically is how you end up with generic "Something went wrong" error pages and support tickets that take hours to triage.
 
 CMDx gives you four distinct mechanisms for handling problems: `skip!`, `fail!`, `throw!`, and letting exceptions propagate. Knowing which one to reach for—and when—is the difference between a system that degrades gracefully and one that falls over at the first sign of trouble.

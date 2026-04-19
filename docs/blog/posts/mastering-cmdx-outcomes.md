@@ -9,6 +9,8 @@ slug: mastering-cmdx-outcomes
 
 # Mastering CMDx Outcomes: Results, States, and Statuses
 
+*Targets CMDx v1.15.*
+
 If you've ever found yourself asking "What does this service object actually return?", you're not alone. Does it return `true`? The record it created? A hash with errors? Or does it just raise an exception and hope someone catches it?
 
 In my experience, inconsistent return values are the silent killers of maintainable Ruby code. That's why CMDx standardizes everything into a single, powerful concept: the **Result**.

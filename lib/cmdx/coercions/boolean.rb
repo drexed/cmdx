@@ -1,56 +1,35 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to Boolean format
-    #
-    # Handles conversion from strings, numbers, and other values to boolean
-    # using predefined truthy and falsey patterns.
+  class Coercions
+    # Coerces to Boolean by matching the string form against the {TRUTHY}
+    # and {FALSEY} sets (case- and whitespace-insensitive). Anything else
+    # (including `nil`) fails.
     module Boolean
 
       extend self
 
-      # @rbs FALSEY: Regexp
-      FALSEY = /\A(false|f|no|n|0)\z/i
+      TRUTHY = Set["true", "yes", "on", "y", "1", "t"].freeze
+      FALSEY = Set["false", "no", "off", "n", "0", "f"].freeze
 
-      # @rbs TRUTHY: Regexp
-      TRUTHY = /\A(true|t|yes|y|1)\z/i
-
-      # Converts a value to a Boolean
-      #
-      # @param value [Object] The value to convert to boolean
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Boolean] The converted boolean value
-      #
-      # @raise [CoercionError] If the value cannot be converted to boolean
-      #
-      # @example Convert truthy strings to true
-      #   Boolean.call("true")   # => true
-      #   Boolean.call("yes")    # => true
-      #   Boolean.call("1")      # => true
-      # @example Convert falsey strings to false
-      #   Boolean.call("false")  # => false
-      #   Boolean.call("no")     # => false
-      #   Boolean.call("0")      # => false
-      #   Boolean.call(nil)      # => false
-      #   Boolean.call("")       # => false
-      # @example Handle case-insensitive input
-      #   Boolean.call("TRUE")   # => true
-      #   Boolean.call("False")  # => false
-      # @example Handle edge cases
-      #   Boolean.call("abc")    # => raises CoercionError
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> bool
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}] unused
+      # @return [Boolean, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        case value.to_s
-        when FALSEY, EMPTY_STRING then false
-        when TRUTHY then true
-        else
-          type = Locale.t("cmdx.types.boolean")
-          raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
-        end
+        return coercion_failure if value.nil?
+
+        str = value.to_s.strip.downcase
+        return true if TRUTHY.include?(str)
+        return false if FALSEY.include?(str)
+
+        coercion_failure
+      end
+
+      private
+
+      def coercion_failure
+        type = I18nProxy.t("cmdx.types.boolean")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_a", type:))
       end
 
     end

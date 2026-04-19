@@ -17,7 +17,7 @@ theme:
   icon:
     repo: fontawesome/brands/github
   font:
-    text: Inter
+    text: IBM Plex Sans
     code: IBM Plex Mono
   palette:
     # Palette toggle for automatic mode
@@ -120,20 +120,20 @@ plugins:
           - basics/context.md: Context object for data sharing, input/output management, and attribute access
           - basics/chain.md: Execution chain tracking for related tasks within threads
         Interruptions:
-          - interruptions/halt.md: Intentional task interruption using skip! and fail! methods
-          - interruptions/faults.md: Fault exceptions (SkipFault, FailFault) raised by execute! with rich context
-          - interruptions/exceptions.md: Exception handling differences between execute and execute! methods
+          - interruptions/signals.md: Intentional task interruption using skip! and fail! methods
+          - interruptions/faults.md: CMDx::Fault raised by execute! with task class, signal, and cleaned backtrace
+          - interruptions/exceptions.md: Complete exception hierarchy (Error, DeprecationError, ImplementationError, MiddlewareError, Fault) and execute vs execute! semantics
         Outcomes:
           - outcomes/result.md: Result objects exposing execution state, status, context, and metadata
           - outcomes/states.md: Execution lifecycle states (initialized, executing, complete, interrupted)
           - outcomes/statuses.md: Business outcome statuses (success, skipped, failed) and transitions
         Attributes:
-          - attributes/definitions.md: Attribute declarations (required/optional), validation, and type coercion
-          - attributes/naming.md: Customizing accessor method names with prefixes and suffixes
-          - attributes/coercions.md: Automatic type conversion for inputs (string to integer, date parsing, etc.)
-          - attributes/validations.md: Input validation rules (presence, length, format, numeric, inclusion, exclusion)
-          - attributes/defaults.md: Default values for optional attributes (static, dynamic, callable)
-          - attributes/transformations.md: Value transformation after coercion but before validation
+          - inputs/definitions.md: Attribute declarations (required/optional), validation, and type coercion
+          - inputs/naming.md: Customizing accessor method names with prefixes and suffixes
+          - inputs/coercions.md: Automatic type conversion for inputs (string to integer, date parsing, etc.)
+          - inputs/validations.md: Input validation rules (presence, length, format, numeric, inclusion, exclusion)
+          - inputs/defaults.md: Default values for optional inputs (static, dynamic, callable)
+          - inputs/transformations.md: Value transformation after coercion but before validation
         Features:
           - callbacks.md: Execution lifecycle callbacks (before_execution, on_success, on_failure, etc.)
           - middlewares.md: Cross-cutting concerns wrapping task execution (authentication, caching, timeouts)
@@ -141,13 +141,13 @@ plugins:
           - internationalization.md: Multi-language support for error messages and validations (90+ locales)
           - retries.md: Automatic retry functionality for transient failures with jitter and selective retries
           - deprecation.md: Managing deprecated tasks with logging, warnings, or execution prevention
-          - returns.md: Declaring expected context outputs that must be set after task execution
+          - outputs.md: Declaring expected context outputs that must be set after task execution
           - workflows.md: Composing multiple tasks into sequential pipelines with conditional execution
         More:
           - testing.md: Best practices for testing CMDx tasks and workflows with RSpec
-          - exceptions.md: Complete exception hierarchy and error type reference
           - tips_and_tricks.md: Best practices, patterns, and techniques for maintainable CMDx applications
           - comparison.md: Comparison with other command/service object frameworks
+          - v2-migration.md: Migration guide from CMDx 1.x to 2.0
 nav:
   - Home: index.md
   - Documentation:
@@ -159,20 +159,20 @@ nav:
       - Context: basics/context.md
       - Chain: basics/chain.md
     - Interruptions:
-      - Halt: interruptions/halt.md
+      - Signals: interruptions/signals.md
       - Faults: interruptions/faults.md
       - Exceptions: interruptions/exceptions.md
     - Outcomes:
       - Result: outcomes/result.md
       - States: outcomes/states.md
       - Statuses: outcomes/statuses.md
-    - Attributes:
-      - Definitions: attributes/definitions.md
-      - Naming: attributes/naming.md
-      - Coercions: attributes/coercions.md
-      - Validations: attributes/validations.md
-      - Defaults: attributes/defaults.md
-      - Transformations: attributes/transformations.md
+    - Inputs:
+      - Definitions: inputs/definitions.md
+      - Naming: inputs/naming.md
+      - Coercions: inputs/coercions.md
+      - Validations: inputs/validations.md
+      - Defaults: inputs/defaults.md
+      - Transformations: inputs/transformations.md
     - Features:
       - Callbacks: callbacks.md
       - Middlewares: middlewares.md
@@ -180,13 +180,13 @@ nav:
       - Internationalization: internationalization.md
       - Retries: retries.md
       - Deprecation: deprecation.md
-      - Returns: returns.md
+      - Outputs: outputs.md
       - Workflows: workflows.md
     - More:
       - Testing: testing.md
-      - Exceptions: exceptions.md
       - Tips and Tricks: tips_and_tricks.md
       - Comparison: comparison.md
+      - v1 → v2 Migration: v2-migration.md
     - References:
       - API Documentation: https://drexed.github.io/cmdx/api/index.html
       - llms.txt: https://drexed.github.io/cmdx/llms.txt
