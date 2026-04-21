@@ -1,46 +1,45 @@
 # Active Record Query Tagging
 
-Add a comment to every query indicating some context to help you track down where that query came from, eg:
+Annotate every SQL query emitted during a task's execution so the task class, task id, chain id, and correlation id show up in your database logs:
 
-```sh
-/*cmdx_task_class:ExportReportTask,cmdx_cid:018c2b95-b764-7615*/ SELECT * FROM reports WHERE id = 1
+```sql
+/*cmdx_task:ExportReport,cmdx_tid:018c2b95-b764-...,cmdx_cid:018c2b95-0878-...*/ SELECT * FROM reports WHERE id = 1
 ```
 
-### Setup
+## Setup
 
 ```ruby
 # config/application.rb
 config.active_record.query_log_tags_enabled = true
-config.active_record.query_log_tags += [
-  :cmdx_task,
-  :cmdx_tid,
-  :cmdx_cid,
-  :cmdx_xid
-]
+config.active_record.query_log_tags += %i[cmdx_task cmdx_tid cmdx_cid cmdx_xid]
 
-# lib/cmdx_query_tagging_middleware.rb
+# app/middlewares/cmdx_query_tagging_middleware.rb
 class CmdxQueryTaggingMiddleware
-  def self.call(task, **options, &)
+  def call(task)
     ActiveSupport::ExecutionContext.set(
       cmdx_task: task.class.name,
-      cmdx_tid: task.id,
-      cmdx_cid: task.cid,
-      cmdx_xid: task.result.metadata[:correlation_id],
-      &
-    )
+      cmdx_tid:  task.tid,
+      cmdx_cid:  CMDx::Chain.current.id,
+      cmdx_xid: task.metadata[:correlation_id],
+    ) { yield }
   end
 end
 ```
 
-### Usage
+## Usage
 
 ```ruby
-class MyTask < CMDx::Task
-  register :middleware, CmdxQueryTaggingMiddleware
+class ExportReport < CMDx::Task
+  register :middleware, CmdxQueryTaggingMiddleware.new
 
   def work
-    # Do work...
+    # ...
   end
-
 end
 ```
+
+## Notes
+
+!!! tip
+
+    Pair `cmdx_cid` with your APM's correlation field. CMDx's default log line already emits the same `cid`, so a single id stitches the SQL log, the lifecycle log, and the APM trace together.

@@ -1,46 +1,47 @@
 # Flipper Feature Flags
 
-Control task execution based on Flipper feature flags.
+Gate task execution on a [Flipper](https://github.com/flippercloud/flipper) feature. Pick the pattern that matches the outcome you want when the flag is off: a **failed** result, or a **skipped** result.
 
-<https://github.com/flippercloud/flipper>
+## Failing When the Flag Is Off
 
-### Setup
+A middleware can't throw `skip!` / `fail!` (those must originate inside `work`), but it *can* record an error and yield — the pending error halts the lifecycle with a failed result.
 
 ```ruby
-# lib/cmdx_flipper_middleware.rb
+# app/middlewares/cmdx_flipper_middleware.rb
 class CmdxFlipperMiddleware
-  def self.call(task, **options, &)
-    feature_name = options.fetch(:feature)
-    actor = options.fetch(:actor, -> { task.context[:user] })
+  def initialize(feature:, actor: nil)
+    @feature = feature
+    @actor   = actor
+  end
 
-    # Resolve actor if it's a proc
-    actor = actor.call if actor.respond_to?(:call)
+  def call(task)
+    actor = resolve_actor(task)
 
-    if Flipper.enabled?(feature_name, actor)
+    if Flipper.enabled?(@feature, actor)
       yield
     else
-      # Option 1: Skip the task
-      task.skip!("Feature #{feature_name} is disabled")
+      task.errors.add(:base, "feature #{@feature} is disabled")
+      yield
+    end
+  end
 
-      # Option 2: Fail the task
-      # task.fail!("Feature #{feature_name} is disabled")
+  private
+
+  def resolve_actor(task)
+    case @actor
+    when nil    then task.context[:user]
+    when Symbol then task.send(@actor)
+    when Proc   then task.instance_exec(&@actor)
+    else             @actor.respond_to?(:call) ? @actor.call(task) : @actor
     end
   end
 end
 ```
 
-### Usage
-
 ```ruby
 class NewFeatureTask < CMDx::Task
-  # Execute only if :new_feature is enabled for the user in context
-  register :middleware, CmdxFlipperMiddleware,
-    feature: :new_feature
-
-  # Customize the actor resolution
-  register :middleware, CmdxFlipperMiddleware,
-    feature: :beta_access,
-    actor: -> { task.context[:company] }
+  register :middleware, CmdxFlipperMiddleware.new(feature: :new_feature)
+  register :middleware, CmdxFlipperMiddleware.new(feature: :beta_access, actor: -> { context[:company] })
 
   def work
     # ...
@@ -48,3 +49,21 @@ class NewFeatureTask < CMDx::Task
 end
 ```
 
+## Skipping When the Flag Is Off
+
+For a true `skipped` outcome, check inside `work` and halt with `skip!`:
+
+```ruby
+class NewFeatureTask < CMDx::Task
+  def work
+    skip!("feature new_feature is disabled") unless Flipper.enabled?(:new_feature, context[:user])
+    # ...
+  end
+end
+```
+
+## Notes
+
+!!! note
+
+    Middlewares wrap the entire lifecycle but sit **outside** `catch(Signal::TAG)` — calling `skip!` / `fail!` from a middleware escapes as `UncaughtThrowError`. Only `work` can emit those signals. See [Middlewares — Common Patterns](../docs/middlewares.md#common-patterns).

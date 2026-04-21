@@ -1,59 +1,47 @@
-# ActiveSupport::Notifications Instrumentation
+# ActiveSupport Instrumentation
 
-This example demonstrates how to wrap CMDx tasks with `ActiveSupport::Notifications` to instrument execution time and other metrics.
+Emit an `ActiveSupport::Notifications` event for every task execution so subscribers (log sinks, APM, StatsD shippers) can time and tag them.
 
-## Middleware
-
-Create a middleware that wraps the task execution in an instrumentation block.
+## Setup
 
 ```ruby
-# app/middlewares/active_support_instrumentation.rb
-class CmdxActiveSupportInstrumentation
-  def call(task, _options, &)
+# app/middlewares/cmdx_instrumentation_middleware.rb
+class CmdxInstrumentationMiddleware
+  def call(task)
     ActiveSupport::Notifications.instrument(
       "execute.cmdx",
       task: task.class.name,
-      task_id: task.id,
-      context: task.context.to_h,
-      &
-    )
+      tid:  task.tid,
+      cid:  CMDx::Chain.current.id
+    ) { yield }
   end
 end
 ```
 
 ## Usage
 
-Register the middleware in your tasks or base task class.
-
 ```ruby
-# app/tasks/users/create.rb
 class Users::Create < CMDx::Task
-  register :middleware, CmdxActiveSupportInstrumentation
+  register :middleware, CmdxInstrumentationMiddleware.new
 
   required :email
 
   def work
-    # ... logic ...
+    # ...
   end
 end
-```
 
-## Subscriber
-
-Subscribe to the event to log or process the metrics.
-
-```ruby
 # config/initializers/cmdx_instrumentation.rb
-ActiveSupport::Notifications.subscribe("execute.cmdx") do |name, start, finish, id, payload|
-  duration = (finish - start) * 1000
-  Rails.logger.info "Task #{payload[:task]} (ID: #{payload[:task_id]}) took #{duration.round(2)}ms"
+ActiveSupport::Notifications.subscribe("execute.cmdx") do |*args|
+  event = ActiveSupport::Notifications::Event.new(*args)
+  Rails.logger.info(
+    "#{event.payload[:task]} (#{event.payload[:tid]}) took #{event.duration.round(2)}ms"
+  )
 end
 ```
 
-## Result
+## Notes
 
-When `Users::Create.execute` is called, it will trigger the notification:
+!!! tip
 
-```
-Task Users::Create (ID: 018c2b95-...) took 45.21ms
-```
+    CMDx ships its own pub/sub with `result.duration`, `result.status`, and `result.retries` baked in — subscribe to `:task_executed` in [Telemetry](../docs/configuration.md#telemetry) when you don't need `ActiveSupport::Notifications`' wider ecosystem.
