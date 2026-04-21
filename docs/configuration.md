@@ -87,11 +87,11 @@ CMDx.configure do |config|
 
   # Proc / Lambda — must declare &next_link to pass the block
   config.middlewares.register(proc do |task, &next_link|
-    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    next_link.call
-  ensure
-    duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
-    Rails.logger.debug { "#{task.class} ran in #{(duration * 1000).round(2)}ms" }
+    locale = Current.user.locale || I18n.default_locale
+    I18n.with_locale(locale) do
+      task.metadata[:locale] = locale
+      next_link.call
+    end
   end)
 
   # Insert at a specific position

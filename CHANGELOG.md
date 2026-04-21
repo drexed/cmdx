@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replaced by an explicit signal-based runtime, immutable results, fiber-local chains, and a slimmer registry surface. See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide.
 
 ### Added
-- Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`), with `Signal::Success` / `Signal::Skipped` / `Signal::Failed` frozen singleton constants, `Signal.success` / `.skipped` / `.failed` class methods that return them when called with no args, and `Signal.echoed(other)` for propagating nested fault outcomes (auto-sets `:origin` to the upstream `Result`)
+- Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`)
 - Add `Signal#ok?` / `Signal#ko?` predicates
 - Add `CMDx::Runtime` orchestrating the full task lifecycle and building the final `Result`
 - Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, `timestamp`
@@ -24,6 +24,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Task#rollback` lifecycle hook, auto-invoked by Runtime on failed results when defined; surfaced via `Result#rolled_back?` and the `:task_rolled_back` event
 - Add `Task#success!` for signaling a successful halt, joining `skip!` / `fail!` / `throw!`
 - Add `Task.execute` / `Task.execute!` as the execution entry points (aliased as `call` / `call!` for backward compatibility)
+- Add `Task#execute(strict:)` instance method (aliased as `#call`)
 - Add `Result#on(:success, :failed, ...)` chainable predicate-dispatch helper
 - Add `Result#deconstruct` / `Result#deconstruct_keys` for pattern matching; `deconstruct` returns `[type, task, state, status, reason, metadata, cause, origin]`
 - Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#chain_index`, `Result#chain_root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias

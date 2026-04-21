@@ -30,8 +30,11 @@ CMDx.configure do |config|
   # Example — run each task under the current user's locale:
   #
   # config.middlewares.register(proc do |task, &next_link|
-  #   locale = task.context.current_user&.locale || I18n.default_locale
-  #   I18n.with_locale(locale) { next_link.call }
+  #   locale = Current.user.locale || I18n.default_locale
+  #   I18n.with_locale(locale) do
+  #     task.metadata[:locale] = locale
+  #     next_link.call
+  #   end
   # end)
 
   # ===========================================================================

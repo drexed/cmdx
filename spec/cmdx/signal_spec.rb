@@ -4,12 +4,6 @@ require "spec_helper"
 
 RSpec.describe CMDx::Signal do
   describe ".success" do
-    context "without arguments" do
-      it "returns the shared Success singleton" do
-        expect(described_class.success).to be(described_class::Success)
-      end
-    end
-
     context "with a reason" do
       it "builds a new complete/success signal with the reason" do
         signal = described_class.success("ok now")
@@ -19,7 +13,7 @@ RSpec.describe CMDx::Signal do
           status: described_class::SUCCESS,
           reason: "ok now"
         )
-        expect(signal).not_to be(described_class::Success)
+        expect(signal).not_to be(described_class.success)
       end
     end
 
@@ -38,10 +32,6 @@ RSpec.describe CMDx::Signal do
   end
 
   describe ".skipped" do
-    it "returns the Skipped singleton when no args" do
-      expect(described_class.skipped).to be(described_class::Skipped)
-    end
-
     it "builds an interrupted/skipped signal when given a reason" do
       signal = described_class.skipped("nope")
 
@@ -54,10 +44,6 @@ RSpec.describe CMDx::Signal do
   end
 
   describe ".failed" do
-    it "returns the Failed singleton when no args" do
-      expect(described_class.failed).to be(described_class::Failed)
-    end
-
     it "builds an interrupted/failed signal when given a reason" do
       signal = described_class.failed("broken")
 
@@ -94,13 +80,13 @@ RSpec.describe CMDx::Signal do
 
   describe "singletons" do
     it "expose the canonical state/status pairs" do
-      expect(described_class::Success).to have_attributes(
+      expect(described_class.success).to have_attributes(
         state: described_class::COMPLETE, status: described_class::SUCCESS
       )
-      expect(described_class::Skipped).to have_attributes(
+      expect(described_class.skipped).to have_attributes(
         state: described_class::INTERRUPTED, status: described_class::SKIPPED
       )
-      expect(described_class::Failed).to have_attributes(
+      expect(described_class.failed).to have_attributes(
         state: described_class::INTERRUPTED, status: described_class::FAILED
       )
     end
@@ -108,37 +94,37 @@ RSpec.describe CMDx::Signal do
 
   describe "state predicates" do
     it "complete? is true only for COMPLETE state" do
-      expect(described_class::Success.complete?).to be(true)
-      expect(described_class::Failed.complete?).to be(false)
+      expect(described_class.success.complete?).to be(true)
+      expect(described_class.failed.complete?).to be(false)
     end
 
     it "interrupted? is true only for INTERRUPTED state" do
-      expect(described_class::Success.interrupted?).to be(false)
-      expect(described_class::Failed.interrupted?).to be(true)
-      expect(described_class::Skipped.interrupted?).to be(true)
+      expect(described_class.success.interrupted?).to be(false)
+      expect(described_class.failed.interrupted?).to be(true)
+      expect(described_class.skipped.interrupted?).to be(true)
     end
   end
 
   describe "status predicates" do
     it "success? / skipped? / failed? match status" do
-      expect(described_class::Success.success?).to be(true)
-      expect(described_class::Skipped.skipped?).to be(true)
-      expect(described_class::Failed.failed?).to be(true)
+      expect(described_class.success.success?).to be(true)
+      expect(described_class.skipped.skipped?).to be(true)
+      expect(described_class.failed.failed?).to be(true)
 
-      expect(described_class::Success.failed?).to be(false)
-      expect(described_class::Failed.success?).to be(false)
+      expect(described_class.success.failed?).to be(false)
+      expect(described_class.failed.success?).to be(false)
     end
 
     it "ok? is true when not failed" do
-      expect(described_class::Success.ok?).to be(true)
-      expect(described_class::Skipped.ok?).to be(true)
-      expect(described_class::Failed.ok?).to be(false)
+      expect(described_class.success.ok?).to be(true)
+      expect(described_class.skipped.ok?).to be(true)
+      expect(described_class.failed.ok?).to be(false)
     end
 
     it "ko? is true when not success" do
-      expect(described_class::Success.ko?).to be(false)
-      expect(described_class::Skipped.ko?).to be(true)
-      expect(described_class::Failed.ko?).to be(true)
+      expect(described_class.success.ko?).to be(false)
+      expect(described_class.skipped.ko?).to be(true)
+      expect(described_class.failed.ko?).to be(true)
     end
   end
 

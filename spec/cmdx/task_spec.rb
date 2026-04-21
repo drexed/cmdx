@@ -144,6 +144,50 @@ RSpec.describe CMDx::Task do
     end
   end
 
+  describe "#execute" do
+    it "returns a result for a successful task" do
+      task = create_successful_task.new
+
+      expect(task.execute).to be_success
+    end
+
+    it "returns a failed result with strict: false (default)" do
+      task = create_failing_task(reason: "x").new
+
+      expect(task.execute).to be_failed
+    end
+
+    it "raises a Fault with strict: true on failure" do
+      task = create_failing_task(reason: "x").new
+
+      expect { task.execute(strict: true) }.to raise_error(CMDx::Fault, "x")
+    end
+
+    it "does not raise with strict: true on success" do
+      task = create_successful_task.new
+
+      expect(task.execute(strict: true)).to be_success
+    end
+
+    it "yields the result to the block and returns the block's value" do
+      task = create_successful_task.new
+      received = nil
+      returned = task.execute do |r|
+        received = r
+        :from_block
+      end
+
+      expect(received).to be_success
+      expect(returned).to eq(:from_block)
+    end
+
+    it "is aliased as #call" do
+      task = create_successful_task.new
+
+      expect(task.call).to be_success
+    end
+  end
+
   describe "#initialize" do
     it "builds a Context and an empty Errors" do
       task = create_task_class.new(a: 1)
@@ -203,7 +247,7 @@ RSpec.describe CMDx::Task do
     end
 
     it "throw! is a no-op for non-failed signals" do
-      source = CMDx::Signal::Success
+      source = CMDx::Signal.success
       task = klass.new
       result = catch(CMDx::Signal::TAG) do
         task.send(:throw!, source)

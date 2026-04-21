@@ -33,8 +33,6 @@ module CMDx
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
       # @return [Signal] frozen success singleton when no args, otherwise a new instance
       def success(reason = nil, **options)
-        return Success if reason.nil? && options.empty?
-
         new(COMPLETE, SUCCESS, **options, reason:)
       end
 
@@ -42,8 +40,6 @@ module CMDx
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
       # @return [Signal] frozen skipped singleton when no args, otherwise a new instance
       def skipped(reason = nil, **options)
-        return Skipped if reason.nil? && options.empty?
-
         new(INTERRUPTED, SKIPPED, **options, reason:)
       end
 
@@ -51,8 +47,6 @@ module CMDx
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
       # @return [Signal] frozen failed singleton when no args, otherwise a new instance
       def failed(reason = nil, **options)
-        return Failed if reason.nil? && options.empty?
-
         new(INTERRUPTED, FAILED, **options, reason:)
       end
 
@@ -88,10 +82,6 @@ module CMDx
       @status  = status
       @options = options.freeze
     end
-
-    Success = new(COMPLETE, SUCCESS)
-    Skipped = new(INTERRUPTED, SKIPPED)
-    Failed  = new(INTERRUPTED, FAILED)
 
     # @return [Boolean] true when the task ran to completion without interruption
     def complete?

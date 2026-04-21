@@ -154,13 +154,13 @@ module CMDx
         resolve_inputs!
         retry_execution { @task.work }
         verify_outputs!
-        Signal.success
+        Signal.success(nil, metadata: @task.metadata)
       rescue Fault => e
-        Signal.echoed(e.result, cause: e)
+        Signal.echoed(e.result, cause: e, metadata: @task.metadata)
       rescue Error => e
         raise(e)
       rescue StandardError => e
-        Signal.failed("[#{e.class}] #{e.message}", cause: e)
+        Signal.failed("[#{e.class}] #{e.message}", cause: e, metadata: @task.metadata)
       end
     end
 
@@ -201,7 +201,7 @@ module CMDx
     def signal_errors!
       return if @task.errors.empty?
 
-      throw(Signal::TAG, Signal.failed(@task.errors.to_s))
+      throw(Signal::TAG, Signal.failed(@task.errors.to_s, metadata: @task.metadata))
     end
 
     def emit_telemetry(name, payload = EMPTY_HASH)

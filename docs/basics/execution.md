@@ -13,6 +13,14 @@ Both methods return results, but handle failures differently:
 
 `call` / `call!` are aliases. `execute` / `execute!` also accept a block — when given, the block receives the `Result` and its return value is returned instead of the result.
 
+Both class-level entry points forward to `Task#execute(strict:)`, which is also public — useful when you already have a task instance:
+
+```ruby
+task   = CreateAccount.new(email: "user@example.com")
+result = task.execute              # strict: false → returns Result
+task.execute(strict: true)         # strict: true  → raises Fault on failure
+```
+
 ```mermaid
 flowchart LR
     subgraph Methods

@@ -5,40 +5,41 @@
   --md-primary-fg-color--dark:  #fe1817;
 
   /* Accent color shades */
-  --md-accent-fg-color:                hsla(#{hex2hsl(#fe1817)}, 1);
-  --md-accent-fg-color--transparent:   hsla(#{hex2hsl(#fe1817)}, 0.1);
+  --md-accent-fg-color:              #fe1817;
+  --md-accent-fg-color--transparent: rgba(254, 24, 23, 0.1);
 }
 
-/* GitHub High Contrast Light syntax highlighting */
+/* High-contrast syntax highlighting aligned with cmdx theme */
 [data-md-color-scheme="default"] {
-  --md-code-hl-color:            #0e1116;
-  --md-code-hl-keyword-color:    #a0095d;
-  --md-code-hl-string-color:     #024c1a;
-  --md-code-hl-name-color:       #622cbc;
-  --md-code-hl-function-color:   #622cbc;
-  --md-code-hl-number-color:     #0349b4;
-  --md-code-hl-constant-color:   #702c00;
-  --md-code-hl-comment-color:    #66707b;
-  --md-code-hl-operator-color:   #a0095d;
-  --md-code-hl-punctuation-color:#0e1116;
-  --md-code-hl-variable-color:   #702c00;
-  --md-code-hl-generic-color:    #622cbc;
+  --md-code-hl-color:             rgba(254, 24, 23, 0.18);
+  --md-code-hl-keyword-color:     #a40e0e;
+  --md-code-hl-string-color:      #02491b;
+  --md-code-hl-name-color:        #0e1116;
+  --md-code-hl-function-color:    #4f0d8a;
+  --md-code-hl-number-color:      #022b6b;
+  --md-code-hl-constant-color:    #022b6b;
+  --md-code-hl-comment-color:     #57606a;
+  --md-code-hl-operator-color:    #a40e0e;
+  --md-code-hl-punctuation-color: #0e1116;
+  --md-code-hl-variable-color:    #7a3700;
+  --md-code-hl-generic-color:     #0e1116;
+  --md-code-hl-special-color:     #4f0d8a;
 }
 
-/* GitHub High Contrast Dark syntax highlighting */
 [data-md-color-scheme="slate"] {
-  --md-code-hl-color:            #f0f3f6;
-  --md-code-hl-keyword-color:    #ff9492;
-  --md-code-hl-string-color:     #addcff;
-  --md-code-hl-name-color:       #dbb7ff;
-  --md-code-hl-function-color:   #dbb7ff;
-  --md-code-hl-number-color:     #91cbff;
-  --md-code-hl-constant-color:   #ffb757;
-  --md-code-hl-comment-color:    #9ea7b3;
-  --md-code-hl-operator-color:   #ff9492;
-  --md-code-hl-punctuation-color:#f0f3f6;
-  --md-code-hl-variable-color:   #ffb757;
-  --md-code-hl-generic-color:    #dbb7ff;
+  --md-code-hl-color:             rgba(254, 24, 23, 0.30);
+  --md-code-hl-keyword-color:     #ff7b72;
+  --md-code-hl-string-color:      #85e89d;
+  --md-code-hl-name-color:        #f0f3f6;
+  --md-code-hl-function-color:    #d2a8ff;
+  --md-code-hl-number-color:      #79c0ff;
+  --md-code-hl-constant-color:    #79c0ff;
+  --md-code-hl-comment-color:     #9ea7b3;
+  --md-code-hl-operator-color:    #ff7b72;
+  --md-code-hl-punctuation-color: #f0f3f6;
+  --md-code-hl-variable-color:    #ffbd2e;
+  --md-code-hl-generic-color:     #f0f3f6;
+  --md-code-hl-special-color:     #d2a8ff;
 }
 
 /* Light scheme palette aligned with docs/overrides/home.html */
@@ -90,6 +91,31 @@
   --md-mermaid-sequence-note-border-color: #d4a72c;
   --md-mermaid-sequence-number-bg-color:   #1a1a1a;
   --md-mermaid-sequence-number-fg-color:   #ffffff;
+
+  --md-typeset-mark-color:         rgba(254, 24, 23, 0.18);
+
+  --md-typeset-del-color:          rgba(254, 24, 23, 0.15);
+  --md-typeset-ins-color:          rgba(40, 200, 64, 0.18);
+
+  --md-typeset-kbd-color:          #ffffff;
+  --md-typeset-kbd-accent-color:   #ececec;
+  --md-typeset-kbd-border-color:   rgba(0, 0, 0, 0.12);
+
+  --md-typeset-table-color:        rgba(0, 0, 0, 0.12);
+  --md-typeset-table-color--light: rgba(0, 0, 0, 0.04);
+
+  --md-admonition-bg-color:        #ffffff;
+  --md-admonition-fg-color:        #1a1a1a;
+
+  --md-warning-bg-color:           #fff8c5;
+  --md-warning-fg-color:           #1a1a1a;
+
+  --md-shadow-z1: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 1px rgba(0, 0, 0, 0.04);
+  --md-shadow-z2: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --md-shadow-z3: 0 6px 18px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  --md-tooltip-bg-color:           #1a1a1a;
+  --md-tooltip-fg-color:           #ffffff;
 }
 
 [data-md-color-scheme="default"] .mermaid,
@@ -124,7 +150,179 @@
   --md-footer-fg-color:            #d4d4d4;
   --md-footer-fg-color--light:     #7a8290;
   --md-footer-fg-color--lighter:   rgba(212, 212, 212, 0.45);
+
+  --md-typeset-mark-color:         rgba(254, 24, 23, 0.30);
+
+  --md-typeset-del-color:          rgba(254, 24, 23, 0.22);
+  --md-typeset-ins-color:          rgba(40, 200, 64, 0.22);
+
+  --md-typeset-kbd-color:          #1c1c1c;
+  --md-typeset-kbd-accent-color:   #2a2a2a;
+  --md-typeset-kbd-border-color:   rgba(255, 255, 255, 0.12);
+
+  --md-typeset-table-color:        rgba(255, 255, 255, 0.12);
+  --md-typeset-table-color--light: rgba(255, 255, 255, 0.04);
+
+  --md-admonition-bg-color:        #161616;
+  --md-admonition-fg-color:        #d4d4d4;
+
+  --md-warning-bg-color:           #3b2d04;
+  --md-warning-fg-color:           #fff8c5;
+
+  --md-shadow-z1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(0, 0, 0, 0.4);
+  --md-shadow-z2: 0 2px 6px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.45);
+  --md-shadow-z3: 0 6px 18px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.5);
+
+  --md-tooltip-bg-color:           #1c1c1c;
+  --md-tooltip-fg-color:           #d4d4d4;
+
+  --md-mermaid-edge-color:                 #7a8290;
+  --md-mermaid-node-bg-color:              #161616;
+  --md-mermaid-node-fg-color:              #d4d4d4;
+  --md-mermaid-label-bg-color:             #161616;
+  --md-mermaid-label-fg-color:             #d4d4d4;
+  --md-mermaid-sequence-actor-bg-color:    #161616;
+  --md-mermaid-sequence-actor-border-color:#d4d4d4;
+  --md-mermaid-sequence-actor-fg-color:    #d4d4d4;
+  --md-mermaid-sequence-actor-line-color:  #7a8290;
+  --md-mermaid-sequence-actorman-bg-color: #161616;
+  --md-mermaid-sequence-actorman-line-color:#7a8290;
+  --md-mermaid-sequence-box-bg-color:      #0d0d0d;
+  --md-mermaid-sequence-box-fg-color:      #d4d4d4;
+  --md-mermaid-sequence-label-bg-color:    #d4d4d4;
+  --md-mermaid-sequence-label-fg-color:    #0d0d0d;
+  --md-mermaid-sequence-loop-bg-color:     #161616;
+  --md-mermaid-sequence-loop-fg-color:     #d4d4d4;
+  --md-mermaid-sequence-loop-border-color: #7a8290;
+  --md-mermaid-sequence-message-fg-color:  #d4d4d4;
+  --md-mermaid-sequence-message-line-color:#7a8290;
+  --md-mermaid-sequence-note-bg-color:     #3b2d04;
+  --md-mermaid-sequence-note-fg-color:     #fff8c5;
+  --md-mermaid-sequence-note-border-color: #d4a72c;
+  --md-mermaid-sequence-number-bg-color:   #fe1817;
+  --md-mermaid-sequence-number-fg-color:   #ffffff;
 }
+
+/* Inline <code> matches <pre> background */
+.md-typeset code,
+.md-typeset .highlight,
+.md-typeset .highlight > pre {
+  background-color: var(--md-code-bg-color);
+}
+
+/* Rounded corners + subtle border for code surfaces */
+.md-typeset code {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 6px;
+}
+
+.md-typeset pre,
+.md-typeset .highlight,
+.md-typeset .highlight > pre,
+.md-typeset .highlighttable,
+.md-typeset .highlighttable .linenodiv,
+.md-typeset .highlighttable .linenos,
+.md-typeset .highlighttable td.code {
+  border-radius: 8px;
+}
+
+.md-typeset .highlight,
+.md-typeset .highlighttable {
+  border: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .highlighttable .highlight,
+.md-typeset .highlighttable pre {
+  border: none;
+}
+
+.md-typeset pre > code {
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
+  margin: -10px 0;
+}
+
+.tabbed-block {
+  margin-top: 20px;
+}
+
+.tabbed-block pre {
+  padding: 10px 0;
+}
+
+.tabbed-block pre > code {
+  margin: 0;
+}
+
+.md-typeset .highlighttable .linenodiv,
+.md-typeset .highlighttable .linenos {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.md-typeset .highlighttable td.code {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Admonition type colors aligned with cmdx palette
+   note/quote -> slate, abstract/info -> blue, tip/success -> green,
+   question -> purple, warning -> amber, failure/danger/bug -> red, example -> violet */
+
+:root {
+  --cmdx-admon-note:     122, 130, 144;
+  --cmdx-admon-abstract: 68, 147, 248;
+  --cmdx-admon-info:     68, 147, 248;
+  --cmdx-admon-tip:      40, 200, 64;
+  --cmdx-admon-success:  40, 200, 64;
+  --cmdx-admon-question: 130, 80, 223;
+  --cmdx-admon-warning:  255, 189, 46;
+  --cmdx-admon-failure:  254, 24, 23;
+  --cmdx-admon-danger:   254, 24, 23;
+  --cmdx-admon-bug:      254, 24, 23;
+  --cmdx-admon-example:  192, 132, 252;
+  --cmdx-admon-quote:    122, 130, 144;
+}
+
+.md-typeset .admonition.note,        .md-typeset details.note        { border-color: rgb(var(--cmdx-admon-note)); }
+.md-typeset .admonition.abstract,    .md-typeset details.abstract    { border-color: rgb(var(--cmdx-admon-abstract)); }
+.md-typeset .admonition.info,        .md-typeset details.info        { border-color: rgb(var(--cmdx-admon-info)); }
+.md-typeset .admonition.tip,         .md-typeset details.tip         { border-color: rgb(var(--cmdx-admon-tip)); }
+.md-typeset .admonition.success,     .md-typeset details.success     { border-color: rgb(var(--cmdx-admon-success)); }
+.md-typeset .admonition.question,    .md-typeset details.question    { border-color: rgb(var(--cmdx-admon-question)); }
+.md-typeset .admonition.warning,     .md-typeset details.warning     { border-color: rgb(var(--cmdx-admon-warning)); }
+.md-typeset .admonition.failure,     .md-typeset details.failure     { border-color: rgb(var(--cmdx-admon-failure)); }
+.md-typeset .admonition.danger,      .md-typeset details.danger      { border-color: rgb(var(--cmdx-admon-danger)); }
+.md-typeset .admonition.bug,         .md-typeset details.bug         { border-color: rgb(var(--cmdx-admon-bug)); }
+.md-typeset .admonition.example,     .md-typeset details.example     { border-color: rgb(var(--cmdx-admon-example)); }
+.md-typeset .admonition.quote,       .md-typeset details.quote       { border-color: rgb(var(--cmdx-admon-quote)); }
+
+.md-typeset .note > .admonition-title,        .md-typeset .note > summary        { background-color: rgba(var(--cmdx-admon-note), 0.1); }
+.md-typeset .abstract > .admonition-title,    .md-typeset .abstract > summary    { background-color: rgba(var(--cmdx-admon-abstract), 0.1); }
+.md-typeset .info > .admonition-title,        .md-typeset .info > summary        { background-color: rgba(var(--cmdx-admon-info), 0.1); }
+.md-typeset .tip > .admonition-title,         .md-typeset .tip > summary         { background-color: rgba(var(--cmdx-admon-tip), 0.1); }
+.md-typeset .success > .admonition-title,     .md-typeset .success > summary     { background-color: rgba(var(--cmdx-admon-success), 0.1); }
+.md-typeset .question > .admonition-title,    .md-typeset .question > summary    { background-color: rgba(var(--cmdx-admon-question), 0.1); }
+.md-typeset .warning > .admonition-title,     .md-typeset .warning > summary     { background-color: rgba(var(--cmdx-admon-warning), 0.12); }
+.md-typeset .failure > .admonition-title,     .md-typeset .failure > summary     { background-color: rgba(var(--cmdx-admon-failure), 0.1); }
+.md-typeset .danger > .admonition-title,      .md-typeset .danger > summary      { background-color: rgba(var(--cmdx-admon-danger), 0.1); }
+.md-typeset .bug > .admonition-title,         .md-typeset .bug > summary         { background-color: rgba(var(--cmdx-admon-bug), 0.1); }
+.md-typeset .example > .admonition-title,     .md-typeset .example > summary     { background-color: rgba(var(--cmdx-admon-example), 0.1); }
+.md-typeset .quote > .admonition-title,       .md-typeset .quote > summary       { background-color: rgba(var(--cmdx-admon-quote), 0.1); }
+
+.md-typeset .note > .admonition-title::before,        .md-typeset .note > summary::before        { background-color: rgb(var(--cmdx-admon-note)); }
+.md-typeset .abstract > .admonition-title::before,    .md-typeset .abstract > summary::before    { background-color: rgb(var(--cmdx-admon-abstract)); }
+.md-typeset .info > .admonition-title::before,        .md-typeset .info > summary::before        { background-color: rgb(var(--cmdx-admon-info)); }
+.md-typeset .tip > .admonition-title::before,         .md-typeset .tip > summary::before         { background-color: rgb(var(--cmdx-admon-tip)); }
+.md-typeset .success > .admonition-title::before,     .md-typeset .success > summary::before     { background-color: rgb(var(--cmdx-admon-success)); }
+.md-typeset .question > .admonition-title::before,    .md-typeset .question > summary::before    { background-color: rgb(var(--cmdx-admon-question)); }
+.md-typeset .warning > .admonition-title::before,     .md-typeset .warning > summary::before     { background-color: rgb(var(--cmdx-admon-warning)); }
+.md-typeset .failure > .admonition-title::before,     .md-typeset .failure > summary::before     { background-color: rgb(var(--cmdx-admon-failure)); }
+.md-typeset .danger > .admonition-title::before,      .md-typeset .danger > summary::before      { background-color: rgb(var(--cmdx-admon-danger)); }
+.md-typeset .bug > .admonition-title::before,         .md-typeset .bug > summary::before         { background-color: rgb(var(--cmdx-admon-bug)); }
+.md-typeset .example > .admonition-title::before,     .md-typeset .example > summary::before     { background-color: rgb(var(--cmdx-admon-example)); }
+.md-typeset .quote > .admonition-title::before,       .md-typeset .quote > summary::before       { background-color: rgb(var(--cmdx-admon-quote)); }
 
 /* Light/Dark mode logo switching */
 .only-dark,

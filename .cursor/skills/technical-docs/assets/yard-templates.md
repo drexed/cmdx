@@ -72,6 +72,20 @@ def initialize(context = EMPTY_HASH)
 def self.execute!(context = {}, &)
 ```
 
+## Instance Method with `strict:` Kwarg (raise toggled by caller)
+
+```ruby
+# Executes this task instance through {Runtime}.
+#
+# @param strict [Boolean] when +true+, re-raises {Fault}/exceptions on failure;
+#   when +false+, swallows them and returns the {Result}
+# @yieldparam result [Result]
+# @return [Result, Object] the yielded block's value when a block is given,
+#   otherwise the {Result}
+# @raise [Fault, StandardError] only when +strict: true+ and the task fails
+def execute(strict: false)
+```
+
 ## Signal Method (never returns)
 
 ```ruby

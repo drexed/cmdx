@@ -17,8 +17,8 @@ theme:
   icon:
     repo: fontawesome/brands/github
   font:
-    text: IBM Plex Sans
-    code: IBM Plex Mono
+    text: DM Sans
+    code: DM Mono
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"

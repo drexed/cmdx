@@ -323,6 +323,7 @@ end
 class MyTask < CMDx::Task
   register :middleware, AuditMiddleware.new
   register :middleware, ->(task, &next_link) {
+    task.metadata[:tracked] = true
     Timer.track(task.class) { next_link.call }
   }
   register :middleware, OuterMiddleware, at: 0   # insert at index

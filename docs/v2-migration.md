@@ -106,12 +106,17 @@ See [Configuration](configuration.md) for the full surface.
 ### Execution Entry Points
 
 ```ruby
-MyTask.execute(name: "x")    # unchanged
-MyTask.execute!(name: "x")   # unchanged
-MyTask.call / .call!         # still aliases of execute / execute!
+MyTask.execute(name: "x")       # unchanged
+MyTask.execute!(name: "x")      # unchanged
+MyTask.call / .call!            # still aliases of execute / execute!
+
+task = MyTask.new(name: "x")
+task.execute                    # unchanged
+task.execute(strict: true)      # unchanged
+task.call / .call(strict: true) # still aliases of execute / execute!
 ```
 
-`Task#execute` (the **instance** method) was removed. Use `Runtime.execute(task)` to drive the lifecycle manually. `MyTask.new(...)` still works but is rarely useful outside tests.
+`MyTask.new(ctx).execute` runs an already-built task instance through `Runtime`. The class-level `MyTask.execute` / `MyTask.execute!` simply forward to it. `Runtime.execute(task)` is still available for callers that need to drive the lifecycle directly without going through `Task`.
 
 ### Removed Instance Accessors
 
@@ -266,7 +271,7 @@ class Timing
     started = monotonic
     yield
   ensure
-    task.context.timing_ms = elapsed
+    task.metadata[:ms] = elapsed
   end
 end
 ```

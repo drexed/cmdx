@@ -194,18 +194,26 @@ ensure
 }
 ```
 
-### Recording every result
+### Enriching result metadata
 
-`Result` data isn't visible from middleware — subscribe to `:task_executed` telemetry instead:
+Mutate `task.metadata` to attach request-scoped data (e.g. a Rails `request_id`) without polluting `context`. The hash is merged into every `Signal` the task throws, so it surfaces on `result.metadata` and the default JSON log line — regardless of whether the task succeeds, skips, or fails:
 
 ```ruby
-CMDx.configuration.telemetry.subscribe(:task_executed) do |event|
-  result = event.payload[:result]
-  AuditLog.create!(
-    task_class: event.task_class.name,
-    status:     result.status,
-    duration:   result.duration,
-    chain_id:   event.chain_id
-  )
+class RequestIdMiddleware
+  def call(task)
+    task.metadata[:request_id] = Current.request_id
+    yield
+  end
+end
+
+class ApplicationTask < CMDx::Task
+  register :middleware, RequestIdMiddleware
 end
 ```
+
+```ruby
+result = ProcessOrder.execute(order_id: 42)
+result.metadata[:request_id] #=> "req-abc123"
+```
+
+Explicit `success!/skip!/fail!/throw!(metadata: {...})` keys are merged on top, so user code can always override middleware-supplied values.

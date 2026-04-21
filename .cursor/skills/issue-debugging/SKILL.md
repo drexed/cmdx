@@ -152,7 +152,7 @@ When the bug doesn't fit neatly into the classification table, follow this tree:
    - Yes → Read the backtrace bottom-up. Find the first CMDx frame. That's your entry point.
    - No → Go to 2.
 2. **Is the result in an unexpected state/status?**
-   - Yes → Trace signal construction. Check which of `success!`/`skip!`/`fail!`/`throw!` was called, or if `catch` fell through to `Signal::Success`.
+   - Yes → Trace signal construction. Check which of `success!`/`skip!`/`fail!`/`throw!` was called, or if `catch` fell through to `Signal.success`.
    - No → Go to 3.
 3. **Is context data wrong or missing?**
    - Yes → Trace context mutations. Check `Context.build` passthrough, `method_missing` typos, freeze timing.

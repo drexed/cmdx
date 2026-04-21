@@ -8,7 +8,7 @@ RSpec.describe CMDx::Chain do
   let(:task_class) { create_task_class(name: "ChainSampleTask") }
   let(:task) { task_class.new }
 
-  def build_result(signal = CMDx::Signal::Success, **opts)
+  def build_result(signal = CMDx::Signal.success, **opts)
     CMDx::Result.new(chain, task, signal, **opts)
   end
 
@@ -156,7 +156,7 @@ RSpec.describe CMDx::Chain do
 
   describe "#state" do
     it "returns the state of the root result" do
-      chain.push(build_result(CMDx::Signal::Success, root: true))
+      chain.push(build_result(CMDx::Signal.success, root: true))
 
       expect(chain.state).to eq(CMDx::Signal::COMPLETE)
     end
@@ -174,7 +174,7 @@ RSpec.describe CMDx::Chain do
 
   describe "#status" do
     it "returns the status of the root result" do
-      chain.push(build_result(CMDx::Signal::Success, root: true))
+      chain.push(build_result(CMDx::Signal.success, root: true))
 
       expect(chain.status).to eq(CMDx::Signal::SUCCESS)
     end

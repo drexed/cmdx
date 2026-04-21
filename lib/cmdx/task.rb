@@ -245,9 +245,8 @@ module CMDx
       # @param context [Hash, Context, #context, #to_h]
       # @yieldparam result [Result]
       # @return [Result, Object] the yielded block's value when a block is given
-      def execute(context = EMPTY_HASH)
-        result = Runtime.execute(new(context), strict: false)
-        block_given? ? yield(result) : result
+      def execute(context = EMPTY_HASH, &)
+        new(context).execute(strict: false, &)
       end
       alias call execute
 
@@ -258,9 +257,8 @@ module CMDx
       # @yieldparam result [Result]
       # @return [Result, Object]
       # @raise [Fault, StandardError] on task failure
-      def execute!(context = EMPTY_HASH)
-        result = Runtime.execute(new(context), strict: true)
-        block_given? ? yield(result) : result
+      def execute!(context = EMPTY_HASH, &)
+        new(context).execute(strict: true, &)
       end
       alias call! execute!
 
@@ -286,14 +284,29 @@ module CMDx
 
     end
 
-    attr_reader :context, :errors
+    attr_reader :context, :errors, :metadata
     alias ctx context
 
     # @param context [Hash, Context, #context, #to_h]
     def initialize(context = EMPTY_HASH)
-      @context = Context.build(context)
-      @errors  = Errors.new
+      @context  = Context.build(context)
+      @errors   = Errors.new
+      @metadata = {}
     end
+
+    # Executes this task instance through {Runtime}.
+    #
+    # @param strict [Boolean] when `true`, re-raises {Fault}/exceptions on failure;
+    #   when `false`, swallows them and returns the {Result}
+    # @yieldparam result [Result]
+    # @return [Result, Object] the yielded block's value when a block is given,
+    #   otherwise the {Result}
+    # @raise [Fault, StandardError] only when `strict: true` and the task fails
+    def execute(strict: false)
+      result = Runtime.execute(self, strict:)
+      block_given? ? yield(result) : result
+    end
+    alias call execute
 
     # @return [Logger] a logger tailored to this task's settings
     def logger
@@ -314,25 +327,27 @@ module CMDx
     # Signals a successful halt.
     #
     # @param reason [String, nil]
-    # @param metadata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}]
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError] when the task has already been frozen (post-execution)
     # @note Must be called from inside `work` (inside Runtime's `catch(:cmdx_signal)`).
-    def success!(reason = nil, **metadata)
+    def success!(reason = nil, **sigdata)
       raise FrozenError, "cannot throw signals" if frozen?
 
+      metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.success(reason, metadata:))
     end
 
     # Signals a skip (interrupted + skipped).
     #
     # @param reason [String, nil]
-    # @param metadata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}]
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
-    def skip!(reason = nil, **metadata)
+    def skip!(reason = nil, **sigdata)
       raise FrozenError, "cannot throw signals" if frozen?
 
+      metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.skipped(reason, metadata:))
     end
 
@@ -340,12 +355,13 @@ module CMDx
     # backtrace for Fault propagation.
     #
     # @param reason [String, nil]
-    # @param metadata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}]
     # @return [void] throws `Signal::TAG`; never returns
     # @raise [FrozenError]
-    def fail!(reason = nil, **metadata)
+    def fail!(reason = nil, **sigdata)
       raise FrozenError, "cannot throw signals" if frozen?
 
+      metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.failed(reason, metadata:, backtrace: caller_locations(1)))
     end
 
@@ -353,14 +369,15 @@ module CMDx
     # `other` didn't fail.
     #
     # @param other [Result]
-    # @param metadata [Hash{Symbol => Object}]
+    # @param sigdata [Hash{Symbol => Object}]
     # @return [void]
     # @raise [FrozenError]
-    def throw!(other, **metadata)
+    def throw!(other, **sigdata)
       raise FrozenError, "cannot throw signals" if frozen?
 
       return unless other.failed?
 
+      metadata.merge!(sigdata) unless sigdata.empty?
       throw(Signal::TAG, Signal.echoed(other, metadata:, backtrace: caller_locations(1)))
     end
 

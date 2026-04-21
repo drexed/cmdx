@@ -150,6 +150,7 @@ Cross-reference the completed spec against `references/checklist.md`.
 | Workflow breakpoints | Workflow breakpoints spec | `settings(workflow_breakpoints: %w[skipped failed])` |
 | Group-level breakpoints | Workflow breakpoints spec | `tasks t1, t2, breakpoints: []` |
 | Bang vs non-bang execution | Workflow/task execution specs | `execute` returns result, `execute!` raises `CMDx::FailFault` |
+| Instance-level execution | Task/workflow specs that pre-build the instance | `task = klass.new(ctx); task.execute` (or `task.execute(strict: true)` to raise) |
 | Configuration reset | `cmdx_spec.rb` | `after { described_class.reset_configuration! }` |
 | Runtime context mutation | Conditionals spec | Setup task writes to context, later task reads via `if: proc` |
 

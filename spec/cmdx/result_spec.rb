@@ -13,13 +13,13 @@ RSpec.describe CMDx::Result do
 
   describe "#initialize" do
     it "freezes the options hash" do
-      result = build(CMDx::Signal::Success, id: "abc")
+      result = build(CMDx::Signal.success, id: "abc")
       expect(result.instance_variable_get(:@options)).to be_frozen
     end
   end
 
   describe "simple delegators" do
-    let(:result) { build(CMDx::Signal::Success, id: "rid-1", duration: 0.01) }
+    let(:result) { build(CMDx::Signal.success, id: "rid-1", duration: 0.01) }
 
     it "returns id, duration, task class, type" do
       expect(result).to have_attributes(
@@ -41,7 +41,7 @@ RSpec.describe CMDx::Result do
     end
 
     it "reports the full chain results array" do
-      other = build(CMDx::Signal::Success)
+      other = build(CMDx::Signal.success)
       chain << result
       chain << other
 
@@ -57,7 +57,7 @@ RSpec.describe CMDx::Result do
 
   describe "signal delegators" do
     it "exposes state/status predicates" do
-      result = build(CMDx::Signal::Success)
+      result = build(CMDx::Signal.success)
       expect(result).to have_attributes(
         state: "complete", status: "success",
         complete?: true, interrupted?: false,
@@ -77,8 +77,8 @@ RSpec.describe CMDx::Result do
   end
 
   describe "#on" do
-    let(:success) { build(CMDx::Signal::Success) }
-    let(:failed)  { build(CMDx::Signal::Failed) }
+    let(:success) { build(CMDx::Signal.success) }
+    let(:failed)  { build(CMDx::Signal.failed) }
 
     it "yields when any of the listed events match" do
       yielded = []
@@ -107,7 +107,7 @@ RSpec.describe CMDx::Result do
 
   describe "failure helpers" do
     context "when the result is not failed" do
-      let(:result) { build(CMDx::Signal::Success) }
+      let(:result) { build(CMDx::Signal.success) }
 
       it "caused_failure/threw_failure are nil and predicates are false" do
         expect(result.caused_failure).to be_nil
@@ -160,9 +160,9 @@ RSpec.describe CMDx::Result do
 
   describe "option-backed predicates" do
     it "retries/retried?/strict?/deprecated?/rolled_back?" do
-      r1 = build(CMDx::Signal::Success, retries: 2)
-      r2 = build(CMDx::Signal::Success, strict: true, deprecated: true, rolled_back: true)
-      r3 = build(CMDx::Signal::Success)
+      r1 = build(CMDx::Signal.success, retries: 2)
+      r2 = build(CMDx::Signal.success, strict: true, deprecated: true, rolled_back: true)
+      r3 = build(CMDx::Signal.success)
 
       expect(r1.retries).to eq(2)
       expect(r1.retried?).to be(true)
@@ -175,13 +175,13 @@ RSpec.describe CMDx::Result do
   describe "#tags" do
     it "returns the task's settings tags" do
       task_class.settings(tags: %w[billing])
-      expect(build(CMDx::Signal::Success).tags).to eq(%w[billing])
+      expect(build(CMDx::Signal.success).tags).to eq(%w[billing])
     end
   end
 
   describe "#to_h" do
     it "includes core fields for a success result" do
-      chain << (result = build(CMDx::Signal::Success, id: "rid", duration: 0.1))
+      chain << (result = build(CMDx::Signal.success, id: "rid", duration: 0.1))
       hash = result.to_h
 
       expect(hash).to include(
@@ -212,7 +212,7 @@ RSpec.describe CMDx::Result do
 
   describe "#to_s" do
     it "renders a space-separated key=value summary" do
-      chain << (result = build(CMDx::Signal::Success, id: "rid"))
+      chain << (result = build(CMDx::Signal.success, id: "rid"))
       expect(result.to_s).to include("id=\"rid\"", "state=\"complete\"", "status=\"success\"")
     end
   end
@@ -274,7 +274,7 @@ RSpec.describe CMDx::Result do
       end
 
       it "reflects default option-backed values" do
-        plain = build(CMDx::Signal::Success)
+        plain = build(CMDx::Signal.success)
         expect(plain.deconstruct_keys(nil)).to include(
           strict: false,
           deprecated: false,

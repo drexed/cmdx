@@ -156,6 +156,7 @@ end
 
 ```ruby
 register :middleware, ->(task, &next_link) {
+  task.metadata[:tracked] = true
   Timer.track(task.class) { next_link.call }
 }
 ```
