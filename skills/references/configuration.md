@@ -191,12 +191,12 @@ Events (`CMDx::Telemetry::EVENTS`):
 | `:task_rolled_back` | — |
 | `:task_executed` | `result:` (finalized `Result`) |
 
-Shared `Event` fields: `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, `timestamp`.
+Shared `Event` fields: `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`.
 
 ```ruby
 CMDx.configure do |c|
   c.telemetry.subscribe(:task_executed) do |event|
-    StatsD.timing("cmdx.#{event.task_class}", event.payload[:result].duration)
+    StatsD.timing("cmdx.#{event.task}", event.payload[:result].duration)
   end
 end
 ```

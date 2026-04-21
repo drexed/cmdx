@@ -19,19 +19,19 @@ CMDx logs every task execution at `INFO` with the full `Result#to_h` payload, gi
 === "Line (default)"
 
     ```log
-    I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: chain_id="..." chain_index=0 ... state="complete" status="success" ...
+    I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: cid="..." index=0 ... state="complete" status="success" ...
     ```
 
 === "JSON"
 
     ```json
-    {"severity":"INFO","timestamp":"2026-04-19T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{"chain_id":"...","chain_index":0,"chain_root":true,"type":"Task","task":"MyTask","id":"...","state":"complete","status":"success","reason":null,"metadata":{},"strict":false,"deprecated":false,"retried":false,"retries":0,"duration":12.34,"tags":[]}}
+    {"severity":"INFO","timestamp":"2026-04-19T10:30:45.123456Z","progname":"cmdx","pid":12345,"message":{"cid":"...","index":0,"root":true,"type":"Task","task":"MyTask","tid":"...","state":"complete","status":"success","reason":null,"metadata":{},"strict":false,"deprecated":false,"retried":false,"retries":0,"duration":12.34,"tags":[]}}
     ```
 
 === "KeyValue"
 
     ```log
-    severity="INFO" timestamp="2026-04-19T10:30:45.123456Z" progname="cmdx" pid=12345 message={chain_id: "...", chain_index: 0, ...}
+    severity="INFO" timestamp="2026-04-19T10:30:45.123456Z" progname="cmdx" pid=12345 message={cid: "...", index: 0, ...}
     ```
 
 === "Logstash"
@@ -43,7 +43,7 @@ CMDx logs every task execution at `INFO` with the full `Result#to_h` payload, gi
 === "Raw"
 
     ```log
-    chain_id="..." chain_index=0 chain_root=true type="Task" task=MyTask id="..." state="complete" status="success" ...
+    cid="..." index=0 root=true type="Task" task=MyTask tid="..." state="complete" status="success" ...
     ```
 
 ## Sample Lifecycle
@@ -52,21 +52,21 @@ A single chain emitting a successful task, a skipped task, a failed leaf, and th
 
 ```log
 # Success
-I, [2026-04-19T17:04:07.292614Z #20108] INFO -- cmdx: chain_id="019b4c2b-087b-79be-8ef2-96c11b659df5" chain_index=0 chain_root=true type="Task" task=GenerateInvoice id="019b4c2b-0878-704d-ba0b-daa5410123ec" context=#<CMDx::Context ...> state="complete" status="success" reason=nil metadata={} strict=false deprecated=false retried=false retries=0 duration=12.34 tags=[]
+I, [2026-04-19T17:04:07.292614Z #20108] INFO -- cmdx: cid="019b4c2b-087b-79be-8ef2-96c11b659df5" index=0 root=true type="Task" task=GenerateInvoice tid="019b4c2b-0878-704d-ba0b-daa5410123ec" context=#<CMDx::Context ...> state="complete" status="success" reason=nil metadata={} strict=false deprecated=false retried=false retries=0 duration=12.34 tags=[]
 
 # Skipped
-I, [2026-04-19T17:04:11.496881Z #20139] INFO -- cmdx: chain_id="019b4c2b-18e8-7af6-a38b-63b042c4fbed" chain_index=0 chain_root=true type="Task" task=ValidateCustomer id="019b4c2b-18e5-7230-af7e-5b4a4bd7cda2" context=#<CMDx::Context ...> state="interrupted" status="skipped" reason="Customer already validated" metadata={} strict=false deprecated=false retried=false retries=0 duration=2.18 tags=[]
+I, [2026-04-19T17:04:11.496881Z #20139] INFO -- cmdx: cid="019b4c2b-18e8-7af6-a38b-63b042c4fbed" index=0 root=true type="Task" task=ValidateCustomer tid="019b4c2b-18e5-7230-af7e-5b4a4bd7cda2" context=#<CMDx::Context ...> state="interrupted" status="skipped" reason="Customer already validated" metadata={} strict=false deprecated=false retried=false retries=0 duration=2.18 tags=[]
 
 # Failed (root cause via fail!)
-I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: chain_id="019b4c2b-2a02-7dbc-b713-b20a7379704f" chain_index=1 chain_root=false type="Task" task=CalculateTax id="019b4c2b-2a00-70b7-9fab-2f14db9139ef" context=#<CMDx::Context ...> state="interrupted" status="failed" reason="tax service unavailable" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"} strict=false deprecated=false retried=false retries=0 duration=8.92 tags=[] cause=nil origin=nil threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
+I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: cid="019b4c2b-2a02-7dbc-b713-b20a7379704f" index=1 root=false type="Task" task=CalculateTax tid="019b4c2b-2a00-70b7-9fab-2f14db9139ef" context=#<CMDx::Context ...> state="interrupted" status="failed" reason="tax service unavailable" metadata={error_code: "TAX_SERVICE_UNAVAILABLE"} strict=false deprecated=false retried=false retries=0 duration=8.92 tags=[] cause=nil origin=nil threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
 
 # Failed workflow that propagated the above failure
-I, [2026-04-19T17:04:15.876012Z #20173] INFO -- cmdx: chain_id="019b4c2b-2a02-7dbc-b713-b20a7379704f" chain_index=0 chain_root=true type="Workflow" task=BillingWorkflow id="019b4c2b-3de6-70b9-9c16-5be13b1a463c" ... state="interrupted" status="failed" reason="tax service unavailable" cause=nil origin=<CalculateTax 019b4c2b-2a00-...> threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
+I, [2026-04-19T17:04:15.876012Z #20173] INFO -- cmdx: cid="019b4c2b-2a02-7dbc-b713-b20a7379704f" index=0 root=true type="Workflow" task=BillingWorkflow tid="019b4c2b-3de6-70b9-9c16-5be13b1a463c" ... state="interrupted" status="failed" reason="tax service unavailable" cause=nil origin=<CalculateTax 019b4c2b-2a00-...> threw_failure=<CalculateTax 019b4c2b-2a00-...> caused_failure=<CalculateTax 019b4c2b-2a00-...> rolled_back=false
 ```
 
 !!! tip
 
-    Use logging as a low-level event stream to track every task in a request. Pair `chain_id` with your APM's correlation field for distributed tracing.
+    Use logging as a low-level event stream to track every task in a request. Pair `cid` with your APM's correlation field for distributed tracing.
 
 !!! note
 
@@ -91,12 +91,12 @@ Every log entry is built from `Result#to_h`. Available fields:
 
 | Field | Description | Example |
 |-------|-------------|---------|
-| `chain_id` | Chain UUID (uuid_v7) | `"018c2b95-b764-7615-..."` |
-| `chain_index` | Position in chain (root is 0) | `0`, `1`, `2` |
-| `chain_root` | `true` for the root task's result | `true`, `false` |
+| `cid` | Chain UUID (uuid_v7) | `"018c2b95-b764-7615-..."` |
+| `index` | Position in chain (root is 0) | `0`, `1`, `2` |
+| `root` | `true` for the root task's result | `true`, `false` |
 | `type` | `"Task"` or `"Workflow"` | `"Task"` |
 | `task` | Task class | `GenerateInvoice` |
-| `id` | Result UUID (uuid_v7) | `"018c2b95-..."` |
+| `tid` | Task UUID (uuid_v7) | `"018c2b95-..."` |
 | `context` | Frozen `CMDx::Context` (root teardown) | `#<CMDx::Context ...>` |
 | `tags` | Tags from `settings(tags: [...])` | `["billing"]` |
 
@@ -126,9 +126,9 @@ These are present **only** when `status == "failed"`:
 | Field | Description |
 |-------|-------------|
 | `cause` | Underlying exception (or `nil` for `fail!`) |
-| `origin` | `{ task:, id: }` of the upstream `Result` this failure was echoed from, or `nil` for a locally originated failure |
-| `threw_failure` | `{ task:, id: }` of the nearest upstream failed result, or this result |
-| `caused_failure` | `{ task:, id: }` of the originating failed result, or this result |
+| `origin` | `{ task:, tid: }` of the upstream `Result` this failure was echoed from, or `nil` for a locally originated failure |
+| `threw_failure` | `{ task:, tid: }` of the nearest upstream failed result, or this result |
+| `caused_failure` | `{ task:, tid: }` of the originating failed result, or this result |
 | `rolled_back` | `true` when the task's `#rollback` ran |
 
 ## Configuration

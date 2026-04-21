@@ -29,10 +29,10 @@ RSpec.describe "Nested workflows", type: :feature do
       expect(result.context).to have_attributes(inner_done: true, finalized: true)
     end
 
-    it "records everything under the same chain_id" do
+    it "records everything under the same cid" do
       result = outer.execute
 
-      expect(result.chain.map { |r| r.chain.id }.uniq.size).to eq(1)
+      expect(result.chain.map(&:cid).uniq.size).to eq(1)
       expect(result.chain.size).to eq(4) # inner_step, inner_wf, finalize, outer_wf
     end
   end

@@ -78,7 +78,7 @@ CMDx::Chain.current      # accessor
 CMDx::Chain.clear        # cleared automatically on root teardown
 ```
 
-`Chain` is now `Enumerable`, has a `Mutex` guarding `push` / `unshift`, and gets cleared when the outermost task finishes. Parallel workflow groups share the parent fiber's chain so every child result still correlates to the same `chain_id`.
+`Chain` is now `Enumerable`, has a `Mutex` guarding `push` / `unshift`, and gets cleared when the outermost task finishes. Parallel workflow groups share the parent fiber's chain so every child result still correlates to the same `cid`.
 
 ## What You Write Differently
 
@@ -92,7 +92,7 @@ A condensed cheat sheet. The [full migration guide](https://drexed.github.io/cmd
 | Middleware | `def call(task, options, &block)` | `def call(task); yield; end` (one arg, must `yield`) |
 | Built-in middlewares | `Correlate`, `Runtime`, `Timeout` auto-registered | removed — subscribe to Telemetry or register your own |
 | Callbacks | `on_good`, `on_bad`, `on_executed` | `on_ok`, `on_ko` (`on_executed` removed) |
-| Chain ID | `result.chain_id` | `result.chain.id` |
+| Chain ID | `result.chain_id` | `result.cid` |
 | Halt reach | code after `fail!` could still run | code after `fail!` is unreachable |
 | Result mutability | mutable (`result.metadata[:x] = ...`) | frozen |
 | Breakpoints | `task_breakpoints`, `workflow_breakpoints` | removed — `execute!` is strict mode |
@@ -117,7 +117,7 @@ CMDx.configure do |config|
 end
 ```
 
-Events: `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`. Each event carries `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, and `timestamp`.
+Events: `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`. Each event carries `cid`, `root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, and `timestamp`.
 
 ### Parallel workflow groups
 
@@ -133,7 +133,7 @@ class FanOutWorkflow < CMDx::Task
 end
 ```
 
-Workers `deep_dup` the workflow context, run in parallel, and merge successful child contexts back into the parent in declaration order. The first failed child halts the pipeline via `throw!`. Shared fiber-local chain — every worker shows up in `result.chain` under the same `chain_id`.
+Workers `deep_dup` the workflow context, run in parallel, and merge successful child contexts back into the parent in declaration order. The first failed child halts the pipeline via `throw!`. Shared fiber-local chain — every worker shows up in `result.chain` under the same `cid`.
 
 ### `Task#rollback`
 
@@ -198,7 +198,7 @@ Then, across your task classes:
 - Rename `attribute :x, type: :string` → `input :x, coerce: :string`
 - Rename `returns :user` → `output :user, required: true`
 - Update middlewares from `call(task, options, &block)` to `call(task) { yield }`, and register instances (`register :middleware, Foo.new`) instead of classes
-- Replace `result.chain_id` with `result.chain.id`, `result.good?` with `result.ok?`, `result.bad?` with `result.ko?`
+- Replace `result.chain_id` with `result.cid`, `result.good?` with `result.ok?`, `result.bad?` with `result.ko?`
 - Drop `task_breakpoints` / `workflow_breakpoints` settings — use `execute!` where you want strict mode
 - Re-register `Correlate` / `Runtime` / `Timeout` equivalents as Telemetry subscribers or custom middlewares (or delete them — `result.duration` is built in)
 

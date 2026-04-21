@@ -82,7 +82,7 @@ RSpec.describe CMDx::Runtime do
         end
 
         result = described_class.execute(outer.new)
-        expect(result.chain.id).to eq(result.context.inner_id)
+        expect(result.cid).to eq(result.context.inner_id)
       end
     end
 

@@ -8,11 +8,11 @@ RSpec.describe "Task chain tracking", type: :feature do
   describe "a root execution with no subtasks" do
     subject(:result) { create_successful_task.execute }
 
-    it "collects only itself and exposes a UUIDv7 chain_id" do
+    it "collects only itself and exposes a UUIDv7 cid" do
       expect(result.chain.size).to eq(1)
       expect(result.chain.first).to be(result)
-      expect(result.chain_index).to eq(0)
-      expect(result.chain.id).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
+      expect(result.index).to eq(0)
+      expect(result.cid).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
     end
   end
 
@@ -29,13 +29,13 @@ RSpec.describe "Task chain tracking", type: :feature do
       end
 
       it "indexes each result by its chain position" do
-        indexes = result.chain.map(&:chain_index)
+        indexes = result.chain.map(&:index)
         expect(indexes).to eq([0, 1, 2])
       end
 
-      it "shares a single chain_id across every result" do
-        ids = result.chain.map { |r| r.chain.id }.uniq
-        expect(ids).to eq([result.chain.id])
+      it "shares a single cid across every result" do
+        ids = result.chain.map(&:cid).uniq
+        expect(ids).to eq([result.cid])
       end
 
       it "returns all results successful" do
@@ -90,9 +90,9 @@ RSpec.describe "Task chain tracking", type: :feature do
       first  = create_successful_task.execute
       second = create_successful_task.execute
 
-      expect(first.chain.id).to eq(second.chain.id)
+      expect(first.cid).to eq(second.cid)
       expect(first.chain).to be(second.chain)
-      expect(second.chain_index).to eq(1)
+      expect(second.index).to eq(1)
       expect(CMDx::Chain.current).not_to be_nil
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe "Task chain tracking", type: :feature do
       first  = create_nested_task(strategy: :swallow, status: :success).execute
       second = create_successful_task.execute
 
-      expect(first.chain.id).not_to eq(second.chain.id)
+      expect(first.cid).not_to eq(second.cid)
       expect(first.chain.size).to eq(3)
       expect(second.chain.size).to eq(1)
     end

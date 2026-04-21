@@ -284,11 +284,12 @@ module CMDx
 
     end
 
-    attr_reader :context, :errors, :metadata
+    attr_reader :tid, :context, :errors, :metadata
     alias ctx context
 
     # @param context [Hash, Context, #context, #to_h]
     def initialize(context = EMPTY_HASH)
+      @tid      = SecureRandom.uuid_v7
       @context  = Context.build(context)
       @errors   = Errors.new
       @metadata = {}

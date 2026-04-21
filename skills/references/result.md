@@ -43,7 +43,7 @@ Convenience predicates:
 |----------|-------------|
 | `task` | Task **class** that ran. |
 | `type` | `"Task"` or `"Workflow"`. |
-| `id` | UUID v7 for this execution. |
+| `tid` | UUID v7 for this execution. |
 | `context` | Shared `Context` (frozen on root). |
 | `errors` | `Errors` container (frozen). |
 | `state`, `status` | Strings. |
@@ -59,8 +59,8 @@ Convenience predicates:
 | `rolled_back?` | `true` when `#rollback` ran. |
 | `tags` | `task.settings.tags`. |
 | `chain` | `CMDx::Chain`. |
-| `chain_index` | Position in chain (Integer or `nil`). |
-| `chain_root?` | `true` for the outermost result in the chain. |
+| `index` | Position in chain (Integer or `nil`). |
+| `root?` | `true` for the outermost result in the chain. |
 
 ## Chain analysis
 
@@ -111,7 +111,7 @@ end
 Available keys:
 
 ```
-:chain_root, :type, :task, :state, :status, :reason, :metadata,
+:root, :type, :task, :state, :status, :reason, :metadata,
 :cause, :origin, :strict, :deprecated, :retries, :rolled_back, :duration
 ```
 
@@ -127,9 +127,9 @@ end
 
 ### `to_h`
 
-Memoized. Always includes: `:chain_id`, `:chain_index`, `:chain_root`, `:type`, `:task`, `:id`, `:context`, `:state`, `:status`, `:reason`, `:metadata`, `:strict`, `:deprecated`, `:retried`, `:retries`, `:duration`, `:tags`.
+Memoized. Always includes: `:cid`, `:index`, `:root`, `:type`, `:task`, `:tid`, `:context`, `:state`, `:status`, `:reason`, `:metadata`, `:strict`, `:deprecated`, `:retried`, `:retries`, `:duration`, `:tags`.
 
-When `failed?`, additionally includes: `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`. Failure references render as `{ task: TaskClass, id: "uuid" }` — the live `Result` objects aren't walked to avoid cycles.
+When `failed?`, additionally includes: `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`. Failure references render as `{ task: TaskClass, tid: "uuid" }` — the live `Result` objects aren't walked to avoid cycles.
 
 ### `to_s`
 
@@ -138,9 +138,9 @@ Space-separated `key=value.inspect`. Failure references render as `<TaskClass uu
 ## Chain
 
 ```ruby
-result.chain            # CMDx::Chain
-result.chain.id         # UUID v7
-result.chain.size       # number of Results in this propagation
+result.chain             # CMDx::Chain
+result.cid               # UUID v7
+result.chain.size        # number of Results in this propagation
 result.chain.map(&:task) # Classes, in insertion order
 ```
 

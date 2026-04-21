@@ -11,21 +11,17 @@ From a result, reach the chain via:
 | Method | Returns |
 |--------|---------|
 | `result.chain` | The owning `CMDx::Chain` (Enumerable; `id`, `size`, `first`, `last`, etc.) |
-| `result.chain.id` | The chain's UUID v7 (`String`) |
-| `result.chain_index` | This result's zero-based position in the chain (`Integer`, `nil` if absent) |
-| `result.chain_root?` | `true` when this result is the chain's root |
+| `result.cid` | The chain's UUID v7 (`String`) |
+| `result.index` | This result's zero-based position in the chain (`Integer`, `nil` if absent) |
+| `result.root?` | `true` when this result is the chain's root |
 | `CMDx::Chain.current` | The live `Chain` object (only inside execution) |
-
-!!! note
-
-    `result.chain_id` is **not** a method on `Result`—it only appears as a key in `result.to_h`. Use `result.chain.id` to access the UUID.
 
 ```ruby
 result = ImportDataset.execute(dataset_id: 456)
 
-result.chain.id      #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
-result.chain_index   #=> 0
-result.chain_root?   #=> true
+result.cid           #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+result.index         #=> 0
+result.root?         #=> true
 result.chain.size    #=> 4
 result.chain.first   #=> root result (ImportDataset)
 result.chain.last    #=> last subtask result
@@ -56,7 +52,7 @@ class ImportDataset < CMDx::Task
     result1.chain.size #=> 1 (the parent hasn't finalized yet)
 
     result2 = TransformData.execute!(context)
-    result2.chain.id == result1.chain.id  #=> true
+    result2.cid == result1.cid            #=> true
     result2.chain.size                    #=> 2
 
     SaveToDatabase.execute(dataset_id: context.dataset_id)
@@ -84,13 +80,13 @@ The active chain lives on `Fiber[]` (fiber-local), so each `Thread`'s root fiber
 # Thread A — its root fiber gets a fresh chain
 Thread.new do
   result = ImportDataset.execute(file_path: "/data/batch1.csv")
-  result.chain.id    #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
+  result.cid    #=> "018c2b95-b764-7615-a924-cc5b910ed1e5"
 end
 
 # Thread B — completely separate chain
 Thread.new do
   result = ImportDataset.execute(file_path: "/data/batch2.csv")
-  result.chain.id    #=> "018c2c11-c821-7892-b156-dd7c921fe2a3"
+  result.cid    #=> "018c2c11-c821-7892-b156-dd7c921fe2a3"
 end
 
 # Inspect or clear the current fiber's chain (rarely needed)

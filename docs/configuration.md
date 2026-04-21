@@ -155,7 +155,7 @@ See [Callbacks](callbacks.md) for class-level usage.
 
 ### Telemetry
 
-Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` data object with `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, and `timestamp`.
+Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` data object with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, and `timestamp`.
 
 | Event | Payload |
 |-------|---------|
@@ -169,13 +169,13 @@ Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` d
 CMDx.configure do |config|
   config.telemetry.subscribe(:task_executed, ->(event) {
     StatsD.timing("cmdx.task", event.payload[:result].duration, tags: [
-      "class:#{event.task_class}",
+      "class:#{event.task}",
       "status:#{event.payload[:result].status}"
     ])
   })
 
   config.telemetry.subscribe(:task_retried, ->(event) {
-    Rails.logger.warn("[cmdx] retry ##{event.payload[:attempt]} for #{event.task_class}")
+    Rails.logger.warn("[cmdx] retry ##{event.payload[:attempt]} for #{event.task}")
   })
 
   config.telemetry.unsubscribe(:task_executed, my_subscriber)

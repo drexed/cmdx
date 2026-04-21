@@ -106,7 +106,7 @@ CMDx.configure do |config|
     next unless tenant
 
     Rails.logger.info(
-      chain_id:    event.chain_id,
+      cid:    event.cid,
       task:        event.task_class.name,
       tenant_slug: tenant.slug,
       status:      event.payload[:result].status,
@@ -116,7 +116,7 @@ CMDx.configure do |config|
 end
 ```
 
-Filter your log aggregator by `tenant_slug:"acme"` and see every task execution for that tenant. Cross-reference with `chain_id` to trace a single request — the per-fiber chain ([`lib/cmdx/chain.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/chain.rb)) keeps concurrent tenant requests isolated automatically.
+Filter your log aggregator by `tenant_slug:"acme"` and see every task execution for that tenant. Cross-reference with `cid` to trace a single request — the per-fiber chain ([`lib/cmdx/chain.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/chain.rb)) keeps concurrent tenant requests isolated automatically.
 
 ## Per-Tenant Configuration
 

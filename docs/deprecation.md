@@ -183,7 +183,7 @@ When deprecation fires (and conditions pass), Runtime emits the `:task_deprecate
 ```ruby
 CMDx.configure do |config|
   config.telemetry.subscribe(:task_deprecated, ->(event) {
-    StatsD.increment("cmdx.deprecated", tags: ["task:#{event.task_class}"])
+    StatsD.increment("cmdx.deprecated", tags: ["task:#{event.task}"])
   })
 end
 

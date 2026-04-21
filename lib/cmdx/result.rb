@@ -24,7 +24,7 @@ module CMDx
     # @param task [Task] the executed task instance
     # @param signal [Signal] the final signal from the task's lifecycle
     # @param options [Hash{Symbol => Object}] frozen execution metadata
-    # @option options [String] :id
+    # @option options [String] :tid
     # @option options [Boolean] :strict
     # @option options [Boolean] :deprecated
     # @option options [Boolean] :rolled_back
@@ -38,8 +38,8 @@ module CMDx
     end
 
     # @return [String] uuid_v7 identifier for this execution
-    def id
-      @options[:id]
+    def tid
+      @options[:tid]
     end
 
     # @return [Class<Task>] the task class that ran
@@ -52,13 +52,18 @@ module CMDx
       task.type
     end
 
+    # @return [String] uuid_v7 identifier for the chain this result belongs to
+    def cid
+      chain.id
+    end
+
     # @return [Integer, nil] this result's position in the chain
-    def chain_index
+    def index
       @chain.index(self)
     end
 
     # @return [Boolean] true when this result is the root of the chain
-    def chain_root?
+    def root?
       !!@options[:root]
     end
 
@@ -250,12 +255,12 @@ module CMDx
     #   on failure.
     def to_h
       @to_h ||= {
-        chain_id: chain.id,
-        chain_index:,
-        chain_root: chain_root?,
+        cid:,
+        index:,
+        root: root?,
         type:,
         task:,
-        id:,
+        tid:,
         context:,
         state:,
         status:,
@@ -292,7 +297,7 @@ module CMDx
           if v.nil?
             buf << ks << "=nil"
           elsif ks == "origin" || ks.end_with?("_failure")
-            buf << ks << "=<" << v[:task].to_s << " " << v[:id] << ">"
+            buf << ks << "=<" << v[:task].to_s << " " << v[:tid] << ">"
           else
             buf << ks << "=" << v.inspect
           end
@@ -329,7 +334,7 @@ module CMDx
     # @return [Hash{Symbol => Object}]
     def deconstruct_keys(*)
       {
-        chain_root: chain_root?,
+        root: root?,
         type:,
         task:,
         state:,
@@ -352,7 +357,7 @@ module CMDx
       r = public_send(key)
       return if r.nil?
 
-      { task: r.task, id: r.id }
+      { task: r.task, tid: r.tid }
     end
 
   end

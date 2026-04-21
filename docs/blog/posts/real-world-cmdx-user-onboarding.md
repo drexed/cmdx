@@ -306,16 +306,16 @@ end
 Run the workflow and the message field of each log line is the serialized `result.to_h`:
 
 ```json
-{"chain_id":"abc123","chain_index":1,"chain_root":false,"type":"Task","task":"Users::Register","status":"success","duration":45.2, ...}
-{"chain_id":"abc123","chain_index":2,"chain_root":false,"type":"Task","task":"Users::SendVerification","status":"success","duration":12.1, ...}
-{"chain_id":"abc123","chain_index":3,"chain_root":false,"type":"Task","task":"Users::ActivateTrial","status":"success","duration":8.0, ...}
-{"chain_id":"abc123","chain_index":4,"chain_root":false,"type":"Task","task":"Users::ApplyReferralBonus","status":"skipped","reason":"Invalid referral code — skipping bonus","duration":3.4, ...}
-{"chain_id":"abc123","chain_index":5,"chain_root":false,"type":"Task","task":"Users::SendWelcome","status":"success","duration":6.7, ...}
-{"chain_id":"abc123","chain_index":6,"chain_root":false,"type":"Task","task":"Users::TrackRegistration","tags":["analytics","onboarding"],"status":"success","duration":2.1, ...}
-{"chain_id":"abc123","chain_index":0,"chain_root":true,"type":"Workflow","task":"Users::Onboard","tags":["onboarding"],"status":"success","duration":76.5, ...}
+{"cid":"abc123","index":1,"root":false,"type":"Task","task":"Users::Register","status":"success","duration":45.2, ...}
+{"cid":"abc123","index":2,"root":false,"type":"Task","task":"Users::SendVerification","status":"success","duration":12.1, ...}
+{"cid":"abc123","index":3,"root":false,"type":"Task","task":"Users::ActivateTrial","status":"success","duration":8.0, ...}
+{"cid":"abc123","index":4,"root":false,"type":"Task","task":"Users::ApplyReferralBonus","status":"skipped","reason":"Invalid referral code — skipping bonus","duration":3.4, ...}
+{"cid":"abc123","index":5,"root":false,"type":"Task","task":"Users::SendWelcome","status":"success","duration":6.7, ...}
+{"cid":"abc123","index":6,"root":false,"type":"Task","task":"Users::TrackRegistration","tags":["analytics","onboarding"],"status":"success","duration":2.1, ...}
+{"cid":"abc123","index":0,"root":true,"type":"Workflow","task":"Users::Onboard","tags":["onboarding"],"status":"success","duration":76.5, ...}
 ```
 
-One `chain_id` links every step. The skipped referral bonus is visible without digging through exception trackers. The root workflow result is at `chain_index: 0` (Runtime `unshift`s the root onto the chain). The workflow still reports `success` because skips are considered good outcomes (`result.ok?`).
+One `cid` links every step. The skipped referral bonus is visible without digging through exception trackers. The root workflow result is at `index: 0` (Runtime `unshift`s the root onto the chain). The workflow still reports `success` because skips are considered good outcomes (`result.ok?`).
 
 ## Testing the Pipeline
 

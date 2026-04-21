@@ -12,7 +12,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`)
 - Add `Signal#ok?` / `Signal#ko?` predicates
 - Add `CMDx::Runtime` orchestrating the full task lifecycle and building the final `Result`
-- Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, `timestamp`
+- Add `CMDx::Telemetry` pub/sub for `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, `:task_executed`; emits `Telemetry::Event` data objects with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`
 - Add `CMDx::Deprecation` for declarative class-level deprecation (`:log`, `:warn`, `:error`, Symbol, Proc, callable) with `:if` / `:unless` gating
 - Add `CMDx::Input` / `CMDx::Inputs` (replaces `Attribute` / `AttributeRegistry` / `AttributeValue`) supporting `:source`, `:default`, `:transform`, `:as`, `:prefix` / `:suffix`, and nested children via DSL block
 - Add `CMDx::Output` / `CMDx::Outputs` for first-class declared outputs verified against `task.context` after `work` (required-presence, default application, coercion, transformation, validation, write-back of final value); `:default` and `:transform` mirror input semantics — defaults fire for nil/absent values and can satisfy `:required`, transforms run between coerce and validate
@@ -27,7 +27,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Task#execute(strict:)` instance method (aliased as `#call`)
 - Add `Result#on(:success, :failed, ...)` chainable predicate-dispatch helper
 - Add `Result#deconstruct` / `Result#deconstruct_keys` for pattern matching; `deconstruct` returns `[type, task, state, status, reason, metadata, cause, origin]`
-- Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#chain_index`, `Result#chain_root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias
+- Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#index`, `Result#root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias
 - Add `Signal#origin` / `Result#origin` — upstream `Result` a signal/result was echoed from (`nil` for locally originated failures); set by `Task#throw!`, `Pipeline` when propagating workflow failures, and `Runtime` when rescuing a `Fault` inside `work`
 - Add `Chain#unshift`, `Chain#root`, `Chain#state`, `Chain#status`, `Chain#last`, `Chain#freeze`; Runtime `unshift`s the root result (so `chain.root` and `chain[0]` point to the outermost task) and freezes the chain on root teardown
 - Add `Fault.for?(*tasks)` and `Fault.matches?(&block)` anonymous matcher subclasses suitable for `rescue`
@@ -60,7 +60,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Extend `Validators::Numeric` and `Validators::Length` with `:gt` / `:lt` (strict comparison, with `:gt_message` / `:lt_message` overrides and `cmdx.validators.{numeric,length}.{gt,lt}` i18n keys), plus `:gte` / `:lte` / `:eq` / `:not_eq` aliases that normalize to `:min` / `:max` / `:is` / `:is_not`
 - `Fault#initialize` takes a single `Result`; `task`, `context`, and `chain` delegate to it; `Runtime` raises `Fault.new(@result.caused_failure)` so `fault.task` always points at the originating leaf (including in workflows and nested `execute!` chains)
 - `Runtime` finalizes the `Result` before `raise_signal!` so the `Fault` it raises always carries a fully-built `Result`
-- `Result#to_h` / `to_s` / `deconstruct_keys` now include `:origin` (compact `{ task:, id: }` hash, or `nil` for locally originated failures)
+- `Result#to_h` / `to_s` / `deconstruct_keys` now include `:origin` (compact `{ task:, tid: }` hash, or `nil` for locally originated failures)
 - Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
 - Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
 - Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
@@ -69,8 +69,8 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - **BREAKING**: Remove `Result::STATES = [INITIALIZED, EXECUTING, COMPLETE, INTERRUPTED]`, the `executed!` / `executing!` transitions, and the `executed?` / `initialized?` / `executing?` predicates
 - **BREAKING**: Remove `Task#id`, `Task#result`, `Task#chain` direct accessors — read these off the `Result` returned by `execute`
 - **BREAKING**: Remove `Result#threw_failure?` predicate (`result.thrown_failure?` remains, with semantics flipped — true when the result re-threw an upstream failure)
-- **BREAKING**: Remove `Result#chain_id` — read it off the chain: `result.chain.id`
-- **BREAKING**: `Result#to_h` no longer produces nested `caused_failure` / `threw_failure` hashes; failure references render as `{ task:, id: }` and `to_s` formats them as `<TaskClass uuid>`
+- **BREAKING**: Remove `Result#chain_id` — read it off the chain: `result.cid`
+- **BREAKING**: `Result#to_h` no longer produces nested `caused_failure` / `threw_failure` hashes; failure references render as `{ task:, tid: }` and `to_s` formats them as `<TaskClass uuid>`
 - Remove `CMDx::Executor` (replaced by `CMDx::Runtime`)
 - Remove `CMDx::Attribute`, `CMDx::AttributeRegistry`, `CMDx::AttributeValue` (replaced by `Input` / `Inputs` and `Output` / `Outputs`)
 - Remove `CMDx::Resolver` (value resolution is owned by `Input#resolve`)
@@ -93,7 +93,7 @@ See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide. At 
 
 - Rename `def call` → `def work`; `MyTask.call(ctx)` still works (aliased) but prefer `MyTask.execute(ctx)`
 - Replace `register :attribute, ...` with `required :name, ...` / `optional :name, ...` / `output :name, ...`
-- Replace `result.chain_id` with `result.chain.id`
+- Replace `result.chain_id` with `result.cid`
 - Replace `task.id` / `task.result` / `task.chain` with reads off the `Result` returned by `execute`
 - Subscribe to lifecycle observability via `config.telemetry.subscribe(:task_executed) { |event| ... }` instead of the removed `Runtime` / `Correlate` middlewares
 

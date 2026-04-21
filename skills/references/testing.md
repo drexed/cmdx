@@ -25,7 +25,7 @@ RSpec.describe CreateUser do
 end
 ```
 
-Auto-generated predicate matchers: `be_complete`, `be_interrupted`, `be_success`, `be_skipped`, `be_failed`, `be_ok`, `be_ko`, `be_retried`, `be_rolled_back`, `be_strict`, `be_deprecated`, `be_chain_root`.
+Auto-generated predicate matchers: `be_complete`, `be_interrupted`, `be_success`, `be_skipped`, `be_failed`, `be_ok`, `be_ko`, `be_retried`, `be_rolled_back`, `be_strict`, `be_deprecated`, `be_root`.
 
 ## Branching with `on`
 
@@ -209,7 +209,7 @@ end
 
 `deconstruct`: `[type, task, state, status, reason, metadata, cause, origin]`.
 
-`deconstruct_keys` exposes: `:chain_root`, `:type`, `:task`, `:state`, `:status`, `:reason`, `:metadata`, `:cause`, `:origin`, `:strict`, `:deprecated`, `:retries`, `:rolled_back`, `:duration`.
+`deconstruct_keys` exposes: `:root`, `:type`, `:task`, `:state`, `:status`, `:reason`, `:metadata`, `:cause`, `:origin`, `:strict`, `:deprecated`, `:retries`, `:rolled_back`, `:duration`.
 
 ```ruby
 it "deconstructs to array" do

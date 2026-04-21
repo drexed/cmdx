@@ -127,7 +127,7 @@ RSpec.describe CMDx::Chain do
   end
 
   describe "#root" do
-    it "returns the result flagged as chain_root" do
+    it "returns the result flagged as root" do
       non_root = build_result
       root     = build_result(root: true)
       chain.push(non_root).push(root)

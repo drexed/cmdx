@@ -1601,7 +1601,7 @@
             <span class="line"><span class="dim">&#35;</span> result.success?  <span class="ok">=&gt; true</span></span>
             <span class="line"><span class="dim">&#35;</span> result.state     =&gt; <span class="val">"complete"</span></span>
             <span class="line"><span class="dim">&#35;</span> result.duration  =&gt; 12</span>
-            <span class="line"><span class="dim">&#35;</span> result.chain.id  =&gt; <span class="val">"018c..e5"</span></span>
+            <span class="line"><span class="dim">&#35;</span> result.cid  =&gt; <span class="val">"018c..e5"</span></span>
           </aside>
         </div>
 
@@ -1618,7 +1618,7 @@
   <span class="k">end</span>
 <span class="k">end</span>
 
-<span class="c"># Every event ships with a chain_id, task_id,</span>
+<span class="c"># Every event ships with a cid, task_id,</span>
 <span class="c"># runtime, origin, and correlation metadata.</span>
 
 <span class="c"># Structured logs are emitted automatically.</span>
@@ -1918,7 +1918,7 @@
       return '<span class="line">' +
         '<span class="' + lvlCls + '">' + lvl + ',</span> ' +
         '<span class="ts">[' + l[1] + ']</span> ' +
-        '<span class="kv">chain_id</span>=<span class="val">"' + chainId + '"</span> ' +
+        '<span class="kv">cid</span>=<span class="val">"' + chainId + '"</span> ' +
         '<span class="kv">task</span>=<span class="val">' + l[2] + '</span> ' +
         '<span class="kv">status</span>=<span class="' + statusClass[l[5]] + '">' + l[3] + '</span> ' +
         '<span class="kv">runtime</span>=' + l[4] +

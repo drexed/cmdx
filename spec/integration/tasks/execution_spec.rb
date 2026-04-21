@@ -19,9 +19,9 @@ RSpec.describe "Task execution", type: :feature do
       end
 
       it "populates metadata attributes" do
-        expect(result.id).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
-        expect(result.chain.id).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
-        expect(result.chain_index).to eq(0)
+        expect(result.tid).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
+        expect(result.cid).to match(/\A\h{8}-\h{4}-7\h{3}-\h{4}-\h{12}\z/)
+        expect(result.index).to eq(0)
         expect(result.duration).to be_a(Float).and be >= 0
         expect(result.retries).to eq(0)
         expect(result).to have_attributes(strict?: false, retried?: false, deprecated?: false, rolled_back?: false)

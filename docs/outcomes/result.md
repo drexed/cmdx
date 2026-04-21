@@ -12,7 +12,7 @@ A `Result` is the read-only outcome of a task execution. It exposes the signal (
 result = BuildApplication.execute(version: "1.2.3")
 
 # Identity
-result.id          #=> "0190..." (uuid_v7 for this execution)
+result.tid         #=> "0190..." (uuid_v7 for this execution)
 result.task        #=> BuildApplication              (the task class)
 result.type        #=> "Task"                        (or "Workflow")
 result.context     #=> #<CMDx::Context ...>          (frozen on root teardown)
@@ -21,16 +21,16 @@ result.errors      #=> #<CMDx::Errors ...>           (frozen on teardown)
 
 # Chain placement
 result.chain       #=> #<CMDx::Chain ...>
-result.chain.id    #=> "0190..."
-result.chain_index #=> 0  (root is always 0; children are 1+ in completion order)
-result.chain_root? #=> true when this result is the root of its chain
+result.cid         #=> "0190..."
+result.index       #=> 0  (root is always 0; children are 1+ in completion order)
+result.root?       #=> true when this result is the root of its chain
 
 # Signal data
-result.state    #=> "interrupted"
-result.status   #=> "failed"
-result.reason   #=> "Build tool not found"
-result.metadata #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
-result.cause    #=> nil, the rescued StandardError, or the propagated Fault
+result.state        #=> "interrupted"
+result.status       #=> "failed"
+result.reason       #=> "Build tool not found"
+result.metadata     #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
+result.cause        #=> nil, the rescued StandardError, or the propagated Fault
 
 # Lifecycle metadata
 result.duration     #=> 12.34            (milliseconds, monotonic)
@@ -175,7 +175,7 @@ end
 ### Hash Pattern
 
 `deconstruct_keys` exposes:
-`:chain_root, :type, :task, :state, :status, :reason, :metadata, :cause, :origin, :strict, :deprecated, :retries, :rolled_back, :duration`.
+`:root, :type, :task, :state, :status, :reason, :metadata, :cause, :origin, :strict, :deprecated, :retries, :rolled_back, :duration`.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -187,7 +187,7 @@ in { status: "failed", metadata: { retryable: true } }
   schedule_build_retry(result)
 in { status: "failed", reason: String => reason }
   escalate_build_error("Build failed: #{reason}")
-in { chain_root: true, rolled_back: true }
+in { root: true, rolled_back: true }
   alert_root_rollback(result)
 end
 ```
@@ -212,8 +212,8 @@ end
 ```ruby
 result.to_h
 #=> {
-#     chain_id: "0190...", chain_index: 0, chain_root: true,
-#     type: "Task", task: BuildApplication, id: "0190...",
+#     cid: "0190...", index: 0, root: true,
+#     type: "Task", task: BuildApplication, tid: "0190...",
 #     context: #<CMDx::Context ...>,
 #     state: "complete", status: "success",
 #     reason: nil, metadata: {},
@@ -223,7 +223,7 @@ result.to_h
 #   }
 
 result.to_s
-#=> "chain_id=\"0190...\" chain_index=0 ... state=\"complete\" status=\"success\" ..."
+#=> "cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
 ```
 
-On `failed?` results, `to_h` additionally includes `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` and `:origin` entries are compact `{ task:, id: }` hashes (and render as `<TaskClass uuid>` in `to_s`) to avoid serializing entire upstream results. `:origin` is `nil` when the failure is locally originated.
+On `failed?` results, `to_h` additionally includes `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` and `:origin` entries are compact `{ task:, tid: }` hashes (and render as `<TaskClass uuid>` in `to_s`) to avoid serializing entire upstream results. `:origin` is `nil` when the failure is locally originated.

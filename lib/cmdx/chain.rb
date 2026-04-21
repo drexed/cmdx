@@ -37,8 +37,8 @@ module CMDx
     attr_reader :id, :results
 
     def initialize
-      @mutex   = Mutex.new
       @id      = SecureRandom.uuid_v7
+      @mutex   = Mutex.new
       @results = []
     end
 
@@ -74,7 +74,7 @@ module CMDx
 
     # @return [Result, nil] the root result, or nil when absent
     def root
-      @results.find(&:chain_root?)
+      @results.find(&:root?)
     end
 
     # @return [String, nil] the state of the root result, or nil when absent

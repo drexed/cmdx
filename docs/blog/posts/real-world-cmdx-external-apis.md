@@ -122,7 +122,7 @@ class ErrorTracking
     Sentry.with_scope do |scope|
       scope.set_tags(
         task_class: task.class.name,
-        chain_id: CMDx::Chain.current&.id
+        cid: CMDx::Chain.current&.id
       )
 
       yield
@@ -339,7 +339,7 @@ Payments::Record        → success
 Payments::SendReceipt   → success
 ```
 
-Three retries with exponential backoff (1s, 2s, 4s). The user never knows. Logs show the retry warnings with `chain_id` correlation.
+Three retries with exponential backoff (1s, 2s, 4s). The user never knows. Logs show the retry warnings with `cid` correlation.
 
 ### Scenario 3: Stripe Is Down (Circuit Open)
 

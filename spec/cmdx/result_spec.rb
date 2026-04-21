@@ -13,17 +13,17 @@ RSpec.describe CMDx::Result do
 
   describe "#initialize" do
     it "freezes the options hash" do
-      result = build(CMDx::Signal.success, id: "abc")
+      result = build(CMDx::Signal.success, tid: "abc")
       expect(result.instance_variable_get(:@options)).to be_frozen
     end
   end
 
   describe "simple delegators" do
-    let(:result) { build(CMDx::Signal.success, id: "rid-1", duration: 0.01) }
+    let(:result) { build(CMDx::Signal.success, tid: "rid-1", duration: 0.01) }
 
-    it "returns id, duration, task class, type" do
+    it "returns tid, duration, task, type" do
       expect(result).to have_attributes(
-        id: "rid-1",
+        tid: "rid-1",
         duration: 0.01,
         task: task_class,
         type: "Task"
@@ -37,7 +37,7 @@ RSpec.describe CMDx::Result do
     end
 
     it "exposes the chain id" do
-      expect(result.chain.id).to eq(chain.id)
+      expect(result.cid).to eq(chain.id)
     end
 
     it "reports the full chain results array" do
@@ -49,9 +49,9 @@ RSpec.describe CMDx::Result do
       expect(other.chain.to_a).to eq([result, other])
     end
 
-    it "chain_index reports the index of self" do
+    it "index reports the index of self" do
       chain << result
-      expect(result.chain_index).to eq(0)
+      expect(result.index).to eq(0)
     end
   end
 
@@ -181,16 +181,16 @@ RSpec.describe CMDx::Result do
 
   describe "#to_h" do
     it "includes core fields for a success result" do
-      chain << (result = build(CMDx::Signal.success, id: "rid", duration: 0.1))
+      chain << (result = build(CMDx::Signal.success, tid: "rid", duration: 0.1))
       hash = result.to_h
 
       expect(hash).to include(
-        chain_id: chain.id,
-        chain_index: 0,
-        chain_root: false,
+        cid: chain.id,
+        index: 0,
+        root: false,
         type: "Task",
         task: task_class,
-        id: "rid",
+        tid: "rid",
         state: "complete",
         status: "success",
         duration: 0.1
@@ -212,8 +212,8 @@ RSpec.describe CMDx::Result do
 
   describe "#to_s" do
     it "renders a space-separated key=value summary" do
-      chain << (result = build(CMDx::Signal.success, id: "rid"))
-      expect(result.to_s).to include("id=\"rid\"", "state=\"complete\"", "status=\"success\"")
+      chain << (result = build(CMDx::Signal.success, tid: "rid"))
+      expect(result.to_s).to include("tid=\"rid\"", "state=\"complete\"", "status=\"success\"")
     end
   end
 
@@ -242,7 +242,7 @@ RSpec.describe CMDx::Result do
 
       it "returns the full hash regardless of the keys argument" do
         expected = {
-          chain_root: false,
+          root: false,
           type: "Task",
           task: task_class,
           state: "interrupted",

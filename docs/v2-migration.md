@@ -50,7 +50,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 1. **Bump the gem.** `bundle update cmdx` and run the suite to surface breakage.
 2. **Fix configuration.** Drop removed keys (see [Configuration](#configuration)). `rails generate cmdx:install` regenerates the v2 initializer as a reference.
 3. **Fix tasks category-by-category.** Inputs → Outputs → Callbacks → Middlewares → Result consumers. The [Automated Migration Prompt](#automated-migration-prompt) mechanizes most of this.
-4. **Audit result-handling code** for state-machine assumptions (`result.executing?`, `result.metadata[:x] = ...`, `result.chain_id`, `result.good?` / `bad?`) and any breakpoint / strict-mode configuration.
+4. **Audit result-handling code** for state-machine assumptions (`result.executing?`, `result.metadata[:x] = ...`, `result.cid`, `result.good?` / `bad?`) and any breakpoint / strict-mode configuration.
 5. **Move observability** (correlation IDs, runtime metrics, timeouts) to [Telemetry](#telemetry) subscribers or hand-rolled middlewares.
 6. **Re-run the suite.** When green, delete dead helpers that papered over v1's rough edges (manual rollbacks, `dry_run:` flags, `SKIP_CMDX_FREEZING` toggles).
 7. **Validate.** Run the grep list in [Validating the Migration](#validating-the-migration) to catch stragglers.
@@ -125,7 +125,7 @@ Read task-level data off the returned `Result` instead.
 | v1 | v2 |
 |---|---|
 | `MyTask.execute(...).task` → instance | `result.task` → **class** (see [Result Consumers](#result-consumers)) |
-| `task.id` | `result.id` |
+| `task.id` | `result.tid` |
 | `task.result` | `execute` returns the `Result` directly |
 | `task.chain` | `result.chain` (a `Chain`, not an Array) |
 | `task.dry_run?` | removed — `dry_run` is gone |
@@ -368,7 +368,7 @@ CMDx::Chain.current     #=> nil (cleared on root teardown)
 | `result.complete?`, `result.interrupted?`, `result.success?`, `result.skipped?`, `result.failed?` | unchanged |
 | `result.good?` | `result.ok?` |
 | `result.bad?` | `result.ko?` |
-| `result.chain_id` | `result.chain.id` |
+| `result.chain_id` | `result.cid` |
 | `result.task` (instance) | `result.task` (**class**) |
 | `result.chain` (Array) | `result.chain` (`Chain`, Enumerable) |
 | `result.threw_failure?` | `result.thrown_failure?` (semantics flipped: true only when this result re-threw an upstream failure) |
@@ -386,11 +386,11 @@ in [_, _, _, "failed", reason, *]                then alert(reason)
 in { task:, status: "failed", cause: }           then ...
 end
 
-result.id              # uuid_v7
+result.tid             # uuid_v7
 result.chain           # Chain (Enumerable)
-result.chain.id        # chain's uuid_v7
-result.chain_index     # position in chain
-result.chain_root?     # true when this result is the chain's root
+result.cid             # chain's uuid_v7
+result.index           # position in chain
+result.root?           # true when this result is the chain's root
 result.duration        # milliseconds (Float)
 result.retries         # integer
 result.retried?        # bool
@@ -409,7 +409,7 @@ result.caused_failure  # walks `origin` to the root-cause leaf
 result.caused_failure? # true when this result originated the failure
 ```
 
-`Result#to_h` no longer recursively serializes failure chains. `origin`, `threw_failure`, and `caused_failure` render as `{ task: Class, id: uuid }`, and `to_s` formats them as `<TaskClass uuid>`.
+`Result#to_h` no longer recursively serializes failure chains. `origin`, `threw_failure`, and `caused_failure` render as `{ task: Class, tid: uuid }`, and `to_s` formats them as `<TaskClass uuid>`.
 
 See [Outcomes - Result](outcomes/result.md) for the full surface.
 
@@ -614,11 +614,11 @@ v1's pattern for observing the runtime was to write a middleware. v2 ships a ded
 ```ruby
 CMDx.configure do |config|
   config.telemetry.subscribe(:task_executed) do |event|
-    StatsD.timing("cmdx.#{event.task_class}", event.payload[:result].duration)
+    StatsD.timing("cmdx.#{event.task}", event.payload[:result].duration)
   end
 
   config.telemetry.subscribe(:task_retried) do |event|
-    Rails.logger.warn("retry #{event.payload[:attempt]} for #{event.task_class}")
+    Rails.logger.warn("retry #{event.payload[:attempt]} for #{event.task}")
   end
 end
 ```
@@ -631,7 +631,7 @@ end
 | `:task_rolled_back` | empty |
 | `:task_executed` | `{ result: Result }` |
 
-Every event carries a `Telemetry::Event` with `chain_id`, `chain_root`, `task_type`, `task_class`, `task_id`, `name`, `payload`, `timestamp`. Subscribe per-task via `MyTask.telemetry.subscribe(...)`. See [Configuration - Telemetry](configuration.md#telemetry).
+Every event carries a `Telemetry::Event` with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, `timestamp`. Subscribe per-task via `MyTask.telemetry.subscribe(...)`. See [Configuration - Telemetry](configuration.md#telemetry).
 
 ---
 
@@ -747,13 +747,13 @@ end
 
 ```bash
 rg --hidden \
-  'task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|chain_id[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:'
+  'task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|cid[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:'
 ```
 
-**3. Check one log line.** A successful task logs a v2-shaped record with `chain_id`, `chain_index`, `chain_root`, `type`, `task`, `id`, `state`, `status`, `duration`:
+**3. Check one log line.** A successful task logs a v2-shaped record with `cid`, `index`, `root`, `type`, `task`, `id`, `state`, `status`, `duration`:
 
 ```text
-cmdx: chain_id="0190..." chain_index=0 chain_root=true type="Task" task=MyTask id="0190..." state="complete" status="success" reason=nil metadata={} duration=12.34 ...
+cmdx: cid="0190..." index=0 root=true type="Task" task=MyTask tid="0190..." state="complete" status="success" reason=nil metadata={} duration=12.34 ...
 ```
 
 If you see `initialized` or `executing` in the output, something is serializing a v1 result.
@@ -765,7 +765,7 @@ If you see `initialized` or `executing` in the output, something is serializing 
 | Symptom | Fix |
 |---|---|
 | `NoMethodError: undefined method 'good?' for Result` | `result.good?` → `result.ok?`, `result.bad?` → `result.ko?` |
-| `NoMethodError: undefined method 'chain_id'` | `result.chain_id` → `result.chain.id` |
+| `NoMethodError: undefined method 'chain_id'` | `result.chain_id` → `result.cid` |
 | `NoMethodError: undefined method 'executed?' / 'executing?' / 'initialized?'` | Predicates removed; use `result.complete? \|\| result.interrupted?` |
 | `CMDx::MiddlewareError: middleware did not yield the next_link` | A middleware's `rescue` / `ensure` / early-return path skipped `yield`. Yield on every code path. |
 | `CMDx::ImplementationError: cannot define Workflow#work` | A workflow subclass defined `#work`. Delete it and move the body into `task` / `tasks` declarations. |
@@ -861,7 +861,7 @@ by the rules here, stop and surface the file:line so a human can resolve it.
 ## Pass 5 — Result consumers
 
 - `result.good?` → `result.ok?`; `result.bad?` → `result.ko?`.
-- `result.chain_id` → `result.chain.id`.
+- `result.chain_id` → `result.cid`.
 - `result.threw_failure?` → `result.thrown_failure?` (semantics flipped —
   v2 is true ONLY when this result re-threw an upstream failure).
 - Delete any `result.initialized?`, `result.executing?`, or
@@ -871,12 +871,12 @@ by the rules here, stop and surface the file:line so a human can resolve it.
   Move the data onto `task.context` BEFORE the halt.
 - `result.task` now returns the task CLASS (v1 returned the instance). Code
   that called `result.task.id`, `result.task.context`, etc. needs
-  `result.id`, `result.context`, and so on.
+  `result.tid`, `result.context`, and so on.
 - `result.chain` now returns the `Chain` object (Enumerable), not an Array.
   `result.chain.each`, `result.chain.map`, `result.chain.to_a`, and
   `result.chain[0]` all work. `result.chain.first` / `result.chain.last` too.
 - Replace `task.id` / `task.result` / `task.chain` (v1 Task instance
-  accessors) with `result.id` / `result` / `result.chain` off the returned
+  accessors) with `result.tid` / `result` / `result.chain` off the returned
   Result.
 - `rescue CMDx::SkipFault` / `rescue CMDx::FailFault` → `rescue CMDx::Fault`,
   then branch on `e.result.skipped?` / `e.result.failed?`.
@@ -934,7 +934,7 @@ Run this grep from the project root:
 
 ```bash
 rg --hidden \
-  'task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|chain_id[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:'
+  'task_breakpoints|workflow_breakpoints|rollback_on|dump_context|freeze_results|SKIP_CMDX_FREEZING|\.good\?|\.bad\?|cid[^=]|threw_failure\?|dry_run|attributes_schema|remove_attribute|remove_return|on_executed|on_good|on_bad|cmdx\.returns\.missing|cmdx\.faults\.(invalid|unspecified)|CMDx::Executor|CMDx::Middlewares::(Correlate|Runtime|Timeout)|CMDx::(SkipFault|FailFault|UndefinedMethodError)|register\s+:attribute|attribute\s+:'
 ```
 
 Every hit is either (a) a string/comment that should be updated, or

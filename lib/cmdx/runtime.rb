@@ -36,7 +36,6 @@ module CMDx
     def initialize(task, strict: false)
       @task   = task
       @strict = strict
-      @id     = SecureRandom.uuid_v7
     end
 
     # Runs the full lifecycle. Teardown runs in `ensure`, guaranteeing the
@@ -112,7 +111,7 @@ module CMDx
         @task,
         @signal,
         root: @root,
-        id: @id,
+        tid: @task.tid,
         strict: @strict,
         deprecated: @deprecated,
         rolled_back: @rolled_back,
@@ -209,11 +208,11 @@ module CMDx
       return unless telemetry.subscribed?(name)
 
       event = Telemetry::Event.new(
-        chain_id: Chain.current.id,
-        chain_root: @root,
-        task_type: @task.class.type,
-        task_class: @task.class,
-        task_id: @id,
+        cid: Chain.current.id,
+        root: @root,
+        type: @task.class.type,
+        task: @task.class,
+        tid: @task.tid,
         name:,
         payload:,
         timestamp: Time.now.utc

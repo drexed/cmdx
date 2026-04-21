@@ -39,7 +39,7 @@ RSpec.describe "Workflow parallel execution", type: :feature do
       expect(result.context).to have_attributes(a: true, b: true, b_saw: "original")
     end
 
-    it "shares a single chain_id across all parallel results" do
+    it "shares a single cid across all parallel results" do
       a = create_successful_task(name: "A")
       b = create_successful_task(name: "B")
 
@@ -47,7 +47,7 @@ RSpec.describe "Workflow parallel execution", type: :feature do
 
       result = workflow.execute
 
-      expect(result.chain.map { |r| r.chain.id }.uniq.size).to eq(1)
+      expect(result.chain.map(&:cid).uniq.size).to eq(1)
       expect(result.chain.size).to eq(3)
     end
   end

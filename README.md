@@ -132,9 +132,9 @@ end
 Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, and duration — enough to correlate nested tasks and reconstruct what happened.
 
 ```log
-I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: chain_id="018c2b95-b764-7fff-a1d2-..." chain_index=1 chain_root=false type="Task" task=SendAnalyzedEmail id="018c2b95-c091-..." state="complete" status="success" reason=nil metadata={} duration=34.7 tags=[]
+I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d2-..." index=1 root=false type="Task" task=SendAnalyzedEmail id="018c2b95-c091-..." state="complete" status="success" reason=nil metadata={} duration=34.7 tags=[]
 
-I, [2026-04-19T18:43:15.000000Z #3784] INFO -- cmdx: chain_id="018c2b95-b764-7fff-a1d2-..." chain_index=0 chain_root=true type="Task" task=AnalyzeMetrics id="018c2b95-b764-..." state="complete" status="success" reason=nil metadata={} duration=187.4 tags=[]
+I, [2026-04-19T18:43:15.000000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d2-..." index=0 root=true type="Task" task=AnalyzeMetrics id="018c2b95-b764-..." state="complete" status="success" reason=nil metadata={} duration=187.4 tags=[]
 ```
 
 Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/) guide.

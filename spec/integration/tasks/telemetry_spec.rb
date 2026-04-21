@@ -19,7 +19,7 @@ RSpec.describe "Task telemetry", type: :feature do
 
       expect(events.map(&:name)).to eq(%i[task_started task_executed])
       expect(events.last.payload[:result]).to be(result)
-      expect(events.last.task_class).to be(task)
+      expect(events.last.task).to be(task)
     end
 
     it "emits task_rolled_back between failure and task_executed" do
@@ -58,7 +58,7 @@ RSpec.describe "Task telemetry", type: :feature do
   end
 
   describe "event payload" do
-    it "carries chain_id, task class, task id, payload and timestamp" do
+    it "carries cid, tid, task class, payload and timestamp" do
       task = with_telemetry(create_successful_task, :task_executed)
 
       before = Time.now.utc
@@ -67,10 +67,10 @@ RSpec.describe "Task telemetry", type: :feature do
       event = events.first
       expect(event).to have_attributes(
         name: :task_executed,
-        chain_id: result.chain.id,
-        task_type: task.type,
-        task_class: task,
-        task_id: result.id
+        cid: result.cid,
+        type: task.type,
+        task: task,
+        tid: result.tid
       )
       expect(event.payload[:result]).to be(result)
       expect(event.timestamp).to be_a(Time).and(be >= before)
