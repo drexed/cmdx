@@ -36,6 +36,50 @@ RSpec.describe CMDx::Errors do
     end
   end
 
+  describe "#merge!" do
+    let(:other) { described_class.new }
+
+    it "copies messages from another Errors instance" do
+      other.add(:name, "is required")
+      other.add(:age, "too young")
+      errors.merge!(other)
+
+      expect(errors.to_h).to eq(name: ["is required"], age: ["too young"])
+    end
+
+    it "preserves existing messages and unions with incoming ones" do
+      errors.add(:name, "is required")
+      other.add(:name, "is too short")
+      other.add(:age, "too young")
+      errors.merge!(other)
+
+      expect(errors[:name]).to contain_exactly("is required", "is too short")
+      expect(errors[:age]).to contain_exactly("too young")
+    end
+
+    it "deduplicates overlapping messages under the same key" do
+      errors.add(:name, "is required")
+      other.add(:name, "is required")
+      errors.merge!(other)
+
+      expect(errors[:name]).to contain_exactly("is required")
+    end
+
+    it "is a no-op when the other container is empty" do
+      errors.add(:name, "is required")
+      errors.merge!(other)
+
+      expect(errors.to_h).to eq(name: ["is required"])
+    end
+
+    it "accepts any object responding to #to_hash" do
+      hash_like = Class.new { def to_hash = { name: ["is required"] } }.new
+      errors.merge!(hash_like)
+
+      expect(errors[:name]).to contain_exactly("is required")
+    end
+  end
+
   describe "#[]" do
     it "returns the array of messages for a key" do
       errors.add(:age, "too young")

@@ -24,6 +24,22 @@ module CMDx
     end
     alias []= add
 
+    # Copies every message from `other` into self. Existing messages are
+    # preserved and duplicates (same key + message) are silently dropped by
+    # the underlying Set. Accepts any object that responds to `#to_hash`
+    # returning `Hash{Symbol => Enumerable<String>}` — typically another
+    # {Errors} instance.
+    #
+    # @param other [Errors, #to_hash]
+    # @return [void]
+    # @example Combine validation errors from a nested task
+    #   parent.errors.merge!(child.result.errors)
+    def merge!(other)
+      other.to_hash.each do |key, messages|
+        messages.each { |message| add(key, message) }
+      end
+    end
+
     # @param key [Symbol]
     # @return [Array<String>] messages for `key`, or a frozen empty array
     def [](key)

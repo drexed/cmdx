@@ -127,6 +127,7 @@ plugins:
           - outcomes/result.md: Result objects exposing execution state, status, context, and metadata
           - outcomes/states.md: Execution lifecycle states (initialized, executing, complete, interrupted)
           - outcomes/statuses.md: Business outcome statuses (success, skipped, failed) and transitions
+          - outcomes/errors.md: Structured per-attribute error container accumulated during input/output verification and exposed on result.errors
         Attributes:
           - inputs/definitions.md: Attribute declarations (required/optional), validation, and type coercion
           - inputs/naming.md: Customizing accessor method names with prefixes and suffixes
@@ -166,6 +167,7 @@ nav:
       - Result: outcomes/result.md
       - States: outcomes/states.md
       - Statuses: outcomes/statuses.md
+      - Errors: outcomes/errors.md
     - Inputs:
       - Definitions: inputs/definitions.md
       - Naming: inputs/naming.md
