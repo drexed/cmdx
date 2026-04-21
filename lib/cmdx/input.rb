@@ -216,7 +216,7 @@ module CMDx
         # so an explicit nil is treated as not provided (triggers default/required).
         value = obj[name]
         [value, !value.nil?]
-      elsif obj.respond_to?(name)
+      elsif obj.respond_to?(name, true)
         [obj.send(name), true]
       else
         [nil, false]
@@ -241,7 +241,7 @@ module CMDx
     def apply_transform(value, task)
       case transform
       when Symbol
-        if value.respond_to?(transform)
+        if value.respond_to?(transform, true)
           value.send(transform)
         else
           task.send(transform, value)
