@@ -203,7 +203,9 @@ module CMDx
     end
 
     def fetch_by_name(obj)
-      if obj.respond_to?(:key?)
+      if obj.respond_to?(name, true)
+        [obj.send(name), true]
+      elsif obj.respond_to?(:key?)
         if obj.key?(name)
           [obj[name], true]
         elsif obj.key?(name_str = name.to_s)
@@ -214,10 +216,8 @@ module CMDx
       elsif obj.respond_to?(:[])
         # Without #key? we cannot distinguish "key absent" from "value is nil",
         # so an explicit nil is treated as not provided (triggers default/required).
-        value = obj[name]
+        value = obj[name] || obj[name.to_s]
         [value, !value.nil?]
-      elsif obj.respond_to?(name, true)
-        [obj.send(name), true]
       else
         [nil, false]
       end
