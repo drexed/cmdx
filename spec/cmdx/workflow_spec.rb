@@ -11,11 +11,6 @@ RSpec.describe CMDx::Workflow do
   end
 
   describe ".tasks" do
-    it "returns the pipeline when called with no tasks" do
-      workflow = create_workflow_class
-      expect(workflow.tasks).to be(workflow.pipeline)
-    end
-
     it "appends an ExecutionGroup with options" do
       task = create_successful_task
       workflow = create_workflow_class do
@@ -42,6 +37,19 @@ RSpec.describe CMDx::Workflow do
       expect do
         create_workflow_class { tasks "not a task" }
       end.to raise_error(TypeError, /is not a Task/)
+    end
+
+    it "raises DefinitionError when called with options but no tasks" do
+      expect do
+        create_workflow_class { tasks if: proc { true } }
+      end.to raise_error(CMDx::DefinitionError, /cannot declare an empty task group/)
+    end
+
+    it "raises DefinitionError when splat resolves to empty with options" do
+      empty = []
+      expect do
+        create_workflow_class { tasks(*empty, strategy: :parallel) }
+      end.to raise_error(CMDx::DefinitionError, /cannot declare an empty task group/)
     end
 
     it "is aliased as .task" do

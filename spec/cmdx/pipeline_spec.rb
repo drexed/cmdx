@@ -28,11 +28,11 @@ RSpec.describe CMDx::Pipeline do
     end
 
     context "when a group has no tasks" do
-      it "fails the workflow with the error surfaced via the fault" do
+      it "is a silent no-op (declaration-time validation prevents this in normal use)" do
         workflow_class = create_workflow_class
         workflow_class.pipeline << CMDx::Workflow::ExecutionGroup.new(tasks: [], options: {})
 
-        expect { workflow_class.execute! }.to raise_error(ArgumentError, "no tasks in group")
+        expect(workflow_class.execute).to be_success
       end
     end
 

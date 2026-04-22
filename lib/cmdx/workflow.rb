@@ -22,8 +22,8 @@ module CMDx
         @pipeline ||= []
       end
 
-      # Declares a task group. With no tasks, returns the pipeline. Tasks
-      # must be `Task` subclasses.
+      # Declares a task group. With no arguments, returns the pipeline.
+      # Tasks must be `Task` subclasses.
       #
       # @param tasks [Array<Class<Task>>]
       # @param options [Hash{Symbol => Object}]
@@ -32,9 +32,11 @@ module CMDx
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
       # @return [Array<ExecutionGroup>] the full pipeline
+      # @raise [DefinitionError] when called with options but no tasks
       # @raise [TypeError] when any element isn't a `Task` subclass
       def tasks(*tasks, **options)
-        return pipeline if tasks.empty?
+        # return pipeline if tasks.empty? && options.empty?
+        raise DefinitionError, "#{name}: cannot declare an empty task group" if tasks.empty?
 
         pipeline << ExecutionGroup.new(
           tasks:

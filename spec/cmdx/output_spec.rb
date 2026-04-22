@@ -258,6 +258,26 @@ RSpec.describe CMDx::Output do
         expect(task.context[:name]).to eq("42!!!")
       end
 
+      it "resolves a private method on the value" do
+        klass = Class.new do
+          def initialize(v) = (@v = v)
+
+          private
+
+          def squish = @v.gsub(/\s+/, " ").strip
+        end
+
+        task_class = create_task_class(name: "OutTransformPrivate") do
+          output :line, transform: :squish
+        end
+        task = task_class.new
+        task.context[:line] = klass.new("  hi  there ")
+
+        task_class.outputs.registry[:line].verify(task)
+
+        expect(task.context[:line]).to eq("hi there")
+      end
+
       it "applies a Proc transform via instance_exec" do
         task_class = create_task_class(name: "OutTransformProc") do
           output :tags, transform: proc { |v| v.uniq.sort }

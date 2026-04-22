@@ -76,7 +76,7 @@ module CMDx
     private
 
     def resolve_children(input, parent_value, task)
-      return if input.children.empty? || parent_value.nil?
+      return if input.children.empty? || parent_value.nil? || parent_value.is_a?(Coercions::Failure)
 
       input.children.each do |child|
         child_value = child.resolve_from_parent(parent_value, task)

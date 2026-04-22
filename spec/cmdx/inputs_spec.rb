@@ -125,6 +125,20 @@ RSpec.describe CMDx::Inputs do
 
       expect(task.instance_variable_defined?(:@_input_email)).to be(false)
     end
+
+    it "skips nested resolution when the parent failed to coerce" do
+      inputs.register(task_class, :profile, coerce: :hash) do
+        required :email
+      end
+
+      task = task_class.new
+      task.context.profile = "not-json"
+      inputs.resolve(task)
+
+      expect(task.errors.keys).to eq([:profile])
+      expect(task.errors[:email]).to be_empty
+      expect(task.instance_variable_defined?(:@_input_email)).to be(false)
+    end
   end
 
   describe "ChildBuilder DSL" do

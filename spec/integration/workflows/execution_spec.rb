@@ -102,7 +102,7 @@ RSpec.describe "Workflow execution", type: :feature do
     end
 
     it "raises when a group contains no tasks" do
-      expect { create_workflow_class { tasks } }.not_to raise_error
+      expect { create_workflow_class { tasks } }.to raise_error(CMDx::DefinitionError, /cannot declare an empty task group/)
     end
 
     it "rejects non-task arguments" do

@@ -47,18 +47,24 @@ CMDx.configure do |config|
   #   :on_ok, :on_ko
   #
   # config.callbacks.register(:on_failed, proc do |task|
-  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{task.result.metadata[:reason]}")
+  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{task.metadata[:reason]}")
   # end)
 
   # ===========================================================================
   # Telemetry
   # ===========================================================================
-  # Events:
-  #   :task_started, :task_deprecated, :task_retried,
-  #   :task_rolled_back, :task_executed
+  # Events and payloads:
+  #   :task_started      payload: {}
+  #   :task_deprecated   payload: {}
+  #   :task_retried      payload: { attempt: Integer }
+  #   :task_rolled_back  payload: {}
+  #   :task_executed     payload: { result: CMDx::Result }
+  #
+  # Every event also carries: event.cid, event.tid, event.task, event.type,
+  # event.root, event.timestamp.
   #
   # config.telemetry.subscribe(:task_executed, proc do |event|
-  #   StatsD.timing("cmdx.#{event.name}", event.payload[:runtime])
+  #   StatsD.timing("cmdx.task", event.payload[:result].duration)
   # end)
 
   # ===========================================================================

@@ -133,7 +133,7 @@ module CMDx
     def apply_transform(value, task)
       case transform
       when Symbol
-        if value.respond_to?(transform)
+        if value.respond_to?(transform, true)
           value.send(transform)
         else
           task.send(transform, value)

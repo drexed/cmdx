@@ -29,11 +29,9 @@ module CMDx
     # failed result halts execution by throwing through the workflow.
     #
     # @return [void]
-    # @raise [ArgumentError] for an empty task group or unknown strategy
+    # @raise [ArgumentError] for an unknown strategy
     def execute
       @workflow.class.pipeline.each do |group|
-        raise ArgumentError, "no tasks in group" if group.tasks.empty?
-
         next unless Util.satisfied?(group.options[:if], group.options[:unless], @workflow)
 
         halt =

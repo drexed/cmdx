@@ -27,25 +27,29 @@ module CMDx
 
     class << self
 
-      # Builds (or returns a memoized singleton of) a successful signal.
+      # Builds a successful signal (state `complete`, status `success`).
       #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
-      # @return [Signal] frozen success singleton when no args, otherwise a new instance
+      # @return [Signal] new instance with frozen options
       def success(reason = nil, **options)
         new(COMPLETE, SUCCESS, **options, reason:)
       end
 
+      # Builds a skipped signal (state `interrupted`, status `skipped`).
+      #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
-      # @return [Signal] frozen skipped singleton when no args, otherwise a new instance
+      # @return [Signal] new instance with frozen options
       def skipped(reason = nil, **options)
         new(INTERRUPTED, SKIPPED, **options, reason:)
       end
 
+      # Builds a failed signal (state `interrupted`, status `failed`).
+      #
       # @param reason [String, nil] optional human-readable reason
       # @param options [Hash{Symbol => Object}] optional `:metadata`, `:cause`, `:backtrace`
-      # @return [Signal] frozen failed singleton when no args, otherwise a new instance
+      # @return [Signal] new instance with frozen options
       def failed(reason = nil, **options)
         new(INTERRUPTED, FAILED, **options, reason:)
       end

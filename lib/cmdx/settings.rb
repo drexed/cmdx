@@ -55,9 +55,14 @@ module CMDx
       end
     end
 
+    # Returns a fresh array each call so callers can mutate the result
+    # without affecting other tasks (or hitting `FrozenError` on the
+    # shared sentinel).
+    #
     # @return [Array<Symbol, String>] task tags, surfaced on result hashes
     def tags
-      @options[:tags] || EMPTY_ARRAY
+      tags = @options[:tags]
+      tags ? tags.dup : []
     end
 
   end
