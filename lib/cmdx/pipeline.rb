@@ -60,12 +60,14 @@ module CMDx
     end
 
     def run_parallel(group)
-      tasks   = group.tasks
-      chain   = Chain.current
-      size    = group.options[:pool_size] || tasks.size
-      queue   = Queue.new
-      results = Array.new(tasks.size)
-      mutex   = Mutex.new
+      tasks     = group.tasks
+      chain     = Chain.current
+      size      = group.options[:pool_size] || tasks.size
+      fail_fast = group.options[:fail_fast]
+      queue     = Queue.new
+      results   = Array.new(tasks.size)
+      mutex     = Mutex.new
+      failed    = nil
 
       tasks.each_with_index { |tc, i| queue << [tc, i] }
       size.times { queue << nil }
@@ -77,15 +79,24 @@ module CMDx
             task_class, index = entry
             ctx_copy = @workflow.context.deep_dup
             result   = task_class.execute(ctx_copy)
-            mutex.synchronize { results[index] = result }
+            mutex.synchronize do
+              results[index] = result
+
+              if fail_fast && result.failed? && failed.nil?
+                failed = result
+                queue.clear
+                size.times { queue << nil }
+              end
+            end
           end
         end
       end
 
       workers.each(&:join)
 
-      failed = nil
       results.each do |result|
+        next if result.nil?
+
         if result.failed?
           failed ||= result
         else

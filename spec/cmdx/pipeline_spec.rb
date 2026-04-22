@@ -132,6 +132,60 @@ RSpec.describe CMDx::Pipeline do
 
         expect(workflow_class.execute).to be_success
       end
+
+      describe ":fail_fast" do
+        it "skips queued tasks after the first failure (pool_size: 1)" do
+          failing = create_failing_task(name: "First", reason: "stop")
+          never_run = create_task_class(name: "NeverRun") do
+            define_method(:work) { context.ran = true }
+          end
+
+          workflow_class = create_workflow_class do
+            tasks failing, never_run, strategy: :parallel, pool_size: 1, fail_fast: true
+          end
+
+          result = workflow_class.execute
+          expect(result).to be_failed
+          expect(result.reason).to eq("stop")
+          expect(result.context[:ran]).to be_nil
+          task_names = result.chain.map { |r| r.task.name }
+          expect(task_names.any? { |n| n.include?("NeverRun") }).to be(false)
+        end
+
+        it "runs every task when fail_fast is false (default behavior preserved)" do
+          failing = create_failing_task(name: "First", reason: "stop")
+          other = create_task_class(name: "Other") do
+            define_method(:work) { context.ran = true }
+          end
+
+          workflow_class = create_workflow_class do
+            tasks failing, other, strategy: :parallel, pool_size: 1
+          end
+
+          result = workflow_class.execute
+          expect(result).to be_failed
+          expect(result.context[:ran]).to be(true)
+        end
+
+        it "merges context from tasks that completed before the failure was observed" do
+          ok = create_task_class(name: "Ok") do
+            define_method(:work) { context.ok = true }
+          end
+          failing = create_failing_task(name: "Fail", reason: "boom")
+          never_run = create_task_class(name: "NeverRun") do
+            define_method(:work) { context.ran = true }
+          end
+
+          workflow_class = create_workflow_class do
+            tasks ok, failing, never_run, strategy: :parallel, pool_size: 1, fail_fast: true
+          end
+
+          result = workflow_class.execute
+          expect(result).to be_failed
+          expect(result.context[:ok]).to be(true)
+          expect(result.context[:ran]).to be_nil
+        end
+      end
     end
   end
 end

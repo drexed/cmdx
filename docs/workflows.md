@@ -64,6 +64,7 @@ Options apply to the entire group:
 |---------------|----------------|--------------------------------------------------------|
 | `strategy:`   | `:sequential`  | `:sequential` or `:parallel`                           |
 | `pool_size:`  | `tasks.size`   | Worker count when `strategy: :parallel`                |
+| `fail_fast:`  | `false`        | When `strategy: :parallel`, drain pending tasks on the first failure (in-flight tasks still finish) |
 | `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
 ### Conditionals
@@ -218,12 +219,16 @@ class SendWelcomeNotifications < CMDx::Task
   # Bounded thread pool
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush,
         strategy: :parallel, pool_size: 2
+
+  # Abort pending parallel tasks once any sibling fails
+  tasks ChargeCard, ReserveInventory, EmitAnalytics,
+        strategy: :parallel, fail_fast: true
 end
 ```
 
 !!! warning
 
-    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. If any parallel task fails, the failed result is propagated through `throw!` (the other tasks still complete first; they just don't merge back).
+    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. If any parallel task fails, the failed result is propagated through `throw!` (the other tasks still complete first; they just don't merge back). With `fail_fast: true`, tasks still queued when a sibling fails are skipped entirely; in-flight tasks run to completion and their successful contexts still merge.
 
 ## Task Generator
 

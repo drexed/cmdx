@@ -29,6 +29,8 @@ module CMDx
       # @param options [Hash{Symbol => Object}]
       # @option options [:sequential, :parallel] :strategy (:sequential)
       # @option options [Integer] :pool_size parallel worker count
+      # @option options [Boolean] :fail_fast (false) when `:parallel`, drain
+      #   pending tasks on the first failure (in-flight tasks still finish)
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
       # @return [Array<ExecutionGroup>] the full pipeline

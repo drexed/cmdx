@@ -111,6 +111,38 @@ RSpec.describe "Workflow parallel execution", type: :feature do
     end
   end
 
+  describe "fail_fast" do
+    it "drains pending parallel tasks after the first failure" do
+      ok = create_task_class(name: "Ok") { define_method(:work) { context.ok = true } }
+      fl = create_failing_task(name: "Fail", reason: "fast boom")
+      never = create_task_class(name: "Never") { define_method(:work) { context.never_ran = true } }
+
+      workflow = create_workflow_class do
+        tasks ok, fl, never, strategy: :parallel, pool_size: 1, fail_fast: true
+      end
+
+      result = workflow.execute
+
+      expect(result).to have_attributes(status: CMDx::Signal::FAILED, reason: "fast boom")
+      expect(result.context[:ok]).to be(true)
+      expect(result.context[:never_ran]).to be_nil
+    end
+
+    it "still runs all tasks when fail_fast is omitted" do
+      fl = create_failing_task(name: "Fail", reason: "boom")
+      later = create_task_class(name: "Later") { define_method(:work) { context.later = true } }
+
+      workflow = create_workflow_class do
+        tasks fl, later, strategy: :parallel, pool_size: 1
+      end
+
+      result = workflow.execute
+
+      expect(result).to be_failed
+      expect(result.context[:later]).to be(true)
+    end
+  end
+
   describe "concurrency" do
     it "actually runs tasks on separate threads" do
       a = create_task_class(name: "A") { define_method(:work) { context.a_thread = Thread.current.object_id } }
