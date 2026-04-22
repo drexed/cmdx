@@ -179,10 +179,10 @@ module CMDx
           parent_value[name] = value
         elsif parent_value.key?(name_str = name.to_s)
           parent_value[name_str] = value
-        else
+        else # rubocop:disable Lint/DuplicateBranch
           parent_value[name] = value
         end
-      elsif parent_value.respond_to?(setter = :"#{name}=")
+      elsif parent_value.respond_to?(setter = :"#{name}=") # rubocop:disable Lint/LiteralAssignmentInCondition
         parent_value.public_send(setter, value)
       end
     end
