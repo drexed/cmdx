@@ -60,16 +60,6 @@ module CMDx
       @options[:jitter] || @block
     end
 
-    # @return [Symbol, Proc, #call, nil] `:if` gate evaluated per attempt; receives `(task, error, attempt)`
-    def condition_if
-      @options[:if]
-    end
-
-    # @return [Symbol, Proc, #call, nil] `:unless` gate evaluated per attempt; receives `(task, error, attempt)`
-    def condition_unless
-      @options[:unless]
-    end
-
     # Sleeps `attempt`'s jittered/bounded delay. No-op when the base delay is zero.
     #
     # @param attempt [Integer] zero-based retry attempt number
@@ -119,19 +109,10 @@ module CMDx
         return yield(attempt)
       rescue *exceptions => e
         raise(e) if attempt >= limit
-        raise(e) unless retryable?(task, e, attempt)
+        raise(e) unless Util.satisfied?(@options[:if], @options[:unless], task, e, attempt)
 
         wait(attempt, task)
       end
-    end
-
-    private
-
-    def retryable?(task, error, attempt)
-      return true if condition_if.nil? && condition_unless.nil?
-      return false if task.nil?
-
-      Util.satisfied?(condition_if, condition_unless, task, error, attempt)
     end
 
   end
