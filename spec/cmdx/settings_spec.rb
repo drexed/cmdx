@@ -45,6 +45,13 @@ RSpec.describe CMDx::Settings do
     it "backtrace_cleaner falls back to the global configuration" do
       expect(described_class.new.backtrace_cleaner).to be(custom_cleaner)
     end
+
+    it "strict_context falls back to the global configuration" do
+      CMDx.configuration.strict_context = true
+      expect(described_class.new.strict_context).to be(true)
+    ensure
+      CMDx.configuration.strict_context = false
+    end
   end
 
   describe "option overrides" do
@@ -66,6 +73,10 @@ RSpec.describe CMDx::Settings do
     it "backtrace_cleaner prefers the local option" do
       cleaner = ->(bt) { bt }
       expect(described_class.new(backtrace_cleaner: cleaner).backtrace_cleaner).to be(cleaner)
+    end
+
+    it "strict_context prefers the local option over the global default" do
+      expect(described_class.new(strict_context: true).strict_context).to be(true)
     end
   end
 

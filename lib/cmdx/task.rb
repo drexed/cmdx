@@ -289,11 +289,17 @@ module CMDx
     alias ctx context
 
     # @param context [Hash, Context, #context, #to_h]
+    # @note The built {Context} inherits `strict` mode from
+    #   {Settings#strict_context} (falling back to
+    #   {Configuration#strict_context}), so dynamic reads for unknown keys
+    #   raise `NoMethodError` instead of returning `nil`.
     def initialize(context = EMPTY_HASH)
-      @tid      = SecureRandom.uuid_v7
-      @context  = Context.build(context)
-      @errors   = Errors.new
       @metadata = {}
+      @tid      = SecureRandom.uuid_v7
+      @errors   = Errors.new
+      @context  = Context.build(context).tap do |c|
+        c.strict = self.class.settings.strict_context
+      end
     end
 
     # Executes this task instance through {Runtime}.

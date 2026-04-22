@@ -36,6 +36,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Context#keys`, `values`, `empty?`, `size`, `delete`, `clear`, `eql?` / `==`, `hash`, `deep_dup`, `respond_to_missing?`, and `Context#merge` that accepts any context-like object
 - Add `Coercions::Coerce` and `Validators::Validate` inline-callable handlers for `:coerce` / `:validate` hash entries; generic callables receive `(value, task)`, Symbol and Proc handlers still resolve against the task
 - Add `Configuration#backtrace_cleaner` and `Configuration#telemetry`
+- Add `Configuration#strict_context` (defaults to `false`) and matching `Settings#strict_context` override, toggling `Context#strict`; when enabled, unknown dynamic reads (`ctx.missing`) raise `NoMethodError` instead of returning `nil` — `[]`, `fetch`, `dig`, `key?`, and `?` predicates stay lenient
 - Add `CMDx.reset_configuration!` which clears global registry ivars on `Task` for clean test setup/teardown; subclasses that already cloned their registries are unaffected
 - Add `:if` / `:unless` gates to `Callbacks#register` (Symbol, Proc, or any `#call`-able); per-event DSL helpers (`before_execution`, `on_success`, etc.) forward the options through
 - Add `:if` / `:unless` gates to `Middlewares#register` (Symbol, Proc, or any `#call`-able); evaluated per task in `Middlewares#process` — skipped middlewares are bypassed and the chain continues
@@ -56,7 +57,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - `Workflow` declares groups via `task` / `tasks` (still aliased) and supports `:strategy => :parallel`, `:pool_size`, `:if` / `:unless` per group; defining `#work` on a workflow raises `ImplementationError`
 - `Pipeline` gains a `:parallel` strategy with `:pool_size` (replacing the removed `Parallelizer`); parallel workers share the parent fiber's chain, each get a `deep_dup`-ed context, successful child contexts are merged back into the workflow's context, and the first failed result is echoed via `throw!` to halt the pipeline
 - `Task.callbacks`, `Task.middlewares`, `Task.coercions`, `Task.validators`, `Task.telemetry`, `Task.inputs`, `Task.outputs` lazy-clone from the superclass (or global `Configuration`) on first access — subclasses extend rather than replace
-- `Settings` is now a frozen value object holding only `logger`, `log_formatter`, `log_level`, `backtrace_cleaner`, `tags`; every getter falls back to `CMDx.configuration`
+- `Settings` is now a frozen value object holding only `logger`, `log_formatter`, `log_level`, `backtrace_cleaner`, `tags`, `strict_context`; every getter falls back to `CMDx.configuration`
 - `Context.build` accepts anything that responds to `#context` (e.g. another `Task`), unwraps repeatedly, and only re-wraps frozen contexts; symbolizes hash keys via `#to_hash` / `#to_h`
 - `Retry` becomes a value object; `Task.retry_on` accumulates exceptions and options across the inheritance chain via `Retry#build`; supports built-in jitter strategies (`:exponential`, `:half_random`, `:full_random`, `:bounded_random`) plus Symbol / Proc / callable; retry wraps `work` only (input resolution and output verification run once, outside the retry loop)
 - All registries (`Callbacks`, `Middlewares`, `Coercions`, `Validators`, `Telemetry`, `Inputs`, `Outputs`) implement `initialize_copy` for cheap copy-on-write inheritance; `register` / `deregister` validate types up-front and raise `ArgumentError` on misuse
@@ -71,7 +72,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - `Middlewares` registry entries are now `[callable, options.freeze]` tuples — callers that read `Task.middlewares.registry` directly must map `.first` to recover the callable
 - Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
 - Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
-- Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
+- Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `strict_context`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
 
 ### Removed
 - **BREAKING**: Remove `Result::STATES = [INITIALIZED, EXECUTING, COMPLETE, INTERRUPTED]`, the `executed!` / `executing!` transitions, and the `executed?` / `initialized?` / `executing?` predicates

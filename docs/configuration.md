@@ -24,6 +24,7 @@ CMDx uses a two-tier configuration system:
 | `log_formatter` | `CMDx::LogFormatters::Line.new` | Formatter instance |
 | `default_locale` | `"en"` | Locale for built-in translation fallbacks |
 | `backtrace_cleaner` | `nil` | Callable to clean fault backtraces |
+| `strict_context` | `false` | Raise `NoMethodError` on unknown `context.foo` reads |
 | `middlewares` | `Middlewares.new` (empty) | Middleware registry |
 | `callbacks` | `Callbacks.new` (empty) | Callback registry |
 | `coercions` | `Coercions.new` (13 built-ins) | Coercion registry |
@@ -60,6 +61,18 @@ end
 !!! note
 
     Rails apps wire this automatically via `CMDx::Railtie`.
+
+### Strict Context
+
+Raise `NoMethodError` for unknown dynamic context reads instead of returning `nil`. Applies to the `ctx.foo` reader only — `[]`, `fetch`, `dig`, `key?`, and predicate `ctx.foo?` keep their lenient behavior. See [Context - Strict Mode](basics/context.md#strict-mode) for usage.
+
+```ruby
+CMDx.configure do |config|
+  config.strict_context = true
+end
+```
+
+Override per-task via `settings(strict_context: true)`.
 
 ### Logging
 
@@ -242,7 +255,8 @@ class GenerateInvoice < CMDx::Task
     log_formatter: CMDx::LogFormatters::JSON.new,
     log_level: Logger::DEBUG,
     backtrace_cleaner: ->(bt) { bt.first(8) },
-    tags: ["billing", "financial"]
+    tags: ["billing", "financial"],
+    strict_context: true
   )
 
   def work
@@ -266,7 +280,7 @@ end
 
 !!! note
 
-    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:backtrace_cleaner`, and `:tags`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:backtrace_cleaner`, `:tags`, and `:strict_context`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
 
 ### Retry
 

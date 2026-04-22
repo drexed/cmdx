@@ -9,8 +9,9 @@ module CMDx
   # cached their copy yet.
   class Configuration
 
-    attr_accessor :middlewares, :callbacks, :coercions, :validators, :telemetry,
-      :default_locale, :backtrace_cleaner, :logger, :log_level, :log_formatter
+    attr_accessor :middlewares, :callbacks, :coercions, :validators,
+      :telemetry, :default_locale, :strict_context, :backtrace_cleaner,
+      :logger, :log_level, :log_formatter
 
     def initialize
       @middlewares = Middlewares.new
@@ -20,6 +21,7 @@ module CMDx
       @telemetry   = Telemetry.new
 
       @default_locale    = "en"
+      @strict_context    = false
       @backtrace_cleaner = nil
 
       @log_formatter = LogFormatters::Line.new

@@ -131,4 +131,58 @@ RSpec.describe "Task settings", type: :feature do
       expect(task.settings).to be(first)
     end
   end
+
+  describe "strict_context" do
+    it "defaults to false and allows nil reads of unknown keys" do
+      task = create_successful_task do
+        define_method(:work) { context.missing }
+      end
+
+      expect(task.execute).to have_attributes(status: CMDx::Signal::SUCCESS)
+    end
+
+    it "propagates task-level strict_context to the instance context" do
+      task = create_task_class(name: "StrictTask") do
+        settings(strict_context: true)
+        define_method(:work) { nil }
+      end
+
+      instance = task.new
+      expect(instance.context.strict?).to be(true)
+    end
+
+    it "raises NoMethodError inside #work when a dynamic read hits an unknown key" do
+      task = create_task_class(name: "StrictReader") do
+        settings(strict_context: true)
+        define_method(:work) { context.missing }
+      end
+
+      expect { task.execute! }.to raise_error(NoMethodError, /unknown context key :missing/)
+    end
+
+    it "does not affect [] reads or fetch with defaults" do
+      task = create_task_class(name: "StrictSafeReader") do
+        settings(strict_context: true)
+        define_method(:work) do
+          context.seen = context[:missing]
+          context.defaulted = context.fetch(:missing, :fallback)
+        end
+      end
+
+      result = task.execute
+      expect(result).to have_attributes(status: CMDx::Signal::SUCCESS)
+      expect(result.context).to have_attributes(seen: nil, defaulted: :fallback)
+    end
+
+    it "falls back to the global configuration" do
+      CMDx.configuration.strict_context = true
+      task = create_task_class(name: "GlobalStrict") do
+        define_method(:work) { nil }
+      end
+
+      expect(task.new.context.strict?).to be(true)
+    ensure
+      CMDx.configuration.strict_context = false
+    end
+  end
 end

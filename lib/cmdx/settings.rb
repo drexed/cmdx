@@ -12,6 +12,7 @@ module CMDx
     # @option options [Integer] :log_level
     # @option options [#call] :backtrace_cleaner
     # @option options [Array<Symbol, String>] :tags
+    # @option options [Boolean] :strict_context
     def initialize(options = EMPTY_HASH)
       @options = options.freeze
     end
@@ -63,6 +64,15 @@ module CMDx
     def tags
       tags = @options[:tags]
       tags ? tags.dup : []
+    end
+
+    # @return [Boolean] whether this task's {Context} should raise on
+    #   unknown dynamic reads; falls back to
+    #   {Configuration#strict_context}
+    def strict_context
+      @options.fetch(:strict_context) do
+        CMDx.configuration.strict_context
+      end
     end
 
   end

@@ -19,6 +19,7 @@ RSpec.describe CMDx::Configuration do
       expect(config).to have_attributes(
         default_locale: "en",
         backtrace_cleaner: nil,
+        strict_context: false,
         log_level: Logger::INFO
       )
       expect(config.log_formatter).to be_a(CMDx::LogFormatters::Line)
@@ -40,10 +41,12 @@ RSpec.describe CMDx::Configuration do
       config.logger = logger
       config.backtrace_cleaner = cleaner
       config.default_locale = "fr"
+      config.strict_context = true
 
       expect(config.logger).to be(logger)
       expect(config.backtrace_cleaner).to be(cleaner)
       expect(config.default_locale).to eq("fr")
+      expect(config.strict_context).to be(true)
     end
   end
 end

@@ -125,6 +125,41 @@ CreateShippingLabel.execute(result)
 
     `context.to_h` exposes the backing hash by reference. `Context.build(context.to_h)` rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use `deep_dup` for full isolation.
 
+## Strict Mode
+
+By default, reading an unknown key via the dynamic method reader returns `nil`. Enable strict mode to raise `NoMethodError` for unknown reads instead — useful for catching typos in larger tasks.
+
+Strict mode can be set globally or per-task:
+
+```ruby
+CMDx.configure do |config|
+  config.strict_context = true
+end
+
+class CalculateShipping < CMDx::Task
+  settings(strict_context: true)
+
+  def work
+    context.weight       #=> reads fine when set
+    context.typoed_key   #=> raises NoMethodError: unknown context key :typoed_key (strict mode)
+  end
+end
+```
+
+Strict mode only affects the dynamic method reader. `[]`, `fetch`, `dig`, `key?`, and `ctx.foo?` predicates keep their lenient semantics so defaults and explicit presence checks still work:
+
+```ruby
+context[:missing]                 #=> nil
+context.fetch(:missing, :default) #=> :default
+context.dig(:a, :b)               #=> nil
+context.missing?                  #=> false
+context.missing = 1               #=> 1 (writes still allowed)
+```
+
+!!! note
+
+    `strict_context` is read once in `Task#initialize` and applied to the built `Context`. Nested tasks that reuse the outer context inherit the outer task's strict flag — set it at the entry-point task, not mid-pipeline.
+
 ## Pattern Matching
 
 `Context` supports both array and hash deconstruction (Ruby 3.0+).

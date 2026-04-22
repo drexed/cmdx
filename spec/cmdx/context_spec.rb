@@ -279,4 +279,50 @@ RSpec.describe CMDx::Context do
       expect(ctx.respond_to?(:ready?)).to be(true)
     end
   end
+
+  describe "strict mode" do
+    subject(:ctx) { described_class.new(name: "Jane") }
+
+    it "strict? is false by default" do
+      expect(ctx.strict?).to be(false)
+    end
+
+    it "strict? reflects any truthy/falsy assignment" do
+      ctx.strict = true
+      expect(ctx.strict?).to be(true)
+
+      ctx.strict = nil
+      expect(ctx.strict?).to be(false)
+    end
+
+    context "when strict is enabled" do
+      before { ctx.strict = true }
+
+      it "raises NoMethodError for unknown dynamic reads" do
+        expect { ctx.missing }
+          .to raise_error(NoMethodError, /unknown context key :missing \(strict mode\)/)
+      end
+
+      it "still returns existing keys via dynamic reader" do
+        expect(ctx.name).to eq("Jane")
+      end
+
+      it "still assigns via foo=" do
+        ctx.age = 30
+        expect(ctx[:age]).to eq(30)
+      end
+
+      it "still allows foo? predicates for unknown keys without raising" do
+        expect(ctx.unknown?).to be(false)
+      end
+
+      it "does not affect [] access for unknown keys" do
+        expect(ctx[:missing]).to be_nil
+      end
+
+      it "does not affect fetch without default" do
+        expect { ctx.fetch(:missing) }.to raise_error(KeyError)
+      end
+    end
+  end
 end

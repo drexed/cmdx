@@ -31,6 +31,13 @@ module CMDx
 
     end
 
+    # Enables strict mode — when true, dynamic readers via {#method_missing}
+    # raise `NoMethodError` for unknown keys instead of returning `nil`.
+    # Set by `Task#initialize` from `Task.settings.strict_context`.
+    #
+    # @return [Boolean]
+    attr_accessor :strict
+
     # @param context [Hash, #to_h, #to_hash] source hash, keys are symbolized
     # @raise [ArgumentError] when `context` doesn't respond to `#to_h`/`#to_hash`
     def initialize(context = EMPTY_HASH)
@@ -42,6 +49,12 @@ module CMDx
         else
           raise ArgumentError, "must respond to `to_h` or `to_hash`"
         end.transform_keys(&:to_sym)
+    end
+
+    # @return [Boolean] whether dynamic reads for unknown keys raise instead
+    #   of returning `nil`
+    def strict?
+      !!@strict
     end
 
     # Stores `value` under `key`, symbolizing the key. Overwrites any
@@ -226,16 +239,20 @@ module CMDx
 
     # Provides dynamic read/write/predicate access to context keys.
     #
-    # - `ctx.name` — reads `@table[name]`, `nil` when absent.
+    # - `ctx.name` — reads `@table[name]`, `nil` when absent (raises
+    #   `NoMethodError` when {#strict?} is true and the key is absent).
     # - `ctx.name = val` — stores `val` under `:name`.
     # - `ctx.name?` — truthy check for `@table[:name]`.
     #
+    # @raise [NoMethodError] when {#strict?} is true and the key is missing
     # @api private
     def method_missing(method_name, *args, **_kwargs, &)
       if method_name.end_with?("=")
         @table[method_name[..-2].to_sym] = args.first
       elsif method_name.end_with?("?")
         !!@table[method_name[..-2].to_sym]
+      elsif strict? && !@table.key?(method_name)
+        raise NoMethodError, "unknown context key #{method_name.inspect} (strict mode)"
       else
         @table[method_name]
       end
