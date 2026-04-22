@@ -64,35 +64,34 @@ module CMDx
       chain     = Chain.current
       size      = group.options[:pool_size] || tasks.size
       fail_fast = group.options[:fail_fast]
-      queue     = Queue.new
       results   = Array.new(tasks.size)
       mutex     = Mutex.new
       failed    = nil
+      cancelled = false
 
-      tasks.each_with_index { |tc, i| queue << [tc, i] }
-      size.times { queue << nil }
+      jobs = tasks.each_with_index.to_a
 
-      workers = Array.new(size) do
-        Thread.new do
-          Fiber[Chain::STORAGE_KEY] = chain
-          while (entry = queue.pop)
-            task_class, index = entry
-            ctx_copy = @workflow.context.deep_dup
-            result   = task_class.execute(ctx_copy)
-            mutex.synchronize do
-              results[index] = result
+      on_job = lambda do |(task_class, index)|
+        mutex.synchronize { return if cancelled }
 
-              if fail_fast && result.failed? && failed.nil?
-                failed = result
-                queue.clear
-                size.times { queue << nil }
-              end
-            end
+        Fiber[Chain::STORAGE_KEY] ||= chain
+        ctx_copy = @workflow.context.deep_dup
+        result   = task_class.execute(ctx_copy)
+
+        mutex.synchronize do
+          results[index] = result
+
+          if fail_fast && result.failed? && failed.nil?
+            failed    = result
+            cancelled = true
           end
         end
       end
 
-      workers.each(&:join)
+      executor = @workflow.class.executors.resolve(group.options[:executor])
+      merger   = @workflow.class.mergers.resolve(group.options[:merge_strategy])
+
+      executor.call(jobs:, concurrency: size, on_job:)
 
       results.each do |result|
         next if result.nil?
@@ -100,7 +99,7 @@ module CMDx
         if result.failed?
           failed ||= result
         else
-          @workflow.context.merge(result.context)
+          merger.call(@workflow.context, result)
         end
       end
 

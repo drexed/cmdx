@@ -136,8 +136,11 @@ module CMDx
       verify_children(value, task)
     end
 
-    # Verifies a child output against `parent_value` (read-only; child
-    # validation/coercion errors are still collected on the task).
+    # Verifies a child output against `parent_value` and writes the
+    # coerced/transformed value back into the parent when the parent supports
+    # mutation (Hash, or any object exposing `#{name}=`). Read-only parents
+    # (e.g. `Data.define`) are left untouched; child validation/coercion errors
+    # are still collected on the task.
     #
     # @param parent_value [#[], #key?, Object] the parent output's verified value
     # @param task [Task]
@@ -164,10 +167,25 @@ module CMDx
       validators = task.class.validators.extract(@options)
       task.class.validators.validate(task, name, value, validators)
 
+      writeback(parent_value, value)
       verify_children(value, task)
     end
 
     private
+
+    def writeback(parent_value, value)
+      if parent_value.is_a?(::Hash)
+        if parent_value.key?(name)
+          parent_value[name] = value
+        elsif parent_value.key?(name_str = name.to_s)
+          parent_value[name_str] = value
+        else
+          parent_value[name] = value
+        end
+      elsif parent_value.respond_to?(setter = :"#{name}=")
+        parent_value.public_send(setter, value)
+      end
+    end
 
     def verify_children(value, task)
       return if children.empty? || value.nil? || value.is_a?(Coercions::Failure)

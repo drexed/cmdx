@@ -17,7 +17,7 @@ module CMDx
       formatter = settings.log_formatter
 
       change_level     = level && level != logger.level
-      change_formatter = formatter && formatter != logger.formatter
+      change_formatter = formatter && !logger.formatter.equal?(formatter)
       return logger unless change_level || change_formatter
 
       logger = logger.dup

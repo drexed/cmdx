@@ -79,6 +79,18 @@ module CMDx
       self
     end
 
+    # Like {#merge} but recursive into Hash values: a nested Hash key collision
+    # merges the two Hashes instead of replacing the left with the right.
+    # Non-Hash values follow last-write-wins (`context` wins).
+    #
+    # @param context [Context, Hash, #to_h, #to_hash]
+    # @return [Context] self for chaining
+    def deep_merge(context = EMPTY_HASH)
+      other = self.class.build(context)
+      @table = compute_deep_merge(@table, other.to_h)
+      self
+    end
+
     # @param key [Symbol, String]
     # @return [Object, nil]
     def [](key)
@@ -294,6 +306,12 @@ module CMDx
         rescue StandardError
           value
         end
+      end
+    end
+
+    def compute_deep_merge(lhs, rhs)
+      lhs.merge(rhs) do |_key, l, r|
+        l.is_a?(Hash) && r.is_a?(Hash) ? compute_deep_merge(l, r) : r
       end
     end
 

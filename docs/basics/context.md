@@ -14,79 +14,45 @@ CalculateShipping.execute(weight: 2.5, destination: "CA")
 
     `Context.build` passes an existing un-frozen `Context` through unchanged, unwraps anything that responds to `#context` (Task, Result), and wraps hash-likes in a fresh `Context`.
 
-## Accessing Data
+## Accessing and Modifying
 
-Access context data using method notation, hash keys, or safe accessors. `ctx` is a shorthand alias for `context` on task instances.
+Read with method, hash, or safe accessors; mutate freely inside `work` (the root context is frozen only after Runtime teardown). `ctx` is a shorthand alias for `context`.
 
 ```ruby
 class CalculateShipping < CMDx::Task
   def work
-    # Method style access (preferred)
-    weight = context.weight
-    destination = ctx.destination
+    # Reads
+    weight        = context.weight              # method style (nil for unknown keys)
+    service_type  = context[:service_type]      # hash style
+    rush_delivery = context.fetch(:rush, false) # safe default
+    carrier       = context.dig(:options, :carrier)
+    attempt       = context.retrieve(:attempt_count, 0) # fetch-or-set
+    context.weight?                             # truthy predicate
 
-    # Predicate style — truthy check, never raises on missing keys
-    context.weight?            #=> true
-    context.missing_field?     #=> false
-
-    # Hash style access
-    service_type = context[:service_type]
-    options = context["options"]
-
-    # Safe access with defaults
-    rush_delivery = context.fetch(:rush_delivery, false)
-    carrier = context.dig(:options, :carrier)
-
-    # Fetch or set a default (returns existing value, or stores and returns the default)
-    context.retrieve(:attempt_count, 0)
-    context.retrieve(:correlation_id) { SecureRandom.uuid }
-
-    # Inspection helpers
-    context.key?(:weight)      #=> true
-    context.keys               #=> [:weight, :destination, ...]
-    context.values             #=> [2.5, "CA", ...]
-    context.size               #=> 2
-    context.empty?             #=> false
+    # Writes
+    context.calculated_at = Time.now
+    context[:status] = "calculating"
+    context.insurance_included ||= false
+    context.merge(shipping_cost: calculate_cost)           # top-level last-write-wins
+    context.deep_merge(options: { carrier: "ups" })        # recurses into Hash values
+    context.delete(:credit_card_token)
   end
 end
 ```
 
 !!! note
 
-    Method-style access returns `nil` for unknown keys rather than raising. `Context` includes `Enumerable`, yielding `[key, value]` pairs through `each`; `each_key` and `each_value` iterate one side.
+    Method-style reads return `nil` for unknown keys. `Context` includes `Enumerable` and exposes the usual `keys`/`values`/`key?`/`each`/`each_key`/`each_value`. See YARD for the full surface.
 
-## Modifying Context
+## Serialization
 
-Mutate freely inside `work` — the root task's context is frozen only after Runtime teardown:
+`Context` serializes cleanly for logs, telemetry payloads, and Rails `render json:` callers:
 
 ```ruby
-class CalculateShipping < CMDx::Task
-  def work
-    # Direct assignment
-    context.carrier = Carrier.find_by(code: context.carrier_code)
-    context.calculated_at = Time.now
-
-    # Hash-style assignment
-    context[:status] = "calculating"
-    context["tracking_number"] = "SHIP#{SecureRandom.hex(6)}"
-
-    # Conditional assignment
-    context.insurance_included ||= false
-
-    # Batch updates (mutates in place; returns self)
-    context.merge(
-      status: "completed",
-      shipping_cost: calculate_cost,
-      estimated_delivery: Time.now + 3.days
-    )
-
-    # Remove a key
-    context.delete(:credit_card_token)
-
-    # Clear all data
-    context.clear
-  end
-end
+context.to_h      #=> { weight: 2.5, destination: "CA" }  (the backing table, not a copy)
+context.as_json   #=> same as to_h (aliased for Rails/ActiveSupport callers)
+context.to_json   #=> '{"weight":2.5,"destination":"CA"}'  (Symbol keys are emitted as strings)
+context.to_s      #=> 'weight=2.5 destination="CA"'        (space-separated key=value.inspect)
 ```
 
 ## Sharing Between Tasks
@@ -158,7 +124,7 @@ context.missing = 1               #=> 1 (writes still allowed)
 
 !!! note
 
-    `strict_context` is read once in `Task#initialize` and applied to the built `Context`. Nested tasks that reuse the outer context inherit the outer task's strict flag — set it at the entry-point task, not mid-pipeline.
+    `strict_context` is re-applied on every `Task#initialize`: each nested task flips the shared context's flag to its own `settings.strict_context` for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. `ApplicationTask`) so every subtask agrees.
 
 ## Pattern Matching
 

@@ -31,6 +31,7 @@ result.status       #=> "failed"
 result.reason       #=> "Build tool not found"
 result.metadata     #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 result.cause        #=> nil, the rescued StandardError, or the propagated Fault
+result.backtrace    #=> caller_locations captured by fail!/throw! (Array<String>), or nil
 
 # Lifecycle metadata
 result.duration     #=> 12.34            (milliseconds, monotonic)
@@ -89,7 +90,7 @@ For a nested workflow where leaf `ChargeCard` fails inside `PaymentWorkflow`, wh
 | `PaymentWorkflow`   | `ChargeCard`       | `ChargeCard`       | `ChargeCard`     | `false`           | `true`           |
 | `CheckoutWorkflow`  | `PaymentWorkflow`  | `PaymentWorkflow`  | `ChargeCard`     | `false`           | `true`           |
 
-`threw_failure` always points one level up; `caused_failure` walks all the way down to the originator.
+`threw_failure` is the nearest upstream failed result (`origin` if present, else `self` for the originator); `caused_failure` walks `origin` recursively down to the originator.
 
 ## Annotating a Successful Result
 

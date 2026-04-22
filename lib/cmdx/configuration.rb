@@ -10,14 +10,16 @@ module CMDx
   class Configuration
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
-      :telemetry, :default_locale, :strict_context, :backtrace_cleaner,
-      :logger, :log_level, :log_formatter
+      :executors, :mergers, :telemetry, :default_locale, :strict_context,
+      :backtrace_cleaner, :logger, :log_level, :log_formatter
 
     def initialize
       @middlewares = Middlewares.new
       @callbacks   = Callbacks.new
       @coercions   = Coercions.new
       @validators  = Validators.new
+      @executors   = Executors.new
+      @mergers     = Mergers.new
       @telemetry   = Telemetry.new
 
       @default_locale    = "en"
@@ -71,6 +73,8 @@ module CMDx
     Task.instance_variable_set(:@callbacks, nil)
     Task.instance_variable_set(:@coercions, nil)
     Task.instance_variable_set(:@validators, nil)
+    Task.instance_variable_set(:@executors, nil)
+    Task.instance_variable_set(:@mergers, nil)
     Task.instance_variable_set(:@telemetry, nil)
   end
 

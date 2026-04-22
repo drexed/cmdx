@@ -158,7 +158,7 @@ end
 
 ## Sharing Behavior via a Base Class
 
-Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `telemetry`, and `retry_on` automatically.
+Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`, and `retry_on` automatically.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -184,7 +184,7 @@ class ProcessInvoice < ApplicationTask
 end
 ```
 
-Inherited registries (callbacks, middlewares, validators, coercions) accumulate — declaring more in a subclass appends to the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
+Inherited registries (callbacks, middlewares, validators, coercions, executors, mergers) accumulate — declaring more in a subclass appends to (or overwrites by name in) the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
 
 ## Useful Examples
 
@@ -200,7 +200,9 @@ Inherited registries (callbacks, middlewares, validators, coercions) accumulate 
 - [Paper Trail Whatdunnit](https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md)
 - [PubSub Task Chaining](https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md)
 - [Pundit Authorization](https://github.com/drexed/cmdx/blob/main/examples/pundit_authorization.md)
+- [Rate Limit](https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md)
 - [Redis Idempotency](https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md)
 - [Sentry Error Tracking](https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md)
 - [Sidekiq Async Execution](https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md)
 - [Stoplight Circuit Breaker](https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md)
+- [Timeout Guard](https://github.com/drexed/cmdx/blob/main/examples/timeout_guard.md)

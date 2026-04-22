@@ -17,7 +17,7 @@ RSpec.describe "Task chain tracking", type: :feature do
   end
 
   describe "a nested execution" do
-    subject(:result) { create_nested_task(strategy: strategy, status: :success).execute }
+    subject(:result) { create_nested_task(strategy:, status: :success).execute }
 
     shared_examples "collects the full stack" do
       it "records inner/middle/outer in execution order" do

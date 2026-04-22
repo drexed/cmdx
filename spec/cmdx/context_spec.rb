@@ -134,6 +134,36 @@ RSpec.describe CMDx::Context do
     end
   end
 
+  describe "#deep_merge" do
+    it "returns self" do
+      ctx = described_class.new(a: 1)
+      expect(ctx.deep_merge(b: 2)).to be(ctx)
+    end
+
+    it "merges nested hashes recursively instead of replacing them" do
+      ctx = described_class.new(user: { name: "Ada", prefs: { theme: "dark" } })
+      ctx.deep_merge(user: { age: 36, prefs: { lang: "en" } })
+      expect(ctx.user).to eq(name: "Ada", age: 36, prefs: { theme: "dark", lang: "en" })
+    end
+
+    it "right-hand scalar replaces left-hand hash and vice versa" do
+      ctx = described_class.new(x: { a: 1 })
+      ctx.deep_merge(x: 42)
+      expect(ctx.x).to eq(42)
+
+      ctx = described_class.new(y: 5)
+      ctx.deep_merge(y: { b: 2 })
+      expect(ctx.y).to eq(b: 2)
+    end
+
+    it "does not mutate nested source hashes" do
+      source = { user: { name: "Ada" } }
+      ctx = described_class.new(user: { email: "a@b" })
+      ctx.deep_merge(source)
+      expect(source[:user]).to eq(name: "Ada")
+    end
+  end
+
   describe "predicates and introspection" do
     subject(:ctx) { described_class.new(a: 1) }
 
@@ -341,7 +371,7 @@ RSpec.describe CMDx::Context do
 
     it "serializes nested contexts" do
       inner = described_class.new(n: 2)
-      outer = described_class.new(inner: inner, label: "outer")
+      outer = described_class.new(inner:, label: "outer")
 
       expect(JSON.parse(outer.to_json)).to eq(
         "inner" => { "n" => 2 },

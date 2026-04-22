@@ -69,7 +69,7 @@ RSpec.describe "Task telemetry", type: :feature do
         name: :task_executed,
         cid: result.cid,
         type: task.type,
-        task: task,
+        task:,
         tid: result.tid
       )
       expect(event.payload[:result]).to be(result)

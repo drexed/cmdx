@@ -88,7 +88,7 @@ result.reason #=> "Refund period has expired"
 
 ## Metadata Enrichment
 
-Enrich halt calls with metadata for better debugging and error handling:
+Enrich halt calls with metadata for better debugging and error handling. Keyword args passed to `success!` / `skip!` / `fail!` / `throw!` are merged into `Task#metadata` first, then the resulting hash is attached to the thrown `Signal` — so middlewares that pre-populated `task.metadata` (e.g. a request id) show up on the same result without the caller having to forward them.
 
 ```ruby
 class ProcessRenewal < CMDx::Task
@@ -149,8 +149,10 @@ Halt methods trigger specific state and status transitions:
 
 | Method | State | Status | Outcome |
 |--------|-------|--------|---------|
+| `success!` | `complete` | `success` | `ok? = true`, `ko? = false` |
 | `skip!` | `interrupted` | `skipped` | `ok? = true`, `ko? = true` |
 | `fail!` | `interrupted` | `failed` | `ok? = false`, `ko? = true` |
+| `throw!(failed)` | `interrupted` | `failed` (mirrors upstream) | `ok? = false`, `ko? = true` |
 
 ```ruby
 result = ProcessRenewal.execute(license_id: 567)
@@ -242,53 +244,16 @@ fail!
 
 ## Manual Errors
 
-Add structured errors to `task.errors` to fail the task with a rich, multi-key error sentence. Errors accumulated during `work` are inspected after `work` returns; if any are present, `Runtime` automatically throws a failed signal whose reason is the joined error messages.
-
-!!! note
-
-    You don't need to call `fail!` after `errors.add` — the post-`work` check does it for you. Calling `fail!` explicitly still works and short-circuits immediately.
-
-### Errors API
-
-The `errors` object is keyed by attribute name; each value is a deduplicating set of messages:
-
-```ruby
-errors.add(:email, "is invalid")
-errors.add(:email, "is required")
-errors.add(:name, "is too short")
-
-errors.empty?            #=> false
-errors.any?              #=> true (via Enumerable)
-errors.size              #=> 2 (number of keys)
-errors.count             #=> 3 (total messages across all keys)
-errors.key?(:email)      #=> true
-errors.key?(:phone)      #=> false
-errors.added?(:email, "is invalid") #=> true
-errors[:email]           #=> ["is invalid", "is required"]
-
-errors.to_h              #=> { email: ["is invalid", "is required"], name: ["is too short"] }
-errors.full_messages     #=> { email: ["email is invalid", "email is required"], name: ["name is too short"] }
-errors.to_s              #=> "email is invalid. email is required. name is too short"
-```
-
-### Usage
+Accumulate structured errors on `task.errors` during `work`; if any are present when `work` returns, Runtime throws a failed signal whose reason is the joined messages — no explicit `fail!` required.
 
 ```ruby
 class ProcessRenewal < CMDx::Task
   def work
     document = Document.find(context.document_id)
-
-    if document.nonrenewable?
-      errors.add(:document, "is not renewable")
-      return # Runtime sees errors and throws a failed signal automatically
-    end
-
-    document.renew!
+    errors.add(:document, "is not renewable") if document.nonrenewable?
+    document.renew! if errors.empty?
   end
 end
-
-result = ProcessRenewal.execute(document_id: 42)
-result.status      #=> "failed"
-result.reason      #=> "document is not renewable"
-result.errors.to_h #=> { document: ["is not renewable"] }
 ```
+
+See [Outcomes - Errors](../outcomes/errors.md) for the full `errors` API.

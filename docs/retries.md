@@ -183,10 +183,10 @@ end
 ## Behavior
 
 - **Same task instance** — retries reuse the same task object. `context` and any side effects from previous attempts persist.
-- **Only `work` repeats** — input resolution, output verification, and `before_execution` / `before_validation` callbacks run once. Retries wrap `work` only.
+- **Only `work` repeats** — input resolution, output verification, and `before_execution` / `before_validation` callbacks run once. Retries wrap `work` only. (This is intentional — flaky input sources are not retried here; wrap the source in a `retry_on` around its own fetcher or in a middleware.)
 - **Errors carry over** — `task.errors` accumulates across attempts; entries added during a previous attempt remain. Clear them at the start of `work` if you re-add per attempt, otherwise a successful retry will still finalize as failed once `signal_errors!` runs.
 - **Telemetry** — Runtime emits a `:task_retried` event for each retry (`attempt:` is zero-based; the initial call is `attempt = 0` and is not emitted).
-- **Outside the middleware stack** — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried `work` call is *inside* every middleware; middlewares do not see individual attempts.
+- **Inside the middleware stack** — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried `work` call is *inside* every middleware, so middlewares see the task once per execution, not once per attempt. Subscribe to the `:task_retried` telemetry event if you need per-attempt visibility.
 
 ## Inspecting Retries
 

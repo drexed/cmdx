@@ -270,12 +270,19 @@ end
 
 ```ruby
 RSpec.describe BuildApplication do
-  it "deconstructs to [type, task, state, status, reason, metadata, cause, origin]" do
+  it "deconstructs to [[key, value], ...] pairs" do
     result = BuildApplication.execute(version: "1.0")
 
-    expect(result.deconstruct).to match(
-      ["Task", BuildApplication, "complete", "success", nil, {}, nil, nil]
+    expect(result.deconstruct).to include(
+      [:type, "Task"],
+      [:task, BuildApplication],
+      [:state, "complete"],
+      [:status, "success"]
     )
+
+    case result
+    in [*, [:status, "success"], *] then :ok
+    end
   end
 
   it "matches a hash pattern on failure" do
@@ -290,3 +297,7 @@ RSpec.describe BuildApplication do
   end
 end
 ```
+
+!!! note
+
+    `Result#deconstruct` returns `to_h.to_a` — an array of `[key, value]` pairs in insertion order, not a fixed-arity tuple. Use find patterns (`in [*, [:status, "success"], *]`) rather than positional arrays.

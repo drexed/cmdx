@@ -42,9 +42,9 @@ module CMDx
   # accessor with the same name already exists.
   DefinitionError = Class.new(Error)
 
-  # Raised by {Deprecation} when a task configured with
-  # `settings(deprecate: :error)` is executed. Signals that the caller must
-  # migrate off the deprecated task before continuing.
+  # Raised by {Deprecation} when a task configured with `deprecation(:error)`
+  # is executed. Signals that the caller must migrate off the deprecated task
+  # before continuing.
   DeprecationError = Class.new(Error)
 
   # Raised when a subclass fails to fulfill an abstract contract — most
@@ -92,6 +92,13 @@ require_relative "cmdx/validators/numeric"
 require_relative "cmdx/validators/presence"
 require_relative "cmdx/validators/validate"
 require_relative "cmdx/validators"
+require_relative "cmdx/executors/thread"
+require_relative "cmdx/executors/fiber"
+require_relative "cmdx/executors"
+require_relative "cmdx/mergers/last_write_wins"
+require_relative "cmdx/mergers/deep_merge"
+require_relative "cmdx/mergers/no_merge"
+require_relative "cmdx/mergers"
 require_relative "cmdx/input"
 require_relative "cmdx/inputs"
 require_relative "cmdx/output"

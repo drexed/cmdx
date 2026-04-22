@@ -5,7 +5,7 @@ require "spec_helper"
 RSpec.describe CMDx::Task do
   describe "class-level registries" do
     let(:base) { create_task_class(name: "BaseTask") }
-    let(:child) { create_task_class(base: base, name: "ChildTask") }
+    let(:child) { create_task_class(base:, name: "ChildTask") }
 
     it "inherits settings from the superclass" do
       base.settings(tags: %w[root])

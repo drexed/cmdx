@@ -20,11 +20,11 @@ RSpec.describe CMDx::Signal do
     context "with options" do
       it "stores metadata, cause, and backtrace" do
         cause = StandardError.new("inner")
-        signal = described_class.success(metadata: { code: 1 }, cause: cause, backtrace: %w[a b])
+        signal = described_class.success(metadata: { code: 1 }, cause:, backtrace: %w[a b])
 
         expect(signal).to have_attributes(
           metadata: { code: 1 },
-          cause: cause,
+          cause:,
           backtrace: %w[a b]
         )
       end
@@ -135,7 +135,7 @@ RSpec.describe CMDx::Signal do
         described_class::FAILED,
         reason: "r",
         metadata: { k: :v },
-        cause: cause,
+        cause:,
         backtrace: %w[line1 line2]
       )
     end
@@ -146,7 +146,7 @@ RSpec.describe CMDx::Signal do
       expect(signal).to have_attributes(
         reason: "r",
         metadata: { k: :v },
-        cause: cause,
+        cause:,
         backtrace: %w[line1 line2]
       )
     end

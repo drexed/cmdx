@@ -48,7 +48,7 @@ end
 
 ## Inheritance
 
-Share configuration through inheritance. Every inheritable surface — `settings`, `retry_on`, `deprecation`, and the registries (`middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `inputs`, `outputs`) — lazily clones from the superclass on first access, so subclasses extend rather than replace.
+Share configuration through inheritance. Every inheritable surface — `settings`, `retry_on`, `deprecation`, and the registries (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`, `inputs`, `outputs`) — lazily clones from the superclass on first access, so subclasses extend rather than replace.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -74,39 +74,7 @@ end
 
 ## Lifecycle
 
-Tasks follow a predictable execution pattern. Halt primitives — `success!`, `skip!`, `fail!`, and `throw!` — are control-flow tokens: they `throw` a `Signal` caught by `Runtime`, so any code after a halt is unreachable. See [Signals](../interruptions/signals.md) for the full halt API.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Instantiation
-    Instantiation --> BeforeExecution: execute
-    BeforeExecution --> BeforeValidation: callbacks
-    BeforeValidation --> Validating: callbacks
-    Validating --> Working: inputs ok
-    Validating --> Failed: input errors
-    Working --> VerifyOutputs: work returned
-    Working --> Success: success!
-    Working --> Skipped: skip!
-    Working --> Failed: fail! / throw! / Exception
-    VerifyOutputs --> Success: outputs ok
-    VerifyOutputs --> Failed: missing/invalid outputs
-
-    Failed --> Rollback: rollback (if defined)
-    Rollback --> Terminal
-
-    state Terminal {
-        Success
-        Skipped
-        Failed
-    }
-
-    Terminal --> Freeze: completion callbacks + finalize
-    Freeze --> [*]
-```
-
-!!! danger "Caution"
-
-    Tasks are single-use objects. After execution, the task, its root context, and its errors are frozen by `Runtime` teardown.
+Tasks follow a predictable execution pattern. Halt primitives — `success!`, `skip!`, `fail!`, and `throw!` — are control-flow tokens: they `throw` a `Signal` caught by `Runtime`, so any code after a halt is unreachable. See [Signals](../interruptions/signals.md) for the full halt API and [Getting Started - Task Lifecycle](../getting_started.md#task-lifecycle) for the full flow diagram.
 
 | Stage | Description |
 |-------|-------------|
@@ -119,3 +87,7 @@ stateDiagram-v2
 | **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order |
 | **Result finalization** | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed) |
 | **Teardown** | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber |
+
+!!! danger "Caution"
+
+    Tasks are single-use objects. After execution, the task, its root context, and its errors are frozen by `Runtime` teardown.

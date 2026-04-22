@@ -1,6 +1,6 @@
 # Inputs - Validations
 
-Ensure inputs meet requirements before execution. Validations run after coercions and transformations, giving you declarative data integrity checks.
+Ensure inputs meet requirements before execution. Validations run after coercions and transformations.
 
 See [Global Configuration](../configuration.md#validators) for custom validator setup.
 
@@ -98,10 +98,6 @@ This list of options is available to all built-in validators:
 class CreateUser < CMDx::Task
   input :honey_pot, absence: true
   # Or with a custom message: absence: { message: "must be empty" }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -114,10 +110,6 @@ end
 ```ruby
 class ProcessProduct < CMDx::Task
   input :status, exclusion: { in: %w[recalled archived] }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -136,10 +128,6 @@ class ProcessProduct < CMDx::Task
   input :sku, format: /\A[A-Z]{3}-[0-9]{4}\z/
 
   input :sku, format: { with: /\A[A-Z]{3}-[0-9]{4}\z/ }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -153,19 +141,17 @@ end
 ```ruby
 class ProcessProduct < CMDx::Task
   input :availability, inclusion: { in: %w[available limited] }
-
-  def work
-    # Your logic here...
-  end
+  # Enumerable members are matched with `===`, so Regex and Class members work too:
+  input :sku_or_code, inclusion: { in: [/\A[A-Z]{3}-\d{4}\z/, Integer] }
 end
 ```
 
 | Options | Description |
 |---------|-------------|
-| `:in` | The collection of allowed values or range |
+| `:in` | Range (`#cover?`) or Enumerable (`===` per member — Regex/Class/Range members match accordingly) |
 | `:within` | Alias for :in option |
-| `:of_message` | Custom message for discrete value inclusions |
-| `:in_message` | Custom message for range-based inclusions |
+| `:of_message` | Custom message for enumerable-member failures |
+| `:in_message` | Custom message for range failures |
 | `:within_message` | Alias for :in_message option |
 
 ### Length
@@ -173,10 +159,6 @@ end
 ```ruby
 class CreateBlogPost < CMDx::Task
   input :title, length: { within: 5..100 }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -201,10 +183,6 @@ Each rule supports a matching `<rule>_message` override (e.g. `:min_message`, `:
 ```ruby
 class CreateBlogPost < CMDx::Task
   input :word_count, numeric: { min: 100 }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -230,10 +208,6 @@ Each rule supports a matching `<rule>_message` override (e.g. `:min_message`, `:
 class CreateBlogPost < CMDx::Task
   input :content, presence: true
   # Or with a custom message: presence: { message: "cannot be blank" }
-
-  def work
-    # Your logic here...
-  end
 end
 ```
 
@@ -245,7 +219,7 @@ end
 
 !!! warning "Important"
 
-    Return `CMDx::Validators::Failure.new("message")` to mark the value invalid; any other return value (including `nil`) is treated as success. Returning a `Failure` records the message on `task.errors` under the input's name.
+    Return `CMDx::Validators::Failure.new("message")` to mark the value invalid; any other return value (including `nil`, `true`, or `false`) is treated as success. The message is recorded on `task.errors` keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
 
 ### Proc or Lambda
 
@@ -316,8 +290,9 @@ end
 
 class SlugReservationCheck
   def self.call(value, task)
-    task.context.reserved_slugs.include?(value) &&
-      CMDx::Validators::Failure.new("is reserved")
+    return unless task.context.reserved_slugs.include?(value)
+
+    CMDx::Validators::Failure.new("is reserved")
   end
 end
 ```
@@ -338,39 +313,4 @@ end
 
 ## Error Handling
 
-Validation failures accumulate on `task.errors`. When resolution finishes and errors exist, Runtime throws a failed signal: the joined sentence becomes `result.reason`; the structured map is exposed on `result.errors`.
-
-```ruby
-class CreateProject < CMDx::Task
-  input :project_name,
-    presence: true,
-    length: { min: 3, max: 50 }
-  optional :budget,
-    numeric: { min: 1000, max: 1_000_000 }
-  required :priority,
-    inclusion: { in: %i[low medium high] }
-  input :contact_email,
-    format: /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
-
-  def work
-    # Your logic here...
-  end
-end
-
-result = CreateProject.execute(
-  project_name: "AB",            # Too short
-  budget: 500,                   # Too low
-  priority: :urgent,             # Not in allowed list
-  contact_email: "invalid-email" # Invalid format
-)
-
-result.state       #=> "interrupted"
-result.status      #=> "failed"
-result.reason      #=> "project_name length must be within 3 and 50. budget must be within 1000 and 1000000. priority must be one of: :low, :medium, :high. contact_email is an invalid format"
-result.errors.to_h #=> {
-                   #     project_name:  ["length must be within 3 and 50"],
-                   #     budget:        ["must be within 1000 and 1000000"],
-                   #     priority:      ["must be one of: :low, :medium, :high"],
-                   #     contact_email: ["is an invalid format"]
-                   #   }
-```
+Validation failures accumulate on `task.errors` and surface as a failed result with the joined sentence as `result.reason`. See [Inputs - Error Handling](definitions.md#error-handling) for the full lifecycle.

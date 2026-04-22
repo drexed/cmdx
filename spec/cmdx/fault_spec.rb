@@ -20,10 +20,10 @@ RSpec.describe CMDx::Fault do
       fault = described_class.new(result)
 
       expect(fault).to have_attributes(
-        result: result,
+        result:,
         task: task_class,
         context: result.context,
-        chain: chain
+        chain:
       )
     end
 
@@ -61,7 +61,7 @@ RSpec.describe CMDx::Fault do
           rescue StandardError => e
             e
           end
-        result = build_result(CMDx::Signal.failed("b", cause: cause))
+        result = build_result(CMDx::Signal.failed("b", cause:))
 
         expect(described_class.new(result).backtrace).to eq(cause.backtrace_locations.map(&:to_s))
       end

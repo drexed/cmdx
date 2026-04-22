@@ -104,7 +104,7 @@ RSpec.describe "Task retry", type: :feature do
         0
       end
       task = create_flaky_task(failures: 2) do
-        retry_on CMDx::TestError, limit: 3, delay: 0.0001, jitter: jitter
+        retry_on(CMDx::TestError, limit: 3, delay: 0.0001, jitter:)
       end
 
       task.execute

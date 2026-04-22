@@ -167,6 +167,51 @@ RSpec.describe CMDx::Pipeline do
           expect(result.context[:ran]).to be(true)
         end
 
+        it "runs with executor: :threads (explicit, same as default)" do
+          t1 = create_successful_task(name: "E1")
+          t2 = create_successful_task(name: "E2")
+          workflow_class = create_workflow_class do
+            tasks t1, t2, strategy: :parallel, executor: :threads
+          end
+
+          expect(workflow_class.execute).to be_success
+        end
+
+        it "runs with a callable executor override" do
+          t1 = create_successful_task(name: "C1")
+          t2 = create_successful_task(name: "C2")
+          calls = []
+          executor = lambda do |jobs:, concurrency:, on_job:|
+            calls << [jobs.size, concurrency]
+            jobs.each { |j| on_job.call(j) }
+          end
+
+          workflow_class = create_workflow_class do
+            tasks(t1, t2, strategy: :parallel, executor:)
+          end
+
+          expect(workflow_class.execute).to be_success
+          expect(calls).to eq([[2, 2]])
+        end
+
+        it "rejects an unknown executor symbol" do
+          t1 = create_successful_task(name: "U1")
+          workflow_class = create_workflow_class do
+            tasks t1, strategy: :parallel, executor: :bogus
+          end
+
+          expect { workflow_class.execute! }.to raise_error(ArgumentError, /unknown executor: :bogus/)
+        end
+
+        it "raises when executor: :fibers has no Fiber.scheduler installed" do
+          t1 = create_successful_task(name: "F1")
+          workflow_class = create_workflow_class do
+            tasks t1, strategy: :parallel, executor: :fibers
+          end
+
+          expect { workflow_class.execute! }.to raise_error(RuntimeError, /Fiber\.scheduler/)
+        end
+
         it "merges context from tasks that completed before the failure was observed" do
           ok = create_task_class(name: "Ok") do
             define_method(:work) { context.ok = true }
@@ -184,6 +229,116 @@ RSpec.describe CMDx::Pipeline do
           expect(result).to be_failed
           expect(result.context[:ok]).to be(true)
           expect(result.context[:ran]).to be_nil
+        end
+      end
+
+      describe ":merge_strategy" do
+        let(:writer_a) do
+          create_task_class(name: "WA") do
+            define_method(:work) do
+              context.a = 1
+              context.nested = { a: 1, shared: "a" }
+            end
+          end
+        end
+        let(:writer_b) do
+          create_task_class(name: "WB") do
+            define_method(:work) do
+              context.b = 2
+              context.nested = { b: 2, shared: "b" }
+            end
+          end
+        end
+
+        it "defaults to :last_write_wins (shallow, later-declared wins on conflict)" do
+          wa = writer_a
+          wb = writer_b
+          workflow_class = create_workflow_class do
+            tasks wa, wb, strategy: :parallel
+          end
+
+          result = workflow_class.execute
+          expect(result.context.a).to eq(1)
+          expect(result.context.b).to eq(2)
+          expect(result.context.nested).to eq({ b: 2, shared: "b" })
+        end
+
+        it "recursively merges nested hashes under :deep_merge" do
+          wa = writer_a
+          wb = writer_b
+          workflow_class = create_workflow_class do
+            tasks wa, wb, strategy: :parallel, merge_strategy: :deep_merge
+          end
+
+          result = workflow_class.execute
+          expect(result.context.nested).to eq({ a: 1, b: 2, shared: "b" })
+        end
+
+        it "leaves the workflow context untouched under :no_merge" do
+          wa = writer_a
+          wb = writer_b
+          workflow_class = create_workflow_class do
+            tasks wa, wb, strategy: :parallel, merge_strategy: :no_merge
+          end
+
+          result = workflow_class.execute
+          expect(result).to be_success
+          expect(result.context.a).to be_nil
+          expect(result.context.b).to be_nil
+          expect(result.context.nested).to be_nil
+        end
+
+        it "accepts a callable merger" do
+          wa = writer_a
+          wb = writer_b
+          seen = []
+          collector = lambda { |ctx, result|
+            seen << result
+            ctx.merge_count = (ctx.merge_count || 0) + 1
+          }
+
+          workflow_class = create_workflow_class do
+            tasks wa, wb, strategy: :parallel, merge_strategy: collector
+          end
+
+          result = workflow_class.execute
+          expect(result.context.merge_count).to eq(2)
+          expect(seen.map(&:task)).to contain_exactly(wa, wb)
+        end
+
+        it "rejects unknown symbols" do
+          wa = writer_a
+          workflow_class = create_workflow_class do
+            tasks wa, strategy: :parallel, merge_strategy: :bogus
+          end
+
+          expect { workflow_class.execute! }.to raise_error(ArgumentError, /unknown merge_strategy: :bogus/)
+        end
+      end
+
+      describe "registry-based resolution" do
+        it "resolves executors registered on the workflow class" do
+          custom = ->(jobs:, on_job:, **) { jobs.each { |j| on_job.call(j) } }
+          t1 = create_successful_task(name: "R1")
+          workflow_class = create_workflow_class do
+            register :executor, :inline, custom
+            tasks t1, strategy: :parallel, executor: :inline
+          end
+
+          expect(workflow_class.execute).to be_success
+        end
+
+        it "resolves mergers registered on the workflow class" do
+          seen = []
+          collector = ->(_ctx, result) { seen << result }
+          t1 = create_successful_task(name: "M1")
+          workflow_class = create_workflow_class do
+            register :merger, :collector, collector
+            tasks t1, strategy: :parallel, merge_strategy: :collector
+          end
+
+          expect(workflow_class.execute).to be_success
+          expect(seen.size).to eq(1)
         end
       end
     end

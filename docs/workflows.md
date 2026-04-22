@@ -63,7 +63,9 @@ Options apply to the entire group:
 | Option        | Default        | Description                                            |
 |---------------|----------------|--------------------------------------------------------|
 | `strategy:`   | `:sequential`  | `:sequential` or `:parallel`                           |
-| `pool_size:`  | `tasks.size`   | Worker count when `strategy: :parallel`                |
+| `pool_size:`  | `tasks.size`   | Worker/fiber count when `strategy: :parallel`          |
+| `executor:`   | `:threads`     | Parallel dispatch backend: `:threads`, `:fibers`, or a callable. `:fibers` requires a `Fiber.scheduler` to be installed (e.g. inside `Async { ... }`) |
+| `merge_strategy:` | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }` |
 | `fail_fast:`  | `false`        | When `strategy: :parallel`, drain pending tasks on the first failure (in-flight tasks still finish) |
 | `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
@@ -229,6 +231,90 @@ end
 !!! warning
 
     Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. If any parallel task fails, the failed result is propagated through `throw!` (the other tasks still complete first; they just don't merge back). With `fail_fast: true`, tasks still queued when a sibling fails are skipped entirely; in-flight tasks run to completion and their successful contexts still merge.
+
+### Executors
+
+The `:executor` option swaps the concurrency backend while keeping the rest of the parallel semantics (context isolation, merge-on-success, fail-fast) identical.
+
+```ruby
+# Default — native Ruby threads
+tasks A, B, C, strategy: :parallel, executor: :threads
+
+# Fiber scheduler — requires Fiber.scheduler to be installed on the caller
+tasks A, B, C, strategy: :parallel, executor: :fibers, pool_size: 10
+
+# Custom callable
+tasks A, B, C, strategy: :parallel, executor: MyPool.method(:run)
+```
+
+`:fibers` spawns one fiber per job bounded by `pool_size` (via a semaphore) and relies on whatever scheduler the caller has installed — most commonly the [`async`](https://github.com/socketry/async) gem:
+
+```ruby
+require "async"
+
+Async do
+  SendWelcomeNotifications.execute!
+end
+```
+
+Without a scheduler, `:fibers` raises at run time — the gem itself stays zero-dep.
+
+A user-supplied executor is any object responding to `call(jobs:, concurrency:, on_job:)`. It must invoke `on_job.call(job)` for each job and block until all jobs have completed. Chain propagation, cancellation, and context merging are already baked into `on_job`; the executor only decides how to dispatch.
+
+Executors are resolved from a per-task registry (`CMDx::Executors`). Built-ins ship with `:threads` and `:fibers`; register your own named executor once and reference it by symbol from `:executor`:
+
+```ruby
+class ApplicationTask < CMDx::Task
+  register :executor, :bounded_pool, MyPool.method(:run)
+end
+
+class ShipItAll < ApplicationTask
+  include CMDx::Workflow
+
+  tasks A, B, C, strategy: :parallel, executor: :bounded_pool
+end
+```
+
+The same registry is available globally via `CMDx.configuration.executors.register(...)`.
+
+### Merge strategies
+
+After every successful sibling completes, each sibling's duplicated context is folded back into the workflow context. The default is last-write-wins in declaration order — reliable and fast, but brittle when two tasks write a nested structure under the same key. `:merge_strategy` lets you pick the collision policy up front.
+
+```ruby
+# Default — shallow, last declared task wins on conflicts
+tasks A, B, C, strategy: :parallel, merge_strategy: :last_write_wins
+
+# Recursive hash merge — nested structures are combined instead of replaced
+tasks A, B, C, strategy: :parallel, merge_strategy: :deep_merge
+
+# Don't touch the workflow context at all
+tasks A, B, C, strategy: :parallel, merge_strategy: :no_merge
+
+# Custom — e.g. namespace each sibling's output under its class name
+tasks A, B, C, strategy: :parallel,
+      merge_strategy: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
+```
+
+Behavior notes:
+
+- Merging always walks successful results in **declaration order**, never completion order — the fold is deterministic even though parallel execution isn't.
+- `:deep_merge` recurses only into `Hash` values; non-hash collisions (Integer, String, Array, custom objects) still follow last-write-wins so a scalar on either side wins over a hash on the other.
+- `:no_merge` keeps the parallel tasks' side effects (each sibling's `result.context` is still reachable via `result.chain`) but nothing is written back to the workflow context. Useful when you're only interested in per-task telemetry, or when tasks own their own persistence.
+- A callable receives `(workflow_context, result)` and is free to write whatever shape you want. Failed results never reach the merger.
+- Merge strategies are resolved from a per-task registry (`CMDx::Mergers`). Register your own named merger with `register :merger, :name, callable` (or on `CMDx.configuration.mergers`) and reference it by symbol from `:merge_strategy`.
+
+```ruby
+class BuildDashboard < CMDx::Task
+  include CMDx::Workflow
+
+  tasks FetchRevenue, FetchTraffic, FetchErrors,
+        strategy: :parallel, merge_strategy: :deep_merge
+  # FetchRevenue: context.metrics = { revenue: ... }
+  # FetchTraffic: context.metrics = { visitors: ... }
+  # After merge: context.metrics == { revenue: ..., visitors: ..., errors: ... }
+end
+```
 
 ## Task Generator
 

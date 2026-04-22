@@ -6,7 +6,7 @@ Statuses represent the business outcome — did the task succeed, skip, or fail?
 
 | Status | Description |
 | ------ | ----------- |
-| `success` | Task `work` ran to completion (and any declared outputs verified). Default outcome. |
+| `success` | Task `work` ran to completion (and any declared outputs verified), or halted via `success!`. Default outcome. |
 | `skipped` | Task halted via `skip!`. Treated as a non-failure outcome. |
 | `failed`  | Task halted via `fail!`, `throw!`, an unrescued `StandardError`, or accumulated `task.errors`. |
 
@@ -29,40 +29,10 @@ end
 
     Calling `skip!` or `fail!` on a frozen task (after `Runtime` teardown) raises `FrozenError` — they can't mutate a finalized result.
 
-## Predicates
+## Predicates and Handlers
 
-```ruby
-result = ProcessNotification.execute
-
-# Direct status checks
-result.success? #=> true / false
-result.skipped? #=> true / false
-result.failed?  #=> true / false
-
-# Outcome categorization
-result.ok?      #=> true for success and skipped (anything but failed)
-result.ko?      #=> true for skipped and failed (anything but success)
-```
+`result.success?` / `result.skipped?` / `result.failed?` check status; `result.ok?` (success or skipped) and `result.ko?` (skipped or failed) categorize the outcome. Dispatch with `result.on(:success | :skipped | :failed | :ok | :ko)`. See [Result - Lifecycle Predicates](result.md#lifecycle-predicates) and [Result - Predicate Dispatch](result.md#predicate-dispatch).
 
 !!! note
 
     `skipped` is intentionally both `ok?` and `ko?`. It's a valid outcome (`ok` — nothing broke) and a non-success (`ko` — work wasn't done). Use `success?` when you need a strict success check.
-
-## Handlers
-
-Branch business logic with status-based handlers. `:ok` and `:ko` are first-class event keys — not aliases of any combination:
-
-```ruby
-result = ProcessNotification.execute
-
-# Direct status handlers
-result
-  .on(:success) { |r| mark_notification_sent(r) }
-  .on(:skipped) { |r| log_notification_skipped(r) }
-  .on(:failed)  { |r| queue_retry_notification(r) }
-
-# Outcome-based handlers
-result
-  .on(:ok) { |r| update_message_stats(r) }      # success or skipped
-  .on(:ko) { |r| track_delivery_failure(r) }    # skipped or failed
-```

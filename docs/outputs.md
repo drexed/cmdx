@@ -142,7 +142,7 @@ Child verification only runs when the parent value is present and not a coercion
 
 !!! note
 
-    Children are *verified* against the parent value but written back to `task.context[<child>]` only if they were already there; nested outputs do not synthesize top-level context keys. Use inputs' [Nesting](inputs/definitions.md#nesting) when you need parent-backed accessors.
+    Coerced/transformed child values are written back **into the parent**, not `task.context[<child>]` — a `Hash` parent gets `parent[:child] = value` (assigning even when the key is absent), and any object exposing `#<child>=` gets its setter called. Read-only parents (e.g. `Data.define`) are left untouched; validation errors are still recorded on the task. Nested outputs do not synthesize top-level context keys — use inputs' [Nesting](inputs/definitions.md#nesting) when you need parent-backed accessors on the task.
 
 `deregister :output, :user` still removes the top-level declaration (and its children in one shot).
 

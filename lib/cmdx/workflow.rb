@@ -28,7 +28,16 @@ module CMDx
       # @param tasks [Array<Class<Task>>]
       # @param options [Hash{Symbol => Object}]
       # @option options [:sequential, :parallel] :strategy (:sequential)
-      # @option options [Integer] :pool_size parallel worker count
+      # @option options [Integer] :pool_size parallel worker/fiber count
+      # @option options [:threads, :fibers, #call] :executor (:threads) parallel
+      #   dispatch backend. `:fibers` requires a `Fiber.scheduler` to be
+      #   installed (e.g. `Async { ... }`). A custom callable accepting
+      #   `jobs:, concurrency:, on_job:` may also be passed.
+      # @option options [:last_write_wins, :deep_merge, :no_merge, #call] :merge_strategy
+      #   (:last_write_wins) how successful parallel contexts are folded back
+      #   into the workflow context. Merging happens in declaration order. A
+      #   callable `->(workflow_context, result) { ... }` may be passed to
+      #   implement custom behavior (e.g. namespacing by task name).
       # @option options [Boolean] :fail_fast (false) when `:parallel`, drain
       #   pending tasks on the first failure (in-flight tasks still finish)
       # @option options [Symbol, Proc, #call] :if

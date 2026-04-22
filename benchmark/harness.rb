@@ -38,7 +38,7 @@ require "memory_profiler"
 require "get_process_mem"
 
 results = {
-  version: version,
+  version:,
   cmdx_version: CMDx::VERSION,
   ruby: RUBY_VERSION,
   yjit: defined?(RubyVM::YJIT) && RubyVM::YJIT.respond_to?(:enabled?) && RubyVM::YJIT.enabled?,
@@ -73,7 +73,7 @@ def capture_ips(warmup: 1, time: 3)
   collected = {}
   job = nil
   Benchmark.ips do |x|
-    x.config(warmup: warmup, time: time, quiet: true)
+    x.config(warmup:, time:, quiet: true)
     yield(x)
     job = x
   end
@@ -133,7 +133,7 @@ def memory_profile(label, task_class)
   task_class.execute rescue nil # rubocop:disable Style/RescueModifier
   report = MemoryProfiler.report(allow_files: "cmdx") { task_class.execute rescue nil } # rubocop:disable Style/RescueModifier
   {
-    label: label,
+    label:,
     total_allocated_memsize: report.total_allocated_memsize,
     total_allocated_objects: report.total_allocated,
     total_retained_memsize: report.total_retained_memsize,
@@ -178,7 +178,7 @@ def allocation_trace(label, task_class)
   GC.enable
   ObjectSpace.trace_object_allocations_clear
 
-  { label: label, allocations: alloc_counts.sort_by { |_, c| -c }.first(15).to_h }
+  { label:, allocations: alloc_counts.sort_by { |_, c| -c }.first(15).to_h }
 end
 
 results[:suites][:allocations] = [
@@ -207,7 +207,7 @@ GC.start
 rss_after_workflows = mem.mb
 
 results[:suites][:rss] = {
-  iterations: iterations,
+  iterations:,
   before_mb: rss_before.round(2),
   after_tasks_mb: rss_after_tasks.round(2),
   after_workflows_mb: rss_after_workflows.round(2),
@@ -232,7 +232,7 @@ gc_after_all = GC.stat
 gc_keys = %i[total_allocated_objects heap_live_slots major_gc_count minor_gc_count]
 
 results[:suites][:gc_stats] = {
-  iterations: iterations,
+  iterations:,
   after_tasks: gc_keys.to_h { |k| [k, gc_after_tasks[k] - gc_before[k]] },
   after_workflows: gc_keys.to_h { |k| [k, gc_after_all[k] - gc_after_tasks[k]] }
 }

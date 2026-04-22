@@ -1,6 +1,6 @@
 # Inputs - Transformations
 
-Modify input values after coercion but before validation. Perfect for normalization, formatting, and data cleanup.
+Modify input values after coercion but before validation — e.g. normalization, formatting, and data cleanup.
 
 ## Processing Pipeline
 

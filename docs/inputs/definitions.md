@@ -20,7 +20,7 @@ required :credentials, source: :database_config
 
 !!! warning "Important"
 
-    Input names that conflict with existing Ruby or CMDx methods will raise an error. Use `:as`, `:prefix`, or `:suffix` to resolve naming conflicts. See [Naming](naming.md).
+    Input names that conflict with existing Ruby or CMDx methods raise `CMDx::DefinitionError` at class-load time. Use `:as`, `:prefix`, or `:suffix` to resolve naming conflicts. See [Naming](naming.md).
 
 !!! tip
 
@@ -144,6 +144,10 @@ CreateUser.inputs_schema
 
 Each entry exposes `:name` (the accessor name, post-`:as`/`:prefix`/`:suffix`), `:description`, `:required`, the raw declaration `:options`, and any nested `:children` recursively.
 
+!!! note
+
+    `:required` in the schema reflects the static flag only. Conditional `required: true` with `:if`/`:unless` still serializes as `required: true` because the schema is generated without a task instance — inspect `options[:if]` / `options[:unless]` when generating external documentation.
+
 ## Sources
 
 Inputs read from any accessible object — not just context. The default source is `:context`; override with `source:` to pull data from a method, proc, callable class, or another already-defined input:
@@ -242,7 +246,7 @@ end
 
 ## Nesting
 
-Build complex structures with nested inputs. Children inherit their parent as source and support all input options:
+Build complex structures with nested inputs. Children resolve from the parent's value (via `respond_to?`, `#[]`, or `#key?`) and support all input options except `:source` — nested children always read from the parent and ignore any `:source` on their own declaration.
 
 !!! note
 
@@ -301,7 +305,7 @@ ConfigureServer.execute(
 
 !!! warning "Important"
 
-    Child requirements only apply when the parent is provided — perfect for optional structures.
+    Child requirements only apply when the parent is provided, which is what you want for optional structures.
 
 ## Error Handling
 

@@ -11,7 +11,7 @@ CMDx uses a two-tier configuration system:
 
 !!! warning "Important"
 
-    Class-level registries (`middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`) are **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
+    Class-level registries (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`) are **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
 
 ## Global Configuration
 
@@ -29,6 +29,8 @@ CMDx uses a two-tier configuration system:
 | `callbacks` | `Callbacks.new` (empty) | Callback registry |
 | `coercions` | `Coercions.new` (13 built-ins) | Coercion registry |
 | `validators` | `Validators.new` (7 built-ins) | Validator registry |
+| `executors` | `Executors.new` (`:threads`, `:fibers`) | Parallel-group executor registry |
+| `mergers` | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`) | Parallel-group merge-strategy registry |
 | `telemetry` | `Telemetry.new` (empty) | Telemetry pub/sub |
 
 ### Default Locale
@@ -135,7 +137,7 @@ Callbacks fire at specific lifecycle points. Valid events:
 | `:on_skipped` | When `status == "skipped"` |
 | `:on_failed` | When `status == "failed"` |
 | `:on_ok` | Success or skipped (`signal.ok?`) |
-| `:on_ko` | Skipped or failed (`signal.ko?`) |
+| `:on_ko` | Failed only (runtime dispatches `on_ok` when `signal.ok?`, otherwise `on_ko`; skipped results run `on_ok`) |
 
 ```ruby
 CMDx.configure do |config|
@@ -241,6 +243,43 @@ end
 ```
 
 See [Inputs - Validations](inputs/validations.md) for usage.
+
+### Executors
+
+Named concurrency backends used by `Workflow` `:parallel` groups. An executor is any callable with signature `call(jobs:, concurrency:, on_job:)` that invokes `on_job.call(job)` for each job and blocks until all jobs complete. Built-ins: `:threads` (default), `:fibers`.
+
+```ruby
+CMDx.configure do |config|
+  # Class or instance with #call(jobs:, concurrency:, on_job:)
+  config.executors.register :ractor, RactorExecutor
+
+  # Proc / Lambda
+  config.executors.register(:inline, proc do |jobs:, concurrency:, on_job:|
+    jobs.each { |job| on_job.call(job) }
+  end)
+
+  config.executors.deregister :fibers
+end
+```
+
+See [Workflows - Parallel Groups](workflows.md#parallel-groups) for usage.
+
+### Mergers
+
+Named strategies for folding successful parallel task results back into the workflow context. A merger is any callable with signature `call(workflow_context, result)`. Built-ins: `:last_write_wins` (default), `:deep_merge`, `:no_merge`.
+
+```ruby
+CMDx.configure do |config|
+  # Only merge specific keys
+  config.mergers.register(:whitelist, proc do |ctx, result|
+    result.context.to_h.slice(:user_id, :tenant_id).each { |k, v| ctx[k] = v }
+  end)
+
+  config.mergers.deregister :no_merge
+end
+```
+
+See [Workflows - Parallel Groups](workflows.md#parallel-groups) for usage.
 
 ## Class-Level Configuration
 

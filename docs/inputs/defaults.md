@@ -95,3 +95,7 @@ end
 !!! note
 
     Defaults only apply when the resolved value is `nil`. An explicitly provided `nil` is treated as missing and the default fires.
+
+!!! warning "Required + default"
+
+    Defaults **do not** satisfy `required:`. A required input whose key is absent fails with `is required` before the default is consulted — so `required: true, default: ...` is effectively a contradiction. Use `optional ..., default:` instead when you want a fallback, and reserve `required:` for keys the caller must explicitly supply.

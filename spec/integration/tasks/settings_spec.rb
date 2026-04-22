@@ -91,7 +91,7 @@ RSpec.describe "Task settings", type: :feature do
     let(:parent) do
       logger = custom_logger
       create_task_class(name: "Parent") do
-        settings(logger: logger, tags: %w[base])
+        settings(logger:, tags: %w[base])
         define_method(:work) { nil }
       end
     end

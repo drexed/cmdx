@@ -7,7 +7,7 @@ module CMDx
   # or {.execute!} (strict, raises on failure).
   #
   # Inheritance: every registry accessor (middlewares, callbacks, coercions,
-  # validators, telemetry, inputs, outputs) lazily clones from the
+  # validators, executors, mergers, telemetry, inputs, outputs) lazily clones from the
   # superclass's registry (or the global configuration at the top of the
   # hierarchy), so subclasses extend rather than replace.
   #
@@ -110,9 +110,29 @@ module CMDx
           end
       end
 
+      # @return [Executors] cloned from superclass/configuration on first call
+      def executors
+        @executors ||=
+          if superclass.respond_to?(:executors)
+            superclass.executors.dup
+          else
+            CMDx.configuration.executors.dup
+          end
+      end
+
+      # @return [Mergers] cloned from superclass/configuration on first call
+      def mergers
+        @mergers ||=
+          if superclass.respond_to?(:mergers)
+            superclass.mergers.dup
+          else
+            CMDx.configuration.mergers.dup
+          end
+      end
+
       # Dispatches to the appropriate registry's `register` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def register(type, ...)
@@ -125,6 +145,10 @@ module CMDx
           coercions.register(...)
         when :validator
           validators.register(...)
+        when :executor
+          executors.register(...)
+        when :merger
+          mergers.register(...)
         when :input
           inputs.register(self, ...)
         when :output
@@ -135,7 +159,7 @@ module CMDx
 
       # Dispatches to the appropriate registry's `deregister` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def deregister(type, ...)
@@ -148,6 +172,10 @@ module CMDx
           coercions.deregister(...)
         when :validator
           validators.deregister(...)
+        when :executor
+          executors.deregister(...)
+        when :merger
+          mergers.deregister(...)
         when :input
           inputs.deregister(self, ...)
         when :output

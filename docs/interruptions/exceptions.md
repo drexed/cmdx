@@ -152,6 +152,10 @@ result.reason  #=> "[ActiveRecord::RecordNotFound] Couldn't find Document with '
 result.cause   #=> #<ActiveRecord::RecordNotFound>
 ```
 
+!!! note "Framework errors inside `work`"
+
+    `Runtime#perform_work` rescues in this order: `Fault` (echoes), then `CMDx::Error` (**re-raises**, never converts to a failed result), then `StandardError` (converts to a failed result with `cause` set). So raising any `CMDx::Error` subclass — `DefinitionError`, `DeprecationError`, `ImplementationError`, `MiddlewareError`, or a custom subclass — inside `work` propagates out of both `execute` and `execute!`.
+
 ### Bang execution
 
 `execute!` re-raises on failure. When `Runtime` had captured an underlying exception (`result.cause` is set), that **original** exception is re-raised; otherwise a `CMDx::Fault` carrying the failed result is raised:

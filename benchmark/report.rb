@@ -86,7 +86,7 @@ def print_ips_table(title, v1_suite, v2_suite)
 
   section_header("IPS: #{title}")
   widths = [28, 14, 14, 10]
-  table_header("Benchmark", "v1 (i/s)", "v2 (i/s)", "Delta", widths: widths)
+  table_header("Benchmark", "v1 (i/s)", "v2 (i/s)", "Delta", widths:)
 
   v1_suite.each do |label, v1_entry|
     label_s = label.to_s
@@ -120,7 +120,7 @@ if v1s[:memory] && v2s[:memory]
   section_header("Memory Profiling (per single execution)")
 
   widths = [22, 14, 14, 10]
-  table_header("Scenario", "v1 alloc", "v2 alloc", "Delta", widths: widths)
+  table_header("Scenario", "v1 alloc", "v2 alloc", "Delta", widths:)
 
   v1_mem = v1s[:memory].to_h { |m| [m[:label], m] }
   v2_mem = v2s[:memory].to_h { |m| [m[:label], m] }
@@ -141,7 +141,7 @@ if v1s[:memory] && v2s[:memory]
   end
 
   puts
-  table_header("Scenario", "v1 objects", "v2 objects", "Delta", widths: widths)
+  table_header("Scenario", "v1 objects", "v2 objects", "Delta", widths:)
 
   v1_mem.each do |label, v1_entry|
     v2_entry = v2_mem[label]
@@ -159,7 +159,7 @@ if v1s[:memory] && v2s[:memory]
   end
 
   puts
-  table_header("Scenario", "v1 retained", "v2 retained", "Delta", widths: widths)
+  table_header("Scenario", "v1 retained", "v2 retained", "Delta", widths:)
 
   v1_mem.each do |label, v1_entry|
     v2_entry = v2_mem[label]
@@ -216,7 +216,7 @@ if v1s[:rss] && v2s[:rss]
   section_header("RSS (Resident Set Size) — #{v1s[:rss][:iterations]} iterations each")
 
   widths = [28, 12, 12, 10]
-  table_header("Metric", "v1 (MB)", "v2 (MB)", "Delta", widths: widths)
+  table_header("Metric", "v1 (MB)", "v2 (MB)", "Delta", widths:)
 
   [
     ["Before", :before_mb],
@@ -246,7 +246,7 @@ if v1s[:gc_stats] && v2s[:gc_stats]
   %i[after_tasks after_workflows].each do |phase|
     label = phase == :after_tasks ? "After Task Execution" : "After Workflow Execution"
     puts "\n  #{bold(label)}:"
-    table_header("Metric", "v1", "v2", "Delta", widths: widths)
+    table_header("Metric", "v1", "v2", "Delta", widths:)
 
     v1_gc = v1s[:gc_stats][phase] || {}
     v2_gc = v2s[:gc_stats][phase] || {}
@@ -276,7 +276,7 @@ if v1s[:yjit] && v2s[:yjit] && !v1s[:yjit][:error] && !v2s[:yjit][:error]
 
   if v1_yjit[:speedup] && v2_yjit[:speedup]
     widths = [28, 12, 12]
-    table_header("Benchmark", "v1 speedup", "v2 speedup", widths: widths)
+    table_header("Benchmark", "v1 speedup", "v2 speedup", widths:)
 
     v1_yjit[:speedup].each do |label, v1_ratio|
       v2_ratio = v2_yjit[:speedup][label] || v2_yjit[:speedup][label.to_s]
@@ -290,7 +290,7 @@ if v1s[:yjit] && v2s[:yjit] && !v1s[:yjit][:error] && !v2s[:yjit][:error]
   elsif v1_yjit[:with_yjit] && v2_yjit[:with_yjit]
     puts "\n  YJIT was enabled at process start; showing YJIT-on IPS only:"
     widths = [28, 14, 14, 10]
-    table_header("Benchmark", "v1 (i/s)", "v2 (i/s)", "Delta", widths: widths)
+    table_header("Benchmark", "v1 (i/s)", "v2 (i/s)", "Delta", widths:)
 
     v1_yjit[:with_yjit].each do |label, v1_entry|
       v2_entry = v2_yjit[:with_yjit][label] || v2_yjit[:with_yjit][label.to_s]

@@ -6,8 +6,8 @@ States track the lifecycle dimension of a result: did `work` run end-to-end, or 
 
 | State | Description |
 | ----- | ----------- |
-| `complete` | Task finished `work` (and output verification) without any `skip!` / `fail!` / exception. |
-| `interrupted` | Task halted via `skip!`, `fail!`, an unrescued `StandardError`, or accumulated `task.errors`. |
+| `complete` | Task finished `work` (and output verification) without interruption. Includes both the implicit success path and an explicit `success!` halt. |
+| `interrupted` | Task halted via `skip!`, `fail!`, `throw!`, an unrescued `StandardError`, or accumulated `task.errors`. |
 
 State-Status combinations:
 
@@ -21,30 +21,6 @@ State-Status combinations:
 
     `complete` only ever pairs with `success`, and `interrupted` only ever pairs with `skipped` or `failed`. There is no `complete` + `skipped` or `interrupted` + `success` combination.
 
-## Predicates
+## Predicates and Handlers
 
-```ruby
-result = ProcessVideoUpload.execute
-
-result.complete?    #=> true on success, false otherwise
-result.interrupted? #=> true on skip or fail, false otherwise
-```
-
-## Handlers
-
-State-based dispatch with `on(:complete)` / `on(:interrupted)`. Pass multiple keys to one call when you want either to match:
-
-```ruby
-result = ProcessVideoUpload.execute
-
-result
-  .on(:complete)    { |r| send_upload_notification(r) }
-  .on(:interrupted) { |r| cleanup_temp_files(r) }
-
-# Run the same handler for either state — useful for cleanup/metrics
-result.on(:complete, :interrupted) { |r| log_upload_metrics(r) }
-```
-
-!!! warning "Important"
-
-    `on` raises `ArgumentError` for unknown event keys. Valid keys: `:complete`, `:interrupted`, `:success`, `:skipped`, `:failed`, `:ok`, `:ko`.
+`result.complete?` / `result.interrupted?` are the state predicates; `result.on(:complete)` / `result.on(:interrupted)` dispatch on them. See [Result - Lifecycle Predicates](result.md#lifecycle-predicates) and [Result - Predicate Dispatch](result.md#predicate-dispatch) for the canonical list.

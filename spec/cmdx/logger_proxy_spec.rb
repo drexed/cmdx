@@ -45,6 +45,27 @@ RSpec.describe CMDx::LoggerProxy do
       expect(logger.formatter).to be(custom_formatter)
     end
 
+    it "compares formatters by identity, not by value" do
+      shared_formatter = proc { |*| "x" }
+      base_logger.formatter = shared_formatter
+      task_class.settings(log_level: base_logger.level, log_formatter: shared_formatter)
+
+      expect(described_class.logger(task)).to be(base_logger)
+    end
+
+    it "dups when a formatter with a custom == that returns true is supplied" do
+      weird = Class.new do
+        def call(*) = ""
+        def ==(_other) = true
+      end.new
+
+      task_class.settings(log_formatter: weird)
+
+      logger = described_class.logger(task)
+      expect(logger).not_to be(base_logger)
+      expect(logger.formatter).to be(weird)
+    end
+
     it "does not mutate the settings logger" do
       original_level = base_logger.level
       original_formatter = base_logger.formatter

@@ -43,23 +43,23 @@ ParseMetrics.execute(
 |------|---------|-------------|----------|
 | `:array` | | Array conversion with JSON support; non-array JSON results fall back to wrapping | `"val"` → `["val"]`<br>`"[1,2,3]"` → `[1, 2, 3]` |
 | `:big_decimal` | `:precision` (default `14`) | High-precision decimal | `"123.456"` → `BigDecimal("123.456")` |
-| `:boolean` | | Boolean with text patterns | `"yes"` → `true`, `"no"` → `false` |
+| `:boolean` | | Match text form against truthy/falsey sets; `nil` and unknown strings fail | `"yes"` → `true`, `"no"` → `false` |
 | `:complex` | `:imaginary` (default `0`) | Complex numbers | `"1+2i"` → `Complex(1, 2)` |
-| `:date` | `:strptime` | Date objects | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
-| `:date_time` | `:strptime` | DateTime objects | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
+| `:date` | `:strptime` | `Date.parse` on strings, `#to_date` on anything else that responds | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
+| `:date_time` | `:strptime` | `DateTime.parse` on strings, `#to_datetime` on anything else that responds | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
 | `:float` | | Floating-point numbers | `"123.45"` → `123.45` |
 | `:hash` | | Hash conversion with JSON support (`nil` → `{}`) | `'{"a":1}'` → `{"a" => 1}` |
 | `:integer` | | Integer via `Kernel#Integer` (hex/octal with explicit prefix) | `"0xFF"` → `255`, `"0o77"` → `63` |
 | `:rational` | `:denominator` (default `1`) | Rational numbers | `"1/2"` → `Rational(1, 2)` |
 | `:string` | | String conversion | `123` → `"123"` |
-| `:symbol` | | Symbol conversion | `"abc"` → `:abc` |
+| `:symbol` | | `#to_s.to_sym`; fails when `value` has no `#to_s` (`BasicObject`) | `"abc"` → `:abc` |
 | `:time` | `:strptime` | Time objects; `Numeric` treated as epoch seconds | `"2024-01-23 10:30"` → `Time.new(2024, 1, 23, 10, 30)` |
 
 ## Declarations
 
 !!! warning "Important"
 
-    Custom coercions must return the coerced value on success or `CMDx::Coercions::Failure.new("message")` on failure. Returning a `Failure` records the message on `task.errors` under the input's name.
+    Custom coercions must return the coerced value on success or `CMDx::Coercions::Failure.new("message")` on failure. Returning a `Failure` records the message on `task.errors` keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`) — not the original declaration name.
 
 !!! note "Call signatures"
 
@@ -149,28 +149,4 @@ end
 
 ## Error Handling
 
-Coercion failures accumulate on `task.errors`. When resolution finishes and errors exist, Runtime throws a failed signal: the joined sentence becomes `result.reason`; structured details live on `result.errors`.
-
-```ruby
-class AnalyzePerformance < CMDx::Task
-  input :iterations, coerce: :integer
-  input :score,      coerce: %i[float big_decimal]
-
-  def work
-    # Your logic here...
-  end
-end
-
-result = AnalyzePerformance.execute(
-  iterations: "not-a-number",
-  score: "invalid-float"
-)
-
-result.state       #=> "interrupted"
-result.status      #=> "failed"
-result.reason      #=> "iterations could not coerce into an integer. score could not coerce into one of: float, big decimal"
-result.errors.to_h #=> {
-                   #     iterations: ["could not coerce into an integer"],
-                   #     score:      ["could not coerce into one of: float, big decimal"]
-                   #   }
-```
+Coercion failures accumulate on `task.errors` and surface as a failed result with the joined sentence as `result.reason`. See [Inputs - Error Handling](definitions.md#error-handling) for the full lifecycle.
