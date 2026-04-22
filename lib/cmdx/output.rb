@@ -79,6 +79,24 @@ module CMDx
       }
     end
 
+    # JSON-friendly hash view. Aliases {#to_h} for conventional `as_json`
+    # callers (e.g. Rails).
+    #
+    # @return [Hash{Symbol => Object}]
+    def as_json(*)
+      to_h
+    end
+
+    # Serializes the output schema to a JSON string. Non-primitive entries in
+    # `:options` (Procs, arbitrary callables) emit via their stdlib `to_json`
+    # defaults.
+    #
+    # @param args [Array] forwarded to `Hash#to_json`
+    # @return [String]
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
+
     # Enforces the output contract against `task.context[name]` after `work` runs.
     #
     # Steps, in order:

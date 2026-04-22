@@ -325,4 +325,28 @@ RSpec.describe CMDx::Context do
       end
     end
   end
+
+  describe "#as_json" do
+    it "returns to_h" do
+      ctx = described_class.new(a: 1, b: "x")
+      expect(ctx.as_json).to eq(ctx.to_h)
+    end
+  end
+
+  describe "#to_json" do
+    it "emits a JSON string with symbol keys stringified" do
+      ctx = described_class.new(a: 1, b: "x")
+      expect(JSON.parse(ctx.to_json)).to eq("a" => 1, "b" => "x")
+    end
+
+    it "serializes nested contexts" do
+      inner = described_class.new(n: 2)
+      outer = described_class.new(inner: inner, label: "outer")
+
+      expect(JSON.parse(outer.to_json)).to eq(
+        "inner" => { "n" => 2 },
+        "label" => "outer"
+      )
+    end
+  end
 end

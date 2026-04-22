@@ -217,6 +217,47 @@ RSpec.describe CMDx::Result do
     end
   end
 
+  describe "#as_json" do
+    it "returns the memoized to_h" do
+      chain << (result = build(CMDx::Signal.success, tid: "rid"))
+      expect(result.as_json).to be(result.to_h)
+    end
+  end
+
+  describe "#to_json" do
+    it "emits a JSON string for a success result with expected top-level keys" do
+      chain << (result = build(CMDx::Signal.success, tid: "rid", duration: 0.1))
+
+      parsed = JSON.parse(result.to_json)
+
+      expect(parsed).to include(
+        "cid" => chain.id,
+        "tid" => "rid",
+        "type" => "Task",
+        "state" => "complete",
+        "status" => "success",
+        "duration" => 0.1
+      )
+      expect(parsed).not_to have_key("cause")
+    end
+
+    it "emits a JSON string for a failed result including failure fields" do
+      sig = CMDx::Signal.failed("boom", metadata: { k: 1 })
+      chain << (result = build(sig, rolled_back: true))
+
+      parsed = JSON.parse(result.to_json)
+
+      expect(parsed).to include(
+        "state" => "interrupted",
+        "status" => "failed",
+        "reason" => "boom",
+        "metadata" => { "k" => 1 },
+        "rolled_back" => true
+      )
+      expect(parsed.keys).to include("threw_failure", "caused_failure")
+    end
+  end
+
   describe "pattern matching support" do
     let(:result) { build(CMDx::Signal.failed("boom", metadata: { k: 1 })) }
 

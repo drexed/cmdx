@@ -128,6 +128,23 @@ module CMDx
       full ? full_messages : to_h
     end
 
+    # JSON-friendly hash view. Aliases {#to_h} for conventional `as_json`
+    # callers (e.g. Rails).
+    #
+    # @return [Hash{Symbol => Array<String>}]
+    def as_json(*)
+      to_h
+    end
+
+    # Serializes the error messages to a JSON string. Symbol keys are
+    # emitted as strings by the `json` stdlib.
+    #
+    # @param args [Array] forwarded to `Hash#to_json`
+    # @return [String]
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
+
     # @return [String] all full messages joined with `". "`, suitable as a
     #   fail reason
     def to_s

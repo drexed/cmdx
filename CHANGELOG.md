@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replaced by an explicit signal-based runtime, immutable results, fiber-local chains, and a slimmer registry surface. See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide.
 
 ### Added
+- Add `Context#as_json` / `Context#to_json` — JSON serialization delegating to `#to_h`
+- Add `Errors#as_json` / `Errors#to_json` — JSON serialization delegating to `#to_h`
+- Add `Result#as_json` / `Result#to_json` — JSON serialization delegating to the memoized `#to_h`
+- Add `Input#as_json` / `Input#to_json` — JSON serialization delegating to `#to_h`
+- Add `Output#as_json` / `Output#to_json` — JSON serialization delegating to `#to_h`
 - Add `CMDx::Signal` halt token thrown via `catch(Signal::TAG)` (`:cmdx_signal`)
 - Add `Signal#ok?` / `Signal#ko?` predicates
 - Add `CMDx::Runtime` orchestrating the full task lifecycle and building the final `Result`

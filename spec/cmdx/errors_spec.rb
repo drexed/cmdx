@@ -263,6 +263,31 @@ RSpec.describe CMDx::Errors do
     end
   end
 
+  describe "#as_json" do
+    it "returns to_h" do
+      errors.add(:name, "is required")
+      expect(errors.as_json).to eq(errors.to_h)
+    end
+  end
+
+  describe "#to_json" do
+    it "emits a JSON string with symbol keys stringified and messages as arrays" do
+      errors.add(:name, "is required")
+      errors.add(:name, "is too short")
+      errors.add(:age, "too young")
+
+      parsed = JSON.parse(errors.to_json)
+
+      expect(parsed.keys).to contain_exactly("name", "age")
+      expect(parsed["name"]).to contain_exactly("is required", "is too short")
+      expect(parsed["age"]).to eq(["too young"])
+    end
+
+    it "emits an empty object when there are no messages" do
+      expect(errors.to_json).to eq("{}")
+    end
+  end
+
   describe "#freeze" do
     it "freezes the messages hash and each message set" do
       errors.add(:name, "is required")

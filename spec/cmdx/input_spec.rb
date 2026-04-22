@@ -126,6 +126,30 @@ RSpec.describe CMDx::Input do
     end
   end
 
+  describe "#as_json" do
+    it "returns to_h" do
+      input = described_class.new(:user, description: "d", required: true)
+      expect(input.as_json).to eq(input.to_h)
+    end
+  end
+
+  describe "#to_json" do
+    it "emits a JSON string with the schema shape" do
+      child = described_class.new(:inner)
+      input = described_class.new(:user, description: "d", required: true, children: [child])
+
+      parsed = JSON.parse(input.to_json)
+
+      expect(parsed).to include(
+        "name" => "user",
+        "description" => "d",
+        "required" => true
+      )
+      expect(parsed["options"]).to include("description" => "d", "required" => true)
+      expect(parsed["children"]).to eq([JSON.parse(child.to_json)])
+    end
+  end
+
   describe "#resolve" do
     context "when the value is present in context" do
       it "returns the coerced value" do

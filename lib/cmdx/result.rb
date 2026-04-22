@@ -283,6 +283,24 @@ module CMDx
       end
     end
 
+    # JSON-friendly hash view. Aliases the memoized {#to_h} for conventional
+    # `as_json` callers (e.g. Rails).
+    #
+    # @return [Hash{Symbol => Object}]
+    def as_json(*)
+      to_h
+    end
+
+    # Serializes the result to a JSON string. Non-primitive entries (the
+    # `:task` Class, `:cause` Exception) emit via their stdlib `to_json`
+    # defaults; `:context` delegates to {Context#to_json}.
+    #
+    # @param args [Array] forwarded to `Hash#to_json`
+    # @return [String]
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
+
     # @return [String] space-separated `key=value.inspect` pairs; failure
     #   references render as `<TaskClass uuid>`.
     def to_s

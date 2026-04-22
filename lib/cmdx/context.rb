@@ -195,6 +195,24 @@ module CMDx
       @table
     end
 
+    # JSON-friendly hash view. Aliases {#to_h} for conventional `as_json`
+    # callers (e.g. Rails); values pass through unchanged — non-primitive
+    # entries rely on their own `as_json` / `to_json`.
+    #
+    # @return [Hash{Symbol => Object}]
+    def as_json(*)
+      to_h
+    end
+
+    # Serializes the context to a JSON string. Symbol keys are emitted as
+    # strings by the `json` stdlib.
+    #
+    # @param args [Array] forwarded to `Hash#to_json`
+    # @return [String]
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
+
     # @return [String] space-separated `key=value.inspect` pairs
     def to_s
       @table.map { |k, v| "#{k}=#{v.inspect}" }.join(" ")
@@ -260,10 +278,6 @@ module CMDx
 
     def respond_to_missing?(method_name, include_private = false)
       @table.key?(method_name) || method_name.end_with?("=", "?") || super
-    end
-
-    def deep_dup_hash(h)
-      h.each_with_object({}) { |(k, v), acc| acc[k] = deep_dup_value(v) }
     end
 
     def compute_deep_dup(value)

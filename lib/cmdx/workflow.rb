@@ -37,7 +37,6 @@ module CMDx
       # @raise [DefinitionError] when called with options but no tasks
       # @raise [TypeError] when any element isn't a `Task` subclass
       def tasks(*tasks, **options)
-        # return pipeline if tasks.empty? && options.empty?
         raise DefinitionError, "#{name}: cannot declare an empty task group" if tasks.empty?
 
         pipeline << ExecutionGroup.new(

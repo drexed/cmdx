@@ -115,6 +115,30 @@ RSpec.describe CMDx::Output do
     end
   end
 
+  describe "#as_json" do
+    it "returns to_h" do
+      output = described_class.new(:user, description: "d", required: true)
+      expect(output.as_json).to eq(output.to_h)
+    end
+  end
+
+  describe "#to_json" do
+    it "emits a JSON string with the schema shape" do
+      child  = described_class.new(:id, type: :integer)
+      output = described_class.new(:user, description: "d", required: true, children: [child])
+
+      parsed = JSON.parse(output.to_json)
+
+      expect(parsed).to include(
+        "name" => "user",
+        "description" => "d",
+        "required" => true
+      )
+      expect(parsed["options"]).to include("description" => "d", "required" => true)
+      expect(parsed["children"]).to eq([JSON.parse(child.to_json)])
+    end
+  end
+
   describe "#verify" do
     let(:task) do
       create_task_class(name: "OutVerifyTask") do
