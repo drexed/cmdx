@@ -203,6 +203,49 @@ I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d
 
     With a durable log sink, these lines double as a log-only event sourcing record — a time-ordered history of every task execution, its inputs, and its outcome.
 
+## Task Lifecycle
+
+Every `Task.execute` runs the same orchestrated lifecycle. The diagram below traces the path from invocation to a frozen `Result`, including how signals (`success!` / `skip!` / `fail!` / `throw!`) and exceptions interleave with middlewares, callbacks, retries, and rollback.
+
+```mermaid
+flowchart TD
+    Invoke([Task.execute / execute!]) --> Chain[Acquire/reuse Chain]
+    Chain --> MW[Middlewares.process]
+    MW --> Dep{Deprecation?}
+    Dep -->|:log / :warn| TelemDep[Emit :task_deprecated]
+    Dep -->|:error| Raise([raise DeprecationError])
+    Dep -->|none| BE[before_execution]
+    TelemDep --> BE
+    BE --> BV[before_validation]
+    BV --> Resolve[Resolve inputs]
+    Resolve --> Retry{retry_on}
+    Retry --> Work[work]
+    Work -->|success!| OK[Signal.success]
+    Work -->|skip!| OK
+    Work -->|fail! / throw!| Fail[Signal.failed]
+    Work -.->|raises Fault| Echo[Signal.echoed]
+    Work -.->|raises StandardError| Fail
+    Retry -.->|retriable error| Retry
+    OK --> Verify[Verify outputs]
+    Fail --> Rollback{task.rollback?}
+    Echo --> Rollback
+    Rollback -->|yes| DoRollback[Run rollback]
+    Rollback -->|no| Cb
+    DoRollback --> Cb["on_state / on_status / on_ok / on_ko"]
+    Verify --> Cb
+    Cb --> Finalize[Finalize Result + Chain]
+    Finalize --> Telem[Emit :task_executed]
+    Telem --> Teardown[Freeze context & errors, clear chain]
+    Teardown --> Out([Frozen Result])
+```
+
+Key invariants:
+
+- **Middlewares wrap everything inside `execute`** — telemetry, deprecation, callbacks, work, rollback, and result finalization all happen inside the middleware chain.
+- **Retry only wraps `work`** — input resolution and output verification run exactly once, outside the retry loop.
+- **Rollback only runs on failure**, before result finalization, so `Result#rolled_back?` is already known when `on_failed` callbacks and `:task_executed` telemetry fire.
+- **Teardown always runs** (via `ensure`), freezing the context/errors and clearing the fiber-local chain even when `execute!` re-raises.
+
 ## Domain Driven Design
 
 CMDx makes business processes explicit and structural — a natural fit for Domain Driven Design (DDD).
