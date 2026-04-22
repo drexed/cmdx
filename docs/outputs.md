@@ -111,6 +111,41 @@ class LightweightTask < ApplicationTask
 end
 ```
 
+## Nesting
+
+Declare child outputs against a parent value with a block. Children are verified against the resolved parent — any object that responds to the child's name, `#[]`, or `#key?` (Hash, Struct, Data, OpenStruct, Context, ...). All output options (`:required`, `:default`, `:coerce`, `:transform`, validators, `:if`/`:unless`) work per-child and nest arbitrarily deep.
+
+```ruby
+class CreateUser < CMDx::Task
+  output :user do
+    required :id, coerce: :integer
+    optional :email
+  end
+
+  output :billing do
+    required :plan
+
+    optional :address do
+      required :city
+      optional :postal_code
+    end
+  end
+
+  def work
+    context.user    = User.create!(params)
+    context.billing = { plan: "pro", address: { city: "Lisbon" } }
+  end
+end
+```
+
+Child verification only runs when the parent value is present and not a coercion failure — missing optional parents skip their children entirely. Required children on a present parent that doesn't expose the child key add `cmdx.outputs.missing` to `task.errors` under the child's name.
+
+!!! note
+
+    Children are *verified* against the parent value but written back to `task.context[<child>]` only if they were already there; nested outputs do not synthesize top-level context keys. Use inputs' [Nesting](inputs/definitions.md#nesting) when you need parent-backed accessors.
+
+`deregister :output, :user` still removes the top-level declaration (and its children in one shot).
+
 ## Verification Behavior
 
 Verification runs **after** `work` completes successfully. If `work` threw a `skip!`, `fail!`, or `throw!` signal, outputs are not verified.
@@ -173,5 +208,20 @@ CreateUser.outputs_schema
 # => { user: { name: :user,
 #              description: "the persisted user",
 #              required: true,
-#              options: { required: true, description: "the persisted user" } } }
+#              options: { required: true, description: "the persisted user" },
+#              children: [] } }
+```
+
+Nested declarations serialize their children recursively:
+
+```ruby
+class CreateUser < CMDx::Task
+  output :user do
+    required :id, coerce: :integer
+  end
+end
+
+CreateUser.outputs_schema[:user][:children]
+# => [{ name: :id, description: nil, required: true,
+#       options: { required: true, coerce: :integer }, children: [] }]
 ```

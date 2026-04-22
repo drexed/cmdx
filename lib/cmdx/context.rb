@@ -187,6 +187,21 @@ module CMDx
       @table.map { |k, v| "#{k}=#{v.inspect}" }.join(" ")
     end
 
+    # Pattern-matching support for `case context in {...}`.
+    #
+    # @param keys [Array<Symbol>, nil] restrict the returned hash to these keys
+    # @return [Hash{Symbol => Object}]
+    def deconstruct_keys(keys)
+      keys.nil? ? @table : @table.slice(*keys)
+    end
+
+    # Pattern-matching support for `case context in [...]`.
+    #
+    # @return [Array<Array(Symbol, Object)>]
+    def deconstruct
+      @table.to_a
+    end
+
     # Returns a deep copy. Non-mutable scalars are shared; Hashes/Arrays are
     # recursively duplicated; other objects fall back to `#dup` (and then
     # to the original on `StandardError`).

@@ -270,4 +270,3 @@ RSpec.describe CMDx::Chain do
     end
   end
 end
-

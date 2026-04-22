@@ -90,6 +90,23 @@ result.reason == result.errors.to_s #=> true
 
 `to_hash` mirrors `to_h` by default and `full_messages` when called with `true`.
 
+## Pattern Matching
+
+`Errors` supports both array and hash deconstruction (Ruby 3.0+).
+
+```ruby
+result = CreateUser.execute(email: "taken@example.com")
+
+case result.errors
+in { email: [String => first, *] }
+  notify_user(first)
+in { base: messages } if messages.any?
+  render_flash(messages)
+end
+```
+
+`deconstruct_keys(nil)` returns the full `to_h` (`{ key => [messages] }`); a key list slices it — unknown keys are omitted. `deconstruct` yields `[[key, messages], ...]` pairs for find-pattern matches.
+
 ## Failure Propagation
 
 Runtime checks `task.errors.empty?` at three lifecycle checkpoints: after input resolution, after `work` returns, and after output verification. A non-empty container at any checkpoint short-circuits the rest of the lifecycle by throwing a failed signal whose `reason` is `errors.to_s` and whose `metadata` is `task.metadata`.

@@ -23,6 +23,8 @@ end
 | `delay:`     | `0.5`   | Base delay in seconds; `0` disables sleeping between attempts  |
 | `max_delay:` | `nil`   | Upper bound clamp applied after jitter is computed             |
 | `jitter:`    | `nil`   | Strategy for spreading delays — see [Jitter](#jitter) below    |
+| `if:`        | `nil`   | Gate evaluated per attempt; when falsy the exception is re-raised instead of retried — see [Conditional Retries](#conditional-retries) |
+| `unless:`    | `nil`   | Inverse of `if:` — when truthy the exception is re-raised      |
 
 ```ruby
 class ProcessPayment < CMDx::Task
@@ -148,6 +150,35 @@ class FetchAnalytics < CMDx::Task
   end
 end
 ```
+
+## Conditional Retries
+
+`:if` / `:unless` gate each retry attempt. The gate receives `(task, error, attempt)` — when falsy (`if`) or truthy (`unless`), the rescued exception is re-raised instead of retried, skipping any remaining budget and the `wait` between attempts.
+
+Symbol, Proc, and any `#call`-able resolve against the task (Procs via `instance_exec`, Symbols via `task.send(sym, error, attempt)`, callables via `gate.call(task, error, attempt)`).
+
+```ruby
+class FetchProfile < CMDx::Task
+  retry_on ApiError,
+           limit: 5,
+           delay: 1.0,
+           if: ->(_task, error, _attempt) { error.retryable? }
+
+  retry_on Net::ReadTimeout, if: :transient?, limit: 3
+
+  def work
+    context.profile = ApiClient.fetch(context.user_id)
+  end
+
+  private
+
+  def transient?(error, _attempt) = !error.message.include?("permanent")
+end
+```
+
+!!! note
+
+    The gate fires *before* `wait` sleeps. When the gate rejects, no delay elapses — the exception propagates immediately and Runtime converts it to a failed result (or raises under `execute!`).
 
 ## Behavior
 

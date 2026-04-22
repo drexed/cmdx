@@ -159,23 +159,22 @@ result
 
 ### Array Pattern
 
-`deconstruct` returns `[type, task, state, status, reason, metadata, cause, origin]`:
+`deconstruct` returns `to_h.to_a` — an array of `[key, value]` pairs in insertion order. Use find-patterns to match on specific entries regardless of position:
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
 
-case result
-in [_, _, "complete",    "success", *]                  then redirect_to(build_success_page)
-in [_, _, "interrupted", "failed",  reason, *]          then retry_build_with_backoff(result, reason)
-in [_, _, "interrupted", "skipped", *]                  then log_skip_and_continue
-in ["Workflow", BuildApplication, *]                    then handle_build_workflow(result)
+case result.deconstruct
+in [*, [:status, "success"], *]                      then redirect_to(build_success_page)
+in [*, [:status, "failed"], *, [:reason, reason], *] then retry_build_with_backoff(result, reason)
+in [*, [:status, "skipped"], *]                      then log_skip_and_continue
+in [*, [:type, "Workflow"], *]                       then handle_build_workflow(result)
 end
 ```
 
 ### Hash Pattern
 
-`deconstruct_keys` exposes:
-`:root, :type, :task, :state, :status, :reason, :metadata, :cause, :origin, :strict, :deprecated, :retries, :rolled_back, :duration`.
+`deconstruct_keys(keys)` delegates to `#to_h` — `nil` returns the full hash, a key list slices it (unknown keys are omitted). Keys always present: `:cid, :index, :root, :type, :task, :tid, :context, :state, :status, :reason, :metadata, :strict, :deprecated, :retried, :retries, :duration, :tags`. Failure-only keys (`:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`) appear only on `failed?` results.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")

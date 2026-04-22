@@ -26,7 +26,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Task.execute` / `Task.execute!` as the execution entry points (aliased as `call` / `call!` for backward compatibility)
 - Add `Task#execute(strict:)` instance method (aliased as `#call`)
 - Add `Result#on(:success, :failed, ...)` chainable predicate-dispatch helper
-- Add `Result#deconstruct` / `Result#deconstruct_keys` for pattern matching; `deconstruct` returns `[type, task, state, status, reason, metadata, cause, origin]`
+- Add `Result#deconstruct` / `Result#deconstruct_keys` for pattern matching; `deconstruct` returns `#to_h.to_a` pairs and `deconstruct_keys(keys)` slices `#to_h` (`nil` returns the full hash)
 - Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#index`, `Result#root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias
 - Add `Signal#origin` / `Result#origin` — upstream `Result` a signal/result was echoed from (`nil` for locally originated failures); set by `Task#throw!`, `Pipeline` when propagating workflow failures, and `Runtime` when rescuing a `Fault` inside `work`
 - Add `Chain#unshift`, `Chain#root`, `Chain#state`, `Chain#status`, `Chain#last`, `Chain#freeze`; Runtime `unshift`s the root result (so `chain.root` and `chain[0]` point to the outermost task) and freezes the chain on root teardown
@@ -38,6 +38,11 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Configuration#backtrace_cleaner` and `Configuration#telemetry`
 - Add `CMDx.reset_configuration!` which clears global registry ivars on `Task` for clean test setup/teardown; subclasses that already cloned their registries are unaffected
 - Add `:if` / `:unless` gates to `Callbacks#register` (Symbol, Proc, or any `#call`-able); per-event DSL helpers (`before_execution`, `on_success`, etc.) forward the options through
+- Add `:if` / `:unless` gates to `Middlewares#register` (Symbol, Proc, or any `#call`-able); evaluated per task in `Middlewares#process` — skipped middlewares are bypassed and the chain continues
+- Add `:if` / `:unless` gates to `Retry` / `Task.retry_on`; gate receives `(task, error, attempt)` and, when falsy, re-raises the exception instead of retrying (no further wait). Adds `Retry#condition_if` / `Retry#condition_unless` readers
+- Add `Outputs#register` block DSL (`Outputs::ChildBuilder`) for nested outputs via `required` / `optional` / `output` / `outputs`, arbitrarily deep; `Output#children`, `Output#verify_from_parent`, and `:children` in `Output#to_h` / `Task.outputs_schema`. `Task.outputs` forwards the block
+- Add `Context#deconstruct` / `Context#deconstruct_keys` for pattern matching
+- Add `Errors#deconstruct` / `Errors#deconstruct_keys` for pattern matching
 
 ### Changed
 - **BREAKING**: Rename `#call` → `#work` on task subclasses; `Task.execute` / `Task.execute!` are the new entry points (`call` / `call!` kept as aliases)
@@ -61,6 +66,9 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - `Fault#initialize` takes a single `Result`; `task`, `context`, and `chain` delegate to it; `Runtime` raises `Fault.new(@result.caused_failure)` so `fault.task` always points at the originating leaf (including in workflows and nested `execute!` chains)
 - `Runtime` finalizes the `Result` before `raise_signal!` so the `Fault` it raises always carries a fully-built `Result`
 - `Result#to_h` / `to_s` / `deconstruct_keys` now include `:origin` (compact `{ task:, tid: }` hash, or `nil` for locally originated failures)
+- **BREAKING**: `Result#deconstruct` now returns `#to_h.to_a` (array of `[key, value]` pairs) instead of the fixed `[type, task, state, status, reason, metadata, cause, origin]` tuple — update any array-pattern matches to use find-patterns (`in [*, [:status, "failed"], *]`)
+- `Result#deconstruct_keys` now honors its `keys` argument — `nil` returns the full `#to_h`, a key list slices it; previously it always returned the full hash
+- `Middlewares` registry entries are now `[callable, options.freeze]` tuples — callers that read `Task.middlewares.registry` directly must map `.first` to recover the callable
 - Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
 - Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
 - Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`

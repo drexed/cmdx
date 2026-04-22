@@ -221,10 +221,34 @@ RSpec.describe CMDx::Result do
     let(:result) { build(CMDx::Signal.failed("boom", metadata: { k: 1 })) }
 
     describe "#deconstruct" do
-      it "deconstructs to [type, task, state, status, reason, metadata, cause, origin]" do
-        expect(result.deconstruct).to eq(
-          ["Task", task_class, "interrupted", "failed", "boom", { k: 1 }, nil, nil]
+      it "returns #to_h as an array of [key, value] pairs" do
+        chain << result
+        expect(result.deconstruct).to eq(result.to_h.to_a)
+      end
+
+      it "includes failure-specific pairs when the result failed" do
+        pairs = result.deconstruct.to_h
+        expect(pairs).to include(
+          type: "Task",
+          task: task_class,
+          state: "interrupted",
+          status: "failed",
+          reason: "boom",
+          metadata: { k: 1 },
+          cause: nil
         )
+        expect(pairs).to have_key(:threw_failure)
+        expect(pairs).to have_key(:caused_failure)
+      end
+
+      it "supports find-pattern array matching on the pairs" do
+        matched =
+          case result.deconstruct
+          in [*, [:status, "failed"], *]
+            :found
+          end
+
+        expect(matched).to eq(:found)
       end
     end
 
@@ -237,11 +261,19 @@ RSpec.describe CMDx::Result do
           retries: 3,
           rolled_back: true,
           duration: 0.25
-        )
+        ).tap { |r| chain << r }
       end
 
-      it "returns the full hash regardless of the keys argument" do
-        expected = {
+      it "delegates to #to_h when keys is nil" do
+        expect(result.deconstruct_keys(nil)).to eq(result.to_h)
+      end
+
+      it "returns the full pattern hash when keys is nil" do
+        full = result.deconstruct_keys(nil)
+
+        expect(full).to include(
+          cid: chain.id,
+          index: 0,
           root: false,
           type: "Task",
           task: task_class,
@@ -253,14 +285,27 @@ RSpec.describe CMDx::Result do
           origin: nil,
           strict: true,
           deprecated: true,
+          retried: true,
           retries: 3,
           rolled_back: true,
           duration: 0.25
-        }
+        )
+        expect(full.keys).to include(:tid, :context, :tags, :threw_failure, :caused_failure)
+      end
 
-        expect(result.deconstruct_keys(nil)).to eq(expected)
-        expect(result.deconstruct_keys(%i[status reason])).to eq(expected)
-        expect(result.deconstruct_keys([])).to eq(expected)
+      it "exposes context as a live reference" do
+        expect(result.deconstruct_keys(nil)[:context]).to be(task.context)
+      end
+
+      it "renders threw_failure/caused_failure as {task:, tid:} hashes" do
+        full = result.deconstruct_keys(nil)
+        expect(full[:threw_failure]).to eq(task: task_class, tid: nil)
+        expect(full[:caused_failure]).to eq(task: task_class, tid: nil)
+      end
+
+      it "slices to the requested keys" do
+        expect(result.deconstruct_keys(%i[status reason])).to eq(status: "failed", reason: "boom")
+        expect(result.deconstruct_keys([])).to eq({})
       end
 
       it "supports hash pattern matching" do
@@ -273,16 +318,18 @@ RSpec.describe CMDx::Result do
         expect(matched).to eq(["boom", 3])
       end
 
-      it "reflects default option-backed values" do
+      it "omits failure-only keys for a non-failed result" do
         plain = build(CMDx::Signal.success)
-        expect(plain.deconstruct_keys(nil)).to include(
+        hash = plain.deconstruct_keys(nil)
+
+        expect(hash).to include(
           strict: false,
           deprecated: false,
+          retried: false,
           retries: 0,
-          rolled_back: false,
-          duration: nil,
-          cause: nil
+          duration: nil
         )
+        expect(hash.keys).not_to include(:cause, :origin, :threw_failure, :caused_failure, :rolled_back)
       end
     end
   end

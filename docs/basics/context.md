@@ -124,3 +124,20 @@ CreateShippingLabel.execute(result)
     Passing a live `Context`, `Task`, or `Result` shares the context by reference — writes in the callee are visible to the caller. Use `context.deep_dup` when you need an isolated snapshot.
 
     `context.to_h` exposes the backing hash by reference. `Context.build(context.to_h)` rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use `deep_dup` for full isolation.
+
+## Pattern Matching
+
+`Context` supports both array and hash deconstruction (Ruby 3.0+).
+
+```ruby
+result = CalculateShipping.execute(weight: 2.5, destination: "CA", options: { carrier: "ups" })
+
+case result.context
+in { destination: "CA", weight: Float => kg } if kg > 1.0
+  bulk_ship(kg)
+in { options: { carrier: String => code } }
+  track_with(code)
+end
+```
+
+`deconstruct_keys(nil)` returns the full backing table; a key list slices it (unknown keys are omitted). `deconstruct` yields `[[key, value], ...]` pairs for find-pattern matches (`in [*, [:weight, Float], *]`).

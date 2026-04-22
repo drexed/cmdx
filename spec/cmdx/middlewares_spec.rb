@@ -32,12 +32,20 @@ RSpec.describe CMDx::Middlewares do
 
     it "appends the callable and returns self" do
       expect(middlewares.register(mw)).to be(middlewares)
-      expect(middlewares.registry).to eq([mw])
+      expect(middlewares.registry).to eq([[mw, {}]])
     end
 
     it "accepts a block" do
       middlewares.register { |_t, &blk| blk.call }
       expect(middlewares.size).to eq(1)
+    end
+
+    it "stores :if/:unless options on the entry" do
+      gate = -> { true }
+      middlewares.register(mw, if: :run?, unless: gate)
+      _, opts = middlewares.registry.first
+      expect(opts).to eq(if: :run?, unless: gate)
+      expect(opts).to be_frozen
     end
 
     it "raises when both callable and block are given" do
@@ -64,7 +72,7 @@ RSpec.describe CMDx::Middlewares do
       middlewares.register(b)
       middlewares.register(c, at: 1)
 
-      expect(middlewares.registry).to eq([a, c, b])
+      expect(middlewares.registry.map(&:first)).to eq([a, c, b])
     end
 
     it "clamps out-of-bounds indices to the valid range" do
@@ -76,8 +84,8 @@ RSpec.describe CMDx::Middlewares do
       middlewares.register(b, at: 100)
       middlewares.register(c, at: -100)
 
-      expect(middlewares.registry.first).to be(c)
-      expect(middlewares.registry.last).to be(b)
+      expect(middlewares.registry.first.first).to be(c)
+      expect(middlewares.registry.last.first).to be(b)
     end
   end
 
@@ -161,6 +169,53 @@ RSpec.describe CMDx::Middlewares do
 
       expect { middlewares.process(task) { :inner } }
         .to raise_error(CMDx::MiddlewareError, "middleware did not yield the next_link")
+    end
+
+    context "with :if/:unless gates" do
+      let(:task) { Struct.new(:enabled).new(false) }
+
+      it "skips middleware whose :if gate is falsy" do
+        trace = []
+        mw = lambda { |_t, &blk|
+          trace << :ran
+          blk.call
+        }
+        middlewares.register(mw, if: :enabled)
+
+        middlewares.process(task) { trace << :inner }
+
+        expect(trace).to eq([:inner])
+      end
+
+      it "runs middleware whose :unless gate is falsy" do
+        task.enabled = true
+        trace = []
+        mw = lambda { |_t, &blk|
+          trace << :ran
+          blk.call
+        }
+        middlewares.register(mw, unless: proc { !enabled })
+
+        middlewares.process(task) { trace << :inner }
+
+        expect(trace).to eq(%i[ran inner])
+      end
+
+      it "still walks subsequent middlewares when an earlier one is gated out" do
+        trace = []
+        middlewares.register(lambda { |_t, &blk|
+          trace << :a
+          blk.call
+        }, if: proc { false })
+        middlewares.register(lambda { |_t, &blk|
+          trace << :b
+          blk.call
+        })
+
+        middlewares.process(task) { trace << :inner }
+
+        expect(trace).to eq(%i[b inner])
+      end
     end
   end
 

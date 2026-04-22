@@ -24,7 +24,7 @@ RSpec.describe CMDx::Task do
       mw = ->(_t, &blk) { blk.call }
       base.register(:middleware, mw)
 
-      expect(child.middlewares.registry).to include(mw)
+      expect(child.middlewares.registry.map(&:first)).to include(mw)
     end
 
     it "callbacks/telemetry/coercions/validators are dup-isolated per subclass" do
@@ -55,10 +55,10 @@ RSpec.describe CMDx::Task do
       klass = create_task_class
       mw = ->(_t, &blk) { blk.call }
       klass.register(:middleware, mw)
-      expect(klass.middlewares.registry).to include(mw)
+      expect(klass.middlewares.registry.map(&:first)).to include(mw)
 
       klass.deregister(:middleware, mw)
-      expect(klass.middlewares.registry).not_to include(mw)
+      expect(klass.middlewares.registry.map(&:first)).not_to include(mw)
     end
 
     it "raises on an unknown registry type" do

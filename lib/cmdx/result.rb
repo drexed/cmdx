@@ -305,50 +305,19 @@ module CMDx
       end
     end
 
-    # Pattern-matching support for `case result in [...]`.
-    #
-    # @return [Array(String, Class<Task>, String, String, String, Hash, Exception)]
-    #   `[type, task, state, status, reason, metadata, cause, origin]`
-    #
-    # @example
-    #   case result
-    #   in [_, _, "complete", "success", *]  then handle_success(result)
-    #   in [_, _, _, "failed", reason, *]    then handle_failure(reason)
-    #   end
-    def deconstruct
-      [
-        type,
-        task,
-        state,
-        status,
-        reason,
-        metadata,
-        cause,
-        origin
-      ]
-    end
-
     # Pattern-matching support for `case result in {...}`.
     #
     # @param keys [Array<Symbol>, nil] restrict the returned hash to these keys
     # @return [Hash{Symbol => Object}]
-    def deconstruct_keys(*)
-      {
-        root: root?,
-        type:,
-        task:,
-        state:,
-        status:,
-        reason:,
-        metadata:,
-        cause:,
-        origin:,
-        strict: strict?,
-        deprecated: deprecated?,
-        retries:,
-        rolled_back: rolled_back?,
-        duration:
-      }
+    def deconstruct_keys(keys)
+      keys.nil? ? to_h : to_h.slice(*keys)
+    end
+
+    # Pattern-matching support for `case result in [...]`.
+    #
+    # @return [Array<Array(Symbol, Object)>]
+    def deconstruct
+      to_h.to_a
     end
 
     private

@@ -134,6 +134,26 @@ module CMDx
       full_messages.values.flatten.join(". ")
     end
 
+    # Pattern-matching support for `case errors in {...}`.
+    #
+    # @param keys [Array<Symbol>, nil] restrict the returned hash to these keys
+    # @return [Hash{Symbol => Array<String>}]
+    #
+    # @example
+    #   case task.errors
+    #   in { name: [_, *] } then handle_name_errors(task)
+    #   end
+    def deconstruct_keys(keys)
+      keys.nil? ? to_h : to_h.slice(*keys)
+    end
+
+    # Pattern-matching support for `case errors in [...]`.
+    #
+    # @return [Array<Array(Symbol, Array<String>)>]
+    def deconstruct
+      to_h.to_a
+    end
+
     # Freezes the container and every message set. Called by Runtime teardown.
     #
     # @return [Errors] self

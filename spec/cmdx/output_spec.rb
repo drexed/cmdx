@@ -102,8 +102,16 @@ RSpec.describe CMDx::Output do
         name: :user,
         description: "d",
         required: true,
-        options: { description: "d", required: true, type: :string }
+        options: { description: "d", required: true, type: :string },
+        children: []
       )
+    end
+
+    it "serializes children recursively" do
+      child = described_class.new(:id, type: :integer)
+      output = described_class.new(:user, children: [child], type: :hash)
+
+      expect(output.to_h[:children]).to eq([child.to_h])
     end
   end
 
@@ -319,6 +327,50 @@ RSpec.describe CMDx::Output do
 
         expect(task.context[:days]).to eq(5)
         expect(task.errors).to be_empty
+      end
+    end
+
+    context "with nested children" do
+      it "verifies required children against the parent value" do
+        task_class = create_task_class(name: "OutChildRequired") do
+          output :user do
+            required :id
+            optional :email
+          end
+        end
+        task = task_class.new
+        task.context[:user] = { email: "x@y" }
+
+        task_class.outputs.registry[:user].verify(task)
+
+        expect(task.errors[:id]).to include(CMDx::I18nProxy.t("cmdx.outputs.missing"))
+      end
+
+      it "skips child verification when parent is nil" do
+        task_class = create_task_class(name: "OutChildSkip") do
+          output :user do
+            required :id
+          end
+        end
+        task = task_class.new
+
+        task_class.outputs.registry[:user].verify(task)
+
+        expect(task.errors).to be_empty
+      end
+
+      it "validates child values against the parent" do
+        task_class = create_task_class(name: "OutChildValidate") do
+          output :user do
+            required :age, coerce: :integer, numeric: { min: 18 }
+          end
+        end
+        task = task_class.new
+        task.context[:user] = { age: "12" }
+
+        task_class.outputs.registry[:user].verify(task)
+
+        expect(task.errors.keys).to include(:age)
       end
     end
   end

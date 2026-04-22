@@ -205,5 +205,59 @@ RSpec.describe CMDx::Retry do
 
       expect(attempts).to eq([0, 1, 2])
     end
+
+    context "with :if/:unless gates" do
+      let(:task) do
+        Class.new do
+          attr_accessor :seen_attempts, :seen_errors
+
+          def initialize
+            @seen_attempts = []
+            @seen_errors = []
+          end
+
+          def transient?(error, attempt)
+            @seen_errors << error
+            @seen_attempts << attempt
+            error.message != "permanent"
+          end
+        end.new
+      end
+
+      it "stops retrying when :if returns false" do
+        retry_ = described_class.new([error_class], limit: 5, delay: 0, if: :transient?)
+        count = 0
+
+        expect do
+          retry_.process(task) do |_attempt|
+            count += 1
+            raise error_class, "permanent"
+          end
+        end.to raise_error(error_class, "permanent")
+
+        expect(count).to eq(1)
+        expect(task.seen_attempts).to eq([0])
+      end
+
+      it "still retries while :if returns true" do
+        retry_ = described_class.new([error_class], limit: 3, delay: 0, if: :transient?)
+        attempts = 0
+
+        retry_.process(task) do |_attempt|
+          attempts += 1
+          raise(error_class, "transient") if attempts < 3
+        end
+
+        expect(attempts).to eq(3)
+      end
+
+      it "stops retrying when :unless is truthy" do
+        retry_ = described_class.new([error_class], limit: 3, delay: 0, unless: proc { |e, _a| e.message == "stop" })
+
+        expect do
+          retry_.process(Object.new) { raise error_class, "stop" }
+        end.to raise_error(error_class, "stop")
+      end
+    end
   end
 end

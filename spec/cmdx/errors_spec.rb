@@ -226,6 +226,43 @@ RSpec.describe CMDx::Errors do
     end
   end
 
+  describe "pattern matching support" do
+    before do
+      errors.add(:name, "is required")
+      errors.add(:age, "too young")
+    end
+
+    describe "#deconstruct_keys" do
+      it "returns the full to_h when keys is nil" do
+        expect(errors.deconstruct_keys(nil)).to eq(name: ["is required"], age: ["too young"])
+      end
+
+      it "slices to the requested keys" do
+        expect(errors.deconstruct_keys([:name])).to eq(name: ["is required"])
+        expect(errors.deconstruct_keys([:missing])).to eq({})
+      end
+
+      it "supports hash patterns in case/in" do
+        matched =
+          case errors
+          in { name: [String => msg, *] }
+            msg
+          end
+
+        expect(matched).to eq("is required")
+      end
+    end
+
+    describe "#deconstruct" do
+      it "returns the messages as an array of [key, messages] pairs" do
+        expect(errors.deconstruct).to contain_exactly(
+          [:name, ["is required"]],
+          [:age, ["too young"]]
+        )
+      end
+    end
+  end
+
   describe "#freeze" do
     it "freezes the messages hash and each message set" do
       errors.add(:name, "is required")

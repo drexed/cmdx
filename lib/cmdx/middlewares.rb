@@ -17,16 +17,20 @@ module CMDx
     end
 
     # Inserts a middleware. With no `:at`, appends. With `:at`, inserts at
-    # the given (clamped) index — supports negative indexing.
+    # the given (clamped) index — supports negative indexing. `:if`/`:unless`
+    # gates evaluated against the task at process time.
     #
     # @param callable [#call, nil] provide either this or a block
-    # @param at [Integer, nil] insertion index
+    # @param options [Hash{Symbol => Object}]
+    # @option options [Symbol, Proc, #call] :if   gate that must evaluate truthy
+    # @option options [Symbol, Proc, #call] :unless gate that must evaluate falsy
     # @yield the middleware body, receiving `(task)` and `next_link` via block
     # @return [Middlewares] self for chaining
     # @raise [ArgumentError] when both or neither of `callable`/block are given,
     #   when the callable doesn't respond to `#call`, or when `:at` isn't an Integer
-    def register(callable = nil, at: nil, &block)
+    def register(callable = nil, **options, &block)
       middleware = callable || block
+      at = options.delete(:at)
 
       if callable && block
         raise ArgumentError, "provide either a callable or a block, not both"
@@ -36,11 +40,13 @@ module CMDx
         raise ArgumentError, "at must be an Integer"
       end
 
+      entry = [middleware, options.freeze]
+
       if at.nil?
-        registry << middleware
+        registry << entry
       else
         at = [at.clamp(-registry.size - 1, registry.size), registry.size].min
-        registry.insert(at, middleware)
+        registry.insert(at, entry)
       end
 
       self
@@ -63,7 +69,7 @@ module CMDx
       end
 
       if at.nil?
-        registry.delete(middleware)
+        registry.reject! { |mw, _opts| mw == middleware }
       else
         registry.delete_at(at)
       end
@@ -98,7 +104,13 @@ module CMDx
           processed = true
           yield
         else
-          registry[i].call(task) { chain.call(i + 1) }
+          mw, opts = registry[i]
+
+          if Util.satisfied?(opts[:if], opts[:unless], task)
+            mw.call(task) { chain.call(i + 1) }
+          else
+            chain.call(i + 1)
+          end
         end
       end
       chain.call(0)

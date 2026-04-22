@@ -123,6 +123,32 @@ end
 
     `register` requires either a callable or a block (not both). `deregister` requires either a `middleware` argument or `at:` (not both). Both raise `ArgumentError` otherwise.
 
+## Conditional Registration
+
+`:if` / `:unless` gate a middleware at `#process` time (per task, per execution) without changing the registry. Symbol, Proc, and any `#call`-able resolve against the task — same semantics as callback gates.
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  register :middleware, AuditMiddleware, if: :audited?
+  register :middleware, CacheMiddleware, unless: ->(task) { task.context.skip_cache }
+  register :middleware, TracingMiddleware, if: TracingSampler # #call(task)
+
+  def work
+    # ...
+  end
+
+  private
+
+  def audited? = context.tenant_id.present?
+end
+```
+
+When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
+
+!!! note
+
+    The inline "Conditional wrapping" pattern is still useful when you need the middleware to run but want to gate only its side-effects. Use `:if`/`:unless` when you want to skip the middleware entirely; use inline branching when the middleware should wrap but alter behavior.
+
 ## Safety
 
 If a middleware forgets to call `yield` (or `next_link.call`), the chain raises `CMDx::MiddlewareError` instead of silently bypassing the task body:

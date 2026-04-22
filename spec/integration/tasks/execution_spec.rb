@@ -249,13 +249,14 @@ RSpec.describe "Task execution", type: :feature do
   end
 
   describe "result pattern matching" do
-    it "deconstructs into [type, task, state, status, reason, metadata, cause, origin]" do
+    it "deconstructs into [[key, value], ...] pairs mirroring #to_h" do
       task = create_failing_task(reason: "nope", kind: :minor)
       result = task.execute
 
-      expect(result.deconstruct).to eq(
-        ["Task", task, "interrupted", "failed", "nope", { kind: :minor }, nil, nil]
-      )
+      expect(result.deconstruct).to eq(result.to_h.to_a)
+      expect(result.deconstruct.assoc(:status)).to eq([:status, "failed"])
+      expect(result.deconstruct.assoc(:reason)).to eq([:reason, "nope"])
+      expect(result.deconstruct.assoc(:metadata)).to eq([:metadata, { kind: :minor }])
     end
   end
 
