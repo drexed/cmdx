@@ -10,6 +10,15 @@ CMDx.configure do |config|
   # config.default_locale = "en"
 
   # ===========================================================================
+  # Strict context
+  # ===========================================================================
+  # When true, dynamic reads on `context` raise `NoMethodError` for unknown
+  # keys instead of returning `nil` (`[]`, `fetch`, `dig`, and `?` predicates
+  # stay lenient). Override per-task via `settings(strict_context: true)`.
+  #
+  # config.strict_context = true
+
+  # ===========================================================================
   # Logging
   # ===========================================================================
   # In Rails, the Railtie already wires `config.logger = Rails.logger` and a
@@ -85,6 +94,33 @@ CMDx.configure do |config|
   # config.validators.register(:uuid, proc do |value, _options|
   #   unless value.to_s.match?(/\A[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\z/i)
   #     CMDx::Validators::Failure.new("is not a valid UUID")
+  #   end
+  # end)
+
+  # ===========================================================================
+  # Executors
+  # ===========================================================================
+  # Registered executors drive `:parallel` workflow groups. Built-ins:
+  # `:threads` (default), `:fibers`. A callable receives
+  # `call(jobs:, concurrency:, on_job:)` and must invoke `on_job.call(job)`
+  # for each job, blocking until every job is done.
+  #
+  # config.executors.register(:ractors, proc do |jobs:, concurrency:, on_job:|
+  #   jobs.each_slice(concurrency) do |slice|
+  #     slice.map { |job| Ractor.new(job) { |j| on_job.call(j) } }.each(&:take)
+  #   end
+  # end)
+
+  # ===========================================================================
+  # Mergers
+  # ===========================================================================
+  # Merge strategies fold successful parallel task contexts back into the
+  # workflow context. Built-ins: `:last_write_wins` (default), `:deep_merge`,
+  # `:no_merge`. A callable receives `call(workflow_context, result)`.
+  #
+  # config.mergers.register(:whitelist, proc do |workflow_context, result|
+  #   result.context.to_h.slice(:order_id, :total).each do |key, value|
+  #     workflow_context[key] = value
   #   end
   # end)
 end
