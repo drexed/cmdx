@@ -20,10 +20,12 @@ RSpec.describe CMDx::Configuration do
         default_locale: "en",
         backtrace_cleaner: nil,
         strict_context: false,
-        log_level: Logger::INFO
+        log_level: nil,
+        log_formatter: nil
       )
-      expect(config.log_formatter).to be_a(CMDx::LogFormatters::Line)
       expect(config.logger).to be_a(Logger)
+      expect(config.logger.level).to eq(Logger::INFO)
+      expect(config.logger.formatter).to be_a(CMDx::LogFormatters::Line)
     end
 
     it "gives each instance independent registries" do

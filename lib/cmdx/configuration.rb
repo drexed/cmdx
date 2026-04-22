@@ -25,14 +25,14 @@ module CMDx
       @default_locale    = "en"
       @strict_context    = false
       @backtrace_cleaner = nil
+      @log_formatter     = nil
+      @log_level         = nil
 
-      @log_formatter = LogFormatters::Line.new
-      @log_level     = Logger::INFO
-      @logger        = Logger.new(
+      @logger = Logger.new(
         $stdout,
         progname: "cmdx",
-        formatter: @log_formatter,
-        level: @log_level
+        formatter: LogFormatters::Line.new,
+        level: Logger::INFO
       )
     end
 

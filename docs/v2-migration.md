@@ -86,8 +86,8 @@ CMDx.configure do |config|
   config.default_locale    # "en"
   config.backtrace_cleaner # ->(bt) { ... } or nil
   config.logger            # Logger instance
-  config.log_level         # Logger::INFO
-  config.log_formatter     # CMDx::LogFormatters::Line.new
+  config.log_level         # nil (optional override; defaults come from `logger.level`)
+  config.log_formatter     # nil (optional override; defaults come from `logger.formatter`)
 end
 ```
 

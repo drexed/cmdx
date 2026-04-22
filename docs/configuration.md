@@ -20,8 +20,8 @@ CMDx uses a two-tier configuration system:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `logger` | `Logger.new($stdout, progname: "cmdx", formatter: Line.new, level: INFO)` | Logger instance |
-| `log_level` | `Logger::INFO` | Logger severity |
-| `log_formatter` | `CMDx::LogFormatters::Line.new` | Formatter instance |
+| `log_level` | `nil` | Optional override applied on top of `logger.level` (nil = use the logger's own level) |
+| `log_formatter` | `nil` | Optional override applied on top of `logger.formatter` (nil = use the logger's own formatter) |
 | `default_locale` | `"en"` | Locale for built-in translation fallbacks |
 | `backtrace_cleaner` | `nil` | Callable to clean fault backtraces |
 | `strict_context` | `false` | Raise `NoMethodError` on unknown `context.foo` reads |

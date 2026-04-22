@@ -82,6 +82,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Slim the locale file: remove `attributes.undefined`, `coercions.unknown`, `faults.invalid`, `faults.unspecified`, `returns.*`; rename `returns.missing` → `outputs.missing`; add `nil_value` to `length` / `numeric` validator messages
 - Generators emit the new `def work` template; the install template documents the new middleware / callback / telemetry / coercion / validator registration shapes
 - Slim `Configuration` to: `middlewares`, `callbacks`, `coercions`, `validators`, `telemetry`, `default_locale`, `strict_context`, `backtrace_cleaner`, `logger`, `log_level`, `log_formatter`
+- `Configuration#log_level` and `Configuration#log_formatter` now default to `nil` — treat them as optional overrides on top of `config.logger` (the default `Logger` still carries `Logger::INFO` + `LogFormatters::Line.new`). `LoggerProxy` only `dup`s the logger when a non-nil override differs from the logger's own level/formatter, so swapping `config.logger` no longer requires also clearing these fields
 
 ### Removed
 - **BREAKING**: Remove `Result::STATES = [INITIALIZED, EXECUTING, COMPLETE, INTERRUPTED]`, the `executed!` / `executing!` transitions, and the `executed?` / `initialized?` / `executing?` predicates
