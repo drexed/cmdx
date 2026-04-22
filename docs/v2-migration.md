@@ -88,6 +88,7 @@ CMDx.configure do |config|
   config.logger            # Logger instance
   config.log_level         # nil (optional override; defaults come from `logger.level`)
   config.log_formatter     # nil (optional override; defaults come from `logger.formatter`)
+  config.log_exclusions    # [] (Result#to_h keys stripped from the lifecycle log entry)
 end
 ```
 
@@ -323,14 +324,15 @@ See [Middlewares](middlewares.md) for the full surface.
 
 ## Settings
 
-`Settings` is a frozen value object. Per-task overrides cover logger, log formatter, log level, backtrace cleaner, and tags — nothing else. Registries live on the `Task` class itself.
+`Settings` is a frozen value object. Per-task overrides cover logger, log formatter, log level, log exclusions, backtrace cleaner, tags, and strict context — nothing else. Registries live on the `Task` class itself.
 
 ```ruby
 # v1                                   # v2
 settings logger: MyLogger.new,         settings logger:            MyLogger.new,
          tags:   %i[critical],                  log_formatter:     CMDx::LogFormatters::JSON.new,
          task_breakpoints: %w[failed], # gone   log_level:         Logger::DEBUG,
-         freeze_results:   false       # gone   backtrace_cleaner: ->(bt) { bt.reject { |l| l.include?("gems/") } },
+         freeze_results:   false       # gone   log_exclusions:    %i[context metadata],
+                                                backtrace_cleaner: ->(bt) { bt.reject { |l| l.include?("gems/") } },
                                                 tags:              %i[critical]
 ```
 

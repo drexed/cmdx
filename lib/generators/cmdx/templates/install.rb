@@ -26,10 +26,11 @@ CMDx.configure do |config|
   #
   # Formatters: Line (default), Json, KeyValue, Logstash, Raw
   #
-  # config.logger        = Logger.new($stdout, progname: "cmdx")
-  # config.log_level     = Logger::INFO
-  # config.log_formatter = CMDx::LogFormatters::Line.new
   # config.backtrace_cleaner = ->(bt) { Rails.backtrace_cleaner.clean(bt) }
+  # config.log_exclusions = [:context]
+  # config.log_formatter  = CMDx::LogFormatters::Line.new
+  # config.log_level      = Logger::INFO
+  # config.logger         = Logger.new($stdout, progname: "cmdx")
 
   # ===========================================================================
   # Middlewares

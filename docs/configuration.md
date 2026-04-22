@@ -22,6 +22,7 @@ CMDx uses a two-tier configuration system:
 | `logger` | `Logger.new($stdout, progname: "cmdx", formatter: Line.new, level: INFO)` | Logger instance |
 | `log_level` | `nil` | Optional override applied on top of `logger.level` (nil = use the logger's own level) |
 | `log_formatter` | `nil` | Optional override applied on top of `logger.formatter` (nil = use the logger's own formatter) |
+| `log_exclusions` | `[]` | `Result#to_h` keys stripped from the lifecycle log entry (e.g. `[:context]`) |
 | `default_locale` | `"en"` | Locale for built-in translation fallbacks |
 | `backtrace_cleaner` | `nil` | Callable to clean fault backtraces |
 | `strict_context` | `false` | Raise `NoMethodError` on unknown `context.foo` reads |
@@ -80,13 +81,16 @@ Override per-task via `settings(strict_context: true)`.
 
 ```ruby
 CMDx.configure do |config|
-  config.logger        = Logger.new($stdout, progname: "cmdx")
-  config.log_level     = Logger::DEBUG
-  config.log_formatter = CMDx::LogFormatters::JSON.new
+  config.logger         = Logger.new($stdout, progname: "cmdx")
+  config.log_level      = Logger::DEBUG
+  config.log_formatter  = CMDx::LogFormatters::JSON.new
+  config.log_exclusions = [:context]
 end
 ```
 
 Built-in formatters live under `CMDx::LogFormatters`: `Line` (default), `JSON`, `KeyValue`, `Logstash`, `Raw`. See [Logging](logging.md) for the emitted fields and sample output.
+
+`log_exclusions` trims noisy keys from the logged `Result#to_h` (common targets: `:context`, `:metadata`, `:tags`). The returned `Result` and telemetry payloads still carry the full data — only the log line is filtered.
 
 ### Middlewares
 
@@ -293,6 +297,7 @@ class GenerateInvoice < CMDx::Task
     logger: CustomLogger.new($stdout),
     log_formatter: CMDx::LogFormatters::JSON.new,
     log_level: Logger::DEBUG,
+    log_exclusions: [:context, :metadata],
     backtrace_cleaner: ->(bt) { bt.first(8) },
     tags: ["billing", "financial"],
     strict_context: true
@@ -319,7 +324,7 @@ end
 
 !!! note
 
-    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:backtrace_cleaner`, `:tags`, and `:strict_context`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, and `:strict_context`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
 
 ### Retry
 

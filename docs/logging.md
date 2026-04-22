@@ -150,6 +150,22 @@ class QuietTask < CMDx::Task
 end
 ```
 
+### Excluding Fields
+
+Strip specific keys from the logged `Result#to_h` with `log_exclusions`. Useful for dropping bulky or sensitive fields (`:context`, `:metadata`) from the log stream while keeping them on the returned `Result` and telemetry payloads.
+
+```ruby
+CMDx.configure do |config|
+  config.log_exclusions = [:context, :metadata]
+end
+
+class ImportPayroll < CMDx::Task
+  settings(log_exclusions: [:context])
+end
+```
+
+Exclusions match top-level `Result#to_h` keys only (no deep paths). When empty (the default), the full result is logged.
+
 ## Log Levels
 
 CMDx logs each task result at `INFO` once the lifecycle completes. The framework itself emits no `WARN` or `ERROR` lines — use callbacks (`on_failed`, `on_skipped`) or telemetry subscribers (`:task_retried`, `:task_executed`) to log at higher severities.

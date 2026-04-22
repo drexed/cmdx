@@ -120,7 +120,10 @@ module CMDx
       ).tap do |result|
         @root ? Chain.current.unshift(result) : Chain.current.push(result)
         emit_telemetry(:task_executed, result:)
-        @task.logger.info { result }
+        @task.logger.info do
+          exclusions = @task.settings.log_exclusions
+          exclusions.empty? ? result : result.to_h.except(*exclusions)
+        end
       end
     end
 

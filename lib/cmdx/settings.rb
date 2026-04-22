@@ -11,6 +11,7 @@ module CMDx
     # @option options [#call] :log_formatter
     # @option options [Integer] :log_level
     # @option options [#call] :backtrace_cleaner
+    # @option options [Array<Symbol>] :log_exclusions
     # @option options [Array<Symbol, String>] :tags
     # @option options [Boolean] :strict_context
     def initialize(options = EMPTY_HASH)
@@ -53,6 +54,13 @@ module CMDx
     def backtrace_cleaner
       @options.fetch(:backtrace_cleaner) do
         CMDx.configuration.backtrace_cleaner
+      end
+    end
+
+    # @return [Array<Symbol>] keys to exclude from logging
+    def log_exclusions
+      @options.fetch(:log_exclusions) do
+        CMDx.configuration.log_exclusions
       end
     end
 

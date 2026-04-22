@@ -11,7 +11,7 @@ module CMDx
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators,
       :executors, :mergers, :telemetry, :default_locale, :strict_context,
-      :backtrace_cleaner, :logger, :log_level, :log_formatter
+      :backtrace_cleaner, :log_exclusions, :log_formatter, :log_level, :logger
 
     def initialize
       @middlewares = Middlewares.new
@@ -25,6 +25,7 @@ module CMDx
       @default_locale    = "en"
       @strict_context    = false
       @backtrace_cleaner = nil
+      @log_exclusions    = EMPTY_ARRAY
       @log_formatter     = nil
       @log_level         = nil
 
