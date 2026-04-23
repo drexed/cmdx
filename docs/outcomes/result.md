@@ -22,6 +22,7 @@ result.errors      #=> #<CMDx::Errors ...>           (frozen on teardown)
 # Chain placement
 result.chain       #=> #<CMDx::Chain ...>
 result.cid         #=> "0190..."
+result.xid         #=> "abc-123-..." or nil (external correlation id, see Configuration)
 result.index       #=> 0  (root is always 0; children are 1+ in completion order)
 result.root?       #=> true when this result is the root of its chain
 
@@ -175,7 +176,7 @@ end
 
 ### Hash Pattern
 
-`deconstruct_keys(keys)` delegates to `#to_h` — `nil` returns the full hash, a key list slices it (unknown keys are omitted). Keys always present: `:cid, :index, :root, :type, :task, :tid, :context, :state, :status, :reason, :metadata, :strict, :deprecated, :retried, :retries, :duration, :tags`. Failure-only keys (`:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`) appear only on `failed?` results.
+`deconstruct_keys(keys)` delegates to `#to_h` — `nil` returns the full hash, a key list slices it (unknown keys are omitted). Keys always present: `:xid, :cid, :index, :root, :type, :task, :tid, :context, :state, :status, :reason, :metadata, :strict, :deprecated, :retried, :retries, :duration, :tags`. Failure-only keys (`:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`) appear only on `failed?` results.
 
 ```ruby
 result = BuildApplication.execute(version: "1.2.3")
@@ -212,6 +213,7 @@ end
 ```ruby
 result.to_h
 #=> {
+#     xid: "abc-123-..." or nil,
 #     cid: "0190...", index: 0, root: true,
 #     type: "Task", task: BuildApplication, tid: "0190...",
 #     context: #<CMDx::Context ...>,
@@ -223,7 +225,7 @@ result.to_h
 #   }
 
 result.to_s
-#=> "cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
+#=> "xid=nil cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
 ```
 
 On `failed?` results, `to_h` additionally includes `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` and `:origin` entries are compact `{ task:, tid: }` hashes (and render as `<TaskClass uuid>` in `to_s`) to avoid serializing entire upstream results. `:origin` is `nil` when the failure is locally originated.

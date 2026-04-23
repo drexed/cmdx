@@ -12,6 +12,17 @@ RSpec.describe CMDx::Telemetry do
     end
   end
 
+  describe "Event" do
+    it "carries cid, xid, root, type, task, tid, name, payload, timestamp" do
+      event = described_class::Event.new(
+        cid: "cid", xid: "req-1", root: true, type: "Task", task: Object,
+        tid: "tid", name: :task_started, payload: {}, timestamp: Time.now.utc
+      )
+
+      expect(event).to have_attributes(cid: "cid", xid: "req-1", root: true, tid: "tid")
+    end
+  end
+
   describe "#initialize_copy" do
     it "deep-dups each event's subscriber list" do
       sub = ->(_p) {}

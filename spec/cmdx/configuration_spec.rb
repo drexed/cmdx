@@ -21,7 +21,8 @@ RSpec.describe CMDx::Configuration do
         backtrace_cleaner: nil,
         strict_context: false,
         log_level: nil,
-        log_formatter: nil
+        log_formatter: nil,
+        correlation_id: nil
       )
       expect(config.logger).to be_a(Logger)
       expect(config.logger.level).to eq(Logger::INFO)
@@ -39,16 +40,19 @@ RSpec.describe CMDx::Configuration do
     it "allows reading and writing each configuration attribute" do
       logger = Logger.new(nil)
       cleaner = ->(bt) { bt }
+      correlation_id = -> { "req-1" }
 
       config.logger = logger
       config.backtrace_cleaner = cleaner
       config.default_locale = "fr"
       config.strict_context = true
+      config.correlation_id = correlation_id
 
       expect(config.logger).to be(logger)
       expect(config.backtrace_cleaner).to be(cleaner)
       expect(config.default_locale).to eq("fr")
       expect(config.strict_context).to be(true)
+      expect(config.correlation_id).to be(correlation_id)
     end
   end
 end

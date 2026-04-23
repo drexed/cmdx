@@ -9,8 +9,8 @@ module CMDx
   # cached their copy yet.
   class Configuration
 
-    attr_accessor :middlewares, :callbacks, :coercions, :validators,
-      :executors, :mergers, :telemetry, :default_locale, :strict_context,
+    attr_accessor :middlewares, :callbacks, :coercions, :validators, :executors,
+      :mergers, :telemetry, :correlation_id, :default_locale, :strict_context,
       :backtrace_cleaner, :log_exclusions, :log_formatter, :log_level, :logger
 
     def initialize
@@ -22,6 +22,7 @@ module CMDx
       @mergers     = Mergers.new
       @telemetry   = Telemetry.new
 
+      @correlation_id    = nil
       @default_locale    = "en"
       @strict_context    = false
       @backtrace_cleaner = nil

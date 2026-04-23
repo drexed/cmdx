@@ -56,7 +56,7 @@ I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: cid="019b4c2b-2a02-..." in
 
 !!! tip
 
-    Pair `cid` with your APM's correlation field for distributed tracing. A rescued `StandardError` (not a `fail!` call) sets `cause=#<TheError: …>` and rewrites `reason` to `"[TheError] message"`.
+    Pair `cid` with your APM's correlation field for distributed tracing. To carry an external request id end-to-end, configure a `correlation_id` resolver and filter logs on `xid` — see [Configuration - Correlation ID](configuration.md#correlation-id-xid). A rescued `StandardError` (not a `fail!` call) sets `cause=#<TheError: …>` and rewrites `reason` to `"[TheError] message"`.
 
 ## Structure
 
@@ -78,6 +78,7 @@ Every log entry is built from `Result#to_h`. Available fields:
 | Field | Description | Example |
 |-------|-------------|---------|
 | `cid` | Chain UUID (uuid_v7) | `"018c2b95-b764-7615-..."` |
+| `xid` | External correlation id (e.g. Rails `request_id`); `nil` unless `config.correlation_id` is set | `"req-abc-123"` |
 | `index` | Position in chain (root is 0) | `0`, `1`, `2` |
 | `root` | `true` for the root task's result | `true`, `false` |
 | `type` | `"Task"` or `"Workflow"` | `"Task"` |

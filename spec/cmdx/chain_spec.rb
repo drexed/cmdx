@@ -63,6 +63,14 @@ RSpec.describe CMDx::Chain do
     it "generates a unique id per instance" do
       expect(chain.id).not_to eq(described_class.new.id)
     end
+
+    it "defaults xid to nil" do
+      expect(chain.xid).to be_nil
+    end
+
+    it "stores an explicit xid" do
+      expect(described_class.new("req-123").xid).to eq("req-123")
+    end
   end
 
   describe "#push" do

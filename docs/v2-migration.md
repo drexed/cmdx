@@ -305,7 +305,7 @@ The registry no longer auto-instantiates classes or forwards `**options`. Pass a
 
 | Removed | Replacement |
 |---|---|
-| `CMDx::Middlewares::Correlate` | 5-line proc that sets `context.correlation_id`, or a `:task_started` Telemetry subscriber |
+| `CMDx::Middlewares::Correlate` | Built-in: configure `CMDx.configuration.correlation_id = -> { ... }` to surface `xid` on `Chain`/`Result`/`Telemetry::Event` (see [Configuration - Correlation ID](configuration.md#correlation-id-xid)) |
 | `CMDx::Middlewares::Runtime` | `result.duration` is built in; `:task_executed` Telemetry for richer payloads |
 | `CMDx::Middlewares::Timeout` | wrap `yield` in your own `Timeout.timeout(n)` middleware |
 

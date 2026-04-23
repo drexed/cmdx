@@ -26,6 +26,7 @@ CMDx uses a two-tier configuration system:
 | `default_locale` | `"en"` | Locale for built-in translation fallbacks |
 | `backtrace_cleaner` | `nil` | Callable to clean fault backtraces |
 | `strict_context` | `false` | Raise `NoMethodError` on unknown `context.foo` reads |
+| `correlation_id` | `nil` | Callable resolved once per root execution; surfaced as `xid` on `Chain`/`Result`/`Telemetry::Event` |
 | `middlewares` | `Middlewares.new` (empty) | Middleware registry |
 | `callbacks` | `Callbacks.new` (empty) | Callback registry |
 | `coercions` | `Coercions.new` (13 built-ins) | Coercion registry |
@@ -76,6 +77,26 @@ end
 ```
 
 Override per-task via `settings(strict_context: true)`.
+
+### Correlation ID (xid)
+
+Thread an external correlation id (e.g. Rails `request_id`) through every task in a chain so they can be filtered together in logs and telemetry. Provide a callable; Runtime invokes it **once per root execution** when it builds the chain. The resolved value is stored on the `Chain` and surfaced as `xid` on every `Result#to_h` and `Telemetry::Event`.
+
+```ruby
+CMDx.configure do |config|
+  config.correlation_id = -> { Current.request_id }
+end
+
+result = ProcessOrder.execute(order_id: 42)
+result.xid                            #=> "abc-123-..."
+result.chain.map(&:xid).uniq          #=> ["abc-123-..."] (every task in the chain shares it)
+```
+
+Override per-task via `settings(correlation_id: ->{ ... })` to give a specific task family its own resolver. Returning `nil` from the callable leaves `xid` as `nil`. Resolver exceptions propagate (so misconfigured resolvers fail loudly).
+
+!!! note
+
+    The resolver fires only on the **root** chain creation. Nested subtasks inherit the same xid via the shared chain — even if the underlying thread-local mutates mid-flight, every result in the same execution sees a stable value.
 
 ### Logging
 
@@ -174,7 +195,7 @@ See [Callbacks](callbacks.md) for class-level usage.
 
 ### Telemetry
 
-Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` data object with `cid`, `root`, `type`, `task`, `tid`, `name`, `payload`, and `timestamp`.
+Pub/sub for runtime lifecycle events. Subscribers receive a `Telemetry::Event` data object with `cid`, `xid`, `root`, `type`, `task`, `tid`, `name`, `payload`, and `timestamp`.
 
 | Event | Payload |
 |-------|---------|
@@ -324,7 +345,7 @@ end
 
 !!! note
 
-    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, and `:strict_context`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+    `Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, and `:correlation_id`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
 
 ### Retry
 

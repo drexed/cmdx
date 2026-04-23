@@ -7,7 +7,7 @@ module CMDx
   class Telemetry
 
     # Immutable event payload passed to subscribers.
-    Event = Data.define(:cid, :root, :type, :task, :tid, :name, :payload, :timestamp)
+    Event = Data.define(:xid, :cid, :root, :type, :task, :tid, :name, :payload, :timestamp)
 
     # Lifecycle event names Runtime emits.
     EVENTS = %i[

@@ -107,6 +107,81 @@ RSpec.describe CMDx::Runtime do
         described_class.execute(task_class.new)
         expect(events).to eq(%i[task_started task_executed])
       end
+
+      it "passes the chain xid through every event" do
+        CMDx.configuration.correlation_id = -> { "req-xyz" }
+        events = []
+        task_class = create_successful_task
+        task_class.telemetry.subscribe(:task_started) { |e| events << e }
+        task_class.telemetry.subscribe(:task_executed) { |e| events << e }
+
+        described_class.execute(task_class.new)
+        expect(events.map(&:xid)).to eq(%w[req-xyz req-xyz])
+      end
+    end
+
+    describe "xid (correlation id)" do
+      it "leaves xid nil when no resolver is configured" do
+        result = described_class.execute(create_successful_task.new)
+        expect(result.xid).to be_nil
+      end
+
+      it "resolves xid from the configured callable on root chain creation" do
+        CMDx.configuration.correlation_id = -> { "req-abc" }
+        result = described_class.execute(create_successful_task.new)
+        expect(result.xid).to eq("req-abc")
+      end
+
+      it "invokes the resolver exactly once per root execution" do
+        calls = 0
+        CMDx.configuration.correlation_id = lambda do
+          calls += 1
+          "req-#{calls}"
+        end
+
+        inner = create_task_class(name: "InnerXidTask") do
+          define_method(:work) { context.inner_xid = CMDx::Chain.current.xid }
+        end
+        outer = create_task_class(name: "OuterXidTask") do
+          define_method(:work) do
+            inner.execute(context)
+            context.outer_xid = CMDx::Chain.current.xid
+          end
+        end
+
+        result = described_class.execute(outer.new)
+        expect(calls).to eq(1)
+        expect(result.xid).to eq("req-1")
+        expect(result.context.inner_xid).to eq("req-1")
+        expect(result.context.outer_xid).to eq("req-1")
+      end
+
+      it "shares the xid across every result in the chain" do
+        CMDx.configuration.correlation_id = -> { "shared" }
+
+        inner = create_task_class(name: "InnerSharedXidTask") do
+          define_method(:work) { nil }
+        end
+        outer = create_task_class(name: "OuterSharedXidTask") do
+          define_method(:work) { inner.execute(context) }
+        end
+
+        result = described_class.execute(outer.new)
+        expect(result.chain.map(&:xid).uniq).to eq(["shared"])
+      end
+
+      it "lets the resolver return nil" do
+        CMDx.configuration.correlation_id = -> {}
+        result = described_class.execute(create_successful_task.new)
+        expect(result.xid).to be_nil
+      end
+
+      it "propagates exceptions raised by the resolver and leaves no chain behind" do
+        CMDx.configuration.correlation_id = -> { raise "bad resolver" }
+        expect { described_class.execute(create_successful_task.new) }
+          .to raise_error(RuntimeError, "bad resolver")
+        expect(CMDx::Chain.current).to be_nil
+      end
     end
 
     describe "rollback" do

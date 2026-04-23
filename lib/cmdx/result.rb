@@ -52,6 +52,11 @@ module CMDx
       task.type
     end
 
+    # @return [String, nil] correlation id or the global configuration's correlation id
+    def xid
+      chain.xid
+    end
+
     # @return [String] uuid_v7 identifier for the chain this result belongs to
     def cid
       chain.id
@@ -255,6 +260,7 @@ module CMDx
     #   on failure.
     def to_h
       @to_h ||= {
+        xid:,
         cid:,
         index:,
         root: root?,

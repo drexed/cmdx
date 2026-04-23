@@ -50,17 +50,17 @@ module CMDx
       end
     end
 
-    # @return [#call, nil] callable that cleans fault backtrace frames
-    def backtrace_cleaner
-      @options.fetch(:backtrace_cleaner) do
-        CMDx.configuration.backtrace_cleaner
-      end
-    end
-
     # @return [Array<Symbol>] keys to exclude from logging
     def log_exclusions
       @options.fetch(:log_exclusions) do
         CMDx.configuration.log_exclusions
+      end
+    end
+
+    # @return [#call, nil] callable that cleans fault backtrace frames
+    def backtrace_cleaner
+      @options.fetch(:backtrace_cleaner) do
+        CMDx.configuration.backtrace_cleaner
       end
     end
 
@@ -80,6 +80,13 @@ module CMDx
     def strict_context
       @options.fetch(:strict_context) do
         CMDx.configuration.strict_context
+      end
+    end
+
+    # @return [String, nil] correlation id or the global configuration's correlation id
+    def correlation_id
+      @options.fetch(:correlation_id) do
+        CMDx.configuration.correlation_id
       end
     end
 

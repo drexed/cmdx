@@ -12,6 +12,7 @@ From a result, reach the chain via:
 |--------|---------|
 | `result.chain` | The owning `CMDx::Chain` (Enumerable; `id`, `size`, `first`, `last`, etc.) |
 | `result.cid` | The chain's UUID v7 (`String`) |
+| `result.xid` | External correlation id (`String`, `nil` when no resolver is configured) |
 | `result.index` | This result's zero-based position in the chain (`Integer`, `nil` if absent) |
 | `result.root?` | `true` when this result is the chain's root |
 | `CMDx::Chain.current` | The live `Chain` object (only inside execution) |
@@ -31,7 +32,7 @@ result.chain.each_with_index do |r, idx|
 end
 ```
 
-The `Chain` instance exposes `id`, `results`, `push` (aliased `<<`), `unshift`, `index`, `size`, `empty?`, `each`, `last`, plus root delegators:
+The `Chain` instance exposes `id`, `xid`, `results`, `push` (aliased `<<`), `unshift`, `index`, `size`, `empty?`, `each`, `last`, plus root delegators:
 
 | Method | Returns |
 |--------|---------|
@@ -71,6 +72,23 @@ result.chain.map(&:task)
 !!! note
 
     Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts and clears it on teardown.
+
+## Correlation ID (xid)
+
+`Chain#xid` is an optional external correlation id (e.g. Rails `request_id`) — distinct from `cid` (the per-execution chain UUID). It's resolved **once** per root chain creation from `CMDx.configuration.correlation_id` (a callable; per-task override via `settings(correlation_id: ->{ ... })`). Every nested subtask inherits the same `xid` via the shared chain, so a single request id ties together every task it touches in logs and telemetry.
+
+```ruby
+CMDx.configure do |config|
+  config.correlation_id = -> { Current.request_id }   # e.g. Rails ActionDispatch::RequestId
+end
+
+result = ImportDataset.execute(dataset_id: 456)
+result.xid                              #=> "abc-123-..."
+result.chain.xid                        #=> "abc-123-..."
+result.chain.map(&:xid).uniq            #=> ["abc-123-..."]
+```
+
+See [Configuration - Correlation ID](../configuration.md#correlation-id-xid) for resolver semantics.
 
 ## Fiber Storage
 

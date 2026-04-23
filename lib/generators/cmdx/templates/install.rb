@@ -19,6 +19,16 @@ CMDx.configure do |config|
   # config.strict_context = true
 
   # ===========================================================================
+  # Correlation ID (xid)
+  # ===========================================================================
+  # Resolves an external correlation id (e.g. Rails `request_id`) once per
+  # root execution. The value is stored on the Chain and surfaces on every
+  # Result (`result.xid`, `result.to_h[:xid]`) and Telemetry::Event (`event.xid`),
+  # so all tasks within the same request can be filtered together in logs.
+  #
+  # config.correlation_id = -> { Current.request_id }
+
+  # ===========================================================================
   # Logging
   # ===========================================================================
   # In Rails, the Railtie already wires `config.logger = Rails.logger` and a
@@ -70,8 +80,8 @@ CMDx.configure do |config|
   #   :task_rolled_back  payload: {}
   #   :task_executed     payload: { result: CMDx::Result }
   #
-  # Every event also carries: event.cid, event.tid, event.task, event.type,
-  # event.root, event.timestamp.
+  # Every event also carries: event.cid, event.xid, event.tid, event.task,
+  # event.type, event.root, event.timestamp.
   #
   # config.telemetry.subscribe(:task_executed, proc do |event|
   #   StatsD.timing("cmdx.task", event.payload[:result].duration)

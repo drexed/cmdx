@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replaced by an explicit signal-based runtime, immutable results, fiber-local chains, and a slimmer registry surface. See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide.
 
 ### Added
+- Add `xid` correlation id on `Chain`, `Result`, and `Telemetry::Event`, sourced once per root execution from `CMDx.configuration.correlation_id` (a callable). Useful for threading external ids like Rails `request_id` through every task in a chain so they can be filtered together in logs/telemetry.
 - Add `Context#as_json` / `Context#to_json` — JSON serialization delegating to `#to_h`
 - Add `Errors#as_json` / `Errors#to_json` — JSON serialization delegating to `#to_h`
 - Add `Result#as_json` / `Result#to_json` — JSON serialization delegating to the memoized `#to_h`

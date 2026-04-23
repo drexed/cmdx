@@ -64,7 +64,10 @@ module CMDx
 
     def acquire_chain
       @root = Chain.current.nil?
-      Chain.current = Chain.new if @root
+      return unless @root
+
+      xid = @task.class.settings.correlation_id&.call
+      Chain.current = Chain.new(xid)
     end
 
     def run_middlewares(&)
@@ -211,6 +214,7 @@ module CMDx
       return unless telemetry.subscribed?(name)
 
       event = Telemetry::Event.new(
+        xid: Chain.current.xid,
         cid: Chain.current.id,
         root: @root,
         type: @task.class.type,

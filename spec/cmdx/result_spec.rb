@@ -179,6 +179,18 @@ RSpec.describe CMDx::Result do
     end
   end
 
+  describe "#xid" do
+    it "delegates to the chain's xid" do
+      chain = CMDx::Chain.new("req-9")
+      result = described_class.new(chain, task, CMDx::Signal.success)
+      expect(result.xid).to eq("req-9")
+    end
+
+    it "is nil when the chain has no xid" do
+      expect(build(CMDx::Signal.success).xid).to be_nil
+    end
+  end
+
   describe "#to_h" do
     it "includes core fields for a success result" do
       chain << (result = build(CMDx::Signal.success, tid: "rid", duration: 0.1))
@@ -186,6 +198,7 @@ RSpec.describe CMDx::Result do
 
       expect(hash).to include(
         cid: chain.id,
+        xid: chain.xid,
         index: 0,
         root: false,
         type: "Task",
