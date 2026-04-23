@@ -91,6 +91,18 @@ RSpec.describe "Task input resolution", type: :feature do
       expect(result.errors.to_h[:count].first).to include("integer")
     end
 
+    it "leaves the backing ivar at nil when coercion fails" do
+      klass = create_task_class(name: "CoerceFailIvar") do
+        input :count, coerce: :integer
+        define_method(:work) { nil }
+      end
+
+      instance = klass.new(count: "abc")
+      instance.execute
+
+      expect(instance.instance_variable_get(:@_input_count)).to be_nil
+    end
+
     it "falls back through a multi-type list" do
       task = create_task_class(name: "MultiCoerce") do
         input :value, coerce: %i[integer float]
@@ -253,6 +265,19 @@ RSpec.describe "Task input resolution", type: :feature do
 
       expect(task.execute(frequency: "DAILY").context[:resolved]).to eq("daily")
       expect(task.execute(frequency: "BIWEEKLY").errors.to_h).to include(:frequency)
+    end
+
+    it "leaves the backing ivar at nil when a validator fails" do
+      klass = create_task_class(name: "ValidateFailIvar") do
+        input :age, coerce: :integer, numeric: { min: 18 }
+        define_method(:work) { nil }
+      end
+
+      instance = klass.new(age: "5")
+      instance.execute
+
+      expect(instance.instance_variable_get(:@_input_age)).to be_nil
+      expect(instance.errors.to_h[:age]).not_to be_empty
     end
 
     describe "inline :validate callables" do

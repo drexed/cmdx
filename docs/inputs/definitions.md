@@ -146,7 +146,11 @@ Each entry exposes `:name` (the accessor name, post-`:as`/`:prefix`/`:suffix`), 
 
 !!! note
 
-    `:required` in the schema reflects the static flag only. Conditional `required: true` with `:if`/`:unless` still serializes as `required: true` because the schema is generated without a task instance — inspect `options[:if]` / `options[:unless]` when generating external documentation.
+    `:required` in the schema reflects the static flag only — it's `Input#required?` evaluated without a task, so `:if` / `:unless` gates are ignored at schema time. Inspect `options[:if]` / `options[:unless]` when generating external documentation.
+
+!!! note
+
+    A failed coercion or validator leaves the input's backing ivar at `nil`. The `Failure#message` (coercion) or validator message is recorded on `task.errors` under the input's accessor name, nested children are not resolved, and `Runtime` throws a failed signal before `work` runs.
 
 ## Sources
 

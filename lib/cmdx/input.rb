@@ -125,10 +125,11 @@ module CMDx
 
     # Fetches + coerces + transforms + validates the value from its
     # configured `:source` on `task`. Missing-but-required inputs add a
-    # validation error to `task.errors`.
+    # validation error to `task.errors`. Returns `nil` when coercion or any
+    # validator fails (the failure message is recorded on `task.errors`).
     #
     # @param task [Task]
-    # @return [Object, nil, Coercions::Failure] the resolved value
+    # @return [Object, nil] the resolved value (`nil` on failure)
     def resolve(task)
       value, key_provided = resolve_with_key(task)
       run_pipeline(value, key_provided, task)
@@ -139,7 +140,7 @@ module CMDx
     #
     # @param parent_value [#[], #key?, Object] the parent input's resolved value
     # @param task [Task]
-    # @return [Object, nil, Coercions::Failure]
+    # @return [Object, nil]
     def resolve_from_parent(parent_value, task)
       value, key_provided = resolve_from_parent_with_key(parent_value)
       run_pipeline(value, key_provided, task)
@@ -192,6 +193,7 @@ module CMDx
       value = apply_transform(value, task) if transform
       @validators ||= task.class.validators.extract(@options)
       task.class.validators.validate(task, accessor_name, value, @validators)
+      return if task.errors.for?(accessor_name)
 
       value
     end
