@@ -28,6 +28,20 @@ Callbacks execute in a predictable lifecycle order:
 5. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
 ```
 
+!!! note "Callbacks are additive, not exclusive"
+
+    Status callbacks (`on_success` / `on_skipped` / `on_failed`) and outcome
+    callbacks (`on_ok` / `on_ko`) are dispatched independently — if you define
+    both kinds, both will fire. The outcome pair also overlaps on skipped
+    results: `on_ok` runs for success **and** skipped, `on_ko` runs for skipped
+    **and** failed, so a skipped task fires **both** `on_ok` and `on_ko`.
+
+    | Status   | Fires                                  |
+    |----------|----------------------------------------|
+    | success  | `on_success`, `on_ok`                  |
+    | skipped  | `on_skipped`, `on_ok`, `on_ko`         |
+    | failed   | `on_failed`, `on_ko`                   |
+
 ## Declarations
 
 ### Symbol References

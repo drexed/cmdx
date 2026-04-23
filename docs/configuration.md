@@ -161,8 +161,8 @@ Callbacks fire at specific lifecycle points. Valid events:
 | `:on_success` | When `status == "success"` |
 | `:on_skipped` | When `status == "skipped"` |
 | `:on_failed` | When `status == "failed"` |
-| `:on_ok` | Success or skipped (`signal.ok?`) |
-| `:on_ko` | Failed only (runtime dispatches `on_ok` when `signal.ok?`, otherwise `on_ko`; skipped results run `on_ok`) |
+| `:on_ok` | Success or skipped (`signal.ok?` — not failed) |
+| `:on_ko` | Skipped or failed (`signal.ko?` — not success) |
 
 ```ruby
 CMDx.configure do |config|

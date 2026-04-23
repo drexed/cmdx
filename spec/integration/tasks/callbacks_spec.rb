@@ -36,10 +36,10 @@ RSpec.describe "Task callbacks", type: :feature do
       expect(result.context[:log]).to eq(%i[before_execution before_validation on_complete on_success on_ok])
     end
 
-    it "fires before_execution, before_validation, on_interrupted, on_skipped, on_ok for a skipped task" do
+    it "fires before_execution, before_validation, on_interrupted, on_skipped, on_ok, on_ko for a skipped task" do
       result = callback_log_task(status: :skip).execute
 
-      expect(result.context[:log]).to eq(%i[before_execution before_validation on_interrupted on_skipped on_ok])
+      expect(result.context[:log]).to eq(%i[before_execution before_validation on_interrupted on_skipped on_ok on_ko])
     end
 
     it "fires before_execution, before_validation, on_interrupted, on_failed, on_ko for a failed task" do

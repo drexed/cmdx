@@ -95,7 +95,8 @@ module CMDx
         perform_rollback if @signal.failed?
         run_callbacks(:"on_#{@signal.state}")
         run_callbacks(:"on_#{@signal.status}")
-        run_callbacks(@signal.ok? ? :on_ok : :on_ko)
+        run_callbacks(:on_ok) if @signal.ok?
+        run_callbacks(:on_ko) if @signal.ko?
       end
     end
 
