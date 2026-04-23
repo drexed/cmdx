@@ -170,44 +170,7 @@ result.ko?          #=> true for both skipped and failed
 
 ## Execution Behavior
 
-Halt methods behave differently depending on the entry point used:
-
-### Non-bang execution
-
-Returns the result object regardless of outcome; nothing raises:
-
-```ruby
-result = ProcessRefund.execute(refund_id: 789)
-
-case result.status
-when "success"
-  puts "Refund processed: $#{result.context.refund.amount}"
-when "skipped"
-  puts "Refund skipped: #{result.reason}"
-when "failed"
-  puts "Refund failed: #{result.reason}"
-  handle_refund_error(result.metadata[:error_code])
-end
-```
-
-### Bang execution
-
-Raises `CMDx::Fault` only when the result is `failed?`. Skipped results return normally:
-
-```ruby
-begin
-  result = ProcessRefund.execute!(refund_id: 789)
-
-  if result.skipped?
-    puts "Skipped: #{result.reason}"
-  else
-    puts "Success: Refund processed"
-  end
-rescue CMDx::Fault => e
-  puts "Failed: #{e.message}"
-  handle_refund_failure(e.result.metadata[:error_code])
-end
-```
+`execute` always returns a `Result`, regardless of whether `work` finished normally or halted via a signal. `execute!` only raises on `failed?` — `skip!` and `success!` return normally. See [Basics - Execution](../basics/execution.md) for the full entry-point contract and [Interruptions - Faults](faults.md) for the rescued exception hierarchy.
 
 ## Rethrowing a Peer Failure
 
@@ -225,6 +188,10 @@ end
 ```
 
 The resulting `Result` carries the upstream failure in `result.origin`; `result.thrown_failure?` is `true`. See [Result - Chain Analysis](../outcomes/result.md#chain-analysis).
+
+!!! note
+
+    `throw!` accepts either a `Result` or a raw `CMDx::Signal`. Passing a non-failed result (or a non-failed signal) is a no-op — the caller continues past the `throw!` line. Use this whenever you're forwarding another task's halt state without unwrapping it yourself.
 
 ## Best Practices
 

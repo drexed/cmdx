@@ -80,3 +80,7 @@ class ScheduleBackup < CMDx::Task
   optional :frequency, transform: :downcase, inclusion: { in: %w[hourly daily weekly monthly] }
 end
 ```
+
+!!! warning "Optional + nil value"
+
+    Transforms run only when the coerced value is non-`nil`. When an optional input's key is absent from `context` and no default is declared, the pipeline short-circuits after the default step — transforms (and validators) don't fire. Declare a `default:` or `required` if you need the transform to always run.

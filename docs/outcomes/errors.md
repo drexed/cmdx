@@ -47,6 +47,8 @@ result.errors.frozen? #=> true
 | `errors.size` | Number of distinct keys. |
 | `errors.count` | Total messages across all keys. |
 | `errors.each` | Yields `[Symbol, Set<String>]` pairs. `each_key` and `each_value` are also available. |
+| `errors.as_json` | Alias for `to_h` — for Rails/ActiveSupport callers. |
+| `errors.to_json` | Serializes `to_h` via the `json` stdlib (Symbol keys emitted as strings). |
 
 ```ruby
 def work

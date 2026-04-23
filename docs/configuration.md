@@ -451,4 +451,4 @@ end
 
 !!! warning "Important"
 
-    `reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).
+    `reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).

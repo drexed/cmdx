@@ -39,7 +39,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 | Chain storage | thread-local | fiber-local (parallel-safe) |
 | Breakpoints | `task_breakpoints` / `workflow_breakpoints` | removed — use `execute!` for strict mode |
 | Loader | Zeitwerk | explicit `require_relative` |
-| Pattern matching | n/a | `case result in [_, _, "complete", "success", *]` |
+| Pattern matching | n/a | `case result in [*, [:status, "success"], *]` |
 | `result.task` | task **instance** | task **class** |
 | `result.chain` | results `Array` | `Chain` object (`Enumerable`) |
 
@@ -94,7 +94,7 @@ end
 
 !!! note
 
-    `CMDx.reset_configuration!` is new — call it in test setup/teardown to wipe the global config and invalidate `Task`'s cached registries.
+    `CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and invalidate the cached registries (`@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@telemetry`) **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes (or `stub_const`/anonymous classes) per example.
 
 See [Configuration](configuration.md) for the full surface.
 
@@ -381,8 +381,8 @@ result.on(:success) { |r| deliver(r.context) }    # predicate dispatch
 # Accepted keys: :complete :interrupted :success :skipped :failed :ok :ko
 
 case result                                       # pattern matching
-in [_, _, "complete", "success", *]              then ok!
-in [_, _, _, "failed", reason, *]                then alert(reason)
+in [*, [:status, "success"], *]                  then ok!
+in [*, [:status, "failed"], *, [:reason, reason], *] then alert(reason)
 in { task:, status: "failed", cause: }           then ...
 end
 
@@ -433,7 +433,8 @@ end
 
 - Each parallel worker `deep_dup`s the workflow context, runs its task, then merges its successful child context back into the workflow (on the parent thread, after all workers join).
 - All workers share the parent's fiber-local `Chain` — each worker sets `Fiber[Chain::STORAGE_KEY]` on thread entry, and each result is pushed under a `Mutex`.
-- After all workers finish, the first **by declaration index** failed result halts the pipeline via `throw!`. Successful contexts merge in index order; failed ones are discarded.
+- With the default `fail_fast: false`, all workers run to completion, successful contexts merge in declaration order, and the first failure **by declaration index** halts the pipeline via `throw!`. With `fail_fast: true`, queued workers are drained as soon as any sibling fails (in-flight tasks still finish), and the first failure **by completion time** is propagated.
+- Additional knobs: `:executor` (`:threads` default, `:fibers`, or a callable), `:merge_strategy` (`:last_write_wins` default, `:deep_merge`, `:no_merge`, or a callable), and `:fail_fast`. See [Workflows - Parallel Execution](workflows.md#parallel-execution).
 
 ### Behavioral Changes
 
@@ -477,7 +478,7 @@ New in v2:
 CMDx::Error = CMDx::Exception    (StandardError)
 ├── CMDx::Fault
 ├── CMDx::DeprecationError
-├── CMDx::DefinitionError        (NEW — duplicate input/output accessor)
+├── CMDx::DefinitionError        (NEW — conflicting input accessor, or empty workflow task group)
 ├── CMDx::ImplementationError    (NEW — Task#work unoverridden, or Workflow#work defined)
 └── CMDx::MiddlewareError        (NEW — middleware didn't yield)
 ```

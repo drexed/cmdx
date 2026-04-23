@@ -28,21 +28,24 @@ class CalculateShipping < CMDx::Task
     carrier       = context.dig(:options, :carrier)
     attempt       = context.retrieve(:attempt_count, 0) # fetch-or-set
     context.weight?                             # truthy predicate
+    context.empty?                              # false when any key stored
+    context.size                                # number of top-level keys
 
     # Writes
     context.calculated_at = Time.now
-    context[:status] = "calculating"
+    context[:status] = "calculating"                       # alias: context.store(:status, "...")
     context.insurance_included ||= false
-    context.merge(shipping_cost: calculate_cost)           # top-level last-write-wins
+    context.merge(shipping_cost: calculate_cost)           # top-level last-write-wins (mutates in place)
     context.deep_merge(options: { carrier: "ups" })        # recurses into Hash values
     context.delete(:credit_card_token)
+    context.clear                                          # wipes every entry
   end
 end
 ```
 
 !!! note
 
-    Method-style reads return `nil` for unknown keys. `Context` includes `Enumerable` and exposes the usual `keys`/`values`/`key?`/`each`/`each_key`/`each_value`. See YARD for the full surface.
+    Method-style reads return `nil` for unknown keys. `Context` includes `Enumerable` and exposes the usual `keys`/`values`/`key?`/`each`/`each_key`/`each_value`. `#merge` / `#deep_merge` mutate in place and return `self`. `#store` (aliased `[]=`) symbolizes the key. See YARD for the full surface.
 
 ## Serialization
 
@@ -112,15 +115,16 @@ class CalculateShipping < CMDx::Task
 end
 ```
 
-Strict mode only affects the dynamic method reader. `[]`, `fetch`, `dig`, `key?`, and `ctx.foo?` predicates keep their lenient semantics so defaults and explicit presence checks still work:
+Strict mode only affects the dynamic method reader. Every other access channel keeps its lenient semantics so defaults and explicit presence checks still work:
 
-```ruby
-context[:missing]                 #=> nil
-context.fetch(:missing, :default) #=> :default
-context.dig(:a, :b)               #=> nil
-context.missing?                  #=> false
-context.missing = 1               #=> 1 (writes still allowed)
-```
+| Access | Behavior in strict mode |
+|--------|-------------------------|
+| `context.missing` | raises `NoMethodError` |
+| `context[:missing]` | returns `nil` |
+| `context.fetch(:missing, :default)` | returns `:default` |
+| `context.dig(:a, :b)` | returns `nil` |
+| `context.missing?` | returns `false` |
+| `context.missing = 1` | writes succeed |
 
 !!! note
 

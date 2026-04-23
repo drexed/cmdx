@@ -32,13 +32,14 @@ result.status       #=> "failed"
 result.reason       #=> "Build tool not found"
 result.metadata     #=> { error_code: "BUILD_TOOL.NOT_FOUND" }
 result.cause        #=> nil, the rescued StandardError, or the propagated Fault
-result.backtrace    #=> caller_locations captured by fail!/throw! (Array<String>), or nil
+result.backtrace    #=> caller_locations captured by fail!/throw! (Array<Thread::Backtrace::Location>), or nil
+                    #   (Fault#backtrace stringifies these through the configured backtrace_cleaner)
 
 # Lifecycle metadata
 result.duration     #=> 12.34            (milliseconds, monotonic)
 result.retries      #=> 2
 result.retried?     #=> true
-result.strict?      #=> false            (true when produced via execute!)
+result.strict?      #=> false            (true when produced via execute! or execute(strict: true))
 result.deprecated?  #=> false
 result.rolled_back? #=> false
 result.tags         #=> []               (from settings(tags: [...]))
@@ -208,7 +209,7 @@ end
 
 ## Serialization
 
-`to_h` returns a memoized hash suitable for telemetry sinks and structured logs. `to_s` is the space-separated `key=value.inspect` rendering that `Runtime` writes to the task logger after `task_executed`.
+`to_h` returns a memoized hash suitable for telemetry sinks and structured logs. `as_json` aliases `to_h` for Rails/ActiveSupport callers; `to_json` serializes via the `json` stdlib. `to_s` is the space-separated `key=value.inspect` rendering that `Runtime` writes to the task logger after `task_executed`.
 
 ```ruby
 result.to_h
@@ -224,8 +225,14 @@ result.to_h
 #     duration: 12.34, tags: []
 #   }
 
+result.as_json           #=> same hash as to_h
+result.to_json           #=> '{"xid":null,"cid":"0190...",...}'
 result.to_s
 #=> "xid=nil cid=\"0190...\" index=0 ... state=\"complete\" status=\"success\" ..."
 ```
 
 On `failed?` results, `to_h` additionally includes `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, and `:rolled_back`. The `_failure` and `:origin` entries are compact `{ task:, tid: }` hashes (and render as `<TaskClass uuid>` in `to_s`) to avoid serializing entire upstream results. `:origin` is `nil` when the failure is locally originated.
+
+!!! note
+
+    `to_json` emits the task Class and any `:cause` Exception via their stdlib `to_json` defaults; the embedded `:context` delegates to `Context#to_json`. Symbol keys are emitted as strings.

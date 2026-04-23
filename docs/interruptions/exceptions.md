@@ -38,12 +38,21 @@ end
 
 ### CMDx::DefinitionError
 
-Raised at class-load time when an input declaration would clash with an existing accessor on the task (e.g. `:context`, `:errors`, or any user-defined method).
+Raised at class-load time when a declaration is structurally invalid:
+
+- An input name clashes with an existing accessor on the task (e.g. `:context`, `:errors`, or any user-defined method).
+- A workflow `task` / `tasks` declaration is called with options but no tasks.
 
 ```ruby
 class ConflictingTask < CMDx::Task
   required :context  #=> raises CMDx::DefinitionError
   # "cannot define input :context: #context is already defined on ConflictingTask"
+end
+
+class EmptyGroupWorkflow < CMDx::Task
+  include CMDx::Workflow
+  tasks strategy: :parallel  #=> raises CMDx::DefinitionError
+  # "EmptyGroupWorkflow: cannot declare an empty task group"
 end
 ```
 
@@ -134,9 +143,7 @@ end
 
 ## Execute vs Execute!
 
-### Non-bang execution
-
-`Runtime` rescues every non-framework `StandardError` raised inside `work` and converts it into a failed result. The exception is preserved on `result.cause`; its class and message become `result.reason`. Any `CMDx::Error` subclass propagates instead—framework errors are never swallowed:
+`Runtime#perform_work` rescues in a strict order: `Fault` (echoes) → `CMDx::Error` (**re-raises**, never converts to a failed result) → `StandardError` (converts to a failed result with `cause` set). `execute!` then re-raises: if `result.cause` holds a captured exception, the **original** exception bubbles up; otherwise a `CMDx::Fault` wrapping the failed result is raised.
 
 ```ruby
 class CompressDocument < CMDx::Task
@@ -146,31 +153,18 @@ class CompressDocument < CMDx::Task
   end
 end
 
-result = CompressDocument.execute(document_id: "unknown-doc-id")
-result.failed? #=> true
-result.reason  #=> "[ActiveRecord::RecordNotFound] Couldn't find Document with 'id'=unknown-doc-id"
-result.cause   #=> #<ActiveRecord::RecordNotFound>
-```
+CompressDocument.execute(document_id: "unknown-doc-id").then do |r|
+  r.failed? #=> true
+  r.reason  #=> "[ActiveRecord::RecordNotFound] Couldn't find Document with 'id'=unknown-doc-id"
+  r.cause   #=> #<ActiveRecord::RecordNotFound>
+end
 
-!!! note "Framework errors inside `work`"
-
-    `Runtime#perform_work` rescues in this order: `Fault` (echoes), then `CMDx::Error` (**re-raises**, never converts to a failed result), then `StandardError` (converts to a failed result with `cause` set). So raising any `CMDx::Error` subclass — `DefinitionError`, `DeprecationError`, `ImplementationError`, `MiddlewareError`, or a custom subclass — inside `work` propagates out of both `execute` and `execute!`.
-
-### Bang execution
-
-`execute!` re-raises on failure. When `Runtime` had captured an underlying exception (`result.cause` is set), that **original** exception is re-raised; otherwise a `CMDx::Fault` carrying the failed result is raised:
-
-```ruby
 begin
   CompressDocument.execute!(document_id: "unknown-doc-id")
 rescue ActiveRecord::RecordNotFound => e
   puts "Handle exception: #{e.message}"
 end
 ```
-
-See [Faults](faults.md) for `Fault.for?` / `Fault.matches?` matchers.
-
-## When Each Path Raises
 
 | Trigger | `execute` (safe) | `execute!` (strict) |
 |---------|------------------|---------------------|
@@ -184,6 +178,8 @@ See [Faults](faults.md) for `Fault.for?` / `Fault.matches?` matchers.
 | `ImplementationError` from `Workflow.method_added` | propagates at class-load time | propagates at class-load time |
 | `DefinitionError` from a conflicting input declaration | propagates at class-load time | propagates at class-load time |
 | Non-`StandardError` (e.g. `Interrupt`, `SignalException`) | propagates | propagates |
+
+See [Faults](faults.md) for `Fault.for?` / `Fault.matches?` matchers.
 
 ## Backtrace Cleaning
 

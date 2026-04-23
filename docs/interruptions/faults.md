@@ -134,7 +134,7 @@ rescue CMDx::Fault => e
 end
 
 # Or via non-bang execute:
-result = DocumentWorkflow.execute(invalid_data)
+result = DocumentWorkflow.execute(document_data: data)
 if result.failed?
   origin = result.caused_failure
   puts "Originated by #{origin.task}: #{origin.reason}"

@@ -71,7 +71,7 @@ result.chain.map(&:task)
 
 !!! note
 
-    Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts and clears it on teardown.
+    Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts, freezes it (and its results array) on root teardown, and clears the fiber-local reference. `result.index` is `nil` on a result that was never appended to the chain — every finalized `Result` is always on its chain, so this only happens in test doubles.
 
 ## Correlation ID (xid)
 
@@ -109,5 +109,9 @@ end
 
 # Inspect or clear the current fiber's chain (rarely needed)
 CMDx::Chain.current  #=> Returns current chain or nil
-CMDx::Chain.clear    #=> Clears current fiber's chain
+CMDx::Chain.clear    #=> Clears current fiber's chain (Runtime does this on teardown)
 ```
+
+!!! warning
+
+    Runtime freezes the chain on root teardown, so `CMDx::Chain.clear` is really only useful in test setup before the next execution. Mutating a frozen chain raises `FrozenError`.

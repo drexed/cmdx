@@ -311,6 +311,20 @@ class SetupApplication < CMDx::Task
 end
 ```
 
+## `required` vs `presence: true`
+
+These two aren't interchangeable:
+
+| Declaration | When the caller omits the key |
+|-------------|------------------------------|
+| `required :email` | `email is required` — the missing-key error is added; validators don't run |
+| `input :email, presence: true` | **No error.** Validators (including `presence`) are skipped when an optional key is absent |
+| `required :email, presence: true` | Both: missing-key gate first; `presence:` then re-runs on the resolved value |
+
+!!! danger "Optional + validator"
+
+    Validators (including `presence`) do **not** run when an optional input's final resolved value is `nil` — the pipeline short-circuits after the default step. `input :email, presence: true` by itself enforces nothing when the caller omits `email`: declare it with `required :email` (or `required :email, presence: true`) whenever the caller must supply the key.
+
 ## Error Handling
 
 Validation failures accumulate on `task.errors` and surface as a failed result with the joined sentence as `result.reason`. See [Inputs - Error Handling](definitions.md#error-handling) for the full lifecycle.

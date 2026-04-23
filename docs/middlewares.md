@@ -130,8 +130,8 @@ end
 ```ruby
 class ProcessCampaign < CMDx::Task
   register :middleware, AuditMiddleware, if: :audited?
-  register :middleware, CacheMiddleware, unless: ->(task) { task.context.skip_cache }
-  register :middleware, TracingMiddleware, if: TracingSampler # #call(task)
+  register :middleware, CacheMiddleware, unless: -> { context.skip_cache }
+  register :middleware, TracingMiddleware, if: TracingSampler.new # #call(task)
 
   def work
     # ...
@@ -142,6 +142,10 @@ class ProcessCampaign < CMDx::Task
   def audited? = context.tenant_id.present?
 end
 ```
+
+!!! note
+
+    Procs are `instance_exec`'d on the task with zero args, so `self` is the task — a 1-arity lambda like `->(task) { ... }` raises `ArgumentError`. For `#call`-ables, passing a class dispatches to `Klass.call(task)` (needs `def self.call`); passing an instance dispatches to `instance.call(task)`.
 
 When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
 

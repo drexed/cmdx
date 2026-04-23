@@ -153,16 +153,20 @@ end
 
 ## Conditional Retries
 
-`:if` / `:unless` gate each retry attempt. The gate receives `(task, error, attempt)` — when falsy (`if`) or truthy (`unless`), the rescued exception is re-raised instead of retried, skipping any remaining budget and the `wait` between attempts.
+`:if` / `:unless` gate each retry attempt. When the gate is falsy (`if`) or truthy (`unless`), the rescued exception is re-raised instead of retried, skipping any remaining budget and the `wait` between attempts.
 
-Symbol, Proc, and any `#call`-able resolve against the task (Procs via `instance_exec`, Symbols via `task.send(sym, error, attempt)`, callables via `gate.call(task, error, attempt)`).
+| Gate form | How it's invoked | Effective signature |
+|-----------|------------------|---------------------|
+| `Symbol` | `task.send(sym, error, attempt)` | `def sym(error, attempt)` |
+| `Proc` / lambda | `task.instance_exec(error, attempt, &gate)` (`self` is the task) | `->(error, attempt) { ... }` |
+| `#call`-able | `gate.call(task, error, attempt)` | `def call(task, error, attempt)` |
 
 ```ruby
 class FetchProfile < CMDx::Task
   retry_on ApiError,
            limit: 5,
            delay: 1.0,
-           if: ->(_task, error, _attempt) { error.retryable? }
+           if: ->(error, _attempt) { error.retryable? }
 
   retry_on Net::ReadTimeout, if: :transient?, limit: 3
 

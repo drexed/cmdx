@@ -78,3 +78,11 @@ rescue StandardError => e
   ErrorTracker.capture(unhandled_exception: e)
 end
 ```
+
+!!! note "Strict re-raise order"
+
+    When `work` raises a non-framework `StandardError`, Runtime captures it on `result.cause` **and** re-raises the **original** exception under strict mode — not a `Fault`. Put `rescue CMDx::Fault` before `rescue StandardError` (Fault is a `StandardError` subclass). A `fail!` / `throw!` / validation / output failure has no captured `cause`, so it raises `Fault` carrying the caused-failure leaf as `fault.result`.
+
+!!! note "Teardown ordering"
+
+    Result finalization runs **before** the strict re-raise, and teardown (freeze + chain clear) runs in an `ensure` after. This means `fault.result`, `fault.context`, and `fault.chain` are all safe to read inside any `rescue` — and a lifecycle log line / `:task_executed` telemetry event still fires on strict failures.

@@ -91,7 +91,7 @@ class ExportReport < CMDx::Task
 
   # 3. Define callbacks
   before_execution :find_report
-  on_complete :track_export_metrics, if: ->(task) { Current.tenant.analytics? }
+  on_complete :track_export_metrics, if: -> { Current.tenant.analytics? }
 
   # 4. Declare inputs
   optional :user_id

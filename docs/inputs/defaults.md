@@ -4,7 +4,7 @@ Provide fallback values for optional inputs. Defaults kick in when values aren't
 
 ## Declarations
 
-Defaults work seamlessly with coercions, validations, and nested inputs:
+Defaults compose with coercions, validations, and nested inputs:
 
 ### Static Values
 
@@ -94,7 +94,7 @@ end
 
 !!! note
 
-    Defaults only apply when the resolved value is `nil`. An explicitly provided `nil` is treated as missing and the default fires.
+    Defaults only apply when the resolved value is `nil`. An explicitly provided `nil` is treated as missing and the default fires. This applies equally whether the key was absent from `context` or the caller sent `nil` explicitly — both are "not provided".
 
 !!! warning "Required + default"
 
