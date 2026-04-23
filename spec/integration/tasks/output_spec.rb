@@ -3,11 +3,11 @@
 require "spec_helper"
 
 RSpec.describe "Task output verification", type: :feature do
-  describe "required outputs" do
+  describe "presence" do
     context "when all declared keys are set" do
       subject(:result) do
         create_task_class(name: "AllOutputsSet") do
-          output :user, :token, required: true
+          output :user, :token
           define_method(:work) do
             context.user = "alice"
             context.token = "abc123"
@@ -21,10 +21,10 @@ RSpec.describe "Task output verification", type: :feature do
       end
     end
 
-    context "when one required key is missing" do
+    context "when one declared key is missing" do
       subject(:result) do
         create_task_class(name: "OneMissing") do
-          output :user, :token, required: true
+          output :user, :token
           define_method(:work) { context.user = "alice" }
         end.execute
       end
@@ -34,10 +34,10 @@ RSpec.describe "Task output verification", type: :feature do
       end
     end
 
-    context "when multiple required keys are missing" do
+    context "when multiple declared keys are missing" do
       subject(:result) do
         create_task_class(name: "MultiMissing") do
-          output :user, :token, :session, required: true
+          output :user, :token, :session
           define_method(:work) { context.user = "alice" }
         end.execute
       end
@@ -50,10 +50,10 @@ RSpec.describe "Task output verification", type: :feature do
       end
     end
 
-    context "when a required key is set to nil" do
+    context "when a declared key is set to nil" do
       subject(:result) do
         create_task_class(name: "NilValue") do
-          output :user, required: true
+          output :user
           define_method(:work) { context.user = nil }
         end.execute
       end
@@ -64,21 +64,10 @@ RSpec.describe "Task output verification", type: :feature do
     end
   end
 
-  describe "non-required outputs" do
-    it "succeeds even when the key is missing" do
-      task = create_task_class(name: "OptionalOutputs") do
-        output :user, :token
-        define_method(:work) { context.user = "alice" }
-      end
-
-      expect(task.execute).to have_attributes(status: CMDx::Signal::SUCCESS)
-    end
-  end
-
   describe "skipped/failed outcomes" do
     it "does not verify outputs when the task skips" do
       task = create_task_class(name: "SkipOutputs") do
-        output :user, required: true
+        output :user
         define_method(:work) { skip!("not needed") }
       end
 
@@ -90,7 +79,7 @@ RSpec.describe "Task output verification", type: :feature do
 
     it "does not verify outputs when the task fails" do
       task = create_task_class(name: "FailOutputs") do
-        output :user, required: true
+        output :user
         define_method(:work) { fail!("broken") }
       end
 
@@ -101,16 +90,36 @@ RSpec.describe "Task output verification", type: :feature do
     end
   end
 
+  describe "if / unless guards" do
+    it "skips verification when :unless is true" do
+      task = create_task_class(name: "OutGuardUnless") do
+        output :user, unless: -> { true }
+        define_method(:work) { nil }
+      end
+
+      expect(task.execute).to have_attributes(status: CMDx::Signal::SUCCESS)
+    end
+
+    it "still requires the key when :if is true" do
+      task = create_task_class(name: "OutGuardIf") do
+        output :user, if: -> { true }
+        define_method(:work) { nil }
+      end
+
+      expect(task.execute.errors.to_h).to eq(user: ["must be set in the context"])
+    end
+  end
+
   describe "inheritance" do
     let(:parent) do
       create_task_class(name: "ParentOutputs") do
-        output :user, required: true
+        output :user
       end
     end
 
     it "inherits parent outputs alongside its own" do
       child = create_task_class(base: parent, name: "ChildOutputs") do
-        output :token, required: true
+        output :token
         define_method(:work) do
           context.user = "alice"
           context.token = "abc"
@@ -123,7 +132,7 @@ RSpec.describe "Task output verification", type: :feature do
 
     it "fails when a parent-declared output is missing in the child" do
       child = create_task_class(base: parent, name: "MissingParent") do
-        output :token, required: true
+        output :token
         define_method(:work) { context.token = "abc" }
       end
 
@@ -142,9 +151,9 @@ RSpec.describe "Task output verification", type: :feature do
   end
 
   describe "defaults" do
-    it "fills in a required output via default when work doesn't set it" do
+    it "fills in an output via default when work doesn't set it" do
       task = create_task_class(name: "DefaultVersion") do
-        output :version, required: true, default: "v2"
+        output :version, default: "v2"
         define_method(:work) { nil }
       end
 
@@ -171,45 +180,12 @@ RSpec.describe "Task output verification", type: :feature do
 
       expect(task.execute.context.version).to eq("v2")
     end
-
-    it "flows defaults through coercion" do
-      task = create_task_class(name: "DefaultCoerced") do
-        output :retention_days, default: "7", coerce: :integer
-        define_method(:work) { nil }
-      end
-
-      expect(task.execute.context.retention_days).to eq(7)
-    end
-  end
-
-  describe "transform" do
-    it "normalizes values the task wrote" do
-      task = create_task_class(name: "TransformEmail") do
-        output :email, coerce: :string, transform: :downcase
-        define_method(:work) { context.email = "Alice@Example.COM" }
-      end
-
-      expect(task.execute.context.email).to eq("alice@example.com")
-    end
-
-    it "runs after coerce and before validation" do
-      task = create_task_class(name: "TransformClamp") do
-        output :days, coerce: :integer, transform: proc { |v| v.clamp(1, 5) },
-          numeric: { min: 1, max: 5 }
-        define_method(:work) { context.days = "42" }
-      end
-
-      result = task.execute
-
-      expect(result).to have_attributes(status: CMDx::Signal::SUCCESS)
-      expect(result.context.days).to eq(5)
-    end
   end
 
   describe "blocking execute!" do
-    it "raises a Fault for a missing required output" do
+    it "raises a Fault for a missing output" do
       task = create_task_class(name: "BangOutput") do
-        output :user, required: true
+        output :user
         define_method(:work) { nil }
       end
 

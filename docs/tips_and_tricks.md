@@ -99,7 +99,7 @@ class ExportReport < CMDx::Task
   optional :format_type, coerce: :string, inclusion: { in: %w[pdf csv] }
 
   # 5. Declare outputs (the contract)
-  output :exported_at, required: true
+  output :exported_at
 
   # 6. Define work
   def work

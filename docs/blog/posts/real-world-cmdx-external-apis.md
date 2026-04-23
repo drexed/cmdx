@@ -152,7 +152,7 @@ With infrastructure handled, the tasks themselves are pure business logic.
 class Stripe::CreateCustomer < Stripe::BaseTask
   required :user
 
-  output :stripe_customer, required: true
+  output :stripe_customer
 
   def work
     if user.stripe_customer_id.present?
@@ -190,7 +190,7 @@ class Stripe::ChargeCard < Stripe::BaseTask
   optional :description
   optional :idempotency_key, default: -> { SecureRandom.uuid }
 
-  output :charge, required: true
+  output :charge
 
   def work
     context.charge = ::Stripe::Charge.create(
@@ -232,7 +232,7 @@ class Payments::Record < ApplicationTask
   required :amount_cents, coerce: :integer
   required :currency
 
-  output :payment, required: true
+  output :payment
 
   def work
     context.payment = Payment.create!(

@@ -402,7 +402,7 @@ class SendCampaignEmail < CMDx::Task
 
   # Inputs / outputs (per-class schemas)
   register :input, :recipient_id, coerce: :integer, presence: true
-  register :output, :delivered_at, presence: true
+  register :output, :delivered_at
 end
 ```
 

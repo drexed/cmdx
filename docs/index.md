@@ -16,7 +16,7 @@ class ApproveLoan < CMDx::Task
 
   on_success :notify_applicant!
 
-  output :approved_at, presence: true
+  output :approved_at
 
   def work
     if application.nil?

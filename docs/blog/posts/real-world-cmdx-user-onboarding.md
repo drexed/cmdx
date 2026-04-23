@@ -46,7 +46,7 @@ class Users::Register < CMDx::Task
   optional :referral_code
   optional :invite_token
 
-  output :user, required: true
+  output :user
 
   def work
     fail!("Email already taken", code: :duplicate) if User.exists?(email: email)
@@ -61,7 +61,7 @@ class Users::Register < CMDx::Task
 end
 ```
 
-Three layers of defense here: input validations catch malformed inputs, the `fail!` catches business rule violations, and `output :user, required: true` guarantees downstream tasks always have the user available — Runtime verifies it's present after `work` returns and fails the task otherwise.
+Three layers of defense here: input validations catch malformed inputs, the `fail!` catches business rule violations, and `output :user` guarantees downstream tasks always have the user available — every declared output is implicitly required, so Runtime verifies it's present after `work` returns and fails the task otherwise.
 
 ### Send Verification Email
 
@@ -69,7 +69,7 @@ Three layers of defense here: input validations catch malformed inputs, the `fai
 class Users::SendVerification < CMDx::Task
   required :user
 
-  output :verification_token, required: true
+  output :verification_token
 
   def work
     context.verification_token = user.generate_verification_token!
@@ -90,7 +90,7 @@ This task only runs for trial plans. That conditional logic lives in the workflo
 class Users::ActivateTrial < CMDx::Task
   required :user
 
-  output :trial_ends_at, required: true
+  output :trial_ends_at
 
   def work
     trial_duration = case user.plan

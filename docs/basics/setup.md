@@ -82,7 +82,7 @@ Tasks follow a predictable execution pattern. Halt primitives — `success!`, `s
 | **Before validation** | `before_validation` callbacks run next |
 | **Validation** | Inputs are coerced/validated; failures halt with `failed` |
 | **Work** | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries |
-| **Output verification** | Declared `output` keys are coerced/validated |
+| **Output verification** | Declared `output` keys are checked on `context` (every declared output is implicitly required); `:default` fills nils, missing keys fail the task |
 | **Rollback** | `rollback` runs when the signal is `failed` (before completion callbacks) |
 | **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order |
 | **Result finalization** | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed) |

@@ -93,7 +93,7 @@ RSpec.describe CMDx::Task do
       create_task_class(name: "SchemaTask") do
         required :name
         optional :age
-        output :id, required: true
+        output :id, description: "the persisted id"
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe CMDx::Task do
 
     it "outputs_schema returns a flat hash of output descriptors" do
       expect(klass.outputs_schema.keys).to eq([:id])
-      expect(klass.outputs_schema[:id][:required]).to be(true)
+      expect(klass.outputs_schema[:id][:description]).to eq("the persisted id")
     end
   end
 

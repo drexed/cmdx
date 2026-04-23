@@ -26,18 +26,18 @@ RSpec.describe CMDx::Outputs do
 
   describe "#register" do
     it "adds each key as an Output entry and returns self" do
-      expect(outputs.register(:user, :token, required: true)).to be(outputs)
+      expect(outputs.register(:user, :token, description: "x")).to be(outputs)
 
       expect(outputs.size).to eq(2)
       expect(outputs.registry[:user]).to be_a(CMDx::Output)
-      expect(outputs.registry[:user].required).to be(true)
+      expect(outputs.registry[:user].description).to eq("x")
     end
 
     it "overwrites an existing entry with the same name" do
-      outputs.register(:user, required: false)
-      outputs.register(:user, required: true)
+      outputs.register(:user, default: "a")
+      outputs.register(:user, default: "b")
 
-      expect(outputs.registry[:user].required).to be(true)
+      expect(outputs.registry[:user].default).to eq("b")
       expect(outputs.size).to eq(1)
     end
   end
@@ -75,54 +75,14 @@ RSpec.describe CMDx::Outputs do
   describe "#verify" do
     it "invokes verify on each registered Output" do
       task_class = create_task_class(name: "VerifyAllTask") do
-        output :user, required: true
-        output :token, required: true
+        output :user
+        output :token
       end
       task = task_class.new
 
       task_class.outputs.verify(task)
 
       expect(task.errors.keys).to contain_exactly(:user, :token)
-    end
-  end
-
-  describe "nested outputs" do
-    it "builds child outputs from a block" do
-      outputs.register(:user) do
-        required :id, type: :integer
-        optional :email
-      end
-
-      user = outputs.registry[:user]
-      expect(user.children.map(&:name)).to eq(%i[id email])
-      expect(user.children.first.required).to be(true)
-      expect(user.children.last.required).to be(false)
-    end
-
-    it "supports arbitrary nesting" do
-      outputs.register(:user) do
-        output :address do
-          required :city
-        end
-      end
-
-      address = outputs.registry[:user].children.first
-      expect(address.name).to eq(:address)
-      expect(address.children.map(&:name)).to eq([:city])
-    end
-
-    it "freezes the children list" do
-      outputs.register(:user) { required :id }
-      expect(outputs.registry[:user].children).to be_frozen
-    end
-
-    it "exposes children through to_h (schema export)" do
-      outputs.register(:user) do
-        required :id
-      end
-
-      schema = outputs.registry[:user].to_h
-      expect(schema[:children].first).to include(name: :id, required: true)
     end
   end
 end

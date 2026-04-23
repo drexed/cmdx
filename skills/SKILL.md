@@ -72,8 +72,8 @@ class ProcessPayment < CMDx::Task
   required :amount,   coerce: :big_decimal, numeric: { gt: 0 }
   optional :currency, coerce: :string, default: "USD", inclusion: { in: %w[USD EUR GBP] }
 
-  output :charge_id,   required: true
-  output :receipt_url, required: true
+  output :charge_id
+  output :receipt_url
 
   def work
     charge = Gateway.charge!(amount: amount, currency: currency)
@@ -162,8 +162,8 @@ Declare keys the task must write to `context`. Verification runs after `work` su
 class CreateUser < CMDx::Task
   required :email, coerce: :string
 
-  output :user, required: true
-  output :token, required: true, presence: true
+  output :user
+  output :token
 
   def work
     context.user  = User.create!(email: email)
@@ -172,7 +172,7 @@ class CreateUser < CMDx::Task
 end
 ```
 
-Outputs share the `coerce:`, `default:`, `transform:`, `validate:`, and `if:` / `unless:` options with inputs. Missing required outputs fail the task with `result.errors[name]`.
+Every declared output is implicitly required. Outputs support `default:`, `if:`/`unless:`, and `description:` only. A missing output fails the task with `result.errors[name]`. For coercion, transformation, or validation use inputs (or write derived values directly inside `work`).
 
 Full reference: [references/outputs.md](references/outputs.md).
 

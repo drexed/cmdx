@@ -242,9 +242,8 @@ module CMDx
       #
       # @param keys [Array<Symbol>]
       # @param options [Hash{Symbol => Object}] see {Output#initialize}
-      # @yield nested-output DSL block (see {Outputs::ChildBuilder})
       # @return [Outputs]
-      def outputs(*keys, **options, &)
+      def outputs(*keys, **options)
         @outputs ||=
           if superclass.respond_to?(:outputs)
             superclass.outputs.dup
@@ -254,7 +253,7 @@ module CMDx
 
         return @outputs if keys.empty?
 
-        @outputs.register(*keys, **options, &)
+        @outputs.register(*keys, **options)
       end
       alias output outputs
 

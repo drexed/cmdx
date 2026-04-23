@@ -88,7 +88,7 @@ A condensed cheat sheet. The [full migration guide](https://drexed.github.io/cmd
 |---|---|---|
 | Entry point | `MyTask.call` / `def call` | `MyTask.execute` / `def work` (old names aliased) |
 | Inputs | `attribute :email, type: :string` | `input :email, coerce: :string` (`required` / `optional` unchanged) |
-| Outputs | `returns :user` (presence only) | `output :user, required: true, coerce: :..., validate: ...` |
+| Outputs | `returns :user` (presence only) | `output :user, default: ..., if: ...` (implicit required + optional defaults/guards) |
 | Middleware | `def call(task, options, &block)` | `def call(task); yield; end` (one arg, must `yield`) |
 | Built-in middlewares | `Correlate`, `Runtime`, `Timeout` auto-registered | removed — subscribe to Telemetry or register your own |
 | Callbacks | `on_good`, `on_bad`, `on_executed` | `on_ok`, `on_ko` (`on_executed` removed) |
@@ -165,18 +165,18 @@ end
 
 `Result` implements `deconstruct` and `deconstruct_keys`, so controllers and job handlers can dispatch on outcome without brittle `if result.success? && result.metadata[:code] == ...` ladders.
 
-### The full output pipeline
+### Output verification
 
 ```ruby
 # v1 — presence check only
 returns :user, :token
 
-# v2 — required + coerce + validate + default + transform
-output :user,  required: true
-output :token, required: true, coerce: :string, length: { min: 32 }
+# v2 — implicit required + optional default / :if / :unless guards
+output :user
+output :token, default: -> { JwtService.encode(user_id: context.user.id) }
 ```
 
-`output` reuses the input pipeline. Missing required outputs record `outputs.missing` on `task.errors` and become a failed signal automatically.
+Every declared output is implicitly required. Outputs verify each declared key on `task.context` after `work` succeeds: `:default` fills in `nil` values (and satisfies the check), and a missing key without a default records `outputs.missing` on `task.errors` and becomes a failed signal automatically. For coercion, transformation, or validation, use [Inputs](https://drexed.github.io/cmdx/inputs/definitions/) or post-`work` code.
 
 ## Performance
 
@@ -196,7 +196,7 @@ gem "cmdx", "~> 2.0"
 Then, across your task classes:
 
 - Rename `attribute :x, type: :string` → `input :x, coerce: :string`
-- Rename `returns :user` → `output :user, required: true`
+- Rename `returns :user` → `output :user` (implicit required)
 - Update middlewares from `call(task, options, &block)` to `call(task) { yield }`, and register instances (`register :middleware, Foo.new`) instead of classes
 - Replace `result.chain_id` with `result.cid`, `result.good?` with `result.ok?`, `result.bad?` with `result.ko?`
 - Drop `task_breakpoints` / `workflow_breakpoints` settings — use `execute!` where you want strict mode

@@ -81,7 +81,7 @@ class Reports::GenerateMonthly < ApplicationTask
   required :month, coerce: :integer, numeric: { within: 1..12 }
   required :year, coerce: :integer, numeric: { min: 2020 }
 
-  output :report, required: true
+  output :report
 
   def work
     account = Account.find(account_id)

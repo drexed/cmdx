@@ -4,7 +4,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 
 !!! warning "Not a drop-in upgrade"
 
-    Plan to touch every task class. Halt is now `throw`/`catch` instead of `Result` mutation, attributes became inputs (`type:` → `coerce:`), returns became outputs (with a full pipeline), middleware takes one argument and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
+    Plan to touch every task class. Halt is now `throw`/`catch` instead of `Result` mutation, attributes became inputs (`type:` → `coerce:`), returns became outputs (with optional `:default` / `:if` / `:unless`), middleware takes one argument and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
 
 !!! tip "Benchmarks"
 
@@ -30,7 +30,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 | `Result` mutability | mutable (`initialized → executing → complete`) | read-only; options frozen on construction |
 | Lifecycle owner | `CMDx::Executor` | `CMDx::Runtime` |
 | Inputs | `attribute` / `attributes` with `type:` | `input` / `inputs` with `coerce:` |
-| Outputs | `returns :user, :token` (presence check only) | `output :user, required: true, coerce: ...` (full pipeline) |
+| Outputs | `returns :user, :token` (presence check only) | `output :user, default: ..., if: ...` (every declared output is implicitly required; defaults + guards are optional) |
 | Callbacks | `on_executed`, `on_good`, `on_bad` | drops `on_executed`; renames to `on_ok` / `on_ko` |
 | Middleware signature | `call(task, options, &block)` | `call(task) { yield }` |
 | Built-in middlewares | `Correlate`, `Runtime`, `Timeout` | removed — register your own |
@@ -187,30 +187,28 @@ See [Inputs - Definitions](inputs/definitions.md).
 
 ## Outputs (was Returns)
 
-`returns` was a presence check. `output` runs through the same required/coerce/validate pipeline as inputs.
+`returns` was a presence check. `output` keeps the same implicit-required semantics and adds optional `:default` and `:if`/`:unless` gates. Outputs are intentionally minimal — for coercion, transformation, or validation use [Inputs](inputs/definitions.md) (or compute in `work`).
 
 ```ruby
 # v1
 returns :user, :token
 
 # v2
-output :user,  required: true
-output :token, required: true,
-               coerce:   :string,
-               length:   { min: 32 }
+output :user
+output :token, default: -> { JwtService.encode(user_id: context.user.id) }
 ```
 
-Outputs run **after** `work` returns successfully (skipped if the task halted). A missing required output adds `outputs.missing` to `task.errors`, which Runtime converts into a failed signal.
+Outputs run **after** `work` returns successfully (skipped if the task halted). Every declared output is implicitly required: a missing key adds `outputs.missing` to `task.errors`, which Runtime converts into a failed signal. `:default` satisfies the check when it produces a non-nil value.
 
 ### Removed
 
 | Removed | Replacement |
 |---|---|
-| `returns :name` | `output :name, required: true` |
+| `returns :name` | `output :name` |
 | `remove_returns :name` | `deregister :output, :name` |
 | `cmdx.returns.missing` locale key | `cmdx.outputs.missing` |
 
-See [Outputs](outputs.md) for the full pipeline.
+See [Outputs](outputs.md) for the full surface.
 
 ---
 
@@ -836,10 +834,13 @@ by the rules here, stop and surface the file:line so a human can resolve it.
 
 ## Pass 2 — Outputs
 
-- Replace `returns :a, :b` with one `output :a, required: true` /
-  `output :b, required: true` per key. Leave room for future `coerce:` /
-  validator options.
+- Replace `returns :a, :b` with one `output :a` / `output :b` per key.
+  Every declared output is implicitly required — drop any leftover
+  `required: true` option.
 - Replace `remove_returns :name` with `deregister :output, :name`.
+- Outputs only support `:default`, `:if`/`:unless`, and `:description`.
+  Move any coercion / transformation / validation onto inputs or compute
+  the value in `work` before assigning to context.
 
 ## Pass 3 — Locale files
 

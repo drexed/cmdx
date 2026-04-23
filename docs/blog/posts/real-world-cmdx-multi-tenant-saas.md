@@ -138,7 +138,7 @@ For tasks that behave differently per tenant:
 class Reports::Generate < TenantTask
   required :report_type, inclusion: { in: %w[summary detailed] }
 
-  output :report, required: true
+  output :report
 
   def work
     context.report = case report_type
@@ -189,7 +189,7 @@ class Tenants::Create < ApplicationTask
   required :plan, inclusion: { in: %w[starter growth enterprise] }
   required :owner_email, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  output :tenant, required: true
+  output :tenant
 
   def work
     fail!("Slug already taken", code: :slug_taken) if Tenant.exists?(slug: slug)
@@ -208,7 +208,7 @@ end
 
 ```ruby
 class Tenants::SeedDefaultData < TenantTask
-  output :seed_summary, required: true
+  output :seed_summary
 
   def work
     roles = Role.insert_all([
@@ -247,7 +247,7 @@ end
 class Tenants::CreateAdminUser < TenantTask
   required :owner_email
 
-  output :admin_user, required: true
+  output :admin_user
 
   def work
     context.admin_user = User.create!(
@@ -276,7 +276,7 @@ class Admin::GenerateUsageReport < Admin::BaseTask
 
   settings(tags: ["admin", "billing"])
 
-  output :report, required: true
+  output :report
 
   def work
     context.report = Tenant.active.map do |tenant|
