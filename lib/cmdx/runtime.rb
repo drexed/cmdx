@@ -138,10 +138,10 @@ module CMDx
     end
 
     def measure_duration
-      start = Process.clock_gettime(Process::CLOCK_MONOTONIC, :float_millisecond)
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
       yield
     ensure
-      @duration = Process.clock_gettime(Process::CLOCK_MONOTONIC, :float_millisecond) - start
+      @duration = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start
     end
 
     def run_callbacks(event)
