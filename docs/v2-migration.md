@@ -181,6 +181,19 @@ Rename `attribute` / `attributes` to `input` / `inputs`, and `type:` to `coerce:
 
 - `Attribute`, `AttributeRegistry`, `AttributeValue`, `Resolver`, `Identifier` classes
 
+### Bridge
+
+Want to keep using `attribute` and `attributes`?
+
+```
+class ApplicationTask
+  class < self
+    alias attribute input
+    alias attributes inputs
+  end
+end
+```
+
 See [Inputs - Definitions](inputs/definitions.md).
 
 ---
@@ -207,6 +220,18 @@ Outputs run **after** `work` returns successfully (skipped if the task halted). 
 | `returns :name` | `output :name` |
 | `remove_returns :name` | `deregister :output, :name` |
 | `cmdx.returns.missing` locale key | `cmdx.outputs.missing` |
+
+### Bridge
+
+Want to keep using `returns`?
+
+```
+class ApplicationTask
+  class < self
+    alias returns outputs
+  end
+end
+```
 
 See [Outputs](outputs.md) for the full surface.
 
