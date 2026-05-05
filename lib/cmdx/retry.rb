@@ -74,23 +74,16 @@ module CMDx
 
       d =
         case jitter
-        when :exponential
-          delay * (2**attempt)
-        when :half_random
-          (delay / 2.0) + (rand * delay / 2.0)
-        when :full_random
-          rand * delay
-        when :bounded_random
-          delay + (rand * delay)
-        when :linear
-          delay * (attempt + 1)
-        when :fibonacci
-          delay * fibonacci(attempt + 1)
-        when :decorrelated_jitter
-          base = prev_delay || delay
-          delay + (rand * ((base * 3) - delay))
+        when NilClass
+          delay
         when Symbol
-          task.send(jitter, attempt, delay)
+          registry = retriers_registry(task)
+
+          if registry.key?(jitter)
+            registry.lookup(jitter).call(attempt, delay, prev_delay)
+          else
+            task.send(jitter, attempt, delay)
+          end
         when Proc
           task.instance_exec(attempt, delay, &jitter)
         else
@@ -130,15 +123,19 @@ module CMDx
 
     private
 
-    # Iterative Fibonacci. `fib(1) == 1`, `fib(2) == 1`, `fib(3) == 2`, ...
+    # Resolves the retriers registry to consult for built-in jitter strategies.
+    # Prefers the task class's registry (so per-task `register(:retrier, ...)`
+    # overrides take effect) and falls back to the global configuration when
+    # no task is supplied.
     #
-    # @param n [Integer] one-based index into the Fibonacci sequence
-    # @return [Integer]
-    def fibonacci(n)
-      a = 0
-      b = 1
-      n.times { a, b = b, a + b }
-      a
+    # @param task [Task, nil]
+    # @return [Retriers]
+    def retriers_registry(task)
+      if task && task.class.respond_to?(:retriers)
+        task.class.retriers
+      else
+        CMDx.configuration.retriers
+      end
     end
 
   end

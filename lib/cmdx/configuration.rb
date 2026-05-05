@@ -10,7 +10,7 @@ module CMDx
   class Configuration
 
     attr_accessor :middlewares, :callbacks, :coercions, :validators, :executors,
-      :mergers, :telemetry, :correlation_id, :default_locale, :strict_context,
+      :mergers, :retriers, :telemetry, :correlation_id, :default_locale, :strict_context,
       :backtrace_cleaner, :log_exclusions, :log_formatter, :log_level, :logger
 
     def initialize
@@ -20,6 +20,7 @@ module CMDx
       @validators  = Validators.new
       @executors   = Executors.new
       @mergers     = Mergers.new
+      @retriers    = Retriers.new
       @telemetry   = Telemetry.new
 
       @correlation_id    = nil
@@ -77,6 +78,7 @@ module CMDx
     Task.instance_variable_set(:@validators, nil)
     Task.instance_variable_set(:@executors, nil)
     Task.instance_variable_set(:@mergers, nil)
+    Task.instance_variable_set(:@retriers, nil)
     Task.instance_variable_set(:@telemetry, nil)
   end
 

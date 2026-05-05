@@ -106,31 +106,6 @@ RSpec.describe CMDx::Retry do
       expect(sleeps).to eq([1.0])
     end
 
-    it "half_random produces delays in [delay/2, delay]" do
-      retry_ = described_class.new([error_class], delay: 1.0, jitter: :half_random)
-      allow(retry_).to receive(:rand).and_return(0.0, 1.0)
-
-      retry_.wait(0)
-      retry_.wait(0)
-      expect(sleeps).to eq([0.5, 1.0])
-    end
-
-    it "full_random produces a delay in [0, delay]" do
-      retry_ = described_class.new([error_class], delay: 2.0, jitter: :full_random)
-      allow(retry_).to receive(:rand).and_return(0.25)
-
-      retry_.wait(0)
-      expect(sleeps).to eq([0.5])
-    end
-
-    it "bounded_random produces a delay in [delay, 2*delay]" do
-      retry_ = described_class.new([error_class], delay: 2.0, jitter: :bounded_random)
-      allow(retry_).to receive(:rand).and_return(0.5)
-
-      retry_.wait(0)
-      expect(sleeps).to eq([3.0])
-    end
-
     it "linear produces delay * (attempt + 1)" do
       described_class.new([error_class], delay: 0.25, jitter: :linear).wait(3)
       expect(sleeps).to eq([1.0])
@@ -142,32 +117,34 @@ RSpec.describe CMDx::Retry do
       expect(sleeps).to eq([1.0, 1.0, 2.0, 3.0, 5.0, 8.0])
     end
 
-    it "decorrelated_jitter falls back to base delay when prev_delay is nil" do
+    it "decorrelated_jitter threads prev_delay through wait's third argument" do
+      allow(CMDx::Retriers::DecorrelatedJitter).to receive(:rand).and_return(1.0)
       retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
-      allow(retry_).to receive(:rand).and_return(0.0, 1.0)
-
-      retry_.wait(0)
-      retry_.wait(0)
-      expect(sleeps).to eq([1.0, 3.0])
-    end
-
-    it "decorrelated_jitter uses prev_delay to widen the upper bound" do
-      retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
-      allow(retry_).to receive(:rand).and_return(1.0)
 
       retry_.wait(0, nil, 4.0)
       expect(sleeps).to eq([12.0])
     end
 
-    it "decorrelated_jitter returns the computed delay so it can be threaded" do
+    it "wait returns the computed delay so process can thread it" do
+      allow(CMDx::Retriers::DecorrelatedJitter).to receive(:rand).and_return(0.5)
       retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
-      allow(retry_).to receive(:rand).and_return(0.5)
 
-      d = retry_.wait(0)
-      expect(d).to eq(2.0)
+      expect(retry_.wait(0)).to eq(2.0)
     end
 
-    it "calls a Symbol jitter on the task" do
+    it "delegates Symbol jitter to the retriers registry" do
+      strategy = ->(attempt, delay, _prev) { delay * (attempt + 10) }
+      task_class = Class.new
+      task_class.singleton_class.define_method(:retriers) do
+        @retriers ||= CMDx::Retriers.new.tap { |r| r.register(:custom, strategy) }
+      end
+      task = task_class.new
+
+      described_class.new([error_class], delay: 1.0, jitter: :custom).wait(2, task)
+      expect(sleeps).to eq([12.0])
+    end
+
+    it "falls back to a task instance method when Symbol is not in the registry" do
       task = Class.new { def jitter_calc(attempt, delay) = delay * attempt }.new
       described_class.new([error_class], delay: 1.0, jitter: :jitter_calc).wait(4, task)
 
@@ -233,9 +210,9 @@ RSpec.describe CMDx::Retry do
     it "threads prev_delay across attempts for :decorrelated_jitter" do
       sleeps = []
       allow(Kernel).to receive(:sleep) { |d| sleeps << d }
+      allow(CMDx::Retriers::DecorrelatedJitter).to receive(:rand).and_return(1.0)
 
       retry_ = described_class.new([error_class], limit: 3, delay: 1.0, jitter: :decorrelated_jitter)
-      allow(retry_).to receive(:rand).and_return(1.0)
 
       attempts = 0
       expect do

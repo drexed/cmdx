@@ -93,6 +93,31 @@ retry_on TransientError, delay: 1.0, jitter: :decorrelated_jitter
     retries inside a single `process` call. Calling `#wait` directly without
     passing `prev_delay` falls back to the base delay each time.
 
+### Custom Strategies via the `Retriers` Registry
+
+Built-in strategies live in the `CMDx::Retriers` registry, mirroring `Mergers`
+and `Executors`. Strategies are any callable matching
+`call(attempt, delay, prev_delay)` returning the next delay in seconds. Register
+custom strategies globally on the configuration or per-task:
+
+```ruby
+CMDx.configure do |config|
+  config.retriers.register(:capped_exponential) do |attempt, delay, _prev|
+    [delay * (2**attempt), 30.0].min
+  end
+end
+
+class FetchExternalData < CMDx::Task
+  retry_on Net::ReadTimeout, jitter: :capped_exponential
+
+  # Or scoped to the task class only:
+  register :retrier, :doubled, ->(_a, delay, _p) { delay * 2 }
+end
+```
+
+Symbols not present in the registry fall through to a task instance method, so
+existing `jitter: :exponential_backoff` declarations keep working.
+
 ### Symbol (Instance Method)
 
 A `Symbol` resolves to an instance method on the task. The method receives `(attempt, delay)` and must return the desired sleep duration in seconds.
