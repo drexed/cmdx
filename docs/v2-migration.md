@@ -1004,13 +1004,11 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 ### Inputs / outputs / schema
 
 - **Schema export** — `MyTask.to_json_schema` / `to_openapi_operation` derived from inputs, coercions, and validators.
-- **Sensitive inputs** — `required :api_key, sensitive: true` strips the value from logs, telemetry, `Result#to_h`, and `Fault#message`, including in nested results.
 
 ### Telemetry
 
 - **Status-specific events** — `task_failed` / `task_skipped` / `task_succeeded` alongside `task_executed`. Specific events let subscribers express intent without inspecting `event.payload[:result].status`.
 - **Sampling** — `subscribe(:task_executed, sample: 0.01)` for high-volume tasks instead of everyone reimplementing the same `rand < 0.01` gate.
-- **W3C traceparent** in `Telemetry::Event` so `xid` participates in distributed traces, not just logs.
 - **Optional-require integrations** shipped in-tree:
   - `require "cmdx/telemetry/open_telemetry"` — per-task spans with parent linkage from `xid` / `cid`.
   - `require "cmdx/telemetry/statsd"` / `dogstatsd` — `cmdx.task.duration` / `.success` / `.failed` tagged by task class.
@@ -1034,4 +1032,3 @@ The same example middlewares (rate limit, idempotency, circuit breaker) all rein
 
 - **Authorization gate** — `policy MyPolicy, action: :execute` raising a typed `AuthorizationFault` before input resolution touches sensitive params.
 - **YARD-driven schema docs** — Rake task that walks every `Task` subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining `docs/`.
-- **Deterministic clock** — `CMDx.clock` defaults to `Time.now` / `Process.clock_gettime` but is swappable in tests so `Result#duration` is mockable.
