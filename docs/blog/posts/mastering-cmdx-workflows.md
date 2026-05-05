@@ -9,6 +9,8 @@ slug: mastering-cmdx-workflows
 
 # Mastering CMDx Workflows: Orchestrating Complex Business Logic
 
+*Targets CMDx v1.15.*
+
 I remember when my service objects started getting messy. I'd have a `PlaceOrder` service that began as a simple 10-line script but slowly mutated into a 500-line monster handling validation, payments, inventory, shipping, and a dozen notification types. It was a nightmare to test and even harder to read.
 
 That's exactly why I built CMDx Workflows. They allow you to decompose complex processes into small, focused tasks and orchestrate them declaratively. It turns your business logic from a tangled mess of `if` statements into a clean, readable pipeline.

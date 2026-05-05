@@ -1,16 +1,28 @@
 # Middlewares
 
-Wrap task execution with middleware for cross-cutting concerns like authentication, caching, timeouts, and monitoring. Think Rack middleware, but for your business logic.
+Wrap task execution with middleware for cross-cutting concerns like authentication, caching, telemetry, and timeouts. Think Rack middleware, but for your business logic.
 
 See [Global Configuration](configuration.md#middlewares) for framework-wide setup.
 
+## Signature
+
+Every middleware receives the task and a block: `call(task) { ... }`. Invoke `yield` (or `next_link.call` from a Proc) to run the next link; skipping it raises `CMDx::MiddlewareError`. Middlewares see only the `task` — `Result` is built after the chain unwinds, so read `task.context` / `task.errors` from inside, or subscribe to Telemetry's `:task_executed` event when you need the finalized result.
+
+```ruby
+class TelemetryMiddleware
+  def call(task)
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    yield
+  ensure
+    duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+    StatsD.timing("task.duration", duration, tags: ["class:#{task.class.name}"])
+  end
+end
+```
+
 ## Execution Order
 
-Middleware wraps task execution in layers, like an onion:
-
-!!! note
-
-    First registered = outermost wrapper. They execute in registration order.
+Middleware wraps task execution in layers, like an onion. **First registered = outermost wrapper**, executing in registration order:
 
 ```ruby
 class ProcessCampaign < CMDx::Task
@@ -19,7 +31,7 @@ class ProcessCampaign < CMDx::Task
   register :middleware, CacheMiddleware         # 3rd: innermost wrapper
 
   def work
-    # Your logic here...
+    # ...
   end
 end
 
@@ -27,7 +39,8 @@ end
 # 1. AuditMiddleware (before)
 # 2.   AuthorizationMiddleware (before)
 # 3.     CacheMiddleware (before)
-# 4.       [task execution]
+# 4.       [deprecation, callbacks, input resolution, retried `work`,
+#          output verification, rollback, completion callbacks, result finalization]
 # 5.     CacheMiddleware (after)
 # 6.   AuthorizationMiddleware (after)
 # 7. AuditMiddleware (after)
@@ -35,215 +48,203 @@ end
 
 ## Declarations
 
-### Proc or Lambda
+### Class or Instance
 
-Use anonymous functions for simple middleware logic:
+For reusable middleware logic, use classes (or pass an instance for stateful middleware):
 
 ```ruby
 class ProcessCampaign < CMDx::Task
-  # Proc
-  register :middleware, proc do |task, options, &block|
-    result = block.call
-    Analytics.track(result.status)
-    result
-  end
+  register :middleware, TelemetryMiddleware
+  register :middleware, TelemetryMiddleware.new
 
-  # Lambda
-  register :middleware, ->(task, options, &block) {
-    result = block.call
-    Analytics.track(result.status)
-    result
+  register :middleware, MonitoringMiddleware.new(ENV["MONITORING_KEY"])
+end
+```
+
+### Proc or Lambda
+
+Procs and lambdas need an explicit `&next_link` parameter to capture the block (Procs can't `yield` directly):
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  register :middleware, proc { |task, &next_link|
+    Rails.logger.info "[middleware] starting #{task.class}"
+    next_link.call
+  }
+
+  register :middleware, ->(task, &next_link) {
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    next_link.call
+  ensure
+    Analytics.track(
+      "task.completed",
+      class: task.class.name,
+      duration: Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+    )
   }
 end
 ```
 
-### Class or Module
+### Inline Block
 
-For complex middleware logic, use classes or modules:
+`register :middleware` accepts a block directly:
 
 ```ruby
-class TelemetryMiddleware
-  def call(task, options)
-    result = yield
-    Telemetry.record(result.status)
-  ensure
-    result # Always return result
-  end
-end
-
 class ProcessCampaign < CMDx::Task
-  # Class or Module
-  register :middleware, TelemetryMiddleware
-
-  # Instance
-  register :middleware, TelemetryMiddleware.new
-
-  # With options
-  register :middleware, MonitoringMiddleware, service_key: ENV["MONITORING_KEY"]
-  register :middleware, MonitoringMiddleware.new(ENV["MONITORING_KEY"])
+  register :middleware do |task, &next_link|
+    Tenant.with_id(task.context.tenant_id) { next_link.call }
+  end
 end
 ```
 
 ## Ordering
 
-Control middleware insertion position with the `at:` parameter. First registered is outermost (default: append to end).
+Control insertion position with `at:`. With no `at:`, middlewares append (innermost). The index supports negative values and is clamped to the registry size:
 
 ```ruby
 class ProcessCampaign < CMDx::Task
-  register :middleware, AuditMiddleware           # Position 0 (outermost)
-  register :middleware, CacheMiddleware            # Position 1
-  register :middleware, PriorityMiddleware, at: 0  # Inserted at position 0, pushes others down
+  register :middleware, AuditMiddleware              # appended at position 0
+  register :middleware, CacheMiddleware              # appended at position 1
+  register :middleware, PriorityMiddleware, at: 0    # inserted at 0; pushes others down
 end
 
 # Execution order: PriorityMiddleware → AuditMiddleware → CacheMiddleware → [task] → ...
 ```
 
+Remove by reference or by index:
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  deregister :middleware, TelemetryMiddleware     # by reference
+  deregister :middleware, at: 0                   # by index
+end
+```
+
+!!! note
+
+    `register` requires either a callable or a block (not both). `deregister` requires either a `middleware` argument or `at:` (not both). Both raise `ArgumentError` otherwise.
+
+## Conditional Registration
+
+`:if` / `:unless` gate a middleware at `#process` time (per task, per execution) without changing the registry. Symbol, Proc, and any `#call`-able resolve against the task — same semantics as callback gates.
+
+```ruby
+class ProcessCampaign < CMDx::Task
+  register :middleware, AuditMiddleware, if: :audited?
+  register :middleware, CacheMiddleware, unless: -> { context.skip_cache }
+  register :middleware, TracingMiddleware, if: TracingSampler.new # #call(task)
+
+  def work
+    # ...
+  end
+
+  private
+
+  def audited? = context.tenant_id.present?
+end
+```
+
+!!! note
+
+    Procs are `instance_exec`'d on the task with zero args, so `self` is the task — a 1-arity lambda like `->(task) { ... }` raises `ArgumentError`. For `#call`-ables, passing a class dispatches to `Klass.call(task)` (needs `def self.call`); passing an instance dispatches to `instance.call(task)`.
+
+When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
+
+!!! note
+
+    The inline "Conditional wrapping" pattern is still useful when you need the middleware to run but want to gate only its side-effects. Use `:if`/`:unless` when you want to skip the middleware entirely; use inline branching when the middleware should wrap but alter behavior.
+
 ## Safety
 
-CMDx detects middlewares that fail to yield or return the result. If a middleware swallows the block call, the task is automatically marked as failed with a descriptive error.
+If a middleware forgets to call `yield` (or `next_link.call`), the chain raises `CMDx::MiddlewareError` instead of silently bypassing the task body:
 
 ```ruby
 class BrokenMiddleware
-  def call(task, options)
-    # Forgot to call `yield` — CMDx catches this
+  def call(task)
+    # forgot to yield
   end
 end
 
-result = MyTask.execute
-result.failed? #=> true
-result.reason  #=> "[RuntimeError] ..."
+class MyTask < CMDx::Task
+  register :middleware, BrokenMiddleware
+  def work; end
+end
+
+MyTask.execute!
+#=> raises CMDx::MiddlewareError: "middleware did not yield the next_link"
 ```
 
 !!! danger "Caution"
 
-    Always call `yield` inside your middleware and return the result. Swallowed execution is treated as a failure.
+    `MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the `catch(Signal::TAG)` boundary and never becomes a failed result. Always yield in every code path of your middleware (including `rescue` / `ensure` blocks where the call could be skipped).
 
-## Removals
+!!! note
 
-Remove class or module-based middleware globally or per-task:
+    Any other exception raised by a middleware (or by an inner link) propagates out through the chain — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
 
-!!! warning
+## Common Patterns
 
-    Each `deregister` call removes one middleware. Use multiple calls for batch removals.
+### Conditional wrapping
 
-```ruby
-class ProcessCampaign < CMDx::Task
-  # Class or Module (no instances)
-  deregister :middleware, TelemetryMiddleware
-end
-```
-
-## Built-in
-
-### Timeout
-
-Prevent tasks from running too long:
+Middlewares **must** yield on every code path — skipping `yield` raises
+`CMDx::MiddlewareError`. To gate side-effects on a condition, branch around the
+extra work but always invoke the next link:
 
 ```ruby
-class ProcessReport < CMDx::Task
-  # Default timeout: 3 seconds
-  register :middleware, CMDx::Middlewares::Timeout
-
-  # Seconds (takes Numeric, Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Timeout, seconds: :max_processing_time
-
-  # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Timeout, unless: -> { self.class.name.include?("Quick") }
-
-  def work
-    # Your logic here...
+class FeatureFlag
+  def initialize(flag)
+    @flag = flag
   end
 
-  private
-
-  def max_processing_time
-    Rails.env.production? ? 2 : 10
-  end
-end
-
-# Slow task
-result = ProcessReport.execute
-
-result.state    #=> "interrupted"
-result.status   #=> "failed"
-result.reason   #=> "[CMDx::TimeoutError] execution exceeded 3 seconds"
-result.cause    #=> <CMDx::TimeoutError>
-result.metadata #=> { limit: 3 }
-```
-
-### Correlate
-
-Add correlation IDs for distributed tracing and request tracking:
-
-```ruby
-class ProcessExport < CMDx::Task
-  # Default correlation ID generation
-  register :middleware, CMDx::Middlewares::Correlate
-
-  # Seconds (takes Object, Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Correlate, id: proc { |task| task.context.session_id }
-
-  # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Correlate, if: :correlation_enabled?
-
-  def work
-    # Your logic here...
-  end
-
-  private
-
-  def correlation_enabled?
-    ENV["CORRELATION_ENABLED"] == "true"
-  end
-end
-
-result = ProcessExport.execute
-result.metadata #=> { correlation_id: "550e8400-e29b-41d4-a716-446655440000" }
-```
-
-#### Class-Level API
-
-Manage correlation IDs directly for cross-boundary tracing (e.g., from a controller into multiple tasks):
-
-```ruby
-# Read or set the current correlation ID
-CMDx::Middlewares::Correlate.id              #=> current ID or nil
-CMDx::Middlewares::Correlate.id = "custom-id"
-
-# Scoped block — restores the previous ID after the block
-CMDx::Middlewares::Correlate.use("request-123") do
-  ProcessExport.execute  # uses "request-123"
-  SendNotification.execute # same correlation ID
-end
-# previous ID is restored here
-
-# Clear the current ID
-CMDx::Middlewares::Correlate.clear
-```
-
-### Runtime
-
-Track task execution time in milliseconds using a monotonic clock:
-
-```ruby
-class PerformanceMonitoringCheck
   def call(task)
-    task.context.tenant.monitoring_enabled?
+    if Flipper.enabled?(@flag)
+      Tracker.record(:experimental_path, task.class) { yield }
+    else
+      yield
+    end
   end
 end
 
-class ProcessExport < CMDx::Task
-  # Default timeout is 3 seconds
-  register :middleware, CMDx::Middlewares::Runtime
+class ExperimentalTask < CMDx::Task
+  register :middleware, FeatureFlag.new(:experimental_path)
+end
+```
 
-  # If or Unless (takes Symbol, Proc, Lambda, Class, Module)
-  register :middleware, CMDx::Middlewares::Runtime, if: PerformanceMonitoringCheck
+If you actually need to short-circuit `work` itself (skip the body but still
+produce a result), do it from inside the task with `skip!` / `success!` — not
+from a middleware.
+
+### Wrapping with thread-local state
+
+```ruby
+register :middleware, ->(task, &next_link) {
+  Thread.current[:current_user_id] = task.context.user_id
+  next_link.call
+ensure
+  Thread.current[:current_user_id] = nil
+}
+```
+
+### Enriching result metadata
+
+Mutate `task.metadata` to attach request-scoped data (e.g. a Rails `request_id`) without polluting `context`. The hash is merged into every `Signal` the task throws, so it surfaces on `result.metadata` and the default JSON log line — regardless of whether the task succeeds, skips, or fails:
+
+```ruby
+class RequestIdMiddleware
+  def call(task)
+    task.metadata[:request_id] = Current.request_id
+    yield
+  end
 end
 
-result = ProcessExport.execute
-result.metadata #=> {
-                #     started_at: "2026-04-01T14:56:58Z",
-                #     ended_at: "2026-04-01T14:56:59Z"
-                #     runtime: 1247 (ms)
-                #   }
+class ApplicationTask < CMDx::Task
+  register :middleware, RequestIdMiddleware
+end
 ```
+
+```ruby
+result = ProcessOrder.execute(order_id: 42)
+result.metadata[:request_id] #=> "req-abc123"
+```
+
+Explicit `success!/skip!/fail!/throw!(metadata: {...})` keys are merged on top, so user code can always override middleware-supplied values.

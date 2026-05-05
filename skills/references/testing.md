@@ -1,273 +1,240 @@
 # Testing Reference
 
-For full documentation, see [docs/testing.md](../docs/testing.md).
+Docs: [docs/testing.md](../../docs/testing.md).
 
-## RSpec Setup
+CMDx has no custom RSpec helpers — the public API is the test API. `execute` returns a `Result`, `execute!` raises `Fault` (or the original `StandardError`), and every predicate (`success?`, `failed?`, etc.) is automatically exposed as an RSpec matcher (`be_success`, `be_failed`, ...).
+
+## Basic assertions
 
 ```ruby
-# spec/spec_helper.rb
-require "cmdx"
-require "cmdx/rspec"
+RSpec.describe CreateUser do
+  it "succeeds" do
+    result = CreateUser.execute(email: "dev@example.com", name: "Ada")
 
-RSpec.configure do |config|
-  config.include CMDx::RSpec::Helpers
-  config.include CMDx::Testing::TaskBuilders
-  config.include CMDx::Testing::WorkflowBuilders
+    expect(result).to be_success
+    expect(result.context.user).to be_persisted
+  end
 
-  config.before { CMDx.reset_configuration! }
-  config.after  { CMDx::Chain.clear }
+  it "fails when email is blank" do
+    result = CreateUser.execute(email: "", name: "Ada")
+
+    expect(result).to be_failed
+    expect(result.reason).to include("email")
+    expect(result.errors.to_h).to eq(email: ["cannot be empty"])
+  end
 end
 ```
 
-## RSpec Matchers
+Auto-generated predicate matchers: `be_complete`, `be_interrupted`, `be_success`, `be_skipped`, `be_failed`, `be_ok`, `be_ko`, `be_retried`, `be_rolled_back`, `be_strict`, `be_deprecated`, `be_root`.
 
-### Status matchers
-
-```ruby
-expect(result).to be_successful
-expect(result).to have_skipped
-expect(result).to have_skipped(reason: "Already processed")
-expect(result).to have_failed
-expect(result).to have_failed(reason: "Not found")
-expect(result).to have_failed(reason: start_with("Invalid"))
-expect(result).to have_failed(cause: be_a(CMDx::FailFault))
-```
-
-### Failure detail matchers
+## Branching with `on`
 
 ```ruby
-expect(result).to have_failed(
-  outcome: CMDx::Result::INTERRUPTED,
-  threw_failure: hash_including(index: 1, class: start_with("MiddleTask")),
-  caused_failure: hash_including(index: 2, class: start_with("InnerTask"))
-)
-```
-
-### Context matchers
-
-```ruby
-expect(result).to have_matching_context(user: "John", token: "abc")
-expect(result).to have_matching_context(executed: %i[inner middle outer])
-expect(result).to have_empty_context
-```
-
-### Metadata matchers
-
-```ruby
-expect(result).to have_matching_metadata(
-  errors: {
-    full_message: "email must be present",
-    messages: { email: ["must be present"] }
-  }
-)
-```
-
-### Special matchers
-
-```ruby
-expect(result).to be_dry_run
-expect(result).to be_rolled_back
-```
-
-## Testing Patterns
-
-### Success
-
-```ruby
-it "processes the payment" do
-  result = ProcessPayment.execute(order_id: 1, amount: 99.99)
-
-  expect(result).to be_successful
-  expect(result).to have_matching_context(charge_id: be_present, receipt_url: be_present)
+it "branches cleanly" do
+  CreateUser.execute(email: "x@y.com")
+    .on(:success) { |r| expect(r.context.user).to be_persisted }
+    .on(:failed)  { |r| raise "unexpected: #{r.reason}" }
 end
 ```
 
-### Failure
+## Skip / fail payloads
+
+`reason` and `metadata` come straight from the halting call's arguments.
 
 ```ruby
-it "fails when order not found" do
-  result = ProcessPayment.execute(order_id: -1, amount: 99.99)
+it "skips when already processed" do
+  result = ProcessRefund.execute(refund_id: completed.id)
 
-  expect(result).to have_failed(reason: "Order not found")
+  expect(result).to be_skipped
+  expect(result.reason).to eq("Refund already processed")
+end
+
+it "fails with metadata" do
+  result = ProcessRefund.execute(refund_id: expired.id)
+
+  expect(result).to be_failed
+  expect(result.metadata[:error_code]).to eq("REFUND_EXPIRED")
 end
 ```
 
-### Skip
+## `execute!` and `Fault`
+
+`execute!` raises `CMDx::Fault` for every failed path (`fail!`, input/output validation, echoed failures). It does **not** raise on skipped results. If `result.cause` is a non-`Fault` `StandardError`, the original exception is re-raised instead.
 
 ```ruby
-it "skips already processed orders" do
-  result = ProcessPayment.execute(order_id: processed_order.id, amount: 99.99)
-
-  expect(result).to have_skipped(reason: "Already processed")
-end
-```
-
-### Validation errors
-
-```ruby
-it "fails with missing required attributes" do
-  result = ProcessPayment.execute(order_id: nil)
-
-  expect(result).to have_failed(reason: "Invalid")
-  expect(result).to have_matching_metadata(
-    errors: {
-      messages: { order_id: [be_a(String)] }
-    }
-  )
-end
-```
-
-### Bang execution
-
-```ruby
-it "raises on failure with execute!" do
+it "raises Fault on failure" do
   expect {
-    ProcessPayment.execute!(order_id: -1, amount: 99.99)
-  }.to raise_error(CMDx::FailFault, "Order not found")
+    ProcessPayment.execute!(amount: -1)
+  }.to raise_error(CMDx::Fault) { |fault|
+    expect(fault.task).to eq(ProcessPayment)
+    expect(fault.result.errors).to have_key(:amount)
+  }
+end
+
+it "re-raises the original exception" do
+  expect { Importer.execute!(payload: bad_json) }
+    .to raise_error(JSON::ParserError)
 end
 ```
 
-### Dry run
+Task-scoped matcher:
 
 ```ruby
-it "supports dry run" do
-  result = ProcessPayment.execute(order_id: 1, amount: 99.99, dry_run: true)
+expect { BillingWorkflow.execute! }
+  .to raise_error(CMDx::Fault.for?(ChargeCard, RefundCard))
+```
 
-  expect(result).to be_dry_run
-  expect(result).to be_successful
+## Inputs
+
+Failures produced by input resolution surface through `result.errors` with the input's **accessor name** as the key. The coerced value lives on the task instance, **not** `context` — if you need it in assertions, write it back inside `work` (`context.budget = budget`).
+
+```ruby
+it "fails when required inputs are missing" do
+  result = CreateProject.execute(name: nil)
+
+  expect(result).to be_failed
+  expect(result.errors.to_h).to have_key(:name)
+  expect(result.reason).to include("name")
 end
 ```
 
-### Returns validation
+## Outputs
+
+Missing or invalid declared outputs fail the task with the same errors API.
 
 ```ruby
-it "fails when returns are missing" do
-  result = IncompleteTask.execute(data: input)
+it "fails when a declared output is missing" do
+  allow(JwtService).to receive(:encode).and_return(nil)
 
-  expect(result).to have_failed(reason: "Invalid")
-  expect(result).to have_matching_metadata(
-    errors: { messages: { user: [be_a(String)] } }
+  result = AuthenticateUser.execute(email: "a@b.com", password: "pw")
+
+  expect(result).to be_failed
+  expect(result.errors).to have_key(:token)
+end
+```
+
+## Retries
+
+```ruby
+it "retries transient failures" do
+  call_count = 0
+  allow(HTTParty).to receive(:get) do
+    call_count += 1
+    raise Net::ReadTimeout if call_count < 3
+
+    double(parsed_response: { ok: true })
+  end
+
+  result = FetchExternalData.execute
+
+  expect(result).to be_success
+  expect(result.retries).to eq(2)
+  expect(result).to be_retried
+end
+```
+
+## Workflows
+
+The chain contains every `Result` in execution order with the workflow's own result as the root. `origin` / `caused_failure` / `threw_failure` identify the leaf without chain scanning.
+
+```ruby
+it "runs in sequence" do
+  result = OnboardingWorkflow.execute(user_data: valid_params)
+
+  expect(result).to be_success
+  expect(result.chain.size).to eq(4)
+  expect(result.chain.map(&:task)).to eq(
+    [OnboardingWorkflow, CreateProfile, SetupPreferences, SendWelcome]
   )
 end
-```
 
-### Workflows
+it "halts on first failure" do
+  result = PaymentWorkflow.execute(invalid_card: true)
 
-```ruby
-it "executes all tasks in order" do
-  result = OnboardCustomer.execute(email: "test@example.com", plan: "pro")
-
-  expect(result).to be_successful
-  expect(result).to have_matching_context(
-    user: be_present,
-    profile: be_present,
-    welcome_sent: true
-  )
-end
-
-it "halts on task failure" do
-  result = OnboardCustomer.execute(email: nil)
-
-  expect(result).to have_failed
+  expect(result).to be_failed
+  expect(result.origin.task).to eq(ValidateCard)
+  expect(result.caused_failure.task).to eq(ValidateCard)
 end
 ```
 
-### Callbacks
+`caused_failure` walks `origin` recursively to the deepest leaf; `threw_failure` returns the immediate upstream (`origin || self`).
+
+## Callbacks
+
+Test through observable side effects — `result` isn't available inside callbacks, so any direct unit test has to inspect `task.context`/`task.errors` instead.
 
 ```ruby
-it "invokes callbacks in order" do
-  result = MyTask.execute(data: input)
+it "notifies on success" do
+  allow(GuestNotifier).to receive(:call)
 
-  expect(result).to be_successful
-  expect(result).to have_matching_context(
-    callbacks: %i[before_validation before_execution on_complete on_executed on_success on_good]
-  )
+  ProcessBooking.execute(booking_id: booking.id)
+
+  expect(GuestNotifier).to have_received(:call)
 end
 ```
 
-### Result handlers
+## Middlewares
+
+Run through a real task:
 
 ```ruby
-it "invokes the correct handler" do
-  handled = []
-  result = MyTask.execute(data: input)
-  result.on(:success) { handled << :success }
-        .on(:failed)  { handled << :failed }
+it "tags context before work" do
+  klass = Class.new(CMDx::Task) do
+    register :middleware, TaggingMiddleware.new
+    def work
+      context.seen = !context.tagged_at.nil?
+    end
+  end
 
-  expect(handled).to eq([:success])
+  result = klass.execute
+
+  expect(result.context.seen).to be(true)
 end
 ```
 
-### Pattern matching
+## Direct instantiation
+
+`Task.new(ctx)` only builds context + errors; it does **not** run the lifecycle. Use `Klass.execute` to run.
 
 ```ruby
-it "supports pattern matching" do
-  result = MyTask.execute(data: input)
+it "holds context before execution" do
+  task = CalculateShipping.new(weight: 2.5, destination: "CA")
+
+  expect(task.context.weight).to eq(2.5)
+  expect(task.errors).to be_empty
+end
+```
+
+## Pattern matching
+
+`deconstruct`: `[type, task, state, status, reason, metadata, cause, origin]`.
+
+`deconstruct_keys` exposes: `:root`, `:type`, `:task`, `:state`, `:status`, `:reason`, `:metadata`, `:cause`, `:origin`, `:strict`, `:deprecated`, `:retries`, `:rolled_back`, `:duration`.
+
+```ruby
+it "deconstructs to array" do
+  result = Build.execute(version: "1.0")
+
+  expect(result.deconstruct)
+    .to match(["Task", Build, "complete", "success", nil, {}, nil, nil])
+end
+
+it "pattern matches on failure" do
+  result = Build.execute(version: nil)
 
   case result
-  in ["complete", "success"]
-    expect(result.context.output).to be_present
-  in ["interrupted", "failed"]
-    fail "unexpected failure"
+  in { status: "failed", reason: String => r } then expect(r).to include("version")
+  else raise "expected failed result"
   end
 end
 ```
 
-## Task Builders
+## Resetting state
 
-Helpers for creating test task classes:
-
-```ruby
-# Base builder
-task_class = create_task_class do
-  required :input, type: :string
-  def work
-    context.output = input.upcase
-  end
-end
-
-# Named task
-task_class = create_task_class(name: "CustomName") do
-  def work = nil
-end
-
-# Inheriting
-child = create_task_class(base: ParentTask) do
-  optional :extra
-  def work
-    super
-    context.extra = extra
-  end
-end
-
-# Preset builders
-create_successful_task   # work pushes :success to context.executed
-create_skipping_task     # work calls skip!
-create_failing_task      # work calls fail!
-create_erroring_task     # work raises CMDx::TestError
-```
-
-## Workflow Builders
+Use `CMDx.reset_configuration!` in test setup to clear global registries (middleware, callbacks, coercions, validators, telemetry). It only clears `Task`'s cached ivars; existing user-defined subclasses keep their own caches until class reload.
 
 ```ruby
-workflow = create_workflow_class do
-  task TaskA
-  task TaskB
+RSpec.configure do |c|
+  c.before { CMDx.reset_configuration! }
 end
-
-# Preset builders
-create_successful_workflow
-create_skipping_workflow
-create_failing_workflow
-create_erroring_workflow
-```
-
-## Test Isolation
-
-Always reset between tests to avoid state leakage:
-
-```ruby
-config.before { CMDx.reset_configuration! }
-config.after  { CMDx::Chain.clear }
-config.after  { CMDx::Middlewares::Correlate.clear }
 ```

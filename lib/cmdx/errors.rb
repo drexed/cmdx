@@ -1,116 +1,182 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Collection of validation and execution errors organized by attribute.
-  # Provides methods to add, query, and format error messages for different
-  # attributes in a task or workflow execution.
+  # Per-task container of validation / coercion / output errors. Each key maps
+  # to a deduplicating Set of messages. A non-empty Errors forces Runtime to
+  # throw a failed signal (`signal_errors!`). Frozen on teardown by Runtime.
   class Errors
 
-    extend Forwardable
+    include Enumerable
 
-    # Returns the internal hash of error messages by attribute.
-    #
-    # @return [Hash{Symbol => Set<String>}] Hash mapping attribute names to error message sets
-    #
-    # @example
-    #   errors.messages # => { email: #<Set: ["must be valid", "is required"]> }
-    #
-    # @rbs @messages: Hash[Symbol, Set[String]]
     attr_reader :messages
 
-    def_delegators :messages, :any?, :clear, :empty?, :size
-
-    # Initialize a new error collection.
-    #
-    # @rbs () -> void
     def initialize
       @messages = {}
     end
 
-    # Add an error message for a specific attribute.
+    # Adds `message` under `key`. Duplicate messages are silently dropped.
     #
-    # @param attribute [Symbol] The attribute name associated with the error
-    # @param message [String] The error message to add
-    #
-    # @example
-    #   errors = CMDx::Errors.new
-    #   errors.add(:email, "must be valid format")
-    #   errors.add(:email, "cannot be blank")
-    #
-    # @rbs (Symbol attribute, String message) -> void
-    def add(attribute, message)
-      return if message.empty?
-
-      messages[attribute] ||= Set.new
-      messages[attribute] << message
+    # @param key [Symbol]
+    # @param message [String]
+    # @return [Set<String>] the set of messages now stored under `key`
+    def add(key, message)
+      (messages[key] ||= Set.new) << message
     end
+    alias []= add
 
-    # Check if there are any errors for a specific attribute.
+    # Copies every message from `other` into self. Existing messages are
+    # preserved and duplicates (same key + message) are silently dropped by
+    # the underlying Set. Accepts any object that responds to `#to_hash`
+    # returning `Hash{Symbol => Enumerable<String>}` — typically another
+    # {Errors} instance.
     #
-    # @param attribute [Symbol] The attribute name to check for errors
-    #
-    # @return [Boolean] true if the attribute has errors, false otherwise
-    #
-    # @example
-    #   errors.for?(:email) # => true
-    #   errors.for?(:name)  # => false
-    #
-    # @rbs (Symbol attribute) -> bool
-    def for?(attribute)
-      set = messages[attribute]
-      !set.nil? && !set.empty?
-    end
-
-    # Convert errors to a hash format with arrays of full messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.full_messages # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
-    def full_messages
-      messages.each_with_object({}) do |(attribute, messages), hash|
-        hash[attribute] = messages.map { |message| "#{attribute} #{message}" }
+    # @param other [Errors, #to_hash]
+    # @return [void]
+    # @example Combine validation errors from a nested task
+    #   parent.errors.merge!(child.result.errors)
+    def merge!(other)
+      other.to_hash.each do |key, messages|
+        messages.each { |message| add(key, message) }
       end
     end
 
-    # Convert errors to a hash format with arrays of messages.
-    #
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.to_h # => { email: ["must be valid format", "cannot be blank"] }
-    #
-    # @rbs () -> Hash[Symbol, Array[String]]
+    # @param key [Symbol]
+    # @return [Array<String>] messages for `key`, or a frozen empty array
+    def [](key)
+      messages[key]&.to_a || EMPTY_ARRAY
+    end
+
+    # @param key [Symbol]
+    # @param message [String]
+    # @return [Boolean] true when `message` is recorded under `key`
+    def added?(key, message)
+      !!messages[key]&.include?(message)
+    end
+
+    # @param key [Symbol]
+    # @return [Boolean]
+    def key?(key)
+      messages.key?(key)
+    end
+    alias for? key?
+
+    # @return [Array<Symbol>] keys with at least one message
+    def keys
+      messages.keys
+    end
+
+    # @return [Boolean]
+    def empty?
+      messages.empty?
+    end
+
+    # @return [Integer] number of keyed entries
+    def size
+      messages.size
+    end
+
+    # @return [Integer] total messages across all keys
+    def count
+      messages.each_value.sum(&:size)
+    end
+
+    # @yield [key, set] each `[key, Set<String>]` pair
+    # @return [Errors, Enumerator]
+    def each(&)
+      messages.each(&)
+    end
+
+    # @yield [Symbol]
+    # @return [Errors, Enumerator]
+    def each_key(&)
+      messages.each_key(&)
+    end
+
+    # @yield [Set<String>]
+    # @return [Errors, Enumerator]
+    def each_value(&)
+      messages.each_value(&)
+    end
+
+    # @param key [Symbol]
+    # @return [Set<String>, nil] the removed set, or nil when absent
+    def delete(key)
+      messages.delete(key)
+    end
+
+    # @return [Hash{Symbol => Set<String>}] empties the container
+    def clear
+      messages.clear
+    end
+
+    # @return [Hash{Symbol => Array<String>}] messages prefixed with their key
+    #   (e.g. `{ name: ["name is required"] }`)
+    def full_messages
+      messages.each_with_object({}) do |(key, set), hash|
+        hash[key] = set.map { |message| "#{key} #{message}" }
+      end
+    end
+
+    # @return [Hash{Symbol => Array<String>}] raw messages as arrays
     def to_h
       messages.transform_values(&:to_a)
     end
 
-    # Convert errors to a hash format with optional full messages.
-    #
-    # @param full [Boolean] Whether to include full messages with attribute names
-    # @return [Hash{Symbol => Array<String>}] Hash with attribute keys and message arrays
-    #
-    # @example
-    #   errors.to_hash # => { email: ["must be valid format", "cannot be blank"] }
-    #   errors.to_hash(true) # => { email: ["email must be valid format", "email cannot be blank"] }
-    #
-    # @rbs (?bool full) -> Hash[Symbol, Array[String]]
+    # @param full [Boolean] when true return {#full_messages}, otherwise {#to_h}
+    # @return [Hash{Symbol => Array<String>}]
     def to_hash(full = false)
       full ? full_messages : to_h
     end
 
-    # Convert errors to a human-readable string format.
+    # JSON-friendly hash view. Aliases {#to_h} for conventional `as_json`
+    # callers (e.g. Rails).
     #
-    # @return [String] Formatted error messages joined with periods
+    # @return [Hash{Symbol => Array<String>}]
+    def as_json(*)
+      to_h
+    end
+
+    # Serializes the error messages to a JSON string. Symbol keys are
+    # emitted as strings by the `json` stdlib.
     #
-    # @example
-    #   errors.to_s # => "email must be valid format. email cannot be blank"
-    #
-    # @rbs () -> String
+    # @param args [Array] forwarded to `Hash#to_json`
+    # @return [String]
+    def to_json(*args)
+      to_h.to_json(*args)
+    end
+
+    # @return [String] all full messages joined with `". "`, suitable as a
+    #   fail reason
     def to_s
       full_messages.values.flatten.join(". ")
+    end
+
+    # Pattern-matching support for `case errors in {...}`.
+    #
+    # @param keys [Array<Symbol>, nil] restrict the returned hash to these keys
+    # @return [Hash{Symbol => Array<String>}]
+    #
+    # @example
+    #   case task.errors
+    #   in { name: [_, *] } then handle_name_errors(task)
+    #   end
+    def deconstruct_keys(keys)
+      keys.nil? ? to_h : to_h.slice(*keys)
+    end
+
+    # Pattern-matching support for `case errors in [...]`.
+    #
+    # @return [Array<Array(Symbol, Array<String>)>]
+    def deconstruct
+      to_h.to_a
+    end
+
+    # Freezes the container and every message set. Called by Runtime teardown.
+    #
+    # @return [Errors] self
+    def freeze
+      messages.each_value(&:freeze).freeze
+      super
     end
 
   end

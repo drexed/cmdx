@@ -1,65 +1,137 @@
 # frozen_string_literal: true
 
 CMDx.configure do |config|
-  # Task breakpoint configuration - controls when execute! raises faults
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
+  # ===========================================================================
+  # Locale
+  # ===========================================================================
+  # Fallback locale for built-in messages (validation, coercion, etc.) when
+  # the I18n gem is not present. With I18n loaded, CMDx follows `I18n.locale`.
   #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never halt
-  config.task_breakpoints = %w[failed]
-
-  # Workflow breakpoint configuration - controls when workflows stop execution
-  # When a task returns these statuses, subsequent workflow tasks won't execute
-  # See https://github.com/drexed/cmdx/blob/main/docs/workflows.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, workflow will never halt
-  config.workflow_breakpoints = %w[failed]
-
-  # Logger configuration - choose from multiple formatters
-  # See https://github.com/drexed/cmdx/blob/main/docs/logging.md for more details
-  #
-  # Available formatters:
-  # - CMDx::LogFormatters::Json
-  # - CMDx::LogFormatters::KeyValue
-  # - CMDx::LogFormatters::Line
-  # - CMDx::LogFormatters::Logstash
-  # - CMDx::LogFormatters::Raw
-  config.logger = Logger.new(
-    $stdout,
-    progname: "cmdx",
-    formatter: CMDx::LogFormatters::Line.new,
-    level: Logger::INFO
-  )
-
-  # Rollback configuration - controls which statuses trigger task rollback
-  # See https://github.com/drexed/cmdx/blob/main/docs/outcomes/statuses.md for more details
-  #
-  # Available statuses: "success", "skipped", "failed"
-  # If set to an empty array, task will never rollback
-  config.rollback_on = %w[failed]
-
-  # Default locale configuration - used for built-in translation lookups
-  # Must match the basename of a YAML file in lib/locales/ (e.g. "en", "es", "ja")
   # config.default_locale = "en"
 
-  # Backtrace configuration - controls whether to log backtraces on faults and exceptions
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#backtraces
-  # config.backtrace = false
-  # config.backtrace_cleaner = nil
-
-  # Exception handler configuration - called when non-fault exceptions are raised
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#exception-handlers
-  # config.exception_handler = nil
-
-  # Dump context configuration - include context data in hash representation output
-  # https://github.com/drexed/cmdx/blob/main/docs/configuration.md#dump-context
-  # config.dump_context = false
-
-  # Additional global configurations - automatically applied to all tasks
+  # ===========================================================================
+  # Strict context
+  # ===========================================================================
+  # When true, dynamic reads on `context` raise `NoMethodError` for unknown
+  # keys instead of returning `nil` (`[]`, `fetch`, `dig`, and `?` predicates
+  # stay lenient). Override per-task via `settings(strict_context: true)`.
   #
-  # Middlewares - https://github.com/drexed/cmdx/blob/main/docs/middlewares.md
-  # Callbacks - https://github.com/drexed/cmdx/blob/main/docs/callbacks.md
-  # Coercions - https://github.com/drexed/cmdx/blob/main/docs/attributes/coercions.md
-  # Validations - https://github.com/drexed/cmdx/blob/main/docs/attributes/validations.md
+  # config.strict_context = true
+
+  # ===========================================================================
+  # Correlation ID (xid)
+  # ===========================================================================
+  # Resolves an external correlation id (e.g. Rails `request_id`) once per
+  # root execution. The value is stored on the Chain and surfaces on every
+  # Result (`result.xid`, `result.to_h[:xid]`) and Telemetry::Event (`event.xid`),
+  # so all tasks within the same request can be filtered together in logs.
+  #
+  # config.correlation_id = -> { Current.request_id }
+
+  # ===========================================================================
+  # Logging
+  # ===========================================================================
+  # In Rails, the Railtie already wires `config.logger = Rails.logger` and a
+  # backtrace cleaner — override here only if you need something different.
+  #
+  # Formatters: Line (default), Json, KeyValue, Logstash, Raw
+  #
+  # config.backtrace_cleaner = ->(bt) { Rails.backtrace_cleaner.clean(bt) }
+  # config.log_exclusions = [:context]
+  # config.log_formatter  = CMDx::LogFormatters::Line.new
+  # config.log_level      = Logger::INFO
+  # config.logger         = Logger.new($stdout, progname: "cmdx")
+
+  # ===========================================================================
+  # Middlewares
+  # ===========================================================================
+  # Wrap every task's execution. Must respond to `call(task) { ... }`.
+  #
+  # Example — run each task under the current user's locale:
+  #
+  # config.middlewares.register(proc do |task, &next_link|
+  #   locale = Current.user.locale || I18n.default_locale
+  #   I18n.with_locale(locale) do
+  #     task.metadata[:locale] = locale
+  #     next_link.call
+  #   end
+  # end)
+
+  # ===========================================================================
+  # Callbacks
+  # ===========================================================================
+  # Events:
+  #   :before_validation, :before_execution,
+  #   :on_complete, :on_interrupted,
+  #   :on_success, :on_skipped, :on_failed,
+  #   :on_ok, :on_ko
+  #
+  # config.callbacks.register(:on_failed, proc do |task|
+  #   Rails.logger.error("[cmdx] #{task.class.name} failed: #{task.metadata[:reason]}")
+  # end)
+
+  # ===========================================================================
+  # Telemetry
+  # ===========================================================================
+  # Events and payloads:
+  #   :task_started      payload: {}
+  #   :task_deprecated   payload: {}
+  #   :task_retried      payload: { attempt: Integer }
+  #   :task_rolled_back  payload: {}
+  #   :task_executed     payload: { result: CMDx::Result }
+  #
+  # Every event also carries: event.cid, event.xid, event.tid, event.task,
+  # event.type, event.root, event.timestamp.
+  #
+  # config.telemetry.subscribe(:task_executed, proc do |event|
+  #   StatsD.timing("cmdx.task", event.payload[:result].duration)
+  # end)
+
+  # ===========================================================================
+  # Coercions
+  # ===========================================================================
+  # Register custom type coercions. Callable receives `(value, **options)`.
+  #
+  # config.coercions.register(:currency, proc do |value, **|
+  #   BigDecimal(value.to_s.gsub(/[^\d.-]/, ""))
+  # end)
+
+  # ===========================================================================
+  # Validators
+  # ===========================================================================
+  # Register custom validators. Callable receives `(value, options)` and
+  # returns a `CMDx::Validators::Failure.new(message)` on failure.
+  #
+  # config.validators.register(:uuid, proc do |value, _options|
+  #   unless value.to_s.match?(/\A[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\z/i)
+  #     CMDx::Validators::Failure.new("is not a valid UUID")
+  #   end
+  # end)
+
+  # ===========================================================================
+  # Executors
+  # ===========================================================================
+  # Registered executors drive `:parallel` workflow groups. Built-ins:
+  # `:threads` (default), `:fibers`. A callable receives
+  # `call(jobs:, concurrency:, on_job:)` and must invoke `on_job.call(job)`
+  # for each job, blocking until every job is done.
+  #
+  # config.executors.register(:ractors, proc do |jobs:, concurrency:, on_job:|
+  #   jobs.each_slice(concurrency) do |slice|
+  #     slice.map { |job| Ractor.new(job) { |j| on_job.call(j) } }.each(&:take)
+  #   end
+  # end)
+
+  # ===========================================================================
+  # Mergers
+  # ===========================================================================
+  # Merge strategies fold successful parallel task contexts back into the
+  # workflow context. Built-ins: `:last_write_wins` (default), `:deep_merge`,
+  # `:no_merge`. A callable receives `call(workflow_context, result)`.
+  #
+  # config.mergers.register(:whitelist, proc do |workflow_context, result|
+  #   result.context.to_h.slice(:order_id, :total).each do |key, value|
+  #     workflow_context[key] = value
+  #   end
+  # end)
 end

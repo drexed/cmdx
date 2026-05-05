@@ -1,40 +1,48 @@
 ---
 name: cmdx
-description: Build, debug, and optimize CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing business logic into workflows, handling task failures and interruptions, or working with CMDx attributes, callbacks, middleware, and configuration.
+description: Build, debug, and document CMDx tasks and workflows in Ruby. Use when creating service/command objects with CMDx, composing tasks into workflows, handling halts and faults, or wiring inputs, outputs, callbacks, middleware, retries, and configuration. Don't use for generic Ruby refactors, Rails controller work, or non-CMDx service objects.
 ---
 
 # CMDx Agent Skill
 
-CMDx is a Ruby framework for composable command/service objects with built-in attribute validation, type coercion, error handling, and observability.
+CMDx is a Ruby framework for composable command/service objects with declarative inputs, outputs, coercion, validation, retries, rollback, and structured observability. Deep dives live under [docs/](docs/) and [references/](references/); the [LLM index](https://github.com/drexed/cmdx/blob/main/LLM.md) bundles the full doc tree for one-shot loading.
 
-For full documentation, see the [docs/](docs/) directory or the [LLM reference](https://drexed.github.io/cmdx/llms-full.txt). Key doc pages are linked throughout this skill via progressive disclosure.
+## Lifecycle
 
-## Task Lifecycle (CERO)
+Every task runs through `CMDx::Runtime` in this order:
 
-Every task follows: **Compose → Execute → React → Observe**.
+1. **Middlewares** wrap everything (`call(task) { yield }` chain).
+2. **Deprecation** check (may block or log).
+3. **`before_execution` callbacks**.
+4. **`before_validation` callbacks**.
+5. **Input resolution** — fetch, coerce, transform, validate.
+6. **`work`** runs inside `catch(CMDx::Signal::TAG)`, wrapped in `retry_on`.
+7. **Output verification** — coerce/validate declared outputs.
+8. **`rollback`** runs if the signal is `failed` and the task defines `#rollback`.
+9. **State callbacks** — `on_complete` or `on_interrupted`.
+10. **Status callbacks** — `on_success` / `on_skipped` / `on_failed`.
+11. **Outcome callbacks** — `on_ok` (success or skipped) or `on_ko` (skipped or failed).
+12. **Result finalize + teardown** — task, errors, and root context are frozen; chain is cleared.
 
-```
-middlewares.call!(task) do
-  before_validation → define & validate attributes → fail! if errors
-  before_execution → result.executing! → task.work
-  verify returns
-rescue Fault → result.throw!(fault.result)
-rescue StandardError → retry or result.fail!
-ensure
-  result.executed!
-  on_complete / on_interrupted       # by state
-  on_executed                        # if execution ran
-  on_success / on_skipped / on_failed # by status
-  on_good / on_bad                   # by status group
-  log → rollback? → freeze → clear chain
-end
-```
+`success!` / `skip!` / `fail!` / `throw!` are control-flow tokens that `throw` a `CMDx::Signal` caught by Runtime — anything after a halt is unreachable. They only work inside the signal catch (input resolution, `work`, output verification); calling them from `before_execution` / `before_validation` callbacks or middleware bubbles past Runtime and never produces a `Result`. See [docs/basics/setup.md](docs/basics/setup.md) for the full state diagram.
+
+## DSL Surface
+
+| Category | Keywords |
+|----------|----------|
+| Inputs | `required`, `optional`, `input`, `inputs` |
+| Outputs | `output`, `outputs` |
+| Callbacks | `before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko` |
+| Class config | `settings`, `retry_on`, `deprecation`, `register`, `deregister` |
+| Halts (inside `work`) | `success!`, `skip!`, `fail!`, `throw!` |
+| Workflow | `include CMDx::Workflow`, `task`, `tasks` |
+| Execution | `Task.execute`, `Task.execute!` (aliased `call` / `call!`) |
 
 ## Minimal Task
 
 ```ruby
 class Greet < CMDx::Task
-  required :name, type: :string, presence: true
+  required :name, presence: true
 
   def work
     context.greeting = "Hello, #{name}!"
@@ -42,39 +50,34 @@ class Greet < CMDx::Task
 end
 
 result = Greet.execute(name: "World")
-result.success?          #=> true
-result.context.greeting  #=> "Hello, World!"
+result.success?           #=> true
+result.context.greeting   #=> "Hello, World!"
+
+# Block form returns the block's value.
+Greet.execute(name: "World") { |r| r.context.greeting }  #=> "Hello, World!"
 ```
 
-## Full-Featured Task
+## Realistic Task
 
 ```ruby
 class ProcessPayment < CMDx::Task
-  settings(
-    retries: 3,
-    retry_on: [Gateway::TimeoutError],
-    retry_jitter: :exponential_backoff,
-    rollback_on: ["failed"],
-    tags: ["billing"]
-  )
+  settings(tags: ["billing"])
 
-  register :middleware, CMDx::Middlewares::Timeout, seconds: 10
-  register :middleware, CMDx::Middlewares::Runtime
+  retry_on Gateway::TimeoutError, limit: 3, jitter: :exponential
 
   before_execution :find_order
   on_success :send_receipt
-  on_failed :alert_support, if: -> { context.amount > 1000 }
 
-  required :order_id, type: :integer
-  required :amount, type: :big_decimal, numeric: { greater_than: 0 }
-  optional :currency, type: :string, default: "USD", inclusion: { in: %w[USD EUR GBP] }
-  optional :idempotency_key, type: :string, default: -> { SecureRandom.uuid }
+  required :order_id, coerce: :integer
+  required :amount,   coerce: :big_decimal, numeric: { gt: 0 }
+  optional :currency, coerce: :string, default: "USD", inclusion: { in: %w[USD EUR GBP] }
 
-  returns :charge_id, :receipt_url
+  output :charge_id
+  output :receipt_url
 
   def work
-    charge = Gateway.charge!(amount: amount, currency: currency, key: idempotency_key)
-    context.charge_id = charge.id
+    charge = Gateway.charge!(amount: amount, currency: currency)
+    context.charge_id   = charge.id
     context.receipt_url = charge.receipt_url
   end
 
@@ -92,23 +95,99 @@ class ProcessPayment < CMDx::Task
   def send_receipt
     ReceiptMailer.send(@order, context.receipt_url).deliver_later
   end
+end
+```
 
-  def alert_support
-    SupportNotifier.high_value_failure(@order, result.reason)
+## Inputs
+
+Declare with `input` / `inputs` / `required` / `optional`. Each generated reader returns the coerced, transformed, validated value — read it instead of `context.<name>`, which still holds the raw input.
+
+Pipeline per input: **Source → Default → Coerce → Transform → Validate**.
+
+```ruby
+class Example < CMDx::Task
+  required :email, coerce: :string, format: { with: URI::MailTo::EMAIL_REGEXP }
+  optional :role,  coerce: :string, default: "member", inclusion: { in: %w[admin member guest] }
+  input    :notes                                          # optional by default
+
+  def work
+    email   # coerced/validated
+    role
+    notes
   end
 end
 ```
 
-## Workflow Example
+**Coercions** accept a Symbol, an Array (tried in order, first success wins), a Hash (per-coercion options), or any inline `#call(value, task)`-able. Built-ins: `:array`, `:big_decimal`, `:boolean`, `:complex`, `:date`, `:date_time`, `:float`, `:hash`, `:integer`, `:rational`, `:string`, `:symbol`, `:time`.
 
-Workflows compose tasks into sequential or parallel execution groups.
+```ruby
+required :count,       coerce: :integer
+required :value,       coerce: %i[rational big_decimal]
+required :recorded_at, coerce: { date: { strptime: "%m-%d-%Y" } }
+```
+
+**Validators** — shorthand keys: `presence:`, `absence:`, `format:`, `length:`, `numeric:`, `inclusion:`, `exclusion:`, plus inline `validate:`. Numeric/length option keys: `:min`/`:gte`, `:max`/`:lte`, `:gt`, `:lt`, `:within`/`:in`, `:not_within`/`:not_in`, `:is`/`:eq`, `:is_not`/`:not_eq`.
+
+```ruby
+required :age,  coerce: :integer, numeric: { gt: 0, lt: 150 }
+required :code, coerce: :string,  length: { is: 6 }, format: { with: /\A[A-Z0-9]+\z/ }
+optional :tags, coerce: :array,   length: { max: 10 }
+```
+
+**Naming** — `as:`, `prefix:`, `suffix:` rename the generated reader.
+
+```ruby
+input :template,     prefix: true        # context_template
+input :format,       prefix: "report_"   # report_format
+input :branch,       suffix: true        # branch_context
+input :scheduled_at, as: :scheduled      # scheduled
+```
+
+**Sources & transforms**:
+
+```ruby
+input :rate,  source: :current_rate                 # task instance method
+input :token, source: TokenGenerator                # #call(task)
+input :email, transform: :downcase
+input :score, coerce: :integer, transform: proc { |v| v.clamp(0, 100) }
+```
+
+Full reference: [references/inputs.md](references/inputs.md).
+
+## Outputs
+
+Declare keys the task must write to `context`. Verification runs after `work` succeeds (skipped when `work` halted).
+
+```ruby
+class CreateUser < CMDx::Task
+  required :email, coerce: :string
+
+  output :user
+  output :token
+
+  def work
+    context.user  = User.create!(email: email)
+    context.token = JwtService.encode(user_id: context.user.id)
+  end
+end
+```
+
+Every declared output is implicitly required. Outputs support `default:`, `if:`/`unless:`, and `description:` only. A missing output fails the task with `result.errors[name]`. For coercion, transformation, or validation use inputs (or write derived values directly inside `work`).
+
+Full reference: [references/outputs.md](references/outputs.md).
+
+## Workflows
+
+Compose tasks by including `CMDx::Workflow` in a `Task` subclass. Defining `#work` on a workflow raises `CMDx::ImplementationError`.
 
 ```ruby
 class OnboardCustomer < CMDx::Task
   include CMDx::Workflow
 
+  required :email, coerce: :string
+
   task ValidateIdentity
-  task CreateAccount, breakpoints: %w[failed]
+  task CreateAccount
   task SetupBilling, if: :billing_required?
   tasks SendWelcomeEmail, SendWelcomeSms, strategy: :parallel
 
@@ -118,124 +197,49 @@ class OnboardCustomer < CMDx::Task
     context.plan != "free"
   end
 end
-
-result = OnboardCustomer.execute(email: "user@example.com", plan: "pro")
 ```
 
-Workflows share a single context across all tasks. A failing task halts execution when its status matches the group's breakpoints (default: `["failed"]`).
+- All tasks share one `Context`.
+- The workflow halts on the **first `failed?` result**. Skipped tasks never halt.
+- Group options: `strategy:` (`:sequential` default, or `:parallel`), `pool_size:`, `if:` / `unless:`.
+- Parallel groups deep-dup context per task and merge back on success only; the failed leaf propagates via `throw!`.
 
-For advanced patterns, see [references/workflows.md](references/workflows.md) and [docs/workflows.md](docs/workflows.md).
+Full reference: [references/workflows.md](references/workflows.md).
 
-## Attributes
+## Halting
 
-Declared with `required`, `optional`, or `attribute`:
-
-```ruby
-class Example < CMDx::Task
-  required :email, type: :string, format: { with: URI::MailTo::EMAIL_REGEXP }
-  optional :role, type: :string, default: "member", inclusion: { in: %w[admin member guest] }
-  attribute :notes, required: false
-
-  def work
-    # Attributes accessible as methods: email, role, notes
-    # These return coerced/validated values (see pitfall #2)
-  end
-end
-```
-
-### Pipeline
-
-Each attribute flows through: **Source → Coerce → Transform → Validate**.
-
-### Type coercion
-
-Built-in types: `:array`, `:big_decimal`, `:boolean`, `:complex`, `:date`, `:datetime`, `:float`, `:hash`, `:integer`, `:rational`, `:string`, `:symbol`, `:time`.
-
-```ruby
-required :count, type: :integer           # single type
-required :value, types: [Integer, Float]  # multiple types
-```
-
-### Validations
-
-Built-in: `presence`, `absence`, `format`, `length`, `numeric`, `inclusion`, `exclusion`.
-
-```ruby
-required :age, type: :integer, numeric: { greater_than: 0, less_than: 150 }
-required :code, type: :string, length: { is: 6 }, format: { with: /\A[A-Z0-9]+\z/ }
-optional :tags, type: :array, length: { maximum: 10 }
-```
-
-### Naming
-
-```ruby
-attribute :template, prefix: true           # method: context_template
-attribute :format, prefix: "report_"        # method: report_format
-attribute :branch, suffix: true             # method: branch_context
-attribute :scheduled_at, as: :when          # method: when
-```
-
-### Transforms
-
-```ruby
-attribute :email, transform: :strip
-attribute :tags, transform: :compact_blank
-attribute :score, type: :integer, transform: proc { |v| v.clamp(0, 100) }
-```
-
-For the complete attribute reference, see [references/attributes.md](references/attributes.md). Deep dives: [docs/attributes/definitions.md](docs/attributes/definitions.md), [docs/attributes/coercions.md](docs/attributes/coercions.md), [docs/attributes/validations.md](docs/attributes/validations.md).
-
-## Interruptions
-
-### skip! and fail!
+All halt methods `throw` out of `work` — they never return.
 
 ```ruby
 def work
-  skip!("Already processed")                                          # halts
-  skip!("Duplicate", halt: false)                                     # continues
-  fail!("Not found", code: 404)                                       # halts
-  fail!("Validation failed", halt: false, errors: validation_errors)  # continues
+  success!("Imported #{n} rows", rows: n)       # complete + success (with annotation)
+  skip!("Already processed")                    # interrupted + skipped
+  fail!("Not found", code: "NOT_FOUND")         # interrupted + failed
+  throw!(InnerTask.execute(context))            # re-throws if inner failed (no-op otherwise)
 end
 ```
 
-### throw!
+Signatures: `success!` / `skip!` / `fail!` take `(reason = nil, **metadata)`. `throw!` takes `(other_result, **metadata)` and is a no-op unless `other_result.failed?`.
 
-Propagates another task's result upward:
+Accumulating errors via `task.errors.add(:attr, "msg")` triggers an automatic fail after `work` — no explicit `fail!` needed. The fail reason is `errors.to_s` (full messages joined with `". "`).
 
-```ruby
-def work
-  inner_result = InnerTask.execute(context)
-  throw!(inner_result) if inner_result.failed?
-end
-```
+Full reference: [references/interruptions.md](references/interruptions.md).
 
-### Faults
+## Faults
 
-`execute` never raises — returns a `Result`. `execute!` raises `CMDx::FailFault` or `CMDx::SkipFault` when the status matches breakpoints.
+`execute` always returns a `Result`. `execute!` raises `CMDx::Fault` on `failed?` results (skip does not raise) and re-raises the original `StandardError` when `result.cause` was a non-Fault exception.
 
 ```ruby
-result = MyTask.execute(data: input)
-result.success?
-
 begin
-  result = MyTask.execute!(data: input)
-rescue CMDx::FailFault => e
-  e.result         # the failed Result
-  e.context        # the context (delegated from result)
-  e.message        # failure reason string (set from result.reason)
-  e.result.reason  # same reason via result
-end
-```
-
-#### Fault matching
-
-`for?` and `matches?` are class methods that return matcher classes for use in `rescue`:
-
-```ruby
-rescue CMDx::FailFault.for?(PaymentTask, BillingTask) => e
-  # only catches FailFaults from PaymentTask or BillingTask
-rescue CMDx::FailFault.matches? { |f| f.result.metadata[:critical] } => e
-  # only catches FailFaults where the block returns true
+  MyTask.execute!(data: input)
+rescue CMDx::Fault.for?(PaymentTask, BillingTask) => e
+  e.result        # the originating Result (walks origin to the leaf)
+  e.task          # the failing Task class
+  e.context       # frozen context
+  e.chain         # full CMDx::Chain
+  e.message       # result.reason (or localized "unspecified")
+rescue CMDx::Fault.matches? { |f| f.result.metadata[:critical] } => e
+  escalate(e)
 end
 ```
 
@@ -244,255 +248,251 @@ end
 ```ruby
 result = MyTask.execute(input: data)
 
-# State: initialized, executing, complete, interrupted
-result.state         #=> "complete"
-result.complete?     #=> true
-result.interrupted?  #=> false
+# States: "complete" or "interrupted"
+result.state        #=> "complete"
+result.complete?    #=> true
+result.interrupted? #=> false
 
-# Status: success, skipped, failed
-result.status        #=> "success"
-result.success?      #=> true
-result.good?         #=> true  (success OR skipped)
-result.bad?          #=> false (skipped OR failed)
+# Statuses: "success", "skipped", "failed"
+result.status       #=> "success"
+result.success?     #=> true
+result.ok?          #=> true   (success OR skipped — "not failed")
+result.ko?          #=> false  (skipped OR failed — "not success")
 
 # Data
-result.context       # shared Context object
-result.reason        # skip/fail reason string
-result.cause         # the Fault that caused interruption
-result.metadata      # hash of extra data (errors, runtime, etc.)
-result.chain         # Chain of results in execution
+result.context      # shared Context (frozen on root teardown)
+result.errors       # CMDx::Errors map
+result.reason       # reason string from success!/skip!/fail! (nil when unset)
+result.metadata     # frozen hash
+result.cause        # rescued StandardError (or nil)
+result.origin       # upstream Result this was echoed from (or nil)
+result.retries      # Integer
+result.duration     # Float ms
 
-# Handlers
-result.on(:success) { |r| redirect_to(dashboard_path) }
-      .on(:failed)  { |r| render_error(r.reason) }
-      .on(:skipped) { |r| log_skip(r.reason) }
+# Handlers — chainable, block required
+result
+  .on(:success) { |r| redirect_to(dashboard_path) }
+  .on(:failed)  { |r| render_error(r.reason) }
+  .on(:skipped) { |r| log_skip(r.reason) }
 
 # Pattern matching
+# deconstruct: [type, task, state, status, reason, metadata, cause, origin]
 case result
-in ["complete", "success"] then handle_success
-in ["interrupted", "failed"] then handle_failure
+in ["Task", _, "complete",    "success", *]         then handle_success
+in ["Task", _, "interrupted", "failed",  reason, *] then handle_failure(reason)
+end
+
+case result
+in { status: "failed", metadata: { retryable: true } } then schedule_retry
+in { state: "complete", status: "success" }            then celebrate
 end
 ```
+
+Full reference: [references/result.md](references/result.md).
 
 ## Callbacks
 
-Registered as class methods. Accept method names, procs, or blocks. Support `if:`/`unless:` conditions.
+Declare via the per-event DSL helpers (`before_execution`, `before_validation`, `on_success`, `on_skipped`, `on_failed`, `on_complete`, `on_interrupted`, `on_ok`, `on_ko`). Each accepts a method name (Symbol), a Proc/lambda (`instance_exec`'d on the task with `task` passed as the block arg, so `->(task) { ... }` is the canonical shape), or a `#call(task)`-able. All forms support `if:` / `unless:` gates. The underlying form is `register :callback, event, callable, **opts`.
 
 ```ruby
 class Example < CMDx::Task
+  before_execution  :init_tracking
   before_validation :normalize_input
-  before_execution :load_dependencies
-  on_success :notify_user, if: -> { context.notify? }
-  on_failed :log_failure
-  on_complete :cleanup
+  on_success :notify, if: -> { context.notify? }
+  on_failed  LogFailureCallback
+  on_complete ->(task) { Audit.log(task.class.name) }
 end
 ```
 
-### Execution order
-
-1. `before_validation` — before attribute validation
-2. `before_execution` — after validation, before `work`
-3. `on_complete` / `on_interrupted` — by state
-4. `on_executed` — if execution ran
-5. `on_success` / `on_skipped` / `on_failed` — by status
-6. `on_good` / `on_bad` — by status group
+The `Result` isn't built yet when callbacks run — read `task.context` / `task.errors` inside, or subscribe to the `:task_executed` telemetry event for finalized result data.
 
 ## Middleware
 
-Wraps the entire execution. Must yield.
+Wraps the entire lifecycle. Interface: `call(task) { yield }` (or `&next_link` for Procs). Must yield or `CMDx::MiddlewareError` is raised.
 
 ```ruby
-# Built-in
-register :middleware, CMDx::Middlewares::Timeout, seconds: 5
-register :middleware, CMDx::Middlewares::Runtime          # result.metadata[:runtime]
-register :middleware, CMDx::Middlewares::Correlate, id: proc { SecureRandom.uuid }
-
-# Custom
 class AuditMiddleware
-  def self.call(task, **options)
+  def call(task)
     AuditLog.start(task.class.name)
-    yield(task)
+    yield
   ensure
-    AuditLog.finish(task.class.name, task.result.status)
+    AuditLog.finish(task.class.name)
   end
 end
 
-register :middleware, AuditMiddleware
-```
-
-## Configuration
-
-### Global
-
-```ruby
-CMDx.configure do |config|
-  config.task_breakpoints = "failed"
-  config.workflow_breakpoints = ["skipped", "failed"]
-  config.rollback_on = ["failed"]
-  config.freeze_results = true
-  config.backtrace = false
-  config.logger = Logger.new($stdout)
-  config.exception_handler = proc { |task, e| ErrorTracker.report(e) }
-end
-```
-
-### Per-task
-
-```ruby
 class MyTask < CMDx::Task
-  settings(
-    retries: 3,
-    retry_on: [Net::TimeoutError],
-    retry_jitter: :exponential_backoff,
-    rollback_on: ["failed"],
-    task_breakpoints: ["failed"],
-    tags: ["critical"],
-    log_level: :info,
-    log_formatter: CMDx::LogFormatters::Json.new,
-    deprecate: :log
-  )
+  register :middleware, AuditMiddleware.new
+  register :middleware, ->(task, &next_link) {
+    task.metadata[:tracked] = true
+    Timer.track(task.class) { next_link.call }
+  }
+  register :middleware, OuterMiddleware, at: 0   # insert at index
 end
 ```
 
-For all options, see [references/configuration.md](references/configuration.md) and [docs/configuration.md](docs/configuration.md).
-
-## Returns (Output Contract)
-
-```ruby
-class CreateUser < CMDx::Task
-  returns :user, :token
-
-  def work
-    context.user = User.create!(params)
-    context.token = generate_token(context.user)
-  end
-end
-```
-
-Missing returns cause the task to fail with validation errors.
-
-## Context
-
-A shared, hash-like object passed through tasks:
-
-```ruby
-context[:key]                    # read
-context.key                      # read (method_missing)
-context.key = value              # write
-context.store(:key, value)       # write
-context.merge!(hash)             # bulk write
-context.fetch(:key, default)     # read with default
-context.fetch_or_store(:key, v)  # read or write
-context.key?(:key)               # existence check
-context.dig(:a, :b, :c)         # nested read
-context.delete!(:key)            # remove
-```
+No middleware ships with the gem — pass instances (or classes responding to `#call(task)`) you author yourself. See [docs/middlewares.md](docs/middlewares.md).
 
 ## Retries
 
 ```ruby
-settings retries: 3, retry_on: [Net::TimeoutError]
-settings retries: 5, retry_jitter: :exponential_backoff
-settings retries: 10, retry_jitter: ->(count) { [count * 0.5, 5.0].min }
+class Fetch < CMDx::Task
+  retry_on Net::OpenTimeout, Net::ReadTimeout,
+    limit: 3, delay: 0.5, max_delay: 5.0, jitter: :exponential
+
+  retry_on Api::Throttled, limit: 5 do |attempt, delay|
+    delay * (attempt + 1)
+  end
+end
 ```
 
-Only retries when the rescued exception matches `retry_on`. Clears errors between attempts. See [docs/retries.md](docs/retries.md).
+- Only retries when the exception matches `retry_on`. Anything else (or a matching exception after the limit) becomes a failed result with `result.cause` set.
+- Jitter strategies: `:exponential`, `:half_random`, `:full_random`, `:bounded_random`, a Symbol (task method), a Proc (`instance_exec(attempt, delay)`), or any `#call(attempt, delay)`-able.
+- Only `work` is retried — inputs, outputs, and callbacks run once. `task.errors` accumulates across attempts; clear it at the start of `work` if you re-populate per attempt.
 
-## Dry Run
+Inspect with `result.retries` / `result.retried?`. Docs: [docs/retries.md](docs/retries.md).
+
+## Rollback
+
+Define `#rollback` to undo side effects. Runtime calls it after `work` when the signal is `failed` (before completion callbacks) and flags `result.rolled_back?`.
 
 ```ruby
-result = MyTask.execute(data: input, dry_run: true)
-result.dry_run? #=> true
+class ChargeCard < CMDx::Task
+  def work
+    context.charge = Gateway.charge!(context.amount)
+  end
+
+  def rollback
+    Gateway.refund!(context.charge.id) if context.charge
+  end
+end
 ```
 
-The `work` method still runs — implement dry-run guards inside `work` using `dry_run?` (delegated from task to chain).
+Rollback is **per-task**. To compensate across a workflow's earlier successful tasks, use an `on_failed` callback on the workflow class.
+
+## Context
+
+```ruby
+context[:key]                    # read
+context.key                      # read (method_missing; nil when absent)
+context.key = value              # write
+context.store(:key, value)       # explicit write
+context.merge(hash)              # mutate in place; returns self
+context.fetch(:key, default)     # Hash#fetch semantics
+context.retrieve(:key) { v }     # fetch-or-store
+context.key?(:key)               # existence
+context.dig(:a, :b, :c)          # nested read
+context.delete(:key)             # remove
+```
+
+`Context` is frozen on root teardown — post-execution mutations raise `FrozenError`. Nested tasks share the same context object unless isolated via `context.deep_dup` (parallel workflow groups do this automatically).
+
+## Configuration
+
+`CMDx.configure` sets framework-wide defaults; `settings(...)` overrides per-class logger / formatter / level / backtrace cleaner / tags; everything else uses dedicated DSL.
+
+```ruby
+CMDx.configure do |config|
+  config.default_locale = "en"
+  config.logger         = Logger.new($stdout)
+  config.log_formatter  = CMDx::LogFormatters::JSON.new
+
+  config.middlewares.register MyGlobalMiddleware
+  config.callbacks.register   :on_failed, ErrorTracker
+  config.coercions.register   :money,   MoneyCoercion
+  config.validators.register  :api_key, ApiKeyValidator
+  config.telemetry.subscribe(:task_executed) { |event| ... }
+end
+
+class MyTask < CMDx::Task
+  settings(tags: ["critical"], log_level: Logger::DEBUG)
+
+  retry_on Net::OpenTimeout, limit: 3
+  deprecation :warn, if: -> { Rails.env.production? }
+
+  register :middleware, TimingMiddleware.new
+  register :validator,  :api_key, ApiKeyValidator
+end
+```
+
+Full reference (registry matrix, telemetry events, Rails wiring): [references/configuration.md](references/configuration.md).
+
+## Exceptions
+
+Flat hierarchy rooted at `CMDx::Error` (aliased `CMDx::Exception`):
+
+```
+StandardError
+└── CMDx::Error
+    ├── CMDx::DefinitionError      # input name collides with existing method
+    ├── CMDx::DeprecationError     # deprecation :error was triggered
+    ├── CMDx::ImplementationError  # missing #work, or #work defined on a Workflow
+    ├── CMDx::MiddlewareError      # middleware didn't yield
+    └── CMDx::Fault                # raised by execute! on failed? results
+```
+
+`CMDx::Error` subclasses other than `Fault` propagate through `execute` unconverted — they indicate framework misuse, not runtime failure.
 
 ## Common Pitfalls
 
 ### 1. Forgetting `def work`
 
-Every task must define `work`. Without it, execution raises `CMDx::UndefinedMethodError`.
+Raises `CMDx::ImplementationError` at execution time from both `execute` and `execute!`.
 
-### 2. Using `context` vs attribute methods
+### 2. Reading `context.foo` instead of the generated reader
 
 ```ruby
-# Wrong: bypasses validation/coercion
+# Wrong: bypasses coercion/validation — returns the raw input
 def work
   context.email
 end
 
-# Right: declare attributes, use generated methods
-required :email, type: :string
+# Right: use the generated reader
+required :email, coerce: :string
 def work
   email
 end
 ```
 
-### 3. Not handling `throw!` in nested tasks
+Coerced input values live on the task instance, not on `context`. To persist them, write back explicitly (`context.email = email`).
 
-```ruby
-# Wrong: inner failure is silently swallowed
-def work
-  InnerTask.execute(context)
-end
+### 3. Input declaration order
 
-# Right: propagate or check the result
-def work
-  inner = InnerTask.execute(context)
-  throw!(inner) unless inner.success?
-end
-```
+Inputs are resolved in declaration order. If one input references another via `source:` or an `if:` predicate, declare the referenced input first.
 
-### 4. Mutating context after freeze
+### 4. Middleware that forgets to yield
 
-Results are frozen by default (`freeze_results: true`). Attempting to modify context after execution raises an error. Set `freeze_results: false` if post-execution mutation is needed.
+Silently swallowing `yield` raises `CMDx::MiddlewareError` outside the signal catch — the failure is not convertible to a result. Always yield (or `next_link.call`) on every code path, including `rescue` / `ensure`.
 
-### 5. Middleware that doesn't yield
+### 5. Mutating the root context after teardown
 
-A middleware that omits `yield` silently swallows execution. The result will be marked as failed with `metadata[:source] == :swallowed_middleware`.
+Runtime freezes the root context, task, errors, and chain during teardown. Post-execution writes raise `FrozenError`. Use `context.deep_dup` before teardown when you need a mutable snapshot.
 
-### 6. Breakpoints confusion
+### 6. Assuming workflows halt on skip
 
-- `task_breakpoints`: controls when `execute!` raises (default: `["failed"]`)
-- `workflow_breakpoints`: controls when a workflow halts (default: `["failed"]`)
-- Group breakpoints: `tasks TaskA, TaskB, breakpoints: %w[skipped failed]`
-- Empty breakpoints `[]` means never halt
+Workflows halt only on `failed?`. Skipped tasks are no-ops; the pipeline continues. To make a step hard-fail, call `fail!` (not `skip!`).
 
-### 7. Missing returns
+### 7. `execute!` doesn't always raise `Fault`
 
-Declared `returns` are verified after `work`. If the context doesn't contain the declared keys, the task fails with validation errors.
+When `result.cause` is a non-`Fault` `StandardError` (e.g. an `ActiveRecord::RecordNotFound` that slipped through `work`), `execute!` re-raises the **original** exception, not a `Fault`. Match both in production rescue blocks if needed.
 
-### 8. Attribute ordering
+### 8. Retries share the same task instance
 
-Attributes are order-dependent. If one attribute references another as a source or condition, declare the referenced attribute first:
+`context`, instance variables, and `task.errors` persist across retry attempts. If you re-add errors each time, clear them at the start of `work`, or the post-`work` check will still fail the task.
 
-```ruby
-# Correct
-required :credentials, source: :database_config
-attribute :connection_string, source: :credentials
+### 9. `task.result` isn't available inside callbacks
 
-# Wrong: connection_string references credentials before it exists
-attribute :connection_string, source: :credentials
-required :credentials, source: :database_config
-```
+The `Result` is built *after* callbacks run. Inside callbacks, read `task.context` / `task.errors`; for finalized result data, subscribe to the `:task_executed` telemetry event.
 
-### 9. Exception vs Fault
+### 10. Calling halt methods outside `work`
 
-`StandardError` exceptions are caught by `execute` and converted to failed results. `execute!` re-raises them. `CMDx::TimeoutError` inherits from `Interrupt`, not `StandardError` — it's always raised.
+The signal `catch` only wraps input resolution, `work`, and output verification. `success!` / `skip!` / `fail!` / `throw!` invoked from `before_execution` / `before_validation` callbacks or middleware bubble past Runtime and never produce a `Result`. Use `errors.add` from validation callbacks instead, or move the logic into `work`.
 
 ## References
 
-- [Attribute details](references/attributes.md) — coercions, validations, naming, transforms, nesting
-- [Workflow patterns](references/workflows.md) — composition, breakpoints, parallel, conditions
-- [Interruptions & faults](references/interruptions.md) — skip!/fail!/throw!, propagation strategies, fault matching, errors
-- [Result API](references/result.md) — states, statuses, handlers, pattern matching, chain analysis
-- [Configuration options](references/configuration.md) — global and per-task settings
-- [Testing guide](references/testing.md) — RSpec matchers, setup, patterns
-
-### Deep-dive docs
-
-- Basics: [setup](docs/basics/setup.md), [execution](docs/basics/execution.md), [context](docs/basics/context.md), [chain](docs/basics/chain.md)
-- Interruptions: [halt](docs/interruptions/halt.md), [faults](docs/interruptions/faults.md), [exceptions](docs/interruptions/exceptions.md)
-- Outcomes: [result](docs/outcomes/result.md), [states](docs/outcomes/states.md), [statuses](docs/outcomes/statuses.md)
-- Features: [callbacks](docs/callbacks.md), [middlewares](docs/middlewares.md), [workflows](docs/workflows.md), [retries](docs/retries.md), [logging](docs/logging.md)
-- [Testing](docs/testing.md) | [Tips & tricks](docs/tips_and_tricks.md) | [Comparison](docs/comparison.md)
+- [Inputs](references/inputs.md) — declarations, coercions, validators, naming, transforms, sources, nesting
+- [Outputs](references/outputs.md) — declarations, verification, defaults, transforms
+- [Workflows](references/workflows.md) — composition, strategies, halt behavior, rollback, nesting
+- [Interruptions](references/interruptions.md) — signals, faults, errors, propagation strategies
+- [Result](references/result.md) — states, statuses, handlers, pattern matching, chain analysis
+- [Configuration](references/configuration.md) — global config, settings, retries, deprecation, registries, telemetry, Rails
+- [Testing](references/testing.md) — RSpec patterns using the real public API

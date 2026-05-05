@@ -1,7 +1,7 @@
 name: Docs
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 permissions:
   contents: write
 jobs:
@@ -12,7 +12,7 @@ jobs:
       CLICOLOR_FORCE: 1
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Configure Git Credentials
@@ -36,7 +36,8 @@ jobs:
           ruby-version: 3.4
           bundler-cache: true
       - name: Install Python dependencies
-        run: pip install "mkdocs>=1.6,<2" mkdocs-material mkdocs-llmstxt mkdocs-rss-plugin pymdown-extensions
+        run: pip install "mkdocs>=1.6,<2" mkdocs-material mkdocs-llmstxt
+          mkdocs-rss-plugin pymdown-extensions
       - name: Generate API documentation
         run: bundle exec rake yard
       - name: Deploy documentation

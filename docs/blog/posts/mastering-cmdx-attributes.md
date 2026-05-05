@@ -9,6 +9,8 @@ slug: mastering-cmdx-attributes
 
 # Mastering CMDx Attributes: Your Task's Contract with the World
 
+*Targets CMDx v1.15.*
+
 Attributes in CMDx are deceptively simple. You define what data your task needs, and the framework handles the rest—coercion, validation, defaults, the works. But there's real depth here. After building dozens of production systems with CMDx, I've found that well-designed attributes are the difference between tasks that "just work" and tasks that fight you at every turn.
 
 Let me show you what I mean.

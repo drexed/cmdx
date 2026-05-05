@@ -9,6 +9,8 @@ slug: mastering-cmdx-interruptions
 
 # Mastering CMDx Interruptions: Controlling Flow When Things Go Sideways
 
+*Targets CMDx v1.14.*
+
 Business logic isn't always a straight line. Orders get cancelled. Users don't have permissions. External APIs timeout. What separates robust code from fragile code is how gracefully you handle these interruptions.
 
 CMDx gives you three tools for this: halt methods (`skip!` and `fail!`), exception handling, and faults. Together, they form a complete system for controlling execution flow—whether you're stopping intentionally, handling errors, or propagating failures across tasks.

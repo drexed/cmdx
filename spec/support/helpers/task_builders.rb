@@ -7,17 +7,12 @@ module CMDx
   module Testing
     module TaskBuilders
 
-      def mock_settings(**attrs)
-        settings = CMDx::Settings.allocate
-        attrs.each { |k, v| settings.public_send(:"#{k}=", v) }
-        settings
-      end
-
       # Base
 
       def create_task_class(base: CMDx::Task, name: "AnonymousTask", &)
         task_class = Class.new(base)
         task_class.define_singleton_method(:name) { @name ||= name.to_s + rand(9999).to_s.rjust(4, "0") }
+        task_class.define_singleton_method(:type) { @type ||= "Task" }
         task_class.class_eval(&) if block_given?
         task_class
       end
@@ -58,6 +53,22 @@ module CMDx
           raise TestError, reason || "borked error"
           (context.executed ||= []) << :errored # rubocop:disable Lint/UnreachableCode
         end
+        task_class
+      end
+
+      # Flaky (for retry testing)
+
+      def create_flaky_task(base: CMDx::Task, name: "FlakyTask", failures: 2, error_class: CMDx::TestError, &)
+        counter = { attempts: 0 }
+        task_class = create_task_class(base:, name:)
+        task_class.class_eval(&) if block_given?
+        task_class.define_method(:work) do
+          counter[:attempts] += 1
+          raise error_class, "flaky attempt #{counter[:attempts]}" if counter[:attempts] <= failures
+
+          (context.executed ||= []) << :success
+        end
+        task_class.define_singleton_method(:attempts_counter) { counter }
         task_class
       end
 

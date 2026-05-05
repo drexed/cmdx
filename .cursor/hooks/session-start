@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+}
+
+session_context="<project-conventions>
+This project (CMDx) is a Ruby gem for designing and executing complex business logic
+within service/command objects. It is NOT a Rails app.
+
+This project enforces skill-based conventions via hooks.
+Before editing files, you MUST read the relevant skill from .cursor/skills/.
+
+A preToolUse hook will DENY your edits if the skill has not been read first.
+
+Skill map (more specific patterns take priority):
+| File Pattern | Skill to Read |
+|---|---|
+| .cursor/skills/*/SKILL.md | .cursor/skills/skill-patterns/SKILL.md |
+| .cursor/commands/*.md | .cursor/skills/command-patterns/SKILL.md |
+| spec/**/*.rb | .cursor/skills/test-patterns/SKILL.md |
+| lib/**/*.rb, CHANGELOG.md | .cursor/skills/technical-docs/SKILL.md |
+
+Additional skills available (read on demand, not hook-gated):
+| Skill | When to Use |
+|---|---|
+| .cursor/skills/technical-docs/SKILL.md | Writing YARD docs or CHANGELOG entries |
+| .cursor/skills/performance-optimizations/SKILL.md | Benchmarking or optimizing hot paths |
+| .cursor/skills/issue-debugging/SKILL.md | Diagnosing bugs or unexpected behavior |
+| .cursor/skills/explain-functionality/SKILL.md | Explaining code flow or intent |
+
+When you need to edit one of the gated file types:
+1. Read the corresponding SKILL.md first
+2. Follow the conventions described in the skill
+3. Then make your edit
+</project-conventions>"
+
+escaped=$(escape_for_json "$session_context")
+
+cat <<EOF
+{
+  "additional_context": "${escaped}",
+  "continue": true
+}
+EOF
+
+exit 0

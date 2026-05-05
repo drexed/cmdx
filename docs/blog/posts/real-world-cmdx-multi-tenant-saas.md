@@ -1,5 +1,5 @@
 ---
-date: 2026-06-03
+date: 2026-06-10
 authors:
   - drexed
 categories:
@@ -10,6 +10,8 @@ slug: real-world-cmdx-multi-tenant-saas
 # Real-World CMDx: Multi-Tenant SaaS Patterns
 
 *Part 4 of the Real-World CMDx series*
+
+*Built on CMDx 2.0 — see the [v2 release post](cmdx-v2-the-runtime-rewrite.md). v2's frozen `Result` makes [pattern matching on tenant metadata](https://drexed.github.io/cmdx/outcomes/result/) safe across threads, and the per-fiber chain isolates tenant scopes naturally.*
 
 Multi-tenancy changes everything. That simple `Users::Register` task you wrote? Now it needs to know which tenant it's operating on. Your database queries need scoping. Your logging needs tenant context. Your middleware stack needs to enforce tenant isolation. And if you get any of it wrong, Customer A sees Customer B's data, and you're writing an incident report instead of features.
 
@@ -65,17 +67,14 @@ For defense-in-depth, add middleware that ensures tenant scoping is active:
 
 ```ruby
 class TenantIsolation
-  def call(task, options)
+  def call(task)
     tenant = task.context[:tenant]
 
-    unless tenant
-      task.result.tap { |r| r.fail!("Tenant context missing", code: :tenant_required) }
-      return
+    if tenant.nil?
+      throw(CMDx::Signal::TAG, CMDx::Signal.failed("Tenant context missing", metadata: { code: :tenant_required }))
     end
 
-    ActsAsTenant.with_tenant(tenant) do
-      yield
-    end
+    ActsAsTenant.with_tenant(tenant) { yield }
   end
 end
 ```
@@ -84,11 +83,13 @@ Register it globally for extra safety:
 
 ```ruby
 CMDx.configure do |config|
-  config.middlewares.register TenantIsolation
+  config.middlewares.register TenantIsolation.new
 end
 ```
 
-The middleware uses `with_tenant` which scopes all ActiveRecord queries within the block and restores the previous tenant when the block exits. This is safer than setting `current_tenant` directly — if the task raises, the tenant scope is still restored.
+In v2, middlewares can't mutate `Result` — it's frozen, built once at the end of the lifecycle. To fail a task from middleware, throw `CMDx::Signal::TAG` directly; Runtime's `catch(Signal::TAG)` block converts it into a failed Result.
+
+The middleware uses `with_tenant`, which scopes all ActiveRecord queries within the block and restores the previous tenant when the block exits — safer than setting `current_tenant` directly: if the task raises, the tenant scope is still restored.
 
 ### Why Both Callback and Middleware?
 
@@ -96,40 +97,26 @@ The `before_execution` callback sets the tenant for the task's `work` method. Th
 
 ## Tenant-Scoped Logging
 
-Add the tenant to every log entry via a middleware that injects tenant context into metadata:
+Subscribe to the `:task_executed` Telemetry event and ship the tenant slug to your log aggregator. `Result` is frozen in v2, so middleware can't bolt fields onto `metadata` after the fact — Telemetry is the v2-native seam:
 
 ```ruby
-class TenantLogging
-  def call(task, options)
-    tenant = task.context[:tenant]
+CMDx.configure do |config|
+  config.telemetry.subscribe(:task_executed) do |event|
+    tenant = event.payload[:result].context[:tenant]
+    next unless tenant
 
-    yield.tap do |result|
-      result.metadata[:tenant_slug] = tenant.slug if tenant
-    end
-  end
-end
-
-class TenantTask < ApplicationTask
-  required :tenant
-
-  register :middleware, TenantLogging
-  before_execution :set_tenant_scope
-
-  private
-
-  def set_tenant_scope
-    ActsAsTenant.current_tenant = tenant
+    Rails.logger.info(
+      cid:    event.cid,
+      task:        event.task_class.name,
+      tenant_slug: tenant.slug,
+      status:      event.payload[:result].status,
+      duration:    event.payload[:result].duration
+    )
   end
 end
 ```
 
-Now every log entry includes the tenant:
-
-```json
-{"chain_id":"abc123","class":"Orders::Create","status":"success","metadata":{"tenant_slug":"acme","runtime":34}}
-```
-
-Filter your log aggregator by `metadata.tenant_slug:"acme"` and see all task executions for that tenant. Cross-reference with `chain_id` to trace a single request.
+Filter your log aggregator by `tenant_slug:"acme"` and see every task execution for that tenant. Cross-reference with `cid` to trace a single request — the per-fiber chain ([`lib/cmdx/chain.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/chain.rb)) keeps concurrent tenant requests isolated automatically.
 
 ## Per-Tenant Configuration
 
@@ -137,14 +124,9 @@ Different tenants have different needs. Enterprise tenants might need longer tim
 
 ```ruby
 class TenantConfigMiddleware
-  def call(task, options)
+  def call(task)
     tenant = task.context[:tenant]
-    return yield unless tenant
-
-    if tenant.feature?(:enhanced_logging)
-      task.logger.level = :debug
-    end
-
+    task.logger.level = :debug if tenant&.feature?(:enhanced_logging)
     yield
   end
 end
@@ -156,7 +138,7 @@ For tasks that behave differently per tenant:
 class Reports::Generate < TenantTask
   required :report_type, inclusion: { in: %w[summary detailed] }
 
-  returns :report
+  output :report
 
   def work
     context.report = case report_type
@@ -181,10 +163,7 @@ Workflows compose tenant-scoped tasks naturally:
 class Onboarding::SetupTenant < CMDx::Task
   include CMDx::Workflow
 
-  settings(
-    workflow_breakpoints: ["failed"],
-    tags: ["onboarding", "tenant-setup"]
-  )
+  settings(tags: ["onboarding", "tenant-setup"])
 
   task Tenants::Create
   task Tenants::ProvisionDatabase, if: :dedicated_database?
@@ -210,7 +189,7 @@ class Tenants::Create < ApplicationTask
   required :plan, inclusion: { in: %w[starter growth enterprise] }
   required :owner_email, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  returns :tenant
+  output :tenant
 
   def work
     fail!("Slug already taken", code: :slug_taken) if Tenant.exists?(slug: slug)
@@ -229,7 +208,7 @@ end
 
 ```ruby
 class Tenants::SeedDefaultData < TenantTask
-  returns :seed_summary
+  output :seed_summary
 
   def work
     roles = Role.insert_all([
@@ -268,7 +247,7 @@ end
 class Tenants::CreateAdminUser < TenantTask
   required :owner_email
 
-  returns :admin_user
+  output :admin_user
 
   def work
     context.admin_user = User.create!(
@@ -293,11 +272,11 @@ class Admin::BaseTask < ApplicationTask
 end
 
 class Admin::GenerateUsageReport < Admin::BaseTask
-  required :billing_period, type: :date
+  required :billing_period, coerce: :date
 
   settings(tags: ["admin", "billing"])
 
-  returns :report
+  output :report
 
   def work
     context.report = Tenant.active.map do |tenant|
@@ -318,7 +297,7 @@ By deregistering `TenantIsolation`, admin tasks can query across all tenants. Th
 
 ## Tenant-Aware Background Jobs
 
-Combine the patterns from [Part 3](real-world-cmdx-background-jobs.md) with tenant scoping:
+Combine the patterns from [Part 3](real-world-cmdx-background-jobs.md) (which defines the lightweight `Correlate` module) with tenant scoping:
 
 ```ruby
 class TenantJob
@@ -327,10 +306,11 @@ class TenantJob
   def perform(args)
     tenant = Tenant.find(args["tenant_id"])
 
-    CMDx::Middlewares::Correlate.use(args["correlation_id"]) do
+    Correlate.use(args["correlation_id"]) do
       ActsAsTenant.with_tenant(tenant) do
-        task_class = args["task_class"].constantize
-        task_class.execute!(args["context"].merge("tenant" => tenant))
+        args["task_class"].constantize.execute!(
+          args["context"].merge("tenant" => tenant)
+        )
       end
     end
   end
@@ -342,13 +322,11 @@ Enqueue with tenant context:
 ```ruby
 class Billing::EnqueueInvoiceGeneration < TenantTask
   def work
-    correlation_id = CMDx::Middlewares::Correlate.id
-
     TenantJob.perform_async(
-      "tenant_id" => tenant.id,
-      "correlation_id" => correlation_id,
-      "task_class" => "Billing::GenerateInvoice",
-      "context" => { "billing_period" => Date.today.to_s }
+      "tenant_id"      => tenant.id,
+      "correlation_id" => Correlate.id,
+      "task_class"     => "Billing::GenerateInvoice",
+      "context"        => { "billing_period" => Date.today.to_s }
     )
 
     logger.info "Enqueued invoice generation for tenant #{tenant.slug}"
@@ -356,7 +334,7 @@ class Billing::EnqueueInvoiceGeneration < TenantTask
 end
 ```
 
-The tenant ID is serialized with the job. When it executes, the tenant scope is restored before the task runs. The `correlation_id` bridges the async boundary for tracing.
+The tenant ID is serialized with the job. When it executes, the tenant scope is restored before the task runs. The correlation id bridges the async boundary for tracing.
 
 ## Testing Multi-Tenant Tasks
 
@@ -390,7 +368,7 @@ RSpec.describe Orders::Create do
     )
 
     expect(result).to be_failed
-    expect(result.metadata[:errors][:messages]).to have_key(:tenant)
+    expect(result.errors[:tenant]).not_to be_empty
   end
 end
 ```
@@ -431,8 +409,10 @@ ApplicationTask < CMDx::Task
 
 TenantTask < ApplicationTask
   └── required :tenant
-  └── TenantLogging middleware
   └── before_execution :set_tenant_scope
+
+Telemetry subscribers
+  └── :task_executed → tenant-scoped log emission
 
 Admin::BaseTask < ApplicationTask
   └── deregister TenantIsolation (cross-tenant access)
@@ -452,5 +432,5 @@ Happy coding!
 
 - [Middlewares](https://drexed.github.io/cmdx/middlewares/)
 - [Callbacks](https://drexed.github.io/cmdx/callbacks/)
-- [Configuration](https://drexed.github.io/cmdx/configuration/)
-- [Tips and Tricks](https://drexed.github.io/cmdx/tips_and_tricks/)
+- [Telemetry](https://drexed.github.io/cmdx/configuration/)
+- [Pattern Matching on Result](https://drexed.github.io/cmdx/outcomes/result/)

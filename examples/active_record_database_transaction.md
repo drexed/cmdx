@@ -1,27 +1,32 @@
-# Active Record Query Tagging
+# Active Record Database Transaction
 
-Wrap task or workflow execution in a database transaction. This is essential for data integrity when multiple steps modify the database.
+Wrap a task's entire lifecycle in a database transaction so multi-step writes roll back together when something raises.
 
-### Setup
+## Setup
 
 ```ruby
-# lib/cmdx_database_transaction_middleware.rb
+# app/middlewares/cmdx_database_transaction_middleware.rb
 class CmdxDatabaseTransactionMiddleware
-  def self.call(task, **options, &)
-    ActiveRecord::Base.transaction(requires_new: true, &)
+  def call(_task)
+    ActiveRecord::Base.transaction(requires_new: true) { yield }
   end
 end
 ```
 
-### Usage
+## Usage
 
 ```ruby
-class MyTask < CMDx::Task
-  register :middleware, CmdxDatabaseTransactionMiddleware
+class TransferFunds < CMDx::Task
+  register :middleware, CmdxDatabaseTransactionMiddleware.new
 
   def work
-    # Do work...
+    # ...
   end
-
 end
 ```
+
+## Notes
+
+!!! warning "Important"
+
+    A task that halts with `fail!` returns a `Result` — it does **not** raise. The transaction only rolls back when an exception escapes the inner block. To force a rollback on logical failure, raise inside `rollback` (see [Rollback](../docs/v2-migration.md#rollback)) or call `execute!`, which re-raises as `CMDx::Fault`.

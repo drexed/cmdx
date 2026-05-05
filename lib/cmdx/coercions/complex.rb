@@ -1,39 +1,24 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to Complex number format
-    #
-    # Handles conversion from numeric strings, integers, floats, and other
-    # values that can be converted to Complex using Ruby's Complex() method.
+  class Coercions
+    # Coerces to `Complex`. Supply `imaginary:` to provide the imaginary
+    # component when `value` is a real-only input.
     module Complex
 
       extend self
 
-      # Converts a value to a Complex number
-      #
-      # @param value [Object] The value to convert to Complex
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :* Any configuration option (unused)
-      #
-      # @return [Complex] The converted Complex number value
-      #
-      # @raise [CoercionError] If the value cannot be converted to Complex
-      #
-      # @example Convert numeric strings to Complex
-      #   Complex.call("3+4i")                     # => (3+4i)
-      #   Complex.call("2.5")                      # => (2.5+0i)
-      # @example Convert other numeric types
-      #   Complex.call(5)                          # => (5+0i)
-      #   Complex.call(3.14)                       # => (3.14+0i)
-      #   Complex.call(Complex(1, 2))              # => (1+2i)
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Complex
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [Numeric] :imaginary (0)
+      # @return [Complex, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        Complex(value)
+        return value if value.is_a?(::Complex)
+
+        Complex(value, options[:imaginary] || 0)
       rescue ArgumentError, TypeError
-        type = Locale.t("cmdx.types.complex")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        type = I18nProxy.t("cmdx.types.complex")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_a", type:))
       end
 
     end

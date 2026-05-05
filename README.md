@@ -14,7 +14,7 @@
   [Request Feature](https://github.com/drexed/cmdx/issues) ·
   [AI Skills](https://github.com/drexed/cmdx/blob/main/skills) ·
   [llms.txt](https://drexed.github.io/cmdx/llms.txt) ·
-  [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt) ·
+  [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt)
 
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
@@ -26,14 +26,26 @@
 Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.
 
 > [!NOTE]
-> [Documentation](https://drexed.github.io/cmdx/getting_started/) reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+> [Documentation](https://drexed.github.io/cmdx/getting_started/) reflects the latest code on `main`. For version-specific documentation, refer to the `docs/` directory within that version's tag.
+
+## What you get
+
+- **Standardized task contract** — typed inputs, declared outputs, explicit halts
+- **Type system** — 13 coercers, 7 validators, all pluggable
+- **Built-in flow control** — `skip!` / `fail!` / `throw!` with structured metadata
+- **Retries and faults** — declarative `retry_on` with configurable jitter
+- **Middleware and callbacks** — wrap the lifecycle without touching `work`
+- **Observability** — structured logs and telemetry, no extra instrumentation
+- **Composable workflows** — chain tasks into larger processes
+
+See the [feature comparison](https://drexed.github.io/cmdx/comparison/) for how CMDx stacks up against other service-object gems.
 
 ## Requirements
 
-- Ruby: MRI 3.1+ or JRuby 9.4+
-- Dependencies: None
+- Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release
+- Runtime dependencies: `bigdecimal` and `logger` (stdlib only — no ActiveSupport required)
 
-Rails support is built-in, but it's framework-agnostic at its core.
+Rails support is built-in, but CMDx is framework-agnostic at its core.
 
 ## Installation
 
@@ -45,24 +57,23 @@ bundle add cmdx
 
 ## Quick Example
 
-Build powerful business logic in four simple steps:
+CMDx organizes business logic around the **CERO** pattern (pronounced "zero"): **Compose**, **Execute**, **React**, **Observe**.
 
 ### 1. Compose
 
-```ruby
-# Full-featured task example
-# See docs for minimum viable task examples
+Declare inputs, outputs, retries, and callbacks, then implement `work`.
 
+```ruby
 class AnalyzeMetrics < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate, id: -> { Current.request_id }
+  retry_on Net::ReadTimeout, limit: 3, jitter: :exponential
 
   on_success :track_analysis_completion!
 
-  required :dataset_id, type: :integer, numeric: { min: 1 }
+  required :dataset_id, coerce: :integer, numeric: { min: 1 }
 
   optional :analysis_type, default: "standard"
 
-  returns :result, :analyzed_at
+  output :result, :analyzed_at
 
   def work
     if dataset.nil?
@@ -91,6 +102,8 @@ end
 
 ### 2. Execute
 
+Every invocation returns a `Result`. Inputs are coerced and validated, exceptions are captured, outputs are verified, and the outcome is logged — automatically.
+
 ```ruby
 result = AnalyzeMetrics.execute(
   dataset_id: 123,
@@ -98,38 +111,38 @@ result = AnalyzeMetrics.execute(
 )
 ```
 
+Use `execute!` instead when you want failures to raise a `Fault`.
+
 ### 3. React
+
+Branch on the result's status and read values, reasons, or metadata from it.
 
 ```ruby
 if result.success?
   puts "Metrics analyzed at #{result.context.analyzed_at}"
 elsif result.skipped?
-  puts "Skipping analyzation due to: #{result.reason}"
+  puts "Skipped: #{result.reason}"
 elsif result.failed?
-  puts "Analyzation failed due to: #{result.reason} with code #{result.metadata[:code]}"
+  puts "Failed: #{result.reason} (code #{result.metadata[:code]})"
 end
 ```
 
 ### 4. Observe
 
-```log
-I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id="018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf" type="Task" class="SendAnalyzedEmail" state="complete" status="success" metadata={runtime: 347}
+Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, and duration — enough to correlate nested tasks and reconstruct what happened.
 
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id="018c2b95-b764-7615-a924-cc5b910ed1e5" type="Task" class="AnalyzeMetrics" state="complete" status="success" metadata={runtime: 187}
+```log
+I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d2-..." index=1 root=false type="Task" task=SendAnalyzedEmail id="018c2b95-c091-..." state="complete" status="success" reason=nil metadata={} duration=34.7 tags=[]
+
+I, [2026-04-19T18:43:15.000000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d2-..." index=0 root=true type="Task" task=AnalyzeMetrics id="018c2b95-b764-..." state="complete" status="success" reason=nil metadata={} duration=187.4 tags=[]
 ```
 
-Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/) guide to learn more.
+Ready to dive in? Check out the [Getting Started](https://drexed.github.io/cmdx/getting_started/) guide.
 
 ## Ecosystem
 
+- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations
 - [cmdx-rspec](https://github.com/drexed/cmdx-rspec) - RSpec test matchers
-
-For backwards compatibility of certain functionality:
-
-- [cmdx-i18n](https://github.com/drexed/cmdx-i18n) - 85+ translations, `v1.5.0` - `v1.6.2`
-- [cmdx-parallel](https://github.com/drexed/cmdx-parallel) - Parallel workflow tasks, `v1.6.1` - `v1.6.2`
 
 ## Contributing
 

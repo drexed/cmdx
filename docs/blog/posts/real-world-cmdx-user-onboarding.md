@@ -1,5 +1,5 @@
 ---
-date: 2026-05-13
+date: 2026-05-20
 authors:
   - drexed
 categories:
@@ -10,6 +10,8 @@ slug: real-world-cmdx-user-onboarding
 # Real-World CMDx: Building a User Onboarding Pipeline
 
 *Part 1 of the Real-World CMDx series*
+
+*Built on CMDx 2.0 — see the [v2 release post](cmdx-v2-the-runtime-rewrite.md) for the runtime changes this post depends on.*
 
 User onboarding is one of those features that sounds simple until you actually build it. "Just create a user and send them an email." Sure—until you add email verification, trial activation, referral tracking, welcome sequences, analytics events, and a dozen conditional paths based on plan type, invite status, and geographic regulations.
 
@@ -44,7 +46,7 @@ class Users::Register < CMDx::Task
   optional :referral_code
   optional :invite_token
 
-  returns :user
+  output :user
 
   def work
     fail!("Email already taken", code: :duplicate) if User.exists?(email: email)
@@ -59,7 +61,7 @@ class Users::Register < CMDx::Task
 end
 ```
 
-Three layers of defense here: attribute validations catch malformed inputs, the `fail!` catches business rule violations, and `returns :user` guarantees downstream tasks always have the user available.
+Three layers of defense here: input validations catch malformed inputs, the `fail!` catches business rule violations, and `output :user` guarantees downstream tasks always have the user available — every declared output is implicitly required, so Runtime verifies it's present after `work` returns and fails the task otherwise.
 
 ### Send Verification Email
 
@@ -67,7 +69,7 @@ Three layers of defense here: attribute validations catch malformed inputs, the 
 class Users::SendVerification < CMDx::Task
   required :user
 
-  returns :verification_token
+  output :verification_token
 
   def work
     context.verification_token = user.generate_verification_token!
@@ -88,7 +90,7 @@ This task only runs for trial plans. That conditional logic lives in the workflo
 class Users::ActivateTrial < CMDx::Task
   required :user
 
-  returns :trial_ends_at
+  output :trial_ends_at
 
   def work
     trial_duration = case user.plan
@@ -186,10 +188,7 @@ Now we compose these tasks into a pipeline:
 class Users::Onboard < CMDx::Task
   include CMDx::Workflow
 
-  settings(
-    workflow_breakpoints: ["failed"],
-    tags: ["onboarding"]
-  )
+  settings(tags: ["onboarding"])
 
   task Users::Register
   task Users::SendVerification
@@ -244,11 +243,11 @@ class RegistrationsController < ApplicationController
     in { status: "success" }
       sign_in(result.context.user)
       redirect_to dashboard_path, notice: "Welcome! Check your email to verify your account."
-    in { status: "failed", metadata: { errors: { messages: Hash => msgs } } }
-      @errors = msgs
-      render :new, status: :unprocessable_entity
     in { status: "failed", metadata: { code: :duplicate } }
       redirect_to login_path, alert: "An account with that email already exists."
+    in { status: "failed" } if result.errors.any?
+      @errors = result.errors.to_h
+      render :new, status: :unprocessable_entity
     in { status: "failed" }
       redirect_to new_registration_path, alert: result.reason
     end
@@ -256,7 +255,7 @@ class RegistrationsController < ApplicationController
 end
 ```
 
-Pattern matching makes the controller clean. Each failure type gets a specific response.
+Pattern matching makes the controller clean. Each failure type gets a specific response — `metadata[:code]` for tagged business failures, `result.errors` for input/output validation failures, and `result.reason` as the fallback.
 
 ## Handling Partial Failures
 
@@ -264,9 +263,7 @@ What happens when the referral code is invalid but everything else succeeds? Rig
 
 That might not be what we want. A bad referral code shouldn't block registration.
 
-With `workflow_breakpoints: ["failed"]`, every failure halts the pipeline. That's correct for `Users::Register` (can't continue without a user) but too strict for referrals. We can't just remove `"failed"` from breakpoints — we need critical steps to halt and non-critical steps to pass through.
-
-The solution is to let the task decide its own severity:
+In v2, failure always halts the pipeline — there's no opt-out toggle. That's correct for `Users::Register` (can't continue without a user) but too strict for referrals. The fix is to let the task decide its own severity:
 
 ```ruby
 class Users::ApplyReferralBonus < CMDx::Task
@@ -298,19 +295,27 @@ This is the approach I prefer. The task decides its own severity. Critical steps
 
 ## Observability for Free
 
-Run the workflow and check the logs:
+Configure the JSON log formatter (the default `Line` formatter is human-readable; switch when you want machine-parseable output):
 
-```json
-{"index":1,"chain_id":"abc123","class":"Users::Register","status":"success","metadata":{"runtime":45}}
-{"index":2,"chain_id":"abc123","class":"Users::SendVerification","status":"success","metadata":{"runtime":12}}
-{"index":3,"chain_id":"abc123","class":"Users::ActivateTrial","status":"success","metadata":{"runtime":8}}
-{"index":4,"chain_id":"abc123","class":"Users::ApplyReferralBonus","status":"skipped","reason":"Invalid referral code — skipping bonus","metadata":{"runtime":3}}
-{"index":5,"chain_id":"abc123","class":"Users::SendWelcome","status":"success","metadata":{"runtime":6}}
-{"index":6,"chain_id":"abc123","class":"Users::TrackRegistration","tags":["analytics","onboarding"],"status":"success","metadata":{"runtime":2}}
-{"index":0,"chain_id":"abc123","class":"Users::Onboard","tags":["onboarding"],"status":"success","metadata":{"runtime":76}}
+```ruby
+CMDx.configure do |config|
+  config.log_formatter = CMDx::LogFormatters::JSON.new
+end
 ```
 
-One `chain_id` links every step. The skipped referral bonus is visible without digging through exception trackers. The workflow still reports `success` because skips are considered good outcomes.
+Run the workflow and the message field of each log line is the serialized `result.to_h`:
+
+```json
+{"cid":"abc123","index":1,"root":false,"type":"Task","task":"Users::Register","status":"success","duration":45.2, ...}
+{"cid":"abc123","index":2,"root":false,"type":"Task","task":"Users::SendVerification","status":"success","duration":12.1, ...}
+{"cid":"abc123","index":3,"root":false,"type":"Task","task":"Users::ActivateTrial","status":"success","duration":8.0, ...}
+{"cid":"abc123","index":4,"root":false,"type":"Task","task":"Users::ApplyReferralBonus","status":"skipped","reason":"Invalid referral code — skipping bonus","duration":3.4, ...}
+{"cid":"abc123","index":5,"root":false,"type":"Task","task":"Users::SendWelcome","status":"success","duration":6.7, ...}
+{"cid":"abc123","index":6,"root":false,"type":"Task","task":"Users::TrackRegistration","tags":["analytics","onboarding"],"status":"success","duration":2.1, ...}
+{"cid":"abc123","index":0,"root":true,"type":"Workflow","task":"Users::Onboard","tags":["onboarding"],"status":"success","duration":76.5, ...}
+```
+
+One `cid` links every step. The skipped referral bonus is visible without digging through exception trackers. The root workflow result is at `index: 0` (Runtime `unshift`s the root onto the chain). The workflow still reports `success` because skips are considered good outcomes (`result.ok?`).
 
 ## Testing the Pipeline
 
@@ -370,7 +375,7 @@ RSpec.describe Users::Onboard do
     expect(result).to be_success
     expect(result.context.user).to be_persisted
 
-    referral_result = result.chain.results.find { |r| r.task.is_a?(Users::ApplyReferralBonus) }
+    referral_result = result.chain.results.find { |r| r.task == Users::ApplyReferralBonus }
     expect(referral_result).to be_skipped
   end
 

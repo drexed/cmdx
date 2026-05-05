@@ -1,26 +1,12 @@
 # Testing
 
-Best practices for testing CMDx tasks and workflows with RSpec.
-
-## Setup
-
-Reset global configuration between tests to prevent state leakage:
-
-```ruby
-# spec/rails_helper.rb or spec/spec_helper.rb
-RSpec.configure do |config|
-  config.before(:each) do
-    CMDx.reset_configuration!
-    CMDx::Chain.clear
-  end
-end
-```
+Patterns for testing CMDx tasks and workflows with RSpec.
 
 ## Testing Tasks
 
 ### Basic Execution
 
-Test tasks by calling `execute` and asserting on the result:
+Call `execute` and assert on the returned `Result`. Predicates like `success?`, `skipped?`, and `failed?` map to RSpec matchers automatically.
 
 ```ruby
 RSpec.describe CreateUser do
@@ -36,12 +22,25 @@ RSpec.describe CreateUser do
     result = CreateUser.execute(email: "", name: "Ada")
 
     expect(result).to be_failed
-    expect(result.reason).to include("Invalid")
+    expect(result.reason).to eq("email cannot be empty")
+    expect(result.errors.to_h).to eq(email: ["cannot be empty"])
   end
 end
 ```
 
-### Testing Skip and Fail Conditions
+For multi-branch assertions, `Result#on` keeps each path scoped:
+
+```ruby
+it "branches on outcome" do
+  CreateUser.execute(email: "dev@example.com", name: "Ada")
+    .on(:success) { |r| expect(r.context.user).to be_persisted }
+    .on(:failed)  { |r| raise "unexpected failure: #{r.reason}" }
+end
+```
+
+### Testing Skip and Fail
+
+`reason` and `metadata` come straight from the `skip!` / `fail!` arguments.
 
 ```ruby
 RSpec.describe ProcessRefund do
@@ -67,70 +66,103 @@ end
 
 ### Testing Bang Execution
 
+`execute!` raises `CMDx::Fault` for any failed path (validation, output verification, `fail!`, or echoed peer failure). The fault carries the failing task class and the originating `Result`.
+
 ```ruby
 RSpec.describe ProcessPayment do
-  it "raises FailFault on failure" do
+  it "raises Fault on failure" do
     expect {
       ProcessPayment.execute!(amount: -1)
-    }.to raise_error(CMDx::FailFault) { |fault|
-      expect(fault.result.reason).to include("positive")
+    }.to raise_error(CMDx::Fault) { |fault|
+      expect(fault.task).to eq(ProcessPayment)
+      expect(fault.message).to include("amount")
+      expect(fault.result.errors).to have_key(:amount)
     }
   end
 end
 ```
 
-### Testing Attribute Validation
+For paths that re-raise the original exception (an unhandled `StandardError` inside `work`), match the original class instead:
+
+```ruby
+expect { Importer.execute!(payload: bad_payload) }.to raise_error(JSON::ParserError)
+```
+
+!!! note
+
+    `Fault` exposes the originating `Result` (`fault.result`), `context`, and
+    `chain` so post-mortem inspection works either way. `execute` is still
+    handy when you want to assert on `skipped?`, `success?`, *and* `failed?`
+    results in the same example.
+
+### Testing Input Validation
+
+Errors from input resolution are surfaced through `result.errors` and folded into `result.reason`.
 
 ```ruby
 RSpec.describe CreateProject do
-  it "fails when required attributes are missing" do
+  it "fails when required inputs are missing" do
     result = CreateProject.execute(name: nil)
 
     expect(result).to be_failed
-    expect(result.reason).to eq("Invalid")
-    expect(result.metadata[:errors][:messages]).to have_key(:name)
-  end
-
-  it "coerces string attributes to expected types" do
-    result = CreateProject.execute(name: "Alpha", budget: "5000")
-
-    expect(result).to be_success
-    expect(result.context.budget).to eq(5000)
+    expect(result.errors.to_h).to have_key(:name)
+    expect(result.reason).to include("name")
   end
 end
 ```
 
-### Testing Returns
+!!! note
+
+    Coerced input values live on the task instance (via the generated reader),
+    not on `context`. `result.context.budget` returns whatever the caller
+    passed in — to assert on the coerced value, write it back to `context`
+    inside `work` (e.g. `context.budget = budget`).
+
+### Testing Outputs
+
+Missing or invalid declared outputs fail the task with the same `errors` API.
 
 ```ruby
 RSpec.describe AuthenticateUser do
-  it "fails when declared returns are missing" do
-    allow(User).to receive(:authenticate).and_return(nil)
+  it "fails when a declared output is missing" do
+    allow(JwtService).to receive(:encode).and_return(nil)
 
     result = AuthenticateUser.execute(email: "a@b.com", password: "pw")
 
     expect(result).to be_failed
-    expect(result.metadata[:errors][:messages]).to have_key(:token)
+    expect(result.errors.to_h).to have_key(:token)
   end
 end
 ```
 
-### Testing Dry Run
+### Testing Retries
+
+`result.retries` and `result.retried?` expose retry activity.
 
 ```ruby
-RSpec.describe ChargeCard do
-  it "simulates execution without side effects" do
-    result = ChargeCard.execute(card_id: "card_123", dry_run: true)
+RSpec.describe FetchExternalData do
+  it "retries transient timeouts" do
+    call_count = 0
+    allow(HTTParty).to receive(:get) do
+      call_count += 1
+      raise Net::ReadTimeout if call_count < 3
+      double(parsed_response: { ok: true })
+    end
+
+    result = FetchExternalData.execute
 
     expect(result).to be_success
-    expect(result.dry_run?).to be(true)
+    expect(result.retries).to eq(2)
+    expect(result.retried?).to be(true)
   end
 end
 ```
 
 ## Testing Workflows
 
-### Full Workflow
+### Sequential Workflow
+
+The chain holds every result in execution order, with the workflow result as the root.
 
 ```ruby
 RSpec.describe OnboardingWorkflow do
@@ -138,28 +170,41 @@ RSpec.describe OnboardingWorkflow do
     result = OnboardingWorkflow.execute(user_data: valid_params)
 
     expect(result).to be_success
-    expect(result.chain.results.size).to eq(4)
-    expect(result.chain.results.map { |r| r.task.class }).to eq(
+    expect(result.chain.size).to eq(4)
+    expect(result.chain.results.map(&:task)).to eq(
       [OnboardingWorkflow, CreateProfile, SetupPreferences, SendWelcome]
     )
   end
 end
 ```
 
-### Workflow Failure Propagation
+### Failure Propagation
+
+A failed leaf halts the workflow and its `reason` echoes onto `result.reason`. The failing leaf is reachable directly via `result.origin` / `result.caused_failure` — they point at the originating task without needing to scan the chain.
 
 ```ruby
 RSpec.describe PaymentWorkflow do
-  it "stops on first failure and includes root cause" do
+  it "stops on first failure and identifies the failing task" do
     result = PaymentWorkflow.execute(invalid_card: true)
 
     expect(result).to be_failed
-    expect(result.caused_failure.task).to be_a(ValidateCard)
+    expect(result.reason).to include("invalid")
+    expect(result.origin.task).to eq(ValidateCard)
+    expect(result.caused_failure.task).to eq(ValidateCard)
   end
 end
 ```
 
+!!! note
+
+    `caused_failure` walks `origin` recursively, so it returns the deepest
+    leaf even across nested workflows. `threw_failure` returns the immediate
+    upstream (`origin || self`). For a locally-failing task both helpers
+    return `self`. See [Result — Chain Analysis](outcomes/result.md#chain-analysis).
+
 ## Testing Callbacks
+
+Callbacks are best verified through their observable side effects.
 
 ```ruby
 RSpec.describe ProcessBooking do
@@ -176,21 +221,33 @@ end
 
 ## Testing Middlewares
 
-```ruby
-RSpec.describe "Timeout middleware" do
-  it "fails when task exceeds time limit" do
-    result = SlowTask.execute
+Middlewares run inside Runtime, so test them through a real task lifecycle (see [Middlewares](middlewares.md)).
 
-    expect(result).to be_failed
-    expect(result.cause).to be_a(CMDx::TimeoutError)
-    expect(result.metadata[:limit]).to eq(3)
+```ruby
+class TaggingMiddleware
+  def call(task)
+    task.context.tagged_at = Time.now
+    yield
+  end
+end
+
+RSpec.describe TaggingMiddleware do
+  it "tags the context before work runs" do
+    klass = Class.new(CMDx::Task) do
+      register :middleware, TaggingMiddleware.new
+      def work; context.work_seen_tag = !context.tagged_at.nil?; end
+    end
+
+    result = klass.execute
+
+    expect(result.context.work_seen_tag).to be(true)
   end
 end
 ```
 
 ## Direct Instantiation
 
-For fine-grained inspection, instantiate tasks directly:
+Instantiate a task directly when you need to inspect its `context` or `errors` before invoking the runtime.
 
 ```ruby
 RSpec.describe CalculateShipping do
@@ -198,39 +255,49 @@ RSpec.describe CalculateShipping do
     task = CalculateShipping.new(weight: 2.5, destination: "CA")
 
     expect(task.context.weight).to eq(2.5)
-    expect(task.result).to be_initialized
-  end
-
-  it "can be executed manually" do
-    task = CalculateShipping.new(weight: 2.5, destination: "CA")
-    task.execute
-
-    expect(task.result).to be_success
+    expect(task.errors).to be_empty
   end
 end
 ```
 
+!!! note
+
+    `Task#new` only builds the context and errors registry — it does **not** run the lifecycle. To execute, use `Klass.execute(context_or_hash)`. There is no per-instance `task.execute`.
+
 ## Pattern Matching in Tests
 
-Use Ruby's pattern matching for expressive assertions:
+`Result` supports both array and hash deconstruction.
 
 ```ruby
 RSpec.describe BuildApplication do
-  it "returns expected pattern on success" do
+  it "deconstructs to [[key, value], ...] pairs" do
     result = BuildApplication.execute(version: "1.0")
 
-    expect(result.deconstruct).to match(["complete", "success", anything, anything, anything])
+    expect(result.deconstruct).to include(
+      [:type, "Task"],
+      [:task, BuildApplication],
+      [:state, "complete"],
+      [:status, "success"]
+    )
+
+    case result
+    in [*, [:status, "success"], *] then :ok
+    end
   end
 
-  it "matches hash pattern on failure" do
+  it "matches a hash pattern on failure" do
     result = BuildApplication.execute(version: nil)
 
     case result
-    in { status: "failed", metadata: { errors: { messages: Hash => msgs } } }
-      expect(msgs).to have_key(:version)
+    in { status: "failed", reason: String => reason }
+      expect(reason).to include("version")
     else
-      raise "Expected failed result with validation errors"
+      raise "Expected failed result"
     end
   end
 end
 ```
+
+!!! note
+
+    `Result#deconstruct` returns `to_h.to_a` — an array of `[key, value]` pairs in insertion order, not a fixed-arity tuple. Use find patterns (`in [*, [:status, "success"], *]`) rather than positional arrays.

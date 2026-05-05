@@ -2,7 +2,7 @@
 
 require "i18n"
 
-locales = Dir[CMDx.gem_path.join("lib/locales/*.yml")]
+locales = Dir[File.expand_path("../../../lib/locales/*.yml", __dir__)]
 
 I18n.load_path += locales
 I18n.available_locales = locales.map { |path| File.basename(path, ".yml").to_sym }

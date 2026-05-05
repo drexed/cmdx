@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = spec.summary
   spec.homepage = "https://github.com/drexed/cmdx"
   spec.license = "LGPL-3.0"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = ">= 3.3.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/drexed/cmdx"
@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
         *%w[
           .cursor/
           .github/
+          benchmark/
           bin/
           docs/
           examples/
@@ -56,10 +57,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "bigdecimal"
   spec.add_dependency "logger"
-  spec.add_dependency "zeitwerk"
 
   spec.add_development_dependency "bundler"
-  spec.add_development_dependency "cmdx-rspec"
   spec.add_development_dependency "i18n"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rdoc"

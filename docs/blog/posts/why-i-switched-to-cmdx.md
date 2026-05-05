@@ -9,6 +9,8 @@ slug: why-i-switched-to-cmdx
 
 # Why I Switched to CMDx (and How You Can Too)
 
+*Targets CMDx v1.20.*
+
 If you've been writing Ruby long enough, you've probably used at least one service object gem. Maybe you started with Interactor back when it was the default choice. Maybe you moved to ActiveInteraction for its ActiveModel-like validations. Maybe you tried Actor or LightService. I've used all of them in production, and each one taught me something about what I actually need from a command framework.
 
 This isn't a hit piece on any of those gems—they're well-built tools that solve real problems. But after years of using them, I kept hitting the same walls. So I built CMDx to knock those walls down.

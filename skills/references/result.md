@@ -1,196 +1,157 @@
 # Result Reference
 
-For full documentation, see [docs/outcomes/result.md](../docs/outcomes/result.md), [docs/outcomes/states.md](../docs/outcomes/states.md), [docs/outcomes/statuses.md](../docs/outcomes/statuses.md).
+Docs: [docs/outcomes/result.md](../../docs/outcomes/result.md), [docs/outcomes/states.md](../../docs/outcomes/states.md), [docs/outcomes/statuses.md](../../docs/outcomes/statuses.md).
 
-## Attributes
+A `Result` is the frozen outcome of running a task. It's the only value returned by `execute` (and `execute!` when no fault is raised).
+
+## States
+
+Exactly two values (`CMDx::Signal::STATES`):
+
+| State | Predicate | Meaning |
+|-------|-----------|---------|
+| `"complete"` | `complete?` | `work` finished normally (no halting signal). |
+| `"interrupted"` | `interrupted?` | `work` was halted by `skip!` / `fail!` / `throw!` or by accumulated errors. |
+
+## Statuses
+
+Exactly three values (`CMDx::Signal::STATUSES`):
+
+| Status | Predicate | Derived from |
+|--------|-----------|--------------|
+| `"success"` | `success?` | reached end of `work` (or `success!`). |
+| `"skipped"` | `skipped?` | `skip!`. |
+| `"failed"`  | `failed?`  | `fail!`, `throw!(failed)`, error accumulation, or rescued non-`Fault` `StandardError`. |
+
+Convenience predicates:
+
+- `ok?` — `success?` or `skipped?` ("not failed").
+- `ko?` — `skipped?` or `failed?` ("not success").
+
+## State / status matrix
+
+| State | Statuses allowed |
+|-------|------------------|
+| `complete` | `success` |
+| `interrupted` | `skipped`, `failed` |
+
+`complete` + `failed` / `interrupted` + `success` never occur.
+
+## Data surface
+
+| Accessor | Description |
+|----------|-------------|
+| `task` | Task **class** that ran. |
+| `type` | `"Task"` or `"Workflow"`. |
+| `tid` | UUID v7 for this execution. |
+| `context` | Shared `Context` (frozen on root). |
+| `errors` | `Errors` container (frozen). |
+| `state`, `status` | Strings. |
+| `reason` | String passed to `success!`/`skip!`/`fail!`, `errors.to_s`, or `nil`. |
+| `metadata` | Frozen Hash. |
+| `cause` | Rescued `StandardError` (or `nil`). Set when `execute!` re-raises. |
+| `origin` | Upstream failed `Result` this was echoed from (via `throw!` or rescued `Fault`), or `nil`. |
+| `backtrace` | Array of frames captured by `fail!`/`throw!`, cleaned. |
+| `retries` / `retried?` | Integer count + boolean. |
+| `duration` | Float ms. |
+| `strict?` | `true` when produced via `execute!`. |
+| `deprecated?` | `true` when the class has a fired deprecation. |
+| `rolled_back?` | `true` when `#rollback` ran. |
+| `tags` | `task.settings.tags`. |
+| `chain` | `CMDx::Chain`. |
+| `index` | Position in chain (Integer or `nil`). |
+| `root?` | `true` for the outermost result in the chain. |
+
+## Chain analysis
 
 ```ruby
-result.task           # CMDx::Task instance
-result.context        # CMDx::Context (delegated from task)
-result.chain          # CMDx::Chain (delegated from task)
-result.errors         # CMDx::Errors (delegated from task)
-result.state          # String: "initialized", "executing", "complete", "interrupted"
-result.status         # String: "success", "skipped", "failed"
-result.reason         # String or nil — reason from success!/skip!/fail!
-result.cause          # Exception or nil — originating exception
-result.metadata       # Hash — arbitrary metadata from success!/skip!/fail!/throw!
-result.retries        # Integer — number of retry attempts
-result.index          # Integer — position in chain
-result.outcome        # String — unified outcome (status or state depending on context)
+result.caused_failure    # deepest failed Result; self when originator; nil unless failed?
+result.threw_failure     # nearest upstream failed Result; self when originator; nil unless failed?
+result.caused_failure?   # failed? && origin.nil?
+result.thrown_failure?   # failed? && !origin.nil?
 ```
 
-## State and Status Matrix
-
-| State | Status | `complete?` | `interrupted?` | `executed?` | `success?` | `skipped?` | `failed?` | `good?` | `bad?` |
-|-------|--------|-------------|----------------|-------------|------------|------------|-----------|---------|--------|
-| `complete` | `success` | true | false | true | true | false | false | true | false |
-| `interrupted` | `skipped` | false | true | true | false | true | false | true | true |
-| `interrupted` | `failed` | false | true | true | false | false | true | false | true |
-
-Key nuance: **skipped is both `good?` and `bad?`**. `good?` means "not failed" (`!failed?`). `bad?` means "not success" (`!success?`).
-
-`ok?` is an alias for `good?`.
+`origin` walks one level; `caused_failure` walks recursively to the leaf. For a root-level failure, `caused_failure == threw_failure == self`.
 
 ## Handlers
 
-The `on` method takes one or more state/status symbols and yields if any match:
-
 ```ruby
 result
-  .on(:success) { |r| process_success(r) }
-  .on(:failed)  { |r| handle_failure(r) }
-  .on(:skipped) { |r| log_skip(r) }
+  .on(:success)     { |r| redirect_to(dashboard) }
+  .on(:skipped)     { |r| log_skip(r.reason) }
+  .on(:failed)      { |r| render_error(r.reason) }
+  .on(:complete)    { |r| audit(r) }
+  .on(:interrupted) { |r| notify(r) }
+  .on(:ok)          { |r| track(r) }
+  .on(:ko)          { |r| escalate(r) }
 ```
 
-### Available handler symbols
+Allowed keys: `:complete`, `:interrupted`, `:success`, `:skipped`, `:failed`, `:ok`, `:ko`. Passing any other symbol raises `ArgumentError`. Missing block raises `ArgumentError`. Returns `self` for chaining.
 
-| Symbol | Matches when |
-|--------|-------------|
-| `:success` | `success?` is true |
-| `:skipped` | `skipped?` is true |
-| `:failed` | `failed?` is true |
-| `:complete` | `complete?` is true |
-| `:interrupted` | `interrupted?` is true |
-| `:executed` | `executed?` is true (complete OR interrupted) |
-| `:good` | `good?` is true (success OR skipped) |
-| `:ok` | alias for `:good` |
-| `:bad` | `bad?` is true (skipped OR failed) |
+`on(:failed, :skipped) { ... }` fires on either.
 
-Multiple symbols in one call act as OR:
+## Pattern matching
 
-```ruby
-result.on(:success, :complete) { |r| ... }
+### Array form — `deconstruct`
+
 ```
-
-Handlers return `self` for chaining. Raises `ArgumentError` if no block given.
-
-## Pattern Matching
-
-### Array deconstruction
-
-Returns `[state, status, reason, cause, metadata]`:
+[type, task, state, status, reason, metadata, cause, origin]
+```
 
 ```ruby
 case result
-in ["complete", "success"]
-  handle_success
-in ["interrupted", "failed"]
-  handle_failure
-in ["interrupted", "skipped"]
-  handle_skip
+in ["Task",     _, "complete",    "success", *]            then success
+in ["Workflow", _, "interrupted", "failed",  reason, *]    then fail(reason)
+in [_, _, _, "skipped", reason, *]                         then skip(reason)
 end
 ```
 
-### Hash deconstruction
+### Hash form — `deconstruct_keys`
 
-Available keys: `state`, `status`, `reason`, `cause`, `metadata`, `outcome`, `executed`, `good`, `bad`:
+Available keys:
+
+```
+:root, :type, :task, :state, :status, :reason, :metadata,
+:cause, :origin, :strict, :deprecated, :retries, :rolled_back, :duration
+```
 
 ```ruby
 case result
-in { state: "complete", status: "success" }
-  celebrate
-in { status: "failed", metadata: { retryable: true } }
-  schedule_retry(result)
-in { bad: true, metadata: { reason: String => reason } }
-  escalate(reason)
-end
-```
-
-### With guards
-
-```ruby
-case result
-in { status: "failed", metadata: { attempts: n } } if n < 3
-  retry_with_delay(result, n * 2)
-in { status: "failed", metadata: { attempts: n } } if n >= 3
-  mark_permanently_failed(result)
-end
-```
-
-## Chain Analysis
-
-When tasks are nested (via `throw!`), the chain tracks provenance:
-
-```ruby
-result = Workflow.execute(data: input)
-
-if result.failed?
-  # The original task that caused the failure (deepest in chain)
-  original = result.caused_failure
-  original.task.class.name   #=> "InnerTask"
-  original.reason            #=> "Validation failed"
-
-  # The task that propagated (threw) the failure
-  thrower = result.threw_failure
-  thrower.task.class.name    #=> "MiddleTask"
-
-  # Classification predicates
-  result.caused_failure?     # true if this result was the original cause
-  result.threw_failure?      # true if this result threw a failure from another
-  result.thrown_failure?     # true if this result received a thrown failure (failed? && !caused_failure?)
-end
-```
-
-### Metadata for nested failures
-
-When the Executor logs/formats failures, metadata includes:
-
-```ruby
-result.metadata[:threw_failure]   #=> { index: 1, class: "MiddleTask", id: "..." }
-result.metadata[:caused_failure]  #=> { index: 2, class: "InnerTask", id: "..." }
-```
-
-## Retry Info
-
-```ruby
-result.retries   #=> 2 (number of retry attempts)
-result.retried?  #=> true (retries > 0)
-```
-
-## Rollback Info
-
-```ruby
-result.rolled_back?  #=> true (rollback method was called)
-```
-
-## Dry Run
-
-```ruby
-result.dry_run?  #=> true (delegated to task, which delegates to chain)
-```
-
-## Block Yield
-
-Both `execute` and `execute!` accept blocks:
-
-```ruby
-MyTask.execute(data: input) do |result|
-  if result.success?
-    process(result.context)
-  end
+in { status: "failed", metadata: { retryable: true } }     then requeue(result)
+in { state: "complete", task: ChargeCard }                 then confirm
+in { rolled_back: true }                                   then audit_rollback
 end
 ```
 
 ## Serialization
 
-```ruby
-result.to_h
-#=> {
-#     state: "interrupted",
-#     status: "failed",
-#     outcome: "failed",
-#     metadata: { error_code: "NOT_FOUND" },
-#     reason: "Record not found",
-#     cause: #<CMDx::FailFault>,
-#     rolled_back: false,
-#     threw_failure: { index: 1, class: "MiddleTask", id: "abc" },
-#     caused_failure: { index: 2, class: "InnerTask", id: "def" }
-#   }
+### `to_h`
 
-result.to_s
-#=> "state=interrupted status=failed reason=\"Record not found\" ..."
+Memoized. Always includes: `:cid`, `:index`, `:root`, `:type`, `:task`, `:tid`, `:context`, `:state`, `:status`, `:reason`, `:metadata`, `:strict`, `:deprecated`, `:retried`, `:retries`, `:duration`, `:tags`.
+
+When `failed?`, additionally includes: `:cause`, `:origin`, `:threw_failure`, `:caused_failure`, `:rolled_back`. Failure references render as `{ task: TaskClass, tid: "uuid" }` — the live `Result` objects aren't walked to avoid cycles.
+
+### `to_s`
+
+Space-separated `key=value.inspect`. Failure references render as `<TaskClass uuid>`. Used as the default log line for every task execution.
+
+## Chain
+
+```ruby
+result.chain             # CMDx::Chain
+result.cid               # UUID v7
+result.chain.size        # number of Results in this propagation
+result.chain.map(&:task) # Classes, in insertion order
 ```
 
-## Immutability
+The root result is the **first** element (via `unshift`); non-root results are `push`ed in execution order. Frozen on teardown.
 
-Results are frozen after execution when `freeze_results: true` (default). Attempting to modify context or metadata after freeze raises an error. Set `freeze_results: false` in configuration if post-execution mutation is needed.
+## Freezing
+
+After Runtime's teardown:
+
+- `task`, `errors`, and (when root) `context` and `chain` are frozen.
+- `result` itself is immutable (everything is read-only).
+- Mutations via `context.key = value` after teardown raise `FrozenError`.
+
+Capture anything you need before teardown, or use `context.deep_dup` to get an unfrozen snapshot.

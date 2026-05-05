@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v jq &>/dev/null; then
+  echo '{"decision":"allow"}'
+  exit 0
+fi
+
+input=$(cat)
+
+tool_name=$(echo "$input" | jq -r '.tool_name // empty')
+transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
+
+file_path=""
+case "$tool_name" in
+  Write|StrReplace)
+    file_path=$(echo "$input" | jq -r '.tool_input.path // empty')
+    ;;
+  EditNotebook)
+    file_path=$(echo "$input" | jq -r '.tool_input.target_notebook // empty')
+    ;;
+  *)
+    echo '{"decision":"allow"}'
+    exit 0
+    ;;
+esac
+
+if [[ -z "$file_path" ]]; then
+  echo '{"decision":"allow"}'
+  exit 0
+fi
+
+skill_name=""
+
+if [[ "$file_path" == */.cursor/skills/*/SKILL.md ]]; then
+  skill_name="skill-patterns"
+elif [[ "$file_path" == */.cursor/commands/*.md ]]; then
+  skill_name="command-patterns"
+elif [[ "$file_path" == */spec/*.rb ]]; then
+  skill_name="test-patterns"
+elif [[ "$file_path" == */lib/*.rb ]] || [[ "$file_path" == *CHANGELOG.md ]]; then
+  skill_name="technical-docs"
+fi
+
+if [[ -z "$skill_name" ]]; then
+  echo '{"decision":"allow"}'
+  exit 0
+fi
+
+skill_path=".cursor/skills/${skill_name}/SKILL.md"
+
+skill_loaded() {
+  if [[ -n "$transcript_path" && -f "$transcript_path" ]]; then
+    if grep -q "${skill_name}/SKILL.md" "$transcript_path" 2>/dev/null; then
+      return 0
+    fi
+  fi
+  return 1
+}
+
+if skill_loaded; then
+  echo '{"decision":"allow"}'
+  exit 0
+fi
+
+reason="BLOCKED: You must read the ${skill_name} skill before editing this file.\\n\\nSTOP. Do not immediately retry your edit.\\n1. Read the skill: Read file .cursor/skills/${skill_name}/SKILL.md\\n2. Follow the conventions from the skill\\n3. Then retry your edit"
+
+cat <<EOF
+{
+  "decision": "deny",
+  "reason": "${reason}"
+}
+EOF
+exit 2

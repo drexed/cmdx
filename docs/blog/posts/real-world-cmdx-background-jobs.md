@@ -1,5 +1,5 @@
 ---
-date: 2026-05-27
+date: 2026-06-03
 authors:
   - drexed
 categories:
@@ -10,6 +10,8 @@ slug: real-world-cmdx-background-jobs
 # Real-World CMDx: Background Jobs + CMDx
 
 *Part 3 of the Real-World CMDx series*
+
+*Built on CMDx 2.0 — see the [v2 release post](cmdx-v2-the-runtime-rewrite.md). v2 ships only one Fault class (no `FailFault`/`SkipFault`), drops the built-in `Correlate` middleware in favor of [Telemetry pub/sub](https://drexed.github.io/cmdx/configuration/), and exposes `result.duration` directly.*
 
 There's a natural tension between CMDx tasks and background jobs. Tasks are synchronous, deterministic, and observable. Jobs are asynchronous, retry-prone, and fire-and-forget. When you need both—and you almost always do—the question is how to combine them without losing what makes each one good.
 
@@ -36,15 +38,19 @@ class Users::SendVerificationJob
 end
 ```
 
-That's it. The job deserializes the ID into an object, the task validates inputs, sends the email, and logs the execution. If the task raises a `CMDx::FailFault` or any other exception, Sidekiq retries it.
+That's it. The job deserializes the ID into an object, the task validates inputs, sends the email, and logs the execution. If the task raises a `CMDx::Fault` or any other exception, Sidekiq retries it.
 
-But there's a subtlety here. `execute!` raises on *any* failure — including business logic failures from `fail!`. You probably don't want Sidekiq retrying a task that failed because the user doesn't exist. It'll fail every time.
+But there's a subtlety here. `execute!` raises on every failure — both business failures from `fail!` and infrastructure exceptions. You probably don't want Sidekiq retrying a task that failed because the user doesn't exist. It'll fail every time. (Skipped tasks don't raise — `execute!` only re-raises when `result.failed?`, see [`Runtime#raise_signal!`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/runtime.rb).)
 
 ## Selective Retries
 
-The fix is to catch business failures and only let infrastructure failures propagate:
+The fix is to catch business failures and only let infrastructure failures propagate. v2's `CMDx::Fault.matches?` builds a matcher subclass you can use directly in `rescue` (see [`lib/cmdx/fault.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/fault.rb)):
 
 ```ruby
+PermanentBusinessFailure = CMDx::Fault.matches? do |fault|
+  %i[user_not_found already_verified].include?(fault.result.metadata[:code])
+end
+
 class Users::SendVerificationJob
   include Sidekiq::Job
 
@@ -53,18 +59,13 @@ class Users::SendVerificationJob
   def perform(user_id)
     user = User.find(user_id)
     Users::SendVerification.execute!(user: user)
-  rescue CMDx::FailFault => e
-    case e.result.metadata[:code]
-    when :user_not_found, :already_verified
-      logger.warn "Skipping retry: #{e.message}"
-    else
-      raise
-    end
+  rescue PermanentBusinessFailure => e
+    logger.warn "Skipping retry: #{e.message}"
   end
 end
 ```
 
-Business failures that are permanent (user not found, already verified) get logged and discarded. Transient failures (mail server down, timeout) re-raise and Sidekiq retries them.
+Permanent failures (user not found, already verified) get logged and discarded — `rescue` only catches the subclass. Transient failures (mail server down, timeout) bypass the matcher, propagate as `CMDx::Fault`, and Sidekiq retries them.
 
 ## The Self-Enqueueing Task
 
@@ -76,11 +77,11 @@ class Reports::GenerateMonthly < ApplicationTask
 
   sidekiq_options queue: :reports, retry: 3
 
-  required :account_id, type: :integer
-  required :month, type: :integer, numeric: { within: 1..12 }
-  required :year, type: :integer, numeric: { min: 2020 }
+  required :account_id, coerce: :integer
+  required :month, coerce: :integer, numeric: { within: 1..12 }
+  required :year, coerce: :integer, numeric: { min: 2020 }
 
-  returns :report
+  output :report
 
   def work
     account = Account.find(account_id)
@@ -113,43 +114,47 @@ Synchronous for tests and console debugging. Asynchronous for production. Same v
 
 ## Chain Correlation Across Async Boundaries
 
-Here's a problem: when a workflow enqueues a background job, the job runs in a different thread (or process). CMDx chains are thread-local, so the background job starts a new chain. You lose the correlation.
+Here's a problem: when a workflow enqueues a background job, the job runs in a different fiber (or process). CMDx chains are fiber-local, so the background job starts a new chain. You lose the correlation.
 
-The solution is the `Correlate` middleware:
-
-```ruby
-class ApplicationTask < CMDx::Task
-  register :middleware, CMDx::Middlewares::Correlate
-end
-```
-
-Now every task execution gets a `correlation_id` in its metadata. Pass it across the async boundary:
+v2 dropped the built-in `Correlate` middleware ([migration guide](https://drexed.github.io/cmdx/v2-migration/#built-ins-removed)) — the replacement is a tiny module that stores the id in fiber-local storage:
 
 ```ruby
-class Orders::PlaceOrder < CMDx::Task
-  include CMDx::Workflow
+module Correlate
+  KEY = :correlation_id
 
-  task Orders::ValidateCart
-  task Orders::CreateOrder
-  task Orders::ChargePayment
-  task Orders::EnqueueFulfillment
+  def self.id
+    Fiber[KEY] ||= SecureRandom.uuid_v7
+  end
 
-  private
+  def self.use(id)
+    previous = Fiber[KEY]
+    Fiber[KEY] = id
+    yield
+  ensure
+    Fiber[KEY] = previous
+  end
 
-  def physical_goods?
-    context.items.any?(&:physical?)
+  def call(task)
+    id  # ensure populated for the duration of this task
+    yield
   end
 end
 
+class ApplicationTask < CMDx::Task
+  register :middleware, Correlate
+end
+```
+
+Pass it across the async boundary:
+
+```ruby
 class Orders::EnqueueFulfillment < ApplicationTask
   required :order
 
   def work
-    correlation_id = CMDx::Middlewares::Correlate.id
-
     Fulfillment::ProcessJob.perform_async(
       "order_id" => order.id,
-      "correlation_id" => correlation_id
+      "correlation_id" => Correlate.id
     )
 
     logger.info "Enqueued fulfillment for order #{order.id}"
@@ -166,14 +171,14 @@ class Fulfillment::ProcessJob
   sidekiq_options queue: :fulfillment, retry: 5
 
   def perform(args)
-    CMDx::Middlewares::Correlate.use(args["correlation_id"]) do
+    Correlate.use(args["correlation_id"]) do
       Fulfillment::Process.execute!(order_id: args["order_id"])
     end
   end
 end
 ```
 
-Now both the synchronous workflow and the background fulfillment share the same `correlation_id`. Search for it in your log aggregator and you see the entire request lifecycle — from cart validation through payment through async fulfillment — as one continuous trace.
+Now both the synchronous workflow and the background fulfillment share the same correlation id. Search for it in your log aggregator and you see the entire request lifecycle — from cart validation through payment through async fulfillment — as one continuous trace. (For zero-cost observability without a custom middleware, subscribe to `:task_started` Telemetry events instead — see [Telemetry](https://drexed.github.io/cmdx/configuration/).)
 
 ## Idempotency for Background Jobs
 
@@ -183,53 +188,40 @@ Background jobs retry. That means your tasks can run multiple times. For tasks t
 
 ```ruby
 class Idempotency
-  def call(task, options)
-    key = build_key(task, options)
-    ttl = options[:ttl] || 300
+  def initialize(key:, ttl: 300)
+    @key_fn = key.respond_to?(:call) ? key : ->(t) { t.context[key] }
+    @ttl    = ttl
+  end
 
-    if Redis.current.set(key, "processing", nx: true, ex: ttl)
+  def call(task)
+    redis_key = "cmdx:idempotency:#{task.class.name}:#{@key_fn.call(task)}"
+
+    if Redis.current.set(redis_key, "processing", nx: true, ex: @ttl)
       begin
-        yield.tap { |result| Redis.current.set(key, result.status, xx: true, ex: ttl) }
-      rescue => e
-        Redis.current.del(key)
+        yield
+        Redis.current.set(redis_key, "complete", xx: true, ex: @ttl)
+      rescue
+        Redis.current.del(redis_key)
         raise
       end
     else
-      status = Redis.current.get(key)
-      if status == "processing"
-        task.result.tap { |r| r.skip!("Already processing") }
-      else
-        task.result.tap { |r| r.skip!("Already completed (#{status})") }
-      end
+      status = Redis.current.get(redis_key)
+      throw(CMDx::Signal::TAG, CMDx::Signal.skipped("Already #{status} (idempotency guard)"))
     end
-  end
-
-  private
-
-  def build_key(task, options)
-    id = if options[:key].respond_to?(:call)
-           options[:key].call(task)
-         elsif options[:key].is_a?(Symbol)
-           task.send(options[:key])
-         else
-           task.context[:idempotency_key]
-         end
-
-    "cmdx:idempotency:#{task.class.name}:#{id}"
   end
 end
 ```
+
+Middlewares cannot mutate `Result` in v2 (it's frozen, constructed once at the end of the lifecycle). The way to short-circuit a task from middleware is to throw `CMDx::Signal::TAG` directly — Runtime's `catch(Signal::TAG)` block builds the appropriate Result from whatever signal escapes ([`lib/cmdx/runtime.rb`](https://github.com/drexed/cmdx/blob/main/lib/cmdx/runtime.rb)).
 
 Register it on tasks that must not duplicate:
 
 ```ruby
 class Payments::ChargeCard < Stripe::BaseTask
-  register :middleware, Idempotency,
-    key: ->(t) { t.context[:idempotency_key] },
-    ttl: 3600
+  register :middleware, Idempotency.new(key: :idempotency_key, ttl: 3600)
 
   required :stripe_customer
-  required :amount_cents, type: :integer
+  required :amount_cents, coerce: :integer
   optional :idempotency_key, default: -> { SecureRandom.uuid }
 
   def work
@@ -242,52 +234,7 @@ class Payments::ChargeCard < Stripe::BaseTask
 end
 ```
 
-First execution processes normally. Retries hit the Redis guard and skip. The task logs `status: "skipped"` with the reason, so you see it in your observability pipeline.
-
-## Dry Run for Job Previews
-
-Before enqueuing a potentially expensive job, preview what it would do:
-
-```ruby
-class Billing::GenerateInvoices < ApplicationTask
-  include Sidekiq::Job
-
-  required :billing_period, type: :date
-
-  returns :invoice_count
-
-  def work
-    accounts = Account.active.where(billing_day: billing_period.day)
-
-    if dry_run?
-      context.invoice_count = accounts.count
-      context.estimated_total = accounts.sum(:current_balance)
-      logger.info "Dry run: would generate #{context.invoice_count} invoices"
-      return
-    end
-
-    invoices = accounts.map do |account|
-      Invoice.create!(account: account, period: billing_period, amount: account.current_balance)
-    end
-
-    context.invoice_count = invoices.size
-  end
-
-  def perform(context = {})
-    self.class.execute!(context)
-  end
-end
-```
-
-```ruby
-preview = Billing::GenerateInvoices.execute(billing_period: Date.today, dry_run: true)
-preview.context.invoice_count     #=> 847
-preview.context.estimated_total   #=> 1_234_567
-
-Billing::GenerateInvoices.perform_async("billing_period" => Date.today.to_s)
-```
-
-Preview synchronously, execute asynchronously. Same task, different mode.
+First execution processes normally. Retries hit the Redis guard and skip. The task's result has `status: "skipped"` with the reason, visible in your observability pipeline alongside `result.duration` (built into v2 — no middleware required).
 
 ## Scheduled Workflows with Cron Jobs
 
@@ -300,10 +247,7 @@ class DailyReconciliation < CMDx::Task
 
   sidekiq_options queue: :critical, retry: 1
 
-  settings(
-    workflow_breakpoints: ["failed"],
-    tags: ["reconciliation", "daily"]
-  )
+  settings(tags: ["reconciliation", "daily"])
 
   task Reconciliation::FetchBankTransactions
   task Reconciliation::MatchPayments
@@ -350,41 +294,34 @@ class OrderProcessingJob
     AdminNotifier.alert("Order #{order_id} failed permanently: #{exception.message}")
   end
 
+  PermanentFailure = CMDx::Fault.matches? do |f|
+    %i[out_of_stock address_invalid].include?(f.result.metadata[:code])
+  end
+
   def perform(args)
     Orders::Fulfill.execute!(order_id: args["order_id"])
-  rescue CMDx::SkipFault => e
-    # Skips are fine — order was already fulfilled
-    logger.info "Order #{args['order_id']} skipped: #{e.message}"
-  rescue CMDx::FailFault => e
-    case e.result.metadata[:code]
-    when :out_of_stock, :address_invalid
-      # Permanent business failures — don't retry
-      Order.find(args["order_id"]).update!(status: :failed, failure_reason: e.message)
-    else
-      raise
-    end
+  rescue PermanentFailure => e
+    Order.find(args["order_id"]).update!(status: :failed, failure_reason: e.message)
   end
 end
 ```
 
-- **Skips**: Task decided there's nothing to do. Log and move on.
-- **Permanent failures**: Business rules that won't change on retry. Update the record and stop.
-- **Transient failures**: Re-raise for Sidekiq to retry with backoff.
-- **Exhausted retries**: Update the order status and alert the team.
+- **Skips**: Task decided there's nothing to do. `execute!` doesn't raise on skip (only on `failed?`), so there's no rescue arm to write — the job returns successfully.
+- **Permanent failures**: Business rules that won't change on retry. Caught by the `PermanentFailure` matcher, update the record and stop.
+- **Transient failures**: Bypass the matcher, propagate as `CMDx::Fault`, Sidekiq retries with backoff.
+- **Exhausted retries**: `sidekiq_retries_exhausted` updates the order status and alerts the team.
 
 ## Key Takeaways
 
 1. **Tasks are the unit of work, jobs are the execution engine.** Keep business logic in tasks, use jobs as thin wrappers.
 
-2. **Use `execute!` in jobs.** It raises on failure, which is what Sidekiq needs for retry decisions.
+2. **Use `execute!` in jobs.** It raises on `failed?`, which is what Sidekiq needs for retry decisions. Skipped tasks return successfully — no rescue needed.
 
-3. **Catch `CMDx::FailFault` selectively.** Permanent business failures shouldn't retry. Transient failures should.
+3. **Use `Fault.matches?` to catch permanent failures.** Build a matcher subclass that filters on `metadata[:code]`; everything else propagates and triggers Sidekiq retries.
 
-4. **Pass `correlation_id` across async boundaries.** Use `CMDx::Middlewares::Correlate.use` to maintain tracing continuity.
+4. **Pass a correlation id across async boundaries.** A 10-line `Correlate` module + `Fiber[]` storage gives you the same observability the v1 middleware did.
 
-5. **Add idempotency guards for non-idempotent operations.** Redis-based middleware prevents duplicate charges, emails, or any operation that shouldn't repeat.
-
-6. **Preview with dry run, execute with perform_async.** Same task, two modes.
+5. **Add idempotency guards as middleware.** Throw `CMDx::Signal::TAG` from inside the middleware to short-circuit safely; `Result` is frozen and can't be mutated externally.
 
 Background jobs don't have to be a black hole of observability. With CMDx, every async execution is logged, correlated, and traceable — same as synchronous.
 
@@ -395,4 +332,5 @@ Happy coding!
 - [Execution](https://drexed.github.io/cmdx/basics/execution/)
 - [Middlewares](https://drexed.github.io/cmdx/middlewares/)
 - [Faults](https://drexed.github.io/cmdx/interruptions/faults/)
-- [Logging](https://drexed.github.io/cmdx/logging/)
+- [Telemetry](https://drexed.github.io/cmdx/configuration/)
+- [v2 Migration: Built-ins Removed](https://drexed.github.io/cmdx/v2-migration/#built-ins-removed)

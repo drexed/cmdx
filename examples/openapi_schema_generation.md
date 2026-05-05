@@ -1,174 +1,111 @@
 # OpenAPI Schema Generation
 
-This example demonstrates how to use the `CMDx::Attribute#to_h` method to introspect your command's attributes and generate an OpenAPI (Swagger) compatible schema definition. This is useful for automatically documenting your API endpoints based on your command objects.
+Project a task's `inputs_schema` into an OpenAPI property definition so your API docs stay in lockstep with the task contract.
 
-## Example Command
-
-First, let's define a command with various attribute types, including nested attributes and validations.
+## Example Task
 
 ```ruby
-require 'cmdx'
-require 'json'
+class CreateUser < CMDx::Task
+  required :email,      coerce: :string,                description: "The user's email address"
+  required :age,        coerce: :integer,               description: "The user's age in years"
+  optional :newsletter, coerce: :boolean, default: false, description: "Subscribe to newsletter"
 
-class CreateUser < CMDx::Command
-  required :email, types: String, description: "The user's email address"
-  required :age, types: Integer, description: "The user's age in years"
-  optional :newsletter, types: [TrueClass, FalseClass], description: "Subscribe to newsletter", default: false
-
-  required :address, types: Hash, description: "User's physical address" do
-    required :street, types: String, description: "Street name and number"
-    required :city, types: String, description: "City name"
-    optional :zip_code, types: [String, Integer], description: "Postal code"
+  required :address, coerce: :hash, description: "User's physical address" do
+    required :street,   coerce: :string,                 description: "Street name and number"
+    required :city,     coerce: :string,                 description: "City name"
+    optional :zip_code, coerce: [:string, :integer],     description: "Postal code"
   end
 
-  def call
-    # implementation details...
+  def work
+    # ...
   end
 end
 ```
 
-## Schema Generator
+## Generator
 
-Now, let's create a simple generator that converts `CMDx` attributes into OpenAPI schema property definitions.
+One recursive method walks `inputs_schema` and emits an OpenAPI `object` schema. Each input's `:options` hash carries the `:coerce` declaration — map its first symbol to an OpenAPI primitive.
 
 ```ruby
-class OpenApiGenerator
-  TYPE_MAPPING = {
-    String => 'string',
-    Integer => 'integer',
-    Float => 'number',
-    TrueClass => 'boolean',
-    FalseClass => 'boolean',
-    Array => 'array',
-    Hash => 'object'
-  }
+# lib/openapi_schema_generator.rb
+class OpenApiSchemaGenerator
+  COERCE_TO_TYPE = {
+    string:      "string",
+    symbol:      "string",
+    date:        "string",
+    date_time:   "string",
+    time:        "string",
+    integer:     "integer",
+    float:       "number",
+    big_decimal: "number",
+    boolean:     "boolean",
+    array:       "array",
+    hash:        "object"
+  }.freeze
 
-  def self.generate_properties(command_class)
-    properties = {}
-    required_fields = []
-
-    # Iterate over all attributes defined in the command
-    # attributes are stored in the settings[:attributes] registry
-    command_class.settings.attributes.registry.each do |attribute|
-      # Use to_h to get the raw attribute data
-      data = attribute.to_h
-
-      name = data[:name]
-      prop_def = {
-        description: data[:description]
-      }
-
-      # Handle Types
-      types = data[:types]
-      if types.any?
-        # Simple type mapping for the first type found, or 'string' fallback
-        # In a real generator, you might handle multiple types (oneOf)
-        mapped_type = TYPE_MAPPING[types.first] || 'string'
-        prop_def[:type] = mapped_type
-      end
-
-      # Handle Nested Attributes (if type is object/Hash)
-      if data[:children].any?
-        prop_def[:type] = 'object'
-        nested_props, nested_required = generate_nested_properties(data[:children])
-        prop_def[:properties] = nested_props
-        prop_def[:required] = nested_required unless nested_required.empty?
-      end
-
-      properties[name] = prop_def
-      required_fields << name if data[:required]
-    end
-
-    {
-      type: 'object',
-      properties: properties,
-      required: required_fields
-    }
+  def self.generate(task_class)
+    build_object(task_class.inputs_schema.values)
   end
 
-  def self.generate_nested_properties(children_data)
+  def self.build_object(inputs)
     properties = {}
-    required_fields = []
+    required   = []
 
-    children_data.each do |child_data|
-      name = child_data[:name]
-      prop_def = {
-        description: child_data[:description]
-      }
-
-      types = child_data[:types]
-      if types.any?
-        mapped_type = TYPE_MAPPING[types.first] || 'string'
-        prop_def[:type] = mapped_type
-      end
-
-      # Recursion for deeper nesting would go here if needed
-
-      properties[name] = prop_def
-      required_fields << name if child_data[:required]
+    inputs.each do |input|
+      properties[input[:name]] = build_property(input)
+      required << input[:name] if input[:required]
     end
 
-    [properties, required_fields]
+    { type: "object", properties:, required: }
+  end
+
+  def self.build_property(input)
+    prop   = { description: input[:description] }.compact
+    coerce = Array(input.dig(:options, :coerce)).first
+    prop[:type] = COERCE_TO_TYPE.fetch(coerce, "string") if coerce
+
+    if input[:children].any?
+      prop[:type]       = "object"
+      nested            = build_object(input[:children])
+      prop[:properties] = nested[:properties]
+      prop[:required]   = nested[:required] unless nested[:required].empty?
+    end
+
+    prop
   end
 end
 ```
 
 ## Usage
 
-Generate the schema and output it as JSON.
-
 ```ruby
-schema = OpenApiGenerator.generate_properties(CreateUser)
-puts JSON.pretty_generate(schema)
+puts JSON.pretty_generate(OpenApiSchemaGenerator.generate(CreateUser))
 ```
-
-## Output
-
-The resulting JSON schema structure:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "email": {
-      "description": "The user's email address",
-      "type": "string"
-    },
-    "age": {
-      "description": "The user's age in years",
-      "type": "integer"
-    },
-    "newsletter": {
-      "description": "Subscribe to newsletter",
-      "type": "boolean"
-    },
+    "email":      { "description": "The user's email address", "type": "string" },
+    "age":        { "description": "The user's age in years",  "type": "integer" },
+    "newsletter": { "description": "Subscribe to newsletter",  "type": "boolean" },
     "address": {
       "description": "User's physical address",
       "type": "object",
       "properties": {
-        "street": {
-          "description": "Street name and number",
-          "type": "string"
-        },
-        "city": {
-          "description": "City name",
-          "type": "string"
-        },
-        "zip_code": {
-          "description": "Postal code",
-          "type": "string"
-        }
+        "street":   { "description": "Street name and number", "type": "string" },
+        "city":     { "description": "City name",              "type": "string" },
+        "zip_code": { "description": "Postal code",            "type": "string" }
       },
-      "required": [
-        "street",
-        "city"
-      ]
+      "required": ["street", "city"]
     }
   },
-  "required": [
-    "email",
-    "age",
-    "address"
-  ]
+  "required": ["email", "age", "address"]
 }
 ```
+
+## Notes
+
+!!! tip
+
+    `inputs_schema` returns `{ name, description, required, options, children }` per input — the full declaration options sit under `:options`, so you can extend the generator to emit `format`, `enum`, `default`, etc. straight from validator/default keys (see [Inputs — Definitions](../docs/inputs/definitions.md#introspection)).

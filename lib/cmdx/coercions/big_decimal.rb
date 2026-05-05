@@ -1,41 +1,24 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to BigDecimal format
-    #
-    # Handles conversion from numeric strings, integers, floats, and other
-    # values that can be converted to BigDecimal using Ruby's BigDecimal() method.
+  class Coercions
+    # Coerces to `BigDecimal`. Default precision is 14 digits; override with
+    # `precision:` on the declaration.
     module BigDecimal
 
       extend self
 
-      # @rbs DEFAULT_PRECISION: Integer
-      DEFAULT_PRECISION = 14
-
-      # Converts a value to a BigDecimal
-      #
-      # @param value [Object] The value to convert to BigDecimal
-      # @param options [Hash] Optional configuration parameters
-      # @option options [Integer] :precision The precision to use (defaults to DEFAULT_PRECISION)
-      #
-      # @return [BigDecimal] The converted BigDecimal value
-      #
-      # @raise [CoercionError] If the value cannot be converted to BigDecimal
-      #
-      # @example Convert numeric strings to BigDecimal
-      #   BigDecimal.call("123.45")                   # => #<BigDecimal:7f8b8c0d8e0f '0.12345E3',9(18)>
-      #   BigDecimal.call("0.001", precision: 6)      # => #<BigDecimal:7f8b8c0d8e0f '0.1E-2',9(18)>
-      # @example Convert other numeric types
-      #   BigDecimal.call(42)                         # => #<BigDecimal:7f8b8c0d8e0f '0.42E2',9(18)>
-      #   BigDecimal.call(3.14159)                    # => #<BigDecimal:7f8b8c0d8e0f '0.314159E1',9(18)>
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> BigDecimal
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [Integer] :precision (14)
+      # @return [BigDecimal, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        BigDecimal(value, options[:precision] || DEFAULT_PRECISION)
+        return value if value.is_a?(BigDecimal)
+
+        BigDecimal(value, options[:precision] || 14)
       rescue ArgumentError, TypeError
-        type = Locale.t("cmdx.types.big_decimal")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        type = I18nProxy.t("cmdx.types.big_decimal")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_a", type:))
       end
 
     end

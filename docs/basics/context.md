@@ -1,133 +1,66 @@
 # Basics - Context
 
-Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.
-
-## Building Context
-
-`Context.build` intelligently handles different input types:
-
-```ruby
-# From a hash
-Context.build(email: "user@example.com")
-
-# From an existing Context (reuses if not frozen)
-Context.build(existing_context)
-
-# From a Result or Task (extracts its context)
-Context.build(some_result)  # equivalent to some_result.context
-
-# From nil (creates empty context)
-Context.build(nil)
-```
-
-!!! warning "Important"
-
-    `Context.build` raises `ArgumentError` if the argument doesn't respond to `to_h` or `to_hash`.
+`Context` is the shared data bag passed through a task's execution. It holds inputs, intermediate values, and anything the task writes back for downstream consumers.
 
 ## Assigning Data
 
-Context automatically captures all task inputs, normalizing keys to symbols:
+The hash (or Context / Task / Result) handed to `execute` is normalized into a `Context`. String keys are symbolized; nested values are not.
 
 ```ruby
-# Direct execution
 CalculateShipping.execute(weight: 2.5, destination: "CA")
-
-# Instance creation
-CalculateShipping.new(weight: 2.5, "destination" => "CA")
 ```
 
-!!! warning "Important"
+!!! note
 
-    String keys convert to symbols automatically. Prefer symbols for consistency.
+    `Context.build` passes an existing un-frozen `Context` through unchanged, unwraps anything that responds to `#context` (Task, Result), and wraps hash-likes in a fresh `Context`.
 
-## Accessing Data
+## Accessing and Modifying
 
-Access context data using method notation, hash keys, or safe accessors:
+Read with method, hash, or safe accessors; mutate freely inside `work` (the root context is frozen only after Runtime teardown). `ctx` is a shorthand alias for `context`.
 
 ```ruby
 class CalculateShipping < CMDx::Task
   def work
-    # Method style access (preferred)
-    weight = context.weight
-    destination = context.destination
+    # Reads
+    weight        = context.weight              # method style (nil for unknown keys)
+    service_type  = context[:service_type]      # hash style
+    rush_delivery = context.fetch(:rush, false) # safe default
+    carrier       = context.dig(:options, :carrier)
+    attempt       = context.retrieve(:attempt_count, 0) # fetch-or-set
+    context.weight?                             # truthy predicate
+    context.empty?                              # false when any key stored
+    context.size                                # number of top-level keys
 
-    # Hash style access
-    service_type = context[:service_type]
-    options = context["options"]
-
-    # Safe access with defaults
-    rush_delivery = context.fetch(:rush_delivery, false)
-    carrier = context.dig(:options, :carrier)
-
-    # Fetch or set a default (returns existing value, or stores and returns the default)
-    context.fetch_or_store(:attempt_count, 0)
-
-    # Check key existence
-    context.key?(:weight)  #=> true
-
-    # Iteration
-    context.each { |key, value| logger.debug("#{key}: #{value}") }
-    keys = context.map { |key, _| key }
-
-    # Shorter alias
-    cost = ctx.weight * ctx.rate_per_pound  # ctx aliases context
-  end
-end
-```
-
-!!! warning "Important"
-
-    Undefined attributes return `nil` instead of raising errors—perfect for optional data.
-
-## Modifying Context
-
-Context supports dynamic modification during task execution:
-
-```ruby
-class CalculateShipping < CMDx::Task
-  def work
-    # Direct assignment
-    context.carrier = Carrier.find_by(code: context.carrier_code)
-    context.package = Package.new(weight: context.weight)
+    # Writes
     context.calculated_at = Time.now
-
-    # Hash-style assignment
-    context[:status] = "calculating"
-    context["tracking_number"] = "SHIP#{SecureRandom.hex(6)}"
-
-    # Conditional assignment
+    context[:status] = "calculating"                       # alias: context.store(:status, "...")
     context.insurance_included ||= false
-
-    # Batch updates
-    context.merge!(
-      status: "completed",
-      shipping_cost: calculate_cost,
-      estimated_delivery: Time.now + 3.days
-    )
-
-    # Remove sensitive data
-    context.delete!(:credit_card_token)
-
-    # Clear all data
-    context.clear!
-  end
-
-  private
-
-  def calculate_cost
-    base_rate = context.weight * context.rate_per_pound
-    base_rate + (base_rate * context.tax_percentage)
+    context.merge(shipping_cost: calculate_cost)           # top-level last-write-wins (mutates in place)
+    context.deep_merge(options: { carrier: "ups" })        # recurses into Hash values
+    context.delete(:credit_card_token)
+    context.clear                                          # wipes every entry
   end
 end
 ```
 
-!!! tip
+!!! note
 
-    Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.
+    Method-style reads return `nil` for unknown keys. `Context` includes `Enumerable` and exposes the usual `keys`/`values`/`key?`/`each`/`each_key`/`each_value`. `#merge` / `#deep_merge` mutate in place and return `self`. `#store` (aliased `[]=`) symbolizes the key. See YARD for the full surface.
 
-## Data Sharing
+## Serialization
 
-Share context across tasks for seamless data flow:
+`Context` serializes cleanly for logs, telemetry payloads, and Rails `render json:` callers:
+
+```ruby
+context.to_h      #=> { weight: 2.5, destination: "CA" }  (the backing table, not a copy)
+context.as_json   #=> same as to_h (aliased for Rails/ActiveSupport callers)
+context.to_json   #=> '{"weight":2.5,"destination":"CA"}'  (Symbol keys are emitted as strings)
+context.to_s      #=> 'weight=2.5 destination="CA"'        (space-separated key=value.inspect)
+```
+
+## Sharing Between Tasks
+
+Context flows through nested executions. A sub-task invoked with `execute(context)` (or `execute(task)` / `execute(result)`) reuses the same underlying `Context`, so writes compound.
 
 ```ruby
 # During execution
@@ -157,4 +90,59 @@ CreateShippingLabel.execute(result)
 
 !!! warning "Important"
 
-    When passing `context`, a `Result`, or a `Task` to another task, the context is **shared by reference**—not copied. Mutations in one task are visible in the other. This enables natural data flow in pipelines but can cause surprises if you expect isolation. Use `context.to_h` to pass a snapshot instead.
+    Passing a live `Context`, `Task`, or `Result` shares the context by reference — writes in the callee are visible to the caller. Use `context.deep_dup` when you need an isolated snapshot.
+
+    `context.to_h` exposes the backing hash by reference. `Context.build(context.to_h)` rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use `deep_dup` for full isolation.
+
+## Strict Mode
+
+By default, reading an unknown key via the dynamic method reader returns `nil`. Enable strict mode to raise `NoMethodError` for unknown reads instead — useful for catching typos in larger tasks.
+
+Strict mode can be set globally or per-task:
+
+```ruby
+CMDx.configure do |config|
+  config.strict_context = true
+end
+
+class CalculateShipping < CMDx::Task
+  settings(strict_context: true)
+
+  def work
+    context.weight       #=> reads fine when set
+    context.typoed_key   #=> raises NoMethodError: unknown context key :typoed_key (strict mode)
+  end
+end
+```
+
+Strict mode only affects the dynamic method reader. Every other access channel keeps its lenient semantics so defaults and explicit presence checks still work:
+
+| Access | Behavior in strict mode |
+|--------|-------------------------|
+| `context.missing` | raises `NoMethodError` |
+| `context[:missing]` | returns `nil` |
+| `context.fetch(:missing, :default)` | returns `:default` |
+| `context.dig(:a, :b)` | returns `nil` |
+| `context.missing?` | returns `false` |
+| `context.missing = 1` | writes succeed |
+
+!!! note
+
+    `strict_context` is re-applied on every `Task#initialize`: each nested task flips the shared context's flag to its own `settings.strict_context` for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. `ApplicationTask`) so every subtask agrees.
+
+## Pattern Matching
+
+`Context` supports both array and hash deconstruction (Ruby 3.0+).
+
+```ruby
+result = CalculateShipping.execute(weight: 2.5, destination: "CA", options: { carrier: "ups" })
+
+case result.context
+in { destination: "CA", weight: Float => kg } if kg > 1.0
+  bulk_ship(kg)
+in { options: { carrier: String => code } }
+  track_with(code)
+end
+```
+
+`deconstruct_keys(nil)` returns the full backing table; a key list slices it (unknown keys are omitted). `deconstruct` yields `[[key, value], ...]` pairs for find-pattern matches (`in [*, [:weight, Float], *]`).

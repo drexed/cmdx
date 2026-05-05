@@ -9,6 +9,8 @@ slug: testing-cmdx-tasks-like-a-pro
 
 # Testing CMDx Tasks Like a Pro
 
+*Targets CMDx v1.19.*
+
 I have a confession: I used to skip tests for service objects. Not because I didn't care, but because testing them was painful. Mock the database, stub the API, wrestle with instance variables, pray the test actually exercises the code path you think it does. The friction was real, and it showed in our coverage numbers.
 
 When I built CMDx, I made a promise to myself—if the framework isn't dead simple to test, it's not done. Every task takes data in and pushes a result out. No hidden state, no side-channel mutations, no surprises. That makes testing almost enjoyable. Almost.

@@ -3,7 +3,7 @@
 
     def work
       # Your logic here...
-      # Docs: https://github.com/drexed/cmdx
+      # Docs: https://drexed.github.io/cmdx/getting_started
     end
 
   end

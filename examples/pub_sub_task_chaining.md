@@ -1,10 +1,8 @@
 # Pub/Sub Task Chaining
 
-Decouple task execution using a Pub/Sub mechanism (like `ActiveSupport::Notifications`) where one task's success triggers another.
+Decouple task sequencing by publishing a notification when one task succeeds and having a subscriber kick off the next.
 
-### Setup
-
-Define the consumer task and the subscriber that listens for the event.
+## Setup
 
 ```ruby
 # app/tasks/send_welcome_email.rb
@@ -12,49 +10,46 @@ class SendWelcomeEmail < CMDx::Task
   required :user_id
 
   def work
-    # In a real app, this might be an API call to an email provider
-    puts "📧 Sending welcome email to User ##{user_id}..."
+    WelcomeMailer.with(user_id:).deliver_later
   end
 end
 
 # config/initializers/cmdx_subscriptions.rb
 ActiveSupport::Notifications.subscribe("user.registered") do |*args|
   event = ActiveSupport::Notifications::Event.new(*args)
-
-  # Kick off the second task
-  SendWelcomeEmail.call(user_id: event.payload[:user_id])
+  SendWelcomeEmail.execute(user_id: event.payload[:user_id])
 end
 ```
 
-### Usage
-
-Define the publisher task that emits the event upon success.
+## Usage
 
 ```ruby
 class RegisterUser < CMDx::Task
-  required :email
-  required :name
+  required :email, :name
 
-  # Publish the event only if the task succeeds
   on_success :publish_registration_event
 
   def work
-    # Simulate user creation logic
-    context.user_id = rand(1000..9999)
-    puts "✅ User '#{name}' registered with ID #{context.user_id}"
+    user = User.create!(email:, name:)
+    context.user_id = user.id
   end
 
   private
 
   def publish_registration_event
-    ActiveSupport::Notifications.instrument(
-      "user.registered",
-      user_id: context.user_id,
-      email: email
-    )
+    ActiveSupport::Notifications.instrument("user.registered", user_id: context.user_id, email:)
   end
 end
 
-# Execute the first task
-RegisterUser.call(email: "jane@example.com", name: "Jane Doe")
+RegisterUser.execute(email: "jane@example.com", name: "Jane Doe")
 ```
+
+## Notes
+
+!!! warning "Important"
+
+    `on_success` fires **after** `work`, so any payload the subscriber needs (`context.user_id` above) must be written to the context inside `work` first.
+
+!!! tip
+
+    For framework-wide observability (not task-to-task chaining), subscribe to CMDx's own `:task_executed` event in [Telemetry](../docs/configuration.md#telemetry) — the subscriber receives the finalized `Result`, no custom instrumentation needed.

@@ -1,47 +1,43 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to Time format
-    #
-    # Handles conversion from strings, dates, and other time-like objects to Time
-    # using Ruby's built-in time parsing methods. Supports custom strptime formats
-    # and raises CoercionError for values that cannot be converted to Time.
+  class Coercions
+    # Coerces to `Time`. Strings use `Time.parse` (or `strptime` when
+    # supplied); Numerics are treated as epoch seconds; objects responding
+    # to `#to_time` are unwrapped.
     module Time
 
       extend self
 
-      # Converts a value to a Time object
-      #
-      # @param value [Object] The value to convert to a Time object
-      # @param options [Hash] Optional configuration parameters
-      # @option options [String] :strptime Custom strptime format string for parsing
-      #
-      # @return [Time] The converted Time object
-      #
-      # @raise [CoercionError] If the value cannot be converted to a Time object
-      #
-      # @example Convert time-like objects
-      #   Time.call(Time.now)                    # => Time object (unchanged)
-      #   Time.call(DateTime.now)                # => Time object (converted)
-      #   Time.call(Date.today)                  # => Time object (converted)
-      # @example Convert strings with default parsing
-      #   Time.call("2023-12-25 10:30:00")      # => Time object
-      #   Time.call("2023-12-25")               # => Time object
-      #   Time.call("10:30:00")                 # => Time object
-      # @example Convert strings with custom format
-      #   Time.call("25/12/2023", strptime: "%d/%m/%Y")  # => Time object
-      #   Time.call("12-25-2023", strptime: "%m-%d-%Y")  # => Time object
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Time
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [String] :strptime format string for `Time.strptime`
+      # @return [Time, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        return value.to_time if value.respond_to?(:to_time)
-        return ::Time.strptime(value, options[:strptime]) if options[:strptime]
-
-        ::Time.parse(value)
+        if value.is_a?(::Time)
+          value
+        elsif value.is_a?(::String)
+          if (strptime = options[:strptime])
+            ::Time.strptime(value, strptime)
+          else
+            ::Time.parse(value)
+          end
+        elsif value.is_a?(::Numeric)
+          ::Time.at(value)
+        elsif value.respond_to?(:to_time)
+          value.to_time
+        else
+          coercion_failure
+        end
       rescue ArgumentError, TypeError
-        type = Locale.t("cmdx.types.time")
-        raise CoercionError, Locale.t("cmdx.coercions.into_a", type:)
+        coercion_failure
+      end
+
+      private
+
+      def coercion_failure
+        type = I18nProxy.t("cmdx.types.time")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_a", type:))
       end
 
     end

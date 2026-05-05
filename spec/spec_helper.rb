@@ -6,7 +6,6 @@ require "bundler/setup"
 require "rspec"
 
 require "cmdx"
-require "cmdx/rspec"
 
 spec_path = Pathname.new(File.expand_path("../spec", File.dirname(__FILE__)))
 
@@ -33,21 +32,11 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.include CMDx::RSpec::Helpers
   config.include CMDx::Testing::TaskBuilders
   config.include CMDx::Testing::WorkflowBuilders
 
   config.before do
     CMDx.reset_configuration!
     CMDx.configuration.logger = Logger.new(nil)
-    CMDx.configuration.freeze_results = false
-    CMDx::Chain.clear
-    CMDx::Middlewares::Correlate.clear
-  end
-
-  config.after do
-    CMDx.reset_configuration!
-    CMDx::Chain.clear
-    CMDx::Middlewares::Correlate.clear
   end
 end

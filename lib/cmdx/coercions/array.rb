@@ -1,47 +1,33 @@
 # frozen_string_literal: true
 
 module CMDx
-  module Coercions
-    # Converts various input types to Array format
-    #
-    # Handles conversion from strings that look like JSON arrays and other
-    # values that can be wrapped in an array using Ruby's Array() method.
+  class Coercions
+    # Coerces to Array. JSON-decodes strings; arrays pass through; objects
+    # responding to `#to_a` are unwrapped; everything else is wrapped.
     module Array
 
       extend self
 
-      # Converts a value to an Array
-      #
-      # @param value [Object] The value to convert to an array
-      # @param options [Hash] Optional configuration parameters (currently unused)
-      # @option options [Object] :unused Currently no options are used
-      #
-      # @return [Array] The converted array value
-      #
-      # @raise [CoercionError] If the value cannot be converted to an array
-      #
-      # @example Convert a JSON-like string to an array
-      #   Array.call("[1, 2, 3]") # => [1, 2, 3]
-      # @example Convert other values using Array()
-      #   Array.call("hello")     # => ["hello"]
-      #   Array.call(42)          # => [42]
-      #   Array.call(nil)         # => []
-      # @example Handle invalid JSON-like strings
-      #   Array.call("[not json") # => raises CoercionError
-      #
-      # @rbs (untyped value, ?Hash[Symbol, untyped] options) -> Array[untyped]
+      # @param value [Object]
+      # @param options [Hash{Symbol => Object}]
+      # @option options [Object] reserved for future per-coercion configuration (currently ignored)
+      # @return [Array, Coercions::Failure]
       def call(value, options = EMPTY_HASH)
-        if value.is_a?(::String) && (
-          value.start_with?("[") ||
-          value.strip == "null"
-        )
-          JSON.parse(value) || []
+        if value.is_a?(::Array)
+          value
+        elsif value.is_a?(::String)
+          result = JSON.parse(value)
+          result.is_a?(::Array) ? result : [value]
+        elsif value.respond_to?(:to_a)
+          value.to_a
         else
-          Utils::Wrap.array(value)
+          [value]
         end
       rescue JSON::ParserError
-        type = Locale.t("cmdx.types.array")
-        raise CoercionError, Locale.t("cmdx.coercions.into_an", type:)
+        [value]
+      rescue TypeError
+        type = I18nProxy.t("cmdx.types.array")
+        Failure.new(I18nProxy.t("cmdx.coercions.into_an", type:))
       end
 
     end

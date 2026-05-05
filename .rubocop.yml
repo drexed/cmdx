@@ -6,9 +6,13 @@ AllCops:
   NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.3
 Gemspec/DevelopmentDependencies:
   EnforcedStyle: gemspec
+  Exclude:
+    - 'benchmark/**/*'
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
 Layout/EmptyLinesAroundClassBody:
@@ -46,6 +50,8 @@ Metrics/PerceivedComplexity:
   Enabled: false
 Naming/MethodParameterName:
   Enabled: false
+Naming/PredicateMethod:
+  Mode: aggressive
 RSpec/DescribeClass:
   Exclude:
     - 'spec/integrations/**/*'
@@ -71,8 +77,7 @@ RSpec/StubbedMock:
 RSpec/VerifiedDoubleReference:
   Enabled: false
 Style/ArgumentsForwarding:
-  Exclude:
-    - 'lib/cmdx/utils/call.rb'
+  UseAnonymousForwarding: false
 Style/CaseEquality:
   Enabled: false
 Style/DocumentDynamicEvalDefinition:
@@ -83,10 +88,16 @@ Style/DoubleNegation:
   Enabled: false
 Style/EmptyClassDefinition:
   Enabled: false
+Style/FormatStringToken:
+  EnforcedStyle: template
+  Exclude:
+    - 'benchmark/**/*'
 Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always_true
   SafeAutoCorrect: true
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
 Style/ModuleFunction:
   EnforcedStyle: extend_self
 Style/OptionalBooleanParameter:

@@ -1,168 +1,181 @@
 # frozen_string_literal: true
 
 module CMDx
-  # Executes workflows by processing task groups with conditional logic and breakpoint handling.
-  # The Pipeline class manages the execution flow of workflow tasks, evaluating conditions
-  # and handling breakpoints that can interrupt execution at specific task statuses.
+  # Runs a Workflow's declared task groups. Each group selects a strategy
+  # (`:sequential` by default, or `:parallel`). A group failure halts the
+  # pipeline by echoing the failed result's signal through `throw!`, which
+  # bubbles up through Runtime as the workflow's own failure.
+  #
+  # Groups may opt into batch semantics with `continue_on_failure: true`,
+  # in which case every task in the group runs to completion and all
+  # failures are aggregated into the workflow's `errors` (keyed as
+  # `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"`
+  # for bare `fail!` reasons) before the pipeline halts on the first
+  # failure (declaration order).
+  #
+  # @see Workflow
   class Pipeline
 
-    # @rbs SEQUENTIAL_REGEXP: Regexp
-    SEQUENTIAL_REGEXP = /\Asequential\z/
-    private_constant :SEQUENTIAL_REGEXP
+    class << self
 
-    # @rbs PARALLEL_REGEXP: Regexp
-    PARALLEL_REGEXP = /\Aparallel\z/
-    private_constant :PARALLEL_REGEXP
+      # @param workflow [Task] workflow instance whose class includes {Workflow}
+      # @return [void]
+      def execute(workflow)
+        new(workflow).execute
+      end
 
-    # Returns the workflow being executed by this pipeline.
-    #
-    # @return [Workflow] The workflow instance
-    #
-    # @example
-    #   pipeline.workflow.context[:status] # => "processing"
-    #
-    # @rbs @workflow: Workflow
-    attr_reader :workflow
+    end
 
-    # @param workflow [Workflow] The workflow to execute
-    #
-    # @return [Pipeline] A new pipeline instance
-    #
-    # @example
-    #   pipeline = Pipeline.new(my_workflow)
-    #
-    # @rbs (Workflow workflow) -> void
+    # @param workflow [Task] workflow instance whose class includes {Workflow}
     def initialize(workflow)
       @workflow = workflow
+      @executed = []
     end
 
-    # Executes a workflow using a new pipeline instance.
+    # Iterates every group in the workflow's pipeline, respecting
+    # `:if`/`:unless` and the `:strategy` key. Any group that produces a
+    # failed result halts execution by throwing through the workflow.
     #
-    # @param workflow [Workflow] The workflow to execute
-    #
-    # @return [void]
-    #
-    # @example
-    #   Pipeline.execute(my_workflow)
-    #
-    # @rbs (Workflow workflow) -> void
-    def self.execute(workflow)
-      new(workflow).execute
-    end
-
-    # Executes the workflow by processing all task groups in sequence.
-    # Each group is evaluated against its conditions, and breakpoints are checked
-    # after each task execution to determine if workflow should continue or halt.
+    # On halt, every previously executed task instance whose result is
+    # `success?` is sent `#rollback` (when defined) in reverse execution
+    # order, providing saga-style compensation. Each compensated result
+    # has its `:rolled_back` option flipped to `true`. Skipped tasks are
+    # excluded; the failing task itself is rolled back by {Runtime} and
+    # is not re-invoked here. Exceptions raised inside a compensator
+    # propagate — handling them is the developer's responsibility.
     #
     # @return [void]
-    #
-    # @example
-    #   pipeline = Pipeline.new(my_workflow)
-    #   pipeline.execute
-    #
-    # @rbs () -> void
+    # @raise [ArgumentError] for an unknown strategy
+    # @raise [StandardError] anything raised by a task's `#rollback`
     def execute
-      default_breakpoints = Utils::Normalize.statuses(
-        workflow.class.settings.breakpoints ||
-        workflow.class.settings.workflow_breakpoints
-      )
+      @workflow.class.pipeline.each do |group|
+        next unless Util.satisfied?(group.options[:if], group.options[:unless], @workflow)
 
-      workflow.class.pipeline.each do |group|
-        next unless Utils::Condition.evaluate(workflow, group.options)
-
-        breakpoints =
-          if group.options.key?(:breakpoints)
-            Utils::Normalize.statuses(group.options[:breakpoints])
+        halt =
+          case strategy = group.options[:strategy]
+          when :sequential, NilClass
+            run_sequential(group)
+          when :parallel
+            run_parallel(group)
           else
-            default_breakpoints
+            raise ArgumentError, "invalid strategy: #{strategy.inspect}"
           end
 
-        execute_group_tasks(group, breakpoints)
+        next unless halt
+
+        rollback_executed!
+        @workflow.send(:throw!, halt)
       end
     end
 
     private
 
-    # Executes a group of tasks using the specified execution strategy.
-    #
-    # @param group [CMDx::Group] The task group to execute
-    # @param breakpoints [Array<Symbol>] Status values that trigger execution breaks
-    # @option group.options [Symbol, String] :strategy Execution strategy (:sequential, :parallel, or nil for default)
-    #
-    # @return [void]
-    #
-    # @example
-    #   execute_group_tasks(group, ["failed", "skipped"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_group_tasks(group, breakpoints)
-      case strategy = group.options[:strategy]
-      when NilClass, SEQUENTIAL_REGEXP then execute_tasks_in_sequence(group, breakpoints)
-      when PARALLEL_REGEXP then execute_tasks_in_parallel(group, breakpoints)
-      else raise "unknown execution strategy #{strategy.inspect}"
+    # @param group [Workflow::ExecutionGroup]
+    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
+    def run_sequential(group)
+      continue = group.options[:continue_on_failure]
+      failures = group.tasks.each_with_object([]) do |task_class, bucket|
+        instance = task_class.new(@workflow.context)
+        result   = instance.execute(strict: false)
+        @executed << [instance, result]
+        next unless result.failed?
+
+        bucket << result
+        break bucket unless continue
+      end
+
+      aggregate(failures, continue:)
+    end
+
+    # @param group [Workflow::ExecutionGroup]
+    # @return [Result, nil] failed result to halt on, or nil when the group succeeds
+    def run_parallel(group)
+      tasks     = group.tasks
+      chain     = Chain.current
+      size      = group.options[:pool_size] || tasks.size
+      continue  = group.options[:continue_on_failure]
+      entries   = Array.new(tasks.size)
+      mutex     = Mutex.new
+      seen_fail = false
+      cancelled = false
+
+      jobs = tasks.each_with_index.to_a
+
+      on_job = lambda do |(task_class, index)|
+        mutex.synchronize { return if cancelled }
+
+        Fiber[Chain::STORAGE_KEY] ||= chain
+        ctx_copy = @workflow.context.deep_dup
+        instance = task_class.new(ctx_copy)
+        result   = instance.execute(strict: false)
+
+        mutex.synchronize do
+          entries[index] = [instance, result]
+
+          if result.failed? && !continue && !seen_fail
+            seen_fail = true
+            cancelled = true
+          end
+        end
+      end
+
+      executor = @workflow.class.executors.resolve(group.options[:executor])
+      merger   = @workflow.class.mergers.resolve(group.options[:merger])
+
+      executor.call(jobs:, concurrency: size, on_job:)
+
+      failures = []
+      entries.each do |entry|
+        next if entry.nil?
+
+        @executed << entry
+        _instance, result = entry
+
+        if result.failed?
+          failures << result
+        else
+          merger.call(@workflow.context, result)
+        end
+      end
+
+      aggregate(failures, continue:)
+    end
+
+    def rollback_executed!
+      @executed.reverse_each do |instance, result|
+        next unless result.success?
+        next unless instance.respond_to?(:rollback)
+
+        instance.rollback
+
+        old_opts = result.instance_variable_get(:@options)
+        new_opts = old_opts.merge(rolled_back: true).freeze
+        result.instance_variable_set(:@options, new_opts)
       end
     end
 
-    # Executes tasks sequentially within a group, checking breakpoints after each task.
-    # If a task result status matches a breakpoint, the workflow is interrupted.
-    #
-    # @param group [ExecutionGroup] The group of tasks to execute
-    # @param breakpoints [Array<String>] Breakpoint statuses that trigger workflow interruption
-    #
-    # @return [void]
-    #
-    # @raise [HaltError] When a task result status matches a breakpoint
-    #
-    # @example
-    #   execute_tasks_in_sequence(group, ["failed", "skipped"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_tasks_in_sequence(group, breakpoints)
-      group.tasks.each do |task|
-        task_result = task.execute(workflow.context)
-        next unless breakpoints.include?(task_result.status)
+    # @param failures [Array<Result>]
+    # @param continue [Boolean] when true, merges failures into the workflow's errors
+    # @return [Result, nil] first failure (echoed upstream), or nil when `failures` is empty
+    def aggregate(failures, continue:)
+      return if failures.empty?
+      return failures.first unless continue
 
-        workflow.throw!(task_result)
-      end
-    end
+      failures.each do |result|
+        prefix = result.task.name
 
-    # Each task receives a snapshot of the workflow context to prevent
-    # unsynchronized concurrent writes to a shared Hash. Snapshots are
-    # merged back into the workflow context after all tasks complete.
-    #
-    # @param group [CMDx::Group] The task group to execute in parallel
-    # @param breakpoints [Array<String>] Status values that trigger execution breaks
-    # @option group.options [Integer] :pool_size Number of concurrent threads (defaults to task count)
-    #
-    # @return [void]
-    #
-    # @raise [Fault] When a task result status matches a breakpoint
-    #
-    # @example
-    #   execute_tasks_in_parallel(group, ["failed"])
-    #
-    # @rbs (untyped group, Array[String] breakpoints) -> void
-    def execute_tasks_in_parallel(group, breakpoints)
-      contexts = group.tasks.map { Context.new(workflow.context.to_h) }
-      ctx_pairs = group.tasks.zip(contexts)
-      pool_size = group.options.fetch(:pool_size, ctx_pairs.size)
-
-      results = Parallelizer.call(ctx_pairs, pool_size:) do |task, context|
-        Chain.current = workflow.chain
-        task.execute(context)
+        if result.errors.empty?
+          message = I18nProxy.tr(result.reason)
+          @workflow.errors.add(:"#{prefix}.#{result.status}", message)
+        else
+          result.errors.each do |key, messages|
+            namespaced = :"#{prefix}.#{key}"
+            messages.each { |message| @workflow.errors.add(namespaced, message) }
+          end
+        end
       end
 
-      contexts.each { |ctx| workflow.context.merge!(ctx) }
-
-      faulted = results.select { |r| breakpoints.include?(r.status) }
-      return if faulted.empty?
-
-      workflow.public_send(
-        :"#{faulted.last.status}!",
-        Locale.t("cmdx.reasons.unspecified"),
-        source: :parallel,
-        faults: faulted.map(&:to_h)
-      )
+      failures.first
     end
 
   end

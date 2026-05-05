@@ -1,71 +1,69 @@
 # Redis Idempotency
 
-Ensure tasks are executed exactly once using Redis to store execution state. This is critical for non-idempotent operations like charging a credit card or sending an email.
+Guard non-idempotent operations (charging a card, sending an email) by recording a Redis key around the task and refusing duplicates.
 
-### Setup
+## Setup
 
 ```ruby
-# lib/cmdx_redis_idempotency_middleware.rb
+# app/middlewares/cmdx_redis_idempotency_middleware.rb
 class CmdxRedisIdempotencyMiddleware
-  def self.call(task, **options, &block)
-    key = generate_key(task, options[:key])
-    ttl = options[:ttl] || 5.minutes.to_i
+  def initialize(key:, ttl: 300)
+    @key = key
+    @ttl = ttl
+  end
 
-    # Attempt to lock the key
-    if Redis.current.set(key, "processing", nx: true, ex: ttl)
+  def call(task)
+    redis_key = "cmdx:idempotency:#{task.class.name}:#{resolve_id(task)}"
+
+    if Redis.current.set(redis_key, "processing", nx: true, ex: @ttl)
       begin
-        block.call.tap |result|
-          Redis.current.set(key, result.status, xx: true, ex: ttl)
-        end
-      rescue => e
-        Redis.current.del(key)
-        raise(e)
+        yield
+        Redis.current.set(redis_key, "done", xx: true, ex: @ttl)
+      rescue StandardError
+        Redis.current.del(redis_key)
+        raise
       end
     else
-      # Key exists, handle duplicate
-      status = Redis.current.get(key)
-
-      if status == "processing"
-        task.result.tap { |r| r.skip!("Duplicate request: currently processing", halt: true) }
-      else
-        task.result.tap { |r| r.skip!("Duplicate request: already processed (#{status})", halt: true) }
-      end
+      task.errors.add(:base, "duplicate request (state=#{Redis.current.get(redis_key)})")
+      yield
     end
   end
 
-  def self.generate_key(task, key_gen)
-    id = if key_gen.respond_to?(:call)
-           key_gen.call(task)
-         elsif key_gen.is_a?(Symbol)
-           task.send(key_gen)
-         else
-           task.context[:idempotency_key]
-         end
+  private
 
-    "cmdx:idempotency:#{task.class.name}:#{id}"
+  def resolve_id(task)
+    case @key
+    when Symbol then task.send(@key)
+    when Proc   then @key.call(task)
+    else             task.context[@key]
+    end
   end
 end
 ```
 
-### Usage
+## Usage
 
 ```ruby
 class ChargeCustomer < CMDx::Task
-  # Use context[:payment_id] as the unique key
-  register :middleware, CmdxIdempotencyMiddleware,
-    key: ->(t) { t.context[:payment_id] }
+  register :middleware, CmdxRedisIdempotencyMiddleware.new(key: ->(t) { t.context[:payment_id] })
+
+  required :payment_id
 
   def work
-    # Charge logic...
+    # ...
   end
 end
 
-# First run: Executes
-ChargeCustomer.call(payment_id: "123")
-# => Success
-
-# Second run: Skips
-ChargeCustomer.call(payment_id: "123")
-# => Skipped (reason: "Duplicate request: already processed (success)")
+ChargeCustomer.execute(payment_id: "pay_123")  # first call -> success
+ChargeCustomer.execute(payment_id: "pay_123")  # second call -> failed ("duplicate request ...")
 ```
 
+## Notes
+
+!!! warning "Important"
+
+    A middleware cannot emit a `skipped` signal — that must originate inside `work`. This middleware surfaces duplicates as **failed** results by appending to `task.errors` before `yield`, so `signal_errors!` halts during input resolution with a clear reason.
+
+!!! tip
+
+    To treat duplicates as *skipped* instead of *failed*, move the Redis check into `work` and call `skip!("duplicate")`. See [Outcomes — Annotating a Successful Result](../docs/outcomes/result.md#annotating-a-successful-result) for the `skip!` / `success!` / `fail!` mechanics.

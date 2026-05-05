@@ -11,6 +11,8 @@ slug: cmdx-patterns-debugging-and-observability
 
 *Part 4 of the CMDx Patterns series*
 
+*Targets CMDx v1.21.*
+
 It's 2 AM. Your pager fires. A customer reports that their order went through but they never got a confirmation email. You open your log aggregator and search for the user ID. In a typical Rails app, you'd find a scattered trail of `puts`-style logs, maybe a Sentry exception if you're lucky, and no clear picture of what actually happened.
 
 With CMDx, you search for the `chain_id` and see every task that ran, in order, with timing, status, and metadata. The confirmation email task shows `status: "skipped"`, `reason: "User unsubscribed from order notifications"`. Mystery solved in under a minute.

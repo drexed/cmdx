@@ -1,121 +1,110 @@
 # Interruptions - Faults
 
-Faults are exceptions raised by `execute!` when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns. See the [Exceptions Reference](../exceptions.md) for the full hierarchy.
+`CMDx::Fault` is the exception `execute!` raises on failure. Skipped and successful results never raise. A Fault wraps the **originating** failed `Result` — the leaf at the bottom of any propagation chain — and delegates `task`, `context`, and `chain` to it. See [Exceptions](exceptions.md) for the full hierarchy.
 
-## Fault Types
+## What's on a Fault
 
-| Type | Triggered By | Use Case |
-|------|--------------|----------|
-| `CMDx::Fault` | Base class | Catch-all for any interruption |
-| `CMDx::SkipFault` | `skip!` method | Optional processing, early returns |
-| `CMDx::FailFault` | `fail!` method | Validation errors, processing failures |
+| Accessor | Returns | Notes |
+|----------|---------|-------|
+| `fault.result` | `CMDx::Result` | The failed result that originated the failure (after walking `origin`) |
+| `fault.task` | `Class<CMDx::Task>` | The failing task **class** (`fault.result.task`) |
+| `fault.context` | `CMDx::Context` | The failing task's frozen context |
+| `fault.chain` | `CMDx::Chain` | The chain of every result produced during the run |
+| `fault.message` | `String` | `I18nProxy.tr(result.reason)` — translates when the reason is an i18n key, otherwise passes through; falls back to the localized `cmdx.reasons.unspecified` when reason is `nil` |
+| `fault.backtrace` | `Array<String>` | From `result.backtrace` or `result.cause&.backtrace_locations`, cleaned via `task.settings.backtrace_cleaner` when configured |
 
-!!! warning "Important"
+Use `fault.result` to read the failed outcome's `reason`, `metadata`, `cause`, `origin`, `state`, and `status`.
 
-    All faults inherit from `CMDx::Fault` and expose result, task, context, and chain data.
+!!! note
+
+    `Fault` wraps failures originating from `fail!`, `throw!`, or explicit `errors.add`. When Runtime rescued an ordinary `StandardError` (so `result.cause` is a non-`Fault`), `execute!` re-raises that **original** exception instead of wrapping it. For workflows, `fault.task` always points at the leaf that failed — not the workflow class — so matchers like `Fault.for?(LeafTask)` work the same in flat and nested executions.
 
 ## Fault Handling
 
 ```ruby
 begin
   ProcessTicket.execute!(ticket_id: 456)
-rescue CMDx::SkipFault => e
-  logger.info "Ticket processing skipped: #{e.message}"
-  schedule_retry(e.context.ticket_id)
-rescue CMDx::FailFault => e
-  logger.error "Ticket processing failed: #{e.message}"
-  notify_admin(e.context.assigned_agent, e.result.metadata[:error_code])
 rescue CMDx::Fault => e
-  logger.warn "Ticket processing interrupted: #{e.message}"
-  rollback_changes
+  logger.error "Ticket processing failed: #{e.message}"
+  logger.info  "Failing task: #{e.task}"
+  notify_admin(e.result.metadata[:error_code])
 end
 ```
 
-## Data Access
-
-Access rich execution data from fault exceptions:
+When you need to keep working with the result rather than rescuing, use `execute` and inspect it directly:
 
 ```ruby
-begin
-  LicenseActivation.execute!(license_key: key, machine_id: machine)
-rescue CMDx::Fault => e
-  # Result information
-  e.result.state     #=> "interrupted"
-  e.result.status    #=> "failed" or "skipped"
-  e.result.reason    #=> "License key already activated"
+result = ProcessTicket.execute(ticket_id: 456)
 
-  # Task information
-  e.task.class       #=> <LicenseActivation>
-  e.task.id          #=> "abc123..."
-
-  # Context data
-  e.context.license_key #=> "ABC-123-DEF"
-  e.context.machine_id  #=> "[FILTERED]"
-
-  # Chain information
-  e.chain.id         #=> "def456..."
-  e.chain.size       #=> 3
+result.on(:failed) do |r|
+  logger.error "Ticket processing failed: #{r.reason}"
+  notify_admin(r.metadata[:error_code], context: r.context)
 end
 ```
+
+Either form gives you the same data: with `execute!`, reach for `fault.result` / `fault.context` / `fault.chain`; with `execute`, work with the returned `result` directly.
 
 ## Advanced Matching
 
 ### Task-Specific Matching
 
-Handle faults only from specific tasks using `for?`:
+`Fault.for?(*task_classes)` returns an anonymous matcher subclass suitable for `rescue`. It matches any fault whose `task` is (or inherits from) one of the given classes:
 
 ```ruby
 begin
   DocumentWorkflow.execute!(document_data: data)
-rescue CMDx::FailFault.for?(FormatValidator, ContentProcessor) => e
+rescue CMDx::Fault.for?(FormatValidator, ContentProcessor) => e
   # Handle only document-related failures
-  retry_with_alternate_parser(e.context)
-rescue CMDx::SkipFault.for?(VirusScanner, ContentFilter) => e
-  # Handle security-related skips
-  quarantine_for_review(e.context.document_id)
+  retry_with_alternate_parser(e.result.metadata)
+end
+```
+
+### Reason-Specific Matching
+
+`Fault.reason?(reason)` returns an anonymous matcher subclass that matches any fault whose `result.reason` equals the given string:
+
+```ruby
+begin
+  ProcessPayment.execute!(payment_data: data)
+rescue CMDx::Fault.reason?("Payment declined") => e
+  notify_customer(e.context.customer_id)
 end
 ```
 
 ### Custom Logic Matching
 
+`Fault.matches?` takes a block returning `true`/`false` against the fault. Use it for arbitrary predicates — metadata, status, cause class, etc.:
+
 ```ruby
 begin
   ReportGenerator.execute!(report: report_data)
-rescue CMDx::Fault.matches? { |f| f.context.data_size > 10_000 } => e
-  escalate_large_dataset_failure(e)
-rescue CMDx::FailFault.matches? { |f| f.result.metadata[:attempt_count] > 3 } => e
+rescue CMDx::Fault.matches? { |f| f.result.metadata[:attempt_count].to_i > 3 } => e
   abandon_report_generation(e)
 rescue CMDx::Fault.matches? { |f| f.result.metadata[:error_type] == "memory" } => e
   increase_memory_and_retry(e)
 end
 ```
 
+!!! note
+
+    Each call to `for?` / `matches?` returns a fresh anonymous matcher subclass, so they can be stacked across multiple `rescue` clauses but cannot be combined into a single matcher.
+
 ## Fault Propagation
 
-Propagate failures with `throw!` to preserve context and maintain the error chain.
-
-!!! warning "Important"
-
-    `throw!` requires a `CMDx::Result` argument. Passing any other object raises a `TypeError`.
+Use `throw!` to re-raise an upstream failed result through the current task. The propagated signal mirrors the original's state, status, and reason and attaches the current `caller_locations` as the backtrace. It's a no-op when the argument isn't `failed?` — skipped or successful results are never converted into failures.
 
 ### Basic Propagation
 
 ```ruby
 class ReportGenerator < CMDx::Task
   def work
-    # Throw if skipped or failed
-    validation_result = DataValidator.execute(context)
-    throw!(validation_result)
+    # No-op when the upstream result wasn't failed
+    throw!(DataValidator.execute(context))
 
-    # Only throw if skipped
-    check_permissions = CheckPermissions.execute(context)
-    throw!(check_permissions) if check_permissions.skipped?
+    # Or guard explicitly
+    perms = CheckPermissions.execute(context)
+    throw!(perms) if perms.failed?
 
-    # Only throw if failed
-    data_result = DataProcessor.execute(context)
-    throw!(data_result) if data_result.failed?
-
-    # Continue processing
     generate_report
   end
 end
@@ -123,17 +112,20 @@ end
 
 ### Additional Metadata
 
+Pass keyword args to attach extra metadata to the propagated signal:
+
 ```ruby
 class BatchProcessor < CMDx::Task
   def work
     step_result = FileValidation.execute(context)
 
     if step_result.failed?
-      throw!(step_result, {
+      throw!(
+        step_result,
         batch_stage: "validation",
         can_retry: true,
         next_step: "file_repair"
-      })
+      )
     end
 
     continue_batch
@@ -143,31 +135,20 @@ end
 
 ## Chain Analysis
 
-Trace fault origins and propagation through the execution chain:
+`Fault` exposes the originating `Result` via `fault.result`, plus the full `chain` it belongs to. From either, you can walk failure propagation with `origin`, `caused_failure`, and `threw_failure`. See [Result - Chain Analysis](../outcomes/result.md#chain-analysis) for the full API.
 
 ```ruby
-result = DocumentWorkflow.execute(invalid_data)
+begin
+  DocumentWorkflow.execute!(document_data: data)
+rescue CMDx::Fault => e
+  puts "Originated by #{e.task}: #{e.message}"
+  puts "Root task: #{e.chain.first.task}"     # chain.first is always the root execution
+end
 
+# Or via non-bang execute:
+result = DocumentWorkflow.execute(document_data: data)
 if result.failed?
-  # Trace the original failure
-  original = result.caused_failure
-  if original
-    puts "Original failure: #{original.task.class.name}"
-    puts "Reason: #{original.reason}"
-  end
-
-  # Find what propagated the failure
-  thrower = result.threw_failure
-  puts "Propagated by: #{thrower.task.class.name}" if thrower
-
-  # Analyze failure type
-  case
-  when result.caused_failure?
-    puts "This task was the original source"
-  when result.threw_failure?
-    puts "This task propagated a failure"
-  when result.thrown_failure?
-    puts "This task failed due to propagation"
-  end
+  origin = result.caused_failure
+  puts "Originated by #{origin.task}: #{origin.reason}"
 end
 ```

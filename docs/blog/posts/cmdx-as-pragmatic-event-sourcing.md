@@ -9,6 +9,8 @@ slug: cmdx-as-pragmatic-event-sourcing
 
 # CMDx as a Pragmatic Alternative to Event Sourcing
 
+*Targets CMDx v1.20.*
+
 Event Sourcing is one of those ideas that sounds perfect in a conference talk and then bankrupts your sprint when you try to implement it. You need an event store, projections, snapshot strategies, a way to replay history, and a team that understands why you can't just `UPDATE` a row anymore. For some domains—banking, audit-heavy compliance, truly distributed systems—it's worth the cost. For the rest of us, it's a complexity tax we can't afford.
 
 But the *benefits* of Event Sourcing are real. An immutable record of what happened. The ability to understand *why* the system is in its current state. Traceability across complex workflows. I wanted those benefits without the infrastructure.

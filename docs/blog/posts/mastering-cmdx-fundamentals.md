@@ -9,6 +9,8 @@ slug: mastering-cmdx-fundamentals
 
 # Mastering CMDx Fundamentals: Tasks, Context, Execution, and Chains
 
+*Targets CMDx v1.13.*
+
 When I first started building CMDx, I focused obsessively on four concepts: tasks, context, execution, and chains. These aren't just implementation details—they're the mental model that makes everything else click. Once you understand how they work together, you'll write cleaner business logic and debug issues faster.
 
 Let me walk you through each piece, building from a simple task to a fully orchestrated task.
