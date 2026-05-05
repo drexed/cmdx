@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - UNRELEASED
+## [2.x.x] - UNRELEASED
+
+### Changed
+- Translate errors `full_messages`
+
+## [2.0.0] - 2026-05-05
 
 Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replaced by an explicit signal-based runtime, immutable results, fiber-local chains, and a slimmer registry surface. See [docs/v2-migration.md](docs/v2-migration.md) for the full upgrade guide.
 

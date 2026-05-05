@@ -62,7 +62,7 @@ module CMDx
     # @option options [Hash{Symbol => Object}] extra keys interpolated via `String#%` for bundled translations
     # @return [String, Object] the translated/interpolated message
     def translate(key, **options)
-      return ::I18n.translate(key, **options) if defined?(::I18n) && ::I18n.respond_to?(:translate)
+      return ::I18n.translate(key, **options) if defined?(::I18n)
 
       message = translation_default(key) || options[:default]
 

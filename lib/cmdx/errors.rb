@@ -113,7 +113,10 @@ module CMDx
     #   (e.g. `{ name: ["name is required"] }`)
     def full_messages
       messages.each_with_object({}) do |(key, set), hash|
-        hash[key] = set.map { |message| "#{key} #{message}" }
+        hash[key] = set.map do |message|
+          i18n_message = I18nProxy.t(message, default: message)
+          "#{key} #{i18n_message}"
+        end
       end
     end
 
