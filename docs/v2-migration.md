@@ -984,38 +984,55 @@ report the failing file:line with a one-line diagnosis.
 
 ## Future
 
-These new internals build a solid foundation for introducing even more functionality. Here's a list of some of the things we have planned:
+The v2 internals open the door to a number of additions that didn't fit the rewrite. The list below is **planned, not committed** — semantics may shift before they ship.
 
-- Telemetry surface
-  - task_failed / task_skipped / task_succeeded events — currently only task_executed covers terminal outcomes; subscribers branch by inspecting event.payload[:result].status. Specific events make subscriptions cheaper and intent clearer.
-  - Sampling — subscribe(:task_executed, sample: 0.01) for high-volume tasks. Otherwise every team writes the same rand < 0.01 check.
-- Workflows
-  - Sub-workflow inlining — calling another Workflow should appear as nested groups in the chain, not just one opaque result. Chain already supports nesting; pipeline doesn't expose it.
-  - Streaming results from parallel groups — yield each completed child result to a block as it finishes, not after the whole group joins. Useful for progress reporting.
-- Tasks
-  - execute_async returning a Concurrent::Promise-shaped object (or at least an opaque future) without forcing the caller to wrap in Async {}
-  - First-class background-job adapter instead of the Sidekiq mixin recipe — Task.perform_async, perform_in, perform_at with adapter for Sidekiq / ActiveJob / GoodJob. Auto-handles JSON-safe context serialization (and refuses non-serializable values at enqueue).
-  - Checkpoint/resume for workflows — persist context after each group to a pluggable store; on restart, skip already-completed groups. Pairs with the idempotent_by primitive above.
-  - around_execution callbacks — current callbacks are all before/after-style; an around hook avoids forcing every wrapping concern into a middleware.
-  - REPL-friendly formatter — result.pretty_print (multi-line, color, child indentation); Pipeline visualization at runtime — result.chain.timeline returns Gantt-shaped data (start/end per task) usable in dashboards. The data exists; assembly is missing.
-  - retry_when on Result, not exceptions — retry_when status: :failed, reason: /rate.?limit/, limit: 3. retry_on only catches exceptions; many APIs return failures-as-data.
-  - Built-in idempotency — idempotent_by :payment_id, ttl: 5.minutes, store: CMDx::Stores::Memory (or Redis adapter)
-  - Built-in circuit breaker — circuit_break threshold: 5, cool_off: 30
-  - Concurrency limit / bulkhead — concurrency_limit 10
-- Inputs / outputs / schema
-  - Schema export — MyTask.to_json_schema / to_openapi_operation derived from inputs + coercions + validators.
-  - Sensitive/redacted inputs — required :api_key, sensitive: true
-- Observability / tooling
-  - Chain#to_mermaid / #to_dot — visualize the chain (and result statuses) for debugging deeply nested executions.
-  - W3C traceparent in Telemetry::Event so xid participates in distributed traces, not just logs.
-  - Optional-require integrations shipped in-tree:
-    - require "cmdx/telemetry/open_telemetry" — auto-spans per task with parent linkage from xid/cid.
-    - require "cmdx/telemetry/statsd" / dogstatsd — emit cmdx.task.duration, .success, .failed with task-class tags.
-    - require "cmdx/telemetry/active_support_notifications" — bridge for Rails apps.
-- Developer experience
-  - YARD-driven schema docs — Rake task that walks every Task subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining docs/.
-  - Authorization gate — policy MyPolicy, action: :execute raising a typed AuthorizationFault
-  - CMDx::Stores — pluggable KV interface (get/set/incr/del with TTL). Memory + Redis adapters become the substrate for idempotency, rate limiting, circuit breakers, checkpoints, and result caching — instead of every example shipping its own store class.
-  - CMDx::Cache — cache_result key: ->(t) { … }, ttl: 60 memoizes a successful result per-input on the same store. Common enough that handrolling it is wasteful.
-  - CMDx::Locks — lock_with key: …, ttl: …, wait: … for serializing executions. Pairs with idempotency but is genuinely separate (idempotency = "don't retry"; lock = "don't run concurrently").
-  - Deterministic clock — CMDx.clock defaults to Time.now/Process.clock_gettime, but tests can swap to a frozen clock. Currently Result#duration is non-mockable.
+### Tasks
+
+- **`around_execution` callbacks** — every existing callback is before/after-style. An around hook avoids forcing every wrapping concern through `middlewares.register`.
+- **`retry_when` on `Result`** — retry on outcome, not exceptions: `retry_when status: :failed, reason: /rate.?limit/, limit: 3`. `retry_on` only catches raised errors; many APIs return failures-as-data.
+- **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
+- **`circuit_break`** — `circuit_break threshold: 5, cool_off: 30.seconds` without bolting on Stoplight per task.
+- **`concurrency_limit`** — global bulkhead capping simultaneous executions of a task class.
+- **`execute_async`** — returns a `Concurrent::Promise`-shaped future without forcing the caller to wrap in `Async { }`.
+- **Background-job adapter** — `Task.perform_async` / `perform_in` / `perform_at` over Sidekiq, ActiveJob, or GoodJob, with JSON-safety enforced at enqueue time. Replaces the per-app Sidekiq mixin recipe.
+
+### Workflows
+
+- **Sub-workflow inlining** — invoking another `Workflow` from within one expands as nested groups in the chain instead of an opaque single result. `Chain` already supports nesting; `Pipeline` doesn't expose it.
+- **Streaming parallel results** — yield each child result to a block as it completes rather than waiting for the join. Useful for progress reporting and fail-fast UIs.
+- **Checkpoint/resume** — persist `context` after each group to a pluggable store so a restarted workflow skips completed groups. Pairs with `idempotent_by`.
+
+### Inputs / outputs / schema
+
+- **Schema export** — `MyTask.to_json_schema` / `to_openapi_operation` derived from inputs, coercions, and validators.
+- **Sensitive inputs** — `required :api_key, sensitive: true` strips the value from logs, telemetry, `Result#to_h`, and `Fault#message`, including in nested results.
+
+### Telemetry
+
+- **Status-specific events** — `task_failed` / `task_skipped` / `task_succeeded` alongside `task_executed`. Specific events let subscribers express intent without inspecting `event.payload[:result].status`.
+- **Sampling** — `subscribe(:task_executed, sample: 0.01)` for high-volume tasks instead of everyone reimplementing the same `rand < 0.01` gate.
+- **W3C traceparent** in `Telemetry::Event` so `xid` participates in distributed traces, not just logs.
+- **Optional-require integrations** shipped in-tree:
+  - `require "cmdx/telemetry/open_telemetry"` — per-task spans with parent linkage from `xid` / `cid`.
+  - `require "cmdx/telemetry/statsd"` / `dogstatsd` — `cmdx.task.duration` / `.success` / `.failed` tagged by task class.
+  - `require "cmdx/telemetry/active_support_notifications"` — bridge for Rails apps.
+
+### Observability / tooling
+
+- **`Chain#to_mermaid` / `#to_dot`** — render a chain (with result statuses) for debugging deeply nested executions.
+- **`Chain#timeline`** — Gantt-shaped `(task, start, end, status)` rows usable directly in dashboards. The data exists; only the assembly is missing.
+- **`Result#pretty_print`** — REPL-friendly multi-line formatter with color and child indentation; the current single-line `to_s` gets noisy at depth.
+
+### Infrastructure primitives
+
+The same example middlewares (rate limit, idempotency, circuit breaker) all reinvent the same KV interface. Promoting it to a core registry lets every primitive share one swappable backend.
+
+- **`CMDx::Stores`** — pluggable KV with `get` / `set` / `incr` / `del` + TTL. Memory and Redis adapters substrate `idempotent_by`, rate limiting, circuit breakers, checkpoints, and result caching.
+- **`CMDx::Cache`** — `cache_result key: ->(t) { … }, ttl: 60` memoizes a successful result per-input on the configured store.
+- **`CMDx::Locks`** — `lock_with key: …, ttl: …, wait: …` serializes executions. Distinct from idempotency: the latter says "don't retry", the former says "don't run concurrently".
+
+### Developer experience
+
+- **Authorization gate** — `policy MyPolicy, action: :execute` raising a typed `AuthorizationFault` before input resolution touches sensitive params.
+- **YARD-driven schema docs** — Rake task that walks every `Task` subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining `docs/`.
+- **Deterministic clock** — `CMDx.clock` defaults to `Time.now` / `Process.clock_gettime` but is swappable in tests so `Result#duration` is mockable.
