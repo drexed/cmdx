@@ -46,10 +46,13 @@ module CMDx
     # @raise [ArgumentError] when both `callable` and a block are given, or
     #   when the resolved coercion isn't callable
     def register(name, callable = nil, &block)
-      raise ArgumentError, "provide either a callable or a block, not both" if callable && block
-
       coercion = callable || block
-      raise ArgumentError, "coercion must respond to #call" unless coercion.respond_to?(:call)
+
+      if callable && block
+        raise ArgumentError, "provide either a callable or a block, not both"
+      elsif !coercion.respond_to?(:call)
+        raise ArgumentError, "coercion must respond to #call"
+      end
 
       registry[name.to_sym] = coercion
       self

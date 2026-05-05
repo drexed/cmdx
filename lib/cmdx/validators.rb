@@ -39,10 +39,13 @@ module CMDx
     # @raise [ArgumentError] when both `callable` and a block are given, or
     #   when the resolved validator isn't callable
     def register(name, callable = nil, &block)
-      raise ArgumentError, "provide either a callable or a block, not both" if callable && block
-
       validator = callable || block
-      raise ArgumentError, "validator must respond to #call" unless validator.respond_to?(:call)
+
+      if callable && block
+        raise ArgumentError, "provide either a callable or a block, not both"
+      elsif !validator.respond_to?(:call)
+        raise ArgumentError, "validator must respond to #call"
+      end
 
       registry[name.to_sym] = validator
       self

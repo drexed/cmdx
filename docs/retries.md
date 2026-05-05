@@ -74,7 +74,24 @@ retry_on TransientError, delay: 2.0, jitter: :full_random
 
 retry_on TransientError, delay: 2.0, jitter: :bounded_random
 # delay   .. 2*delay    → 2.0s .. 4.0s
+
+retry_on TransientError, delay: 1.0, jitter: :linear
+# attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 3s, ...
+
+retry_on TransientError, delay: 1.0, jitter: :fibonacci
+# attempt 0 → 1s, attempt 1 → 1s, attempt 2 → 2s, attempt 3 → 3s, attempt 4 → 5s, ...
+
+retry_on TransientError, delay: 1.0, jitter: :decorrelated_jitter
+# AWS-style: next sleep ∈ [delay, prev_sleep * 3], starting from prev = delay
+# attempt 0 → 1.0s..3.0s, then each subsequent attempt's upper bound is 3× the
+# previous sleep (clamped by :max_delay if set)
 ```
+
+!!! note
+
+    `:decorrelated_jitter` is stateful — the previous sleep is threaded across
+    retries inside a single `process` call. Calling `#wait` directly without
+    passing `prev_delay` falls back to the base delay each time.
 
 ### Symbol (Instance Method)
 

@@ -131,6 +131,42 @@ RSpec.describe CMDx::Retry do
       expect(sleeps).to eq([3.0])
     end
 
+    it "linear produces delay * (attempt + 1)" do
+      described_class.new([error_class], delay: 0.25, jitter: :linear).wait(3)
+      expect(sleeps).to eq([1.0])
+    end
+
+    it "fibonacci produces delay * fib(attempt + 1) across attempts" do
+      retry_ = described_class.new([error_class], delay: 1.0, jitter: :fibonacci)
+      6.times { |i| retry_.wait(i) }
+      expect(sleeps).to eq([1.0, 1.0, 2.0, 3.0, 5.0, 8.0])
+    end
+
+    it "decorrelated_jitter falls back to base delay when prev_delay is nil" do
+      retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
+      allow(retry_).to receive(:rand).and_return(0.0, 1.0)
+
+      retry_.wait(0)
+      retry_.wait(0)
+      expect(sleeps).to eq([1.0, 3.0])
+    end
+
+    it "decorrelated_jitter uses prev_delay to widen the upper bound" do
+      retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
+      allow(retry_).to receive(:rand).and_return(1.0)
+
+      retry_.wait(0, nil, 4.0)
+      expect(sleeps).to eq([12.0])
+    end
+
+    it "decorrelated_jitter returns the computed delay so it can be threaded" do
+      retry_ = described_class.new([error_class], delay: 1.0, jitter: :decorrelated_jitter)
+      allow(retry_).to receive(:rand).and_return(0.5)
+
+      d = retry_.wait(0)
+      expect(d).to eq(2.0)
+    end
+
     it "calls a Symbol jitter on the task" do
       task = Class.new { def jitter_calc(attempt, delay) = delay * attempt }.new
       described_class.new([error_class], delay: 1.0, jitter: :jitter_calc).wait(4, task)
@@ -192,6 +228,25 @@ RSpec.describe CMDx::Retry do
 
       expect { retry_.process { raise "other" } }
         .to raise_error(RuntimeError, "other")
+    end
+
+    it "threads prev_delay across attempts for :decorrelated_jitter" do
+      sleeps = []
+      allow(Kernel).to receive(:sleep) { |d| sleeps << d }
+
+      retry_ = described_class.new([error_class], limit: 3, delay: 1.0, jitter: :decorrelated_jitter)
+      allow(retry_).to receive(:rand).and_return(1.0)
+
+      attempts = 0
+      expect do
+        retry_.process do
+          attempts += 1
+          raise error_class, "boom"
+        end
+      end.to raise_error(error_class)
+
+      expect(sleeps).to eq([3.0, 9.0, 27.0])
+      expect(attempts).to eq(4)
     end
 
     it "passes the attempt number to the block" do

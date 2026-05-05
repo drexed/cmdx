@@ -15,7 +15,8 @@ module CMDx
     # @option options [Float] :delay (0.5) base delay in seconds between attempts
     # @option options [Float] :max_delay clamp for computed delays
     # @option options [Symbol, Proc, #call] :jitter built-in strategy (`:exponential`,
-    #   `:half_random`, `:full_random`, `:bounded_random`) or custom
+    #   `:half_random`, `:full_random`, `:bounded_random`, `:linear`, `:fibonacci`,
+    #   `:decorrelated_jitter`) or custom
     # @yield [attempt, delay] optional custom jitter block, used when `:jitter` isn't set
     def initialize(exceptions, options = EMPTY_HASH, &block)
       @exceptions = exceptions.flatten
@@ -64,8 +65,11 @@ module CMDx
     #
     # @param attempt [Integer] zero-based retry attempt number
     # @param task [Task, nil] used as receiver for Symbol/Proc jitter strategies
-    # @return [void]
-    def wait(attempt, task = nil)
+    # @param prev_delay [Float, nil] previous computed delay; only consumed by
+    #   `:decorrelated_jitter` to thread state across attempts
+    # @return [Float, nil] the computed (and possibly clamped) delay, or `nil` when
+    #   `delay` is zero
+    def wait(attempt, task = nil, prev_delay = nil)
       return unless delay.positive?
 
       d =
@@ -78,6 +82,13 @@ module CMDx
           rand * delay
         when :bounded_random
           delay + (rand * delay)
+        when :linear
+          delay * (attempt + 1)
+        when :fibonacci
+          delay * fibonacci(attempt + 1)
+        when :decorrelated_jitter
+          base = prev_delay || delay
+          delay + (rand * ((base * 3) - delay))
         when Symbol
           task.send(jitter, attempt, delay)
         when Proc
@@ -92,6 +103,7 @@ module CMDx
 
       d = d.clamp(0, max_delay) if max_delay
       Kernel.sleep(d) if d.positive?
+      d
     end
 
     # Executes the block up to `limit + 1` times. Re-raises the last
@@ -105,14 +117,28 @@ module CMDx
     def process(task = nil, &)
       return yield(0) if exceptions.empty? || !limit.positive?
 
+      prev_delay = nil
       (limit + 1).times do |attempt|
         return yield(attempt)
       rescue *exceptions => e
         raise(e) if attempt >= limit
         raise(e) unless Util.satisfied?(@options[:if], @options[:unless], task, e, attempt)
 
-        wait(attempt, task)
+        prev_delay = wait(attempt, task, prev_delay)
       end
+    end
+
+    private
+
+    # Iterative Fibonacci. `fib(1) == 1`, `fib(2) == 1`, `fib(3) == 2`, ...
+    #
+    # @param n [Integer] one-based index into the Fibonacci sequence
+    # @return [Integer]
+    def fibonacci(n)
+      a = 0
+      b = 1
+      n.times { a, b = b, a + b }
+      a
     end
 
   end
