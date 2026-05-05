@@ -19,6 +19,8 @@ module CMDx
         delay * sequence(attempt + 1)
       end
 
+      private
+
       # Iterative Fibonacci. `sequence(1) == 1`, `sequence(2) == 1`,
       # `sequence(3) == 2`, ...
       #
