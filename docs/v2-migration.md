@@ -986,6 +986,9 @@ report the failing file:line with a one-line diagnosis.
 
 These new internals build a solid foundation for introducing even more functionality. Here's a list of some of the things we have planned:
 
+- Telemetry surface
+  - task_failed / task_skipped / task_succeeded events — currently only task_executed covers terminal outcomes; subscribers branch by inspecting event.payload[:result].status. Specific events make subscriptions cheaper and intent clearer.
+  - Sampling — subscribe(:task_executed, sample: 0.01) for high-volume tasks. Otherwise every team writes the same rand < 0.01 check.
 - Workflows
   - Sub-workflow inlining — calling another Workflow should appear as nested groups in the chain, not just one opaque result. Chain already supports nesting; pipeline doesn't expose it.
   - Streaming results from parallel groups — yield each completed child result to a block as it finishes, not after the whole group joins. Useful for progress reporting.
@@ -994,7 +997,7 @@ These new internals build a solid foundation for introducing even more functiona
   - First-class background-job adapter instead of the Sidekiq mixin recipe — Task.perform_async, perform_in, perform_at with adapter for Sidekiq / ActiveJob / GoodJob. Auto-handles JSON-safe context serialization (and refuses non-serializable values at enqueue).
   - Checkpoint/resume for workflows — persist context after each group to a pluggable store; on restart, skip already-completed groups. Pairs with the idempotent_by primitive above.
   - around_execution callbacks — current callbacks are all before/after-style; an around hook avoids forcing every wrapping concern into a middleware.
-  - REPL-friendly formatter — result.pretty_print (multi-line, color, child indentation)
+  - REPL-friendly formatter — result.pretty_print (multi-line, color, child indentation); Pipeline visualization at runtime — result.chain.timeline returns Gantt-shaped data (start/end per task) usable in dashboards. The data exists; assembly is missing.
   - retry_when on Result, not exceptions — retry_when status: :failed, reason: /rate.?limit/, limit: 3. retry_on only catches exceptions; many APIs return failures-as-data.
   - Built-in idempotency — idempotent_by :payment_id, ttl: 5.minutes, store: CMDx::Stores::Memory (or Redis adapter)
   - Built-in circuit breaker — circuit_break threshold: 5, cool_off: 30
@@ -1012,3 +1015,7 @@ These new internals build a solid foundation for introducing even more functiona
 - Developer experience
   - YARD-driven schema docs — Rake task that walks every Task subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining docs/.
   - Authorization gate — policy MyPolicy, action: :execute raising a typed AuthorizationFault
+  - CMDx::Stores — pluggable KV interface (get/set/incr/del with TTL). Memory + Redis adapters become the substrate for idempotency, rate limiting, circuit breakers, checkpoints, and result caching — instead of every example shipping its own store class.
+  - CMDx::Cache — cache_result key: ->(t) { … }, ttl: 60 memoizes a successful result per-input on the same store. Common enough that handrolling it is wasteful.
+  - CMDx::Locks — lock_with key: …, ttl: …, wait: … for serializing executions. Pairs with idempotency but is genuinely separate (idempotency = "don't retry"; lock = "don't run concurrently").
+  - Deterministic clock — CMDx.clock defaults to Time.now/Process.clock_gettime, but tests can swap to a frozen clock. Currently Result#duration is non-mockable.
