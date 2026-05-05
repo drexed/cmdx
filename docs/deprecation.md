@@ -176,6 +176,31 @@ class Excluded < BaseLegacyTask
 end
 ```
 
+## Custom Actions via the `Deprecators` Registry
+
+Built-in actions (`:log`, `:warn`, `:error`) live in the `CMDx::Deprecators`
+registry, mirroring `Retriers` and `Mergers`. Actions are any callable matching
+`call(task)`; the return value is discarded. Register custom actions globally
+on the configuration or per-task:
+
+```ruby
+CMDx.configure do |config|
+  config.deprecators.register(:bugsnag) do |task|
+    Bugsnag.notify("DEPRECATED: #{task.class}", severity: "warning")
+  end
+end
+
+class OutdatedConnector < CMDx::Task
+  deprecation :bugsnag
+
+  # Or scoped to the task class only:
+  register :deprecator, :slack, ->(task) { Slack.notify("#{task.class} fired") }
+end
+```
+
+Symbols not present in the registry fall through to a task instance method, so
+existing `deprecation :handle_deprecation` declarations keep working.
+
 ## Telemetry
 
 When deprecation fires (and conditions pass), Runtime emits the `:task_deprecated` telemetry event before the action runs, and the resulting `Result` reports `deprecated?` as `true`:

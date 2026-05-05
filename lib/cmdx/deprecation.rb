@@ -31,20 +31,35 @@ module CMDx
       yield
 
       case @value
-      when :log
-        task.logger.warn { "DEPRECATED: #{task.class} - migrate to a replacement or discontinue use" }
-      when :warn
-        Kernel.warn("[#{task.class}] DEPRECATED: migrate to a replacement or discontinue use")
-      when :error
-        raise DeprecationError, "#{task.class} usage prohibited"
       when Symbol
-        task.send(@value)
+        registry = deprecators_registry(task)
+        if registry.key?(@value)
+          registry.lookup(@value).call(task)
+        else
+          task.send(@value)
+        end
       when Proc
         task.instance_exec(task, &@value)
       else
         return @value.call(task) if @value.respond_to?(:call)
 
         raise ArgumentError, "deprecation must be a Symbol, Proc, or respond to #call"
+      end
+    end
+
+    private
+
+    # Resolves the deprecators registry to consult for built-in actions.
+    # Prefers the task class's registry (so per-task `register(:deprecator, ...)`
+    # overrides take effect) and falls back to the global configuration.
+    #
+    # @param task [Task]
+    # @return [Deprecators]
+    def deprecators_registry(task)
+      if task.class.respond_to?(:deprecators)
+        task.class.deprecators
+      else
+        CMDx.configuration.deprecators
       end
     end
 

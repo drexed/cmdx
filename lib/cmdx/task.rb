@@ -140,9 +140,19 @@ module CMDx
           end
       end
 
+      # @return [Deprecators] cloned from superclass/configuration on first call
+      def deprecators
+        @deprecators ||=
+          if superclass.respond_to?(:deprecators)
+            superclass.deprecators.dup
+          else
+            CMDx.configuration.deprecators.dup
+          end
+      end
+
       # Dispatches to the appropriate registry's `register` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def register(type, ...)
@@ -161,6 +171,8 @@ module CMDx
           mergers.register(...)
         when :retrier
           retriers.register(...)
+        when :deprecator
+          deprecators.register(...)
         when :input
           inputs.register(self, ...)
         when :output
@@ -171,7 +183,7 @@ module CMDx
 
       # Dispatches to the appropriate registry's `deregister` method.
       #
-      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :input, :output]
+      # @param type [:middleware, :callback, :coercion, :validator, :executor, :merger, :retrier, :deprecator, :input, :output]
       # @return [Object] the registry's self
       # @raise [ArgumentError] when `type` is unknown
       def deregister(type, ...)
@@ -190,6 +202,8 @@ module CMDx
           mergers.deregister(...)
         when :retrier
           retriers.deregister(...)
+        when :deprecator
+          deprecators.deregister(...)
         when :input
           inputs.deregister(self, ...)
         when :output
