@@ -23,9 +23,10 @@ Callbacks execute in a predictable lifecycle order:
 # --- inputs resolved, Task#work runs (with retries), outputs verified ---
 # --- #rollback runs here when failed ---
 
-3. on_[complete|interrupted]   # State-based (execution lifecycle)
-4. on_[success|skipped|failed] # Status-based (business outcome)
-5. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
+3. after_execution             # Execution teardown
+4. on_[complete|interrupted]   # State-based (execution lifecycle)
+5. on_[success|skipped|failed] # Status-based (business outcome)
+6. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
 ```
 
 !!! note "Callbacks are additive, not exclusive"

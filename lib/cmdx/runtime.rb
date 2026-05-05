@@ -93,6 +93,7 @@ module CMDx
         run_callbacks(:before_validation)
         perform_work
         perform_rollback if @signal.failed?
+        run_callbacks(:after_execution)
         run_callbacks(:"on_#{@signal.state}")
         run_callbacks(:"on_#{@signal.status}")
         run_callbacks(:on_ok) if @signal.ok?

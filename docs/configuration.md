@@ -154,8 +154,9 @@ Callbacks fire at specific lifecycle points. Valid events:
 
 | Event | When |
 |-------|------|
-| `:before_execution` | First lifecycle step inside `measure_duration` |
+| `:before_execution` | Before any `work` is executed |
 | `:before_validation` | Right after `:before_execution`, before input resolution |
+| `:after_execution` | After `work` and `rollback` is executed |
 | `:on_complete` | When `state == "complete"` (success path) |
 | `:on_interrupted` | When `state == "interrupted"` (skip or fail) |
 | `:on_success` | When `status == "success"` |

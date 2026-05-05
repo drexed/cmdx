@@ -14,6 +14,7 @@ module CMDx
     EVENTS = Set[
       :before_validation,
       :before_execution,
+      :after_execution,
       :on_complete,
       :on_interrupted,
       :on_success,
