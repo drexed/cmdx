@@ -38,8 +38,19 @@ module CMDx
       #   into the workflow context. Merging happens in declaration order. A
       #   callable `->(workflow_context, result) { ... }` may be passed to
       #   implement custom behavior (e.g. namespacing by task name).
-      # @option options [Boolean] :fail_fast (false) when `:parallel`, drain
-      #   pending tasks on the first failure (in-flight tasks still finish)
+      # @option options [Boolean] :continue_on_failure (false) when `true`,
+      #   run every task in the group to completion (even after a failure)
+      #   and aggregate all failures into the workflow's `errors`. Each
+      #   failed result's `errors` are merged in with keys namespaced as
+      #   `"TaskClass.input"`; failures with no errors entries (bare
+      #   `fail!("reason")`) record under `"TaskClass.<status>"` (e.g.
+      #   `"MyTask.failed"`) with `result.reason` as the message (falling
+      #   back to the localized `cmdx.reasons.unspecified` string when
+      #   `reason` is nil). The pipeline still halts after the group with
+      #   the first failure (declaration order) as the signal origin.
+      #   Applies to both `:sequential` and `:parallel` strategies. When
+      #   `false` (default), `:sequential` halts on the first failure and
+      #   `:parallel` cancels pending tasks (in-flight tasks still finish).
       # @option options [Symbol, Proc, #call] :if
       # @option options [Symbol, Proc, #call] :unless
       # @return [Array<ExecutionGroup>] the full pipeline

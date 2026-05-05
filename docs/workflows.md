@@ -66,7 +66,7 @@ Options apply to the entire group:
 | `pool_size:`  | `tasks.size`   | Worker/fiber count when `strategy: :parallel`          |
 | `executor:`   | `:threads`     | Parallel dispatch backend: `:threads`, `:fibers`, or a callable. `:fibers` requires a `Fiber.scheduler` to be installed (e.g. inside `Async { ... }`) |
 | `merge_strategy:` | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }` |
-| `fail_fast:`  | `false`        | When `strategy: :parallel`, drain pending tasks on the first failure (in-flight tasks still finish) |
+| `continue_on_failure:` | `false` | When `true`, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's `errors` (keyed `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"` for bare `fail!` reasons). Applies to both strategies. When `false` (default), `:sequential` halts on the first failure and `:parallel` cancels pending tasks (in-flight tasks still finish) |
 | `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
 ### Conditionals
@@ -222,15 +222,40 @@ class SendWelcomeNotifications < CMDx::Task
   tasks SendWelcomeEmail, SendWelcomeSms, SendWelcomePush,
         strategy: :parallel, pool_size: 2
 
-  # Abort pending parallel tasks once any sibling fails
-  tasks ChargeCard, ReserveInventory, EmitAnalytics,
-        strategy: :parallel, fail_fast: true
+  # Default behavior: pending parallel tasks are cancelled once any sibling fails
+  tasks ChargeCard, ReserveInventory, EmitAnalytics, strategy: :parallel
+
+  # Batch processing: run every task and collect every failure into result.errors
+  tasks ProcessOrder1, ProcessOrder2, ProcessOrder3,
+        strategy: :parallel, continue_on_failure: true
 end
 ```
 
 !!! warning
 
-    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. If any parallel task fails, the failed result is propagated through `throw!` (the other tasks still complete first; they just don't merge back). With `fail_fast: true`, tasks still queued when a sibling fails are skipped entirely; in-flight tasks run to completion and their successful contexts still merge.
+    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through `throw!`. With `continue_on_failure: true`, every task runs to completion and all failures are aggregated into the workflow's `errors` keyed `"TaskClass.input"` (validation errors) or `"TaskClass.<status>"` (bare `fail!` reasons); the first failure (declaration order) is still propagated through `throw!`.
+
+### Batch processing with `continue_on_failure`
+
+For batch-style groups where you want to know about every failure rather than stopping at the first one, set `continue_on_failure: true`. Failures are aggregated into the workflow's `errors` collection.
+
+```ruby
+class ProcessOrders < CMDx::Task
+  include CMDx::Workflow
+
+  tasks ProcessOrderA, ProcessOrderB, ProcessOrderC, continue_on_failure: true
+end
+
+result = ProcessOrders.execute
+result.failed?           # => true (any task in the group failed)
+result.errors.to_h
+# => {
+#      :"ProcessOrderA.failed" => ["card declined"],
+#      :"ProcessOrderC.amount" => ["amount must be greater than 0"]
+#    }
+```
+
+The pipeline still halts after the failed group — subsequent groups do not run. The first failure (declaration order) is the signal origin.
 
 ### Executors
 

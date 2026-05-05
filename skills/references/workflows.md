@@ -34,7 +34,7 @@ Defining `def work` on a workflow raises `CMDx::ImplementationError` — `#work`
 | `pool_size:` | Parallel worker/fiber count. Defaults to `tasks.size`. |
 | `executor:` | `:threads` (default), `:fibers`, or any callable matching `call(jobs:, concurrency:, on_job:)`. `:fibers` requires `Fiber.scheduler` to be installed. |
 | `merge_strategy:` | `:last_write_wins` (default), `:deep_merge`, `:no_merge`, or a callable `call(workflow_context, result)`. Applied in declaration order over successful results only. |
-| `fail_fast:` | When `:parallel`, short-circuit pending tasks on the first failure (in-flight tasks still finish). |
+| `continue_on_failure:` | When `true`, run every task in the group even after a failure and aggregate failures into `workflow.errors` keyed `"TaskClass.input"` / `"TaskClass.<status>"`. When `false` (default), `:sequential` halts on first failure and `:parallel` cancels pending tasks. |
 | `if:` / `unless:` | Gate the whole group. Signature `(workflow)` (Symbol → task method; Proc → `instance_exec`; `#call`-able → `callable.call(workflow)`). |
 
 Every task class must be a `CMDx::Task` subclass — otherwise registration raises `TypeError`.

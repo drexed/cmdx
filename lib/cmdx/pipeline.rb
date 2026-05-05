@@ -6,6 +6,13 @@ module CMDx
   # pipeline by echoing the failed result's signal through `throw!`, which
   # bubbles up through Runtime as the workflow's own failure.
   #
+  # Groups may opt into batch semantics with `continue_on_failure: true`,
+  # in which case every task in the group runs to completion and all
+  # failures are aggregated into the workflow's `errors` (keyed as
+  # `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"`
+  # for bare `fail!` reasons) before the pipeline halts on the first
+  # failure (declaration order).
+  #
   # @see Workflow
   class Pipeline
 
@@ -51,22 +58,26 @@ module CMDx
     private
 
     def run_sequential(group)
-      group.tasks.each do |task|
+      continue = group.options[:continue_on_failure]
+      failures = group.tasks.each_with_object([]) do |task, bucket|
         result = task.execute(@workflow.context)
-        return result if result.failed?
+        next unless result.failed?
+
+        bucket << result
+        break bucket unless continue
       end
 
-      nil
+      aggregate(failures, continue:)
     end
 
     def run_parallel(group)
       tasks     = group.tasks
       chain     = Chain.current
       size      = group.options[:pool_size] || tasks.size
-      fail_fast = group.options[:fail_fast]
+      continue  = group.options[:continue_on_failure]
       results   = Array.new(tasks.size)
       mutex     = Mutex.new
-      failed    = nil
+      seen_fail = false
       cancelled = false
 
       jobs = tasks.each_with_index.to_a
@@ -81,8 +92,8 @@ module CMDx
         mutex.synchronize do
           results[index] = result
 
-          if fail_fast && result.failed? && failed.nil?
-            failed    = result
+          if result.failed? && !continue && !seen_fail
+            seen_fail = true
             cancelled = true
           end
         end
@@ -93,17 +104,39 @@ module CMDx
 
       executor.call(jobs:, concurrency: size, on_job:)
 
+      failures = []
       results.each do |result|
         next if result.nil?
 
         if result.failed?
-          failed ||= result
+          failures << result
         else
           merger.call(@workflow.context, result)
         end
       end
 
-      failed
+      aggregate(failures, continue:)
+    end
+
+    def aggregate(failures, continue:)
+      return if failures.empty?
+      return failures.first unless continue
+
+      failures.each do |result|
+        prefix = result.task.name
+
+        if result.errors.empty?
+          message = result.reason || I18nProxy.t("cmdx.reasons.unspecified")
+          @workflow.errors.add(:"#{prefix}.#{result.status}", message)
+        else
+          result.errors.each do |key, messages|
+            namespaced = :"#{prefix}.#{key}"
+            messages.each { |message| @workflow.errors.add(namespaced, message) }
+          end
+        end
+      end
+
+      failures.first
     end
 
   end

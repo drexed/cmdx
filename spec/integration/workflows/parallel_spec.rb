@@ -111,14 +111,14 @@ RSpec.describe "Workflow parallel execution", type: :feature do
     end
   end
 
-  describe "fail_fast" do
-    it "drains pending parallel tasks after the first failure" do
+  describe "continue_on_failure" do
+    it "drains pending parallel tasks after the first failure by default" do
       ok = create_task_class(name: "Ok") { define_method(:work) { context.ok = true } }
       fl = create_failing_task(name: "Fail", reason: "fast boom")
       never = create_task_class(name: "Never") { define_method(:work) { context.never_ran = true } }
 
       workflow = create_workflow_class do
-        tasks ok, fl, never, strategy: :parallel, pool_size: 1, fail_fast: true
+        tasks ok, fl, never, strategy: :parallel, pool_size: 1
       end
 
       result = workflow.execute
@@ -128,18 +128,22 @@ RSpec.describe "Workflow parallel execution", type: :feature do
       expect(result.context[:never_ran]).to be_nil
     end
 
-    it "still runs all tasks when fail_fast is omitted" do
-      fl = create_failing_task(name: "Fail", reason: "boom")
-      later = create_task_class(name: "Later") { define_method(:work) { context.later = true } }
+    it "runs every task and aggregates failures when continue_on_failure is true" do
+      ok = create_task_class(name: "Ok") { define_method(:work) { context.ok = true } }
+      a = create_failing_task(name: "A", reason: "a-boom")
+      b = create_failing_task(name: "B", reason: "b-boom")
 
       workflow = create_workflow_class do
-        tasks fl, later, strategy: :parallel, pool_size: 1
+        tasks ok, a, b, strategy: :parallel, continue_on_failure: true
       end
 
       result = workflow.execute
 
       expect(result).to be_failed
-      expect(result.context[:later]).to be(true)
+      expect(result.context[:ok]).to be(true)
+      keys = result.errors.to_h.keys
+      expect(keys.any? { |k| k.to_s.end_with?(".failed") && k.to_s.start_with?("A") }).to be(true)
+      expect(keys.any? { |k| k.to_s.end_with?(".failed") && k.to_s.start_with?("B") }).to be(true)
     end
   end
 

@@ -78,6 +78,128 @@ RSpec.describe CMDx::Pipeline do
       end
     end
 
+    describe "continue_on_failure aggregation" do
+      let(:input_validation_task) do
+        klass = Class.new(CMDx::Task)
+        klass.define_singleton_method(:name) { "ValidatesAmount" }
+        klass.required(:amount)
+        klass.define_method(:work) { context.executed_validation = true }
+        klass
+      end
+
+      let(:bare_failing_task) do
+        klass = Class.new(CMDx::Task)
+        klass.define_singleton_method(:name) { "BareFailer" }
+        klass.define_method(:work) { fail!("bare boom") }
+        klass
+      end
+
+      let(:reasonless_failing_task) do
+        klass = Class.new(CMDx::Task)
+        klass.define_singleton_method(:name) { "Reasonless" }
+        klass.define_method(:work) { fail! }
+        klass
+      end
+
+      let(:succeeding_task) do
+        klass = Class.new(CMDx::Task)
+        klass.define_singleton_method(:name) { "Winner" }
+        klass.define_method(:work) { context.winner_ran = true }
+        klass
+      end
+
+      describe "sequential" do
+        it "runs every task and aggregates failures into result.errors" do
+          a = bare_failing_task
+          b = input_validation_task
+          c = succeeding_task
+
+          workflow_class = create_workflow_class do
+            tasks a, b, c, continue_on_failure: true
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          expect(result.context[:winner_ran]).to be(true)
+          expect(result.errors[:"BareFailer.failed"]).to eq(["bare boom"])
+          expect(result.errors[:"ValidatesAmount.amount"]).to eq([CMDx::I18nProxy.t("cmdx.attributes.required")])
+        end
+
+        it "uses the localized unspecified message when fail! has no reason" do
+          a = reasonless_failing_task
+
+          workflow_class = create_workflow_class do
+            tasks a, continue_on_failure: true
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          expect(result.errors[:"Reasonless.failed"]).to eq([CMDx::I18nProxy.t("cmdx.reasons.unspecified")])
+        end
+
+        it "the first failure (declaration order) becomes the signal origin" do
+          first_fail = create_failing_task(name: "First", reason: "first")
+          second_fail = create_failing_task(name: "Second", reason: "second")
+
+          workflow_class = create_workflow_class do
+            tasks first_fail, second_fail, continue_on_failure: true
+          end
+
+          result = workflow_class.execute
+
+          expect(result.reason).to eq("first")
+        end
+
+        it "halts the pipeline after the failed group (subsequent groups do not run)" do
+          a = create_failing_task(name: "Halter", reason: "stop")
+          after = create_task_class(name: "After") { define_method(:work) { context.after_ran = true } }
+
+          workflow_class = create_workflow_class do
+            tasks a, continue_on_failure: true
+            task after
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          expect(result.context[:after_ran]).to be_nil
+        end
+
+        it "does not aggregate when continue_on_failure is false (default)" do
+          a = create_failing_task(name: "OnlyFail", reason: "stop")
+          b = create_successful_task(name: "Skipped")
+
+          workflow_class = create_workflow_class do
+            tasks a, b
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          expect(result.errors).to be_empty
+        end
+      end
+
+      describe "parallel" do
+        it "runs every task, merges successes, and aggregates failures" do
+          ok_task = succeeding_task
+          fail_task = bare_failing_task
+
+          workflow_class = create_workflow_class do
+            tasks ok_task, fail_task, strategy: :parallel, continue_on_failure: true
+          end
+
+          result = workflow_class.execute
+
+          expect(result).to be_failed
+          expect(result.context[:winner_ran]).to be(true)
+          expect(result.errors[:"BareFailer.failed"]).to eq(["bare boom"])
+        end
+      end
+    end
+
     describe "sequential strategy" do
       it "runs each task in order" do
         task1 = create_successful_task(name: "T1")
@@ -105,13 +227,13 @@ RSpec.describe CMDx::Pipeline do
     end
 
     describe "parallel strategy" do
-      it "runs every task regardless of failure" do
+      it "runs every task regardless of failure when continue_on_failure is true" do
         task1 = create_failing_task(name: "Failing1", reason: "f1")
         task2 = create_successful_task(name: "Succ2")
         task3 = create_successful_task(name: "Succ3")
 
         workflow_class = create_workflow_class do
-          tasks task1, task2, task3, strategy: :parallel
+          tasks task1, task2, task3, strategy: :parallel, continue_on_failure: true
         end
 
         result = workflow_class.execute
@@ -133,15 +255,15 @@ RSpec.describe CMDx::Pipeline do
         expect(workflow_class.execute).to be_success
       end
 
-      describe ":fail_fast" do
-        it "skips queued tasks after the first failure (pool_size: 1)" do
+      describe ":continue_on_failure" do
+        it "skips queued tasks after the first failure by default (pool_size: 1)" do
           failing = create_failing_task(name: "First", reason: "stop")
           never_run = create_task_class(name: "NeverRun") do
             define_method(:work) { context.ran = true }
           end
 
           workflow_class = create_workflow_class do
-            tasks failing, never_run, strategy: :parallel, pool_size: 1, fail_fast: true
+            tasks failing, never_run, strategy: :parallel, pool_size: 1
           end
 
           result = workflow_class.execute
@@ -152,14 +274,14 @@ RSpec.describe CMDx::Pipeline do
           expect(task_names.any? { |n| n.include?("NeverRun") }).to be(false)
         end
 
-        it "runs every task when fail_fast is false (default behavior preserved)" do
+        it "runs every task when continue_on_failure is true" do
           failing = create_failing_task(name: "First", reason: "stop")
           other = create_task_class(name: "Other") do
             define_method(:work) { context.ran = true }
           end
 
           workflow_class = create_workflow_class do
-            tasks failing, other, strategy: :parallel, pool_size: 1
+            tasks failing, other, strategy: :parallel, pool_size: 1, continue_on_failure: true
           end
 
           result = workflow_class.execute
@@ -222,7 +344,7 @@ RSpec.describe CMDx::Pipeline do
           end
 
           workflow_class = create_workflow_class do
-            tasks ok, failing, never_run, strategy: :parallel, pool_size: 1, fail_fast: true
+            tasks ok, failing, never_run, strategy: :parallel, pool_size: 1
           end
 
           result = workflow_class.execute
