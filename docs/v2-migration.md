@@ -981,3 +981,26 @@ Stop when BOTH of these hold:
 If either fails and you can't resolve it from the rules above, stop and
 report the failing file:line with a one-line diagnosis.
 ````
+
+## Future
+
+These new internals build a solid foundation for introducing even more functionality. Here's a list of some of the things we have planned:
+
+- Result-driven control flow
+  - retry_when on Result, not exceptions — retry_when status: :failed, reason: /rate.?limit/, limit: 3. retry_on only catches exceptions; many APIs return failures-as-data.
+  - Built-in idempotency — idempotent_by :payment_id, ttl: 5.minutes, store: CMDx::Stores::Memory (or Redis adapter)
+  - Built-in circuit breaker — circuit_break threshold: 5, cool_off: 30
+  - Concurrency limit / bulkhead — concurrency_limit 10
+- Inputs / outputs / schema
+  - Schema export — MyTask.to_json_schema / to_openapi_operation derived from inputs + coercions + validators.
+  - Sensitive/redacted inputs — required :api_key, sensitive: true
+- Observability / tooling
+  - Chain#to_mermaid / #to_dot — visualize the chain (and result statuses) for debugging deeply nested executions.
+  - W3C traceparent in Telemetry::Event so xid participates in distributed traces, not just logs.
+  - Optional-require integrations shipped in-tree:
+    - require "cmdx/telemetry/open_telemetry" — auto-spans per task with parent linkage from xid/cid.
+    - require "cmdx/telemetry/statsd" / dogstatsd — emit cmdx.task.duration, .success, .failed with task-class tags.
+    - require "cmdx/telemetry/active_support_notifications" — bridge for Rails apps.
+- Developer experience
+  - YARD-driven schema docs — Rake task that walks every Task subclass and emits a Markdown reference (inputs, outputs, retries, callbacks, faults raised). Beats hand-maintaining docs/.
+  - Authorization gate — policy MyPolicy, action: :execute raising a typed AuthorizationFault
