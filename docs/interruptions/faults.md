@@ -17,7 +17,7 @@ Use `fault.result` to read the failed outcome's `reason`, `metadata`, `cause`, `
 
 !!! note
 
-    `Fault` wraps failures originating from `fail!`, `throw!`, or explicit `errors.add`. When Runtime rescued an ordinary `StandardError` (so `result.cause` is a non-`Fault`), `execute!` re-raises that **original** exception instead of wrapping it. For workflows, `fault.task` always points at the leaf that failed — not the workflow class — so matchers like `Fault.for?(LeafTask)` work the same in flat and nested executions.
+    `Fault` wraps failures from `fail!`, `throw!`, or `errors.add`. If Runtime rescued an ordinary `StandardError` (`result.cause` is non-`Fault`), `execute!` re-raises that original exception instead. In workflows, `fault.task` always points at the leaf that failed, so `Fault.for?(LeafTask)` works the same flat or nested.
 
 ## Fault Handling
 

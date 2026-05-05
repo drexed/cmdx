@@ -8,7 +8,7 @@
 
 !!! note
 
-    Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+    These docs track `main`. For version-specific docs, see the `docs/` directory in that version's tag.
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
@@ -201,7 +201,7 @@ I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d
 
 !!! note
 
-    With a durable log sink, these lines double as a log-only event sourcing record — a time-ordered history of every task execution, its inputs, and its outcome.
+    With a durable log sink, these lines double as event sourcing — a time-ordered history of every task execution.
 
 ## Task Lifecycle
 
@@ -209,34 +209,18 @@ Every `Task.execute` runs the same orchestrated lifecycle. The diagram below tra
 
 ```mermaid
 flowchart TD
-    Invoke([Task.execute / execute!]) --> Chain[Acquire/reuse Chain]
-    Chain --> MW[Middlewares.process]
-    MW --> Dep{Deprecation?}
-    Dep -->|:log / :warn| TelemDep[Emit :task_deprecated]
-    Dep -->|:error| Raise([raise DeprecationError])
-    Dep -->|none| BE[before_execution]
-    TelemDep --> BE
-    BE --> BV[before_validation]
-    BV --> Resolve[Resolve inputs]
-    Resolve --> Retry{retry_on}
-    Retry --> Work[work]
-    Work -->|success!| OK[Signal.success]
-    Work -->|skip!| OK
-    Work -->|fail! / throw!| Fail[Signal.failed]
-    Work -.->|raises Fault| Echo[Signal.echoed]
-    Work -.->|raises StandardError| Fail
-    Retry -.->|retriable error| Retry
-    OK --> Verify[Verify outputs]
-    Fail --> Rollback{defines #rollback?}
-    Echo --> Rollback
-    Rollback -->|yes| DoRollback[Run rollback]
+    Invoke([Task.execute]) --> Dep{Deprecation?}
+    Dep -->|":error"| Raise([raise DeprecationError])
+    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ around_execution + before_validation<br/>+ resolve inputs"]
+    Setup --> Work["work (wrapped in retry_on)"]
+    Work -->|"success! / skip!"| Verify[Verify outputs]
+    Work -->|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
+    Work -.->|"raises Fault"| Rollback
+    Rollback -->|yes| Cb["on_state / on_status / on_ok / on_ko<br/>+ after_execution"]
     Rollback -->|no| Cb
-    DoRollback --> Cb["on_state / on_status / on_ok / on_ko"]
     Verify --> Cb
-    Cb --> Finalize[Finalize Result + Chain]
-    Finalize --> Telem[Emit :task_executed]
-    Telem --> Teardown[Freeze context & errors, clear chain]
-    Teardown --> Out([Frozen Result])
+    Cb --> Finalize["Finalize Result + Chain<br/>emit :task_executed, freeze & teardown"]
+    Finalize --> Out([Frozen Result])
 ```
 
 Key invariants:

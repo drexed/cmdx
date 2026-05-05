@@ -79,12 +79,14 @@ Tasks follow a predictable execution pattern. Halt primitives — `success!`, `s
 | Stage | Description |
 |-------|-------------|
 | **Before execution** | `before_execution` callbacks run first |
+| **Around execution** | `around_execution` callbacks wrap everything from `before_validation` through `after_execution`; each must yield exactly once. Multiple hooks nest in declaration order (outer-first) |
 | **Before validation** | `before_validation` callbacks run next |
 | **Validation** | Inputs are coerced/validated; failures halt with `failed` |
 | **Work** | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries |
 | **Output verification** | Declared `output` keys are checked on `context` when `work` returned without halting; `:default` fills nils, missing keys fail the task. Skipped when `work` halts via `success!` / `skip!` / `fail!` / `throw!` |
 | **Rollback** | `rollback` runs when the signal is `failed` (before completion callbacks) |
 | **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order |
+| **After execution** | `after_execution` callbacks run as the inner-most teardown hook (still inside `around_execution`) |
 | **Result finalization** | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed) |
 | **Teardown** | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber |
 

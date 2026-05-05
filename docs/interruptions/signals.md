@@ -141,7 +141,7 @@ end
 
 !!! warning "Important"
 
-    Halt methods only work inside `work` (and anything called from it). Runtime's `catch(:cmdx_signal)` wraps just the work body; throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`. On a frozen task (post-teardown) they raise `FrozenError`.
+    Halt methods only work inside `work` (and anything it calls). Throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`; on a frozen task (post-teardown) they raise `FrozenError`.
 
 ## State Transitions
 
@@ -194,7 +194,7 @@ The resulting `Result` carries the upstream failure in `result.origin`; `result.
 
 !!! note
 
-    `throw!` accepts either a `Result` or a raw `CMDx::Signal`. Passing a non-failed result (or a non-failed signal) is a no-op — the caller continues past the `throw!` line. Use this whenever you're forwarding another task's halt state without unwrapping it yourself.
+    `throw!` accepts a `Result` or a raw `CMDx::Signal`. Non-failed inputs are a no-op (caller continues past the `throw!`). Use it to forward another task's halt state without unwrapping.
 
 ## Best Practices
 
