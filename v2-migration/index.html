@@ -2726,6 +2726,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -3657,7 +3685,7 @@
 <p>CMDx 2.0 is a full runtime rewrite. The public DSL — <code>required</code>, <code>optional</code>, callbacks, middlewares, <code>retry_on</code>, <code>settings</code>, <code>Workflow</code> / <code>task</code> — largely survives, but halt semantics, attribute/return declarations, middleware signatures, and most internal classes have changed.</p>
 <div class="admonition warning">
 <p class="admonition-title">Not a drop-in upgrade</p>
-<p>Plan to touch every task class. Halt is now <code>throw</code>/<code>catch</code> instead of <code>Result</code> mutation, attributes became inputs (<code>type:</code> → <code>coerce:</code>), returns became outputs (with optional <code>:default</code> / <code>:if</code> / <code>:unless</code>), middleware takes one argument and <code>yield</code>s, and the built-in middleware trio (<code>Correlate</code>, <code>Runtime</code>, <code>Timeout</code>) is gone.</p>
+<p>Plan to touch every task class. Halt is now <code>throw</code>/<code>catch</code> (not <code>Result</code> mutation), attributes became inputs (<code>type:</code> → <code>coerce:</code>), returns became outputs, middleware takes one arg and <code>yield</code>s, and the built-in middleware trio (<code>Correlate</code>, <code>Runtime</code>, <code>Timeout</code>) is gone.</p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Benchmarks</p>
@@ -3827,7 +3855,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>CMDx.reset_configuration!</code> is new — call it in test setup/teardown to replace the global config and invalidate the cached registries (<code>@middlewares</code>, <code>@callbacks</code>, <code>@coercions</code>, <code>@validators</code>, <code>@executors</code>, <code>@mergers</code>, <code>@telemetry</code>) <strong>on <code>Task</code></strong> only. Subclass caches aren't cleared — prefer freshly defined task classes (or <code>stub_const</code>/anonymous classes) per example.</p>
+<p><code>CMDx.reset_configuration!</code> is new — call it in test setup/teardown to replace the global config and clear cached registries <strong>on <code>Task</code></strong> only. Subclass caches aren't cleared — prefer freshly defined task classes per example (<code>stub_const</code> or anonymous classes).</p>
 </div>
 <p>See <a href="../configuration/">Configuration</a> for the full surface.</p>
 <hr />

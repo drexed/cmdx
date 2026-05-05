@@ -2044,6 +2044,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2363,8 +2391,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Passing a live <code>Context</code>, <code>Task</code>, or <code>Result</code> shares the context by reference — writes in the callee are visible to the caller. Use <code>context.deep_dup</code> when you need an isolated snapshot.</p>
-<p><code>context.to_h</code> exposes the backing hash by reference. <code>Context.build(context.to_h)</code> rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use <code>deep_dup</code> for full isolation.</p>
+<p>Passing a <code>Context</code>, <code>Task</code>, or <code>Result</code> shares context by reference — callee writes are visible to the caller. <code>context.to_h</code> exposes the backing hash; <code>Context.build(context.to_h)</code> rebuilds the top-level table but nested mutables still alias. Use <code>context.deep_dup</code> for full isolation.</p>
 </div>
 <h2 id="strict-mode">Strict Mode<a class="headerlink" href="#strict-mode" title="Permanent link">&para;</a></h2>
 <p>By default, reading an unknown key via the dynamic method reader returns <code>nil</code>. Enable strict mode to raise <code>NoMethodError</code> for unknown reads instead — useful for catching typos in larger tasks.</p>
@@ -2419,7 +2446,7 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>strict_context</code> is re-applied on every <code>Task#initialize</code>: each nested task flips the shared context's flag to its own <code>settings.strict_context</code> for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. <code>ApplicationTask</code>) so every subtask agrees.</p>
+<p><code>strict_context</code> is re-applied on every <code>Task#initialize</code> — nested tasks flip the shared flag to their own <code>settings.strict_context</code> for their execution. For consistent behavior across a pipeline, set it on a base class (e.g. <code>ApplicationTask</code>).</p>
 </div>
 <h2 id="pattern-matching">Pattern Matching<a class="headerlink" href="#pattern-matching" title="Permanent link">&para;</a></h2>
 <p><code>Context</code> supports both array and hash deconstruction (Ruby 3.0+).</p>

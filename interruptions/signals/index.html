@@ -2077,6 +2077,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2479,7 +2507,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Halt methods only work inside <code>work</code> (and anything called from it). Runtime's <code>catch(:cmdx_signal)</code> wraps just the work body; throwing from rollback, callbacks, or middlewares raises <code>UncaughtThrowError</code>. On a frozen task (post-teardown) they raise <code>FrozenError</code>.</p>
+<p>Halt methods only work inside <code>work</code> (and anything it calls). Throwing from rollback, callbacks, or middlewares raises <code>UncaughtThrowError</code>; on a frozen task (post-teardown) they raise <code>FrozenError</code>.</p>
 </div>
 <h2 id="state-transitions">State Transitions<a class="headerlink" href="#state-transitions" title="Permanent link">&para;</a></h2>
 <p>Halt methods trigger specific state and status transitions:</p>
@@ -2550,7 +2578,7 @@
 <p>The resulting <code>Result</code> carries the upstream failure in <code>result.origin</code>; <code>result.thrown_failure?</code> is <code>true</code>. See <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>throw!</code> accepts either a <code>Result</code> or a raw <code>CMDx::Signal</code>. Passing a non-failed result (or a non-failed signal) is a no-op — the caller continues past the <code>throw!</code> line. Use this whenever you're forwarding another task's halt state without unwrapping it yourself.</p>
+<p><code>throw!</code> accepts a <code>Result</code> or a raw <code>CMDx::Signal</code>. Non-failed inputs are a no-op (caller continues past the <code>throw!</code>). Use it to forward another task's halt state without unwrapping.</p>
 </div>
 <h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
 <p>Prefer specific reasons — they become <code>result.reason</code>, <code>Fault#message</code>, and end up in logs and telemetry:</p>

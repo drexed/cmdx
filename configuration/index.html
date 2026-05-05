@@ -2249,6 +2249,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2691,7 +2719,7 @@
 </ol>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Every class-level registry (<code>middlewares</code>, <code>callbacks</code>, <code>coercions</code>, <code>validators</code>, <code>executors</code>, <code>mergers</code>, <code>retriers</code>, <code>deprecators</code>, <code>telemetry</code>, <code>inputs</code>, <code>outputs</code>) is <strong>lazily duplicated</strong> from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call <code>CMDx.reset_configuration!</code> in test setup to invalidate the cached copies on <code>Task</code>.</p>
+<p>Class-level registries are <strong>lazily duplicated</strong> from the parent on first access. Configure globals before any task touches a registry, or call <code>CMDx.reset_configuration!</code> in test setup to invalidate cached copies on <code>Task</code>.</p>
 </div>
 <h2 id="global-configuration">Global Configuration<a class="headerlink" href="#global-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">&para;</a></h3>
@@ -2955,7 +2983,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>deregister(event)</code> drops every callback for that event; pass a second argument to remove only matching entries (matched by <code>==</code>). Unknown events raise <code>ArgumentError</code>; unmatched callables are a silent no-op.</p>
+<p><code>deregister(event)</code> drops every callback for that event; pass a second arg to remove only matching entries (<code>==</code>). Unknown events raise <code>ArgumentError</code>; unmatched callables are silent no-ops.</p>
 </div>
 <p>See <a href="../callbacks/">Callbacks</a> for class-level usage.</p>
 <h3 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h3>
@@ -3100,7 +3128,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>Settings</code> only stores <code>:logger</code>, <code>:log_formatter</code>, <code>:log_level</code>, <code>:log_exclusions</code>, <code>:backtrace_cleaner</code>, <code>:tags</code>, <code>:strict_context</code>, and <code>:correlation_id</code>. Other class-level config uses dedicated DSL (<code>retry_on</code>, <code>deprecation</code>, <code>register</code>, <code>before_execution</code>, …).</p>
+<p><code>Settings</code> only stores logging/tracing options (<code>:logger</code>, <code>:log_formatter</code>, <code>:log_level</code>, <code>:log_exclusions</code>, <code>:backtrace_cleaner</code>, <code>:tags</code>, <code>:strict_context</code>, <code>:correlation_id</code>). Other config uses dedicated DSL (<code>retry_on</code>, <code>deprecation</code>, <code>register</code>, <code>before_execution</code>, …).</p>
 </div>
 <h3 id="retry">Retry<a class="headerlink" href="#retry" title="Permanent link">&para;</a></h3>
 <p>Configure exception-based retries with <code>retry_on</code>. Accumulates across inheritance.</p>
@@ -3152,7 +3180,7 @@
 <p>See <a href="../inputs/definitions/">Inputs - Definitions</a> and <a href="../outputs/">Outputs</a> for the full schema DSL — the dedicated <code>required</code> / <code>optional</code> / <code>output</code> helpers are usually preferred over <code>register :input</code> / <code>register :output</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>deregister</code> mirrors <code>register</code>'s arity per registry. For callbacks: <code>deregister :callback, event</code> clears every entry for that event, or pass a third arg (<code>deregister :callback, event, callable</code>) to drop only matching entries (matched by <code>==</code>). For middlewares: <code>deregister :middleware, callable_or_class</code> (or <code>at:</code> index) matches by reference.</p>
+<p><code>deregister</code> mirrors <code>register</code>'s arity. Callbacks: <code>deregister :callback, event[, callable]</code> (event clear, or matched by <code>==</code>). Middlewares: <code>deregister :middleware, callable_or_class</code> (or <code>at:</code> index).</p>
 </div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
 <h3 id="access">Access<a class="headerlink" href="#access" title="Permanent link">&para;</a></h3>
@@ -3185,7 +3213,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p><code>reset_configuration!</code> clears <code>@middlewares</code>, <code>@callbacks</code>, <code>@coercions</code>, <code>@validators</code>, <code>@executors</code>, <code>@mergers</code>, <code>@retriers</code>, <code>@deprecators</code>, and <code>@telemetry</code> on <code>Task</code> only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via <code>stub_const</code> or anonymous classes).</p>
+<p><code>reset_configuration!</code> clears registry caches on <code>Task</code> only — subclasses that already cached their own copy keep them. In tests, prefer freshly defined task classes per example (e.g. <code>stub_const</code> or anonymous classes).</p>
 </div>
 
 

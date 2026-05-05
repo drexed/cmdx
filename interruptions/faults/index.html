@@ -2100,6 +2100,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2448,7 +2476,7 @@
 <p>Use <code>fault.result</code> to read the failed outcome's <code>reason</code>, <code>metadata</code>, <code>cause</code>, <code>origin</code>, <code>state</code>, and <code>status</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>Fault</code> wraps failures originating from <code>fail!</code>, <code>throw!</code>, or explicit <code>errors.add</code>. When Runtime rescued an ordinary <code>StandardError</code> (so <code>result.cause</code> is a non-<code>Fault</code>), <code>execute!</code> re-raises that <strong>original</strong> exception instead of wrapping it. For workflows, <code>fault.task</code> always points at the leaf that failed — not the workflow class — so matchers like <code>Fault.for?(LeafTask)</code> work the same in flat and nested executions.</p>
+<p><code>Fault</code> wraps failures from <code>fail!</code>, <code>throw!</code>, or <code>errors.add</code>. If Runtime rescued an ordinary <code>StandardError</code> (<code>result.cause</code> is non-<code>Fault</code>), <code>execute!</code> re-raises that original exception instead. In workflows, <code>fault.task</code> always points at the leaf that failed, so <code>Fault.for?(LeafTask)</code> works the same flat or nested.</p>
 </div>
 <h2 id="fault-handling">Fault Handling<a class="headerlink" href="#fault-handling" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>

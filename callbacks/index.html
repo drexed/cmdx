@@ -2072,6 +2072,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2349,7 +2377,7 @@
 <p>Run custom logic at specific points during task execution. Callbacks have full access to the task and its context — perfect for logging, notifications, and cleanup.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>Result</code> isn't built yet when callbacks run, so <code>task.result</code> isn't available. Branch on outcome by registering separate <code>on_success</code> / <code>on_failed</code> / <code>on_skipped</code> callbacks, or subscribe to Telemetry's <code>:task_executed</code> event when you need the finalized result.</p>
+<p><code>task.result</code> isn't available inside callbacks (the <code>Result</code> isn't built yet). Use <code>on_success</code> / <code>on_failed</code> / <code>on_skipped</code>, or subscribe to the <code>:task_executed</code> telemetry event for the finalized result.</p>
 </div>
 <p>See <a href="../configuration/#callbacks">Global Configuration</a> for framework-wide callback setup.</p>
 <div class="admonition warning">
@@ -2372,11 +2400,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Callbacks are additive, not exclusive</p>
-<p>Status callbacks (<code>on_success</code> / <code>on_skipped</code> / <code>on_failed</code>) and outcome
-callbacks (<code>on_ok</code> / <code>on_ko</code>) are dispatched independently — if you define
-both kinds, both will fire. The outcome pair also overlaps on skipped
-results: <code>on_ok</code> runs for success <strong>and</strong> skipped, <code>on_ko</code> runs for skipped
-<strong>and</strong> failed, so a skipped task fires <strong>both</strong> <code>on_ok</code> and <code>on_ko</code>.</p>
+<p>Status and outcome callbacks dispatch independently — defining both fires both. A skipped task fires <code>on_ok</code> <strong>and</strong> <code>on_ko</code>:</p>
 <table>
 <thead>
 <tr>

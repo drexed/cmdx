@@ -2022,6 +2022,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2317,6 +2345,10 @@
 <td><code>before_execution</code> callbacks run first</td>
 </tr>
 <tr>
+<td><strong>Around execution</strong></td>
+<td><code>around_execution</code> callbacks wrap everything from <code>before_validation</code> through <code>after_execution</code>; each must yield exactly once. Multiple hooks nest in declaration order (outer-first)</td>
+</tr>
+<tr>
 <td><strong>Before validation</strong></td>
 <td><code>before_validation</code> callbacks run next</td>
 </tr>
@@ -2339,6 +2371,10 @@
 <tr>
 <td><strong>Completion callbacks</strong></td>
 <td><code>on_&lt;state&gt;</code>, <code>on_&lt;status&gt;</code>, <code>on_ok</code>/<code>on_ko</code> fire in that order</td>
+</tr>
+<tr>
+<td><strong>After execution</strong></td>
+<td><code>after_execution</code> callbacks run as the inner-most teardown hook (still inside <code>around_execution</code>)</td>
 </tr>
 <tr>
 <td><strong>Result finalization</strong></td>

@@ -2122,6 +2122,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2609,7 +2637,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Compensation across tasks</p>
-<p>Pipeline rollback covers the common saga case automatically: define <code>#rollback</code> on each task that has side effects to undo, and the workflow will compensate them in reverse order on failure. Use a workflow-level <code>on_failed</code> callback only when compensation logic doesn't belong to any single task (e.g. it spans multiple contexts or external systems).</p>
+<p>Define <code>#rollback</code> on each task with side effects — the workflow compensates them in reverse order on failure. Use a workflow-level <code>on_failed</code> callback only when the cleanup doesn't belong to any single task.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
@@ -2631,7 +2659,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Parallel groups</p>
-<p>Tasks in a <code>:parallel</code> group run on a <code>deep_dup</code>'d context. Their <code>#rollback</code> sees that per-task copy, not the merged workflow context. Keep parallel compensators self-contained (e.g. external API calls keyed off values captured during <code>work</code>) rather than relying on shared workflow state.</p>
+<p>Parallel tasks run on a <code>deep_dup</code>'d context, so their <code>#rollback</code> sees only that copy — not the merged workflow context. Keep parallel compensators self-contained (capture what they need during <code>work</code>).</p>
 </div>
 <h2 id="nested-workflows">Nested Workflows<a class="headerlink" href="#nested-workflows" title="Permanent link">&para;</a></h2>
 <p>Workflows are tasks, so they nest naturally:</p>
@@ -2679,7 +2707,8 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Each parallel task receives its own deep-duplicated <code>context</code> copy, which is merged back into the workflow's context after execution (declaration order, not completion order). If multiple tasks write to the same key, the last task in declaration order wins. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through <code>throw!</code>. With <code>continue_on_failure: true</code>, every task runs to completion and all failures are aggregated into the workflow's <code>errors</code> (keyed as Symbols: <code>:"TaskClass.&lt;input&gt;"</code> for validation errors or <code>:"TaskClass.&lt;status&gt;"</code> for bare <code>fail!</code> reasons); the first failure in declaration order is still the one propagated through <code>throw!</code>.</p>
+<p>Each parallel task gets a deep-duplicated <code>context</code> copy, merged back in <strong>declaration order</strong> (not completion order) — last writer to a key wins, so prefer distinct keys per task.</p>
+<p>On failure, pending tasks are cancelled (in-flight ones still finish and their contexts merge) and the failed result propagates via <code>throw!</code>. With <code>continue_on_failure: true</code>, every task runs to completion and failures aggregate on <code>workflow.errors</code> (keyed <code>:"TaskClass.&lt;input&gt;"</code> for validation errors, <code>:"TaskClass.&lt;status&gt;"</code> for bare <code>fail!</code> reasons); the first declaration-order failure is the one re-thrown.</p>
 </div>
 <h3 id="batch-processing-with-continue_on_failure">Batch processing with <code>continue_on_failure</code><a class="headerlink" href="#batch-processing-with-continue_on_failure" title="Permanent link">&para;</a></h3>
 <p>For batch-style groups where you want to know about every failure rather than stopping at the first one, set <code>continue_on_failure: true</code>. Failures are aggregated into the workflow's <code>errors</code> collection.</p>

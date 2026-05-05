@@ -95,7 +95,7 @@ end
 
 Note
 
-When a required input's condition evaluates to `false`, the input behaves as optional. All other input features such as coercions, validations, defaults, and transformations still apply normally.
+A required input with a falsy `:if`/`:unless` gate behaves as optional. Coercions, validations, defaults, and transformations still apply.
 
 ## Removals
 
@@ -121,7 +121,7 @@ end
 
 Important
 
-`deregister :input, *names` accepts one or more names in a single call. Removing an input also removes any nested children defined under it. Passing a name that wasn't registered raises `NoMethodError` — make sure every name you pass exists on the inheritance chain.
+`deregister :input, *names` removes inputs (and any nested children). Unknown names raise `NoMethodError`.
 
 ## Introspection
 
@@ -146,11 +146,11 @@ Each entry exposes `:name` (the accessor name, post-`:as`/`:prefix`/`:suffix`), 
 
 Note
 
-`:required` in the schema reflects the static flag only — it's `Input#required?` evaluated without a task, so `:if` / `:unless` gates are ignored at schema time. Inspect `options[:if]` / `options[:unless]` when generating external documentation.
+`:required` in the schema is the static flag — `:if` / `:unless` gates aren't evaluated at schema time. Inspect `options[:if]` / `options[:unless]` directly when generating docs.
 
 Note
 
-A failed coercion or validator leaves the input's backing ivar at `nil`. The `Failure#message` (coercion) or validator message is recorded on `task.errors` under the input's accessor name, nested children are not resolved, and `Runtime` throws a failed signal before `work` runs.
+Failed coercion/validation leaves the backing ivar at `nil`, records the message on `task.errors` under the accessor name, skips nested children, and throws a failed signal before `work` runs.
 
 ## Sources
 

@@ -2127,6 +2127,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2444,7 +2472,7 @@
 <hr />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Documentation reflects the latest code on <code>main</code>. For version-specific documentation, please refer to the <code>docs/</code> directory within that version's tag.</p>
+<p>These docs track <code>main</code>. For version-specific docs, see the <code>docs/</code> directory in that version's tag.</p>
 </div>
 <p>CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.</p>
 <p><strong>Common challenges:</strong></p>
@@ -2648,39 +2676,23 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>With a durable log sink, these lines double as a log-only event sourcing record — a time-ordered history of every task execution, its inputs, and its outcome.</p>
+<p>With a durable log sink, these lines double as event sourcing — a time-ordered history of every task execution.</p>
 </div>
 <h2 id="task-lifecycle">Task Lifecycle<a class="headerlink" href="#task-lifecycle" title="Permanent link">&para;</a></h2>
 <p>Every <code>Task.execute</code> runs the same orchestrated lifecycle. The diagram below traces the path from invocation to a frozen <code>Result</code>, including how signals (<code>success!</code> / <code>skip!</code> / <code>fail!</code> / <code>throw!</code>) and exceptions interleave with middlewares, callbacks, retries, and rollback.</p>
 <pre class="mermaid"><code>flowchart TD
-    Invoke([Task.execute / execute!]) --&gt; Chain[Acquire/reuse Chain]
-    Chain --&gt; MW[Middlewares.process]
-    MW --&gt; Dep{Deprecation?}
-    Dep --&gt;|:log / :warn| TelemDep[Emit :task_deprecated]
-    Dep --&gt;|:error| Raise([raise DeprecationError])
-    Dep --&gt;|none| BE[before_execution]
-    TelemDep --&gt; BE
-    BE --&gt; BV[before_validation]
-    BV --&gt; Resolve[Resolve inputs]
-    Resolve --&gt; Retry{retry_on}
-    Retry --&gt; Work[work]
-    Work --&gt;|success!| OK[Signal.success]
-    Work --&gt;|skip!| OK
-    Work --&gt;|fail! / throw!| Fail[Signal.failed]
-    Work -.-&gt;|raises Fault| Echo[Signal.echoed]
-    Work -.-&gt;|raises StandardError| Fail
-    Retry -.-&gt;|retriable error| Retry
-    OK --&gt; Verify[Verify outputs]
-    Fail --&gt; Rollback{defines #rollback?}
-    Echo --&gt; Rollback
-    Rollback --&gt;|yes| DoRollback[Run rollback]
+    Invoke([Task.execute]) --&gt; Dep{Deprecation?}
+    Dep --&gt;|":error"| Raise([raise DeprecationError])
+    Dep --&gt;|"none / :log / :warn"| Setup["Middlewares + before_execution&lt;br/&gt;+ around_execution + before_validation&lt;br/&gt;+ resolve inputs"]
+    Setup --&gt; Work["work (wrapped in retry_on)"]
+    Work --&gt;|"success! / skip!"| Verify[Verify outputs]
+    Work --&gt;|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
+    Work -.-&gt;|"raises Fault"| Rollback
+    Rollback --&gt;|yes| Cb["on_state / on_status / on_ok / on_ko&lt;br/&gt;+ after_execution"]
     Rollback --&gt;|no| Cb
-    DoRollback --&gt; Cb["on_state / on_status / on_ok / on_ko"]
     Verify --&gt; Cb
-    Cb --&gt; Finalize[Finalize Result + Chain]
-    Finalize --&gt; Telem[Emit :task_executed]
-    Telem --&gt; Teardown[Freeze context &amp; errors, clear chain]
-    Teardown --&gt; Out([Frozen Result])</code></pre>
+    Cb --&gt; Finalize["Finalize Result + Chain&lt;br/&gt;emit :task_executed, freeze &amp; teardown"]
+    Finalize --&gt; Out([Frozen Result])</code></pre>
 <p>Key invariants:</p>
 <ul>
 <li><strong>Middlewares wrap everything inside <code>execute</code></strong> — telemetry, deprecation, callbacks, work, rollback, and result finalization all happen inside the middleware chain.</li>

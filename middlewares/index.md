@@ -146,13 +146,13 @@ end
 
 Note
 
-Procs are `instance_exec`'d on the task with zero args, so `self` is the task — a 1-arity lambda like `->(task) { ... }` raises `ArgumentError`. For `#call`-ables, passing a class dispatches to `Klass.call(task)` (needs `def self.call`); passing an instance dispatches to `instance.call(task)`.
+Procs are `instance_exec`'d on the task with zero args (`self` is the task) — a 1-arity lambda raises `ArgumentError`. Classes dispatch to `Klass.call(task)`, instances to `instance.call(task)`.
 
 When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
 
 Note
 
-The inline "Conditional wrapping" pattern is still useful when you need the middleware to run but want to gate only its side-effects. Use `:if`/`:unless` when you want to skip the middleware entirely; use inline branching when the middleware should wrap but alter behavior.
+Use `:if`/`:unless` to skip the middleware entirely; use inline "Conditional wrapping" when the middleware should wrap but only some side-effects are gated.
 
 ## Safety
 
@@ -176,11 +176,11 @@ MyTask.execute!
 
 Caution
 
-`MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the `catch(Signal::TAG)` boundary and never becomes a failed result. Always yield in every code path of your middleware (including `rescue` / `ensure` blocks where the call could be skipped).
+`MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the signal `catch` boundary and never becomes a failed result. Always yield in every code path (including `rescue`/`ensure`).
 
 Note
 
-Any other exception raised by a middleware (or by an inner link) propagates out through the chain — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
+Other exceptions propagate out — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
 
 ## Common Patterns
 

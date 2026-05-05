@@ -47,7 +47,7 @@ ______________________________________________________________________
 
 Note
 
-Documentation reflects the latest code on `main`. For version-specific documentation, please refer to the `docs/` directory within that version's tag.
+These docs track `main`. For version-specific docs, see the `docs/` directory in that version's tag.
 
 CMDx is a Ruby framework for building maintainable, observable business logic through composable command objects. It brings structure, consistency, and powerful developer tools to your business processes.
 
@@ -232,7 +232,7 @@ I, [2026-04-19T18:42:37.535000Z #3784] INFO -- cmdx: cid="018c2b95-b764-7fff-a1d
 
 Note
 
-With a durable log sink, these lines double as a log-only event sourcing record — a time-ordered history of every task execution, its inputs, and its outcome.
+With a durable log sink, these lines double as event sourcing — a time-ordered history of every task execution.
 
 ## Task Lifecycle
 
@@ -240,34 +240,18 @@ Every `Task.execute` runs the same orchestrated lifecycle. The diagram below tra
 
 ```
 flowchart TD
-    Invoke([Task.execute / execute!]) --> Chain[Acquire/reuse Chain]
-    Chain --> MW[Middlewares.process]
-    MW --> Dep{Deprecation?}
-    Dep -->|:log / :warn| TelemDep[Emit :task_deprecated]
-    Dep -->|:error| Raise([raise DeprecationError])
-    Dep -->|none| BE[before_execution]
-    TelemDep --> BE
-    BE --> BV[before_validation]
-    BV --> Resolve[Resolve inputs]
-    Resolve --> Retry{retry_on}
-    Retry --> Work[work]
-    Work -->|success!| OK[Signal.success]
-    Work -->|skip!| OK
-    Work -->|fail! / throw!| Fail[Signal.failed]
-    Work -.->|raises Fault| Echo[Signal.echoed]
-    Work -.->|raises StandardError| Fail
-    Retry -.->|retriable error| Retry
-    OK --> Verify[Verify outputs]
-    Fail --> Rollback{defines #rollback?}
-    Echo --> Rollback
-    Rollback -->|yes| DoRollback[Run rollback]
+    Invoke([Task.execute]) --> Dep{Deprecation?}
+    Dep -->|":error"| Raise([raise DeprecationError])
+    Dep -->|"none / :log / :warn"| Setup["Middlewares + before_execution<br/>+ around_execution + before_validation<br/>+ resolve inputs"]
+    Setup --> Work["work (wrapped in retry_on)"]
+    Work -->|"success! / skip!"| Verify[Verify outputs]
+    Work -->|"fail! / throw! / StandardError"| Rollback{"#rollback?"}
+    Work -.->|"raises Fault"| Rollback
+    Rollback -->|yes| Cb["on_state / on_status / on_ok / on_ko<br/>+ after_execution"]
     Rollback -->|no| Cb
-    DoRollback --> Cb["on_state / on_status / on_ok / on_ko"]
     Verify --> Cb
-    Cb --> Finalize[Finalize Result + Chain]
-    Finalize --> Telem[Emit :task_executed]
-    Telem --> Teardown[Freeze context & errors, clear chain]
-    Teardown --> Out([Frozen Result])
+    Cb --> Finalize["Finalize Result + Chain<br/>emit :task_executed, freeze & teardown"]
+    Finalize --> Out([Frozen Result])
 ```
 
 Key invariants:
@@ -354,7 +338,7 @@ CMDx uses a two-tier configuration system:
 
 Important
 
-Every class-level registry (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `inputs`, `outputs`) is **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
+Class-level registries are **lazily duplicated** from the parent on first access. Configure globals before any task touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate cached copies on `Task`.
 
 ## Global Configuration
 
@@ -536,7 +520,7 @@ end
 
 Note
 
-`deregister(event)` drops every callback for that event; pass a second argument to remove only matching entries (matched by `==`). Unknown events raise `ArgumentError`; unmatched callables are a silent no-op.
+`deregister(event)` drops every callback for that event; pass a second arg to remove only matching entries (`==`). Unknown events raise `ArgumentError`; unmatched callables are silent no-ops.
 
 See [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md) for class-level usage.
 
@@ -692,7 +676,7 @@ end
 
 Note
 
-`Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, and `:correlation_id`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+`Settings` only stores logging/tracing options (`:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, `:correlation_id`). Other config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
 
 ### Retry
 
@@ -757,7 +741,7 @@ See [Inputs - Definitions](https://drexed.github.io/cmdx/inputs/definitions/inde
 
 Note
 
-`deregister` mirrors `register`'s arity per registry. For callbacks: `deregister :callback, event` clears every entry for that event, or pass a third arg (`deregister :callback, event, callable`) to drop only matching entries (matched by `==`). For middlewares: `deregister :middleware, callable_or_class` (or `at:` index) matches by reference.
+`deregister` mirrors `register`'s arity. Callbacks: `deregister :callback, event[, callable]` (event clear, or matched by `==`). Middlewares: `deregister :middleware, callable_or_class` (or `at:` index).
 
 ## Configuration Management
 
@@ -798,7 +782,7 @@ end
 
 Important
 
-`reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@retriers`, `@deprecators`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).
+`reset_configuration!` clears registry caches on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer freshly defined task classes per example (e.g. `stub_const` or anonymous classes).
 # Basics
 
 # Basics - Setup
@@ -882,12 +866,14 @@ Tasks follow a predictable execution pattern. Halt primitives — `success!`, `s
 | Stage                    | Description                                                                                                                                                                                                      |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Before execution**     | `before_execution` callbacks run first                                                                                                                                                                           |
+| **Around execution**     | `around_execution` callbacks wrap everything from `before_validation` through `after_execution`; each must yield exactly once. Multiple hooks nest in declaration order (outer-first)                            |
 | **Before validation**    | `before_validation` callbacks run next                                                                                                                                                                           |
 | **Validation**           | Inputs are coerced/validated; failures halt with `failed`                                                                                                                                                        |
 | **Work**                 | `work` runs inside `catch(:cmdx_signal)`, wrapped in retries                                                                                                                                                     |
 | **Output verification**  | Declared `output` keys are checked on `context` when `work` returned without halting; `:default` fills nils, missing keys fail the task. Skipped when `work` halts via `success!` / `skip!` / `fail!` / `throw!` |
 | **Rollback**             | `rollback` runs when the signal is `failed` (before completion callbacks)                                                                                                                                        |
 | **Completion callbacks** | `on_<state>`, `on_<status>`, `on_ok`/`on_ko` fire in that order                                                                                                                                                  |
+| **After execution**      | `after_execution` callbacks run as the inner-most teardown hook (still inside `around_execution`)                                                                                                                |
 | **Result finalization**  | `Result` built and added to `Chain` (root is `unshift`ed; children are `push`ed)                                                                                                                                 |
 | **Teardown**             | Task, root context, errors, and chain are frozen; chain reference cleared from the fiber                                                                                                                         |
 
@@ -1076,9 +1062,7 @@ CreateShippingLabel.execute(result)
 
 Important
 
-Passing a live `Context`, `Task`, or `Result` shares the context by reference — writes in the callee are visible to the caller. Use `context.deep_dup` when you need an isolated snapshot.
-
-`context.to_h` exposes the backing hash by reference. `Context.build(context.to_h)` rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use `deep_dup` for full isolation.
+Passing a `Context`, `Task`, or `Result` shares context by reference — callee writes are visible to the caller. `context.to_h` exposes the backing hash; `Context.build(context.to_h)` rebuilds the top-level table but nested mutables still alias. Use `context.deep_dup` for full isolation.
 
 ## Strict Mode
 
@@ -1114,7 +1098,7 @@ Strict mode only affects the dynamic method reader. Every other access channel k
 
 Note
 
-`strict_context` is re-applied on every `Task#initialize`: each nested task flips the shared context's flag to its own `settings.strict_context` for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. `ApplicationTask`) so every subtask agrees.
+`strict_context` is re-applied on every `Task#initialize` — nested tasks flip the shared flag to their own `settings.strict_context` for their execution. For consistent behavior across a pipeline, set it on a base class (e.g. `ApplicationTask`).
 
 ## Pattern Matching
 
@@ -1395,7 +1379,7 @@ end
 
 Important
 
-Halt methods only work inside `work` (and anything called from it). Runtime's `catch(:cmdx_signal)` wraps just the work body; throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`. On a frozen task (post-teardown) they raise `FrozenError`.
+Halt methods only work inside `work` (and anything it calls). Throwing from rollback, callbacks, or middlewares raises `UncaughtThrowError`; on a frozen task (post-teardown) they raise `FrozenError`.
 
 ## State Transitions
 
@@ -1448,7 +1432,7 @@ The resulting `Result` carries the upstream failure in `result.origin`; `result.
 
 Note
 
-`throw!` accepts either a `Result` or a raw `CMDx::Signal`. Passing a non-failed result (or a non-failed signal) is a no-op — the caller continues past the `throw!` line. Use this whenever you're forwarding another task's halt state without unwrapping it yourself.
+`throw!` accepts a `Result` or a raw `CMDx::Signal`. Non-failed inputs are a no-op (caller continues past the `throw!`). Use it to forward another task's halt state without unwrapping.
 
 ## Best Practices
 
@@ -1501,7 +1485,7 @@ Use `fault.result` to read the failed outcome's `reason`, `metadata`, `cause`, `
 
 Note
 
-`Fault` wraps failures originating from `fail!`, `throw!`, or explicit `errors.add`. When Runtime rescued an ordinary `StandardError` (so `result.cause` is a non-`Fault`), `execute!` re-raises that **original** exception instead of wrapping it. For workflows, `fault.task` always points at the leaf that failed — not the workflow class — so matchers like `Fault.for?(LeafTask)` work the same in flat and nested executions.
+`Fault` wraps failures from `fail!`, `throw!`, or `errors.add`. If Runtime rescued an ordinary `StandardError` (`result.cause` is non-`Fault`), `execute!` re-raises that original exception instead. In workflows, `fault.task` always points at the leaf that failed, so `Fault.for?(LeafTask)` works the same flat or nested.
 
 ## Fault Handling
 
@@ -2405,7 +2389,7 @@ end
 
 Note
 
-When a required input's condition evaluates to `false`, the input behaves as optional. All other input features such as coercions, validations, defaults, and transformations still apply normally.
+A required input with a falsy `:if`/`:unless` gate behaves as optional. Coercions, validations, defaults, and transformations still apply.
 
 ## Removals
 
@@ -2431,7 +2415,7 @@ end
 
 Important
 
-`deregister :input, *names` accepts one or more names in a single call. Removing an input also removes any nested children defined under it. Passing a name that wasn't registered raises `NoMethodError` — make sure every name you pass exists on the inheritance chain.
+`deregister :input, *names` removes inputs (and any nested children). Unknown names raise `NoMethodError`.
 
 ## Introspection
 
@@ -2456,11 +2440,11 @@ Each entry exposes `:name` (the accessor name, post-`:as`/`:prefix`/`:suffix`), 
 
 Note
 
-`:required` in the schema reflects the static flag only — it's `Input#required?` evaluated without a task, so `:if` / `:unless` gates are ignored at schema time. Inspect `options[:if]` / `options[:unless]` when generating external documentation.
+`:required` in the schema is the static flag — `:if` / `:unless` gates aren't evaluated at schema time. Inspect `options[:if]` / `options[:unless]` directly when generating docs.
 
 Note
 
-A failed coercion or validator leaves the input's backing ivar at `nil`. The `Failure#message` (coercion) or validator message is recorded on `task.errors` under the input's accessor name, nested children are not resolved, and `Runtime` throws a failed signal before `work` runs.
+Failed coercion/validation leaves the backing ivar at `nil`, records the message on `task.errors` under the accessor name, skips nested children, and throws a failed signal before `work` runs.
 
 ## Sources
 
@@ -2993,7 +2977,7 @@ This list of options is available to all built-in validators:
 
 Note
 
-Short-form values are normalized before reaching any validator: a `Hash` passes through as options, an `Array` becomes `{ in: array }`, a `Regexp` becomes `{ with: regexp }`, `true` is `{}`, and `false`/`nil` skips the validator entirely.
+Short-form normalization: `Hash` → options, `Array` → `{ in: array }`, `Regexp` → `{ with: regexp }`, `true` → `{}`, `false`/`nil` skips the validator entirely.
 
 ### Absence
 
@@ -3124,7 +3108,7 @@ end
 
 Important
 
-Return `CMDx::Validators::Failure.new("message")` to mark the value invalid; any other return value (including `nil`, `true`, or `false`) is treated as success. The message is recorded on `task.errors` keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
+Return `CMDx::Validators::Failure.new("message")` to fail validation; any other return (including `nil` / `true` / `false`) is treated as success. Errors are keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
 
 ### Proc or Lambda
 
@@ -3436,7 +3420,7 @@ Run custom logic at specific points during task execution. Callbacks have full a
 
 Note
 
-The `Result` isn't built yet when callbacks run, so `task.result` isn't available. Branch on outcome by registering separate `on_success` / `on_failed` / `on_skipped` callbacks, or subscribe to Telemetry's `:task_executed` event when you need the finalized result.
+`task.result` isn't available inside callbacks (the `Result` isn't built yet). Use `on_success` / `on_failed` / `on_skipped`, or subscribe to the `:task_executed` telemetry event for the finalized result.
 
 See [Global Configuration](https://drexed.github.io/cmdx/configuration/#callbacks) for framework-wide callback setup.
 
@@ -3464,7 +3448,7 @@ Callbacks execute in a predictable lifecycle order:
 
 Callbacks are additive, not exclusive
 
-Status callbacks (`on_success` / `on_skipped` / `on_failed`) and outcome callbacks (`on_ok` / `on_ko`) are dispatched independently — if you define both kinds, both will fire. The outcome pair also overlaps on skipped results: `on_ok` runs for success **and** skipped, `on_ko` runs for skipped **and** failed, so a skipped task fires **both** `on_ok` and `on_ko`.
+Status and outcome callbacks dispatch independently — defining both fires both. A skipped task fires `on_ok` **and** `on_ko`:
 
 | Status  | Fires                          |
 | ------- | ------------------------------ |
@@ -3819,13 +3803,13 @@ end
 
 Note
 
-Procs are `instance_exec`'d on the task with zero args, so `self` is the task — a 1-arity lambda like `->(task) { ... }` raises `ArgumentError`. For `#call`-ables, passing a class dispatches to `Klass.call(task)` (needs `def self.call`); passing an instance dispatches to `instance.call(task)`.
+Procs are `instance_exec`'d on the task with zero args (`self` is the task) — a 1-arity lambda raises `ArgumentError`. Classes dispatch to `Klass.call(task)`, instances to `instance.call(task)`.
 
 When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.
 
 Note
 
-The inline "Conditional wrapping" pattern is still useful when you need the middleware to run but want to gate only its side-effects. Use `:if`/`:unless` when you want to skip the middleware entirely; use inline branching when the middleware should wrap but alter behavior.
+Use `:if`/`:unless` to skip the middleware entirely; use inline "Conditional wrapping" when the middleware should wrap but only some side-effects are gated.
 
 ## Safety
 
@@ -3849,11 +3833,11 @@ MyTask.execute!
 
 Caution
 
-`MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the `catch(Signal::TAG)` boundary and never becomes a failed result. Always yield in every code path of your middleware (including `rescue` / `ensure` blocks where the call could be skipped).
+`MiddlewareError` propagates from both `execute` and `execute!` — it's raised *outside* the signal `catch` boundary and never becomes a failed result. Always yield in every code path (including `rescue`/`ensure`).
 
 Note
 
-Any other exception raised by a middleware (or by an inner link) propagates out through the chain — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
+Other exceptions propagate out — outer middlewares' after-yield code is skipped unless wrapped in `ensure`. Treat middlewares like Rack: put cleanup in `ensure`.
 
 ## Common Patterns
 
@@ -4998,7 +4982,7 @@ end
 
 Compensation across tasks
 
-Pipeline rollback covers the common saga case automatically: define `#rollback` on each task that has side effects to undo, and the workflow will compensate them in reverse order on failure. Use a workflow-level `on_failed` callback only when compensation logic doesn't belong to any single task (e.g. it spans multiple contexts or external systems).
+Define `#rollback` on each task with side effects — the workflow compensates them in reverse order on failure. Use a workflow-level `on_failed` callback only when the cleanup doesn't belong to any single task.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
@@ -5022,7 +5006,7 @@ end
 
 Parallel groups
 
-Tasks in a `:parallel` group run on a `deep_dup`'d context. Their `#rollback` sees that per-task copy, not the merged workflow context. Keep parallel compensators self-contained (e.g. external API calls keyed off values captured during `work`) rather than relying on shared workflow state.
+Parallel tasks run on a `deep_dup`'d context, so their `#rollback` sees only that copy — not the merged workflow context. Keep parallel compensators self-contained (capture what they need during `work`).
 
 ## Nested Workflows
 
@@ -5079,7 +5063,9 @@ end
 
 Warning
 
-Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution (declaration order, not completion order). If multiple tasks write to the same key, the last task in declaration order wins. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through `throw!`. With `continue_on_failure: true`, every task runs to completion and all failures are aggregated into the workflow's `errors` (keyed as Symbols: `:"TaskClass.<input>"` for validation errors or `:"TaskClass.<status>"` for bare `fail!` reasons); the first failure in declaration order is still the one propagated through `throw!`.
+Each parallel task gets a deep-duplicated `context` copy, merged back in **declaration order** (not completion order) — last writer to a key wins, so prefer distinct keys per task.
+
+On failure, pending tasks are cancelled (in-flight ones still finish and their contexts merge) and the failed result propagates via `throw!`. With `continue_on_failure: true`, every task runs to completion and failures aggregate on `workflow.errors` (keyed `:"TaskClass.<input>"` for validation errors, `:"TaskClass.<status>"` for bare `fail!` reasons); the first declaration-order failure is the one re-thrown.
 
 ### Batch processing with `continue_on_failure`
 
@@ -5753,7 +5739,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 
 Not a drop-in upgrade
 
-Plan to touch every task class. Halt is now `throw`/`catch` instead of `Result` mutation, attributes became inputs (`type:` → `coerce:`), returns became outputs (with optional `:default` / `:if` / `:unless`), middleware takes one argument and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
+Plan to touch every task class. Halt is now `throw`/`catch` (not `Result` mutation), attributes became inputs (`type:` → `coerce:`), returns became outputs, middleware takes one arg and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
 
 Benchmarks
 
@@ -5843,7 +5829,7 @@ end
 
 Note
 
-`CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and invalidate the cached registries (`@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@telemetry`) **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes (or `stub_const`/anonymous classes) per example.
+`CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and clear cached registries **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes per example (`stub_const` or anonymous classes).
 
 See [Configuration](https://drexed.github.io/cmdx/configuration/index.md) for the full surface.
 

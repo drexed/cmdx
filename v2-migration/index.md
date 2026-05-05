@@ -4,7 +4,7 @@ CMDx 2.0 is a full runtime rewrite. The public DSL — `required`, `optional`, c
 
 Not a drop-in upgrade
 
-Plan to touch every task class. Halt is now `throw`/`catch` instead of `Result` mutation, attributes became inputs (`type:` → `coerce:`), returns became outputs (with optional `:default` / `:if` / `:unless`), middleware takes one argument and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
+Plan to touch every task class. Halt is now `throw`/`catch` (not `Result` mutation), attributes became inputs (`type:` → `coerce:`), returns became outputs, middleware takes one arg and `yield`s, and the built-in middleware trio (`Correlate`, `Runtime`, `Timeout`) is gone.
 
 Benchmarks
 
@@ -94,7 +94,7 @@ end
 
 Note
 
-`CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and invalidate the cached registries (`@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@telemetry`) **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes (or `stub_const`/anonymous classes) per example.
+`CMDx.reset_configuration!` is new — call it in test setup/teardown to replace the global config and clear cached registries **on `Task`** only. Subclass caches aren't cleared — prefer freshly defined task classes per example (`stub_const` or anonymous classes).
 
 See [Configuration](https://drexed.github.io/cmdx/configuration/index.md) for the full surface.
 

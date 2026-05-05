@@ -161,7 +161,7 @@ end
 
 Compensation across tasks
 
-Pipeline rollback covers the common saga case automatically: define `#rollback` on each task that has side effects to undo, and the workflow will compensate them in reverse order on failure. Use a workflow-level `on_failed` callback only when compensation logic doesn't belong to any single task (e.g. it spans multiple contexts or external systems).
+Define `#rollback` on each task with side effects — the workflow compensates them in reverse order on failure. Use a workflow-level `on_failed` callback only when the cleanup doesn't belong to any single task.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
@@ -185,7 +185,7 @@ end
 
 Parallel groups
 
-Tasks in a `:parallel` group run on a `deep_dup`'d context. Their `#rollback` sees that per-task copy, not the merged workflow context. Keep parallel compensators self-contained (e.g. external API calls keyed off values captured during `work`) rather than relying on shared workflow state.
+Parallel tasks run on a `deep_dup`'d context, so their `#rollback` sees only that copy — not the merged workflow context. Keep parallel compensators self-contained (capture what they need during `work`).
 
 ## Nested Workflows
 
@@ -242,7 +242,9 @@ end
 
 Warning
 
-Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution (declaration order, not completion order). If multiple tasks write to the same key, the last task in declaration order wins. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through `throw!`. With `continue_on_failure: true`, every task runs to completion and all failures are aggregated into the workflow's `errors` (keyed as Symbols: `:"TaskClass.<input>"` for validation errors or `:"TaskClass.<status>"` for bare `fail!` reasons); the first failure in declaration order is still the one propagated through `throw!`.
+Each parallel task gets a deep-duplicated `context` copy, merged back in **declaration order** (not completion order) — last writer to a key wins, so prefer distinct keys per task.
+
+On failure, pending tasks are cancelled (in-flight ones still finish and their contexts merge) and the failed result propagates via `throw!`. With `continue_on_failure: true`, every task runs to completion and failures aggregate on `workflow.errors` (keyed `:"TaskClass.<input>"` for validation errors, `:"TaskClass.<status>"` for bare `fail!` reasons); the first declaration-order failure is the one re-thrown.
 
 ### Batch processing with `continue_on_failure`
 

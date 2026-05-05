@@ -2177,6 +2177,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2670,7 +2698,7 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Short-form values are normalized before reaching any validator: a <code>Hash</code> passes through as options, an <code>Array</code> becomes <code>{ in: array }</code>, a <code>Regexp</code> becomes <code>{ with: regexp }</code>, <code>true</code> is <code>{}</code>, and <code>false</code>/<code>nil</code> skips the validator entirely.</p>
+<p>Short-form normalization: <code>Hash</code> → options, <code>Array</code> → <code>{ in: array }</code>, <code>Regexp</code> → <code>{ with: regexp }</code>, <code>true</code> → <code>{}</code>, <code>false</code>/<code>nil</code> skips the validator entirely.</p>
 </div>
 <h3 id="absence">Absence<a class="headerlink" href="#absence" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CreateUser</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
@@ -2934,7 +2962,7 @@
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Return <code>CMDx::Validators::Failure.new("message")</code> to mark the value invalid; any other return value (including <code>nil</code>, <code>true</code>, or <code>false</code>) is treated as success. The message is recorded on <code>task.errors</code> keyed by the input's <strong>accessor name</strong> (post-<code>:as</code>/<code>:prefix</code>/<code>:suffix</code>).</p>
+<p>Return <code>CMDx::Validators::Failure.new("message")</code> to fail validation; any other return (including <code>nil</code> / <code>true</code> / <code>false</code>) is treated as success. Errors are keyed by the input's <strong>accessor name</strong> (post-<code>:as</code>/<code>:prefix</code>/<code>:suffix</code>).</p>
 </div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
 <p>Use anonymous functions for simple validation logic:</p>

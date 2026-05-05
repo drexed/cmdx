@@ -2133,6 +2133,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2580,12 +2608,12 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Procs are <code>instance_exec</code>'d on the task with zero args, so <code>self</code> is the task — a 1-arity lambda like <code>-&gt;(task) { ... }</code> raises <code>ArgumentError</code>. For <code>#call</code>-ables, passing a class dispatches to <code>Klass.call(task)</code> (needs <code>def self.call</code>); passing an instance dispatches to <code>instance.call(task)</code>.</p>
+<p>Procs are <code>instance_exec</code>'d on the task with zero args (<code>self</code> is the task) — a 1-arity lambda raises <code>ArgumentError</code>. Classes dispatch to <code>Klass.call(task)</code>, instances to <code>instance.call(task)</code>.</p>
 </div>
 <p>When a gate is falsy, the middleware is skipped and the chain walks straight to the next link — inner middlewares still run. Gates do not need to yield; only the middleware itself does.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The inline "Conditional wrapping" pattern is still useful when you need the middleware to run but want to gate only its side-effects. Use <code>:if</code>/<code>:unless</code> when you want to skip the middleware entirely; use inline branching when the middleware should wrap but alter behavior.</p>
+<p>Use <code>:if</code>/<code>:unless</code> to skip the middleware entirely; use inline "Conditional wrapping" when the middleware should wrap but only some side-effects are gated.</p>
 </div>
 <h2 id="safety">Safety<a class="headerlink" href="#safety" title="Permanent link">&para;</a></h2>
 <p>If a middleware forgets to call <code>yield</code> (or <code>next_link.call</code>), the chain raises <code>CMDx::MiddlewareError</code> instead of silently bypassing the task body:</p>
@@ -2605,11 +2633,11 @@
 </span></code></pre></div>
 <div class="admonition danger">
 <p class="admonition-title">Caution</p>
-<p><code>MiddlewareError</code> propagates from both <code>execute</code> and <code>execute!</code> — it's raised <em>outside</em> the <code>catch(Signal::TAG)</code> boundary and never becomes a failed result. Always yield in every code path of your middleware (including <code>rescue</code> / <code>ensure</code> blocks where the call could be skipped).</p>
+<p><code>MiddlewareError</code> propagates from both <code>execute</code> and <code>execute!</code> — it's raised <em>outside</em> the signal <code>catch</code> boundary and never becomes a failed result. Always yield in every code path (including <code>rescue</code>/<code>ensure</code>).</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Any other exception raised by a middleware (or by an inner link) propagates out through the chain — outer middlewares' after-yield code is skipped unless wrapped in <code>ensure</code>. Treat middlewares like Rack: put cleanup in <code>ensure</code>.</p>
+<p>Other exceptions propagate out — outer middlewares' after-yield code is skipped unless wrapped in <code>ensure</code>. Treat middlewares like Rack: put cleanup in <code>ensure</code>.</p>
 </div>
 <h2 id="common-patterns">Common Patterns<a class="headerlink" href="#common-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="conditional-wrapping">Conditional wrapping<a class="headerlink" href="#conditional-wrapping" title="Permanent link">&para;</a></h3>

@@ -2133,6 +2133,34 @@
   
   
     <li class="md-nav__item">
+      <a href="https://github.com/drexed/cmdx-i18n" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cmdx-i18n
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/drexed/cmdx-rspec" class="md-nav__link">
         
   
@@ -2551,7 +2579,7 @@
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When a required input's condition evaluates to <code>false</code>, the input behaves as optional. All other input features such as coercions, validations, defaults, and transformations still apply normally.</p>
+<p>A required input with a falsy <code>:if</code>/<code>:unless</code> gate behaves as optional. Coercions, validations, defaults, and transformations still apply.</p>
 </div>
 <h2 id="removals">Removals<a class="headerlink" href="#removals" title="Permanent link">&para;</a></h2>
 <p>Remove inherited or previously defined inputs and their accessor methods via <code>deregister</code>. The lookup key is always the <strong>original input name</strong> — <code>:as</code>, <code>:prefix</code>, and <code>:suffix</code> only affect the generated accessor, not the registry key:</p>
@@ -2573,7 +2601,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p><code>deregister :input, *names</code> accepts one or more names in a single call. Removing an input also removes any nested children defined under it. Passing a name that wasn't registered raises <code>NoMethodError</code> — make sure every name you pass exists on the inheritance chain.</p>
+<p><code>deregister :input, *names</code> removes inputs (and any nested children). Unknown names raise <code>NoMethodError</code>.</p>
 </div>
 <h2 id="introspection">Introspection<a class="headerlink" href="#introspection" title="Permanent link">&para;</a></h2>
 <p>Inspect the full input schema for tooling, documentation generation, or debugging:</p>
@@ -2593,11 +2621,11 @@
 <p>Each entry exposes <code>:name</code> (the accessor name, post-<code>:as</code>/<code>:prefix</code>/<code>:suffix</code>), <code>:description</code>, <code>:required</code>, the raw declaration <code>:options</code>, and any nested <code>:children</code> recursively.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>:required</code> in the schema reflects the static flag only — it's <code>Input#required?</code> evaluated without a task, so <code>:if</code> / <code>:unless</code> gates are ignored at schema time. Inspect <code>options[:if]</code> / <code>options[:unless]</code> when generating external documentation.</p>
+<p><code>:required</code> in the schema is the static flag — <code>:if</code> / <code>:unless</code> gates aren't evaluated at schema time. Inspect <code>options[:if]</code> / <code>options[:unless]</code> directly when generating docs.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A failed coercion or validator leaves the input's backing ivar at <code>nil</code>. The <code>Failure#message</code> (coercion) or validator message is recorded on <code>task.errors</code> under the input's accessor name, nested children are not resolved, and <code>Runtime</code> throws a failed signal before <code>work</code> runs.</p>
+<p>Failed coercion/validation leaves the backing ivar at <code>nil</code>, records the message on <code>task.errors</code> under the accessor name, skips nested children, and throws a failed signal before <code>work</code> runs.</p>
 </div>
 <h2 id="sources">Sources<a class="headerlink" href="#sources" title="Permanent link">&para;</a></h2>
 <p>Inputs read from any accessible object — not just context. The default source is <code>:context</code>; override with <code>source:</code> to pull data from a method, proc, callable class, or another already-defined input:</p>

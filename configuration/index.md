@@ -11,7 +11,7 @@ CMDx uses a two-tier configuration system:
 
 Important
 
-Every class-level registry (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `inputs`, `outputs`) is **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
+Class-level registries are **lazily duplicated** from the parent on first access. Configure globals before any task touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate cached copies on `Task`.
 
 ## Global Configuration
 
@@ -193,7 +193,7 @@ end
 
 Note
 
-`deregister(event)` drops every callback for that event; pass a second argument to remove only matching entries (matched by `==`). Unknown events raise `ArgumentError`; unmatched callables are a silent no-op.
+`deregister(event)` drops every callback for that event; pass a second arg to remove only matching entries (`==`). Unknown events raise `ArgumentError`; unmatched callables are silent no-ops.
 
 See [Callbacks](https://drexed.github.io/cmdx/callbacks/index.md) for class-level usage.
 
@@ -349,7 +349,7 @@ end
 
 Note
 
-`Settings` only stores `:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, and `:correlation_id`. Other class-level config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
+`Settings` only stores logging/tracing options (`:logger`, `:log_formatter`, `:log_level`, `:log_exclusions`, `:backtrace_cleaner`, `:tags`, `:strict_context`, `:correlation_id`). Other config uses dedicated DSL (`retry_on`, `deprecation`, `register`, `before_execution`, …).
 
 ### Retry
 
@@ -414,7 +414,7 @@ See [Inputs - Definitions](https://drexed.github.io/cmdx/inputs/definitions/inde
 
 Note
 
-`deregister` mirrors `register`'s arity per registry. For callbacks: `deregister :callback, event` clears every entry for that event, or pass a third arg (`deregister :callback, event, callable`) to drop only matching entries (matched by `==`). For middlewares: `deregister :middleware, callable_or_class` (or `at:` index) matches by reference.
+`deregister` mirrors `register`'s arity. Callbacks: `deregister :callback, event[, callable]` (event clear, or matched by `==`). Middlewares: `deregister :middleware, callable_or_class` (or `at:` index).
 
 ## Configuration Management
 
@@ -455,4 +455,4 @@ end
 
 Important
 
-`reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@retriers`, `@deprecators`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).
+`reset_configuration!` clears registry caches on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer freshly defined task classes per example (e.g. `stub_const` or anonymous classes).

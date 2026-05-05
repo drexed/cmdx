@@ -90,9 +90,7 @@ CreateShippingLabel.execute(result)
 
 Important
 
-Passing a live `Context`, `Task`, or `Result` shares the context by reference — writes in the callee are visible to the caller. Use `context.deep_dup` when you need an isolated snapshot.
-
-`context.to_h` exposes the backing hash by reference. `Context.build(context.to_h)` rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use `deep_dup` for full isolation.
+Passing a `Context`, `Task`, or `Result` shares context by reference — callee writes are visible to the caller. `context.to_h` exposes the backing hash; `Context.build(context.to_h)` rebuilds the top-level table but nested mutables still alias. Use `context.deep_dup` for full isolation.
 
 ## Strict Mode
 
@@ -128,7 +126,7 @@ Strict mode only affects the dynamic method reader. Every other access channel k
 
 Note
 
-`strict_context` is re-applied on every `Task#initialize`: each nested task flips the shared context's flag to its own `settings.strict_context` for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. `ApplicationTask`) so every subtask agrees.
+`strict_context` is re-applied on every `Task#initialize` — nested tasks flip the shared flag to their own `settings.strict_context` for their execution. For consistent behavior across a pipeline, set it on a base class (e.g. `ApplicationTask`).
 
 ## Pattern Matching
 

@@ -4,7 +4,7 @@ Run custom logic at specific points during task execution. Callbacks have full a
 
 Note
 
-The `Result` isn't built yet when callbacks run, so `task.result` isn't available. Branch on outcome by registering separate `on_success` / `on_failed` / `on_skipped` callbacks, or subscribe to Telemetry's `:task_executed` event when you need the finalized result.
+`task.result` isn't available inside callbacks (the `Result` isn't built yet). Use `on_success` / `on_failed` / `on_skipped`, or subscribe to the `:task_executed` telemetry event for the finalized result.
 
 See [Global Configuration](https://drexed.github.io/cmdx/configuration/#callbacks) for framework-wide callback setup.
 
@@ -32,7 +32,7 @@ Callbacks execute in a predictable lifecycle order:
 
 Callbacks are additive, not exclusive
 
-Status callbacks (`on_success` / `on_skipped` / `on_failed`) and outcome callbacks (`on_ok` / `on_ko`) are dispatched independently — if you define both kinds, both will fire. The outcome pair also overlaps on skipped results: `on_ok` runs for success **and** skipped, `on_ko` runs for skipped **and** failed, so a skipped task fires **both** `on_ok` and `on_ko`.
+Status and outcome callbacks dispatch independently — defining both fires both. A skipped task fires `on_ok` **and** `on_ko`:
 
 | Status  | Fires                          |
 | ------- | ------------------------------ |

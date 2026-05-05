@@ -90,7 +90,7 @@ This list of options is available to all built-in validators:
 
 Note
 
-Short-form values are normalized before reaching any validator: a `Hash` passes through as options, an `Array` becomes `{ in: array }`, a `Regexp` becomes `{ with: regexp }`, `true` is `{}`, and `false`/`nil` skips the validator entirely.
+Short-form normalization: `Hash` → options, `Array` → `{ in: array }`, `Regexp` → `{ with: regexp }`, `true` → `{}`, `false`/`nil` skips the validator entirely.
 
 ### Absence
 
@@ -221,7 +221,7 @@ end
 
 Important
 
-Return `CMDx::Validators::Failure.new("message")` to mark the value invalid; any other return value (including `nil`, `true`, or `false`) is treated as success. The message is recorded on `task.errors` keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
+Return `CMDx::Validators::Failure.new("message")` to fail validation; any other return (including `nil` / `true` / `false`) is treated as success. Errors are keyed by the input's **accessor name** (post-`:as`/`:prefix`/`:suffix`).
 
 ### Proc or Lambda
 
