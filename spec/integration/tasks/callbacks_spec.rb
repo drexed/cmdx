@@ -274,6 +274,74 @@ RSpec.describe "Task callbacks", type: :feature do
     end
   end
 
+  describe "around_execution" do
+    it "wraps before_validation, work, and after_execution" do
+      task = create_task_class(name: "AroundOk") do
+        before_execution { (context.log ||= []) << :before_execution }
+        around_execution(proc { |t, cont|
+          (t.context.log ||= []) << :around_before
+          cont.call
+          t.context.log << :around_after
+        })
+        before_validation { (context.log ||= []) << :before_validation }
+        after_execution   { (context.log ||= []) << :after_execution }
+        on_complete       { (context.log ||= []) << :on_complete }
+        on_success        { (context.log ||= []) << :on_success }
+        define_method(:work) { context.log << :work }
+      end
+
+      expect(task.execute.context[:log]).to eq(
+        %i[before_execution around_before before_validation work after_execution around_after on_complete on_success]
+      )
+    end
+
+    it "still runs the after-portion when the work fails" do
+      task = create_task_class(name: "AroundFail") do
+        around_execution :wrap
+        define_method(:work) { fail!("nope") }
+        define_method(:wrap) do |&continuation|
+          (context.log ||= []) << :before
+          continuation.call
+          context.log << :after
+        end
+      end
+
+      result = task.execute
+
+      expect(result).to be_failed
+      expect(result.context[:log]).to eq(%i[before after])
+    end
+
+    it "nests multiple around_execution callbacks in declaration order" do
+      task = create_task_class(name: "AroundNested") do
+        around_execution(proc { |t, c|
+          (t.context.log ||= []) << :outer_before
+          c.call
+          t.context.log << :outer_after
+        })
+        around_execution(proc { |t, c|
+          (t.context.log ||= []) << :inner_before
+          c.call
+          t.context.log << :inner_after
+        })
+        define_method(:work) { context.log << :work }
+      end
+
+      expect(task.execute.context[:log]).to eq(
+        %i[outer_before inner_before work inner_after outer_after]
+      )
+    end
+
+    it "raises CallbackError when the around hook forgets to yield" do
+      task = create_task_class(name: "AroundNoYield") do
+        around_execution(proc { |_t, _c| :swallowed })
+        define_method(:work) { context.ran = true }
+      end
+
+      expect { task.execute }.to raise_error(CMDx::CallbackError, /around_execution/)
+    end
+  end
+
   describe "callback interactions" do
     it "runs before_validation before input resolution so it can populate context" do
       task = create_task_class(name: "PrefillTask") do

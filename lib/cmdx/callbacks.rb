@@ -14,6 +14,7 @@ module CMDx
     EVENTS = Set[
       :before_validation,
       :before_execution,
+      :around_execution,
       :after_execution,
       :on_complete,
       :on_interrupted,
@@ -106,21 +107,62 @@ module CMDx
     # @return [void]
     # @raise [ArgumentError] when a callback is neither a Symbol nor responds to `#call`
     def process(event, task)
-      return unless (callbacks = registry[event])
+      callbacks = registry[event]
+      return if callbacks.nil? || callbacks.empty?
 
       callbacks.each do |callable, options|
         next unless Util.satisfied?(options[:if], options[:unless], task)
 
-        case callable
-        when Symbol
-          task.send(callable)
-        when Proc
-          task.instance_exec(task, &callable)
-        else
-          next callable.call(task) if callable.respond_to?(:call)
+        invoke(callable, task)
+      end
+    end
 
-          raise ArgumentError, "callback must be a Symbol, Proc, or respond to #call"
+    # Wraps `block` with every callback registered for `event` as a nested
+    # chain (outer-first by declaration order). Each callback receives a
+    # continuation it must invoke exactly once: Symbol callbacks get it as
+    # their block (use `yield`); Procs/blocks are `instance_exec`'d on the
+    # task with `(task, continuation)`; arbitrary callables receive
+    # `(task, continuation)`. Gates skip individual links silently while
+    # still running the body.
+    #
+    # @param event [Symbol]
+    # @param task [Task]
+    # @yield the innermost link — the lifecycle body to wrap
+    # @return [void]
+    # @raise [CallbackError] when a callback fails to invoke its continuation
+    def around(event, task, &body)
+      callbacks = registry[event]
+      return yield if callbacks.nil? || callbacks.empty?
+
+      callbacks.reverse_each.reduce(body) do |succ, (callable, options)|
+        lambda do
+          next succ.call unless Util.satisfied?(options[:if], options[:unless], task)
+
+          called = false
+          cont = lambda do
+            called = true
+            succ.call
+          end
+
+          invoke(callable, task, cont, &cont)
+
+          called || raise(CallbackError, "#{event} callback did not invoke its continuation")
         end
+      end.call
+    end
+
+    private
+
+    def invoke(callable, task, *extras, &)
+      case callable
+      when Symbol
+        task.send(callable, &)
+      when Proc
+        task.instance_exec(task, *extras, &callable)
+      else
+        return callable.call(task, *extras) if callable.respond_to?(:call)
+
+        raise ArgumentError, "callback must be a Symbol, Proc, or respond to #call"
       end
     end
 

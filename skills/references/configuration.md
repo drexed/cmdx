@@ -165,7 +165,7 @@ No middleware is built into the gem.
 
 ### Callback events
 
-`:before_execution`, `:before_validation`, `:after_execution`, `:on_complete`, `:on_interrupted`, `:on_success`, `:on_skipped`, `:on_failed`, `:on_ok`, `:on_ko`.
+`:before_execution`, `:before_validation`, `:around_execution`, `:after_execution`, `:on_complete`, `:on_interrupted`, `:on_success`, `:on_skipped`, `:on_failed`, `:on_ok`, `:on_ko`. `:around_execution` callbacks wrap the lifecycle and must invoke their continuation (Symbol → `yield`; Proc/callable → `(task, continuation)`).
 
 Each event has a class-level DSL method: `before_execution :method_name`, `on_failed { |task| ... }`, etc. Callbacks accept Symbol (`task.send`), Proc (`instance_exec(task, &)`), or any `#call(task)`-able. Supports `if:`/`unless:` gates.
 

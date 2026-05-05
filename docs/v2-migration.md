@@ -988,7 +988,6 @@ The v2 internals open the door to a number of additions that didn't fit the rewr
 
 ### Tasks
 
-- **`around_execution` callbacks** — every existing callback is before/after-style. An around hook avoids forcing every wrapping concern through `middlewares.register`.
 - **`retry_when` on `Result`** — retry on outcome, not exceptions: `retry_when status: :failed, reason: /rate.?limit/, limit: 3`. `retry_on` only catches raised errors; many APIs return failures-as-data.
 - **`idempotent_by`** — declarative idempotency keyed off context: `idempotent_by :payment_id, ttl: 5.minutes`. Backed by `CMDx::Stores`.
 - **`circuit_break`** — `circuit_break threshold: 5, cool_off: 30.seconds` without bolting on Stoplight per task.

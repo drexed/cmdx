@@ -18,15 +18,16 @@ Callbacks execute in a predictable lifecycle order:
 
 ```ruby
 1. before_execution            # Prepare for execution
-2. before_validation           # Pre-validation setup
+2. around_execution            # Wraps everything below; must invoke its continuation
+3. before_validation           # Pre-validation setup
 
 # --- inputs resolved, Task#work runs (with retries), outputs verified ---
 # --- #rollback runs here when failed ---
 
-3. after_execution             # Execution teardown
-4. on_[complete|interrupted]   # State-based (execution lifecycle)
-5. on_[success|skipped|failed] # Status-based (business outcome)
-6. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
+4. after_execution             # Execution teardown
+5. on_[complete|interrupted]   # State-based (execution lifecycle)
+6. on_[success|skipped|failed] # Status-based (business outcome)
+7. on_[ok|ko]                  # Outcome-based (success/skip vs fail)
 ```
 
 !!! note "Callbacks are additive, not exclusive"
@@ -158,6 +159,66 @@ class ProcessBooking < CMDx::Task
   end
 end
 ```
+
+## Around Callbacks
+
+`around_execution` wraps `before_validation`, `Task#work`, any `#rollback`,
+and `after_execution` in a single hook. Each callback **must invoke its
+continuation exactly once** — failure to do so raises `CMDx::CallbackError`.
+Multiple `around_execution` hooks nest in declaration order (outer-first).
+
+The continuation surface differs by callback form:
+
+- **Symbol** — the instance method receives the continuation as its block; use `yield` (or capture `&blk` and call it):
+
+    ```ruby
+    class ProcessBooking < CMDx::Task
+      around_execution :instrument
+
+      private
+
+      def instrument
+        started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        yield
+      ensure
+        Metrics.record(self.class.name, Process.clock_gettime(Process::CLOCK_MONOTONIC) - started)
+      end
+    end
+    ```
+
+- **Proc / Lambda / block** — receives `(task, continuation)`; call `continuation.call`:
+
+    ```ruby
+    class ProcessBooking < CMDx::Task
+      around_execution ->(task, cont) {
+        ActiveRecord::Base.transaction { cont.call }
+      }
+    end
+    ```
+
+- **Class or instance callable** — `#call(task, continuation)`:
+
+    ```ruby
+    class WithRequestStore
+      def self.call(task, continuation)
+        RequestStore.store[:tid] = task.tid
+        continuation.call
+      ensure
+        RequestStore.clear!
+      end
+    end
+
+    class ProcessBooking < CMDx::Task
+      around_execution WithRequestStore
+    end
+    ```
+
+`around_execution` runs **inside** registered middlewares but **outside** the
+state/status callbacks (`on_complete`, `on_success`, etc.), so its
+"after"-portion still observes the result-producing signal but cannot affect
+which `on_*` callbacks fire. Use it for symmetric concerns like
+transactions, instrumentation, and per-task logging context. Use a middleware
+when the wrapping logic must also straddle telemetry/deprecation events.
 
 ## Callback Removal
 

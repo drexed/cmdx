@@ -38,6 +38,10 @@ module CMDx
   # by `execute!`.
   Error = Exception = Class.new(StandardError)
 
+  # Raised when an `around_execution` callback fails to invoke its
+  # continuation, which would otherwise silently skip the task body.
+  CallbackError = Class.new(Error)
+
   # Raised when a task or workflow attempts to define an input where an
   # accessor with the same name already exists.
   DefinitionError = Class.new(Error)

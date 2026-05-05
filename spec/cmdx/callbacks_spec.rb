@@ -416,9 +416,102 @@ RSpec.describe CMDx::Callbacks do
     end
   end
 
+  describe "#around" do
+    let(:task_class) do
+      Class.new do
+        attr_reader :calls
+
+        def initialize
+          @calls = []
+        end
+
+        def wrap_with_log
+          @calls << :before
+          yield
+          @calls << :after
+        end
+      end
+    end
+    let(:task) { task_class.new }
+
+    it "yields the inner block when no callbacks are registered" do
+      ran = false
+      callbacks.around(:around_execution, task) { ran = true }
+
+      expect(ran).to be(true)
+    end
+
+    it "invokes a Symbol callback whose method yields" do
+      callbacks.register(:around_execution, :wrap_with_log)
+      callbacks.around(:around_execution, task) { task.calls << :inner }
+
+      expect(task.calls).to eq(%i[before inner after])
+    end
+
+    it "invokes a Proc callback with (task, continuation)" do
+      callbacks.register(:around_execution, proc { |t, cont|
+        t.calls << :before
+        cont.call
+        t.calls << :after
+      })
+      callbacks.around(:around_execution, task) { task.calls << :inner }
+
+      expect(task.calls).to eq(%i[before inner after])
+    end
+
+    it "invokes a class-level callable with (task, continuation)" do
+      handler = Class.new do
+        def self.call(task, continuation)
+          task.calls << :before
+          continuation.call
+          task.calls << :after
+        end
+      end
+      callbacks.register(:around_execution, handler)
+      callbacks.around(:around_execution, task) { task.calls << :inner }
+
+      expect(task.calls).to eq(%i[before inner after])
+    end
+
+    it "nests multiple callbacks in declaration order (outer first)" do
+      callbacks.register(:around_execution, proc { |t, cont|
+        t.calls << :outer_before
+        cont.call
+        t.calls << :outer_after
+      })
+      callbacks.register(:around_execution, proc { |t, cont|
+        t.calls << :inner_before
+        cont.call
+        t.calls << :inner_after
+      })
+      callbacks.around(:around_execution, task) { task.calls << :body }
+
+      expect(task.calls).to eq(%i[outer_before inner_before body inner_after outer_after])
+    end
+
+    it "skips a link whose :if gate evaluates falsy but still runs the body" do
+      callbacks.register(:around_execution, :wrap_with_log, if: proc { false })
+      callbacks.around(:around_execution, task) { task.calls << :inner }
+
+      expect(task.calls).to eq(%i[inner])
+    end
+
+    it "raises CallbackError when the callback never invokes its continuation" do
+      callbacks.register(:around_execution, proc { |_t, _cont| :noop })
+
+      expect do
+        callbacks.around(:around_execution, task) { :unreached }
+      end.to raise_error(CMDx::CallbackError, /around_execution callback did not invoke its continuation/)
+    end
+  end
+
   describe "EVENTS" do
     it "is frozen" do
       expect(described_class::EVENTS).to be_frozen
+    end
+
+    it "includes :around_execution" do
+      expect(described_class::EVENTS).to include(:around_execution)
     end
   end
 end
