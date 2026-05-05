@@ -29,14 +29,24 @@ module CMDx
     # @param workflow [Task & Workflow]
     def initialize(workflow)
       @workflow = workflow
+      @executed = []
     end
 
     # Iterates every group in the workflow's pipeline, respecting
     # `:if`/`:unless` and the `:strategy` key. Any group that produces a
     # failed result halts execution by throwing through the workflow.
     #
+    # On halt, every previously executed task instance whose result is
+    # `success?` is sent `#rollback` (when defined) in reverse execution
+    # order, providing saga-style compensation. Each compensated result
+    # has its `:rolled_back` option flipped to `true`. Skipped tasks are
+    # excluded; the failing task itself is rolled back by {Runtime} and
+    # is not re-invoked here. Exceptions raised inside a compensator
+    # propagate — handling them is the developer's responsibility.
+    #
     # @return [void]
     # @raise [ArgumentError] for an unknown strategy
+    # @raise [StandardError] anything raised by a task's `#rollback`
     def execute
       @workflow.class.pipeline.each do |group|
         next unless Util.satisfied?(group.options[:if], group.options[:unless], @workflow)
@@ -51,7 +61,10 @@ module CMDx
             raise ArgumentError, "invalid strategy: #{strategy.inspect}"
           end
 
-        @workflow.send(:throw!, halt) if halt
+        next unless halt
+
+        rollback_executed!
+        @workflow.send(:throw!, halt)
       end
     end
 
@@ -59,8 +72,10 @@ module CMDx
 
     def run_sequential(group)
       continue = group.options[:continue_on_failure]
-      failures = group.tasks.each_with_object([]) do |task, bucket|
-        result = task.execute(@workflow.context)
+      failures = group.tasks.each_with_object([]) do |task_class, bucket|
+        instance = task_class.new(@workflow.context)
+        result   = instance.execute(strict: false)
+        @executed << [instance, result]
         next unless result.failed?
 
         bucket << result
@@ -75,7 +90,7 @@ module CMDx
       chain     = Chain.current
       size      = group.options[:pool_size] || tasks.size
       continue  = group.options[:continue_on_failure]
-      results   = Array.new(tasks.size)
+      entries   = Array.new(tasks.size)
       mutex     = Mutex.new
       seen_fail = false
       cancelled = false
@@ -87,10 +102,11 @@ module CMDx
 
         Fiber[Chain::STORAGE_KEY] ||= chain
         ctx_copy = @workflow.context.deep_dup
-        result   = task_class.execute(ctx_copy)
+        instance = task_class.new(ctx_copy)
+        result   = instance.execute(strict: false)
 
         mutex.synchronize do
-          results[index] = result
+          entries[index] = [instance, result]
 
           if result.failed? && !continue && !seen_fail
             seen_fail = true
@@ -105,8 +121,11 @@ module CMDx
       executor.call(jobs:, concurrency: size, on_job:)
 
       failures = []
-      results.each do |result|
-        next if result.nil?
+      entries.each do |entry|
+        next if entry.nil?
+
+        @executed << entry
+        _instance, result = entry
 
         if result.failed?
           failures << result
@@ -116,6 +135,19 @@ module CMDx
       end
 
       aggregate(failures, continue:)
+    end
+
+    def rollback_executed!
+      @executed.reverse_each do |instance, result|
+        next unless result.success?
+        next unless instance.respond_to?(:rollback)
+
+        instance.rollback
+
+        old_opts = result.instance_variable_get(:@options)
+        new_opts = old_opts.merge(rolled_back: true).freeze
+        result.instance_variable_set(:@options, new_opts)
+      end
     end
 
     def aggregate(failures, continue:)

@@ -134,7 +134,9 @@ To make a "soft" failure non-halting, have the task `skip!` instead of `fail!`. 
 
 ## Rollback in Workflows
 
-When a task fails, Runtime calls its `#rollback` method (if defined) immediately after `work` returns and *before* the failure is `throw!`n up to the workflow. Concretely, the failed leaf task's lifecycle is: `perform_work` → `perform_rollback` → `on_*` callbacks → result finalization → throw to workflow. Rollback is **per-task**: previously successful tasks in the same workflow are not rolled back automatically.
+When a task fails, Runtime calls its `#rollback` method (if defined) immediately after `work` returns and *before* the failure is `throw!`n up to the workflow. Concretely, the failed leaf task's lifecycle is: `perform_work` → `perform_rollback` → `on_*` callbacks → result finalization → throw to workflow.
+
+When a workflow's pipeline halts, `Pipeline` then walks every previously executed task instance whose result is `success?` in **reverse** execution order and invokes `#rollback` on any that defines it — saga-style compensation across the whole pipeline. Each compensated result's `#rolled_back?` becomes `true`. Skipped tasks are excluded; the failing task itself is rolled back by Runtime and is not re-invoked. Exceptions raised inside a compensator propagate to the caller — handling them is the developer's responsibility.
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
@@ -157,26 +159,33 @@ class ChargeCard < CMDx::Task
 end
 ```
 
-!!! warning "Compensation across tasks"
+!!! note "Compensation across tasks"
 
-    To undo earlier successful tasks when a later one fails, handle it on the workflow itself with an `on_failed` callback. The callback runs after the pipeline halts but before teardown, with full access to `context`.
+    Pipeline rollback covers the common saga case automatically: define `#rollback` on each task that has side effects to undo, and the workflow will compensate them in reverse order on failure. Use a workflow-level `on_failed` callback only when compensation logic doesn't belong to any single task (e.g. it spans multiple contexts or external systems).
 
 ```ruby
 class PaymentWorkflow < CMDx::Task
   include CMDx::Workflow
 
-  on_failed :compensate!
+  task ReserveInventory  # rolled back second on failure (in reverse)
+  task ChargeCard        # rolled back first if it succeeded; Runtime rolls it back if it failed
+  task SendConfirmation
+end
 
-  task ReserveInventory
-  task ChargeCard
+class ReserveInventory < CMDx::Task
+  def work
+    context.reservation_id = Inventory.reserve(context.sku, context.qty)
+  end
 
-  private
-
-  def compensate!
-    ReleaseInventory.execute(context) if context.reservation_id
+  def rollback
+    Inventory.release(context.reservation_id)
   end
 end
 ```
+
+!!! warning "Parallel groups"
+
+    Tasks in a `:parallel` group run on a `deep_dup`'d context. Their `#rollback` sees that per-task copy, not the merged workflow context. Keep parallel compensators self-contained (e.g. external API calls keyed off values captured during `work`) rather than relying on shared workflow state.
 
 ## Nested Workflows
 

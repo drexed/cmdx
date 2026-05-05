@@ -28,6 +28,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add new exception classes: `DefinitionError`, `DeprecationError`, `ImplementationError`, `MiddlewareError`
 - Add `Task#work` abstract method (raises `ImplementationError` when not defined)
 - Add `Task#rollback` lifecycle hook, auto-invoked by Runtime on failed results when defined; surfaced via `Result#rolled_back?` and the `:task_rolled_back` event
+- Add saga-style pipeline rollback: when a `Workflow` halts, `Pipeline` walks every previously executed task instance whose result is `success?` in reverse execution order and invokes `#rollback` (when defined), then flips that result's `rolled_back?` to `true`. Skipped tasks are excluded; the failing task is rolled back by Runtime and not re-invoked. Exceptions raised inside a compensator propagate — handling them is the developer's responsibility. Applies across groups, within `continue_on_failure: true` groups, and to `:parallel` groups (compensators see the per-task `deep_dup`'d context)
 - Add `Task#success!` for signaling a successful halt, joining `skip!` / `fail!` / `throw!`
 - Add `Task.execute` / `Task.execute!` as the execution entry points (aliased as `call` / `call!` for backward compatibility)
 - Add `Task#execute(strict:)` instance method (aliased as `#call`)
