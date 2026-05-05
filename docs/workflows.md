@@ -65,7 +65,7 @@ Options apply to the entire group:
 | `strategy:`   | `:sequential`  | `:sequential` or `:parallel`                           |
 | `pool_size:`  | `tasks.size`   | Worker/fiber count when `strategy: :parallel`          |
 | `executor:`   | `:threads`     | Parallel dispatch backend: `:threads`, `:fibers`, or a callable. `:fibers` requires a `Fiber.scheduler` to be installed (e.g. inside `Async { ... }`) |
-| `merge_strategy:` | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }` |
+| `merger:` | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }` |
 | `continue_on_failure:` | `false` | When `true`, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's `errors` (keyed `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"` for bare `fail!` reasons). Applies to both strategies. When `false` (default), `:sequential` halts on the first failure and `:parallel` cancels pending tasks (in-flight tasks still finish) |
 | `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
@@ -313,21 +313,21 @@ The same registry is available globally via `CMDx.configuration.executors.regist
 
 ### Merge strategies
 
-After every successful sibling completes, each sibling's duplicated context is folded back into the workflow context. The default is last-write-wins in declaration order — reliable and fast, but brittle when two tasks write a nested structure under the same key. `:merge_strategy` lets you pick the collision policy up front.
+After every successful sibling completes, each sibling's duplicated context is folded back into the workflow context. The default is last-write-wins in declaration order — reliable and fast, but brittle when two tasks write a nested structure under the same key. `:merger` lets you pick the collision policy up front.
 
 ```ruby
 # Default — shallow, last declared task wins on conflicts
-tasks A, B, C, strategy: :parallel, merge_strategy: :last_write_wins
+tasks A, B, C, strategy: :parallel, merger: :last_write_wins
 
 # Recursive hash merge — nested structures are combined instead of replaced
-tasks A, B, C, strategy: :parallel, merge_strategy: :deep_merge
+tasks A, B, C, strategy: :parallel, merger: :deep_merge
 
 # Don't touch the workflow context at all
-tasks A, B, C, strategy: :parallel, merge_strategy: :no_merge
+tasks A, B, C, strategy: :parallel, merger: :no_merge
 
 # Custom — e.g. namespace each sibling's output under its class name
 tasks A, B, C, strategy: :parallel,
-      merge_strategy: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
+      merger: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
 ```
 
 Behavior notes:
@@ -336,14 +336,14 @@ Behavior notes:
 - `:deep_merge` recurses only into `Hash` values; non-hash collisions (Integer, String, Array, custom objects) still follow last-write-wins so a scalar on either side wins over a hash on the other.
 - `:no_merge` keeps the parallel tasks' side effects (each sibling's `result.context` is still reachable via `result.chain`) but nothing is written back to the workflow context. Useful when you're only interested in per-task telemetry, or when tasks own their own persistence.
 - A callable receives `(workflow_context, result)` and is free to write whatever shape you want. Failed results never reach the merger.
-- Merge strategies are resolved from a per-task registry (`CMDx::Mergers`). Register your own named merger with `register :merger, :name, callable` (or on `CMDx.configuration.mergers`) and reference it by symbol from `:merge_strategy`.
+- Merge strategies are resolved from a per-task registry (`CMDx::Mergers`). Register your own named merger with `register :merger, :name, callable` (or on `CMDx.configuration.mergers`) and reference it by symbol from `:merger`.
 
 ```ruby
 class BuildDashboard < CMDx::Task
   include CMDx::Workflow
 
   tasks FetchRevenue, FetchTraffic, FetchErrors,
-        strategy: :parallel, merge_strategy: :deep_merge
+        strategy: :parallel, merger: :deep_merge
   # FetchRevenue: context.metrics = { revenue: ... }
   # FetchTraffic: context.metrics = { visitors: ... }
   # After merge: context.metrics == { revenue: ..., visitors: ..., errors: ... }

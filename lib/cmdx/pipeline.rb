@@ -116,7 +116,7 @@ module CMDx
       end
 
       executor = @workflow.class.executors.resolve(group.options[:executor])
-      merger   = @workflow.class.mergers.resolve(group.options[:merge_strategy])
+      merger   = @workflow.class.mergers.resolve(group.options[:merger])
 
       executor.call(jobs:, concurrency: size, on_job:)
 

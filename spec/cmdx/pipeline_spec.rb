@@ -354,7 +354,7 @@ RSpec.describe CMDx::Pipeline do
         end
       end
 
-      describe ":merge_strategy" do
+      describe ":merger" do
         let(:writer_a) do
           create_task_class(name: "WA") do
             define_method(:work) do
@@ -389,7 +389,7 @@ RSpec.describe CMDx::Pipeline do
           wa = writer_a
           wb = writer_b
           workflow_class = create_workflow_class do
-            tasks wa, wb, strategy: :parallel, merge_strategy: :deep_merge
+            tasks wa, wb, strategy: :parallel, merger: :deep_merge
           end
 
           result = workflow_class.execute
@@ -400,7 +400,7 @@ RSpec.describe CMDx::Pipeline do
           wa = writer_a
           wb = writer_b
           workflow_class = create_workflow_class do
-            tasks wa, wb, strategy: :parallel, merge_strategy: :no_merge
+            tasks wa, wb, strategy: :parallel, merger: :no_merge
           end
 
           result = workflow_class.execute
@@ -420,7 +420,7 @@ RSpec.describe CMDx::Pipeline do
           }
 
           workflow_class = create_workflow_class do
-            tasks wa, wb, strategy: :parallel, merge_strategy: collector
+            tasks wa, wb, strategy: :parallel, merger: collector
           end
 
           result = workflow_class.execute
@@ -431,10 +431,10 @@ RSpec.describe CMDx::Pipeline do
         it "rejects unknown symbols" do
           wa = writer_a
           workflow_class = create_workflow_class do
-            tasks wa, strategy: :parallel, merge_strategy: :bogus
+            tasks wa, strategy: :parallel, merger: :bogus
           end
 
-          expect { workflow_class.execute! }.to raise_error(ArgumentError, /unknown merge_strategy: :bogus/)
+          expect { workflow_class.execute! }.to raise_error(ArgumentError, /unknown merger: :bogus/)
         end
       end
 
@@ -456,7 +456,7 @@ RSpec.describe CMDx::Pipeline do
           t1 = create_successful_task(name: "M1")
           workflow_class = create_workflow_class do
             register :merger, :collector, collector
-            tasks t1, strategy: :parallel, merge_strategy: :collector
+            tasks t1, strategy: :parallel, merger: :collector
           end
 
           expect(workflow_class.execute).to be_success

@@ -33,7 +33,7 @@ module CMDx
       #   dispatch backend. `:fibers` requires a `Fiber.scheduler` to be
       #   installed (e.g. `Async { ... }`). A custom callable accepting
       #   `jobs:, concurrency:, on_job:` may also be passed.
-      # @option options [:last_write_wins, :deep_merge, :no_merge, #call] :merge_strategy
+      # @option options [:last_write_wins, :deep_merge, :no_merge, #call] :merger
       #   (:last_write_wins) how successful parallel contexts are folded back
       #   into the workflow context. Merging happens in declaration order. A
       #   callable `->(workflow_context, result) { ... }` may be passed to

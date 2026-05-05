@@ -434,7 +434,7 @@ end
 - Each parallel worker `deep_dup`s the workflow context, runs its task, then merges its successful child context back into the workflow (on the parent thread, after all workers join).
 - All workers share the parent's fiber-local `Chain` — each worker sets `Fiber[Chain::STORAGE_KEY]` on thread entry, and each result is pushed under a `Mutex`.
 - By default (`continue_on_failure: false`), pending workers are drained as soon as any sibling fails (in-flight tasks still finish, successful contexts still merge), and the first failure **by completion time** is propagated. With `continue_on_failure: true`, every worker runs to completion and all failures are aggregated into the workflow's `errors` (keyed `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"` for bare `fail!` reasons); the first failure **by declaration index** is propagated via `throw!`.
-- Additional knobs: `:executor` (`:threads` default, `:fibers`, or a callable), `:merge_strategy` (`:last_write_wins` default, `:deep_merge`, `:no_merge`, or a callable), and `:continue_on_failure`. See [Workflows - Parallel Execution](workflows.md#parallel-execution).
+- Additional knobs: `:executor` (`:threads` default, `:fibers`, or a callable), `:merger` (`:last_write_wins` default, `:deep_merge`, `:no_merge`, or a callable), and `:continue_on_failure`. See [Workflows - Parallel Execution](workflows.md#parallel-execution).
 
 ### Behavioral Changes
 

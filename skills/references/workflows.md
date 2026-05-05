@@ -33,7 +33,7 @@ Defining `def work` on a workflow raises `CMDx::ImplementationError` — `#work`
 | `strategy:` | `:sequential` (default) or `:parallel`. |
 | `pool_size:` | Parallel worker/fiber count. Defaults to `tasks.size`. |
 | `executor:` | `:threads` (default), `:fibers`, or any callable matching `call(jobs:, concurrency:, on_job:)`. `:fibers` requires `Fiber.scheduler` to be installed. |
-| `merge_strategy:` | `:last_write_wins` (default), `:deep_merge`, `:no_merge`, or a callable `call(workflow_context, result)`. Applied in declaration order over successful results only. |
+| `merger:` | `:last_write_wins` (default), `:deep_merge`, `:no_merge`, or a callable `call(workflow_context, result)`. Applied in declaration order over successful results only. |
 | `continue_on_failure:` | When `true`, run every task in the group even after a failure and aggregate failures into `workflow.errors` keyed `"TaskClass.input"` / `"TaskClass.<status>"`. When `false` (default), `:sequential` halts on first failure and `:parallel` cancels pending tasks. |
 | `if:` / `unless:` | Gate the whole group. Signature `(workflow)` (Symbol → task method; Proc → `instance_exec`; `#call`-able → `callable.call(workflow)`). |
 
@@ -98,15 +98,15 @@ end
 CMDx.configure { |c| c.executors.register(:bounded_pool, MyPool.method(:run)) }
 ```
 
-### Merge strategies (`merge_strategy:`)
+### Merge strategies (`merger:`)
 
 Controls how successful sibling contexts fold back into the workflow context. Fold order is always declaration order (deterministic, independent of completion order).
 
 ```ruby
 tasks A, B, C, strategy: :parallel                           # :last_write_wins (default)
-tasks A, B, C, strategy: :parallel, merge_strategy: :deep_merge
-tasks A, B, C, strategy: :parallel, merge_strategy: :no_merge
-tasks A, B, C, strategy: :parallel, merge_strategy: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
+tasks A, B, C, strategy: :parallel, merger: :deep_merge
+tasks A, B, C, strategy: :parallel, merger: :no_merge
+tasks A, B, C, strategy: :parallel, merger: ->(ctx, result) { ctx[result.task.name] = result.context.to_h }
 ```
 
 - `:last_write_wins` — shallow `Hash#merge!`; later-declared tasks overwrite earlier-declared on conflict. Matches previous behavior.
@@ -116,7 +116,7 @@ tasks A, B, C, strategy: :parallel, merge_strategy: ->(ctx, result) { ctx[result
 
 Unknown merge strategy symbols raise `ArgumentError`.
 
-Merge strategies are resolved from a per-task `CMDx::Mergers` registry. Register custom named mergers via `register :merger, :name, callable` on a task class (or `CMDx.configuration.mergers.register(...)` globally) and reference them by symbol from `:merge_strategy`.
+Merge strategies are resolved from a per-task `CMDx::Mergers` registry. Register custom named mergers via `register :merger, :name, callable` on a task class (or `CMDx.configuration.mergers.register(...)` globally) and reference them by symbol from `:merger`.
 
 ## Conditional groups
 

@@ -54,11 +54,11 @@ module CMDx
     # @raise [ArgumentError] when `name` isn't registered
     def lookup(name)
       registry[name] || begin
-        raise ArgumentError, "unknown merge_strategy: #{name.inspect}"
+        raise ArgumentError, "unknown merger: #{name.inspect}"
       end
     end
 
-    # Resolves a declaration's `:merge_strategy` option to a concrete
+    # Resolves a declaration's `:merger` option to a concrete
     # callable. Accepts `nil` (default `:last_write_wins`), a Symbol
     # (registry lookup), or any object responding to `#call`.
     #
@@ -74,7 +74,7 @@ module CMDx
       else
         return spec if spec.respond_to?(:call)
 
-        raise ArgumentError, "unknown merge_strategy: #{spec.inspect}"
+        raise ArgumentError, "unknown merger: #{spec.inspect}"
       end
     end
 
