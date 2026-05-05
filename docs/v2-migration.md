@@ -986,7 +986,15 @@ report the failing file:line with a one-line diagnosis.
 
 These new internals build a solid foundation for introducing even more functionality. Here's a list of some of the things we have planned:
 
-- Result-driven control flow
+- Workflows
+  - Sub-workflow inlining — calling another Workflow should appear as nested groups in the chain, not just one opaque result. Chain already supports nesting; pipeline doesn't expose it.
+  - Streaming results from parallel groups — yield each completed child result to a block as it finishes, not after the whole group joins. Useful for progress reporting.
+- Tasks
+  - execute_async returning a Concurrent::Promise-shaped object (or at least an opaque future) without forcing the caller to wrap in Async {}
+  - First-class background-job adapter instead of the Sidekiq mixin recipe — Task.perform_async, perform_in, perform_at with adapter for Sidekiq / ActiveJob / GoodJob. Auto-handles JSON-safe context serialization (and refuses non-serializable values at enqueue).
+  - Checkpoint/resume for workflows — persist context after each group to a pluggable store; on restart, skip already-completed groups. Pairs with the idempotent_by primitive above.
+  - around_execution callbacks — current callbacks are all before/after-style; an around hook avoids forcing every wrapping concern into a middleware.
+  - REPL-friendly formatter — result.pretty_print (multi-line, color, child indentation)
   - retry_when on Result, not exceptions — retry_when status: :failed, reason: /rate.?limit/, limit: 3. retry_on only catches exceptions; many APIs return failures-as-data.
   - Built-in idempotency — idempotent_by :payment_id, ttl: 5.minutes, store: CMDx::Stores::Memory (or Redis adapter)
   - Built-in circuit breaker — circuit_break threshold: 5, cool_off: 30
