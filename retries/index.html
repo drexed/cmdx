@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1443,10 +1471,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selective-retries" class="md-nav__link">
+  <a href="#inheritance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selective Retries
+        Inheritance
       
     </span>
   </a>
@@ -1454,22 +1482,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-jitter" class="md-nav__link">
+  <a href="#jitter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Jitter
+        Jitter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Retry Jitter">
+    <nav class="md-nav" aria-label="Jitter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed-value" class="md-nav__link">
+  <a href="#built-in-strategies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fixed Value
+        Built-in Strategies
       
     </span>
   </a>
@@ -1477,10 +1505,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#symbol-references" class="md-nav__link">
+  <a href="#custom-strategies-via-the-retriers-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Custom Strategies via the Retriers Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symbol-instance-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symbol (Instance Method)
       
     </span>
   </a>
@@ -1499,10 +1538,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#class-or-module" class="md-nav__link">
+  <a href="#callable-class-or-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Class or Module
+        Callable (Class or Module)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-block" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Block
       
     </span>
   </a>
@@ -1515,10 +1565,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-behavior" class="md-nav__link">
+  <a href="#conditional-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Behavior
+        Conditional Retries
       
     </span>
   </a>
@@ -1526,10 +1576,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-results" class="md-nav__link">
+  <a href="#behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Results
+        Behavior
       
     </span>
   </a>
@@ -1537,10 +1587,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
+  <a href="#inspecting-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error Handling
+        Inspecting Retries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-retries-are-exhausted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Retries Are Exhausted
       
     </span>
   </a>
@@ -1591,14 +1652,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1740,34 +1801,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1804,6 +1837,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2171,10 +2232,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selective-retries" class="md-nav__link">
+  <a href="#inheritance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selective Retries
+        Inheritance
       
     </span>
   </a>
@@ -2182,22 +2243,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-jitter" class="md-nav__link">
+  <a href="#jitter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Jitter
+        Jitter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Retry Jitter">
+    <nav class="md-nav" aria-label="Jitter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed-value" class="md-nav__link">
+  <a href="#built-in-strategies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fixed Value
+        Built-in Strategies
       
     </span>
   </a>
@@ -2205,10 +2266,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#symbol-references" class="md-nav__link">
+  <a href="#custom-strategies-via-the-retriers-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol References
+        Custom Strategies via the Retriers Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symbol-instance-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symbol (Instance Method)
       
     </span>
   </a>
@@ -2227,10 +2299,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#class-or-module" class="md-nav__link">
+  <a href="#callable-class-or-module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Class or Module
+        Callable (Class or Module)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-block" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Block
       
     </span>
   </a>
@@ -2243,10 +2326,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-behavior" class="md-nav__link">
+  <a href="#conditional-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Behavior
+        Conditional Retries
       
     </span>
   </a>
@@ -2254,10 +2337,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-results" class="md-nav__link">
+  <a href="#behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry Results
+        Behavior
       
     </span>
   </a>
@@ -2265,10 +2348,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
+  <a href="#inspecting-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Error Handling
+        Inspecting Retries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-retries-are-exhausted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Retries Are Exhausted
       
     </span>
   </a>
@@ -2362,11 +2456,11 @@
 
 
 <h1 id="retries">Retries<a class="headerlink" href="#retries" title="Permanent link">&para;</a></h1>
-<p>CMDx provides automatic retry functionality for tasks that encounter transient failures. This is essential for handling temporary issues like network timeouts, rate limits, or database locks without manual intervention.</p>
+<p>CMDx retries <code>work</code> automatically when it raises an exception that matches a class-level <code>retry_on</code> declaration. Retries are scoped to <code>work</code> itself — input resolution, output verification, and lifecycle callbacks run only once.</p>
 <h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
-<p>Configure retries upto n attempts without any delay.</p>
+<p><code>retry_on</code> takes one or more exception classes and an options hash. With no exceptions declared (the default), no retries happen.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchExternalData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">HTTParty</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
@@ -2374,118 +2468,258 @@
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>When an exception occurs during execution, CMDx automatically retries up to the configured limit. Each retry attempt is logged at the <code>warn</code> level with retry metadata. If all retries are exhausted, the task fails with the original exception.</p>
-<h2 id="selective-retries">Selective Retries<a class="headerlink" href="#selective-retries" title="Permanent link">&para;</a></h2>
-<p>By default, CMDx retries on <code>StandardError</code> and its subclasses. Narrow this to specific exception types:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit:</code></td>
+<td><code>3</code></td>
+<td>Maximum retry attempts (total invocations = <code>limit + 1</code>); <code>0</code> disables retries entirely</td>
+</tr>
+<tr>
+<td><code>delay:</code></td>
+<td><code>0.5</code></td>
+<td>Base delay in seconds; <code>0</code> disables sleeping between attempts</td>
+</tr>
+<tr>
+<td><code>max_delay:</code></td>
+<td><code>nil</code></td>
+<td>Upper bound clamp applied after jitter is computed</td>
+</tr>
+<tr>
+<td><code>jitter:</code></td>
+<td><code>nil</code></td>
+<td>Strategy for spreading delays — see <a href="#jitter">Jitter</a> below</td>
+</tr>
+<tr>
+<td><code>if:</code></td>
+<td><code>nil</code></td>
+<td>Gate evaluated per attempt; when falsy the exception is re-raised instead of retried — see <a href="#conditional-retries">Conditional Retries</a></td>
+</tr>
+<tr>
+<td><code>unless:</code></td>
+<td><code>nil</code></td>
+<td>Inverse of <code>if:</code> — when truthy the exception is re-raised</td>
+</tr>
+</tbody>
+</table>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessPayment</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_on</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="no">Stripe</span><span class="o">::</span><span class="no">RateLimitError</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="o">]</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Stripe</span><span class="o">::</span><span class="no">RateLimitError</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">           </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Only exceptions matching the <code>retry_on</code> configuration trigger retries. Unmatched exceptions immediately fail the task.</p>
+<p>Only exceptions matching <code>retry_on</code> retry. Anything else — or a matching exception after the limit is exhausted — is captured by Runtime and turned into a failed result with the exception attached as <code>result.cause</code>.</p>
 </div>
-<h2 id="retry-jitter">Retry Jitter<a class="headerlink" href="#retry-jitter" title="Permanent link">&para;</a></h2>
-<p>Add delays between retry attempts to avoid overwhelming external services or to implement exponential backoff strategies. The delay is calculated as <code>jitter * current_attempt</code> for numeric values and invoked with the current attempt count for callable types.</p>
-<h3 id="fixed-value">Fixed Value<a class="headerlink" href="#fixed-value" title="Permanent link">&para;</a></h3>
-<p>Use a numeric value to calculate linear delay (<code>jitter * current_attempt</code>):</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportRecords</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1"># Delays: 0.5s (attempt 1), 1.0s (attempt 2), 1.5s (attempt 3)</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">records</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ExternalAPI</span><span class="o">.</span><span class="n">fetch_records</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="k">end</span>
+<h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
+<p><code>retry_on</code> accumulates across inheritance — subclasses extend the parent's exceptions and merge options instead of replacing them.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchProfile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="c1"># Effective: [Net::OpenTimeout, Net::ReadTimeout], limit: 2, max_delay: 5.0</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
-<p>Define an instance method for custom delay logic:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SyncInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential_backoff</span>
+<h2 id="jitter">Jitter<a class="headerlink" href="#jitter" title="Permanent link">&para;</a></h2>
+<p>Jitter spreads delay across attempts. Strategies receive <code>(attempt, delay)</code> where <code>attempt</code> is zero-based and <code>delay</code> is the base delay. The result is clamped to <code>max_delay</code> if set.</p>
+<h3 id="built-in-strategies">Built-in Strategies<a class="headerlink" href="#built-in-strategies" title="Permanent link">&para;</a></h3>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, ...</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">inventory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">InventoryAPI</span><span class="o">.</span><span class="n">sync</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:half_random</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># delay/2 .. delay      → 1.0s .. 2.0s</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:full_random</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># 0       .. delay      → 0.0s .. 2.0s</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">exponential_backoff</span><span class="p">(</span><span class="n">current_attempt</span><span class="p">)</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="mi">2</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">current_attempt</span><span class="w"> </span><span class="c1"># 2s, 4s, 8s, 16s, 32s</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">end</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:bounded_random</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1"># delay   .. 2*delay    → 2.0s .. 4.0s</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:linear</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1"># attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 3s, ...</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:fibonacci</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c1"># attempt 0 → 1s, attempt 1 → 1s, attempt 2 → 2s, attempt 3 → 3s, attempt 4 → 5s, ...</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="n">retry_on</span><span class="w"> </span><span class="no">TransientError</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:decorrelated_jitter</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="c1"># AWS-style: next sleep ∈ [delay, prev_sleep * 3], starting from prev = delay</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="c1"># attempt 0 → 1.0s..3.0s, then each subsequent attempt&#39;s upper bound is 3× the</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="c1"># previous sleep (clamped by :max_delay if set)</span>
 </span></code></pre></div>
-<h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<p>Pass a proc for inline delay calculations:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PollJobStatus</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="o">|</span><span class="w"> </span><span class="o">[</span><span class="n">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">attempt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">[</span><span class="n">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="c1"># Delays: 0.5s, 1.0s, 1.5s, 2.0s, 2.5s, 3.0s, 3.5s, 4.0s, 4.5s, 5.0s (capped)</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JobAPI</span><span class="o">.</span><span class="n">check_status</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">end</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>:decorrelated_jitter</code> is stateful — the previous sleep is threaded across
+retries inside a single <code>process</code> call. Calling <code>#wait</code> directly without
+passing <code>prev_delay</code> falls back to the base delay each time.</p>
+</div>
+<h3 id="custom-strategies-via-the-retriers-registry">Custom Strategies via the <code>Retriers</code> Registry<a class="headerlink" href="#custom-strategies-via-the-retriers-registry" title="Permanent link">&para;</a></h3>
+<p>Built-in strategies live in the <code>CMDx::Retriers</code> registry, mirroring <code>Mergers</code>
+and <code>Executors</code>. Strategies are any callable matching
+<code>call(attempt, delay, prev_delay)</code> returning the next delay in seconds. Register
+custom strategies globally on the configuration or per-task:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">retriers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:capped_exponential</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">,</span><span class="w"> </span><span class="n">_prev</span><span class="o">|</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="o">[</span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">attempt</span><span class="p">),</span><span class="w"> </span><span class="mi">30</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchExternalData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:capped_exponential</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="c1"># Or scoped to the task class only:</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:retrier</span><span class="p">,</span><span class="w"> </span><span class="ss">:doubled</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">_a</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">,</span><span class="w"> </span><span class="n">_p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<p>Implement reusable delay logic in dedicated modules and classes:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExponentialBackoff</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">attempt</span><span class="p">)</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">base_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">base_delay</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="o">[</span><span class="n">base_delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">attempt</span><span class="p">),</span><span class="w"> </span><span class="mi">60</span><span class="o">.</span><span class="mi">0</span><span class="o">].</span><span class="n">min</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">end</span>
+<p>Symbols not present in the registry fall through to a task instance method, so
+existing <code>jitter: :exponential_backoff</code> declarations keep working.</p>
+<h3 id="symbol-instance-method">Symbol (Instance Method)<a class="headerlink" href="#symbol-instance-method" title="Permanent link">&para;</a></h3>
+<p>A <code>Symbol</code> resolves to an instance method on the task. The method receives <code>(attempt, delay)</code> and must return the desired sleep duration in seconds.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SyncInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">InventoryAPI</span><span class="o">::</span><span class="no">ServerError</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential_backoff</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">inventory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">InventoryAPI</span><span class="o">.</span><span class="n">sync</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchUserProfile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="c1"># Class or Module</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="no">ExponentialBackoff</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="c1"># Instance</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="no">ExponentialBackoff</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="k">end</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">exponential_backoff</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">)</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">attempt</span><span class="p">)</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="retry-behavior">Retry Behavior<a class="headerlink" href="#retry-behavior" title="Permanent link">&para;</a></h2>
-<p>Understanding how retries work internally helps avoid surprises:</p>
-<ul>
-<li><strong>Same task instance</strong> — Retries reuse the same task object. Context and attributes from previous attempts persist.</li>
-<li><strong>Validation skipped</strong> — <code>before_validation</code> callbacks and attribute validation only run on the first attempt. Retries go straight to <code>before_execution</code> and <code>work</code>.</li>
-<li><strong>Errors cleared</strong> — <code>task.errors</code> is automatically cleared before each retry so errors from previous attempts don't carry over.</li>
-<li><strong>Retry count tracked</strong> — <code>result.retries</code> increments before each retry attempt.</li>
-<li><strong>Warn-level logging</strong> — Each retry is logged at <code>warn</code> with the exception reason and remaining retry count.</li>
-</ul>
+<h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
+<p>Procs and lambdas are evaluated with <code>instance_exec</code> against the task, so they have access to <code>context</code> and other instance methods.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PollJobStatus</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">JobAPI</span><span class="o">::</span><span class="no">Pending</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">           </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">           </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">           </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">           </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">attempt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JobAPI</span><span class="o">.</span><span class="n">check_status</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">job_id</span><span class="p">)</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="callable-class-or-module">Callable (Class or Module)<a class="headerlink" href="#callable-class-or-module" title="Permanent link">&para;</a></h3>
+<p>Anything responding to <code>#call(attempt, delay)</code> works. The task is <strong>not</strong> passed in — capture state in the callable instead.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExponentialBackoff</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="ss">base</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">cap</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="vi">@base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="vi">@cap</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">_delay</span><span class="p">)</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="o">[</span><span class="vi">@base</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">attempt</span><span class="p">),</span><span class="w"> </span><span class="vi">@cap</span><span class="o">].</span><span class="n">min</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">end</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchUserProfile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="no">ExponentialBackoff</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">base</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="custom-block">Custom Block<a class="headerlink" href="#custom-block" title="Permanent link">&para;</a></h3>
+<p>When no <code>:jitter</code> option is given, you can pass a block to <code>retry_on</code> instead. It runs in the task's instance scope.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchAnalytics</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Analytics</span><span class="o">::</span><span class="no">Throttled</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="o">|</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">delay</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">attempt</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<h2 id="conditional-retries">Conditional Retries<a class="headerlink" href="#conditional-retries" title="Permanent link">&para;</a></h2>
+<p><code>:if</code> / <code>:unless</code> gate each retry attempt. When the gate is falsy (<code>if</code>) or truthy (<code>unless</code>), the rescued exception is re-raised instead of retried, skipping any remaining budget and the <code>wait</code> between attempts.</p>
+<table>
+<thead>
+<tr>
+<th>Gate form</th>
+<th>How it's invoked</th>
+<th>Effective signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Symbol</code></td>
+<td><code>task.send(sym, error, attempt)</code></td>
+<td><code>def sym(error, attempt)</code></td>
+</tr>
+<tr>
+<td><code>Proc</code> / lambda</td>
+<td><code>task.instance_exec(error, attempt, &amp;gate)</code> (<code>self</code> is the task)</td>
+<td><code>-&gt;(error, attempt) { ... }</code></td>
+</tr>
+<tr>
+<td><code>#call</code>-able</td>
+<td><code>gate.call(task, error, attempt)</code></td>
+<td><code>def call(task, error, attempt)</code></td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchProfile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">ApiError</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">           </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">           </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">           </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">_attempt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">error</span><span class="o">.</span><span class="n">retryable?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:transient?</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ApiClient</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">user_id</span><span class="p">)</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">transient?</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">_attempt</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;permanent&quot;</span><span class="p">)</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="k">end</span>
+</span></code></pre></div>
 <div class="admonition note">
-<p class="admonition-title">Retry + Middleware Interaction</p>
-<p>Retries happen inside the middleware stack. The <code>retry</code> keyword re-enters the execution block, so middlewares like <code>Timeout</code> still apply to each individual retry attempt.</p>
+<p class="admonition-title">Note</p>
+<p>The gate fires <em>before</em> <code>wait</code> sleeps. When the gate rejects, no delay elapses — the exception propagates immediately and Runtime converts it to a failed result (or raises under <code>execute!</code>).</p>
 </div>
-<h2 id="retry-results">Retry Results<a class="headerlink" href="#retry-results" title="Permanent link">&para;</a></h2>
-<p>After execution, the result object provides methods to inspect retry behavior:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">   </span><span class="c1"># =&gt; 2 (number of retry attempts made)</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">  </span><span class="c1"># =&gt; true (whether any retries occurred)</span>
-</span></code></pre></div>
-<p>Use these methods for logging, metrics, or conditional post-processing based on retry activity.</p>
-<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>When all retry attempts are exhausted:</p>
+<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><code>execute</code></strong> — The task fails gracefully. <code>result.failure?</code> returns <code>true</code> and the exception message is captured in the result. If an <code>exception_handler</code> is configured, it is invoked.</li>
-<li><strong><code>execute!</code></strong> — The original exception is re-raised after the task is marked as failed.</li>
+<li><strong>Same task instance</strong> — retries reuse the same task object. <code>context</code> and any side effects from previous attempts persist.</li>
+<li><strong>Only <code>work</code> repeats</strong> — input resolution, output verification, and <code>before_execution</code> / <code>before_validation</code> callbacks run once. Retries wrap <code>work</code> only. (This is intentional — flaky input sources are not retried here; wrap the source in a <code>retry_on</code> around its own fetcher or in a middleware.)</li>
+<li><strong>Errors carry over</strong> — <code>task.errors</code> accumulates across attempts; entries added during a previous attempt remain. Clear them at the start of <code>work</code> if you re-add per attempt, otherwise a successful retry will still finalize as failed once <code>signal_errors!</code> runs.</li>
+<li><strong>Telemetry</strong> — Runtime emits a <code>:task_retried</code> event for each retry (<code>attempt:</code> is zero-based; the initial call is <code>attempt = 0</code> and is not emitted).</li>
+<li><strong>Inside the middleware stack</strong> — middlewares wrap the entire lifecycle (callbacks, inputs, retries, outputs, rollback). Each retried <code>work</code> call is <em>inside</em> every middleware, so middlewares see the task once per execution, not once per attempt. Subscribe to the <code>:task_retried</code> telemetry event if you need per-attempt visibility.</li>
 </ul>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">failure?</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed after </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="si">}</span><span class="s2"> retries: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">end</span>
+<h2 id="inspecting-retries">Inspecting Retries<a class="headerlink" href="#inspecting-retries" title="Permanent link">&para;</a></h2>
+<p><code>Result</code> exposes retry metadata after execution:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="w">   </span><span class="c1">#=&gt; 2  (number of *retry* attempts; 0 if first attempt succeeded)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="w">  </span><span class="c1">#=&gt; true</span>
+</span></code></pre></div>
+<p>These are also surfaced in the structured log output (<code>retried</code>, <code>retries</code>).</p>
+<h2 id="when-retries-are-exhausted">When Retries Are Exhausted<a class="headerlink" href="#when-retries-are-exhausted" title="Permanent link">&para;</a></h2>
+<p>Once <code>limit</code> retries are spent, the last exception is re-raised inside <code>work</code> and Runtime converts it:</p>
+<ul>
+<li><code>execute</code> — captured by <code>rescue StandardError</code>; produces a failed result with <code>result.cause</code> set to the exception and <code>result.reason</code> set to <code>"[ExceptionClass] message"</code>.</li>
+<li><code>execute!</code> — same conversion, but Runtime re-raises the original exception (not a <code>Fault</code>) after the lifecycle finalizes.</li>
+</ul>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">failed?</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed after </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="si">}</span><span class="s2"> retries: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">end</span>
 </span></code></pre></div>
 
 

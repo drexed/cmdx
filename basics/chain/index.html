@@ -18,7 +18,7 @@
         <link rel="prev" href="../context/">
       
       
-        <link rel="next" href="../../interruptions/halt/">
+        <link rel="next" href="../../interruptions/signals/">
       
       
         
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -696,39 +696,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#management" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Management
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Links
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inheritance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inheritance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -740,10 +707,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#freezing" class="md-nav__link">
+  <a href="#subtasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Freezing
+        Subtasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#correlation-id-xid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation ID (xid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fiber-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fiber Storage
       
     </span>
   </a>
@@ -831,14 +820,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -1057,6 +1046,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1100,7 +1117,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1116,7 +1133,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1129,7 +1146,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1157,7 +1174,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1185,7 +1202,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1213,7 +1230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1241,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1269,7 +1286,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1530,14 +1547,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1679,34 +1696,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1743,6 +1732,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2099,39 +2116,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#management" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Management
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Links
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inheritance" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inheritance
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2143,10 +2127,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#freezing" class="md-nav__link">
+  <a href="#subtasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Freezing
+        Subtasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#correlation-id-xid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation ID (xid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fiber-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fiber Storage
       
     </span>
   </a>
@@ -2240,104 +2246,143 @@
 
 
 <h1 id="basics-chain">Basics - Chain<a class="headerlink" href="#basics-chain" title="Permanent link">&para;</a></h1>
-<p>Chains automatically track related task executions within a thread. Think of them as execution traces that help you understand what happened and in what order.</p>
-<h2 id="management">Management<a class="headerlink" href="#management" title="Permanent link">&para;</a></h2>
-<p>Each execution context maintains its own isolated chain. CMDx uses <code>Fiber.storage</code> when available (Ruby 3.2+), falling back to <code>Thread.current</code> on older Rubies.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Fiber-based storage means CMDx works correctly with async frameworks like Falcon and the <code>async</code> gem out of the box.</p>
-</div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Thread A</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch1.csv&quot;</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">    </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">end</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Thread B (completely separate chain)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch2.csv&quot;</span><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">    </span><span class="c1">#=&gt; &quot;z3a42b95-c821-7892-b156-dd7c921fe2a3&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">end</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># Access current thread&#39;s chain</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">current</span><span class="w">  </span><span class="c1">#=&gt; Returns current chain or nil</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span><span class="w">    </span><span class="c1">#=&gt; Clears current thread&#39;s chain</span>
+<p>A <code>Chain</code> is the ordered trace of every <code>Result</code> produced by a top-level task and the subtasks it triggered. It's assembled automatically and gives you one id to correlate an entire execution.</p>
+<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
+<p>A <code>Chain</code> is an ordered, mutex-guarded collection of <code>Result</code>s. Subtasks <code>push</code> onto the chain as they finalize; the root <code>unshift</code>s itself last, so the root ends up at index 0 and children follow in completion order.</p>
+<p>From a result, reach the chain via:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>result.chain</code></td>
+<td>The owning <code>CMDx::Chain</code> (Enumerable; <code>id</code>, <code>size</code>, <code>first</code>, <code>last</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>result.cid</code></td>
+<td>The chain's UUID v7 (<code>String</code>)</td>
+</tr>
+<tr>
+<td><code>result.xid</code></td>
+<td>External correlation id (<code>String</code>, <code>nil</code> when no resolver is configured)</td>
+</tr>
+<tr>
+<td><code>result.index</code></td>
+<td>This result's zero-based position in the chain (<code>Integer</code>, <code>nil</code> if absent)</td>
+</tr>
+<tr>
+<td><code>result.root?</code></td>
+<td><code>true</code> when this result is the chain's root</td>
+</tr>
+<tr>
+<td><code>CMDx::Chain.current</code></td>
+<td>The live <code>Chain</code> object (only inside execution)</td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">result</span><span class="o">.</span><span class="n">cid</span><span class="w">           </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="w">         </span><span class="c1">#=&gt; 0</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">result</span><span class="o">.</span><span class="n">root?</span><span class="w">         </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">    </span><span class="c1">#=&gt; 4</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">first</span><span class="w">   </span><span class="c1">#=&gt; root result (ImportDataset)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">last</span><span class="w">    </span><span class="c1">#=&gt; last subtask result</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">each_with_index</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="o">|</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">idx</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2"> - </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
-<p>Tasks automatically create or join the current thread's chain:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Chain management is automatic—no manual lifecycle handling needed.</p>
-</div>
+<p>The <code>Chain</code> instance exposes <code>id</code>, <code>xid</code>, <code>results</code>, <code>push</code> (aliased <code>&lt;&lt;</code>), <code>unshift</code>, <code>index</code>, <code>size</code>, <code>empty?</code>, <code>each</code>, <code>last</code>, plus root delegators:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chain.root</code></td>
+<td>The result flagged with <code>root: true</code>, or <code>nil</code></td>
+</tr>
+<tr>
+<td><code>chain.state</code></td>
+<td><code>chain.root&amp;.state</code> — <code>"complete"</code> / <code>"interrupted"</code> / <code>nil</code></td>
+</tr>
+<tr>
+<td><code>chain.status</code></td>
+<td><code>chain.root&amp;.status</code> — <code>"success"</code> / <code>"skipped"</code> / <code>"failed"</code> / <code>nil</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="subtasks">Subtasks<a class="headerlink" href="#subtasks" title="Permanent link">&para;</a></h2>
+<p>Subtasks automatically join the current chain, building a unified execution trail:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># First task creates new chain</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">result1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ValidateHeaders</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">           </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="c1">#=&gt; 1</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Dataset</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">result1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ValidateSchema</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="c1">#=&gt; 1 (the parent hasn&#39;t finalized yet)</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="c1"># Second task joins existing chain</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">result2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">SendNotification</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;admin@company.com&quot;</span><span class="p">)</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">  </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w">            </span><span class="c1">#=&gt; 2</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="c1"># Both results reference the same chain</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">result1</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w"> </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">end</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">result2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">TransformData</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">cid</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result1</span><span class="o">.</span><span class="n">cid</span><span class="w">            </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">result2</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">                    </span><span class="c1">#=&gt; 2</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="no">SaveToDatabase</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">end</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># After ImportDataset finalizes, its result is unshifted to position 0:</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">                  </span><span class="c1">#=&gt; 4 (parent + 3 subtasks)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">task</span><span class="w">            </span><span class="c1">#=&gt; ImportDataset (the root)</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:task</span><span class="p">)</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="c1">#=&gt; [ImportDataset, ValidateSchema, TransformData, SaveToDatabase]</span>
 </span></code></pre></div>
-<h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
-<p>Subtasks automatically inherit the current thread's chain, building a unified execution trail:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportDataset</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Dataset</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1"># Subtasks automatically inherit current chain</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="no">ValidateSchema</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="no">TransformData</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="no">SaveToDatabase</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">dataset_id</span><span class="p">)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">end</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># All tasks share the same chain</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="c1">#=&gt; 4 (main task + 3 subtasks)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">r</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1">#=&gt; [ImportDataset, ValidateSchema, TransformData, SaveToDatabase]</span>
-</span></code></pre></div>
-<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Chains expose comprehensive execution information:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Chain state reflects the first (outermost) task result. Subtasks maintain their own states.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Chain lifecycle is automatic: Runtime installs a fresh chain when the top-level task starts, freezes it (and its results array) on root teardown, and clears the fiber-local reference. <code>result.index</code> is <code>nil</code> on a result that was never appended to the chain — every finalized <code>Result</code> is always on its chain, so this only happens in test doubles.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">chain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">chain</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Chain identification (UUID v7 when available, UUID v4 otherwise)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">        </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="w">   </span><span class="c1">#=&gt; Array of all results in execution order</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">chain</span><span class="o">.</span><span class="n">dry_run?</span><span class="w">  </span><span class="c1">#=&gt; true/false</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># State delegation (from first/outer-most result)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">chain</span><span class="o">.</span><span class="n">state</span><span class="w">     </span><span class="c1">#=&gt; &quot;complete&quot;</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">chain</span><span class="o">.</span><span class="n">status</span><span class="w">    </span><span class="c1">#=&gt; &quot;success&quot;</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">chain</span><span class="o">.</span><span class="n">outcome</span><span class="w">   </span><span class="c1">#=&gt; &quot;success&quot;</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1"># Convenience methods (delegated from results array)</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">      </span><span class="c1">#=&gt; 4 (number of results)</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">chain</span><span class="o">.</span><span class="n">first</span><span class="w">     </span><span class="c1">#=&gt; First result (outermost task)</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="n">chain</span><span class="o">.</span><span class="n">last</span><span class="w">      </span><span class="c1">#=&gt; Last result (most recent subtask)</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="c1"># Access individual results</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">each_with_index</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="o">|</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">index</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> - </span><span class="si">#{</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="k">end</span>
+<h2 id="correlation-id-xid">Correlation ID (xid)<a class="headerlink" href="#correlation-id-xid" title="Permanent link">&para;</a></h2>
+<p><code>Chain#xid</code> is an optional external correlation id (e.g. Rails <code>request_id</code>) — distinct from <code>cid</code> (the per-execution chain UUID). It's resolved <strong>once</strong> per root chain creation from <code>CMDx.configuration.correlation_id</code> (a callable; per-task override via <code>settings(correlation_id: -&gt;{ ... })</code>). Every nested subtask inherits the same <code>xid</code> via the shared chain, so a single request id ties together every task it touches in logs and telemetry.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1"># e.g. Rails ActionDispatch::RequestId</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">dataset_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">result</span><span class="o">.</span><span class="n">xid</span><span class="w">                              </span><span class="c1">#=&gt; &quot;abc-123-...&quot;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">xid</span><span class="w">                        </span><span class="c1">#=&gt; &quot;abc-123-...&quot;</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:xid</span><span class="p">)</span><span class="o">.</span><span class="n">uniq</span><span class="w">            </span><span class="c1">#=&gt; [&quot;abc-123-...&quot;]</span>
 </span></code></pre></div>
-<h2 id="freezing">Freezing<a class="headerlink" href="#freezing" title="Permanent link">&para;</a></h2>
-<p>After the outermost task completes, CMDx freezes the chain, context, and all results to enforce immutability. Subtask results are frozen as part of this top-level freeze—not individually during their own execution.</p>
+<p>See <a href="../../configuration/#correlation-id-xid">Configuration - Correlation ID</a> for resolver semantics.</p>
+<h2 id="fiber-storage">Fiber Storage<a class="headerlink" href="#fiber-storage" title="Permanent link">&para;</a></h2>
+<p>The active chain lives on <code>Fiber[]</code> (fiber-local), so each <code>Thread</code>'s root fiber and every explicit <code>Fiber.new</code> sees its own chain. <code>Workflow</code> parallel groups intentionally propagate the parent chain into their worker threads so their results roll up under the same trace; the chain's internal mutex makes concurrent pushes safe.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Thread A — its root fiber gets a fresh chain</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch1.csv&quot;</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">cid</span><span class="w">    </span><span class="c1">#=&gt; &quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Thread B — completely separate chain</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="no">Thread</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ImportDataset</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">file_path</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/data/batch2.csv&quot;</span><span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="n">result</span><span class="o">.</span><span class="n">cid</span><span class="w">    </span><span class="c1">#=&gt; &quot;018c2c11-c821-7892-b156-dd7c921fe2a3&quot;</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1"># Inspect or clear the current fiber&#39;s chain (rarely needed)</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">current</span><span class="w">  </span><span class="c1">#=&gt; Returns current chain or nil</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span><span class="w">    </span><span class="c1">#=&gt; Clears current fiber&#39;s chain (Runtime does this on teardown)</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Runtime freezes the chain on root teardown, so <code>CMDx::Chain.clear</code> is really only useful in test setup before the next execution. Mutating a frozen chain raises <code>FrozenError</code>.</p>
+</div>
 
 
 
@@ -2392,13 +2437,13 @@
         
         
           
-          <a href="../../interruptions/halt/" class="md-footer__link md-footer__link--next" aria-label="Next: Halt">
+          <a href="../../interruptions/signals/" class="md-footer__link md-footer__link--next" aria-label="Next: Signals">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Halt
+                Signals
               </div>
             </div>
             <div class="md-footer__button md-icon">

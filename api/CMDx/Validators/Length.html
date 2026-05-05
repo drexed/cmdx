@@ -6,13 +6,13 @@
 <title>
   Module: CMDx::Validators::Length
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Validators::Length";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -37,7 +39,7 @@
         <div id="menu">
   
     <a href="../../_index.html">Index (L)</a> &raquo;
-    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Validators.html" title="CMDx::Validators (module)">Validators</a></span></span>
+    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Validators.html" title="CMDx::Validators (class)">Validators</a></span></span>
      &raquo; 
     <span class="title">Length</span>
   
@@ -88,18 +90,21 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/validators/length.rb</dd>
+    <dd>lib/cmdx/validators/length.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Validates the length of a value against various constraints.</p>
-
-<p>This validator supports multiple length validation strategies including exact length, minimum/maximum bounds, and range-based validation. It can be used to ensure values meet specific length requirements for strings, arrays, and other enumerable objects.</p>
-
+    <p>Validates the <code>#length</code> of <code>value</code> against one of: <code>:within</code> /
+<code>:not_within</code> / <code>:in</code> / <code>:not_in</code> (Range), <code>:min</code> + <code>:max</code>,
+<code>:gt</code> / <code>:lt</code> (strict comparison), or <code>:is</code> / <code>:is_not</code> (exact
+match). <code>:gte</code>, <code>:lte</code>, <code>:eq</code>, <code>:not_eq</code> are accepted as aliases
+of <code>:min</code>, <code>:max</code>, <code>:is</code>, <code>:is_not</code> respectively (with matching
+<code>_message</code> overrides). Values without <code>#length</code> fail with the
+<code>:nil_message</code> override or a default.</p>
 
   </div>
 </div>
@@ -124,7 +129,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; nil </a>
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; Validators::Failure<sup>?</sup> </a>
     
 
     
@@ -138,14 +143,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Validates a value’s length against specified constraints.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -157,7 +161,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="call-instance_method">
   
-    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt>nil</tt> 
+    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt><span class='object_link'><a href="Failure.html" title="CMDx::Validators::Failure (class)">Validators::Failure</a></span></tt><sup>?</sup> 
   
 
   
@@ -166,50 +170,11 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Validates a value’s length against specified constraints.</p>
-
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Exact length validation</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Length (module)">Length</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>is:</span> <span class='int'>5</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Range-based validation</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Length (module)">Length</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>test</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>within:</span> <span class='int'>3</span><span class='op'>..</span><span class='int'>6</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes - length 4 is within range)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Min/max validation</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Length (module)">Length</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>username</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>min:</span> <span class='int'>3</span><span class='comma'>,</span> <span class='label'>max:</span> <span class='int'>20</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes - length 8 is between 3 and 20)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Exclusion validation</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Length (module)">Length</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>short</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>not_in:</span> <span class='int'>1</span><span class='op'>..</span><span class='int'>3</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes - length 5 is not in excluded range)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -217,14 +182,9 @@
         <span class='name'>value</span>
       
       
-        <span class='type'>(<tt>String</tt>, <tt>Array</tt>, <tt>Hash</tt>, <tt>Object</tt>)</span>
+        <span class='type'>(<tt>#length</tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The value to validate (must respond to #length)</p>
-</div>
       
     </li>
   
@@ -233,16 +193,14 @@
         <span class='name'>options</span>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>EMPTY_HASH</tt>)</em>
       
       
         &mdash;
-        <div class='inline'>
-<p>Validation options</p>
-</div>
+        <div class='inline'><p>see module summary</p></div>
       
     </li>
   
@@ -257,223 +215,37 @@
     <ul class="option">
       
         <li>
-          <span class="name">:within</span>
-          <span class="type">(<tt>Range</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Range that the length must fall within (inclusive)</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:not_within</span>
-          <span class="type">(<tt>Range</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Range that the length must not fall within</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:in</span>
-          <span class="type">(<tt>Range</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Alias for :within</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:not_in</span>
-          <span class="type">(<tt>Range</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Range that the length must not fall within</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:min</span>
-          <span class="type">(<tt>Integer</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Minimum allowed length</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:max</span>
-          <span class="type">(<tt>Integer</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Maximum allowed length</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:is</span>
-          <span class="type">(<tt>Integer</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Exact required length</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:is_not</span>
-          <span class="type">(<tt>Integer</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Length that is not allowed</p>
-</div>
-          
-        </li>
-      
-        <li>
           <span class="name">:message</span>
           <span class="type">(<tt>String</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom error message for all validations</p>
-</div>
+            &mdash; <div class='inline'><p>global failure-message override</p></div>
           
         </li>
       
         <li>
-          <span class="name">:within_message</span>
+          <span class="name">:nil_message</span>
           <span class="type">(<tt>String</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom message for within/range validations</p>
-</div>
+            &mdash; <div class='inline'><p>override when <code>value</code> lacks <code>#length</code></p></div>
           
         </li>
       
         <li>
-          <span class="name">:in_message</span>
+          <span class="name">:within_message,</span>
           <span class="type">(<tt>String</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom message for :in validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:not_within_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for not_within validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:not_in_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for not_in validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:min_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for minimum length validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:max_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for maximum length validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:is_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for exact length validation</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:is_not_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for is_not validation</p>
-</div>
+            &mdash; <div class='inline'><p>:in_message, :not_within_message,
+:not_in_message, :min_message, :max_message, :gt_message, :lt_message,
+:is_message, :is_not_message</p></div>
           
         </li>
       
@@ -486,14 +258,9 @@
     <li>
       
       
-        <span class='type'>(<tt>nil</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Failure.html" title="CMDx::Validators::Failure (class)">Validators::Failure</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Returns nil if validation passes</p>
-</div>
       
     </li>
   
@@ -504,44 +271,12 @@
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="../../CMDx.html#ValidationError-constant" title="CMDx::ValidationError (constant)">ValidationError</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When validation fails</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-      
         <span class='type'>(<tt>ArgumentError</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>When unknown validation options are provided</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(untyped value, Hash[Symbol, untyped] options) -&gt; nil</p>
-</div>
+        <div class='inline'><p>when no recognized length option is given</p></div>
       
     </li>
   
@@ -553,6 +288,25 @@
       <pre class="lines">
 
 
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
 56
 57
 58
@@ -565,46 +319,39 @@
 65
 66
 67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81</pre>
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/length.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/length.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='op'>&amp;.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_nil_failure'>nil_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:length</span><span class='rparen'>)</span>
 
-  <span class='kw'>case</span> <span class='id identifier rubyid_options'>options</span>
+  <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_transform_keys'>transform_keys</span><span class='lparen'>(</span><span class='const'>ALIASES</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>within:</span>
-    <span class='id identifier rubyid_raise_within_validation_error!'>raise_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_within'>within</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_within'>within</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_within'>within</span><span class='op'>&amp;.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_within_failure'>within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_within'>within</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_within'>within</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_within'>within</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>not_within:</span>
-    <span class='id identifier rubyid_raise_not_within_validation_error!'>raise_not_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_not_within'>not_within</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_not_within'>not_within</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_not_within'>not_within</span><span class='op'>&amp;.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_not_within_failure'>not_within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_not_within'>not_within</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_not_within'>not_within</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_not_within'>not_within</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>in:</span> <span class='id identifier rubyid_xin'>xin</span>
-    <span class='id identifier rubyid_raise_within_validation_error!'>raise_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_xin'>xin</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_xin'>xin</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_xin'>xin</span><span class='op'>&amp;.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_within_failure'>within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_xin'>xin</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_xin'>xin</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_xin'>xin</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>not_in:</span>
-    <span class='id identifier rubyid_raise_not_within_validation_error!'>raise_not_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_not_in'>not_in</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_not_in'>not_in</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_not_in'>not_in</span><span class='op'>&amp;.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_not_within_failure'>not_within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_not_in'>not_in</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_not_in'>not_in</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_not_in'>not_in</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>min:</span><span class='comma'>,</span> <span class='label'>max:</span>
-    <span class='id identifier rubyid_raise_within_validation_error!'>raise_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_max'>max</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length'>length</span><span class='op'>&amp;.</span><span class='id identifier rubyid_between?'>between?</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_max'>max</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_within_failure'>within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_max'>max</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_between?'>between?</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_max'>max</span><span class='rparen'>)</span>
   <span class='kw'>in</span> <span class='label'>min:</span>
-    <span class='id identifier rubyid_raise_min_validation_error!'>raise_min_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='op'>!</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_min_failure'>min_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_min'>min</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_min'>min</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_length'>length</span>
   <span class='kw'>in</span> <span class='label'>max:</span>
-    <span class='id identifier rubyid_raise_max_validation_error!'>raise_max_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_max'>max</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='op'>!</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_max'>max</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_max_failure'>max_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_max'>max</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;=</span> <span class='id identifier rubyid_max'>max</span>
+  <span class='kw'>in</span> <span class='label'>gt:</span>
+    <span class='id identifier rubyid_gt_failure'>gt_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_gt'>gt</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_gt'>gt</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>in</span> <span class='label'>lt:</span>
+    <span class='id identifier rubyid_lt_failure'>lt_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_lt'>lt</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_lt'>lt</span>
   <span class='kw'>in</span> <span class='label'>is:</span>
-    <span class='id identifier rubyid_raise_is_validation_error!'>raise_is_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_is'>is</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='op'>!</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_is'>is</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_is_failure'>is_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_is'>is</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_is'>is</span>
   <span class='kw'>in</span> <span class='label'>is_not:</span>
-    <span class='id identifier rubyid_raise_is_not_validation_error!'>raise_is_not_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_is_not'>is_not</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_is_not'>is_not</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_is_not_failure'>is_not_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_is_not'>is_not</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_is_not'>is_not</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown length validator options given</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
@@ -619,9 +366,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

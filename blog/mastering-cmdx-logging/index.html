@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -720,14 +720,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -943,6 +943,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -983,7 +1011,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -999,7 +1027,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1012,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1040,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1068,7 +1096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1096,7 +1124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1124,7 +1152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1152,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1410,14 +1438,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1556,34 +1584,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1620,6 +1620,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2184,6 +2212,7 @@
 
 
 <h1 id="mastering-cmdx-the-art-of-observability-with-logging">Mastering CMDx: The Art of Observability with Logging<a class="headerlink" href="#mastering-cmdx-the-art-of-observability-with-logging" title="Permanent link">&para;</a></h1>
+<p><em>Targets CMDx v1.17.</em></p>
 <p>We've all been there. A production incident report lands on your desk. "Transaction failed for user X." You open the logs, grep for the user ID, and... silence. Or worse, a wall of unstructured text that tells you everything except what you need to know.</p>
 <p>Logging is often an afterthought—something we sprinkle in <code>rescue</code> blocks when we're debugging. But in CMDx, the Ruby framework for business logic, observability isn't an add-on; it's a first-class citizen.</p>
 <!-- more -->

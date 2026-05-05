@@ -6,13 +6,13 @@
 <title>
   Module: CMDx
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="css/common.css" type="text/css" />
+  <link rel="stylesheet" href="css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -88,8 +90,9 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx.rb<span class="defines">,<br />
-  lib/cmdx/task.rb,<br /> lib/cmdx/chain.rb,<br /> lib/cmdx/fault.rb,<br /> lib/cmdx/retry.rb,<br /> lib/cmdx/errors.rb,<br /> lib/cmdx/locale.rb,<br /> lib/cmdx/result.rb,<br /> lib/cmdx/context.rb,<br /> lib/cmdx/version.rb,<br /> lib/cmdx/executor.rb,<br /> lib/cmdx/pipeline.rb,<br /> lib/cmdx/settings.rb,<br /> lib/cmdx/workflow.rb,<br /> lib/cmdx/attribute.rb,<br /> lib/cmdx/exception.rb,<br /> lib/cmdx/deprecator.rb,<br /> lib/cmdx/identifier.rb,<br /> lib/cmdx/utils/call.rb,<br /> lib/cmdx/utils/wrap.rb,<br /> lib/cmdx/parallelizer.rb,<br /> lib/cmdx/utils/format.rb,<br /> lib/cmdx/configuration.rb,<br /> lib/cmdx/coercions/date.rb,<br /> lib/cmdx/coercions/hash.rb,<br /> lib/cmdx/coercions/time.rb,<br /> lib/cmdx/attribute_value.rb,<br /> lib/cmdx/coercions/array.rb,<br /> lib/cmdx/coercions/float.rb,<br /> lib/cmdx/utils/condition.rb,<br /> lib/cmdx/utils/normalize.rb,<br /> lib/cmdx/coercions/string.rb,<br /> lib/cmdx/coercions/symbol.rb,<br /> lib/cmdx/callback_registry.rb,<br /> lib/cmdx/coercion_registry.rb,<br /> lib/cmdx/coercions/boolean.rb,<br /> lib/cmdx/coercions/complex.rb,<br /> lib/cmdx/coercions/integer.rb,<br /> lib/cmdx/validators/format.rb,<br /> lib/cmdx/validators/length.rb,<br /> lib/cmdx/attribute_registry.rb,<br /> lib/cmdx/coercions/rational.rb,<br /> lib/cmdx/log_formatters/raw.rb,<br /> lib/cmdx/validator_registry.rb,<br /> lib/cmdx/validators/absence.rb,<br /> lib/cmdx/validators/numeric.rb,<br /> lib/cmdx/coercions/date_time.rb,<br /> lib/cmdx/log_formatters/json.rb,<br /> lib/cmdx/log_formatters/line.rb,<br /> lib/cmdx/middleware_registry.rb,<br /> lib/cmdx/middlewares/runtime.rb,<br /> lib/cmdx/middlewares/timeout.rb,<br /> lib/cmdx/validators/presence.rb,<br /> lib/cmdx/validators/exclusion.rb,<br /> lib/cmdx/validators/inclusion.rb,<br /> lib/cmdx/coercions/big_decimal.rb,<br /> lib/cmdx/middlewares/correlate.rb,<br /> lib/cmdx/log_formatters/logstash.rb,<br /> lib/cmdx/log_formatters/key_value.rb</span>
+    <dd>lib/cmdx.rb<span class="defines">,<br>
+  lib/cmdx/task.rb,<br> lib/cmdx/util.rb,<br> lib/cmdx/chain.rb,<br> lib/cmdx/fault.rb,<br> lib/cmdx/input.rb,<br> lib/cmdx/retry.rb,<br> lib/cmdx/errors.rb,<br> lib/cmdx/inputs.rb,<br> lib/cmdx/output.rb,<br> lib/cmdx/result.rb,<br> lib/cmdx/signal.rb,<br> lib/cmdx/context.rb,<br> lib/cmdx/mergers.rb,<br> lib/cmdx/outputs.rb,<br> lib/cmdx/runtime.rb,<br> lib/cmdx/version.rb,<br> lib/cmdx/pipeline.rb,<br> lib/cmdx/retriers.rb,<br> lib/cmdx/settings.rb,<br> lib/cmdx/workflow.rb,<br> lib/cmdx/callbacks.rb,<br> lib/cmdx/coercions.rb,<br> lib/cmdx/executors.rb,<br> lib/cmdx/telemetry.rb,<br> lib/cmdx/i18n_proxy.rb,<br> lib/cmdx/validators.rb,<br> lib/cmdx/deprecation.rb,<br> lib/cmdx/deprecators.rb,<br> lib/cmdx/middlewares.rb,<br> lib/cmdx/logger_proxy.rb,<br> lib/cmdx/configuration.rb,<br> lib/cmdx/coercions/date.rb,<br> lib/cmdx/coercions/hash.rb,<br> lib/cmdx/coercions/time.rb,<br> lib/cmdx/coercions/array.rb,<br> lib/cmdx/coercions/float.rb,<br> lib/cmdx/deprecators/log.rb,<br> lib/cmdx/executors/fiber.rb,<br> lib/cmdx/retriers/linear.rb,<br> lib/cmdx/coercions/coerce.rb,<br> lib/cmdx/coercions/string.rb,<br> lib/cmdx/coercions/symbol.rb,<br> lib/cmdx/deprecators/warn.rb,<br> lib/cmdx/executors/thread.rb,<br> lib/cmdx/mergers/no_merge.rb,<br> lib/cmdx/coercions/boolean.rb,<br> lib/cmdx/coercions/complex.rb,<br> lib/cmdx/coercions/integer.rb,<br> lib/cmdx/deprecators/error.rb,<br> lib/cmdx/validators/format.rb,<br> lib/cmdx/validators/length.rb,<br> lib/cmdx/coercions/rational.rb,<br> lib/cmdx/log_formatters/raw.rb,<br> lib/cmdx/mergers/deep_merge.rb,<br> lib/cmdx/retriers/fibonacci.rb,<br> lib/cmdx/validators/absence.rb,<br> lib/cmdx/validators/numeric.rb,<br> lib/cmdx/coercions/date_time.rb,<br> lib/cmdx/log_formatters/json.rb,<br> lib/cmdx/log_formatters/line.rb,<br> lib/cmdx/validators/presence.rb,<br> lib/cmdx/validators/validate.rb,<br> lib/cmdx/retriers/exponential.rb,<br> lib/cmdx/retriers/full_random.rb,<br> lib/cmdx/retriers/half_random.rb,<br> lib/cmdx/validators/exclusion.rb,<br> lib/cmdx/validators/inclusion.rb,<br> lib/cmdx/coercions/big_decimal.rb,<br> lib/cmdx/log_formatters/logstash.rb,<br> lib/cmdx/mergers/last_write_wins.rb,<br> lib/cmdx/retriers/bounded_random.rb,<br> lib/cmdx/log_formatters/key_value.rb,<br> lib/cmdx/retriers/decorrelated_jitter.rb</span>
+
 </dd>
   </dl>
   
@@ -99,11 +102,11 @@
 <p class="children">
   
     
-      <strong class="modules">Modules:</strong> <span class='object_link'><a href="CMDx/Coercions.html" title="CMDx::Coercions (module)">Coercions</a></span>, <span class='object_link'><a href="CMDx/Deprecator.html" title="CMDx::Deprecator (module)">Deprecator</a></span>, <span class='object_link'><a href="CMDx/Identifier.html" title="CMDx::Identifier (module)">Identifier</a></span>, <span class='object_link'><a href="CMDx/Locale.html" title="CMDx::Locale (module)">Locale</a></span>, <span class='object_link'><a href="CMDx/LogFormatters.html" title="CMDx::LogFormatters (module)">LogFormatters</a></span>, <span class='object_link'><a href="CMDx/Middlewares.html" title="CMDx::Middlewares (module)">Middlewares</a></span>, <span class='object_link'><a href="CMDx/Utils.html" title="CMDx::Utils (module)">Utils</a></span>, <span class='object_link'><a href="CMDx/Validators.html" title="CMDx::Validators (module)">Validators</a></span>, <span class='object_link'><a href="CMDx/Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span>
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="CMDx/LogFormatters.html" title="CMDx::LogFormatters (module)">LogFormatters</a></span>, <span class='object_link'><a href="CMDx/LoggerProxy.html" title="CMDx::LoggerProxy (module)">LoggerProxy</a></span>, <span class='object_link'><a href="CMDx/Util.html" title="CMDx::Util (module)">Util</a></span>, <span class='object_link'><a href="CMDx/Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span>
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="CMDx/Attribute.html" title="CMDx::Attribute (class)">Attribute</a></span>, <span class='object_link'><a href="CMDx/AttributeRegistry.html" title="CMDx::AttributeRegistry (class)">AttributeRegistry</a></span>, <span class='object_link'><a href="CMDx/AttributeValue.html" title="CMDx::AttributeValue (class)">AttributeValue</a></span>, <span class='object_link'><a href="CMDx/CallbackRegistry.html" title="CMDx::CallbackRegistry (class)">CallbackRegistry</a></span>, <span class='object_link'><a href="CMDx/Chain.html" title="CMDx::Chain (class)">Chain</a></span>, <span class='object_link'><a href="CMDx/CoercionRegistry.html" title="CMDx::CoercionRegistry (class)">CoercionRegistry</a></span>, <span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span>, <span class='object_link'><a href="CMDx/Context.html" title="CMDx::Context (class)">Context</a></span>, <span class='object_link'><a href="CMDx/Errors.html" title="CMDx::Errors (class)">Errors</a></span>, <span class='object_link'><a href="CMDx/Executor.html" title="CMDx::Executor (class)">Executor</a></span>, <span class='object_link'><a href="CMDx/Fault.html" title="CMDx::Fault (class)">Fault</a></span>, <span class='object_link'><a href="CMDx/MiddlewareRegistry.html" title="CMDx::MiddlewareRegistry (class)">MiddlewareRegistry</a></span>, <span class='object_link'><a href="CMDx/Parallelizer.html" title="CMDx::Parallelizer (class)">Parallelizer</a></span>, <span class='object_link'><a href="CMDx/Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span>, <span class='object_link'><a href="CMDx/Result.html" title="CMDx::Result (class)">Result</a></span>, <span class='object_link'><a href="CMDx/Retry.html" title="CMDx::Retry (class)">Retry</a></span>, <span class='object_link'><a href="CMDx/Settings.html" title="CMDx::Settings (class)">Settings</a></span>, <span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span>, <span class='object_link'><a href="CMDx/ValidatorRegistry.html" title="CMDx::ValidatorRegistry (class)">ValidatorRegistry</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="CMDx/Callbacks.html" title="CMDx::Callbacks (class)">Callbacks</a></span>, <span class='object_link'><a href="CMDx/Chain.html" title="CMDx::Chain (class)">Chain</a></span>, <span class='object_link'><a href="CMDx/Coercions.html" title="CMDx::Coercions (class)">Coercions</a></span>, <span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span>, <span class='object_link'><a href="CMDx/Context.html" title="CMDx::Context (class)">Context</a></span>, <span class='object_link'><a href="CMDx/Deprecation.html" title="CMDx::Deprecation (class)">Deprecation</a></span>, <span class='object_link'><a href="CMDx/Deprecators.html" title="CMDx::Deprecators (class)">Deprecators</a></span>, <span class='object_link'><a href="CMDx/Errors.html" title="CMDx::Errors (class)">Errors</a></span>, <span class='object_link'><a href="CMDx/Executors.html" title="CMDx::Executors (class)">Executors</a></span>, <span class='object_link'><a href="CMDx/Fault.html" title="CMDx::Fault (class)">Fault</a></span>, <span class='object_link'><a href="CMDx/I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span>, <span class='object_link'><a href="CMDx/Input.html" title="CMDx::Input (class)">Input</a></span>, <span class='object_link'><a href="CMDx/Inputs.html" title="CMDx::Inputs (class)">Inputs</a></span>, <span class='object_link'><a href="CMDx/Mergers.html" title="CMDx::Mergers (class)">Mergers</a></span>, <span class='object_link'><a href="CMDx/Middlewares.html" title="CMDx::Middlewares (class)">Middlewares</a></span>, <span class='object_link'><a href="CMDx/Output.html" title="CMDx::Output (class)">Output</a></span>, <span class='object_link'><a href="CMDx/Outputs.html" title="CMDx::Outputs (class)">Outputs</a></span>, <span class='object_link'><a href="CMDx/Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span>, <span class='object_link'><a href="CMDx/Result.html" title="CMDx::Result (class)">Result</a></span>, <span class='object_link'><a href="CMDx/Retriers.html" title="CMDx::Retriers (class)">Retriers</a></span>, <span class='object_link'><a href="CMDx/Retry.html" title="CMDx::Retry (class)">Retry</a></span>, <span class='object_link'><a href="CMDx/Runtime.html" title="CMDx::Runtime (class)">Runtime</a></span>, <span class='object_link'><a href="CMDx/Settings.html" title="CMDx::Settings (class)">Settings</a></span>, <span class='object_link'><a href="CMDx/Signal.html" title="CMDx::Signal (class)">Signal</a></span>, <span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span>, <span class='object_link'><a href="CMDx/Telemetry.html" title="CMDx::Telemetry (class)">Telemetry</a></span>, <span class='object_link'><a href="CMDx/Validators.html" title="CMDx::Validators (class)">Validators</a></span>
     
   
 </p>
@@ -116,14 +119,14 @@
 
     <dl class="constants">
       
-        <dt id="SkipFault-constant" class="">SkipFault =
+        <dt id="Error-constant" class="">Error =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Fault raised when a task is intentionally skipped during execution.</p>
-
-<p>This fault occurs when a task determines it should not execute based on its current context or conditions. Skipped tasks are not considered failures but rather intentional bypasses of task execution logic.</p>
-
+    <p>Root exception type for the library. Every CMDx-raised exception inherits
+from this class, so <code>rescue CMDx::Error</code> (or its alias <code>CMDx::Exception</code>)
+catches anything thrown by the framework without trapping unrelated
+<code>StandardError</code> descendants. <span class='object_link'><a href="CMDx/Fault.html" title="CMDx::Fault (class)">Fault</a></span> is the notable subclass propagated
+by <code>execute!</code>.</p>
 
   </div>
 </div>
@@ -132,16 +135,13 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="CMDx/Fault.html" title="CMDx::Fault (class)">Fault</a></span></span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Exception</span> <span class='op'>=</span> <span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>StandardError</span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="FailFault-constant" class="">FailFault =
+        <dt id="CallbackError-constant" class="">CallbackError =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Fault raised when a task execution fails due to errors or validation failures.</p>
-
-<p>This fault occurs when a task encounters an error condition, validation failure, or any other condition that prevents successful completion. Failed tasks indicate that the intended operation could not be completed successfully.</p>
-
+    <p>Raised when an <code>around_execution</code> callback fails to invoke its
+continuation, which would otherwise silently skip the task body.</p>
 
   </div>
 </div>
@@ -150,66 +150,13 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="CMDx/Fault.html" title="CMDx::Fault (class)">Fault</a></span></span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="VERSION-constant" class="">VERSION =
+        <dt id="DefinitionError-constant" class="">DefinitionError =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Returns the version of the CMDx gem.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>the version of the CMDx gem</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>return: String</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div>
-        </dt>
-        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1.21.0</span><span class='tstring_end'>&quot;</span></span></pre></dd>
-      
-        <dt id="Exception-constant" class="">Exception =
-          <div class="docstring">
-  <div class="discussion">
-    
-<p>Base exception class for all CMDx-related errors.</p>
-
-<p>This serves as the root exception class for all errors raised by the CMDx framework. It inherits from StandardError and provides a common base for handling CMDx-specific exceptions.</p>
-
+    <p>Raised when a task or workflow attempts to define an input where an
+accessor with the same name already exists.</p>
 
   </div>
 </div>
@@ -218,34 +165,14 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Error</span> <span class='op'>=</span> <span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>StandardError</span><span class='rparen'>)</span></pre></dd>
-      
-        <dt id="CoercionError-constant" class="">CoercionError =
-          <div class="docstring">
-  <div class="discussion">
-    
-<p>Raised when attribute coercion fails during task execution.</p>
-
-<p>This error occurs when a attribute value cannot be converted to the expected type using the registered coercion handlers. It indicates that the provided value is incompatible with the attribute’s defined type.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-
-</div>
-        </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Error</span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
         <dt id="DeprecationError-constant" class="">DeprecationError =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Raised when a deprecated task is used.</p>
-
-<p>This error occurs when a deprecated task is called. It indicates that the task is no longer supported and should be replaced with a newer alternative.</p>
-
+    <p>Raised by <span class='object_link'><a href="CMDx/Deprecation.html" title="CMDx::Deprecation (class)">Deprecation</a></span> when a task configured with <code>deprecation(:error)</code>
+is executed. Signals that the caller must migrate off the deprecated task
+before continuing.</p>
 
   </div>
 </div>
@@ -254,16 +181,14 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Error</span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="UndefinedMethodError-constant" class="">UndefinedMethodError =
+        <dt id="ImplementationError-constant" class="">ImplementationError =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Raised when an abstract method is called without being implemented.</p>
-
-<p>This error occurs when a subclass fails to implement required abstract methods such as ‘task’ in tasks. It indicates incomplete implementation of required functionality.</p>
-
+    <p>Raised when a subclass fails to fulfill an abstract contract — most
+commonly when <span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span> is invoked without overriding <code>#work</code>, or when a
+<span class='object_link'><a href="CMDx/Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span> attempts to define <code>#work</code> itself.</p>
 
   </div>
 </div>
@@ -272,16 +197,13 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Error</span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="TimeoutError-constant" class="">TimeoutError =
+        <dt id="MiddlewareError-constant" class="">MiddlewareError =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Error raised when task execution exceeds the configured timeout limit.</p>
-
-<p>This error occurs when a task takes longer to execute than the specified time limit. Timeout errors are raised by Ruby’s Timeout module and are caught by the middleware to properly fail the task with timeout information.</p>
-
+    <p>Raised by the middleware chain when a registered middleware fails to
+yield to <code>next_link</code>, which would otherwise silently skip the task body.</p>
 
   </div>
 </div>
@@ -290,16 +212,12 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Interrupt</span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#Error-constant" title="CMDx::Error (constant)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
-        <dt id="ValidationError-constant" class="">ValidationError =
+        <dt id="VERSION-constant" class="">VERSION =
           <div class="docstring">
   <div class="discussion">
-    
-<p>Raised when attribute validation fails during task execution.</p>
-
-<p>This error occurs when a attribute value doesn’t meet the validation criteria defined by the validator. It indicates that the provided value violates business rules or data integrity constraints.</p>
-
+    <p>Gem version. Bumped on release; mirrored in the gemspec.</p>
 
   </div>
 </div>
@@ -308,7 +226,7 @@
 
 </div>
         </dt>
-        <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'>Error</span><span class='rparen'>)</span></pre></dd>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2.0.0</span><span class='tstring_end'>&quot;</span></span></pre></dd>
       
     </dl>
   
@@ -344,9 +262,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the global configuration instance, creating it if it doesn’t exist.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>The lazily-initialized global configuration.</p></div></span>
   
 </li>
 
@@ -368,9 +284,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Configures CMDx using a block that receives the configuration instance.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Yields the global configuration for mutation.</p></div></span>
   
 </li>
 
@@ -378,7 +292,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#gem_path-instance_method" title="#gem_path (instance method)">#<strong>gem_path</strong>  &#x21d2; Pathname </a>
+      <a href="#reset_configuration!-instance_method" title="#reset_configuration! (instance method)">#<strong>reset_configuration!</strong>  &#x21d2; void </a>
     
 
     
@@ -392,38 +306,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the path to the CMDx gem.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#reset_configuration!-instance_method" title="#reset_configuration! (instance method)">#<strong>reset_configuration!</strong>  &#x21d2; Configuration </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Resets the global configuration to a new instance with default values.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Replaces the global configuration with a fresh instance and invalidates the cached registries on <code>Task</code> so new lookups rebuild from the new config.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -443,23 +332,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns the global configuration instance, creating it if it doesn’t exist.</p>
-
+    <p>Returns the lazily-initialized global configuration.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configuration'>configuration</span>
-<span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_middlewares'>middlewares</span> <span class='comment'># =&gt; #&lt;MiddlewareRegistry&gt;</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -471,25 +349,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>the global configuration instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Configuration</p>
-</div>
+        <div class='inline'><p>the lazily-initialized global configuration</p></div>
       
     </li>
   
@@ -501,14 +361,14 @@
       <pre class="lines">
 
 
-238
-239
-240
-241
-242</pre>
+49
+50
+51
+52
+53</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 238</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 49</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_configuration'>configuration</span>
   <span class='kw'>return</span> <span class='ivar'>@configuration</span> <span class='kw'>if</span> <span class='ivar'>@configuration</span>
@@ -531,25 +391,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Configures CMDx using a block that receives the configuration instance.</p>
-
+    <p>Yields the global configuration for mutation.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
-  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_task_breakpoints'>task_breakpoints</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>failed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>skipped</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
-  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='const'>Logger</span><span class='op'>::</span><span class='const'>DEBUG</span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Yields:</p>
 <ul class="yield">
   
@@ -559,11 +406,6 @@
         <span class='type'>(<tt><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>the configuration instance to configure</p>
-</div>
       
     </li>
   
@@ -577,11 +419,6 @@
         <span class='type'>(<tt><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>the configured configuration instance</p>
-</div>
       
     </li>
   
@@ -597,25 +434,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>when no block is provided</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() { (Configuration) -&gt; void } -&gt; Configuration</p>
-</div>
+        <div class='inline'><p>when no block is given</p></div>
       
     </li>
   
@@ -627,16 +446,16 @@
       <pre class="lines">
 
 
-259
-260
-261
-262
-263
-264
-265</pre>
+60
+61
+62
+63
+64
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 259</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 60</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_configure'>configure</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>block required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
@@ -651,92 +470,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="gem_path-instance_method">
-  
-    #<strong>gem_path</strong>  &#x21d2; <tt>Pathname</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the path to the CMDx gem.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_gem_path'>gem_path</span> <span class='comment'># =&gt; Pathname.new(&quot;/path/to/cmdx&quot;)</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Pathname</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>the path to the CMDx gem</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>return: Pathname</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-40
-41
-42</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx.rb', line 40</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_gem_path'>gem_path</span>
-  <span class='ivar'>@gem_path</span> <span class='op'>||=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid___dir__'>__dir__</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
   <h3 class="signature " id="reset_configuration!-instance_method">
   
-    #<strong>reset_configuration!</strong>  &#x21d2; <tt><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></tt> 
+    #<strong>reset_configuration!</strong>  &#x21d2; <tt>void</tt> 
   
 
   
@@ -744,57 +480,14 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Resets the global configuration to a new instance with default values.</p>
-
+    <p class="note returns_void">This method returns an undefined value.</p><p>Replaces the global configuration with a fresh instance and invalidates
+the cached registries on <code>Task</code> so new lookups rebuild from the new config.
+Intended for test setup/teardown.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx (module)">CMDx</a></span></span><span class='period'>.</span><span class='id identifier rubyid_reset_configuration!'>reset_configuration!</span>
-<span class='comment'># Configuration is now reset to defaults</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>the new configuration instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Configuration</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -802,15 +495,37 @@
       <pre class="lines">
 
 
-276
-277
-278</pre>
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 276</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/configuration.rb', line 73</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_reset_configuration!'>reset_configuration!</span>
   <span class='ivar'>@configuration</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CMDx/Configuration.html" title="CMDx::Configuration (class)">Configuration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CMDx/Configuration.html#initialize-instance_method" title="CMDx::Configuration#initialize (method)">new</a></span></span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='rparen'>)</span>
+
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@middlewares</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@callbacks</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@coercions</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@validators</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@executors</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@mergers</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@retriers</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@deprecators</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@telemetry</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -822,9 +537,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

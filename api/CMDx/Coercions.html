@@ -4,15 +4,15 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Module: CMDx::Coercions
+  Class: CMDx::Coercions
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Coercions";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -59,12 +61,28 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><h1>Module: CMDx::Coercions
+      <div id="content"><h1>Class: CMDx::Coercions
   
   
   
 </h1>
 <div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">CMDx::Coercions</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
   
 
   
@@ -78,20 +96,36 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/coercions/date.rb<span class="defines">,<br />
-  lib/cmdx/coercions/hash.rb,<br /> lib/cmdx/coercions/time.rb,<br /> lib/cmdx/coercions/array.rb,<br /> lib/cmdx/coercions/float.rb,<br /> lib/cmdx/coercions/string.rb,<br /> lib/cmdx/coercions/symbol.rb,<br /> lib/cmdx/coercions/boolean.rb,<br /> lib/cmdx/coercions/complex.rb,<br /> lib/cmdx/coercions/integer.rb,<br /> lib/cmdx/coercions/rational.rb,<br /> lib/cmdx/coercions/date_time.rb,<br /> lib/cmdx/coercions/big_decimal.rb</span>
+    <dd>lib/cmdx/coercions.rb<span class="defines">,<br>
+  lib/cmdx/coercions/date.rb,<br> lib/cmdx/coercions/hash.rb,<br> lib/cmdx/coercions/time.rb,<br> lib/cmdx/coercions/array.rb,<br> lib/cmdx/coercions/float.rb,<br> lib/cmdx/coercions/coerce.rb,<br> lib/cmdx/coercions/string.rb,<br> lib/cmdx/coercions/symbol.rb,<br> lib/cmdx/coercions/boolean.rb,<br> lib/cmdx/coercions/complex.rb,<br> lib/cmdx/coercions/integer.rb,<br> lib/cmdx/coercions/rational.rb,<br> lib/cmdx/coercions/date_time.rb,<br> lib/cmdx/coercions/big_decimal.rb</span>
+
 </dd>
   </dl>
   
 </div>
 
-<h2>Defined Under Namespace</h2>
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>Registry of named type coercions applied to input/output values. Ships
+with built-ins for <code>:array</code>, <code>:big_decimal</code>, <code>:boolean</code>, <code>:complex</code>,
+<code>:date</code>, <code>:date_time</code>, <code>:float</code>, <code>:hash</code>, <code>:integer</code>, <code>:rational</code>,
+<code>:string</code>, <code>:symbol</code>, <code>:time</code>. Coercion handlers return the coerced
+value on success, or a <span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span> carrying an i18n message on failure.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
 <p class="children">
   
     
-      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>, <span class='object_link'><a href="Coercions/BigDecimal.html" title="CMDx::Coercions::BigDecimal (module)">BigDecimal</a></span>, <span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span>, <span class='object_link'><a href="Coercions/Complex.html" title="CMDx::Coercions::Complex (module)">Complex</a></span>, <span class='object_link'><a href="Coercions/Date.html" title="CMDx::Coercions::Date (module)">Date</a></span>, <span class='object_link'><a href="Coercions/DateTime.html" title="CMDx::Coercions::DateTime (module)">DateTime</a></span>, <span class='object_link'><a href="Coercions/Float.html" title="CMDx::Coercions::Float (module)">Float</a></span>, <span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>, <span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span>, <span class='object_link'><a href="Coercions/Rational.html" title="CMDx::Coercions::Rational (module)">Rational</a></span>, <span class='object_link'><a href="Coercions/String.html" title="CMDx::Coercions::String (module)">String</a></span>, <span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span>, <span class='object_link'><a href="Coercions/Time.html" title="CMDx::Coercions::Time (module)">Time</a></span>
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>, <span class='object_link'><a href="Coercions/BigDecimal.html" title="CMDx::Coercions::BigDecimal (module)">BigDecimal</a></span>, <span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span>, <span class='object_link'><a href="Coercions/Coerce.html" title="CMDx::Coercions::Coerce (module)">Coerce</a></span>, <span class='object_link'><a href="Coercions/Complex.html" title="CMDx::Coercions::Complex (module)">Complex</a></span>, <span class='object_link'><a href="Coercions/Date.html" title="CMDx::Coercions::Date (module)">Date</a></span>, <span class='object_link'><a href="Coercions/DateTime.html" title="CMDx::Coercions::DateTime (module)">DateTime</a></span>, <span class='object_link'><a href="Coercions/Float.html" title="CMDx::Coercions::Float (module)">Float</a></span>, <span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>, <span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span>, <span class='object_link'><a href="Coercions/Rational.html" title="CMDx::Coercions::Rational (module)">Rational</a></span>, <span class='object_link'><a href="Coercions/String.html" title="CMDx::Coercions::String (module)">String</a></span>, <span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span>, <span class='object_link'><a href="Coercions/Time.html" title="CMDx::Coercions::Time (module)">Time</a></span>
     
   
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span>
     
   
 </p>
@@ -99,17 +133,1167 @@
 
 
 
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry-instance_method" title="#registry (instance method)">#<strong>registry</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute registry.</p></div></span>
+  
+</li>
+
+    
+  </ul>
 
 
 
 
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#coerce-instance_method" title="#coerce (instance method)">#<strong>coerce</strong>(task, name, value, rules)  &#x21d2; Object, Failure </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Applies each coercion rule to <code>value</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deregister-instance_method" title="#deregister (instance method)">#<strong>deregister</strong>(name)  &#x21d2; Coercions </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Self for chaining.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#empty%3F-instance_method" title="#empty? (instance method)">#<strong>empty?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extract-instance_method" title="#extract (instance method)">#<strong>extract</strong>(options)  &#x21d2; Array&lt;Array(Object, Hash)&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Normalizes the <code>:coerce</code> declaration on an input/output into a list of <code>[handler, opts]</code> pairs.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; Coercions </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Coercions.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_copy-instance_method" title="#initialize_copy (instance method)">#<strong>initialize_copy</strong>(source)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lookup-instance_method" title="#lookup (instance method)">#<strong>lookup</strong>(name)  &#x21d2; #call </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The registered coercion.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register-instance_method" title="#register (instance method)">#<strong>register</strong>(name, callable = nil, &amp;block) {|see built-in coercion signatures — `call(value, options = {})`| ... } &#x21d2; Coercions </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Registers a named coercion, overwriting any existing entry with the same name.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#size-instance_method" title="#size (instance method)">#<strong>size</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+    
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns a new instance of Coercions.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+  <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>array:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span></span><span class='comma'>,</span>
+    <span class='label'>big_decimal:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/BigDecimal.html" title="CMDx::Coercions::BigDecimal (module)">BigDecimal</a></span></span><span class='comma'>,</span>
+    <span class='label'>boolean:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span></span><span class='comma'>,</span>
+    <span class='label'>complex:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Complex.html" title="CMDx::Coercions::Complex (module)">Complex</a></span></span><span class='comma'>,</span>
+    <span class='label'>date:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Date.html" title="CMDx::Coercions::Date (module)">Date</a></span></span><span class='comma'>,</span>
+    <span class='label'>date_time:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/DateTime.html" title="CMDx::Coercions::DateTime (module)">DateTime</a></span></span><span class='comma'>,</span>
+    <span class='label'>float:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Float.html" title="CMDx::Coercions::Float (module)">Float</a></span></span><span class='comma'>,</span>
+    <span class='label'>hash:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span></span><span class='comma'>,</span>
+    <span class='label'>integer:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span></span><span class='comma'>,</span>
+    <span class='label'>rational:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Rational.html" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='comma'>,</span>
+    <span class='label'>string:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/String.html" title="CMDx::Coercions::String (module)">String</a></span></span><span class='comma'>,</span>
+    <span class='label'>symbol:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></span><span class='comma'>,</span>
+    <span class='label'>time:</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Time.html" title="CMDx::Coercions::Time (module)">Time</a></span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="registry-instance_method">
+  
+    #<strong>registry</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute registry.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry'>registry</span>
+  <span class='ivar'>@registry</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="coerce-instance_method">
+  
+    #<strong>coerce</strong>(task, name, value, rules)  &#x21d2; <tt>Object</tt>, <tt><span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Applies each coercion rule to <code>value</code>. Returns the first successful
+coercion. When every rule fails and more than one was declared (and
+none were inline callables), the aggregated &quot;into_any&quot; message is
+recorded; otherwise the last individual failure is used.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>task</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>used for inline <code>Symbol</code>/<code>Proc</code> handlers and error recording</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>attribute name for error reporting</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>raw input before coercion rules run</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>rules</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>&lt;<span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>(Object, <span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>)&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>from <span class='object_link'><a href="#extract-instance_method" title="CMDx::Coercions#extract (method)">#extract</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Object</tt>, <tt><span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>coerced value, or <code>Failure</code> when every rule failed</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_coerce'>coerce</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_rules'>rules</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span> <span class='kw'>if</span> <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_last_failure'>last_failure</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_any_inline'>any_inline</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_handler'>handler</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>|</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Symbol</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_any_inline'>any_inline</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Coercions/Coerce.html" title="CMDx::Coercions::Coerce (module)">Coerce</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'><span class='object_link'><a href="Coercions/Coerce.html#call-instance_method" title="CMDx::Coercions::Coerce#call (method)">call</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_result'>result</span> <span class='kw'>unless</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_last_failure'>last_failure</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_any_inline'>any_inline</span>
+    <span class='id identifier rubyid_type_names'>type_names</span>   <span class='op'>=</span> <span class='id identifier rubyid_rules'>rules</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_h'>h</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='op'>|</span> <span class='const'><span class='object_link'><a href="I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.types.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_h'>h</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>, </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_last_failure'>last_failure</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Coercions/Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="CMDx::Coercions#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.coercions.into_any</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>types:</span> <span class='id identifier rubyid_type_names'>type_names</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span><span class='period'>.</span><span class='id identifier rubyid_add'>add</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_last_failure'>last_failure</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_last_failure'>last_failure</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deregister-instance_method">
+  
+    #<strong>deregister</strong>(name)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns self for chaining.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>self for chaining</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="empty?-instance_method">
+  
+    #<strong>empty?</strong>  &#x21d2; <tt><span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Boolean.html" title="CMDx::Coercions::Boolean (module)">Boolean</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="extract-instance_method">
+  
+    #<strong>extract</strong>(options)  &#x21d2; <tt><span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>&lt;<span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>(Object, <span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>)&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Normalizes the <code>:coerce</code> declaration on an input/output into a list of
+<code>[handler, opts]</code> pairs. Accepts a Symbol, Array, Hash, or any
+callable.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>{<span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span> =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>declaration options</p></div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:coerce</span>
+          <span class="type">(<tt>Object</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>coercion rule(s): Symbol, Array, Hash, or <code>#call</code>-able</p></div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>&lt;<span class='object_link'><a href="Coercions/Array.html" title="CMDx::Coercions::Array (module)">Array</a></span>(Object, <span class='object_link'><a href="Coercions/Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>)&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>pairs of handler + per-handler options</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>:coerce</code> is an unsupported format</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extract'>extract</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>EMPTY_ARRAY</span> <span class='kw'>if</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:coerce</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='const'>EMPTY_ARRAY</span> <span class='kw'>if</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_raw'>raw</span> <span class='op'>==</span> <span class='const'>EMPTY_ARRAY</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_raw'>raw</span>
+  <span class='kw'>when</span> <span class='op'>::</span><span class='const'>Symbol</span>
+    <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_raw'>raw</span><span class='comma'>,</span> <span class='const'>EMPTY_HASH</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='op'>::</span><span class='const'>Array</span>
+    <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_t'>t</span><span class='op'>|</span> <span class='id identifier rubyid_normalize_entry'>normalize_entry</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>when</span> <span class='op'>::</span><span class='const'>Hash</span>
+    <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>?</span> <span class='const'>EMPTY_HASH</span> <span class='op'>:</span> <span class='id identifier rubyid_v'>v</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='id identifier rubyid_raw'>raw</span><span class='comma'>,</span> <span class='const'>EMPTY_HASH</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unsupported type format: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_copy-instance_method">
+  
+    #<strong>initialize_copy</strong>(source)  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>registry to duplicate</p></div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_copy'>initialize_copy</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='ivar'>@registry</span> <span class='op'>=</span> <span class='id identifier rubyid_source'>source</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lookup-instance_method">
+  
+    #<strong>lookup</strong>(name)  &#x21d2; <tt>#call</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the registered coercion.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>#call</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the registered coercion</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when <code>name</code> isn't registered</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lookup'>lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown coercion: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register-instance_method">
+  
+    #<strong>register</strong>(name, callable = nil, &amp;block) {|see built-in coercion signatures — `call(value, options = {})`| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Registers a named coercion, overwriting any existing entry with the
+same name.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>name</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>callable</span>
+      
+      
+        <span class='type'>(<tt>#call</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>pass either this or a block</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>block</span>
+      
+      
+        <span class='type'>(<tt>#call</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>coercion implementation when <code>callable</code> is omitted</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>see built-in coercion signatures — `call(value, options = {})`</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Coercions (class)">Coercions</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>self for chaining</p></div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>when both <code>callable</code> and a block are given, or
+when the resolved coercion isn't callable</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_coercion'>coercion</span> <span class='op'>=</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>||</span> <span class='id identifier rubyid_block'>block</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_callable'>callable</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_block'>block</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>provide either a callable or a block, not both</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_coercion'>coercion</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:call</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>coercion must respond to #call</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_registry'>registry</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_coercion'>coercion</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="size-instance_method">
+  
+    #<strong>size</strong>  &#x21d2; <tt><span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Coercions/Integer.html" title="CMDx::Coercions::Integer (module)">Integer</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:40:01 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../halt/" class="md-nav__link">
+      <a href="../signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -845,10 +845,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-hierarchy" class="md-nav__link">
+  <a href="#hierarchy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Hierarchy
+        Hierarchy
       
     </span>
   </a>
@@ -856,22 +856,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exception-handling" class="md-nav__link">
+  <a href="#exception-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Handling
+        Exception Types
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Exception Handling">
+    <nav class="md-nav" aria-label="Exception Types">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#non-bang-execution" class="md-nav__link">
+  <a href="#cmdxerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Non-bang execution
+        CMDx::Error
       
     </span>
   </a>
@@ -879,10 +879,65 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bang-execution" class="md-nav__link">
+  <a href="#cmdxdefinitionerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bang execution
+        CMDx::DefinitionError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxdeprecationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::DeprecationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdximplementationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::ImplementationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxcallbackerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::CallbackError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxmiddlewareerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::MiddlewareError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxfault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Fault
       
     </span>
   </a>
@@ -891,6 +946,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execute-vs-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execute vs Execute!
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backtrace-cleaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backtrace Cleaning
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1052,6 +1129,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1095,7 +1200,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1111,7 +1216,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1124,7 +1229,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1152,7 +1257,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1180,7 +1285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1208,7 +1313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1236,7 +1341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1264,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1525,14 +1630,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1674,34 +1779,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1738,6 +1815,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2094,10 +2199,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exception-hierarchy" class="md-nav__link">
+  <a href="#hierarchy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Hierarchy
+        Hierarchy
       
     </span>
   </a>
@@ -2105,22 +2210,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#exception-handling" class="md-nav__link">
+  <a href="#exception-types" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Handling
+        Exception Types
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Exception Handling">
+    <nav class="md-nav" aria-label="Exception Types">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#non-bang-execution" class="md-nav__link">
+  <a href="#cmdxerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Non-bang execution
+        CMDx::Error
       
     </span>
   </a>
@@ -2128,10 +2233,65 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bang-execution" class="md-nav__link">
+  <a href="#cmdxdefinitionerror" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bang execution
+        CMDx::DefinitionError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxdeprecationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::DeprecationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdximplementationerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::ImplementationError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxcallbackerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::CallbackError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxmiddlewareerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::MiddlewareError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cmdxfault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx::Fault
       
     </span>
   </a>
@@ -2140,6 +2300,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execute-vs-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execute vs Execute!
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backtrace-cleaning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backtrace Cleaning
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2204,7 +2386,7 @@
     
     
       <li class="md-path__item">
-        <a href="../halt/" class="md-path__link">
+        <a href="../signals/" class="md-path__link">
           
   <span class="md-ellipsis">
     Interruptions
@@ -2230,52 +2412,235 @@
 
 
 <h1 id="interruptions-exceptions">Interruptions - Exceptions<a class="headerlink" href="#interruptions-exceptions" title="Permanent link">&para;</a></h1>
-<p>Exception handling differs between <code>execute</code> and <code>execute!</code>. Choose the method that matches your error handling strategy. See the <a href="../../exceptions/">Exceptions Reference</a> for the full exception hierarchy.</p>
-<h2 id="exception-hierarchy">Exception Hierarchy<a class="headerlink" href="#exception-hierarchy" title="Permanent link">&para;</a></h2>
-<p>CMDx defines a clear exception hierarchy. See <a href="../../exceptions/">Exceptions Reference</a> for the full tree.</p>
-<div class="admonition danger">
-<p class="admonition-title">Caution</p>
-<p><code>CMDx::TimeoutError</code> inherits from <code>Interrupt</code>, <strong>not</strong> <code>StandardError</code>. This means <code>rescue StandardError</code> will not catch timeouts. Rescue <code>CMDx::TimeoutError</code> or <code>Interrupt</code> explicitly when using the Timeout middleware.</p>
-</div>
-<h2 id="exception-handling">Exception Handling<a class="headerlink" href="#exception-handling" title="Permanent link">&para;</a></h2>
+<p>CMDx defines a small, flat exception hierarchy. Every exception the framework raises descends from <code>CMDx::Error</code>, so a single <code>rescue CMDx::Error</code> catches everything without trapping unrelated <code>StandardError</code>s. How they surface depends on whether you call <code>execute</code> (safe) or <code>execute!</code> (strict).</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Prefer <code>skip!</code> and <code>fail!</code> over raising exceptions—they signal intent more clearly.</p>
+<p>Prefer <code>skip!</code> and <code>fail!</code> over raising exceptions — they signal intent more clearly and carry structured <code>reason</code>/<code>metadata</code>. See <a href="../signals/">Signals</a>.</p>
 </div>
-<h3 id="non-bang-execution">Non-bang execution<a class="headerlink" href="#non-bang-execution" title="Permanent link">&para;</a></h3>
-<p>Captures all exceptions and returns them as failed results:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">document</span><span class="o">.</span><span class="n">compress!</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">end</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CompressDocument</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">document_id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unknown-doc-id&quot;</span><span class="p">)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">    </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">   </span><span class="c1">#=&gt; &quot;failed&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">result</span><span class="o">.</span><span class="n">failed?</span><span class="w">  </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">   </span><span class="c1">#=&gt; &quot;[ActiveRecord::NotFoundError] record not found&quot;</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="w">    </span><span class="c1">#=&gt; &lt;ActiveRecord::NotFoundError&gt;</span>
+<h2 id="hierarchy">Hierarchy<a class="headerlink" href="#hierarchy" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>StandardError
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── CMDx::Error  (alias: CMDx::Exception)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── CMDx::CallbackError
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── CMDx::DefinitionError
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    ├── CMDx::DeprecationError
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├── CMDx::ImplementationError
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    ├── CMDx::MiddlewareError
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    └── CMDx::Fault
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Use <code>exception_handler</code> with <code>execute</code> to send exceptions to APM tools before they become failed results.</p>
+<p><code>execute!</code> only raises <code>Fault</code> on <code>failed?</code> results — skipped results return normally. Coercion and validation errors do <strong>not</strong> raise; they accumulate on <code>task.errors</code> and surface as a failed result (a <code>Fault</code> under <code>execute!</code>).</p>
 </div>
-<h3 id="bang-execution">Bang execution<a class="headerlink" href="#bang-execution" title="Permanent link">&para;</a></h3>
-<p>Lets exceptions propagate naturally for standard Ruby error handling:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">document</span><span class="o">.</span><span class="n">compress!</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">end</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">begin</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="no">CompressDocument</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unknown-doc-id&quot;</span><span class="p">)</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">rescue</span><span class="w"> </span><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">NotFoundError</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Handle exception: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">end</span>
+<h2 id="exception-types">Exception Types<a class="headerlink" href="#exception-types" title="Permanent link">&para;</a></h2>
+<h3 id="cmdxerror">CMDx::Error<a class="headerlink" href="#cmdxerror" title="Permanent link">&para;</a></h3>
+<p>Base class for every CMDx exception. Aliased as <code>CMDx::Exception</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">begin</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="c1"># Catches every CMDx-raised exception</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxdefinitionerror">CMDx::DefinitionError<a class="headerlink" href="#cmdxdefinitionerror" title="Permanent link">&para;</a></h3>
+<p>Raised at class-load time when a declaration is structurally invalid:</p>
+<ul>
+<li>An input name clashes with an existing accessor on the task (e.g. <code>:context</code>, <code>:errors</code>, or any user-defined method).</li>
+<li>A workflow <code>task</code> / <code>tasks</code> declaration is called with options but no tasks.</li>
+</ul>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConflictingTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:context</span><span class="w">  </span><span class="c1">#=&gt; raises CMDx::DefinitionError</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="c1"># &quot;cannot define input :context: #context is already defined on ConflictingTask&quot;</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">end</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmptyGroupWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="w">  </span><span class="c1">#=&gt; raises CMDx::DefinitionError</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="c1"># &quot;EmptyGroupWorkflow: cannot declare an empty task group&quot;</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdxdeprecationerror">CMDx::DeprecationError<a class="headerlink" href="#cmdxdeprecationerror" title="Permanent link">&para;</a></h3>
+<p>Raised by <a href="../../deprecation/"><code>deprecation :error</code></a> when a class marked as prohibited is executed.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LegacyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="c1"># never executes</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">begin</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="no">LegacyTask</span><span class="o">.</span><span class="n">execute!</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="w"> </span><span class="c1">#=&gt; &quot;LegacyTask usage prohibited&quot;</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="cmdximplementationerror">CMDx::ImplementationError<a class="headerlink" href="#cmdximplementationerror" title="Permanent link">&para;</a></h3>
+<p>Raised when a subclass fails its abstract contract:</p>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>When it's raised</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Defining <code>#work</code> on a <code>Workflow</code></td>
+<td>at class-load time (via <code>method_added</code>)</td>
+<td><code>cannot define &lt;Class&gt;#work in a workflow</code></td>
+</tr>
+<tr>
+<td>Calling <code>Task#work</code> without overriding it</td>
+<td>inside <code>work</code> at execution time</td>
+<td><code>undefined method &lt;Class&gt;#work</code></td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">IncompleteTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># no #work defined</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="no">IncompleteTask</span><span class="o">.</span><span class="n">execute</span><span class="w">  </span><span class="c1">#=&gt; raises CMDx::ImplementationError</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="no">IncompleteTask</span><span class="o">.</span><span class="n">execute!</span><span class="w"> </span><span class="c1">#=&gt; raises CMDx::ImplementationError</span>
+</span></code></pre></div>
+<h3 id="cmdxcallbackerror">CMDx::CallbackError<a class="headerlink" href="#cmdxcallbackerror" title="Permanent link">&para;</a></h3>
+<p>Raised when an <code>around_execution</code> callback fails to invoke its continuation. Without this guard, a buggy around callback would silently bypass the task body.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ForgetfulCallback</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">around_execution</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">_cont</span><span class="o">|</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;started&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1"># never calls cont</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="no">ForgetfulCallback</span><span class="o">.</span><span class="n">execute!</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1">#=&gt; raises CMDx::CallbackError: &quot;around_execution callback did not invoke its continuation&quot;</span>
+</span></code></pre></div>
+<h3 id="cmdxmiddlewareerror">CMDx::MiddlewareError<a class="headerlink" href="#cmdxmiddlewareerror" title="Permanent link">&para;</a></h3>
+<p>Raised by the middleware chain when a registered middleware forgets to yield to <code>next_link</code>. Without this guard, a buggy middleware would silently bypass the task body.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BrokenMiddleware</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="c1"># forgot to yield</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">end</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">BrokenMiddleware</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">end</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="no">MyTask</span><span class="o">.</span><span class="n">execute!</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1">#=&gt; raises CMDx::MiddlewareError: &quot;middleware did not yield the next_link&quot;</span>
+</span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Always <code>yield</code> (or call <code>next_link.call</code>) inside your middleware — <code>MiddlewareError</code> is raised outside the signal <code>catch</code> and propagates from both <code>execute</code> and <code>execute!</code>.</p>
+</div>
+<h3 id="cmdxfault">CMDx::Fault<a class="headerlink" href="#cmdxfault" title="Permanent link">&para;</a></h3>
+<p>The only exception raised by <code>execute!</code> on <code>failed?</code> results. <code>Fault</code> carries the <strong>originating</strong> failed <a href="../../outcomes/result/"><code>Result</code></a> and delegates <code>task</code>, <code>context</code>, and <code>chain</code> to it. For workflows, the originating result is the deepest leaf that failed — not the workflow itself — so matchers like <code>Fault.for?(LeafTask)</code> work uniformly across flat and nested executions.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="w">              </span><span class="c1">#=&gt; ProcessOrder            (the task class, not an instance)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="w">            </span><span class="c1">#=&gt; the failed Result that originated the failure</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">      </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">     </span><span class="c1">#=&gt; &quot;failed&quot;</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">     </span><span class="c1">#=&gt; &quot;payment declined&quot;</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="w">   </span><span class="c1">#=&gt; { code: &quot;INSUFFICIENT_FUNDS&quot; }</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="w">      </span><span class="c1">#=&gt; the underlying exception when one was rescued (or nil)</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">origin</span><span class="w">     </span><span class="c1">#=&gt; the upstream result this signal was echoed from</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="w">           </span><span class="c1">#=&gt; the failing task&#39;s frozen context</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">chain</span><span class="w">             </span><span class="c1">#=&gt; the full Chain of Results from the run</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="w">           </span><span class="c1">#=&gt; I18nProxy.tr(e.result.reason) — translated when the reason is an i18n key, otherwise passes through verbatim; falls back to the localized &quot;unspecified&quot; string when reason is nil</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">backtrace</span><span class="w">         </span><span class="c1">#=&gt; cleaned via the task&#39;s `backtrace_cleaner` setting when configured</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="k">end</span>
+</span></code></pre></div>
+<h2 id="execute-vs-execute">Execute vs Execute!<a class="headerlink" href="#execute-vs-execute" title="Permanent link">&para;</a></h2>
+<p><code>Runtime#perform_work</code> rescues in a strict order: <code>Fault</code> (echoes) → <code>CMDx::Error</code> (<strong>re-raises</strong>, never converts to a failed result) → <code>StandardError</code> (converts to a failed result with <code>cause</code> set). <code>execute!</code> then re-raises: if <code>result.cause</code> holds a captured exception, the <strong>original</strong> exception bubbles up; otherwise a <code>CMDx::Fault</code> wrapping the failed result is raised.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressDocument</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Document</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">document</span><span class="o">.</span><span class="n">compress!</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">end</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="no">CompressDocument</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">document_id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unknown-doc-id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="n">r</span><span class="o">.</span><span class="n">failed?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="n">r</span><span class="o">.</span><span class="n">reason</span><span class="w">  </span><span class="c1">#=&gt; &quot;[ActiveRecord::RecordNotFound] Couldn&#39;t find Document with &#39;id&#39;=unknown-doc-id&quot;</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="n">r</span><span class="o">.</span><span class="n">cause</span><span class="w">   </span><span class="c1">#=&gt; #&lt;ActiveRecord::RecordNotFound&gt;</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="k">end</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="k">begin</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">  </span><span class="no">CompressDocument</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unknown-doc-id&quot;</span><span class="p">)</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="k">rescue</span><span class="w"> </span><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">RecordNotFound</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Handle exception: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="k">end</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th><code>execute</code> (safe)</th>
+<th><code>execute!</code> (strict)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>success!</code></td>
+<td>success result</td>
+<td>success result</td>
+</tr>
+<tr>
+<td><code>skip!</code></td>
+<td>skipped result</td>
+<td>skipped result (no raise)</td>
+</tr>
+<tr>
+<td><code>fail!</code></td>
+<td>failed result</td>
+<td>raises <code>Fault</code></td>
+</tr>
+<tr>
+<td><code>throw!(failed_result)</code></td>
+<td>failed result</td>
+<td>raises <code>Fault</code></td>
+</tr>
+<tr>
+<td>Coercion / validation error on input</td>
+<td>failed result</td>
+<td>raises <code>Fault</code></td>
+</tr>
+<tr>
+<td>Non-framework <code>StandardError</code> inside <code>work</code></td>
+<td>failed result with <code>cause</code></td>
+<td>re-raises the <strong>original</strong> exception</td>
+</tr>
+<tr>
+<td>Any <code>CMDx::Error</code> subclass inside <code>work</code> (<code>ImplementationError</code>, <code>DeprecationError</code>, <code>MiddlewareError</code>, <code>CallbackError</code>)</td>
+<td>propagates</td>
+<td>propagates</td>
+</tr>
+<tr>
+<td><code>ImplementationError</code> from <code>Workflow.method_added</code></td>
+<td>propagates at class-load time</td>
+<td>propagates at class-load time</td>
+</tr>
+<tr>
+<td><code>DefinitionError</code> from a conflicting input declaration</td>
+<td>propagates at class-load time</td>
+<td>propagates at class-load time</td>
+</tr>
+<tr>
+<td>Non-<code>StandardError</code> (e.g. <code>Interrupt</code>, <code>SignalException</code>)</td>
+<td>propagates</td>
+<td>propagates</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="../faults/">Faults</a> for <code>Fault.for?</code> / <code>Fault.matches?</code> matchers.</p>
+<h2 id="backtrace-cleaning">Backtrace Cleaning<a class="headerlink" href="#backtrace-cleaning" title="Permanent link">&para;</a></h2>
+<p><code>Fault</code> backtraces are passed through the configured <code>backtrace_cleaner</code> (set on <code>CMDx.configuration.backtrace_cleaner</code> or per-task via <code>settings</code>). This is useful for stripping framework frames in Rails apps:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">end</span>
 </span></code></pre></div>
 
 

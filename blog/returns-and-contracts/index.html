@@ -18,6 +18,8 @@
         <link rel="prev" href="../structuring-large-cmdx-codebases/">
       
       
+        <link rel="next" href="../cmdx-patterns-defensive-contracts/">
+      
       
         
       
@@ -51,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -718,14 +720,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -941,6 +943,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -981,7 +1011,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -997,7 +1027,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1010,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1038,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1066,7 +1096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1094,7 +1124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1122,7 +1152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1150,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1408,14 +1438,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1554,34 +1584,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1618,6 +1620,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2215,6 +2245,7 @@
 
 
 <h1 id="returns-and-contracts-making-your-tasks-predictable">Returns and Contracts: Making Your Tasks Predictable<a class="headerlink" href="#returns-and-contracts-making-your-tasks-predictable" title="Permanent link">&para;</a></h1>
+<p><em>Targets CMDx v1.20.</em></p>
 <p>I used to have a recurring nightmare. Not the falling kind—the kind where I'm staring at a service object and trying to figure out what it puts into the context. The <code>work</code> method sets <code>context.user</code> on line 12, <code>context.token</code> on line 28, but only if the conditional on line 15 passes. Oh, and there's a <code>context.session_id</code> that gets set inside a private method three screens down.</p>
 <p>Every consumer of that task is making an implicit assumption about what the context will contain after execution. When those assumptions break, the error shows up somewhere else entirely—a <code>NoMethodError</code> in a downstream task, a nil where a mailer expected a user object.</p>
 <p>That's why I built <code>returns</code> into CMDx. It makes the output contract explicit, enforced, and impossible to forget.</p>
@@ -2550,6 +2581,22 @@
             </div>
           </a>
         
+        
+          
+          <a href="../cmdx-patterns-defensive-contracts/" class="md-footer__link md-footer__link--next" aria-label="Next: CMDx Patterns: Defensive Contracts">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                CMDx Patterns: Defensive Contracts
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     

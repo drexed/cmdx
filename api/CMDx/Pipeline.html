@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::Pipeline
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Pipeline";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -94,59 +96,40 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/pipeline.rb</dd>
+    <dd>lib/cmdx/pipeline.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Executes workflows by processing task groups with conditional logic and breakpoint handling. The Pipeline class manages the execution flow of workflow tasks, evaluating conditions and handling breakpoints that can interrupt execution at specific task statuses.</p>
-
+    <p>Runs a Workflow's declared task groups. Each group selects a strategy
+(<code>:sequential</code> by default, or <code>:parallel</code>). A group failure halts the
+pipeline by echoing the failed result's signal through <code>throw!</code>, which
+bubbles up through Runtime as the workflow's own failure.</p>
+<p>Groups may opt into batch semantics with <code>continue_on_failure: true</code>,
+in which case every task in the group runs to completion and all
+failures are aggregated into the workflow's <code>errors</code> (keyed as
+<code>&quot;TaskClass.input&quot;</code> for input/validation errors and <code>&quot;TaskClass.&lt;status&gt;&quot;</code>
+for bare <code>fail!</code> reasons) before the pipeline halts on the first
+failure (declaration order).</p>
 
   </div>
 </div>
 <div class="tags">
   
 
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></li>
+    
+  </ul>
+
 </div>
 
 
-
-  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
-  <ul class="summary">
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#workflow-instance_method" title="#workflow (instance method)">#<strong>workflow</strong>  &#x21d2; Workflow </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the workflow being executed by this pipeline.</p>
-</div></span>
-  
-</li>
-
-    
-  </ul>
 
 
 
@@ -176,14 +159,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Executes a workflow using a new pipeline instance.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
       
     </ul>
+    
   
     <h2>
       Instance Method Summary
@@ -209,9 +191,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Executes the workflow by processing all task groups in sequence.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Iterates every group in the workflow's pipeline, respecting <code>:if</code>/<code>:unless</code> and the <code>:strategy</code> key.</p></div></span>
   
 </li>
 
@@ -235,14 +215,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>A new pipeline instance.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>A new instance of Pipeline.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 <div id="constructor_details" class="method_details_list">
@@ -259,22 +238,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns A new pipeline instance.</p>
-
+    <p>Returns a new instance of Pipeline.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_pipeline'>pipeline</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_my_workflow'>my_workflow</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -282,35 +251,17 @@
         <span class='name'>workflow</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>The workflow to execute</p>
-</div>
+        <div class='inline'><p>workflow instance whose class includes <span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></p></div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Workflow workflow) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -318,15 +269,17 @@
       <pre class="lines">
 
 
-35
-36
-37</pre>
+30
+31
+32
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 30</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='rparen'>)</span>
   <span class='ivar'>@workflow</span> <span class='op'>=</span> <span class='id identifier rubyid_workflow'>workflow</span>
+  <span class='ivar'>@executed</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -334,96 +287,6 @@
 </div>
   
 </div>
-
-  <div id="instance_attr_details" class="attr_details">
-    <h2>Instance Attribute Details</h2>
-    
-      
-      <span id=""></span>
-      <div class="method_details first">
-  <h3 class="signature first" id="workflow-instance_method">
-  
-    #<strong>workflow</strong>  &#x21d2; <tt><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the workflow being executed by this pipeline.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span><span class='lbracket'>[</span><span class='symbol'>:status</span><span class='rbracket'>]</span> <span class='comment'># =&gt; &quot;processing&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The workflow instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@workflow: Workflow</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-25
-26
-27</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 25</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_workflow'>workflow</span>
-  <span class='ivar'>@workflow</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-  </div>
 
 
   <div id="class_method_details" class="method_details_list">
@@ -442,21 +305,11 @@
 </h3><div class="docstring">
   <div class="discussion">
     <p class="note returns_void">This method returns an undefined value.</p>
-<p>Executes a workflow using a new pipeline instance.</p>
-
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_my_workflow'>my_workflow</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -464,35 +317,17 @@
         <span class='name'>workflow</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>The workflow to execute</p>
-</div>
+        <div class='inline'><p>workflow instance whose class includes <span class='object_link'><a href="Workflow.html" title="CMDx::Workflow (module)">Workflow</a></span></p></div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Workflow workflow) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -500,14 +335,14 @@
       <pre class="lines">
 
 
-49
-50
-51</pre>
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 49</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 23</span>
 
-<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -532,35 +367,45 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p>
-<p>Executes the workflow by processing all task groups in sequence. Each group is evaluated against its conditions, and breakpoints are checked after each task execution to determine if workflow should continue or halt.</p>
-
+    <p class="note returns_void">This method returns an undefined value.</p><p>Iterates every group in the workflow's pipeline, respecting
+<code>:if</code>/<code>:unless</code> and the <code>:strategy</code> key. Any group that produces a
+failed result halts execution by throwing through the workflow.</p>
+<p>On halt, every previously executed task instance whose result is
+<code>success?</code> is sent <code>#rollback</code> (when defined) in reverse execution
+order, providing saga-style compensation. Each compensated result
+has its <code>:rolled_back</code> option flipped to <code>true</code>. Skipped tasks are
+excluded; the failing task itself is rolled back by <span class='object_link'><a href="Runtime.html" title="CMDx::Runtime (class)">Runtime</a></span> and
+is not re-invoked here. Exceptions raised inside a compensator
+propagate — handling them is the developer's responsibility.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_pipeline'>pipeline</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="CMDx::Pipeline#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_my_workflow'>my_workflow</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
+<p class="tag_title">Raises:</p>
+<ul class="raise">
   
     <li>
       
       
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
       
       
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
+      
+        &mdash;
+        <div class='inline'><p>for an unknown strategy</p></div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>StandardError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>anything raised by a task's <code>#rollback</code></p></div>
       
     </li>
   
@@ -572,46 +417,48 @@
       <pre class="lines">
 
 
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
 64
 65
 66
 67
 68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82</pre>
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/pipeline.rb', line 50</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_execute'>execute</span>
-  <span class='id identifier rubyid_default_breakpoints'>default_breakpoints</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Normalize.html" title="CMDx::Utils::Normalize (module)">Normalize</a></span></span><span class='period'>.</span><span class='id identifier rubyid_statuses'><span class='object_link'><a href="Utils/Normalize.html#statuses-instance_method" title="CMDx::Utils::Normalize#statuses (method)">statuses</a></span></span><span class='lparen'>(</span>
-    <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>||</span>
-    <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_workflow_breakpoints'>workflow_breakpoints</span>
-  <span class='rparen'>)</span>
+  <span class='ivar'>@workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_group'>group</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Util.html" title="CMDx::Util (module)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_satisfied?'><span class='object_link'><a href="Util.html#satisfied%3F-instance_method" title="CMDx::Util#satisfied? (method)">satisfied?</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:if</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:unless</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='ivar'>@workflow</span><span class='rparen'>)</span>
 
-  <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_pipeline'>pipeline</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_group'>group</span><span class='op'>|</span>
-    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Condition.html" title="CMDx::Utils::Condition (module)">Condition</a></span></span><span class='period'>.</span><span class='id identifier rubyid_evaluate'><span class='object_link'><a href="Utils/Condition.html#evaluate-instance_method" title="CMDx::Utils::Condition#evaluate (method)">evaluate</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_workflow'>workflow</span><span class='comma'>,</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
-
-    <span class='id identifier rubyid_breakpoints'>breakpoints</span> <span class='op'>=</span>
-      <span class='kw'>if</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:breakpoints</span><span class='rparen'>)</span>
-        <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Normalize.html" title="CMDx::Utils::Normalize (module)">Normalize</a></span></span><span class='period'>.</span><span class='id identifier rubyid_statuses'><span class='object_link'><a href="Utils/Normalize.html#statuses-instance_method" title="CMDx::Utils::Normalize#statuses (method)">statuses</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:breakpoints</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_halt'>halt</span> <span class='op'>=</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_strategy'>strategy</span> <span class='op'>=</span> <span class='id identifier rubyid_group'>group</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:strategy</span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='symbol'>:sequential</span><span class='comma'>,</span> <span class='const'>NilClass</span>
+        <span class='id identifier rubyid_run_sequential'>run_sequential</span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='symbol'>:parallel</span>
+        <span class='id identifier rubyid_run_parallel'>run_parallel</span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='rparen'>)</span>
       <span class='kw'>else</span>
-        <span class='id identifier rubyid_default_breakpoints'>default_breakpoints</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>invalid strategy: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
       <span class='kw'>end</span>
 
-    <span class='id identifier rubyid_execute_group_tasks'>execute_group_tasks</span><span class='lparen'>(</span><span class='id identifier rubyid_group'>group</span><span class='comma'>,</span> <span class='id identifier rubyid_breakpoints'>breakpoints</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_halt'>halt</span>
+
+    <span class='id identifier rubyid_rollback_executed!'>rollback_executed!</span>
+    <span class='ivar'>@workflow</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:throw!</span><span class='comma'>,</span> <span class='id identifier rubyid_halt'>halt</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -624,9 +471,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:22 2026 by
+  Generated on Tue May  5 18:40:00 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

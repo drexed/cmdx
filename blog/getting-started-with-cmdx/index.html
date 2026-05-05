@@ -51,8 +51,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -718,14 +718,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -941,6 +941,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -981,7 +1009,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -997,7 +1025,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1010,7 +1038,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1038,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1066,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1094,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1122,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1150,7 +1178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1408,14 +1436,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1554,34 +1582,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1618,6 +1618,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2193,6 +2221,7 @@
 
 
 <h1 id="getting-started-with-cmdx-taming-business-logic-in-ruby">Getting Started with CMDx: Taming Business Logic in Ruby<a class="headerlink" href="#getting-started-with-cmdx-taming-business-logic-in-ruby" title="Permanent link">&para;</a></h1>
+<p><em>Targets CMDx v1.13.</em></p>
 <p>I've spent years wrestling with service objects. You know the pattern—create a class, throw some business logic in a <code>call</code> method, cross your fingers, and hope for the best. The problem? Every team member writes them differently. Every project invents its own conventions. And when something breaks at 2 AM, good luck tracing what actually happened.</p>
 <p>That frustration led me to create CMDx.</p>
 <!-- more -->

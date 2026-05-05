@@ -18,7 +18,7 @@
         <link rel="prev" href="../workflows/">
       
       
-        <link rel="next" href="../exceptions/">
+        <link rel="next" href="../tips_and_tricks/">
       
       
         
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1426,14 +1454,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1609,17 +1637,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#testing-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1643,10 +1660,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-skip-and-fail-conditions" class="md-nav__link">
+  <a href="#testing-skip-and-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Skip and Fail Conditions
+        Testing Skip and Fail
       
     </span>
   </a>
@@ -1665,10 +1682,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-attribute-validation" class="md-nav__link">
+  <a href="#testing-input-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Attribute Validation
+        Testing Input Validation
       
     </span>
   </a>
@@ -1676,10 +1693,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-returns" class="md-nav__link">
+  <a href="#testing-outputs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Returns
+        Testing Outputs
       
     </span>
   </a>
@@ -1687,10 +1704,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-dry-run" class="md-nav__link">
+  <a href="#testing-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Dry Run
+        Testing Retries
       
     </span>
   </a>
@@ -1715,10 +1732,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#full-workflow" class="md-nav__link">
+  <a href="#sequential-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full Workflow
+        Sequential Workflow
       
     </span>
   </a>
@@ -1726,10 +1743,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workflow-failure-propagation" class="md-nav__link">
+  <a href="#failure-propagation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow Failure Propagation
+        Failure Propagation
       
     </span>
   </a>
@@ -1801,34 +1818,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1865,6 +1854,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2221,17 +2238,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#testing-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2255,10 +2261,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-skip-and-fail-conditions" class="md-nav__link">
+  <a href="#testing-skip-and-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Skip and Fail Conditions
+        Testing Skip and Fail
       
     </span>
   </a>
@@ -2277,10 +2283,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-attribute-validation" class="md-nav__link">
+  <a href="#testing-input-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Attribute Validation
+        Testing Input Validation
       
     </span>
   </a>
@@ -2288,10 +2294,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-returns" class="md-nav__link">
+  <a href="#testing-outputs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Returns
+        Testing Outputs
       
     </span>
   </a>
@@ -2299,10 +2305,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-dry-run" class="md-nav__link">
+  <a href="#testing-retries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing Dry Run
+        Testing Retries
       
     </span>
   </a>
@@ -2327,10 +2333,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#full-workflow" class="md-nav__link">
+  <a href="#sequential-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Full Workflow
+        Sequential Workflow
       
     </span>
   </a>
@@ -2338,10 +2344,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#workflow-failure-propagation" class="md-nav__link">
+  <a href="#failure-propagation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow Failure Propagation
+        Failure Propagation
       
     </span>
   </a>
@@ -2484,38 +2490,37 @@
 
 
 <h1 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h1>
-<p>Best practices for testing CMDx tasks and workflows with RSpec.</p>
-<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
-<p>Reset global configuration between tests to prevent state leakage:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># spec/rails_helper.rb or spec/spec_helper.rb</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Chain</span><span class="o">.</span><span class="n">clear</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">end</span>
-</span></code></pre></div>
+<p>Patterns for testing CMDx tasks and workflows with RSpec.</p>
 <h2 id="testing-tasks">Testing Tasks<a class="headerlink" href="#testing-tasks" title="Permanent link">&para;</a></h2>
 <h3 id="basic-execution">Basic Execution<a class="headerlink" href="#basic-execution" title="Permanent link">&para;</a></h3>
-<p>Test tasks by calling <code>execute</code> and asserting on the result:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CreateUser</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;creates a user successfully&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_persisted</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;dev@example.com&quot;</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails with invalid email&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;Invalid&quot;</span><span class="p">)</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">end</span>
+<p>Call <code>execute</code> and assert on the returned <code>Result</code>. Predicates like <code>success?</code>, <code>skipped?</code>, and <code>failed?</code> map to RSpec matchers automatically.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CreateUser</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;creates a user successfully&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_persisted</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;dev@example.com&quot;</span><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails with invalid email&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;email cannot be empty&quot;</span><span class="p">)</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;cannot be empty&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="testing-skip-and-fail-conditions">Testing Skip and Fail Conditions<a class="headerlink" href="#testing-skip-and-fail-conditions" title="Permanent link">&para;</a></h3>
+<p>For multi-branch assertions, <code>Result#on</code> keeps each path scoped:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">it</span><span class="w"> </span><span class="s2">&quot;branches on outcome&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="no">CreateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ada&quot;</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">expect</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_persisted</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:failed</span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="k">raise</span><span class="w"> </span><span class="s2">&quot;unexpected failure: </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="testing-skip-and-fail">Testing Skip and Fail<a class="headerlink" href="#testing-skip-and-fail" title="Permanent link">&para;</a></h3>
+<p><code>reason</code> and <code>metadata</code> come straight from the <code>skip!</code> / <code>fail!</code> arguments.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">ProcessRefund</span><span class="w"> </span><span class="k">do</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;skips when refund is already processed&quot;</span><span class="w"> </span><span class="k">do</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">refund</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create</span><span class="p">(</span><span class="ss">:refund</span><span class="p">,</span><span class="w"> </span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="ss">:completed</span><span class="p">)</span>
@@ -2537,142 +2542,199 @@
 </span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="testing-bang-execution">Testing Bang Execution<a class="headerlink" href="#testing-bang-execution" title="Permanent link">&para;</a></h3>
+<p><code>execute!</code> raises <code>CMDx::Fault</code> for any failed path (validation, output verification, <code>fail!</code>, or echoed peer failure). The fault carries the failing task class and the originating <code>Result</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">ProcessPayment</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;raises FailFault on failure&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;raises Fault on failure&quot;</span><span class="w"> </span><span class="k">do</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">expect</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="no">ProcessPayment</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">amount</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">}</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">raise_error</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">fault</span><span class="o">|</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">fault</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;positive&quot;</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">}</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">raise_error</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">fault</span><span class="o">|</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">fault</span><span class="o">.</span><span class="n">task</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="no">ProcessPayment</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">fault</span><span class="o">.</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;amount&quot;</span><span class="p">)</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">fault</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:amount</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="testing-attribute-validation">Testing Attribute Validation<a class="headerlink" href="#testing-attribute-validation" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CreateProject</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails when required attributes are missing&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateProject</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;Invalid&quot;</span><span class="p">)</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:errors</span><span class="o">][</span><span class="ss">:messages</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:name</span><span class="p">)</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;coerces string attributes to expected types&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateProject</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Alpha&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">budget</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5000&quot;</span><span class="p">)</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">budget</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="k">end</span>
+<p>For paths that re-raise the original exception (an unhandled <code>StandardError</code> inside <code>work</code>), match the original class instead:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">expect</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Importer</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">payload</span><span class="p">:</span><span class="w"> </span><span class="n">bad_payload</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">raise_error</span><span class="p">(</span><span class="no">JSON</span><span class="o">::</span><span class="no">ParserError</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="testing-returns">Testing Returns<a class="headerlink" href="#testing-returns" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">AuthenticateUser</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails when declared returns are missing&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">allow</span><span class="p">(</span><span class="no">User</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">receive</span><span class="p">(</span><span class="ss">:authenticate</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Fault</code> exposes the originating <code>Result</code> (<code>fault.result</code>), <code>context</code>, and
+<code>chain</code> so post-mortem inspection works either way. <code>execute</code> is still
+handy when you want to assert on <code>skipped?</code>, <code>success?</code>, <em>and</em> <code>failed?</code>
+results in the same example.</p>
+</div>
+<h3 id="testing-input-validation">Testing Input Validation<a class="headerlink" href="#testing-input-validation" title="Permanent link">&para;</a></h3>
+<p>Errors from input resolution are surfaced through <code>result.errors</code> and folded into <code>result.reason</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CreateProject</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails when required inputs are missing&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CreateProject</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AuthenticateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a@b.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pw&quot;</span><span class="p">)</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:errors</span><span class="o">][</span><span class="ss">:messages</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:token</span><span class="p">)</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">end</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:name</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="testing-dry-run">Testing Dry Run<a class="headerlink" href="#testing-dry-run" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">ChargeCard</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;simulates execution without side effects&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ChargeCard</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">card_id</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;card_123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">dry_run</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Coerced input values live on the task instance (via the generated reader),
+not on <code>context</code>. <code>result.context.budget</code> returns whatever the caller
+passed in — to assert on the coerced value, write it back to <code>context</code>
+inside <code>work</code> (e.g. <code>context.budget = budget</code>).</p>
+</div>
+<h3 id="testing-outputs">Testing Outputs<a class="headerlink" href="#testing-outputs" title="Permanent link">&para;</a></h3>
+<p>Missing or invalid declared outputs fail the task with the same <code>errors</code> API.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">AuthenticateUser</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails when a declared output is missing&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">allow</span><span class="p">(</span><span class="no">JwtService</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">receive</span><span class="p">(</span><span class="ss">:encode</span><span class="p">)</span><span class="o">.</span><span class="n">and_return</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">dry_run?</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">end</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AuthenticateUser</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a@b.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pw&quot;</span><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:token</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="testing-retries">Testing Retries<a class="headerlink" href="#testing-retries" title="Permanent link">&para;</a></h3>
+<p><code>result.retries</code> and <code>result.retried?</code> expose retry activity.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;retries transient timeouts&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">call_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">allow</span><span class="p">(</span><span class="no">HTTParty</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">receive</span><span class="p">(</span><span class="ss">:get</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="n">call_count</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="k">raise</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">call_count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="n">double</span><span class="p">(</span><span class="ss">parsed_response</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">ok</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="w"> </span><span class="p">})</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FetchExternalData</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">retries</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">retried?</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="testing-workflows">Testing Workflows<a class="headerlink" href="#testing-workflows" title="Permanent link">&para;</a></h2>
-<h3 id="full-workflow">Full Workflow<a class="headerlink" href="#full-workflow" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">OnboardingWorkflow</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;runs all tasks in sequence&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">OnboardingWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">user_data</span><span class="p">:</span><span class="w"> </span><span class="n">valid_params</span><span class="p">)</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span><span class="w"> </span><span class="n">r</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="w"> </span><span class="p">})</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="o">[</span><span class="no">OnboardingWorkflow</span><span class="p">,</span><span class="w"> </span><span class="no">CreateProfile</span><span class="p">,</span><span class="w"> </span><span class="no">SetupPreferences</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcome</span><span class="o">]</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="p">)</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="k">end</span>
-</span></code></pre></div>
-<h3 id="workflow-failure-propagation">Workflow Failure Propagation<a class="headerlink" href="#workflow-failure-propagation" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">PaymentWorkflow</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;stops on first failure and includes root cause&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">PaymentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">invalid_card</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
+<h3 id="sequential-workflow">Sequential Workflow<a class="headerlink" href="#sequential-workflow" title="Permanent link">&para;</a></h3>
+<p>The chain holds every result in execution order, with the workflow result as the root.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">OnboardingWorkflow</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;runs all tasks in sequence&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">OnboardingWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">user_data</span><span class="p">:</span><span class="w"> </span><span class="n">valid_params</span><span class="p">)</span>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span><span class="o">.</span><span class="n">task</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_a</span><span class="p">(</span><span class="no">ValidateCard</span><span class="p">)</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="k">end</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:task</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">      </span><span class="o">[</span><span class="no">OnboardingWorkflow</span><span class="p">,</span><span class="w"> </span><span class="no">CreateProfile</span><span class="p">,</span><span class="w"> </span><span class="no">SetupPreferences</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcome</span><span class="o">]</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="testing-callbacks">Testing Callbacks<a class="headerlink" href="#testing-callbacks" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">ProcessBooking</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;notifies guest on success&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">allow</span><span class="p">(</span><span class="no">GuestNotifier</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">receive</span><span class="p">(</span><span class="ss">:call</span><span class="p">)</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">booking</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create</span><span class="p">(</span><span class="ss">:booking</span><span class="p">)</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="no">ProcessBooking</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">booking_id</span><span class="p">:</span><span class="w"> </span><span class="n">booking</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="no">GuestNotifier</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_received</span><span class="p">(</span><span class="ss">:call</span><span class="p">)</span>
+<h3 id="failure-propagation">Failure Propagation<a class="headerlink" href="#failure-propagation" title="Permanent link">&para;</a></h3>
+<p>A failed leaf halts the workflow and its <code>reason</code> echoes onto <code>result.reason</code>. The failing leaf is reachable directly via <code>result.origin</code> / <code>result.caused_failure</code> — they point at the originating task without needing to scan the chain.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">PaymentWorkflow</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;stops on first failure and identifies the failing task&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">PaymentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">invalid_card</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;invalid&quot;</span><span class="p">)</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">task</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="no">ValidateCard</span><span class="p">)</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span><span class="o">.</span><span class="n">task</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="no">ValidateCard</span><span class="p">)</span>
 </span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>caused_failure</code> walks <code>origin</code> recursively, so it returns the deepest
+leaf even across nested workflows. <code>threw_failure</code> returns the immediate
+upstream (<code>origin || self</code>). For a locally-failing task both helpers
+return <code>self</code>. See <a href="../outcomes/result/#chain-analysis">Result — Chain Analysis</a>.</p>
+</div>
+<h2 id="testing-callbacks">Testing Callbacks<a class="headerlink" href="#testing-callbacks" title="Permanent link">&para;</a></h2>
+<p>Callbacks are best verified through their observable side effects.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">ProcessBooking</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;notifies guest on success&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">allow</span><span class="p">(</span><span class="no">GuestNotifier</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">receive</span><span class="p">(</span><span class="ss">:call</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">booking</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create</span><span class="p">(</span><span class="ss">:booking</span><span class="p">)</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="no">ProcessBooking</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">booking_id</span><span class="p">:</span><span class="w"> </span><span class="n">booking</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="no">GuestNotifier</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_received</span><span class="p">(</span><span class="ss">:call</span><span class="p">)</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="k">end</span>
+</span></code></pre></div>
 <h2 id="testing-middlewares">Testing Middlewares<a class="headerlink" href="#testing-middlewares" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="s2">&quot;Timeout middleware&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;fails when task exceeds time limit&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">SlowTask</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_failed</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">cause</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_a</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">TimeoutError</span><span class="p">)</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:limit</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">end</span>
+<p>Middlewares run inside Runtime, so test them through a real task lifecycle (see <a href="../middlewares/">Middlewares</a>).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">TaggingMiddleware</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tagged_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">yield</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">end</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">TaggingMiddleware</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;tags the context before work runs&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="n">klass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Class</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">      </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">TaggingMiddleware</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">      </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">;</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">work_seen_tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">context</span><span class="o">.</span><span class="n">tagged_at</span><span class="o">.</span><span class="n">nil?</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">klass</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">work_seen_tag</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="direct-instantiation">Direct Instantiation<a class="headerlink" href="#direct-instantiation" title="Permanent link">&para;</a></h2>
-<p>For fine-grained inspection, instantiate tasks directly:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;exposes context before execution&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_initialized</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;can be executed manually&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_success</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="pattern-matching-in-tests">Pattern Matching in Tests<a class="headerlink" href="#pattern-matching-in-tests" title="Permanent link">&para;</a></h2>
-<p>Use Ruby's pattern matching for expressive assertions:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">BuildApplication</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;returns expected pattern on success&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">)</span>
+<p>Instantiate a task directly when you need to inspect its <code>context</code> or <code>errors</code> before invoking the runtime.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;exposes context before execution&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">deconstruct</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="o">[</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">anything</span><span class="p">,</span><span class="w"> </span><span class="n">anything</span><span class="p">,</span><span class="w"> </span><span class="n">anything</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;matches hash pattern on failure&quot;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">result</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="k">in</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">errors</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">messages</span><span class="p">:</span><span class="w"> </span><span class="no">Hash</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">msgs</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">have_key</span><span class="p">(</span><span class="ss">:version</span><span class="p">)</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="k">else</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">      </span><span class="k">raise</span><span class="w"> </span><span class="s2">&quot;Expected failed result with validation errors&quot;</span>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="k">end</span>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="k">end</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="n">be_empty</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Task#new</code> only builds the context and errors registry — it does <strong>not</strong> run the lifecycle. To execute, use <code>Klass.execute(context_or_hash)</code>. There is no per-instance <code>task.execute</code>.</p>
+</div>
+<h2 id="pattern-matching-in-tests">Pattern Matching in Tests<a class="headerlink" href="#pattern-matching-in-tests" title="Permanent link">&para;</a></h2>
+<p><code>Result</code> supports both array and hash deconstruction.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">describe</span><span class="w"> </span><span class="no">BuildApplication</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;deconstructs to [[key, value], ...] pairs&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">)</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">deconstruct</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">      </span><span class="o">[</span><span class="ss">:type</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Task&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">      </span><span class="o">[</span><span class="ss">:task</span><span class="p">,</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">      </span><span class="o">[</span><span class="ss">:state</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;complete&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">      </span><span class="o">[</span><span class="ss">:status</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="o">]</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="p">)</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">    </span><span class="k">in</span><span class="w"> </span><span class="o">[*</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="ss">:status</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="o">*]</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="ss">:ok</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">  </span><span class="n">it</span><span class="w"> </span><span class="s2">&quot;matches a hash pattern on failure&quot;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">BuildApplication</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">version</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span>
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>
+</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="n">result</span>
+</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">    </span><span class="k">in</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">reason</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">reason</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-13-22"><a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="w"> </span><span class="kp">include</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)</span>
+</span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="w">    </span><span class="k">else</span>
+</span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="w">      </span><span class="k">raise</span><span class="w"> </span><span class="s2">&quot;Expected failed result&quot;</span>
+</span><span id="__span-13-25"><a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-13-26"><a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-13-27"><a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Result#deconstruct</code> returns <code>to_h.to_a</code> — an array of <code>[key, value]</code> pairs in insertion order, not a fixed-arity tuple. Use find patterns (<code>in [*, [:status, "success"], *]</code>) rather than positional arrays.</p>
+</div>
 
 
 
@@ -2727,13 +2789,13 @@
         
         
           
-          <a href="../exceptions/" class="md-footer__link md-footer__link--next" aria-label="Next: Exceptions">
+          <a href="../tips_and_tricks/" class="md-footer__link md-footer__link--next" aria-label="Next: Tips and Tricks">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Exceptions
+                Tips and Tricks
               </div>
             </div>
             <div class="md-footer__button md-icon">

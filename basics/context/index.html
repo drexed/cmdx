@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -668,17 +668,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#assigning-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -690,10 +679,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#accessing-data" class="md-nav__link">
+  <a href="#accessing-and-modifying" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing Data
+        Accessing and Modifying
       
     </span>
   </a>
@@ -701,10 +690,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#modifying-context" class="md-nav__link">
+  <a href="#serialization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Modifying Context
+        Serialization
       
     </span>
   </a>
@@ -712,10 +701,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-sharing" class="md-nav__link">
+  <a href="#sharing-between-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Sharing
+        Sharing Between Tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strict-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strict Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pattern-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Matching
       
     </span>
   </a>
@@ -831,14 +842,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../interruptions/halt/" class="md-nav__link">
+      <a href="../../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -1057,6 +1068,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1100,7 +1139,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1116,7 +1155,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1129,7 +1168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1157,7 +1196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1185,7 +1224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1213,7 +1252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1241,7 +1280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1269,7 +1308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1530,14 +1569,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1679,34 +1718,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1743,6 +1754,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2099,17 +2138,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#building-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#assigning-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2121,10 +2149,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#accessing-data" class="md-nav__link">
+  <a href="#accessing-and-modifying" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing Data
+        Accessing and Modifying
       
     </span>
   </a>
@@ -2132,10 +2160,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#modifying-context" class="md-nav__link">
+  <a href="#serialization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Modifying Context
+        Serialization
       
     </span>
   </a>
@@ -2143,10 +2171,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-sharing" class="md-nav__link">
+  <a href="#sharing-between-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Sharing
+        Sharing Between Tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strict-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strict Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pattern-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Matching
       
     </span>
   </a>
@@ -2240,144 +2290,149 @@
 
 
 <h1 id="basics-context">Basics - Context<a class="headerlink" href="#basics-context" title="Permanent link">&para;</a></h1>
-<p>Context is your data container for inputs, intermediate values, and outputs. It makes sharing data between tasks effortless.</p>
-<h2 id="building-context">Building Context<a class="headerlink" href="#building-context" title="Permanent link">&para;</a></h2>
-<p><code>Context.build</code> intelligently handles different input types:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># From a hash</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="no">Context</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user@example.com&quot;</span><span class="p">)</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># From an existing Context (reuses if not frozen)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="no">Context</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">existing_context</span><span class="p">)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># From a Result or Task (extracts its context)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="no">Context</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">some_result</span><span class="p">)</span><span class="w">  </span><span class="c1"># equivalent to some_result.context</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># From nil (creates empty context)</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="no">Context</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p><code>Context.build</code> raises <code>ArgumentError</code> if the argument doesn't respond to <code>to_h</code> or <code>to_hash</code>.</p>
-</div>
+<p><code>Context</code> is the shared data bag passed through a task's execution. It holds inputs, intermediate values, and anything the task writes back for downstream consumers.</p>
 <h2 id="assigning-data">Assigning Data<a class="headerlink" href="#assigning-data" title="Permanent link">&para;</a></h2>
-<p>Context automatically captures all task inputs, normalizing keys to symbols:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Direct execution</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Instance creation</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;destination&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
+<p>The hash (or Context / Task / Result) handed to <code>execute</code> is normalized into a <code>Context</code>. String keys are symbolized; nested values are not.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Context.build</code> passes an existing un-frozen <code>Context</code> through unchanged, unwraps anything that responds to <code>#context</code> (Task, Result), and wraps hash-likes in a fresh <code>Context</code>.</p>
+</div>
+<h2 id="accessing-and-modifying">Accessing and Modifying<a class="headerlink" href="#accessing-and-modifying" title="Permanent link">&para;</a></h2>
+<p>Read with method, hash, or safe accessors; mutate freely inside <code>work</code> (the root context is frozen only after Runtime teardown). <code>ctx</code> is a shorthand alias for <code>context</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="c1"># Reads</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">weight</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="w">              </span><span class="c1"># method style (nil for unknown keys)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">service_type</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">[</span><span class="ss">:service_type</span><span class="o">]</span><span class="w">      </span><span class="c1"># hash style</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">rush_delivery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="ss">:rush</span><span class="p">,</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span><span class="w"> </span><span class="c1"># safe default</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">carrier</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="ss">:options</span><span class="p">,</span><span class="w"> </span><span class="ss">:carrier</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">attempt</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span><span class="ss">:attempt_count</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c1"># fetch-or-set</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">weight?</span><span class="w">                             </span><span class="c1"># truthy predicate</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">empty?</span><span class="w">                              </span><span class="c1"># false when any key stored</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">size</span><span class="w">                                </span><span class="c1"># number of top-level keys</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="c1"># Writes</span>
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">calculated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">context</span><span class="o">[</span><span class="ss">:status</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;calculating&quot;</span><span class="w">                       </span><span class="c1"># alias: context.store(:status, &quot;...&quot;)</span>
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">insurance_included</span><span class="w"> </span><span class="o">||=</span><span class="w"> </span><span class="kp">false</span>
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="ss">shipping_cost</span><span class="p">:</span><span class="w"> </span><span class="n">calculate_cost</span><span class="p">)</span><span class="w">           </span><span class="c1"># top-level last-write-wins (mutates in place)</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">deep_merge</span><span class="p">(</span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ups&quot;</span><span class="w"> </span><span class="p">})</span><span class="w">        </span><span class="c1"># recurses into Hash values</span>
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="ss">:credit_card_token</span><span class="p">)</span>
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">clear</span><span class="w">                                          </span><span class="c1"># wipes every entry</span>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Method-style reads return <code>nil</code> for unknown keys. <code>Context</code> includes <code>Enumerable</code> and exposes the usual <code>keys</code>/<code>values</code>/<code>key?</code>/<code>each</code>/<code>each_key</code>/<code>each_value</code>. <code>#merge</code> / <code>#deep_merge</code> mutate in place and return <code>self</code>. <code>#store</code> (aliased <code>[]=</code>) symbolizes the key. See YARD for the full surface.</p>
+</div>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">&para;</a></h2>
+<p><code>Context</code> serializes cleanly for logs, telemetry payloads, and Rails <code>render json:</code> callers:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">context</span><span class="o">.</span><span class="n">to_h</span><span class="w">      </span><span class="c1">#=&gt; { weight: 2.5, destination: &quot;CA&quot; }  (the backing table, not a copy)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">context</span><span class="o">.</span><span class="n">as_json</span><span class="w">   </span><span class="c1">#=&gt; same as to_h (aliased for Rails/ActiveSupport callers)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">context</span><span class="o">.</span><span class="n">to_json</span><span class="w">   </span><span class="c1">#=&gt; &#39;{&quot;weight&quot;:2.5,&quot;destination&quot;:&quot;CA&quot;}&#39;  (Symbol keys are emitted as strings)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">context</span><span class="o">.</span><span class="n">to_s</span><span class="w">      </span><span class="c1">#=&gt; &#39;weight=2.5 destination=&quot;CA&quot;&#39;        (space-separated key=value.inspect)</span>
+</span></code></pre></div>
+<h2 id="sharing-between-tasks">Sharing Between Tasks<a class="headerlink" href="#sharing-between-tasks" title="Permanent link">&para;</a></h2>
+<p>Context flows through nested executions. A sub-task invoked with <code>execute(context)</code> (or <code>execute(task)</code> / <code>execute(result)</code>) reuses the same underlying <code>Context</code>, so writes compound.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># During execution</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="c1"># Validate shipping data</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">validation_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ValidateAddress</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="c1"># Via context</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="no">CalculateInsurance</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="c1"># Via result</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="no">NotifyShippingCalculated</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">validation_result</span><span class="p">)</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="c1"># Context now contains accumulated data from all tasks</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">address_validated</span><span class="w">    </span><span class="c1">#=&gt; true (from validation)</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">insurance_calculated</span><span class="w"> </span><span class="c1">#=&gt; true (from insurance)</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">notification_sent</span><span class="w">    </span><span class="c1">#=&gt; true (from notification)</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="k">end</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="c1"># After execution</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New York, NY&quot;</span><span class="p">)</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="no">CreateShippingLabel</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>String keys convert to symbols automatically. Prefer symbols for consistency.</p>
+<p>Passing a live <code>Context</code>, <code>Task</code>, or <code>Result</code> shares the context by reference — writes in the callee are visible to the caller. Use <code>context.deep_dup</code> when you need an isolated snapshot.</p>
+<p><code>context.to_h</code> exposes the backing hash by reference. <code>Context.build(context.to_h)</code> rebuilds a fresh top-level table (symbolized keys) but nested mutable values are still shared — use <code>deep_dup</code> for full isolation.</p>
 </div>
-<h2 id="accessing-data">Accessing Data<a class="headerlink" href="#accessing-data" title="Permanent link">&para;</a></h2>
-<p>Access context data using method notation, hash keys, or safe accessors:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="c1"># Method style access (preferred)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">destination</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="c1"># Hash style access</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="n">service_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">[</span><span class="ss">:service_type</span><span class="o">]</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">[</span><span class="s2">&quot;options&quot;</span><span class="o">]</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="c1"># Safe access with defaults</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="n">rush_delivery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="ss">:rush_delivery</span><span class="p">,</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">carrier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="ss">:options</span><span class="p">,</span><span class="w"> </span><span class="ss">:carrier</span><span class="p">)</span>
-</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
-</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="c1"># Fetch or set a default (returns existing value, or stores and returns the default)</span>
-</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">fetch_or_store</span><span class="p">(</span><span class="ss">:attempt_count</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
-</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="c1"># Check key existence</span>
-</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">key?</span><span class="p">(</span><span class="ss">:weight</span><span class="p">)</span><span class="w">  </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
-</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="c1"># Iteration</span>
-</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="o">|</span><span class="w"> </span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="n">keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="o">|</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
-</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">    </span><span class="c1"># Shorter alias</span>
-</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="o">.</span><span class="n">weight</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ctx</span><span class="o">.</span><span class="n">rate_per_pound</span><span class="w">  </span><span class="c1"># ctx aliases context</span>
-</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="k">end</span>
+<h2 id="strict-mode">Strict Mode<a class="headerlink" href="#strict-mode" title="Permanent link">&para;</a></h2>
+<p>By default, reading an unknown key via the dynamic method reader returns <code>nil</code>. Enable strict mode to raise <code>NoMethodError</code> for unknown reads instead — useful for catching typos in larger tasks.</p>
+<p>Strict mode can be set globally or per-task:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">strict_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">strict_context</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="w">       </span><span class="c1">#=&gt; reads fine when set</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">typoed_key</span><span class="w">   </span><span class="c1">#=&gt; raises NoMethodError: unknown context key :typoed_key (strict mode)</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Undefined attributes return <code>nil</code> instead of raising errors—perfect for optional data.</p>
+<p>Strict mode only affects the dynamic method reader. Every other access channel keeps its lenient semantics so defaults and explicit presence checks still work:</p>
+<table>
+<thead>
+<tr>
+<th>Access</th>
+<th>Behavior in strict mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context.missing</code></td>
+<td>raises <code>NoMethodError</code></td>
+</tr>
+<tr>
+<td><code>context[:missing]</code></td>
+<td>returns <code>nil</code></td>
+</tr>
+<tr>
+<td><code>context.fetch(:missing, :default)</code></td>
+<td>returns <code>:default</code></td>
+</tr>
+<tr>
+<td><code>context.dig(:a, :b)</code></td>
+<td>returns <code>nil</code></td>
+</tr>
+<tr>
+<td><code>context.missing?</code></td>
+<td>returns <code>false</code></td>
+</tr>
+<tr>
+<td><code>context.missing = 1</code></td>
+<td>writes succeed</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>strict_context</code> is re-applied on every <code>Task#initialize</code>: each nested task flips the shared context's flag to its own <code>settings.strict_context</code> for the duration of its execution, then the next task resets it. If you need consistent strict behavior across a pipeline, set it at the base class (e.g. <code>ApplicationTask</code>) so every subtask agrees.</p>
 </div>
-<h2 id="modifying-context">Modifying Context<a class="headerlink" href="#modifying-context" title="Permanent link">&para;</a></h2>
-<p>Context supports dynamic modification during task execution:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="c1"># Direct assignment</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">carrier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Carrier</span><span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">code</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">carrier_code</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">package</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Package</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">calculated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="c1"># Hash-style assignment</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="n">context</span><span class="o">[</span><span class="ss">:status</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;calculating&quot;</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="n">context</span><span class="o">[</span><span class="s2">&quot;tracking_number&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;SHIP</span><span class="si">#{</span><span class="no">SecureRandom</span><span class="o">.</span><span class="n">hex</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="c1"># Conditional assignment</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">insurance_included</span><span class="w"> </span><span class="o">||=</span><span class="w"> </span><span class="kp">false</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="c1"># Batch updates</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">      </span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">      </span><span class="ss">shipping_cost</span><span class="p">:</span><span class="w"> </span><span class="n">calculate_cost</span><span class="p">,</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">      </span><span class="ss">estimated_delivery</span><span class="p">:</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="o">.</span><span class="n">days</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">    </span><span class="p">)</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="c1"># Remove sensitive data</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">delete!</span><span class="p">(</span><span class="ss">:credit_card_token</span><span class="p">)</span>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">    </span><span class="c1"># Clear all data</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">clear!</span>
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>
-</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>
-</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_cost</span>
-</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">    </span><span class="n">base_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">weight</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">rate_per_pound</span>
-</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="w">    </span><span class="n">base_rate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">base_rate</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">tax_percentage</span><span class="p">)</span>
-</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="k">end</span>
+<h2 id="pattern-matching">Pattern Matching<a class="headerlink" href="#pattern-matching" title="Permanent link">&para;</a></h2>
+<p><code>Context</code> supports both array and hash deconstruction (Ruby 3.0+).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ups&quot;</span><span class="w"> </span><span class="p">})</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">case</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">context</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">in</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">weight</span><span class="p">:</span><span class="w"> </span><span class="nb">Float</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">kg</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">kg</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">bulk_ship</span><span class="p">(</span><span class="n">kg</span><span class="p">)</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">in</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">options</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">carrier</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">track_with</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Use context for both input values and intermediate results. This creates natural data flow through your task execution pipeline.</p>
-</div>
-<h2 id="data-sharing">Data Sharing<a class="headerlink" href="#data-sharing" title="Permanent link">&para;</a></h2>
-<p>Share context across tasks for seamless data flow:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># During execution</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">CalculateShipping</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="c1"># Validate shipping data</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">validation_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ValidateAddress</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="c1"># Via context</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="no">CalculateInsurance</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="c1"># Via result</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="no">NotifyShippingCalculated</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">validation_result</span><span class="p">)</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="c1"># Context now contains accumulated data from all tasks</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">address_validated</span><span class="w">    </span><span class="c1">#=&gt; true (from validation)</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">insurance_calculated</span><span class="w"> </span><span class="c1">#=&gt; true (from insurance)</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">notification_sent</span><span class="w">    </span><span class="c1">#=&gt; true (from notification)</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="k">end</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="c1"># After execution</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CalculateShipping</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">destination</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New York, NY&quot;</span><span class="p">)</span>
-</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
-</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="no">CreateShippingLabel</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-</span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>When passing <code>context</code>, a <code>Result</code>, or a <code>Task</code> to another task, the context is <strong>shared by reference</strong>—not copied. Mutations in one task are visible in the other. This enables natural data flow in pipelines but can cause surprises if you expect isolation. Use <code>context.to_h</code> to pass a snapshot instead.</p>
-</div>
+<p><code>deconstruct_keys(nil)</code> returns the full backing table; a key list slices it (unknown keys are omitted). <code>deconstruct</code> yields <code>[[key, value], ...]</code> pairs for find-pattern matches (<code>in [*, [:weight, Float], *]</code>).</p>
 
 
 

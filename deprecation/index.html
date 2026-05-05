@@ -18,7 +18,7 @@
         <link rel="prev" href="../retries/">
       
       
-        <link rel="next" href="../returns/">
+        <link rel="next" href="../outputs/">
       
       
         
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1472,10 +1500,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#raise" class="md-nav__link">
+  <a href="#error" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Raise
+        Error
       
     </span>
   </a>
@@ -1522,10 +1550,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#symbol-or-string" class="md-nav__link">
+  <a href="#symbol" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol or String
+        Symbol
       
     </span>
   </a>
@@ -1533,21 +1561,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#boolean-or-nil" class="md-nav__link">
+  <a href="#method-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boolean or Nil
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#method" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Method
+        Method Reference
       
     </span>
   </a>
@@ -1581,6 +1598,50 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#conditional-gating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Gating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-actions-via-the-deprecators-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Actions via the Deprecators Registry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1597,14 +1658,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1746,34 +1807,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1810,6 +1843,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2178,10 +2239,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#raise" class="md-nav__link">
+  <a href="#error" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Raise
+        Error
       
     </span>
   </a>
@@ -2228,10 +2289,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#symbol-or-string" class="md-nav__link">
+  <a href="#symbol" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Symbol or String
+        Symbol
       
     </span>
   </a>
@@ -2239,21 +2300,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#boolean-or-nil" class="md-nav__link">
+  <a href="#method-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Boolean or Nil
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#method" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Method
+        Method Reference
       
     </span>
   </a>
@@ -2284,6 +2334,50 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-gating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Gating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-actions-via-the-deprecators-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Actions via the Deprecators Registry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2374,117 +2468,185 @@
 
 
 <h1 id="task-deprecation">Task Deprecation<a class="headerlink" href="#task-deprecation" title="Permanent link">&para;</a></h1>
-<p>Manage legacy tasks gracefully with built-in deprecation support. Choose how to handle deprecated tasks—log warnings for awareness, issue Ruby warnings for development, or prevent execution entirely.</p>
+<p>Mark legacy tasks for graceful migration. Choose how to handle deprecated execution—log warnings for awareness, emit Ruby warnings during development, or block execution entirely.</p>
+<p>Deprecation is declared at the <strong>class level</strong> with <code>deprecation</code>, <strong>not</strong> through <code>settings(...)</code>. Subclasses inherit their parent's deprecation declaration unless they override it. When the action fires, <code>result.deprecated?</code> is <code>true</code> and a <code>:task_deprecated</code> telemetry event is emitted.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Deprecation runs after middlewares (and the <code>:task_started</code> telemetry event) but <strong>before</strong> callbacks, input resolution, and <code>work</code>. Conditional gates (<code>:if</code> / <code>:unless</code>) therefore can't read inputs — only the raw <code>context</code> and the task instance.</p>
+</div>
 <h2 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h2>
-<h3 id="raise">Raise<a class="headerlink" href="#raise" title="Permanent link">&para;</a></h3>
-<p>Prevent task execution completely. Perfect for tasks that must no longer run.</p>
+<h3 id="error">Error<a class="headerlink" href="#error" title="Permanent link">&para;</a></h3>
+<p>Prevent the task from executing. Use for tasks that must no longer run.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Use <code>:raise</code> mode carefully—it will break existing workflows immediately.</p>
+<p><code>:error</code> breaks every caller of the task immediately. Roll out behind a feature flag (via <code>:if</code>) when in doubt.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessObsoleteAPI</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="ss">:raise</span><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="c1"># Will never execute...</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="c1"># never executes</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">end</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessObsoleteAPI</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="no">ProcessObsoleteAPI</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">#=&gt; raises CMDx::DeprecationError: &quot;ProcessObsoleteAPI usage prohibited&quot;</span>
 </span></code></pre></div>
 <h3 id="log">Log<a class="headerlink" href="#log" title="Permanent link">&para;</a></h3>
-<p>Allow execution while tracking deprecation in logs. Ideal for gradual migrations.</p>
+<p>Allow execution and log a warning. Ideal for gradual migrations.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessLegacyFormat</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="ss">:log</span><span class="p">)</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="c1"># Executes but logs deprecation warning...</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">end</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessLegacyFormat</span><span class="o">.</span><span class="n">execute</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">result</span><span class="o">.</span><span class="n">success?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Deprecation warning appears in logs:</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># WARN -- : DEPRECATED: ProcessLegacyFormat - migrate to replacement or discontinue use</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:log</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="c1"># executes; a warning is written to the task logger</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">end</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessLegacyFormat</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span><span class="o">.</span><span class="n">success?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># logger.warn: &quot;DEPRECATED: ProcessLegacyFormat - migrate to a replacement or discontinue use&quot;</span>
 </span></code></pre></div>
 <h3 id="warn">Warn<a class="headerlink" href="#warn" title="Permanent link">&para;</a></h3>
-<p>Issue Ruby warnings visible during development and testing. Keeps production logs clean while alerting developers.</p>
+<p>Emit a Ruby warning to stderr. Visible during development and testing without polluting production logs.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOldData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="ss">:warn</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:warn</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1"># Executes but emits Ruby warning...</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1"># executes; warning written to stderr</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">end</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOldData</span><span class="o">.</span><span class="n">execute</span>
 </span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">result</span><span class="o">.</span><span class="n">success?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Ruby warning appears in stderr:</span>
-</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># [ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1"># Kernel.warn: &quot;[ProcessOldData] DEPRECATED: migrate to a replacement or discontinue use&quot;</span>
 </span></code></pre></div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<h3 id="symbol-or-string">Symbol or String<a class="headerlink" href="#symbol-or-string" title="Permanent link">&para;</a></h3>
+<h3 id="symbol">Symbol<a class="headerlink" href="#symbol" title="Permanent link">&para;</a></h3>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="c1"># Symbol</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="ss">:raise</span><span class="p">)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="c1"># String</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">end</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1"># or :log, :warn</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="boolean-or-nil">Boolean or Nil<a class="headerlink" href="#boolean-or-nil" title="Permanent link">&para;</a></h3>
+<h3 id="method-reference">Method Reference<a class="headerlink" href="#method-reference" title="Permanent link">&para;</a></h3>
+<p>Dispatched as <code>task.send(name)</code>. The method must perform the action itself (raise, log, warn, or no-op); its return value is discarded:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Deprecates with default :log mode</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="c1"># Skips deprecation</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">)</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="p">)</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="k">end</span>
-</span></code></pre></div>
-<h3 id="method">Method<a class="headerlink" href="#method" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Symbol</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="ss">:deprecated?</span><span class="p">)</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">deprecated?</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">year</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2024</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="ss">:raise</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kp">false</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="k">end</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:handle_deprecation</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">handle_deprecation</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="k">raise</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> retired&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">year</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2026</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> pending retirement&quot;</span><span class="p">)</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="proc-or-lambda">Proc or Lambda<a class="headerlink" href="#proc-or-lambda" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">development?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="ss">:raise</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="ss">:log</span><span class="w"> </span><span class="p">})</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">legacy_mode?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="ss">:warn</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="ss">:raise</span><span class="w"> </span><span class="p">})</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">end</span>
+<p><code>instance_exec</code>'d on the task with the task as the sole block argument:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">development?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="k">raise</span><span class="p">(</span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> retired&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;legacy&quot;</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">TenantLegacy</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">legacy_mode?</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nb">warn</span><span class="p">(</span><span class="s2">&quot;legacy&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kp">nil</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only one <code>deprecation</code> declaration is honored per class — repeated calls overwrite the previous declaration. To express multi-modal behavior, branch inside a single callable.</p>
+</div>
 <h3 id="class-or-module">Class or Module<a class="headerlink" href="#class-or-module" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedTaskDeprecator</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Outdated&quot;</span><span class="p">)</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">end</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="c1"># Class or Module</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="no">OutdatedTaskDeprecator</span><span class="p">)</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="c1"># Instance</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="no">OutdatedTaskDeprecator</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
+<p>Anything that responds to <code>#call(task)</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedTaskDeprecator</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">unless</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Outdated&quot;</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">raise</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">DeprecationError</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> usage prohibited&quot;</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">end</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="no">OutdatedTaskDeprecator</span><span class="w">       </span><span class="c1"># class — must define `.call(task)`</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="k">end</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">AnotherOutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="no">OutdatedTaskDeprecator</span><span class="o">.</span><span class="n">new</span><span class="w">   </span><span class="c1"># instance — must define `#call(task)`</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="k">end</span>
+</span></code></pre></div>
+<h2 id="conditional-gating">Conditional Gating<a class="headerlink" href="#conditional-gating" title="Permanent link">&para;</a></h2>
+<p>Pass <code>:if</code> / <code>:unless</code> to skip the deprecation action when the gate fails. Both accept a Symbol (method name), Proc/Lambda, or any callable, and are evaluated against the task instance via <code>Util.satisfied?</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">end</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">GrandfatheredTenants</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:log</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="ss">:tenant_grandfathered?</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">tenant_grandfathered?</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">tenant</span><span class="o">&amp;.</span><span class="n">grandfathered?</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only the <strong>most recent</strong> <code>deprecation</code> call wins — there's a single <code>@deprecation</code> per class. Combine modes with conditions inside a single Proc when you need branching.</p>
+</div>
+<h2 id="inheritance">Inheritance<a class="headerlink" href="#inheritance" title="Permanent link">&para;</a></h2>
+<p>Subclasses inherit the parent's deprecation. Re-declare to override. <code>deprecation nil</code> is a read (returns the inherited value rather than clearing it), so opt out by passing a no-op callable — note that this still marks the result as <code>deprecated?</code> and emits <code>:task_deprecated</code>, it just suppresses the visible log/warn/raise:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseLegacyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:log</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">end</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">StillSupported</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">BaseLegacyTask</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="c1"># inherits :log</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">end</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">FullyRetired</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">BaseLegacyTask</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="k">end</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">Excluded</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">BaseLegacyTask</span>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w">   </span><span class="c1"># opt out</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="k">end</span>
+</span></code></pre></div>
+<h2 id="custom-actions-via-the-deprecators-registry">Custom Actions via the <code>Deprecators</code> Registry<a class="headerlink" href="#custom-actions-via-the-deprecators-registry" title="Permanent link">&para;</a></h2>
+<p>Built-in actions (<code>:log</code>, <code>:warn</code>, <code>:error</code>) live in the <code>CMDx::Deprecators</code>
+registry, mirroring <code>Retriers</code> and <code>Mergers</code>. Actions are any callable matching
+<code>call(task)</code>; the return value is discarded. Register custom actions globally
+on the configuration or per-task:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">deprecators</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:bugsnag</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="no">Bugsnag</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;DEPRECATED: </span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">severity</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">)</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">end</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">OutdatedConnector</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:bugsnag</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">  </span><span class="c1"># Or scoped to the task class only:</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:deprecator</span><span class="p">,</span><span class="w"> </span><span class="ss">:slack</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Slack</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2"> fired&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Symbols not present in the registry fall through to a task instance method, so
+existing <code>deprecation :handle_deprecation</code> declarations keep working.</p>
+<h2 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h2>
+<p>When deprecation fires (and conditions pass), Runtime emits the <code>:task_deprecated</code> telemetry event before the action runs, and the resulting <code>Result</code> reports <code>deprecated?</code> as <code>true</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:task_deprecated</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">&quot;cmdx.deprecated&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;task:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="k">end</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessLegacyFormat</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">result</span><span class="o">.</span><span class="n">deprecated?</span><span class="w"> </span><span class="c1">#=&gt; true</span>
 </span></code></pre></div>
 
 
@@ -2540,13 +2702,13 @@
         
         
           
-          <a href="../returns/" class="md-footer__link md-footer__link--next" aria-label="Next: Returns">
+          <a href="../outputs/" class="md-footer__link md-footer__link--next" aria-label="Next: Outputs">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Returns
+                Outputs
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/blog/">
       
       
-        <link rel="prev" href="../comparison/">
+        <link rel="prev" href="../v2-migration/">
       
       
       
@@ -51,8 +51,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -718,14 +718,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -941,6 +941,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -981,7 +1009,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -997,7 +1025,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1010,7 +1038,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1038,7 +1066,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1066,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1094,7 +1122,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1122,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1150,7 +1178,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1408,14 +1436,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1554,34 +1582,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1618,6 +1618,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -1983,6 +2011,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cmdx-patterns-the-error-handling-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: The Error Handling Playbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmdx-patterns-advanced-middleware-stacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: Advanced Middleware Stacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmdx-patterns-defensive-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: Defensive Contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns-and-contracts-making-your-tasks-predictable" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2053,39 +2114,6 @@
     <span class="md-ellipsis">
       
         Mastering CMDx: The Art of Observability with Logging
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-retries-deprecation-and-internationalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx: Retries, Deprecation, and Internationalization
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-callbacks-and-middlewares-hooks-and-wrappers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Callbacks and Middlewares: Hooks and Wrappers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-attributes-your-tasks-contract-with-the-world" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Attributes: Your Task's Contract with the World
       
     </span>
   </a>
@@ -2131,6 +2159,39 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#cmdx-patterns-the-error-handling-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: The Error Handling Playbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmdx-patterns-advanced-middleware-stacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: Advanced Middleware Stacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cmdx-patterns-defensive-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CMDx Patterns: Defensive Contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns-and-contracts-making-your-tasks-predictable" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2207,39 +2268,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-retries-deprecation-and-internationalization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx: Retries, Deprecation, and Internationalization
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-callbacks-and-middlewares-hooks-and-wrappers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Callbacks and Middlewares: Hooks and Wrappers
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#mastering-cmdx-attributes-your-tasks-contract-with-the-world" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Mastering CMDx Attributes: Your Task's Contract with the World
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2254,6 +2282,162 @@
       <header class="md-typeset">
         <h1 id="blog">Blog<a class="headerlink" href="#blog" title="Permanent link">&para;</a></h1>
       </header>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-04-29 00:00:00+00:00">April 29, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-patterns-the-error-handling-playbook"><a class="toclink" href="cmdx-patterns-error-handling-playbook/">CMDx Patterns: The Error Handling Playbook</a></h2>
+<p><em>Part 3 of the CMDx Patterns series</em></p>
+<p><em>Targets CMDx v1.21.</em></p>
+<p>I used to think error handling was simple. Something goes wrong, you rescue it, done. Then I started building systems where "something went wrong" had fifteen different flavors—each requiring a different response. A missing record is not the same as a network timeout. A user's expired subscription is not the same as a billing system outage. Treating them identically is how you end up with generic "Something went wrong" error pages and support tickets that take hours to triage.</p>
+<p>CMDx gives you four distinct mechanisms for handling problems: <code>skip!</code>, <code>fail!</code>, <code>throw!</code>, and letting exceptions propagate. Knowing which one to reach for—and when—is the difference between a system that degrades gracefully and one that falls over at the first sign of trouble.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="cmdx-patterns-error-handling-playbook/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-04-22 00:00:00+00:00">April 22, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-patterns-advanced-middleware-stacks"><a class="toclink" href="cmdx-patterns-advanced-middleware-stacks/">CMDx Patterns: Advanced Middleware Stacks</a></h2>
+<p><em>Part 2 of the CMDx Patterns series</em></p>
+<p><em>Targets CMDx v1.21.</em></p>
+<p>Middleware is one of those features that's easy to understand and hard to use well. You write a simple wrapper, register it, and it works. Then you write another. And another. Before long, you've got six middlewares on every task, they're firing in an order you didn't intend, and you're spending more time debugging the middleware stack than the business logic it wraps.</p>
+<p>I've been through that cycle enough times to develop opinions about how to compose middleware stacks in CMDx. This post covers the patterns that survived contact with production Ruby applications—from simple wrappers to sophisticated multi-layer stacks.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="cmdx-patterns-advanced-middleware-stacks/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
+      
+        <article class="md-post md-post--excerpt">
+  <header class="md-post__header">
+    
+      <nav class="md-post__authors md-typeset">
+        
+          <span class="md-author">
+            <img src="https://github.com/drexed.png" alt="drexed">
+          </span>
+        
+      </nav>
+    
+    <div class="md-post__meta md-meta">
+      <ul class="md-meta__list">
+        <li class="md-meta__item">
+          <time datetime="2026-04-15 00:00:00+00:00">April 15, 2026</time></li>
+        
+          <li class="md-meta__item">
+            in
+            
+              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
+        
+        
+          
+          <li class="md-meta__item">
+            
+              6 min read
+            
+          </li>
+        
+        
+      </ul>
+      
+    </div>
+  </header>
+  <div class="md-post__content md-typeset">
+    <h2 id="cmdx-patterns-defensive-contracts"><a class="toclink" href="cmdx-patterns-defensive-contracts/">CMDx Patterns: Defensive Contracts</a></h2>
+<p><em>Part 1 of the CMDx Patterns series</em></p>
+<p><em>Targets CMDx v1.21.</em></p>
+<p>I have a rule when building Ruby tasks: if a task can be misused, it will be misused. Not out of malice—out of haste, incomplete documentation, or the natural entropy of a growing codebase. Someone passes a string where you expected an integer. Someone forgets to read the context key you set. Someone calls your task from a new workflow and the whole pipeline falls over because the inputs were subtly wrong.</p>
+<p>Defensive contracts are CMDx's answer to this. By combining <code>required</code>/<code>optional</code> attributes, validations, coercions, and <code>returns</code>, you build tasks that are impossible to misuse silently. Bad data fails loudly at the boundary. Missing outputs fail immediately at the source. The contract is the code, and the code enforces itself.</p>
+
+    
+      <nav class="md-post__action">
+        <a href="cmdx-patterns-defensive-contracts/">
+          Continue reading
+        </a>
+      </nav>
+    
+    
+  </div>
+</article>
       
         <article class="md-post md-post--excerpt">
   <header class="md-post__header">
@@ -2291,6 +2475,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="returns-and-contracts-making-your-tasks-predictable"><a class="toclink" href="returns-and-contracts/">Returns and Contracts: Making Your Tasks Predictable</a></h2>
+<p><em>Targets CMDx v1.20.</em></p>
 <p>I used to have a recurring nightmare. Not the falling kind—the kind where I'm staring at a service object and trying to figure out what it puts into the context. The <code>work</code> method sets <code>context.user</code> on line 12, <code>context.token</code> on line 28, but only if the conditional on line 15 passes. Oh, and there's a <code>context.session_id</code> that gets set inside a private method three screens down.</p>
 <p>Every consumer of that task is making an implicit assumption about what the context will contain after execution. When those assumptions break, the error shows up somewhere else entirely—a <code>NoMethodError</code> in a downstream task, a nil where a mailer expected a user object.</p>
 <p>That's why I built <code>returns</code> into CMDx. It makes the output contract explicit, enforced, and impossible to forget.</p>
@@ -2342,6 +2527,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="structuring-large-cmdx-codebases"><a class="toclink" href="structuring-large-cmdx-codebases/">Structuring Large CMDx Codebases</a></h2>
+<p><em>Targets CMDx v1.20.</em></p>
 <p>Your first CMDx task is easy. Your tenth is manageable. But what about your hundredth? I've seen projects where the <code>app/tasks/</code> directory becomes a dumping ground—flat files with no organization, inconsistent naming, duplicated middleware registrations, and base classes that try to do everything.</p>
 <p>Scaling a CMDx codebase isn't about the framework. It's about the conventions you establish early and enforce consistently. This post is the playbook I wish I had when my first CMDx project grew from 10 tasks to 200.</p>
 
@@ -2392,6 +2578,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="cmdx-as-a-pragmatic-alternative-to-event-sourcing"><a class="toclink" href="cmdx-as-pragmatic-event-sourcing/">CMDx as a Pragmatic Alternative to Event Sourcing</a></h2>
+<p><em>Targets CMDx v1.20.</em></p>
 <p>Event Sourcing is one of those ideas that sounds perfect in a conference talk and then bankrupts your sprint when you try to implement it. You need an event store, projections, snapshot strategies, a way to replay history, and a team that understands why you can't just <code>UPDATE</code> a row anymore. For some domains—banking, audit-heavy compliance, truly distributed systems—it's worth the cost. For the rest of us, it's a complexity tax we can't afford.</p>
 <p>But the <em>benefits</em> of Event Sourcing are real. An immutable record of what happened. The ability to understand <em>why</em> the system is in its current state. Traceability across complex workflows. I wanted those benefits without the infrastructure.</p>
 <p>That's when I realized CMDx already gives you most of it for free.</p>
@@ -2443,6 +2630,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="why-i-switched-to-cmdx-and-how-you-can-too"><a class="toclink" href="why-i-switched-to-cmdx/">Why I Switched to CMDx (and How You Can Too)</a></h2>
+<p><em>Targets CMDx v1.20.</em></p>
 <p>If you've been writing Ruby long enough, you've probably used at least one service object gem. Maybe you started with Interactor back when it was the default choice. Maybe you moved to ActiveInteraction for its ActiveModel-like validations. Maybe you tried Actor or LightService. I've used all of them in production, and each one taught me something about what I actually need from a command framework.</p>
 <p>This isn't a hit piece on any of those gems—they're well-built tools that solve real problems. But after years of using them, I kept hitting the same walls. So I built CMDx to knock those walls down.</p>
 
@@ -2493,6 +2681,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="testing-cmdx-tasks-like-a-pro"><a class="toclink" href="testing-cmdx-tasks-like-a-pro/">Testing CMDx Tasks Like a Pro</a></h2>
+<p><em>Targets CMDx v1.19.</em></p>
 <p>I have a confession: I used to skip tests for service objects. Not because I didn't care, but because testing them was painful. Mock the database, stub the API, wrestle with instance variables, pray the test actually exercises the code path you think it does. The friction was real, and it showed in our coverage numbers.</p>
 <p>When I built CMDx, I made a promise to myself—if the framework isn't dead simple to test, it's not done. Every task takes data in and pushes a result out. No hidden state, no side-channel mutations, no surprises. That makes testing almost enjoyable. Almost.</p>
 
@@ -2543,6 +2732,7 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="building-production-ready-rails-applications-with-cmdx-a-complete-guide"><a class="toclink" href="building-production-ready-rails-with-cmdx/">Building Production-Ready Rails Applications with CMDx: A Complete Guide</a></h2>
+<p><em>Targets CMDx v1.17.</em></p>
 <p>I've been building Ruby on Rails applications for over a decade, and if there's one thing that keeps me up at night, it's the state of business logic in most codebases. You know what I'm talking about—fat controllers, bloated models, service objects that look like they were written by five different people on five different days. We've all inherited that one <code>OrderService</code> class with 800 lines of spaghetti code and a comment at the top that says "TODO: refactor this."</p>
 <p>This guide is everything I wish I had when I started taking service objects seriously. We're going to build a complete order processing system from scratch, and by the end, you'll understand how CMDx transforms chaotic business logic into clean, observable, maintainable code.</p>
 
@@ -2593,163 +2783,13 @@
   </header>
   <div class="md-post__content md-typeset">
     <h2 id="mastering-cmdx-the-art-of-observability-with-logging"><a class="toclink" href="mastering-cmdx-logging/">Mastering CMDx: The Art of Observability with Logging</a></h2>
+<p><em>Targets CMDx v1.17.</em></p>
 <p>We've all been there. A production incident report lands on your desk. "Transaction failed for user X." You open the logs, grep for the user ID, and... silence. Or worse, a wall of unstructured text that tells you everything except what you need to know.</p>
 <p>Logging is often an afterthought—something we sprinkle in <code>rescue</code> blocks when we're debugging. But in CMDx, the Ruby framework for business logic, observability isn't an add-on; it's a first-class citizen.</p>
 
     
       <nav class="md-post__action">
         <a href="mastering-cmdx-logging/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-02-18 00:00:00+00:00">February 18, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              3 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-retries-deprecation-and-internationalization"><a class="toclink" href="mastering-cmdx-retries-deprecation-i18n/">Mastering CMDx: Retries, Deprecation, and Internationalization</a></h2>
-<p>As developers, we often obsess over the "happy path"—that perfect scenario where networks never time out, requirements never change, and every user speaks English. But the real world isn't so accommodating. Services fail, code evolves, and your application needs to speak more than just one language.</p>
-<p>In this post, I want to dive into three CMDx features that help you handle these realities: <strong>Retries</strong> for resilience, <strong>Deprecation</strong> for lifecycle management, and <strong>Internationalization</strong> for global reach. These tools might seem distinct, but together they elevate your business logic from "functional" to "production-grade."</p>
-
-    
-      <nav class="md-post__action">
-        <a href="mastering-cmdx-retries-deprecation-i18n/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-02-11 00:00:00+00:00">February 11, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              3 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-callbacks-and-middlewares-hooks-and-wrappers"><a class="toclink" href="mastering-cmdx-callbacks-and-middlewares/">Mastering CMDx Callbacks and Middlewares: Hooks and Wrappers</a></h2>
-<p>When I'm writing complex business logic in Ruby, I often find that the core "work" is only half the battle. The other half is everything around it: logging, error handling, notifications, database transactions, and performance tracking.</p>
-<p>If you put all that code inside your main method, you end up with a mess. That's where CMDx's <strong>Callbacks</strong> and <strong>Middlewares</strong> come in. They let you separate the "what" from the "how" and the "when," keeping your tasks clean and focused.</p>
-<p>Let's dive into how you can use these tools to write better service objects.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="mastering-cmdx-callbacks-and-middlewares/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/drexed.png" alt="drexed">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-02-04 00:00:00+00:00">February 4, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="category/tutorials/" class="md-meta__link">Tutorials</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              8 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="mastering-cmdx-attributes-your-tasks-contract-with-the-world"><a class="toclink" href="mastering-cmdx-attributes/">Mastering CMDx Attributes: Your Task's Contract with the World</a></h2>
-<p>Attributes in CMDx are deceptively simple. You define what data your task needs, and the framework handles the rest—coercion, validation, defaults, the works. But there's real depth here. After building dozens of production systems with CMDx, I've found that well-designed attributes are the difference between tasks that "just work" and tasks that fight you at every turn.</p>
-<p>Let me show you what I mean.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="mastering-cmdx-attributes/">
           Continue reading
         </a>
       </nav>
@@ -2795,7 +2835,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../comparison/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Comparison">
+          <a href="../v2-migration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: v1 → v2 Migration">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2805,7 +2845,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Comparison
+                v1 → v2 Migration
               </div>
             </div>
           </a>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/interruptions/faults/">
       
       
-        <link rel="prev" href="../halt/">
+        <link rel="prev" href="../signals/">
       
       
         <link rel="next" href="../exceptions/">
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../halt/" class="md-nav__link">
+      <a href="../signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -817,10 +817,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fault-types" class="md-nav__link">
+  <a href="#whats-on-a-fault" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fault Types
+        What's on a Fault
       
     </span>
   </a>
@@ -832,17 +832,6 @@
     <span class="md-ellipsis">
       
         Fault Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Access
       
     </span>
   </a>
@@ -866,6 +855,17 @@
     <span class="md-ellipsis">
       
         Task-Specific Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reason-specific-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reason-Specific Matching
       
     </span>
   </a>
@@ -1124,6 +1124,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1167,7 +1195,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1183,7 +1211,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1196,7 +1224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/definitions/" class="md-nav__link">
+      <a href="../../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1224,7 +1252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/naming/" class="md-nav__link">
+      <a href="../../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1252,7 +1280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/coercions/" class="md-nav__link">
+      <a href="../../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1280,7 +1308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/validations/" class="md-nav__link">
+      <a href="../../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1308,7 +1336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/defaults/" class="md-nav__link">
+      <a href="../../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1336,7 +1364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../attributes/transformations/" class="md-nav__link">
+      <a href="../../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1597,14 +1625,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../returns/" class="md-nav__link">
+      <a href="../../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1746,34 +1774,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1810,6 +1810,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2166,10 +2194,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fault-types" class="md-nav__link">
+  <a href="#whats-on-a-fault" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fault Types
+        What's on a Fault
       
     </span>
   </a>
@@ -2181,17 +2209,6 @@
     <span class="md-ellipsis">
       
         Fault Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-access" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Access
       
     </span>
   </a>
@@ -2215,6 +2232,17 @@
     <span class="md-ellipsis">
       
         Task-Specific Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reason-specific-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reason-Specific Matching
       
     </span>
   </a>
@@ -2348,7 +2376,7 @@
     
     
       <li class="md-path__item">
-        <a href="../halt/" class="md-path__link">
+        <a href="../signals/" class="md-path__link">
           
   <span class="md-ellipsis">
     Interruptions
@@ -2374,168 +2402,154 @@
 
 
 <h1 id="interruptions-faults">Interruptions - Faults<a class="headerlink" href="#interruptions-faults" title="Permanent link">&para;</a></h1>
-<p>Faults are exceptions raised by <code>execute!</code> when tasks halt. They carry rich context about execution state, enabling sophisticated error handling patterns. See the <a href="../../exceptions/">Exceptions Reference</a> for the full hierarchy.</p>
-<h2 id="fault-types">Fault Types<a class="headerlink" href="#fault-types" title="Permanent link">&para;</a></h2>
+<p><code>CMDx::Fault</code> is the exception <code>execute!</code> raises on failure. Skipped and successful results never raise. A Fault wraps the <strong>originating</strong> failed <code>Result</code> — the leaf at the bottom of any propagation chain — and delegates <code>task</code>, <code>context</code>, and <code>chain</code> to it. See <a href="../exceptions/">Exceptions</a> for the full hierarchy.</p>
+<h2 id="whats-on-a-fault">What's on a Fault<a class="headerlink" href="#whats-on-a-fault" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Type</th>
-<th>Triggered By</th>
-<th>Use Case</th>
+<th>Accessor</th>
+<th>Returns</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>CMDx::Fault</code></td>
-<td>Base class</td>
-<td>Catch-all for any interruption</td>
+<td><code>fault.result</code></td>
+<td><code>CMDx::Result</code></td>
+<td>The failed result that originated the failure (after walking <code>origin</code>)</td>
 </tr>
 <tr>
-<td><code>CMDx::SkipFault</code></td>
-<td><code>skip!</code> method</td>
-<td>Optional processing, early returns</td>
+<td><code>fault.task</code></td>
+<td><code>Class&lt;CMDx::Task&gt;</code></td>
+<td>The failing task <strong>class</strong> (<code>fault.result.task</code>)</td>
 </tr>
 <tr>
-<td><code>CMDx::FailFault</code></td>
-<td><code>fail!</code> method</td>
-<td>Validation errors, processing failures</td>
+<td><code>fault.context</code></td>
+<td><code>CMDx::Context</code></td>
+<td>The failing task's frozen context</td>
+</tr>
+<tr>
+<td><code>fault.chain</code></td>
+<td><code>CMDx::Chain</code></td>
+<td>The chain of every result produced during the run</td>
+</tr>
+<tr>
+<td><code>fault.message</code></td>
+<td><code>String</code></td>
+<td><code>I18nProxy.tr(result.reason)</code> — translates when the reason is an i18n key, otherwise passes through; falls back to the localized <code>cmdx.reasons.unspecified</code> when reason is <code>nil</code></td>
+</tr>
+<tr>
+<td><code>fault.backtrace</code></td>
+<td><code>Array&lt;String&gt;</code></td>
+<td>From <code>result.backtrace</code> or <code>result.cause&amp;.backtrace_locations</code>, cleaned via <code>task.settings.backtrace_cleaner</code> when configured</td>
 </tr>
 </tbody>
 </table>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>All faults inherit from <code>CMDx::Fault</code> and expose result, task, context, and chain data.</p>
+<p>Use <code>fault.result</code> to read the failed outcome's <code>reason</code>, <code>metadata</code>, <code>cause</code>, <code>origin</code>, <code>state</code>, and <code>status</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Fault</code> wraps failures originating from <code>fail!</code>, <code>throw!</code>, or explicit <code>errors.add</code>. When Runtime rescued an ordinary <code>StandardError</code> (so <code>result.cause</code> is a non-<code>Fault</code>), <code>execute!</code> re-raises that <strong>original</strong> exception instead of wrapping it. For workflows, <code>fault.task</code> always points at the leaf that failed — not the workflow class — so matchers like <code>Fault.for?(LeafTask)</code> work the same in flat and nested executions.</p>
 </div>
 <h2 id="fault-handling">Fault Handling<a class="headerlink" href="#fault-handling" title="Permanent link">&para;</a></h2>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">begin</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="no">ProcessTicket</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">ticket_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">SkipFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="w"> </span><span class="s2">&quot;Ticket processing skipped: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="n">schedule_retry</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ticket_id</span><span class="p">)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="w"> </span><span class="s2">&quot;Ticket processing failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="n">notify_admin</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">assigned_agent</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="w"> </span><span class="s2">&quot;Ticket processing interrupted: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="n">rollback_changes</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">end</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="w"> </span><span class="s2">&quot;Ticket processing failed: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="w">  </span><span class="s2">&quot;Failing task: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="n">notify_admin</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="data-access">Data Access<a class="headerlink" href="#data-access" title="Permanent link">&para;</a></h2>
-<p>Access rich execution data from fault exceptions:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">begin</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="no">LicenseActivation</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">license_key</span><span class="p">:</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="ss">machine_id</span><span class="p">:</span><span class="w"> </span><span class="n">machine</span><span class="p">)</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="c1"># Result information</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">state</span><span class="w">     </span><span class="c1">#=&gt; &quot;interrupted&quot;</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="w">    </span><span class="c1">#=&gt; &quot;failed&quot; or &quot;skipped&quot;</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">    </span><span class="c1">#=&gt; &quot;License key already activated&quot;</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="c1"># Task information</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="w">       </span><span class="c1">#=&gt; &lt;LicenseActivation&gt;</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="w">          </span><span class="c1">#=&gt; &quot;abc123...&quot;</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="c1"># Context data</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">license_key</span><span class="w"> </span><span class="c1">#=&gt; &quot;ABC-123-DEF&quot;</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">machine_id</span><span class="w">  </span><span class="c1">#=&gt; &quot;[FILTERED]&quot;</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="c1"># Chain information</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">id</span><span class="w">         </span><span class="c1">#=&gt; &quot;def456...&quot;</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="n">e</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">size</span><span class="w">       </span><span class="c1">#=&gt; 3</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="k">end</span>
+<p>When you need to keep working with the result rather than rescuing, use <code>execute</code> and inspect it directly:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessTicket</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">ticket_id</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">result</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="ss">:failed</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">r</span><span class="o">|</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="w"> </span><span class="s2">&quot;Ticket processing failed: </span><span class="si">#{</span><span class="n">r</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="n">notify_admin</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_code</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">context</span><span class="p">:</span><span class="w"> </span><span class="n">r</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">end</span>
 </span></code></pre></div>
+<p>Either form gives you the same data: with <code>execute!</code>, reach for <code>fault.result</code> / <code>fault.context</code> / <code>fault.chain</code>; with <code>execute</code>, work with the returned <code>result</code> directly.</p>
 <h2 id="advanced-matching">Advanced Matching<a class="headerlink" href="#advanced-matching" title="Permanent link">&para;</a></h2>
 <h3 id="task-specific-matching">Task-Specific Matching<a class="headerlink" href="#task-specific-matching" title="Permanent link">&para;</a></h3>
-<p>Handle faults only from specific tasks using <code>for?</code>:</p>
+<p><code>Fault.for?(*task_classes)</code> returns an anonymous matcher subclass suitable for <code>rescue</code>. It matches any fault whose <code>task</code> is (or inherits from) one of the given classes:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">begin</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">FormatValidator</span><span class="p">,</span><span class="w"> </span><span class="no">ContentProcessor</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">FormatValidator</span><span class="p">,</span><span class="w"> </span><span class="no">ContentProcessor</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="c1"># Handle only document-related failures</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="n">retry_with_alternate_parser</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">SkipFault</span><span class="o">.</span><span class="n">for?</span><span class="p">(</span><span class="no">VirusScanner</span><span class="p">,</span><span class="w"> </span><span class="no">ContentFilter</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="c1"># Handle security-related skips</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="n">quarantine_for_review</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">document_id</span><span class="p">)</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="k">end</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="n">retry_with_alternate_parser</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">end</span>
+</span></code></pre></div>
+<h3 id="reason-specific-matching">Reason-Specific Matching<a class="headerlink" href="#reason-specific-matching" title="Permanent link">&para;</a></h3>
+<p><code>Fault.reason?(reason)</code> returns an anonymous matcher subclass that matches any fault whose <code>result.reason</code> equals the given string:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">begin</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="no">ProcessPayment</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">payment_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">reason?</span><span class="p">(</span><span class="s2">&quot;Payment declined&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">notify_customer</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">customer_id</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="custom-logic-matching">Custom Logic Matching<a class="headerlink" href="#custom-logic-matching" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">begin</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="no">ReportGenerator</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">report</span><span class="p">:</span><span class="w"> </span><span class="n">report_data</span><span class="p">)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">data_size</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">10_000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">escalate_large_dataset_failure</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">FailFault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:attempt_count</span><span class="o">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="n">abandon_report_generation</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_type</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;memory&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="n">increase_memory_and_retry</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
+<p><code>Fault.matches?</code> takes a block returning <code>true</code>/<code>false</code> against the fault. Use it for arbitrary predicates — metadata, status, cause class, etc.:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">begin</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="no">ReportGenerator</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">report</span><span class="p">:</span><span class="w"> </span><span class="n">report_data</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:attempt_count</span><span class="o">].</span><span class="n">to_i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="n">abandon_report_generation</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="o">.</span><span class="n">matches?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">f</span><span class="o">|</span><span class="w"> </span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:error_type</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;memory&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">increase_memory_and_retry</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="fault-propagation">Fault Propagation<a class="headerlink" href="#fault-propagation" title="Permanent link">&para;</a></h2>
-<p>Propagate failures with <code>throw!</code> to preserve context and maintain the error chain.</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p><code>throw!</code> requires a <code>CMDx::Result</code> argument. Passing any other object raises a <code>TypeError</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each call to <code>for?</code> / <code>matches?</code> returns a fresh anonymous matcher subclass, so they can be stacked across multiple <code>rescue</code> clauses but cannot be combined into a single matcher.</p>
 </div>
+<h2 id="fault-propagation">Fault Propagation<a class="headerlink" href="#fault-propagation" title="Permanent link">&para;</a></h2>
+<p>Use <code>throw!</code> to re-raise an upstream failed result through the current task. The propagated signal mirrors the original's state, status, and reason and attaches the current <code>caller_locations</code> as the backtrace. It's a no-op when the argument isn't <code>failed?</code> — skipped or successful results are never converted into failures.</p>
 <h3 id="basic-propagation">Basic Propagation<a class="headerlink" href="#basic-propagation" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportGenerator</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="c1"># Throw if skipped or failed</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">validation_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DataValidator</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">validation_result</span><span class="p">)</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="c1"># Only throw if skipped</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="n">check_permissions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CheckPermissions</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">check_permissions</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">check_permissions</span><span class="o">.</span><span class="n">skipped?</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="c1"># Only throw if failed</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="n">data_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DataProcessor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">data_result</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">data_result</span><span class="o">.</span><span class="n">failed?</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="c1"># Continue processing</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">    </span><span class="n">generate_report</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReportGenerator</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="c1"># No-op when the upstream result wasn&#39;t failed</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="no">DataValidator</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="c1"># Or guard explicitly</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">perms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CheckPermissions</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">perms</span><span class="o">.</span><span class="n">failed?</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">generate_report</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="additional-metadata">Additional Metadata<a class="headerlink" href="#additional-metadata" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BatchProcessor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">step_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FileValidation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">step_result</span><span class="o">.</span><span class="n">failed?</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span><span class="n">step_result</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="ss">batch_stage</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;validation&quot;</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="ss">can_retry</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">,</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="ss">next_step</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_repair&quot;</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">      </span><span class="p">})</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="k">end</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="n">continue_batch</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">end</span>
+<p>Pass keyword args to attach extra metadata to the propagated signal:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BatchProcessor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">step_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">FileValidation</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">step_result</span><span class="o">.</span><span class="n">failed?</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="kp">throw</span><span class="o">!</span><span class="p">(</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">        </span><span class="n">step_result</span><span class="p">,</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">        </span><span class="ss">batch_stage</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;validation&quot;</span><span class="p">,</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="ss">can_retry</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">,</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="ss">next_step</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_repair&quot;</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">      </span><span class="p">)</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="n">continue_batch</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="chain-analysis">Chain Analysis<a class="headerlink" href="#chain-analysis" title="Permanent link">&para;</a></h2>
-<p>Trace fault origins and propagation through the execution chain:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">invalid_data</span><span class="p">)</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">failed?</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="c1"># Trace the original failure</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">original</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Original failure: </span><span class="si">#{</span><span class="n">original</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Reason: </span><span class="si">#{</span><span class="n">original</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="c1"># Find what propagated the failure</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="n">thrower</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">threw_failure</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Propagated by: </span><span class="si">#{</span><span class="n">thrower</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">thrower</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="c1"># Analyze failure type</span>
-</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="k">case</span>
-</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="k">when</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">caused_failure?</span>
-</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;This task was the original source&quot;</span>
-</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="k">when</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">threw_failure?</span>
-</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;This task propagated a failure&quot;</span>
-</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">  </span><span class="k">when</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">thrown_failure?</span>
-</span><span id="__span-6-22"><a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">    </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;This task failed due to propagation&quot;</span>
-</span><span id="__span-6-23"><a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-6-24"><a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="k">end</span>
+<p><code>Fault</code> exposes the originating <code>Result</code> via <code>fault.result</code>, plus the full <code>chain</code> it belongs to. From either, you can walk failure propagation with <code>origin</code>, <code>caused_failure</code>, and <code>threw_failure</code>. See <a href="../../outcomes/result/#chain-analysis">Result - Chain Analysis</a> for the full API.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">begin</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute!</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">rescue</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Fault</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">e</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Originated by </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Root task: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="w">     </span><span class="c1"># chain.first is always the root execution</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">end</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># Or via non-bang execute:</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">DocumentWorkflow</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">document_data</span><span class="p">:</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">if</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">failed?</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="n">origin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="nb">puts</span><span class="w"> </span><span class="s2">&quot;Originated by </span><span class="si">#{</span><span class="n">origin</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">origin</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">end</span>
 </span></code></pre></div>
 
 
@@ -2574,7 +2588,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../halt/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Halt">
+          <a href="../signals/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Signals">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2584,7 +2598,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Halt
+                Signals
               </div>
             </div>
           </a>

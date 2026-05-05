@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::Chain
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Chain";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -85,12 +87,12 @@
 
   
   
+  
+  
   <dl>
-      <dt>Extended by:</dt>
-      <dd>Forwardable</dd>
+      <dt>Includes:</dt>
+      <dd>Enumerable</dd>
   </dl>
-  
-  
   
   
 
@@ -99,16 +101,18 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/chain.rb</dd>
+    <dd>lib/cmdx/chain.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Manages a collection of task execution results in a thread and fiber safe manner. Chains provide a way to track related task executions and their outcomes within the same execution context.</p>
-
+    <p>Ordered collection of <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>s produced by a top-level task and any nested
+tasks it triggers. A Chain is stored per-fiber so concurrent workflows
+(see Pipeline parallel strategy) each get their own. The root Runtime
+clears the chain on teardown.</p>
 
   </div>
 </div>
@@ -124,31 +128,15 @@
 
     <dl class="constants">
       
-        <dt id="CONCURRENCY_KEY-constant" class="">CONCURRENCY_KEY =
+        <dt id="STORAGE_KEY-constant" class="">STORAGE_KEY =
           <div class="docstring">
   <div class="discussion">
-    
+    <p>Fiber-local storage key used by <span class='object_link'><a href="#current-class_method" title="CMDx::Chain.current (method)">current</a></span>/<span class='object_link'><a href="#current=-class_method" title="CMDx::Chain.current= (method)">current=</a></span>/<span class='object_link'><a href="#clear-class_method" title="CMDx::Chain.clear (method)">clear</a></span>.</p>
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>CONCURRENCY_KEY: Symbol</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div>
         </dt>
@@ -166,7 +154,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#id-instance_method" title="#id (instance method)">#<strong>id</strong>  &#x21d2; String </a>
+      <a href="#id-instance_method" title="#id (instance method)">#<strong>id</strong>  &#x21d2; Object </a>
     
 
     
@@ -185,9 +173,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the unique identifier for this chain.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute id.</p></div></span>
   
 </li>
 
@@ -195,7 +181,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#results-instance_method" title="#results (instance method)">#<strong>results</strong>  &#x21d2; Array&lt;Result&gt; </a>
+      <a href="#results-instance_method" title="#results (instance method)">#<strong>results</strong>  &#x21d2; Object </a>
     
 
     
@@ -214,9 +200,34 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the collection of execution results in this chain.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute results.</p></div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#xid-instance_method" title="#xid (instance method)">#<strong>xid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute xid.</p></div></span>
   
 </li>
 
@@ -237,30 +248,6 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#build-class_method" title="build (class method)">.<strong>build</strong>(result, dry_run: false)  &#x21d2; Chain </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Builds or extends the current chain by adding a result.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
       <a href="#clear-class_method" title="clear (class method)">.<strong>clear</strong>  &#x21d2; nil </a>
     
 
@@ -275,9 +262,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Clears the current chain for the current execution context.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Clears the fiber-local chain reference.</p></div></span>
   
 </li>
 
@@ -299,9 +284,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Retrieves the current chain for the current execution context.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>The chain active on the current fiber, or nil outside execution.</p></div></span>
   
 </li>
 
@@ -309,7 +292,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#current=-class_method" title="current= (class method)">.<strong>current=</strong>(chain)  &#x21d2; Chain </a>
+      <a href="#current=-class_method" title="current= (class method)">.<strong>current=</strong>(chain)  &#x21d2; Chain<sup>?</sup> </a>
     
 
     
@@ -323,14 +306,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Sets the current chain for the current execution context.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Installs <code>chain</code> as the active chain on the current fiber.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
     <h2>
       Instance Method Summary
@@ -342,7 +324,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#dry_run%3F-instance_method" title="#dry_run? (instance method)">#<strong>dry_run?</strong>  &#x21d2; Boolean </a>
+      <a href="#each-instance_method" title="#each (instance method)">#<strong>each</strong> {|Result| ... } &#x21d2; Enumerator, Chain </a>
     
 
     
@@ -356,9 +338,29 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns whether the chain is running in dry-run mode.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#empty%3F-instance_method" title="#empty? (instance method)">#<strong>empty?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -380,9 +382,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Freezes the chain and its internal results to prevent modifications.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Freezes the chain and its results.</p></div></span>
   
 </li>
 
@@ -404,9 +404,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Thread-safe lookup of a result’s position in the chain.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Zero-based position of <code>result</code>, or nil when absent.</p></div></span>
   
 </li>
 
@@ -414,7 +412,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(dry_run: false)  &#x21d2; Chain </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(xid = nil)  &#x21d2; Chain </a>
     
 
     
@@ -430,9 +428,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Creates a new chain with a unique identifier and empty results collection.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>A new instance of Chain.</p></div></span>
   
 </li>
 
@@ -440,7 +436,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#push-instance_method" title="#push (instance method)">#<strong>push</strong>(result)  &#x21d2; Array&lt;Result&gt; </a>
+      <a href="#last-instance_method" title="#last (instance method)">#<strong>last</strong>  &#x21d2; Result<sup>?</sup> </a>
     
 
     
@@ -454,9 +450,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Thread-safe append of a result to the chain.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>The most recently appended result.</p></div></span>
   
 </li>
 
@@ -464,7 +458,31 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#to_h-instance_method" title="#to_h (instance method)">#<strong>to_h</strong>  &#x21d2; Hash </a>
+      <a href="#push-instance_method" title="#push (instance method)">#<strong>push</strong>(result)  &#x21d2; Chain </a>
+    
+
+    
+      (also: #&lt;&lt;)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Appends <code>result</code> to the chain.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#root-instance_method" title="#root (instance method)">#<strong>root</strong>  &#x21d2; Result<sup>?</sup> </a>
     
 
     
@@ -478,9 +496,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Converts the chain to a hash representation.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>The root result, or nil when absent.</p></div></span>
   
 </li>
 
@@ -488,7 +504,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; String </a>
+      <a href="#size-instance_method" title="#size (instance method)">#<strong>size</strong>  &#x21d2; Integer </a>
     
 
     
@@ -502,14 +518,79 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Converts the chain to a string representation.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#state-instance_method" title="#state (instance method)">#<strong>state</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The state of the root result, or nil when absent.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#status-instance_method" title="#status (instance method)">#<strong>status</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The status of the root result, or nil when absent.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unshift-instance_method" title="#unshift (instance method)">#<strong>unshift</strong>(result)  &#x21d2; Chain </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Prepends <code>result</code> to the chain.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -519,7 +600,7 @@
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(dry_run: false)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
+    #<strong>initialize</strong>(xid = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
   
 
   
@@ -527,30 +608,34 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Creates a new chain with a unique identifier and empty results collection.</p>
-
+    <p>Returns a new instance of Chain.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
     <li>
       
+        <span class='name'>xid</span>
       
       
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
       
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>external correlation id (e.g. Rails <code>request_id</code>)
+shared across every <span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span> in this chain. Resolved once by Runtime
+from Configuration#xid when the root chain is created.</p></div>
       
     </li>
   
 </ul>
+
 
 </div><table class="source_code">
   <tr>
@@ -568,11 +653,11 @@
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 42</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>dry_run:</span> <span class='kw'>false</span><span class='rparen'>)</span>
-  <span class='ivar'>@mutex</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
-  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Identifier.html" title="CMDx::Identifier (module)">Identifier</a></span></span><span class='period'>.</span><span class='id identifier rubyid_generate'><span class='object_link'><a href="Identifier.html#generate-instance_method" title="CMDx::Identifier#generate (method)">generate</a></span></span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_xid'>xid</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@xid</span>     <span class='op'>=</span> <span class='id identifier rubyid_xid'>xid</span>
+  <span class='ivar'>@id</span>      <span class='op'>=</span> <span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid_v7'>uuid_v7</span>
+  <span class='ivar'>@mutex</span>   <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
   <span class='ivar'>@results</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
-  <span class='ivar'>@dry_run</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='id identifier rubyid_dry_run'>dry_run</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -589,7 +674,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="id-instance_method">
   
-    #<strong>id</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
+    #<strong>id</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -597,56 +682,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns the unique identifier for this chain.</p>
-
+    <p>Returns the value of attribute id.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='comment'># =&gt; &quot;abc123xyz&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The chain identifier</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@id: String</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -654,12 +695,12 @@
       <pre class="lines">
 
 
-22
-23
-24</pre>
+37
+38
+39</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 22</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_id'>id</span>
   <span class='ivar'>@id</span>
@@ -674,7 +715,7 @@
       <div class="method_details ">
   <h3 class="signature " id="results-instance_method">
   
-    #<strong>results</strong>  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>&gt;</tt>  <span class="extras">(readonly)</span>
+    #<strong>results</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -682,56 +723,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns the collection of execution results in this chain.</p>
-
+    <p>Returns the value of attribute results.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_results'>results</span> <span class='comment'># =&gt; [#&lt;Result&gt;, #&lt;Result&gt;]</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>&gt;</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Array of task results</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@results: <a href="Result">Array</a></p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -739,15 +736,56 @@
       <pre class="lines">
 
 
-32
-33
-34</pre>
+37
+38
+39</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 32</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 37</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_results'>results</span>
   <span class='ivar'>@results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="xid-instance_method">
+  
+    #<strong>xid</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the value of attribute xid.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_xid'>xid</span>
+  <span class='ivar'>@xid</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -762,138 +800,7 @@
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="build-class_method">
-  
-    .<strong>build</strong>(result, dry_run: false)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Builds or extends the current chain by adding a result. Creates a new chain if none exists, otherwise appends to the current one.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span>
-<span class='id identifier rubyid_chain'>chain</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></span><span class='period'>.</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Chain size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>result</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The task execution result to add</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The current chain (newly created or existing)</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>TypeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>If result is not a CMDx::Result instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Result result) -&gt; Chain</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-107
-108
-109
-110
-111
-112
-113</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 107</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='label'>dry_run:</span> <span class='kw'>false</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be a CMDx::Result</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></span><span class='rparen'>)</span>
-
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span> <span class='op'>||=</span> <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>dry_run:</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_current'>current</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="clear-class_method">
+  <h3 class="signature first" id="clear-class_method">
   
     .<strong>clear</strong>  &#x21d2; <tt>nil</tt> 
   
@@ -903,22 +810,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Clears the current chain for the current execution context.</p>
-
+    <p>Clears the fiber-local chain reference.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -929,27 +826,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>Always returns nil</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; nil</p>
-</div>
-      
     </li>
   
 </ul>
@@ -960,15 +836,15 @@
       <pre class="lines">
 
 
-88
-89
-90</pre>
+31
+32
+33</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 88</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 31</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_clear'>clear</span>
-  <span class='id identifier rubyid_thread_or_fiber'>thread_or_fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#CONCURRENCY_KEY-constant" title="CMDx::Chain::CONCURRENCY_KEY (constant)">CONCURRENCY_KEY</a></span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='const'>Fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#STORAGE_KEY-constant" title="CMDx::Chain::STORAGE_KEY (constant)">STORAGE_KEY</a></span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -986,25 +862,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Retrieves the current chain for the current execution context.</p>
-
+    <p>Returns the chain active on the current fiber, or nil outside execution.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_chain'>chain</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
-<span class='kw'>if</span> <span class='id identifier rubyid_chain'>chain</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Current chain: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -1016,25 +879,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The current chain or nil if none exists</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Chain?</p>
-</div>
+        <div class='inline'><p>the chain active on the current fiber, or nil outside execution</p></div>
       
     </li>
   
@@ -1046,15 +891,15 @@
       <pre class="lines">
 
 
-62
-63
-64</pre>
+18
+19
+20</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 62</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 18</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_current'>current</span>
-  <span class='id identifier rubyid_thread_or_fiber'>thread_or_fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#CONCURRENCY_KEY-constant" title="CMDx::Chain::CONCURRENCY_KEY (constant)">CONCURRENCY_KEY</a></span></span><span class='rbracket'>]</span>
+  <span class='const'>Fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#STORAGE_KEY-constant" title="CMDx::Chain::STORAGE_KEY (constant)">STORAGE_KEY</a></span></span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1064,7 +909,7 @@
       <div class="method_details ">
   <h3 class="signature " id="current=-class_method">
   
-    .<strong>current=</strong>(chain)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
+    .<strong>current=</strong>(chain)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt><sup>?</sup> 
   
 
   
@@ -1072,22 +917,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Sets the current chain for the current execution context.</p>
-
+    <p>Installs <code>chain</code> as the active chain on the current fiber.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></span><span class='period'>.</span><span class='id identifier rubyid_current'><span class='object_link'><a href="#current-class_method" title="CMDx::Chain.current (method)">current</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_my_chain'>my_chain</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -1095,14 +930,9 @@
         <span class='name'>chain</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The chain to set as current</p>
-</div>
       
     </li>
   
@@ -1114,30 +944,9 @@
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The set chain</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Chain chain) -&gt; Chain</p>
-</div>
       
     </li>
   
@@ -1149,15 +958,15 @@
       <pre class="lines">
 
 
-76
-77
-78</pre>
+25
+26
+27</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 25</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_current='>current=</span><span class='lparen'>(</span><span class='id identifier rubyid_chain'>chain</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_thread_or_fiber'>thread_or_fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#CONCURRENCY_KEY-constant" title="CMDx::Chain::CONCURRENCY_KEY (constant)">CONCURRENCY_KEY</a></span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_chain'>chain</span>
+  <span class='const'>Fiber</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#STORAGE_KEY-constant" title="CMDx::Chain::STORAGE_KEY (constant)">STORAGE_KEY</a></span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_chain'>chain</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1171,9 +980,9 @@
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="dry_run?-instance_method">
+  <h3 class="signature first" id="each-instance_method">
   
-    #<strong>dry_run?</strong>  &#x21d2; <tt>Boolean</tt> 
+    #<strong>each</strong> {|Result| ... } &#x21d2; <tt>Enumerator</tt>, <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
   
 
   
@@ -1182,51 +991,36 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns whether the chain is running in dry-run mode.</p>
-
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
       
-      <pre class="example code"><code><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_dry_run?'>dry_run?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>each result in insertion order</p></div>
+      
+    </li>
+  
+</ul>
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Boolean</tt>)</span>
+        <span class='type'>(<tt>Enumerator</tt>, <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether the chain is running in dry-run mode</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
       
     </li>
   
@@ -1238,15 +1032,67 @@
       <pre class="lines">
 
 
-164
-165
-166</pre>
+106
+107
+108</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 164</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 106</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span>
-  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@dry_run</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="empty?-instance_method">
+  
+    #<strong>empty?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1264,23 +1110,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Freezes the chain and its internal results to prevent modifications.</p>
-
+    <p>Freezes the chain and its results. Called by Runtime teardown.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
-<span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_results'>results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span> <span class='comment'># =&gt; raises FrozenError</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -1292,25 +1127,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>the frozen chain</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; self</p>
-</div>
+        <div class='inline'><p>self</p></div>
       
     </li>
   
@@ -1322,16 +1139,16 @@
       <pre class="lines">
 
 
-177
-178
-179
-180</pre>
+113
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 177</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 113</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_freeze'>freeze</span>
-  <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span> <span class='rbrace'>}</span>
   <span class='kw'>super</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1350,9 +1167,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Thread-safe lookup of a result’s position in the chain.</p>
-
+    <p>Returns zero-based position of <code>result</code>, or nil when absent.</p>
 
   </div>
 </div>
@@ -1368,11 +1183,6 @@
         <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The result to find</p>
-</div>
       
     </li>
   
@@ -1389,25 +1199,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The zero-based index or nil if not found</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Result result) -&gt; Integer?</p>
-</div>
+        <div class='inline'><p>zero-based position of <code>result</code>, or nil when absent</p></div>
       
     </li>
   
@@ -1419,15 +1211,70 @@
       <pre class="lines">
 
 
-152
-153
-154</pre>
+70
+71
+72</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 152</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 70</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="last-instance_method">
+  
+    #<strong>last</strong>  &#x21d2; <tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the most recently appended result.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the most recently appended result</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_last'>last</span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1437,17 +1284,19 @@
       <div class="method_details ">
   <h3 class="signature " id="push-instance_method">
   
-    #<strong>push</strong>(result)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>&gt;</tt> 
+    #<strong>push</strong>(result)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
   
 
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='<<-instance_method'>&lt;&lt;</span></span>
+    </span>
   
 
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Thread-safe append of a result to the chain. Caches the result’s index to avoid repeated O(n) lookups.</p>
-
+    <p>Appends <code>result</code> to the chain. Thread-safe to support parallel pipelines.</p>
 
   </div>
 </div>
@@ -1464,11 +1313,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The result to append</p>
-</div>
-      
     </li>
   
 </ul>
@@ -1479,30 +1323,12 @@
     <li>
       
       
-        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span>&gt;</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>The updated results array</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Result result) -&gt; <a href="Result">Array</a></p>
-</div>
+        <div class='inline'><p>self for chaining</p></div>
       
     </li>
   
@@ -1514,21 +1340,17 @@
       <pre class="lines">
 
 
-138
-139
-140
-141
-142
-143</pre>
+53
+54
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 138</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 53</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
-  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
-    <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@chain_index</span><span class='comma'>,</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
-    <span class='ivar'>@results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span>
-  <span class='kw'>end</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_result'>result</span> <span class='rbrace'>}</span>
+  <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1536,9 +1358,64 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="to_h-instance_method">
+  <h3 class="signature " id="root-instance_method">
   
-    #<strong>to_h</strong>  &#x21d2; <tt>Hash</tt> 
+    #<strong>root</strong>  &#x21d2; <tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the root result, or nil when absent.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the root result, or nil when absent</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:root?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="size-instance_method">
+  
+    #<strong>size</strong>  &#x21d2; <tt>Integer</tt> 
   
 
   
@@ -1547,44 +1424,187 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Converts the chain to a hash representation.</p>
-
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
       
-      <pre class="example code"><code><span class='id identifier rubyid_chain_hash'>chain_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_chain_hash'>chain_hash</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_chain_hash'>chain_hash</span><span class='lbracket'>[</span><span class='symbol'>:results</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span></code></pre>
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
+  <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="state-instance_method">
+  
+    #<strong>state</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the state of the root result, or nil when absent.</p>
+
   </div>
-<p class="tag_title">Parameters:</p>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the state of the root result, or nil when absent</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_state'>state</span>
+  <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='op'>&amp;.</span><span class='id identifier rubyid_state'>state</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="status-instance_method">
+  
+    #<strong>status</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the status of the root result, or nil when absent.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the status of the root result, or nil when absent</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_status'>status</span>
+  <span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='op'>&amp;.</span><span class='id identifier rubyid_status'>status</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unshift-instance_method">
+  
+    #<strong>unshift</strong>(result)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Prepends <code>result</code> to the chain. Thread-safe to support parallel pipelines.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
       
-        <span class='name'>return</span>
+        <span class='name'>result</span>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="CMDx::Result (class)">Result</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>a customizable set of options</p>
-</div>
       
     </li>
   
 </ul>
-
-  
 
 <p class="tag_title">Returns:</p>
 <ul class="return">
@@ -1592,30 +1612,12 @@
     <li>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Hash containing chain id and serialized results</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Hash[Symbol, untyped]</p>
-</div>
+        <div class='inline'><p>self for chaining</p></div>
       
     </li>
   
@@ -1627,106 +1629,17 @@
       <pre class="lines">
 
 
-195
-196
-197
-198
-199
-200
-201</pre>
+63
+64
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 195</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 63</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
-  <span class='lbrace'>{</span>
-    <span class='label'>id:</span><span class='comma'>,</span>
-    <span class='label'>dry_run:</span> <span class='id identifier rubyid_dry_run?'>dry_run?</span><span class='comma'>,</span>
-    <span class='label'>results:</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_h</span><span class='rparen'>)</span>
-  <span class='rbrace'>}</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="to_s-instance_method">
-  
-    #<strong>to_s</strong>  &#x21d2; <tt>String</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Converts the chain to a string representation.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Formatted string representation of the chain</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; String</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-211
-212
-213</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/chain.rb', line 211</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
-  <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
+  <span class='ivar'>@mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='lbrace'>{</span> <span class='ivar'>@results</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1738,9 +1651,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:22 2026 by
+  Generated on Tue May  5 18:39:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

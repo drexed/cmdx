@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/tips_and_tricks/">
       
       
-        <link rel="prev" href="../exceptions/">
+        <link rel="prev" href="../testing/">
       
       
         <link rel="next" href="../comparison/">
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1426,14 +1454,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1555,34 +1583,6 @@
     
   
     Testing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
   
 
     
@@ -1726,10 +1726,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#attribute-options" class="md-nav__link">
+  <a href="#sharing-input-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Attribute Options
+        Sharing Input Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-behavior-via-a-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing Behavior via a Base Class
       
     </span>
   </a>
@@ -1771,6 +1782,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2188,10 +2227,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#attribute-options" class="md-nav__link">
+  <a href="#sharing-input-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Attribute Options
+        Sharing Input Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-behavior-via-a-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sharing Behavior via a Base Class
       
     </span>
   </a>
@@ -2296,10 +2346,10 @@
 
 
 <h1 id="tips-and-tricks">Tips and Tricks<a class="headerlink" href="#tips-and-tricks" title="Permanent link">&para;</a></h1>
-<p>Best practices, patterns, and techniques to build maintainable CMDx applications.</p>
+<p>Patterns and conventions for building maintainable CMDx applications.</p>
 <h2 id="project-organization">Project Organization<a class="headerlink" href="#project-organization" title="Permanent link">&para;</a></h2>
 <h3 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h3>
-<p>Create a well-organized command structure for maintainable applications:</p>
+<p>A predictable layout keeps tasks discoverable as a project grows:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/app/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── /tasks/
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── /invoices/
@@ -2317,19 +2367,19 @@
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    └── activate_account.rb
 </span></code></pre></div>
 <h3 id="naming-conventions">Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permanent link">&para;</a></h3>
-<p>Follow consistent naming patterns for clarity and maintainability:</p>
+<p>Follow consistent naming patterns for clarity:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Verb + Noun</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExportData</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompressFile</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">ValidateSchema</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Use present tense verbs for actions</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># Use present-tense verbs for actions</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">GenerateToken</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span><span class="w">      </span><span class="c1"># ✓ Good</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">GeneratingToken</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span><span class="w">    </span><span class="c1"># ❌ Avoid</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">TokenGeneration</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span><span class="p">;</span><span class="w"> </span><span class="k">end</span><span class="w">    </span><span class="c1"># ❌ Avoid</span>
 </span></code></pre></div>
 <h3 id="story-telling">Story Telling<a class="headerlink" href="#story-telling" title="Permanent link">&para;</a></h3>
-<p>Break down complex logic into descriptive methods that read like a narrative:</p>
+<p>Break complex logic into descriptively named methods so <code>work</code> reads like a narrative:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOrder</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">charge_payment_method</span>
@@ -2360,85 +2410,120 @@
 <p>Follow this order for consistent, readable tasks:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ExportReport</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1"># 1. Register functions</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:format</span><span class="p">,</span><span class="w"> </span><span class="no">FormatValidator</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="c1"># 1. Settings, retries, deprecation</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="ss">:reporting</span><span class="o">]</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="c1"># 2. Define callbacks</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:find_report</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="n">on_complete</span><span class="w"> </span><span class="ss">:track_export_metrics</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">analytics?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="c1"># 2. Register custom extensions</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">Telemetry</span><span class="o">::</span><span class="no">Middleware</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:phone</span><span class="p">,</span><span class="w"> </span><span class="no">PhoneValidator</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="c1"># 3. Declare attributes</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="n">attributes</span><span class="w"> </span><span class="ss">:user_id</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:report_id</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="n">optional</span><span class="w"> </span><span class="ss">:format_type</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="c1"># 4. Returns contract</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="n">returns</span><span class="w"> </span><span class="ss">:exported_at</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">  </span><span class="c1"># 5. Define work method</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="n">report</span><span class="o">.</span><span class="n">compile!</span>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="n">report</span><span class="o">.</span><span class="n">export!</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">exported_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="c1"># TIP: Favor private business logic to reduce the surface of the public API.</span>
-</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>
-</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">  </span><span class="c1"># 5. Build helper functions</span>
-</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">find_report</span>
-</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">    </span><span class="vi">@report</span><span class="w"> </span><span class="o">||=</span><span class="w"> </span><span class="no">Report</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">report_id</span><span class="p">)</span>
-</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a>
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">track_export_metrics</span>
-</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">    </span><span class="no">Analytics</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="ss">:report_exported</span><span class="p">)</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="c1"># 3. Define callbacks</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:find_report</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="n">on_complete</span><span class="w"> </span><span class="ss">:track_export_metrics</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">analytics?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="c1"># 4. Declare inputs</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="n">optional</span><span class="w"> </span><span class="ss">:user_id</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:report_id</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="n">optional</span><span class="w"> </span><span class="ss">:format_type</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="sx">%w[pdf csv]</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="c1"># 5. Declare outputs (the contract)</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="n">output</span><span class="w"> </span><span class="ss">:exported_at</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="c1"># 6. Define work</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">    </span><span class="n">report</span><span class="o">.</span><span class="n">compile!</span>
+</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">    </span><span class="n">report</span><span class="o">.</span><span class="n">export!</span>
+</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>
+</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">exported_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
+</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a>
+</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">  </span><span class="c1"># TIP: Favor private business logic to reduce the surface of the public API.</span>
+</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>
+</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">  </span><span class="c1"># 7. Helpers</span>
+</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">find_report</span>
+</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">    </span><span class="vi">@report</span><span class="w"> </span><span class="o">||=</span><span class="w"> </span><span class="no">Report</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">report_id</span><span class="p">)</span>
 </span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-3-38"><a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a>
-</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="k">end</span>
+</span><span id="__span-3-39"><a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">track_export_metrics</span>
+</span><span id="__span-3-40"><a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="w">    </span><span class="no">Analytics</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="ss">:report_exported</span><span class="p">)</span>
+</span><span id="__span-3-41"><a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-42"><a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a>
+</span><span id="__span-3-43"><a id="__codelineno-3-43" name="__codelineno-3-43" href="#__codelineno-3-43"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="attribute-options">Attribute Options<a class="headerlink" href="#attribute-options" title="Permanent link">&para;</a></h2>
-<p>Use <code>with_options</code> to reduce duplication.</p>
+<h2 id="sharing-input-options">Sharing Input Options<a class="headerlink" href="#sharing-input-options" title="Permanent link">&para;</a></h2>
+<p>Use <code>with_options</code> to factor out repeated options across input declarations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>with_options</code> is provided by ActiveSupport and is available automatically in Rails applications. For plain Ruby projects, add <code>require "active_support/core_ext/object/with_options"</code> or apply shared options manually.</p>
+<p><code>with_options</code> is provided by ActiveSupport and is available automatically in Rails. For plain Ruby projects, add <code>require "active_support/core_ext/object/with_options"</code> or apply shared options manually.</p>
 </div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ConfigureCompany</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="c1"># Apply common options to multiple attributes</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">with_options</span><span class="p">(</span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">,</span><span class="w"> </span><span class="ss">presence</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">attributes</span><span class="w"> </span><span class="ss">:website</span><span class="p">,</span><span class="w"> </span><span class="nb">format</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">with</span><span class="p">:</span><span class="w"> </span><span class="no">URI</span><span class="o">::</span><span class="no">DEFAULT_PARSER</span><span class="o">.</span><span class="n">make_regexp</span><span class="p">(</span><span class="sx">%w[http https]</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">required</span><span class="w"> </span><span class="ss">:company_name</span><span class="p">,</span><span class="w"> </span><span class="ss">:industry</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">optional</span><span class="w"> </span><span class="ss">:description</span><span class="p">,</span><span class="w"> </span><span class="nb">format</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">with</span><span class="p">:</span> <span class="sr">/\A[\w\s\-\.,!?]+\z/</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="c1"># Nested attributes with shared prefix</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:headquarters</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="n">with_options</span><span class="p">(</span><span class="ss">prefix</span><span class="p">:</span><span class="w"> </span><span class="ss">:hq_</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="n">attributes</span><span class="w"> </span><span class="ss">:street</span><span class="p">,</span><span class="w"> </span><span class="ss">:city</span><span class="p">,</span><span class="w"> </span><span class="ss">:zip_code</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="n">required</span><span class="w"> </span><span class="ss">:country</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="no">VALID_COUNTRIES</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="n">optional</span><span class="w"> </span><span class="ss">:region</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="k">end</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="k">end</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">with_options</span><span class="p">(</span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">,</span><span class="w"> </span><span class="ss">presence</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">optional</span><span class="w"> </span><span class="ss">:website</span><span class="p">,</span><span class="w"> </span><span class="nb">format</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">with</span><span class="p">:</span><span class="w"> </span><span class="no">URI</span><span class="o">::</span><span class="no">DEFAULT_PARSER</span><span class="o">.</span><span class="n">make_regexp</span><span class="p">(</span><span class="sx">%w[http https]</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">required</span><span class="w"> </span><span class="ss">:company_name</span><span class="p">,</span><span class="w"> </span><span class="ss">:industry</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">optional</span><span class="w"> </span><span class="ss">:description</span><span class="p">,</span><span class="w"> </span><span class="nb">format</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="ss">with</span><span class="p">:</span> <span class="sr">/\A[\w\s\-\.,!?]+\z/</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:headquarters</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="n">with_options</span><span class="p">(</span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:string</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="n">optional</span><span class="w"> </span><span class="ss">:street</span><span class="p">,</span><span class="w"> </span><span class="ss">:city</span><span class="p">,</span><span class="w"> </span><span class="ss">:zip_code</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="n">required</span><span class="w"> </span><span class="ss">:country</span><span class="p">,</span><span class="w"> </span><span class="ss">inclusion</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">in</span><span class="p">:</span><span class="w"> </span><span class="no">VALID_COUNTRIES</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="n">optional</span><span class="w"> </span><span class="ss">:region</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="k">end</span>
 </span></code></pre></div>
+<p><code>with_options</code> works inside nested-input blocks too because the child DSL is evaluated with <code>instance_eval</code>.</p>
+<h2 id="sharing-behavior-via-a-base-class">Sharing Behavior via a Base Class<a class="headerlink" href="#sharing-behavior-via-a-base-class" title="Permanent link">&para;</a></h2>
+<p>Pull cross-cutting concerns onto a base task. Subclasses inherit <code>settings</code>, <code>callbacks</code>, <code>middlewares</code>, <code>coercions</code>, <code>validators</code>, <code>executors</code>, <code>mergers</code>, <code>retriers</code>, <code>deprecators</code>, <code>telemetry</code>, <code>inputs</code>, <code>outputs</code>, <code>retry_on</code>, and <code>deprecation</code> automatically.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">settings</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="ss">:app</span><span class="o">]</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:ensure_current_tenant!</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">ensure_current_tenant!</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;missing tenant&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">tenant</span><span class="o">.</span><span class="n">nil?</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">end</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessInvoice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:invoice_id</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="c1"># Inherits settings, retry_on, and the before_execution callback</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Inherited registries (callbacks, middlewares, validators, coercions, executors, mergers, retriers, deprecators, inputs, outputs) accumulate — declaring more in a subclass appends to (or overwrites by name in) the parent's list. To opt out of an inherited entry, use <code>deregister</code> (e.g. <code>deregister :callback, :before_execution, :ensure_current_tenant!</code>). <code>retry_on</code> and <code>settings</code> likewise accumulate via merge: a subclass <code>retry_on</code> adds exception classes and overrides individual options (<code>limit:</code>, <code>delay:</code>, …) without dropping the parent's, and <code>settings</code> merges new keys on top.</p>
 <h2 id="useful-examples">Useful Examples<a class="headerlink" href="#useful-examples" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/active_job_durability.md">Active Job Durability</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/active_record_database_transaction.md">Active Record Database Transaction</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/active_record_query_tagging.md">Active Record Query Tagging</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/active_support_instrumentation.md">Active Support Instrumentation</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/dry_monads_interop.md">dry-monads Interop</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/flipper_feature_flags.md">Flipper Feature Flags</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/graphql_resolvers.md">GraphQL Resolvers</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/openapi_schema_generation.md">OpenAPI Schema Generation</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/opentelemetry_tracing.md">OpenTelemetry Tracing</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/paper_trail_whatdunnit.md">Paper Trail Whatdunnit</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/pub_sub_task_chaining.md">PubSub Task Chaining</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/pundit_authorization.md">Pundit Authorization</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/rate_limit.md">Rate Limit</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/redis_idempotency.md">Redis Idempotency</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/sentry_error_tracking.md">Sentry Error Tracking</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/sidekiq_async_execution.md">Sidekiq Async Execution</a></li>
 <li><a href="https://github.com/drexed/cmdx/blob/main/examples/stoplight_circuit_breaker.md">Stoplight Circuit Breaker</a></li>
+<li><a href="https://github.com/drexed/cmdx/blob/main/examples/timeout_guard.md">Timeout Guard</a></li>
 </ul>
 
 
@@ -2477,7 +2562,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../exceptions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Exceptions">
+          <a href="../testing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Testing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2487,7 +2572,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Exceptions
+                Testing
               </div>
             </div>
           </a>

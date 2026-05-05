@@ -1,69 +1,38 @@
 # Outcomes - Statuses
 
-Statuses represent the business outcome—did the task succeed, skip, or fail? This differs from state, which tracks the execution lifecycle.
+Statuses represent the business outcome — did the task succeed, skip, or fail? This is independent of state, which only tracks whether the lifecycle ran to completion or was interrupted.
 
 ## Definitions
 
-| Status    | Description                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------- |
-| `success` | Task execution completed successfully with expected business outcome. Default status for all tasks.  |
-| `skipped` | Task intentionally stopped execution because conditions weren't met or continuation was unnecessary. |
-| `failed`  | Task stopped execution due to business rule violations, validation errors, or exceptions.            |
+| Status    | Description                                                                                                                                    |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `success` | Task `work` ran to completion (and any declared outputs verified), or halted via `success!`. Default outcome.                                  |
+| `skipped` | Task halted via `skip!`. Treated as a non-failure outcome.                                                                                     |
+| `failed`  | Task halted via `fail!`, `throw!`, accumulated `task.errors`, or a `StandardError` raised from `work` (Runtime captures it on `result.cause`). |
 
-## Transitions
+Note
 
-Important
+`throw!` isn't a primitive halt — it re-throws a peer's already-`failed?` result through the current task. See [Fault Propagation](https://drexed.github.io/cmdx/interruptions/faults/#fault-propagation).
 
-Status transitions are final and unidirectional. Once skipped or failed, tasks can't return to success.
+## Single Final Status
 
-```ruby
-# Valid status transitions
-success → skipped    # via skip!
-success → failed     # via fail! or exception
-
-# Invalid transitions (will raise errors)
-skipped → success    # ❌ Cannot transition
-skipped → failed     # ❌ Cannot transition
-failed → success     # ❌ Cannot transition
-failed → skipped     # ❌ Cannot transition
-```
-
-## Predicates
-
-Use status predicates to check execution outcomes:
+Statuses don't transition. The first `skip!` / `fail!` inside `work` throws out of the call stack, so the result is built once with a single, final status:
 
 ```ruby
-result = ProcessNotification.execute
-
-# Individual status checks
-result.success? #=> true/false
-result.skipped? #=> true/false
-result.failed?  #=> true/false
-
-# Outcome categorization
-result.good?    #=> true if success OR skipped (alias: ok?)
-result.bad?     #=> true if skipped OR failed (not success)
+def work
+  fail!("first")    # Runtime catches this and finalizes the result
+  skip!("second")   # Unreachable
+end
 ```
 
 Note
 
-`skipped` is intentionally both `good?` and `bad?`. This reflects that skipping is a valid outcome (good — nothing broke) but also a non-success (bad — work wasn't done). Use `success?` when you need a strict success check.
+Calling `skip!` or `fail!` on a frozen task (after `Runtime` teardown) raises `FrozenError` — they can't mutate a finalized result.
 
-## Handlers
+## Predicates and Handlers
 
-Branch business logic with status-based handlers. Use `on(:good)` and `on(:bad)` for success/skip vs failed outcomes:
+`result.success?` / `result.skipped?` / `result.failed?` check status; `result.ok?` (success or skipped) and `result.ko?` (skipped or failed) categorize the outcome. Dispatch with `result.on(:success | :skipped | :failed | :ok | :ko)`. See [Result - Lifecycle Predicates](https://drexed.github.io/cmdx/outcomes/result/#lifecycle-predicates) and [Result - Predicate Dispatch](https://drexed.github.io/cmdx/outcomes/result/#predicate-dispatch).
 
-```ruby
-result = ProcessNotification.execute
+Note
 
-# Individual status handlers
-result
-  .on(:success) { |result| mark_notification_sent(result) }
-  .on(:skipped) { |result| log_notification_skipped(result) }
-  .on(:failed){ |result| queue_retry_notification(result) }
-
-# Outcome-based handlers
-result
-  .on(:good) { |result| update_message_stats(result) }  #=> .on(:success, :skipped)
-  .on(:bad) { |result| track_delivery_failure(result) } #=> .on(:failed, :skipped)
-```
+`skipped` is intentionally both `ok?` and `ko?`. It's a valid outcome (`ok` — nothing broke) and a non-success (`ko` — work wasn't done). Use `success?` when you need a strict success check.

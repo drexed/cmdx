@@ -6,13 +6,13 @@
 <title>
   File: README
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="css/common.css" type="text/css" />
+  <link rel="stylesheet" href="css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "README";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="file_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -60,68 +62,66 @@
       <div id="content"><div id='filecontents'><div align="center">
   <img src="./src/cmdx-light-logo.png#gh-light-mode-only" width="200" alt="CMDx Light Logo">
   <img src="./src/cmdx-dark-logo.png#gh-dark-mode-only" width="200" alt="CMDx Dark Logo">
+<pre class="code ruby"><code class="ruby">---
 
-  ---
+Build business logic that’s powerful, predictable, and maintainable.
 
-  Build business logic that’s powerful, predictable, and maintainable.
-
-  [Home](https://drexed.github.io/cmdx) ·
-  [Documentation](https://drexed.github.io/cmdx/getting_started) ·
-  [Blog](https://drexed.github.io/cmdx/blog) ·
-  [Changelog](./CHANGELOG.md) ·
-  [Report Bug](https://github.com/drexed/cmdx/issues) ·
-  [Request Feature](https://github.com/drexed/cmdx/issues) ·
-  [AI Skills](https://github.com/drexed/cmdx/blob/main/skills) ·
-  [llms.txt](https://drexed.github.io/cmdx/llms.txt) ·
-  [llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt) ·
-
+[Home](https://drexed.github.io/cmdx) ·
+[Documentation](https://drexed.github.io/cmdx/getting_started) ·
+[Blog](https://drexed.github.io/cmdx/blog) ·
+[Changelog](./CHANGELOG.md) ·
+[Report Bug](https://github.com/drexed/cmdx/issues) ·
+[Request Feature](https://github.com/drexed/cmdx/issues) ·
+[AI Skills](https://github.com/drexed/cmdx/blob/main/skills) ·
+[llms.txt](https://drexed.github.io/cmdx/llms.txt) ·
+[llms-full.txt](https://drexed.github.io/cmdx/llms-full.txt)
+</code></pre>
   <img alt="Version" src="https://img.shields.io/gem/v/cmdx">
   <img alt="Build" src="https://github.com/drexed/cmdx/actions/workflows/ci.yml/badge.svg">
   <img alt="License" src="https://img.shields.io/badge/license-LGPL%20v3-blue.svg">
 </div>
-<h1 id="cmdx">CMDx</h1>
-
+<h1 id="CMDx">CMDx</h1>
 <p>Say goodbye to messy service objects. CMDx helps you design business logic with clarity and consistency—build faster, debug easier, and ship with confidence.</p>
-
 <blockquote>
-<p>[!NOTE] [Documentation](<a href="https://drexed.github.io/cmdx/getting_started">drexed.github.io/cmdx/getting_started</a>/) reflects the latest code on <code>main</code>. For version-specific documentation, please refer to the <code>docs/</code> directory within that version’s tag.</p>
+<p>[!NOTE]
+<a href="https://drexed.github.io/cmdx/getting_started/">Documentation</a> reflects the latest code on <code>main</code>. For version-specific documentation, refer to the <code>docs/</code> directory within that version's tag.</p>
 </blockquote>
-
-<h2 id="requirements">Requirements</h2>
-<ul><li>
-<p>Ruby: MRI 3.1+ or JRuby 9.4+</p>
-</li><li>
-<p>Dependencies: None</p>
-</li></ul>
-
-<p>Rails support is built-in, but it’s framework-agnostic at its core.</p>
-
-<h2 id="installation">Installation</h2>
-
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='id identifier rubyid_install'>install</span> <span class='id identifier rubyid_cmdx'>cmdx</span>
-<span class='comment'># - or -
-</span><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_add'>add</span> <span class='id identifier rubyid_cmdx'>cmdx</span>
+<h2 id="What_you_get">What you get</h2>
+<ul>
+<li><strong>Standardized task contract</strong> — typed inputs, declared outputs, explicit halts</li>
+<li><strong>Type system</strong> — 13 coercers, 7 validators, all pluggable</li>
+<li><strong>Built-in flow control</strong> — <code>skip!</code> / <code>fail!</code> / <code>throw!</code> with structured metadata</li>
+<li><strong>Retries and faults</strong> — declarative <code>retry_on</code> with configurable jitter</li>
+<li><strong>Middleware and callbacks</strong> — wrap the lifecycle without touching <code>work</code></li>
+<li><strong>Observability</strong> — structured logs and telemetry, no extra instrumentation</li>
+<li><strong>Composable workflows</strong> — chain tasks into larger processes</li>
+</ul>
+<p>See the <a href="https://drexed.github.io/cmdx/comparison/">feature comparison</a> for how CMDx stacks up against other service-object gems.</p>
+<h2 id="Requirements">Requirements</h2>
+<ul>
+<li>Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release</li>
+<li>Runtime dependencies: <code>bigdecimal</code> and <code>logger</code> (stdlib only — no ActiveSupport required)</li>
+</ul>
+<p>Rails support is built-in, but CMDx is framework-agnostic at its core.</p>
+<h2 id="Installation">Installation</h2>
+<pre class="code sh"><code class="sh">gem install cmdx
+# - or -
+bundle add cmdx
 </code></pre>
-
-<h2 id="quick-example">Quick Example</h2>
-
-<p>Build powerful business logic in four simple steps:</p>
-
-<h3 id="1-compose">1. Compose</h3>
-
-<pre class="code ruby"><code class="ruby"><span class='comment'># Full-featured task example
-</span><span class='comment'># See docs for minimum viable task examples
-</span>
-<span class='kw'>class</span> <span class='const'>AnalyzeMetrics</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span>
-  <span class='id identifier rubyid_register'>register</span> <span class='symbol'>:middleware</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="CMDx/Middlewares.html" title="CMDx::Middlewares (module)">Middlewares</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="CMDx/Middlewares/Correlate.html" title="CMDx::Middlewares::Correlate (module)">Correlate</a></span></span><span class='comma'>,</span> <span class='label'>id:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='const'>Current</span><span class='period'>.</span><span class='id identifier rubyid_request_id'>request_id</span> <span class='rbrace'>}</span>
+<h2 id="Quick_Example">Quick Example</h2>
+<p>CMDx organizes business logic around the <strong>CERO</strong> pattern (pronounced &quot;zero&quot;): <strong>Compose</strong>, <strong>Execute</strong>, <strong>React</strong>, <strong>Observe</strong>.</p>
+<h3 id="1__Compose">1. Compose</h3>
+<p>Declare inputs, outputs, retries, and callbacks, then implement <code>work</code>.</p>
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>AnalyzeMetrics</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="CMDx/Task.html" title="CMDx::Task (class)">Task</a></span></span>
+  <span class='id identifier rubyid_retry_on'>retry_on</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>ReadTimeout</span><span class='comma'>,</span> <span class='label'>limit:</span> <span class='int'>3</span><span class='comma'>,</span> <span class='label'>jitter:</span> <span class='symbol'>:exponential</span>
 
   <span class='id identifier rubyid_on_success'>on_success</span> <span class='symbol'>:track_analysis_completion!</span>
 
-  <span class='id identifier rubyid_required'>required</span> <span class='symbol'>:dataset_id</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:integer</span><span class='comma'>,</span> <span class='label'>numeric:</span> <span class='lbrace'>{</span> <span class='label'>min:</span> <span class='int'>1</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_required'>required</span> <span class='symbol'>:dataset_id</span><span class='comma'>,</span> <span class='label'>coerce:</span> <span class='symbol'>:integer</span><span class='comma'>,</span> <span class='label'>numeric:</span> <span class='lbrace'>{</span> <span class='label'>min:</span> <span class='int'>1</span> <span class='rbrace'>}</span>
 
   <span class='id identifier rubyid_optional'>optional</span> <span class='symbol'>:analysis_type</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>standard</span><span class='tstring_end'>&quot;</span></span>
 
-  <span class='id identifier rubyid_returns'>returns</span> <span class='symbol'>:result</span><span class='comma'>,</span> <span class='symbol'>:analyzed_at</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='symbol'>:result</span><span class='comma'>,</span> <span class='symbol'>:analyzed_at</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_dataset'>dataset</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -147,62 +147,45 @@
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
-
-<h3 id="2-execute">2. Execute</h3>
-
+<h3 id="2__Execute">2. Execute</h3>
+<p>Every invocation returns a <code>Result</code>. Inputs are coerced and validated, exceptions are captured, outputs are verified, and the outcome is logged — automatically.</p>
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'>AnalyzeMetrics</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span>
   <span class='label'>dataset_id:</span> <span class='int'>123</span><span class='comma'>,</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>analysis_type</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>advanced</span><span class='tstring_end'>&quot;</span></span>
 <span class='rparen'>)</span>
 </code></pre>
-
-<h3 id="3-react">3. React</h3>
-
+<p>Use <code>execute!</code> instead when you want failures to raise a <code>Fault</code>.</p>
+<h3 id="3__React">3. React</h3>
+<p>Branch on the result's status and read values, reasons, or metadata from it.</p>
 <pre class="code ruby"><code class="ruby"><span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span>
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Metrics analyzed at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span><span class='period'>.</span><span class='id identifier rubyid_analyzed_at'>analyzed_at</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>elsif</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_skipped?'>skipped?</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Skipping analyzation due to: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Skipped: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>elsif</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_failed?'>failed?</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Analyzation failed due to: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_content'> with code </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_content'> (code </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:code</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span>
 </code></pre>
+<h3 id="4__Observe">4. Observe</h3>
+<p>Every execution emits a structured log line with the chain id, task identity, state, status, reason, metadata, and duration — enough to correlate nested tasks and reconstruct what happened.</p>
+<pre class="code log"><code class="log">I, [2026-04-19T18:42:37.000000Z #3784] INFO -- cmdx: cid=&quot;018c2b95-b764-7fff-a1d2-...&quot; index=1 root=false type=&quot;Task&quot; task=SendAnalyzedEmail id=&quot;018c2b95-c091-...&quot; state=&quot;complete&quot; status=&quot;success&quot; reason=nil metadata={} duration=34.7 tags=[]
 
-<h3 id="4-observe">4. Observe</h3>
-
-<pre class="code ruby"><code class="ruby">I, [2022-07-17T18:42:37.000000 #3784] INFO -- CMDx:
-index=1 chain_id=&quot;018c2b95-23j4-2kj3-32kj-3n4jk3n4jknf&quot; type=&quot;Task&quot; class=&quot;SendAnalyzedEmail&quot; state=&quot;complete&quot; status=&quot;success&quot; metadata={runtime: 347}
-
-I, [2022-07-17T18:43:15.000000 #3784] INFO -- CMDx:
-index=0 chain_id=&quot;018c2b95-b764-7615-a924-cc5b910ed1e5&quot; type=&quot;Task&quot; class=&quot;AnalyzeMetrics&quot; state=&quot;complete&quot; status=&quot;success&quot; metadata={runtime: 187}
+I, [2026-04-19T18:43:15.000000Z #3784] INFO -- cmdx: cid=&quot;018c2b95-b764-7fff-a1d2-...&quot; index=0 root=true type=&quot;Task&quot; task=AnalyzeMetrics id=&quot;018c2b95-b764-...&quot; state=&quot;complete&quot; status=&quot;success&quot; reason=nil metadata={} duration=187.4 tags=[]
 </code></pre>
-
-<p>Ready to dive in? Check out the <a href="https://drexed.github.io/cmdx/getting_started/">Getting Started</a> guide to learn more.</p>
-
-<h2 id="ecosystem">Ecosystem</h2>
-<ul><li>
-<p><a href="https://github.com/drexed/cmdx-rspec">cmdx-rspec</a> - RSpec test matchers</p>
-</li></ul>
-
-<p>For backwards compatibility of certain functionality:</p>
-<ul><li>
-<p><a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> - 85+ translations, <code>v1.5.0</code> - <code>v1.6.2</code></p>
-</li><li>
-<p><a href="https://github.com/drexed/cmdx-parallel">cmdx-parallel</a> - Parallel workflow tasks, <code>v1.6.1</code> - <code>v1.6.2</code></p>
-</li></ul>
-
-<h2 id="contributing">Contributing</h2>
-
-<p>Bug reports and pull requests are welcome at <a href="https://github.com/drexed/cmdx">github.com/drexed/cmdx</a>. We’re committed to fostering a welcoming, collaborative community. Please follow our <a href="CODE_OF_CONDUCT_md.html">code of conduct</a>.</p>
-
-<h2 id="license">License</h2>
-
-<p>The gem is available as open source under the terms of the <a href="https://www.gnu.org/licenses/lgpl-3.0.html">LGPLv3 License</a>.</p>
-</div></div>
+<p>Ready to dive in? Check out the <a href="https://drexed.github.io/cmdx/getting_started/">Getting Started</a> guide.</p>
+<h2 id="Ecosystem">Ecosystem</h2>
+<ul>
+<li><a href="https://github.com/drexed/cmdx-i18n">cmdx-i18n</a> - 85+ translations</li>
+<li><a href="https://github.com/drexed/cmdx-rspec">cmdx-rspec</a> - RSpec test matchers</li>
+</ul>
+<h2 id="Contributing">Contributing</h2>
+<p>Bug reports and pull requests are welcome at <a href="https://github.com/drexed/cmdx">https://github.com/drexed/cmdx</a>. We're committed to fostering a welcoming, collaborative community. Please follow our <a href="CODE_OF_CONDUCT.md">code of conduct</a>.</p>
+<h2 id="License">License</h2>
+<p>The gem is available as open source under the terms of the <a href="https://www.gnu.org/licenses/lgpl-3.0.html">LGPLv3 License</a>.</p></div></div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::Workflow::ExecutionGroup
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Workflow::ExecutionGroup";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -69,12 +71,12 @@
   <dl>
     <dt>Inherits:</dt>
     <dd>
-      <span class="inheritName">Struct</span>
+      <span class="inheritName">Data</span>
       
         <ul class="fullTree">
           <li>Object</li>
           
-            <li class="next">Struct</li>
+            <li class="next">Data</li>
           
             <li class="next">CMDx::Workflow::ExecutionGroup</li>
           
@@ -96,16 +98,15 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/workflow.rb</dd>
+    <dd>lib/cmdx/workflow.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Represents a group of tasks with shared execution options.</p>
-
+    <p>Immutable declaration of a task group.</p>
 
   </div>
 </div>
@@ -122,7 +123,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#options-instance_method" title="#options (instance method)">#<strong>options</strong>  &#x21d2; Hash </a>
+      <a href="#options-instance_method" title="#options (instance method)">#<strong>options</strong>  &#x21d2; Object </a>
     
 
     
@@ -131,6 +132,8 @@
   
   
     
+      <span class="note title readonly">readonly</span>
+    
     
   
   
@@ -139,9 +142,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Configuration options for the group.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute options.</p></div></span>
   
 </li>
 
@@ -149,7 +150,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#tasks-instance_method" title="#tasks (instance method)">#<strong>tasks</strong>  &#x21d2; Array&lt;Class&gt; </a>
+      <a href="#tasks-instance_method" title="#tasks (instance method)">#<strong>tasks</strong>  &#x21d2; Object </a>
     
 
     
@@ -158,6 +159,8 @@
   
   
     
+      <span class="note title readonly">readonly</span>
+    
     
   
   
@@ -166,9 +169,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Array of task classes in this group.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute tasks.</p></div></span>
   
 </li>
 
@@ -184,11 +185,11 @@
     <h2>Instance Attribute Details</h2>
     
       
-      <span id="options=-instance_method"></span>
+      <span id=""></span>
       <div class="method_details first">
   <h3 class="signature first" id="options-instance_method">
   
-    #<strong>options</strong>  &#x21d2; <tt>Hash</tt> 
+    #<strong>options</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -196,9 +197,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Configuration options for the group</p>
-
+    <p>Returns the value of attribute options</p>
 
   </div>
 </div>
@@ -210,14 +209,12 @@
     <li>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt>Object</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>the current value of options</p>
-</div>
+        <div class='inline'><p>the current value of options</p></div>
       
     </li>
   
@@ -229,12 +226,12 @@
       <pre class="lines">
 
 
-98
-99
-100</pre>
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 98</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_options'>options</span>
   <span class='ivar'>@options</span>
@@ -245,11 +242,11 @@
 </div>
     
       
-      <span id="tasks=-instance_method"></span>
+      <span id=""></span>
       <div class="method_details ">
   <h3 class="signature " id="tasks-instance_method">
   
-    #<strong>tasks</strong>  &#x21d2; <tt>Array&lt;Class&gt;</tt> 
+    #<strong>tasks</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -257,9 +254,7 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Array of task classes in this group</p>
-
+    <p>Returns the value of attribute tasks</p>
 
   </div>
 </div>
@@ -271,14 +266,12 @@
     <li>
       
       
-        <span class='type'>(<tt>Array&lt;Class&gt;</tt>)</span>
+        <span class='type'>(<tt>Object</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>the current value of tasks</p>
-</div>
+        <div class='inline'><p>the current value of tasks</p></div>
       
     </li>
   
@@ -290,12 +283,12 @@
       <pre class="lines">
 
 
-98
-99
-100</pre>
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 98</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tasks'>tasks</span>
   <span class='ivar'>@tasks</span>
@@ -311,9 +304,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:22 2026 by
+  Generated on Tue May  5 18:40:00 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

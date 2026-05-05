@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::LogFormatters::Raw
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::LogFormatters::Raw";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -94,18 +96,17 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/log_formatters/raw.rb</dd>
+    <dd>lib/cmdx/log_formatters/raw.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Formats log messages as raw text without additional formatting</p>
-
-<p>This formatter outputs log messages in their original form with minimal processing, adding only a trailing newline. It’s useful for scenarios where you want to preserve the exact message content without metadata or structured formatting.</p>
-
+    <p>Passthrough formatter that writes only the message (terminated with
+<code>&quot;\n&quot;</code>). Useful when surrounding infrastructure already supplies
+severity and timestamp.</p>
 
   </div>
 </div>
@@ -144,14 +145,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Formats a log entry as raw text.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p><code>&quot;#{message}\n&quot;</code>.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -171,27 +171,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Formats a log entry as raw text</p>
-
+    <p>Returns <code>&quot;#{message}\n&quot;</code>.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Basic usage</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='id identifier rubyid_logger_formatter'>logger_formatter</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>INFO</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MyApp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>User logged in</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-<span class='comment'># =&gt; &quot;User logged in\n&quot;</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -204,9 +189,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The log level (e.g., “INFO”, “ERROR”, “DEBUG”)</p>
-</div>
+        <div class='inline'><p>ignored</p></div>
       
     </li>
   
@@ -220,9 +203,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The timestamp when the log entry was created</p>
-</div>
+        <div class='inline'><p>ignored</p></div>
       
     </li>
   
@@ -236,9 +217,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The program name or identifier</p>
-</div>
+        <div class='inline'><p>ignored</p></div>
       
     </li>
   
@@ -250,11 +229,6 @@
         <span class='type'>(<tt>Object</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The log message content</p>
-</div>
       
     </li>
   
@@ -271,25 +245,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The raw message with a trailing newline</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(String severity, Time time, String? progname, String message) -&gt; String</p>
-</div>
+        <div class='inline'><p><code>&quot;#{message}\n&quot;</code></p></div>
       
     </li>
   
@@ -301,12 +257,12 @@
       <pre class="lines">
 
 
-27
-28
-29</pre>
+15
+16
+17</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/raw.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/raw.rb', line 15</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_severity'>severity</span><span class='comma'>,</span> <span class='id identifier rubyid_time'>time</span><span class='comma'>,</span> <span class='id identifier rubyid_progname'>progname</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
@@ -321,9 +277,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:23 2026 by
+  Generated on Tue May  5 18:40:01 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

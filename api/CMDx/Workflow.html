@@ -6,13 +6,13 @@
 <title>
   Module: CMDx::Workflow
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Workflow";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -78,21 +80,30 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/workflow.rb</dd>
+    <dd>lib/cmdx/workflow.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Provides workflow execution capabilities by organizing tasks into execution groups. Workflows allow you to define sequences of tasks that can be executed conditionally with breakpoint handling and context management.</p>
-
+    <p>Mixin that turns a <span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span> subclass into a workflow: a pipeline of
+ordered task groups run sequentially or in parallel. Defining <code>#work</code>
+on a workflow is forbidden — <code>#work</code> is auto-generated to delegate to
+<span class='object_link'><a href="Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span>. Subclasses inherit the parent's pipeline (via dup).</p>
 
   </div>
 </div>
 <div class="tags">
   
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span></li>
+    
+  </ul>
 
 </div><h2>Defined Under Namespace</h2>
 <p class="children">
@@ -124,7 +135,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#included-class_method" title="included (class method)">.<strong>included</strong>(base)  &#x21d2; Object </a>
+      <a href="#included-class_method" title="included (class method)">.<strong>included</strong>(base)  &#x21d2; void </a>
     
 
     
@@ -135,17 +146,16 @@
   
   
   
-  
+  <span class="private note title">private</span>
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Extends the including class with workflow capabilities.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
       
     </ul>
+    
   
     <h2>
       Instance Method Summary
@@ -157,7 +167,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#work-instance_method" title="#work (instance method)">#<strong>work</strong>  &#x21d2; Object </a>
+      <a href="#work-instance_method" title="#work (instance method)">#<strong>work</strong>  &#x21d2; void </a>
     
 
     
@@ -171,14 +181,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Executes the workflow by processing all tasks in the pipeline.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Runs the workflow's pipeline.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -190,7 +199,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="included-class_method">
   
-    .<strong>included</strong>(base)  &#x21d2; <tt>Object</tt> 
+    .<strong>included</strong>(base)  &#x21d2; <tt>void</tt> 
   
 
   
@@ -198,25 +207,16 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Extends the including class with workflow capabilities.</p>
-
+    <p class="note private">
+  <strong>This method is part of a private API.</strong>
+  You should avoid using this method if possible, as it may be removed or be changed in the future.
+</p>
+<p class="note returns_void">This method returns an undefined value.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>MyWorkflow</span>
-  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="CMDx::Workflow (module)">Workflow</a></span></span>
-  <span class='comment'># Now has access to task, tasks, and work methods
-</span><span class='kw'>end</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -229,30 +229,12 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The class including this module</p>
-</div>
+        <div class='inline'><p>task class including this mixin</p></div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Class base) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -260,12 +242,12 @@
       <pre class="lines">
 
 
-111
-112
-113</pre>
+98
+99
+100</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 111</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_included'>included</span><span class='lparen'>(</span><span class='id identifier rubyid_base'>base</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_base'>base</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Workflow/ClassMethods.html" title="CMDx::Workflow::ClassMethods (module)">ClassMethods</a></span></span><span class='rparen'>)</span>
@@ -284,7 +266,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="work-instance_method">
   
-    #<strong>work</strong>  &#x21d2; <tt>Object</tt> 
+    #<strong>work</strong>  &#x21d2; <tt>void</tt> 
   
 
   
@@ -292,45 +274,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Executes the workflow by processing all tasks in the pipeline. This method delegates execution to the Pipeline class which handles the processing of tasks with proper error handling and context management.</p>
-
+    <p class="note returns_void">This method returns an undefined value.</p><p>Runs the workflow's pipeline. Not meant to be overridden.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>MyWorkflow</span>
-  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="CMDx::Workflow (module)">Workflow</a></span></span>
-  <span class='id identifier rubyid_task'>task</span> <span class='const'>ValidateTask</span>
-  <span class='id identifier rubyid_task'>task</span> <span class='const'>ProcessTask</span>
-<span class='kw'>end</span>
-
-<span class='id identifier rubyid_workflow'>workflow</span> <span class='op'>=</span> <span class='const'>MyWorkflow</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
-<span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_workflow'>workflow</span><span class='period'>.</span><span class='id identifier rubyid_work'>work</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -338,12 +287,12 @@
       <pre class="lines">
 
 
-130
-131
-132</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 130</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/workflow.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_work'>work</span>
   <span class='const'><span class='object_link'><a href="Pipeline.html" title="CMDx::Pipeline (class)">Pipeline</a></span></span><span class='period'>.</span><span class='id identifier rubyid_execute'><span class='object_link'><a href="Pipeline.html#execute-class_method" title="CMDx::Pipeline.execute (method)">execute</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -358,9 +307,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:58 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

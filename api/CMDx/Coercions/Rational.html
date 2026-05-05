@@ -6,13 +6,13 @@
 <title>
   Module: CMDx::Coercions::Rational
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Coercions::Rational";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -37,7 +39,7 @@
         <div id="menu">
   
     <a href="../../_index.html">Index (R)</a> &raquo;
-    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Coercions.html" title="CMDx::Coercions (module)">Coercions</a></span></span>
+    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Coercions.html" title="CMDx::Coercions (class)">Coercions</a></span></span>
      &raquo; 
     <span class="title">Rational</span>
   
@@ -88,18 +90,16 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/coercions/rational.rb</dd>
+    <dd>lib/cmdx/coercions/rational.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Converts various input types to Rational format</p>
-
-<p>Handles conversion from strings, numbers, and other values to rational numbers using Ruby’s Rational() method. Raises CoercionError for values that cannot be converted to rational numbers.</p>
-
+    <p>Coerces to <code>Rational</code>. Supply <code>denominator:</code> to build a rational from
+a numerator and a custom denominator.</p>
 
   </div>
 </div>
@@ -124,7 +124,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; Rational </a>
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; Rational, Coercions::Failure </a>
     
 
     
@@ -138,14 +138,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Converts a value to a Rational.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -157,7 +156,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="call-instance_method">
   
-    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></tt> 
+    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></tt>, <tt><span class='object_link'><a href="Failure.html" title="CMDx::Coercions::Failure (class)">Coercions::Failure</a></span></tt> 
   
 
   
@@ -166,45 +165,11 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Converts a value to a Rational</p>
-
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Convert numeric strings to rational numbers</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>3/4</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>     <span class='comment'># =&gt; (3/4)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2.5</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>     <span class='comment'># =&gt; (5/2)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>       <span class='comment'># =&gt; (0/1)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Convert numeric types to rational numbers</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='float'>3.14</span><span class='rparen'>)</span>      <span class='comment'># =&gt; (157/50)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span>         <span class='comment'># =&gt; (2/1)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='float'>0.5</span><span class='rparen'>)</span>       <span class='comment'># =&gt; (1/2)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Handle edge cases</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>        <span class='comment'># =&gt; (0/1)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span>       <span class='comment'># =&gt; (0/1)
-</span><span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>         <span class='comment'># =&gt; (0/1)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -216,11 +181,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The value to convert to a rational number</p>
-</div>
-      
     </li>
   
     <li>
@@ -228,16 +188,11 @@
         <span class='name'>options</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Hash.html" title="CMDx::Coercions::Hash (module)">Hash</a></span>{<span class='object_link'><a href="Symbol.html" title="CMDx::Coercions::Symbol (module)">Symbol</a></span> =&gt; Object}</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>EMPTY_HASH</tt>)</em>
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Optional configuration parameters (currently unused)</p>
-</div>
       
     </li>
   
@@ -252,15 +207,14 @@
     <ul class="option">
       
         <li>
-          <span class="name">:unused</span>
-          <span class="type">(<tt>Object</tt>)</span>
+          <span class="name">:denominator</span>
+          <span class="type">(<tt>Numeric</tt>)</span>
           <span class="default">
             
+              &mdash; default:
+              <tt>1</tt>
+            
           </span>
-          
-            &mdash; <div class='inline'>
-<p>Currently no options are used</p>
-</div>
           
         </li>
       
@@ -273,48 +227,9 @@
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></tt>, <tt><span class='object_link'><a href="Failure.html" title="CMDx::Coercions::Failure (class)">Coercions::Failure</a></span></tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The converted rational number</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../../CMDx.html#CoercionError-constant" title="CMDx::CoercionError (constant)">CoercionError</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>If the value cannot be converted to a rational number</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(untyped value, ?Hash[Symbol, untyped] options) -&gt; Rational</p>
-</div>
       
     </li>
   
@@ -326,21 +241,25 @@
       <pre class="lines">
 
 
-38
-39
-40
-41
-42
-43</pre>
+15
+16
+17
+18
+19
+20
+21
+22</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/rational.rb', line 38</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/coercions/rational.rb', line 15</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
-  <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Rational</span><span class='rparen'>)</span>
+
+  <span class='const'><span class='object_link'><a href="" title="CMDx::Coercions::Rational (module)">Rational</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:denominator</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>1</span><span class='rparen'>)</span>
 <span class='kw'>rescue</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='const'>FloatDomainError</span><span class='comma'>,</span> <span class='const'>RangeError</span><span class='comma'>,</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='const'>ZeroDivisionError</span>
-  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Locale.html" title="CMDx::Locale (module)">Locale</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'>t</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.types.rational</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../CMDx.html#CoercionError-constant" title="CMDx::CoercionError (constant)">CoercionError</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Locale.html" title="CMDx::Locale (module)">Locale</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'>t</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.coercions.into_a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>type:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.types.rational</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="Failure.html" title="CMDx::Coercions::Failure (class)">Failure</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Coercions.html#initialize-instance_method" title="CMDx::Coercions#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../I18nProxy.html" title="CMDx::I18nProxy (class)">I18nProxy</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'><span class='object_link'><a href="../I18nProxy.html#t-class_method" title="CMDx::I18nProxy.t (method)">t</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.coercions.into_a</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>type:</span><span class='rparen'>)</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -352,9 +271,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

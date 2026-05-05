@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/callbacks/">
       
       
-        <link rel="prev" href="../attributes/transformations/">
+        <link rel="prev" href="../inputs/transformations/">
       
       
         <link rel="next" href="../middlewares/">
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1392,6 +1420,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#around-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Around Callbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#callback-removal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1558,14 +1597,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1707,34 +1746,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1771,6 +1782,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2199,6 +2238,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#around-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Around Callbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#callback-removal" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2296,7 +2346,11 @@
 
 
 <h1 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h1>
-<p>Run custom logic at specific points during task execution. Callbacks have full access to task context and results, making them perfect for logging, notifications, cleanup, and more.</p>
+<p>Run custom logic at specific points during task execution. Callbacks have full access to the task and its context — perfect for logging, notifications, and cleanup.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code>Result</code> isn't built yet when callbacks run, so <code>task.result</code> isn't available. Branch on outcome by registering separate <code>on_success</code> / <code>on_failed</code> / <code>on_skipped</code> callbacks, or subscribe to Telemetry's <code>:task_executed</code> event when you need the finalized result.</p>
+</div>
 <p>See <a href="../configuration/#callbacks">Global Configuration</a> for framework-wide callback setup.</p>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
@@ -2304,16 +2358,48 @@
 </div>
 <h2 id="available-callbacks">Available Callbacks<a class="headerlink" href="#available-callbacks" title="Permanent link">&para;</a></h2>
 <p>Callbacks execute in a predictable lifecycle order:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="n">before_validation</span><span class="w">           </span><span class="c1"># Pre-validation setup</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">before_execution</span><span class="w">            </span><span class="c1"># Prepare for execution</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># --- Task#work executes ---</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">complete</span><span class="o">|</span><span class="n">interrupted</span><span class="o">]</span><span class="w">   </span><span class="c1"># State-based (execution lifecycle)</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="n">on_executed</span><span class="w">                 </span><span class="c1"># Always runs after work completes</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="mi">5</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">success</span><span class="o">|</span><span class="n">skipped</span><span class="o">|</span><span class="n">failed</span><span class="o">]</span><span class="w"> </span><span class="c1"># Status-based (business outcome)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="mi">6</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">good</span><span class="o">|</span><span class="n">bad</span><span class="o">]</span><span class="w">               </span><span class="c1"># Outcome-based (success/skip vs fail)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mi">1</span><span class="o">.</span><span class="w"> </span><span class="n">before_execution</span><span class="w">            </span><span class="c1"># Prepare for execution</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mi">2</span><span class="o">.</span><span class="w"> </span><span class="n">around_execution</span><span class="w">            </span><span class="c1"># Wraps everything below; must invoke its continuation</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="mi">3</span><span class="o">.</span><span class="w"> </span><span class="n">before_validation</span><span class="w">           </span><span class="c1"># Pre-validation setup</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># --- inputs resolved, Task#work runs (with retries), outputs verified ---</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># --- #rollback runs here when failed ---</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="mi">4</span><span class="o">.</span><span class="w"> </span><span class="n">after_execution</span><span class="w">             </span><span class="c1"># Execution teardown</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="mi">5</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">complete</span><span class="o">|</span><span class="n">interrupted</span><span class="o">]</span><span class="w">   </span><span class="c1"># State-based (execution lifecycle)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="mi">6</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">success</span><span class="o">|</span><span class="n">skipped</span><span class="o">|</span><span class="n">failed</span><span class="o">]</span><span class="w"> </span><span class="c1"># Status-based (business outcome)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="mi">7</span><span class="o">.</span><span class="w"> </span><span class="n">on_</span><span class="o">[</span><span class="n">ok</span><span class="o">|</span><span class="n">ko</span><span class="o">]</span><span class="w">                  </span><span class="c1"># Outcome-based (success/skip vs fail)</span>
 </span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Callbacks are additive, not exclusive</p>
+<p>Status callbacks (<code>on_success</code> / <code>on_skipped</code> / <code>on_failed</code>) and outcome
+callbacks (<code>on_ok</code> / <code>on_ko</code>) are dispatched independently — if you define
+both kinds, both will fire. The outcome pair also overlaps on skipped
+results: <code>on_ok</code> runs for success <strong>and</strong> skipped, <code>on_ko</code> runs for skipped
+<strong>and</strong> failed, so a skipped task fires <strong>both</strong> <code>on_ok</code> and <code>on_ko</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>success</td>
+<td><code>on_success</code>, <code>on_ok</code></td>
+</tr>
+<tr>
+<td>skipped</td>
+<td><code>on_skipped</code>, <code>on_ok</code>, <code>on_ko</code></td>
+</tr>
+<tr>
+<td>failed</td>
+<td><code>on_failed</code>, <code>on_ko</code></td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
 <h3 id="symbol-references">Symbol References<a class="headerlink" href="#symbol-references" title="Permanent link">&para;</a></h3>
 <p>Reference instance methods by symbol for simple callback logic:</p>
@@ -2334,11 +2420,11 @@
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
 </span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">notify_guest</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="no">GuestNotifier</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">guest</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">)</span>
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="no">GuestNotifier</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">guest</span><span class="p">)</span>
 </span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
 </span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">update_availability</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="no">AvailabilityService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">room_ids</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">)</span>
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="no">AvailabilityService</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">room_ids</span><span class="p">)</span>
 </span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-1-24"><a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="k">end</span>
 </span></code></pre></div>
@@ -2356,21 +2442,23 @@
 <p>Implement reusable callback logic in dedicated modules and classes:</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BookingConfirmationCallback</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">success?</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="no">MessagingApi</span><span class="o">.</span><span class="n">send_confirmation</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">guest</span><span class="p">)</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">else</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="no">MessagingApi</span><span class="o">.</span><span class="n">send_issue_alert</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">manager</span><span class="p">)</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="k">end</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">end</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="c1"># Class or Module</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="n">on_success</span><span class="w"> </span><span class="no">BookingConfirmationCallback</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="c1"># Instance</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="n">on_interrupted</span><span class="w"> </span><span class="no">BookingConfirmationCallback</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="k">end</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="no">MessagingApi</span><span class="o">.</span><span class="n">send_confirmation</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">guest</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">BookingIssueCallback</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="no">MessagingApi</span><span class="o">.</span><span class="n">send_issue_alert</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">manager</span><span class="p">)</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">end</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="c1"># Class or Module</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="n">on_success</span><span class="w"> </span><span class="no">BookingConfirmationCallback</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="c1"># Instance</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="n">on_interrupted</span><span class="w"> </span><span class="no">BookingIssueCallback</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="conditional-execution">Conditional Execution<a class="headerlink" href="#conditional-execution" title="Permanent link">&para;</a></h3>
 <p>Control callback execution with conditional logic:</p>
@@ -2385,7 +2473,7 @@
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:notify_guest</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:messaging_enabled?</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="ss">:messaging_blocked?</span>
 </span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="n">on_failure</span><span class="w"> </span><span class="ss">:increment_failure</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Legacy&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="n">on_failed</span><span class="w"> </span><span class="ss">:increment_failure</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Legacy&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
 </span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="c1"># Lambda</span>
 </span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="n">on_success</span><span class="w"> </span><span class="ss">:ping_housekeeping</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">rooms_need_cleaning?</span><span class="w"> </span><span class="p">}</span>
@@ -2411,20 +2499,91 @@
 </span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">  </span><span class="k">end</span>
 </span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="callback-removal">Callback Removal<a class="headerlink" href="#callback-removal" title="Permanent link">&para;</a></h2>
-<p>Remove unwanted callbacks dynamically:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Each <code>deregister</code> call removes one callback. Use multiple calls for batch removals.</p>
-</div>
+<h2 id="around-callbacks">Around Callbacks<a class="headerlink" href="#around-callbacks" title="Permanent link">&para;</a></h2>
+<p><code>around_execution</code> wraps <code>before_validation</code>, <code>Task#work</code>, any <code>#rollback</code>,
+and <code>after_execution</code> in a single hook. Each callback <strong>must invoke its
+continuation exactly once</strong> — failure to do so raises <code>CMDx::CallbackError</code>.
+Multiple <code>around_execution</code> hooks nest in declaration order (outer-first).</p>
+<p>The continuation surface differs by callback form:</p>
+<ul>
+<li>
+<p><strong>Symbol</strong> — the instance method receives the continuation as its block; use <code>yield</code> (or capture <code>&amp;blk</code> and call it):</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Symbol</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:notify_guest</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="c1"># Class or Module (no instances)</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_complete</span><span class="p">,</span><span class="w"> </span><span class="no">BookingConfirmationCallback</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">end</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">around_execution</span><span class="w"> </span><span class="ss">:instrument</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">instrument</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">started</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Process</span><span class="o">.</span><span class="n">clock_gettime</span><span class="p">(</span><span class="no">Process</span><span class="o">::</span><span class="no">CLOCK_MONOTONIC</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="k">yield</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="k">ensure</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="no">Metrics</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="no">Process</span><span class="o">.</span><span class="n">clock_gettime</span><span class="p">(</span><span class="no">Process</span><span class="o">::</span><span class="no">CLOCK_MONOTONIC</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">started</span><span class="p">)</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">end</span>
 </span></code></pre></div>
+</li>
+<li>
+<p><strong>Proc / Lambda / block</strong> — receives <code>(task, continuation)</code>; call <code>continuation.call</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">around_execution</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">cont</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">transaction</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">cont</span><span class="o">.</span><span class="n">call</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">end</span>
+</span></code></pre></div>
+</li>
+<li>
+<p><strong>Class or instance callable</strong> — <code>#call(task, continuation)</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">WithRequestStore</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">continuation</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="no">RequestStore</span><span class="o">.</span><span class="n">store</span><span class="o">[</span><span class="ss">:tid</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">tid</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">continuation</span><span class="o">.</span><span class="n">call</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="k">ensure</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="no">RequestStore</span><span class="o">.</span><span class="n">clear!</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">end</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="n">around_execution</span><span class="w"> </span><span class="no">WithRequestStore</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">end</span>
+</span></code></pre></div>
+</li>
+</ul>
+<p><code>around_execution</code> runs <strong>inside</strong> registered middlewares but <strong>outside</strong> the
+state/status callbacks (<code>on_complete</code>, <code>on_success</code>, etc.), so its
+"after"-portion still observes the result-producing signal but cannot affect
+which <code>on_*</code> callbacks fire. Use it for symmetric concerns like
+transactions, instrumentation, and per-task logging context. Use a middleware
+when the wrapping logic must also straddle telemetry/deprecation events.</p>
+<h2 id="callback-removal">Callback Removal<a class="headerlink" href="#callback-removal" title="Permanent link">&para;</a></h2>
+<p><code>deregister :callback, event</code> drops <strong>every</strong> callback for the event. Pass an
+optional callable to drop only matching entries — matched by <code>==</code>, which works
+for Symbol method names and classes/modules (Procs/Lambdas match by identity,
+so you must hold the original reference). Unknown events raise <code>ArgumentError</code>;
+unknown callables are a silent no-op.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="c1"># Drops every :before_execution callback (inherited or local)</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:before_execution</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="c1"># Drops only the :notify_guest method callback for :before_execution</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:notify_guest</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="c1"># Drops only the BookingConfirmationCallback class for :on_complete</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_complete</span><span class="p">,</span><span class="w"> </span><span class="no">BookingConfirmationCallback</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Procs and Lambdas are matched by identity, so removing them requires
+holding the original reference:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">HOOK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Audit</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessBooking</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="n">on_success</span><span class="w"> </span><span class="no">HOOK</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_success</span><span class="p">,</span><span class="w"> </span><span class="no">HOOK</span><span class="w">   </span><span class="c1"># works</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="c1"># deregister :callback, :on_success, -&gt;(task) { Audit.log(task) }  # would NOT match</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">end</span>
+</span></code></pre></div>
+</div>
 
 
 
@@ -2462,7 +2621,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../attributes/transformations/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Transformations">
+          <a href="../inputs/transformations/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Transformations">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>

@@ -6,13 +6,13 @@
 <title>
   Module: CMDx::Validators::Inclusion
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Validators::Inclusion";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -37,7 +39,7 @@
         <div id="menu">
   
     <a href="../../_index.html">Index (I)</a> &raquo;
-    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Validators.html" title="CMDx::Validators (module)">Validators</a></span></span>
+    <span class='title'><span class='object_link'><a href="../../CMDx.html" title="CMDx (module)">CMDx</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Validators.html" title="CMDx::Validators (class)">Validators</a></span></span>
      &raquo; 
     <span class="title">Inclusion</span>
   
@@ -88,18 +90,16 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/validators/inclusion.rb</dd>
+    <dd>lib/cmdx/validators/inclusion.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Validates that a value is included in a specified set or range</p>
-
-<p>This validator ensures that the given value is present within a collection of allowed values or falls within a specified range. It supports both discrete value lists and range-based validations.</p>
-
+    <p>Validates that a value is within an enumerable or <code>Range</code>. Range uses
+<code>#cover?</code>; other enumerables use <code>===</code> (so regex/class matchers work).</p>
 
   </div>
 </div>
@@ -124,7 +124,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; nil </a>
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; Validators::Failure<sup>?</sup> </a>
     
 
     
@@ -138,14 +138,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Validates that a value is included in the specified options.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -157,7 +156,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="call-instance_method">
   
-    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt>nil</tt> 
+    #<strong>call</strong>(value, options = EMPTY_HASH)  &#x21d2; <tt><span class='object_link'><a href="Failure.html" title="CMDx::Validators::Failure (class)">Validators::Failure</a></span></tt><sup>?</sup> 
   
 
   
@@ -166,41 +165,11 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Validates that a value is included in the specified options</p>
-
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Include specific values</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Inclusion (module)">Inclusion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>in:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>user</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>guest</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Include values within a range</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Inclusion (module)">Inclusion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='int'>5</span><span class='comma'>,</span> <span class='label'>in:</span> <span class='int'>1</span><span class='op'>..</span><span class='int'>10</span><span class='rparen'>)</span>
-<span class='comment'># =&gt; nil (validation passes - 5 is within 1..10)</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Include with custom message</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="" title="CMDx::Validators::Inclusion (module)">Inclusion</a></span></span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>test</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>in:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>user</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be one of: %{values}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -212,11 +181,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The value to validate for inclusion</p>
-</div>
-      
     </li>
   
     <li>
@@ -224,16 +188,11 @@
         <span class='name'>options</span>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>EMPTY_HASH</tt>)</em>
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Validation configuration options</p>
-</div>
       
     </li>
   
@@ -249,27 +208,23 @@
       
         <li>
           <span class="name">:in</span>
-          <span class="type">(<tt>Array</tt>, <tt>Range</tt>)</span>
+          <span class="type">(<tt>Range</tt>, <tt>Array</tt>, <tt>Set</tt>, <tt>Enumerable</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>The collection of allowed values or range</p>
-</div>
+            &mdash; <div class='inline'><p>allowed values</p></div>
           
         </li>
       
         <li>
           <span class="name">:within</span>
-          <span class="type">(<tt>Array</tt>, <tt>Range</tt>)</span>
+          <span class="type">(<tt>Range</tt>, <tt>Array</tt>, <tt>Set</tt>, <tt>Enumerable</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Alias for :in option</p>
-</div>
+            &mdash; <div class='inline'><p>alias for <code>:in</code></p></div>
           
         </li>
       
@@ -280,9 +235,7 @@
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom error message template</p>
-</div>
+            &mdash; <div class='inline'><p>global failure-message override</p></div>
           
         </li>
       
@@ -293,35 +246,18 @@
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom message for discrete value inclusions</p>
-</div>
+            &mdash; <div class='inline'><p>override for enumerable failures</p></div>
           
         </li>
       
         <li>
-          <span class="name">:in_message</span>
+          <span class="name">:in_message,</span>
           <span class="type">(<tt>String</tt>)</span>
           <span class="default">
             
           </span>
           
-            &mdash; <div class='inline'>
-<p>Custom message for range-based inclusions</p>
-</div>
-          
-        </li>
-      
-        <li>
-          <span class="name">:within_message</span>
-          <span class="type">(<tt>String</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Custom message for range-based inclusions</p>
-</div>
+            &mdash; <div class='inline'><p>:within_message overrides for range failures</p></div>
           
         </li>
       
@@ -334,14 +270,9 @@
     <li>
       
       
-        <span class='type'>(<tt>nil</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Failure.html" title="CMDx::Validators::Failure (class)">Validators::Failure</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Returns nil if validation passes</p>
-</div>
       
     </li>
   
@@ -352,30 +283,12 @@
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="../../CMDx.html#ValidationError-constant" title="CMDx::ValidationError (constant)">ValidationError</a></span></tt>)</span>
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>When the value is not found in the allowed collection</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(untyped value, Hash[Symbol, untyped] options) -&gt; nil</p>
-</div>
+        <div class='inline'><p>when neither <code>:in</code> nor <code>:within</code> is given</p></div>
       
     </li>
   
@@ -387,26 +300,28 @@
       <pre class="lines">
 
 
-39
-40
-41
-42
-43
-44
-45
-46
-47</pre>
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/inclusion.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/validators/inclusion.rb', line 20</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>EMPTY_HASH</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_values'>values</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:in</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:within</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>inclusion validator requires :in or :within option</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
 
   <span class='kw'>if</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Range</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise_within_validation_error!'>raise_within_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
-  <span class='kw'>elsif</span> <span class='const'><span class='object_link'><a href="../Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Utils/Wrap.html" title="CMDx::Utils::Wrap (module)">Wrap</a></span></span><span class='period'>.</span><span class='id identifier rubyid_array'><span class='object_link'><a href="../Utils/Wrap.html#array-instance_method" title="CMDx::Utils::Wrap#array (method)">array</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_v'>v</span> <span class='op'>===</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
-    <span class='id identifier rubyid_raise_of_validation_error!'>raise_of_validation_error!</span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_within_failure'>within_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_begin'>begin</span><span class='comma'>,</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_end'>end</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_cover?'>cover?</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_none?'>none?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_v'>v</span> <span class='op'>===</span> <span class='id identifier rubyid_value'>value</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_of_failure'>of_failure</span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -419,9 +334,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:21 2026 by
+  Generated on Tue May  5 18:39:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

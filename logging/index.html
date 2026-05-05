@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1387,6 +1415,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sample-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1399,10 +1438,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-fields" class="md-nav__link">
+  <a href="#severity-time-added-by-formatter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core Fields
+        Severity / Time (added by formatter)
       
     </span>
   </a>
@@ -1410,10 +1449,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-information" class="md-nav__link">
+  <a href="#identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Information
+        Identity
       
     </span>
   </a>
@@ -1421,10 +1460,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#execution-data" class="md-nav__link">
+  <a href="#outcome" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Data
+        Outcome
       
     </span>
   </a>
@@ -1432,10 +1471,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#failure-chain" class="md-nav__link">
+  <a href="#lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failure Chain
+        Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failure-only-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure-only fields
       
     </span>
   </a>
@@ -1448,22 +1498,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#formatter-configuration" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Formatter Configuration
+        Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Formatter Configuration">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#formatter-output-examples" class="md-nav__link">
+  <a href="#custom-logger" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Formatter Output Examples
+        Custom Logger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#silencing-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Silencing a Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#excluding-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Excluding Fields
       
     </span>
   </a>
@@ -1487,10 +1559,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#usage-inside-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Usage Inside Work
       
     </span>
   </a>
@@ -1597,14 +1669,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1746,34 +1818,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1810,6 +1854,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2177,6 +2249,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sample-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sample Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2189,10 +2272,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#core-fields" class="md-nav__link">
+  <a href="#severity-time-added-by-formatter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core Fields
+        Severity / Time (added by formatter)
       
     </span>
   </a>
@@ -2200,10 +2283,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-information" class="md-nav__link">
+  <a href="#identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Information
+        Identity
       
     </span>
   </a>
@@ -2211,10 +2294,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#execution-data" class="md-nav__link">
+  <a href="#outcome" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Data
+        Outcome
       
     </span>
   </a>
@@ -2222,10 +2305,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#failure-chain" class="md-nav__link">
+  <a href="#lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Failure Chain
+        Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failure-only-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure-only fields
       
     </span>
   </a>
@@ -2238,22 +2332,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#formatter-configuration" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Formatter Configuration
+        Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Formatter Configuration">
+    <nav class="md-nav" aria-label="Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#formatter-output-examples" class="md-nav__link">
+  <a href="#custom-logger" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Formatter Output Examples
+        Custom Logger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#silencing-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Silencing a Task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#excluding-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Excluding Fields
       
     </span>
   </a>
@@ -2277,10 +2393,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#usage-inside-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Usage Inside Work
       
     </span>
   </a>
@@ -2374,9 +2490,8 @@
 
 
 <h1 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h1>
-<p>CMDx automatically logs every task execution with structured data, making debugging and monitoring effortless. Choose from multiple formatters to match your logging infrastructure.</p>
+<p>CMDx logs every task execution at <code>INFO</code> with the full <code>Result#to_h</code> payload — a structured event stream suitable for log aggregators. Pick a formatter that matches your logging infrastructure.</p>
 <h2 id="formatters">Formatters<a class="headerlink" href="#formatters" title="Permanent link">&para;</a></h2>
-<p>Choose the format that works best for your logging system:</p>
 <table>
 <thead>
 <tr>
@@ -2388,51 +2503,70 @@
 <tbody>
 <tr>
 <td><code>Line</code></td>
-<td>Traditional logging</td>
-<td>Single-line format</td>
+<td>Traditional logging (default)</td>
+<td>Single-line <code>Logger::Formatter</code> style</td>
 </tr>
 <tr>
-<td><code>Json</code></td>
+<td><code>JSON</code></td>
 <td>Structured systems</td>
-<td>Compact JSON</td>
+<td>Compact JSON, one object per line</td>
 </tr>
 <tr>
 <td><code>KeyValue</code></td>
 <td>Log parsing</td>
-<td><code>key=value</code> pairs</td>
+<td><code>key=value.inspect</code> pairs</td>
 </tr>
 <tr>
 <td><code>Logstash</code></td>
 <td>ELK stack</td>
-<td>JSON with @version/@timestamp</td>
+<td>JSON with <code>@version</code> / <code>@timestamp</code></td>
 </tr>
 <tr>
 <td><code>Raw</code></td>
 <td>Minimal output</td>
-<td>Message content only</td>
+<td>Message body only (no severity/timestamp)</td>
 </tr>
 </tbody>
 </table>
-<p>Sample output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;!-- Success (INFO level) --&gt;
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>I, [2025-12-23T17:04:07.292614Z #20108] INFO -- cmdx: {index: 1, chain_id: &quot;019b4c2b-087b-79be-8ef2-96c11b659df5&quot;, type: &quot;Task&quot;, tags: [], class: &quot;GenerateInvoice&quot;, dry_run: false, id: &quot;019b4c2b-0878-704d-ba0b-daa5410123ec&quot;, state: &quot;complete&quot;, status: &quot;success&quot;, outcome: &quot;success&quot;, metadata: {runtime: 187}}
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>&lt;!-- Skipped (INFO level) --&gt;
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>I, [2025-12-23T17:04:11.496881Z #20139] INFO -- cmdx: {index: 2, chain_id: &quot;019b4c2b-18e8-7af6-a38b-63b042c4fbed&quot;, type: &quot;Task&quot;, tags: [], class: &quot;ValidateCustomer&quot;, dry_run: false, id: &quot;019b4c2b-18e5-7230-af7e-5b4a4bd7cda2&quot;, state: &quot;interrupted&quot;, status: &quot;skipped&quot;, outcome: &quot;skipped&quot;, metadata: {}, reason: &quot;Customer already validated&quot;, cause: #&lt;CMDx::SkipFault: Customer already validated&gt;, rolled_back: false}
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>&lt;!-- Failed (INFO level) --&gt;
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>I, [2025-12-23T17:04:15.875306Z #20173] INFO -- cmdx: {index: 3, chain_id: &quot;019b4c2b-2a02-7dbc-b713-b20a7379704f&quot;, type: &quot;Task&quot;, tags: [], class: &quot;CalculateTax&quot;, dry_run: false, id: &quot;019b4c2b-2a00-70b7-9fab-2f14db9139ef&quot;, state: &quot;interrupted&quot;, status: &quot;failed&quot;, outcome: &quot;failed&quot;, metadata: {error_code: &quot;TAX_SERVICE_UNAVAILABLE&quot;}, reason: &quot;Validation failed&quot;, cause: #&lt;CMDx::FailFault: Validation failed&gt;, rolled_back: false}
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>&lt;!-- Failed Chain --&gt;
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>I, [2025-12-23T17:04:20.972539Z #20209] INFO -- cmdx: {index: 0, chain_id: &quot;019b4c2b-3de9-71f7-bcc3-2a98836bcfd7&quot;, type: &quot;Workflow&quot;, tags: [], class: &quot;BillingWorkflow&quot;, dry_run: false, id: &quot;019b4c2b-3de6-70b9-9c16-5be13b1a463c&quot;, state: &quot;interrupted&quot;, status: &quot;failed&quot;, outcome: &quot;interrupted&quot;, metadata: {}, reason: &quot;Validation failed&quot;, cause: #&lt;CMDx::FailFault: Validation failed&gt;, rolled_back: false, threw_failure: {index: 3, chain_id: &quot;019b4c2b-3de9-71f7-bcc3-2a98836bcfd7&quot;, type: &quot;Task&quot;, tags: [], class: &quot;CalculateTax&quot;, id: &quot;019b4c2b-3dec-70b3-969b-c5b7896e3b27&quot;, state: &quot;interrupted&quot;, status: &quot;failed&quot;, outcome: &quot;failed&quot;, metadata: {error_code: &quot;TAX_SERVICE_UNAVAILABLE&quot;}, reason: &quot;Validation failed&quot;, cause: #&lt;CMDx::FailFault: Validation failed&gt;, rolled_back: false}, caused_failure: {index: 3, chain_id: &quot;019b4c2b-3de9-71f7-bcc3-2a98836bcfd7&quot;, type: &quot;Task&quot;, tags: [], class: &quot;CalculateTax&quot;, id: &quot;019b4c2b-3dec-70b3-969b-c5b7896e3b27&quot;, state: &quot;interrupted&quot;, status: &quot;failed&quot;, outcome: &quot;failed&quot;, metadata: {error_code: &quot;TAX_SERVICE_UNAVAILABLE&quot;}, reason: &quot;Validation failed&quot;, cause: #&lt;CMDx::FailFault: Validation failed&gt;, rolled_back: false}}
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The class name is <code>CMDx::LogFormatters::JSON</code> (uppercase). The other formatter classes use CamelCase: <code>Line</code>, <code>KeyValue</code>, <code>Logstash</code>, <code>Raw</code>.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Line (default)</label><label for="__tabbed_1_2">JSON</label><label for="__tabbed_1_3">KeyValue</label><label for="__tabbed_1_4">Logstash</label><label for="__tabbed_1_5">Raw</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>I, [2026-04-19T10:30:45.123456Z #12345] INFO -- cmdx: cid=&quot;...&quot; index=0 ... state=&quot;complete&quot; status=&quot;success&quot; ...
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2026-04-19T10:30:45.123456Z&quot;</span><span class="p">,</span><span class="nt">&quot;progname&quot;</span><span class="p">:</span><span class="s2">&quot;cmdx&quot;</span><span class="p">,</span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="mi">12345</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:{</span><span class="nt">&quot;cid&quot;</span><span class="p">:</span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="nt">&quot;index&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;root&quot;</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span><span class="nt">&quot;task&quot;</span><span class="p">:</span><span class="s2">&quot;MyTask&quot;</span><span class="p">,</span><span class="nt">&quot;tid&quot;</span><span class="p">:</span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="s2">&quot;complete&quot;</span><span class="p">,</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="s2">&quot;success&quot;</span><span class="p">,</span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="nt">&quot;metadata&quot;</span><span class="p">:{},</span><span class="nt">&quot;strict&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;deprecated&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;retried&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="nt">&quot;retries&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="mf">12.34</span><span class="p">,</span><span class="nt">&quot;tags&quot;</span><span class="p">:[]}}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>severity=&quot;INFO&quot; timestamp=&quot;2026-04-19T10:30:45.123456Z&quot; progname=&quot;cmdx&quot; pid=12345 message={cid: &quot;...&quot;, index: 0, ...}
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span><span class="nt">&quot;progname&quot;</span><span class="p">:</span><span class="s2">&quot;cmdx&quot;</span><span class="p">,</span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="mi">12345</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">},</span><span class="nt">&quot;@version&quot;</span><span class="p">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="nt">&quot;@timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2026-04-19T10:30:45.123456Z&quot;</span><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cid=&quot;...&quot; index=0 root=true type=&quot;Task&quot; task=MyTask tid=&quot;...&quot; state=&quot;complete&quot; status=&quot;success&quot; ...
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="sample-lifecycle">Sample Lifecycle<a class="headerlink" href="#sample-lifecycle" title="Permanent link">&para;</a></h2>
+<p>A representative line showing a failed leaf with propagation fields:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>I, [2026-04-19T17:04:15.875306Z #20173] INFO -- cmdx: cid=&quot;019b4c2b-2a02-...&quot; index=1 root=false type=&quot;Task&quot; task=CalculateTax tid=&quot;019b4c2b-2a00-...&quot; state=&quot;interrupted&quot; status=&quot;failed&quot; reason=&quot;tax service unavailable&quot; metadata={error_code: &quot;TAX_SERVICE_UNAVAILABLE&quot;} duration=8.92 cause=nil origin=nil threw_failure=&lt;CalculateTax ...&gt; caused_failure=&lt;CalculateTax ...&gt; rolled_back=false
 </span></code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Use logging as a low-level event stream to track all tasks in a request. Combine with correlation for powerful distributed tracing.</p>
+<p>Pair <code>cid</code> with your APM's correlation field for distributed tracing. To carry an external request id end-to-end, configure a <code>correlation_id</code> resolver and filter logs on <code>xid</code> — see <a href="../configuration/#correlation-id-xid">Configuration - Correlation ID</a>. A rescued <code>StandardError</code> (not a <code>fail!</code> call) sets <code>cause=#&lt;TheError: …&gt;</code> and rewrites <code>reason</code> to <code>"[TheError] message"</code>.</p>
 </div>
 <h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<p>Every log entry includes rich metadata. Available fields depend on execution context and outcome.</p>
-<h3 id="core-fields">Core Fields<a class="headerlink" href="#core-fields" title="Permanent link">&para;</a></h3>
+<p>Every log entry is built from <code>Result#to_h</code>. Available fields:</p>
+<h3 id="severity-time-added-by-formatter">Severity / Time (added by formatter)<a class="headerlink" href="#severity-time-added-by-formatter" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2444,22 +2578,28 @@
 <tbody>
 <tr>
 <td><code>severity</code></td>
-<td>Log level</td>
+<td>Logger level name</td>
 <td><code>INFO</code>, <code>WARN</code>, <code>ERROR</code></td>
 </tr>
 <tr>
 <td><code>timestamp</code></td>
-<td>ISO 8601 execution time</td>
-<td><code>2022-07-17T18:43:15.000000</code></td>
+<td>UTC ISO 8601 with microseconds</td>
+<td><code>2026-04-19T18:43:15.000000Z</code></td>
 </tr>
 <tr>
 <td><code>pid</code></td>
 <td>Process ID</td>
 <td><code>3784</code></td>
 </tr>
+<tr>
+<td><code>progname</code></td>
+<td>Logger progname</td>
+<td><code>cmdx</code> (default)</td>
+</tr>
 </tbody>
 </table>
-<h3 id="task-information">Task Information<a class="headerlink" href="#task-information" title="Permanent link">&para;</a></h3>
+<p><code>Raw</code> is the exception — it emits only the <code>message</code> body.</p>
+<h3 id="identity">Identity<a class="headerlink" href="#identity" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2470,38 +2610,53 @@
 </thead>
 <tbody>
 <tr>
+<td><code>cid</code></td>
+<td>Chain UUID (uuid_v7)</td>
+<td><code>"018c2b95-b764-7615-..."</code></td>
+</tr>
+<tr>
+<td><code>xid</code></td>
+<td>External correlation id (e.g. Rails <code>request_id</code>); <code>nil</code> unless <code>config.correlation_id</code> is set</td>
+<td><code>"req-abc-123"</code></td>
+</tr>
+<tr>
 <td><code>index</code></td>
-<td>Execution sequence position</td>
+<td>Position in chain (root is 0)</td>
 <td><code>0</code>, <code>1</code>, <code>2</code></td>
 </tr>
 <tr>
-<td><code>chain_id</code></td>
-<td>Unique execution chain ID</td>
-<td><code>018c2b95-b764-7615...</code></td>
+<td><code>root</code></td>
+<td><code>true</code> for the root task's result</td>
+<td><code>true</code>, <code>false</code></td>
 </tr>
 <tr>
 <td><code>type</code></td>
-<td>Execution unit type</td>
-<td><code>Task</code>, <code>Workflow</code></td>
+<td><code>"Task"</code> or <code>"Workflow"</code></td>
+<td><code>"Task"</code></td>
 </tr>
 <tr>
-<td><code>class</code></td>
-<td>Task class name</td>
-<td><code>GenerateInvoiceTask</code></td>
+<td><code>task</code></td>
+<td>Task class</td>
+<td><code>GenerateInvoice</code></td>
 </tr>
 <tr>
-<td><code>id</code></td>
-<td>Unique task instance ID</td>
-<td><code>018c2b95-b764-7615...</code></td>
+<td><code>tid</code></td>
+<td>Task UUID (uuid_v7)</td>
+<td><code>"018c2b95-..."</code></td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td>Frozen <code>CMDx::Context</code> (root teardown)</td>
+<td><code>#&lt;CMDx::Context ...&gt;</code></td>
 </tr>
 <tr>
 <td><code>tags</code></td>
-<td>Custom categorization</td>
-<td><code>["billing", "financial"]</code></td>
+<td>Tags from <code>settings(tags: [...])</code></td>
+<td><code>["billing"]</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="execution-data">Execution Data<a class="headerlink" href="#execution-data" title="Permanent link">&para;</a></h3>
+<h3 id="outcome">Outcome<a class="headerlink" href="#outcome" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2514,26 +2669,64 @@
 <tr>
 <td><code>state</code></td>
 <td>Lifecycle state</td>
-<td><code>complete</code>, <code>interrupted</code></td>
+<td><code>"complete"</code>, <code>"interrupted"</code></td>
 </tr>
 <tr>
 <td><code>status</code></td>
 <td>Business outcome</td>
-<td><code>success</code>, <code>skipped</code>, <code>failed</code></td>
+<td><code>"success"</code>, <code>"skipped"</code>, <code>"failed"</code></td>
 </tr>
 <tr>
-<td><code>outcome</code></td>
-<td>Final classification</td>
-<td><code>success</code>, <code>interrupted</code></td>
+<td><code>reason</code></td>
+<td>String passed to halt method</td>
+<td><code>"payment declined"</code> or <code>nil</code></td>
 </tr>
 <tr>
 <td><code>metadata</code></td>
-<td>Custom task data</td>
-<td><code>{order_id: 123, amount: 99.99}</code></td>
+<td>Hash passed to halt method</td>
+<td><code>{ code: "INSUFFICIENT_FUNDS" }</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="failure-chain">Failure Chain<a class="headerlink" href="#failure-chain" title="Permanent link">&para;</a></h3>
+<h3 id="lifecycle">Lifecycle<a class="headerlink" href="#lifecycle" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strict</code></td>
+<td><code>true</code> when produced via <code>execute!</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>deprecated</code></td>
+<td><code>true</code> when the task class is deprecated</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>retried</code></td>
+<td><code>true</code> when at least one retry happened</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>retries</code></td>
+<td>Number of retry attempts performed</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Lifecycle duration in milliseconds</td>
+<td><code>12.34</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="failure-only-fields">Failure-only fields<a class="headerlink" href="#failure-only-fields" title="Permanent link">&para;</a></h3>
+<p>These are present <strong>only</strong> when <code>status == "failed"</code>:</p>
 <table>
 <thead>
 <tr>
@@ -2543,81 +2736,83 @@
 </thead>
 <tbody>
 <tr>
-<td><code>reason</code></td>
-<td>Reason given for the stoppage</td>
+<td><code>cause</code></td>
+<td>Underlying exception (or <code>nil</code> for <code>fail!</code>)</td>
 </tr>
 <tr>
-<td><code>caused</code></td>
-<td>Cause exception details</td>
-</tr>
-<tr>
-<td><code>caused_failure</code></td>
-<td>Original failing task details</td>
+<td><code>origin</code></td>
+<td><code>{ task:, tid: }</code> of the upstream <code>Result</code> this failure was echoed from, or <code>nil</code> for a locally originated failure</td>
 </tr>
 <tr>
 <td><code>threw_failure</code></td>
-<td>Task that propagated the failure</td>
+<td><code>{ task:, tid: }</code> of the nearest upstream failed result, or this result</td>
+</tr>
+<tr>
+<td><code>caused_failure</code></td>
+<td><code>{ task:, tid: }</code> of the originating failed result, or this result</td>
+</tr>
+<tr>
+<td><code>rolled_back</code></td>
+<td><code>true</code> when the task's <code>#rollback</code> ran</td>
 </tr>
 </tbody>
 </table>
-<h2 id="formatter-configuration">Formatter Configuration<a class="headerlink" href="#formatter-configuration" title="Permanent link">&para;</a></h2>
-<p>Set the formatter globally or per-task:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Global</label><label for="__tabbed_1_2">Per-task</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">Json</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">end</span>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>Formatter, level, and logger are set globally on <code>CMDx.configure</code> or per-task via <code>settings(...)</code>. See <a href="../configuration/">Configuration - Logging</a> for the full option list.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When a task overrides <code>:log_level</code> or <code>:log_formatter</code>, <code>LoggerProxy</code> <code>dup</code>s the global logger so settings don't leak across sibling tasks.</p>
+</div>
+<h3 id="custom-logger">Custom Logger<a class="headerlink" href="#custom-logger" title="Permanent link">&para;</a></h3>
+<p>Swap the underlying <code>Logger</code> instance per task to route lifecycle entries to a different sink (separate file, syslog, structured-log gem, etc.):</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AuditTransfer</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="ss">logger</span><span class="p">:</span><span class="w"> </span><span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">Rails</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;log/audit.log&quot;</span><span class="p">),</span><span class="w"> </span><span class="ss">progname</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;audit&quot;</span><span class="p">),</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="ss">log_formatter</span><span class="p">:</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">JSON</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="p">)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">end</span>
 </span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessSubscription</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">log_formatter</span><span class="p">:</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">Json</span><span class="o">.</span><span class="n">new</span><span class="p">)</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
+<p>The given logger is used as-is — <code>LoggerProxy</code> only <code>dup</code>s it when <code>:log_level</code> or <code>:log_formatter</code> differ from what the logger already has set.</p>
+<h3 id="silencing-a-task">Silencing a Task<a class="headerlink" href="#silencing-a-task" title="Permanent link">&para;</a></h3>
+<p>Raise the per-task level above <code>INFO</code> to suppress the lifecycle log line:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">QuietTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="no">Logger</span><span class="o">::</span><span class="no">WARN</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">end</span>
 </span></code></pre></div>
-</div>
-</div>
-</div>
-<h3 id="formatter-output-examples">Formatter Output Examples<a class="headerlink" href="#formatter-output-examples" title="Permanent link">&para;</a></h3>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:5"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Line (default)</label><label for="__tabbed_2_2">Json</label><label for="__tabbed_2_3">KeyValue</label><label for="__tabbed_2_4">Logstash</label><label for="__tabbed_2_5">Raw</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>I, [2025-01-15T10:30:45.123456Z #12345] INFO -- cmdx: {index: 0, class: &quot;MyTask&quot;, state: &quot;complete&quot;, ...}
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2025-01-15T10:30:45.123456Z&quot;</span><span class="p">,</span><span class="nt">&quot;progname&quot;</span><span class="p">:</span><span class="s2">&quot;cmdx&quot;</span><span class="p">,</span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="mi">12345</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">}}</span>
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>severity=&quot;INFO&quot; timestamp=&quot;2025-01-15T10:30:45.123456Z&quot; progname=&quot;cmdx&quot; pid=12345 message={...}
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span><span class="nt">&quot;progname&quot;</span><span class="p">:</span><span class="s2">&quot;cmdx&quot;</span><span class="p">,</span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="mi">12345</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:{</span><span class="err">...</span><span class="p">},</span><span class="nt">&quot;@version&quot;</span><span class="p">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="nt">&quot;@timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2025-01-15T10:30:45.123456Z&quot;</span><span class="p">}</span>
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>{index: 0, class: &quot;MyTask&quot;, state: &quot;complete&quot;, status: &quot;success&quot;, ...}
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<h2 id="log-levels">Log Levels<a class="headerlink" href="#log-levels" title="Permanent link">&para;</a></h2>
-<p>CMDx logs task execution at <code>INFO</code> level, retries at <code>WARN</code>, and backtraces at <code>ERROR</code>. Override the log level per-task:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">VerboseTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="ss">:debug</span><span class="p">)</span>
+<h3 id="excluding-fields">Excluding Fields<a class="headerlink" href="#excluding-fields" title="Permanent link">&para;</a></h3>
+<p>Strip specific keys from the logged <code>Result#to_h</code> with <code>log_exclusions</code>. Useful for dropping bulky or sensitive fields (<code>:context</code>, <code>:metadata</code>) from the log stream while keeping them on the returned <code>Result</code> and telemetry payloads.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_exclusions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="ss">:context</span><span class="p">,</span><span class="w"> </span><span class="ss">:metadata</span><span class="o">]</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">end</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ImportPayroll</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">log_exclusions</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="ss">:context</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<p>Access the framework logger directly within tasks:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessSubscription</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;Activated feature flags: </span><span class="si">#{</span><span class="no">Features</span><span class="o">.</span><span class="n">active_flags</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Subscription processed&quot;</span><span class="p">)</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">end</span>
+<p>Exclusions match top-level <code>Result#to_h</code> keys only (no deep paths). When empty (the default), the full result is logged.</p>
+<h2 id="log-levels">Log Levels<a class="headerlink" href="#log-levels" title="Permanent link">&para;</a></h2>
+<p>CMDx logs each task result at <code>INFO</code> once the lifecycle completes. The framework itself emits no <code>WARN</code> or <code>ERROR</code> lines — use callbacks (<code>on_failed</code>, <code>on_skipped</code>) or telemetry subscribers (<code>:task_retried</code>, <code>:task_executed</code>) to log at higher severities.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">VerboseTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span><span class="p">)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;feature flags: </span><span class="si">#{</span><span class="no">Features</span><span class="o">.</span><span class="n">active_flags</span><span class="o">.</span><span class="n">inspect</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Strict-mode failures (<code>execute!</code>) still produce the lifecycle log line and the <code>:task_executed</code> telemetry event — <code>Runtime</code> finalizes the result <em>before</em> re-raising the <code>Fault</code>.</p>
+</div>
+<h2 id="usage-inside-work">Usage Inside Work<a class="headerlink" href="#usage-inside-work" title="Permanent link">&para;</a></h2>
+<p><code>Task#logger</code> returns the per-task <code>Logger</code> (with the task's overrides applied):</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessSubscription</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;subscriber: </span><span class="si">#{</span><span class="n">context</span><span class="o">.</span><span class="n">subscriber_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;starting subscription processing&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="k">end</span>
 </span></code></pre></div>
 
 

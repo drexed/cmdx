@@ -1,14 +1,14 @@
 ```ruby
 class ApproveLoan < CMDx::Task
-  register :middleware, CMDx::Middlewares::Runtime
+  register :middleware, DeepLI18nMiddleware
 
-  required :application_id, type: :integer
+  required :application_id, coerce: :integer
 
   optional :override_checks, default: false
 
   on_success :notify_applicant!
 
-  returns :approved_at
+  output :approved_at
 
   def work
     if application.nil?

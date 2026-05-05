@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://drexed.github.io/cmdx/workflows/">
       
       
-        <link rel="prev" href="../returns/">
+        <link rel="prev" href="../outputs/">
       
       
         <link rel="next" href="../testing/">
@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -727,14 +727,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -953,6 +953,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -996,7 +1024,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1012,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1025,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1053,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1081,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1109,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1137,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1165,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1426,14 +1454,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1539,10 +1567,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#group" class="md-nav__link">
+  <a href="#group-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Group
+        Group Options
       
     </span>
   </a>
@@ -1573,34 +1601,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Halt Behavior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#task-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#group-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Group Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1634,6 +1634,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Parallel Execution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-processing-with-continue_on_failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch processing with continue_on_failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1757,34 +1796,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1821,6 +1832,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2200,10 +2239,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#group" class="md-nav__link">
+  <a href="#group-options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Group
+        Group Options
       
     </span>
   </a>
@@ -2234,34 +2273,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Halt Behavior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#task-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#group-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Group Configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2295,6 +2306,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Parallel Execution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-processing-with-continue_on_failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch processing with continue_on_failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2396,43 +2446,41 @@
 
 
 <h1 id="workflows">Workflows<a class="headerlink" href="#workflows" title="Permanent link">&para;</a></h1>
-<p>Compose multiple tasks into powerful, sequential pipelines. Workflows provide a declarative way to build complex business processes with conditional execution, shared context, and flexible error handling.</p>
-<p>Since workflows are Task subclasses, they inherit all Task features: <a href="../attributes/definitions/">attributes</a>, <a href="../callbacks/">callbacks</a>, <a href="../middlewares/">middlewares</a>, <a href="../configuration/#task-configuration">settings</a>, and <a href="../returns/">returns</a>. Use these to validate workflow-level inputs, set up shared state, or track workflow outcomes.</p>
+<p>Compose multiple tasks into ordered pipelines. A workflow is a <code>Task</code> subclass that includes <code>CMDx::Workflow</code>; the module supplies a <code>#work</code> that delegates to <code>CMDx::Pipeline</code>, which runs the declared task groups against a shared context.</p>
+<p>Because workflows are tasks, they inherit every Task feature: <a href="../inputs/definitions/">inputs</a>, <a href="../callbacks/">callbacks</a>, <a href="../middlewares/">middlewares</a>, <a href="../configuration/#settings">settings</a>, <a href="../outputs/">outputs</a>, and <a href="../retries/">retries</a>. Use these to validate workflow-level inputs, set up shared state, or react to workflow outcomes.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Correlate</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:load_user</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="n">on_failed</span><span class="w"> </span><span class="ss">:notify_admin!</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:load_user</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="n">on_failed</span><span class="w"> </span><span class="ss">:notify_admin!</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="n">required</span><span class="w"> </span><span class="ss">:user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">type</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">  </span><span class="n">output</span><span class="w"> </span><span class="ss">:onboarded_at</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="n">returns</span><span class="w"> </span><span class="ss">:onboarded_at</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CreateProfile</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SetupPreferences</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcome</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CreateProfile</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SetupPreferences</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcome</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">  </span><span class="kp">private</span>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">load_user</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">notify_admin!</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="no">AdminMailer</span><span class="o">.</span><span class="n">onboarding_failed</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_later</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">end</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">load_user</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">User</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">notify_admin!</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="no">AdminMailer</span><span class="o">.</span><span class="n">onboarding_failed</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">deliver_later</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="declarations">Declarations<a class="headerlink" href="#declarations" title="Permanent link">&para;</a></h2>
-<p>Tasks run in declaration order (FIFO), sharing a common context across the pipeline.</p>
+<p>Tasks run in declaration order, sharing the workflow's context.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Don't define a <code>work</code> method in workflows—the module handles execution automatically. Attempting to do so raises a <code>RuntimeError</code>.</p>
+<p>Don't define <code>#work</code> on a workflow — <code>Workflow#work</code> delegates to <code>Pipeline</code>. Defining your own raises <code>CMDx::ImplementationError</code>.</p>
 </div>
 <h3 id="task">Task<a class="headerlink" href="#task" title="Permanent link">&para;</a></h3>
-<p><code>task</code> and <code>tasks</code> are aliases—use either interchangeably.</p>
+<p><code>task</code> and <code>tasks</code> are aliases — use either interchangeably. Each call appends a new group to the pipeline.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -2442,203 +2490,295 @@
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">CreateDashboard</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="group">Group<a class="headerlink" href="#group" title="Permanent link">&para;</a></h3>
-<p>Group related tasks to share configuration:</p>
-<div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>Settings and conditionals apply to all tasks in the group.</p>
-</div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ContentModerationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="c1"># Screening phase</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">ScanForProfanity</span><span class="p">,</span><span class="w"> </span><span class="no">CheckForSpam</span><span class="p">,</span><span class="w"> </span><span class="no">ValidateImages</span><span class="p">,</span><span class="w"> </span><span class="ss">breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;skipped&quot;</span><span class="o">]</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="c1"># Review phase</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">ApplyFilters</span><span class="p">,</span><span class="w"> </span><span class="no">ScoreContent</span><span class="p">,</span><span class="w"> </span><span class="no">FlagSuspicious</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="c1"># Decision phase</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">PublishContent</span><span class="p">,</span><span class="w"> </span><span class="no">QueueForReview</span><span class="p">,</span><span class="w"> </span><span class="no">NotifyModerators</span>
-</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">end</span>
-</span></code></pre></div>
+<p>Every entry must be a <code>Task</code> subclass; anything else raises <code>TypeError</code> at declaration time.</p>
+<h3 id="group-options">Group Options<a class="headerlink" href="#group-options" title="Permanent link">&para;</a></h3>
+<p>Options apply to the entire group:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strategy:</code></td>
+<td><code>:sequential</code></td>
+<td><code>:sequential</code> or <code>:parallel</code></td>
+</tr>
+<tr>
+<td><code>pool_size:</code></td>
+<td><code>tasks.size</code></td>
+<td>Worker/fiber count when <code>strategy: :parallel</code></td>
+</tr>
+<tr>
+<td><code>executor:</code></td>
+<td><code>:threads</code></td>
+<td>Parallel dispatch backend: <code>:threads</code>, <code>:fibers</code>, or a callable. <code>:fibers</code> requires a <code>Fiber.scheduler</code> to be installed (e.g. inside <code>Async { ... }</code>)</td>
+</tr>
+<tr>
+<td><code>merger:</code></td>
+<td><code>:last_write_wins</code></td>
+<td>How successful parallel contexts fold back into the workflow context: <code>:last_write_wins</code>, <code>:deep_merge</code>, <code>:no_merge</code>, or a callable <code>-&gt;(workflow_context, result) { ... }</code></td>
+</tr>
+<tr>
+<td><code>continue_on_failure:</code></td>
+<td><code>false</code></td>
+<td>When <code>true</code>, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's <code>errors</code> (keyed as the Symbol <code>:"TaskClass.&lt;input&gt;"</code> for input/validation errors and <code>:"TaskClass.&lt;status&gt;"</code> for bare <code>fail!</code> reasons). Applies to both strategies. When <code>false</code> (default), <code>:sequential</code> halts on the first failure and <code>:parallel</code> cancels pending tasks (in-flight tasks still finish)</td>
+</tr>
+<tr>
+<td><code>if:</code> / <code>unless:</code></td>
+<td>—</td>
+<td>Skip the entire group when the predicate isn't satisfied</td>
+</tr>
+</tbody>
+</table>
 <h3 id="conditionals">Conditionals<a class="headerlink" href="#conditionals" title="Permanent link">&para;</a></h3>
-<p>Conditionals support multiple syntaxes for flexible execution control:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ContentAccessCheck</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">can?</span><span class="p">(</span><span class="ss">:publish_content</span><span class="p">)</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="c1"># If and/or Unless</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:email_configured?</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="ss">:email_disabled?</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="c1"># Proc</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;Premium&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="c1"># Lambda</span>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">features_enabled?</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">  </span><span class="c1"># Class or Module</span>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="no">ContentAccessCheck</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="c1"># Instance</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="no">ContentAccessCheck</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="c1"># Conditional applies to all tasks of this declaration group</span>
-</span><span id="__span-3-26"><a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">CreateDashboard</span><span class="p">,</span><span class="w"> </span><span class="no">SetupTutorial</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:email_configured?</span>
-</span><span id="__span-3-27"><a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>
-</span><span id="__span-3-28"><a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">  </span><span class="kp">private</span>
-</span><span id="__span-3-29"><a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>
-</span><span id="__span-3-30"><a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">email_configured?</span>
-</span><span id="__span-3-31"><a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email_address</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kp">true</span>
-</span><span id="__span-3-32"><a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-33"><a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a>
-</span><span id="__span-3-34"><a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">email_disabled?</span>
-</span><span id="__span-3-35"><a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">communication_preference</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">:disabled</span>
-</span><span id="__span-3-36"><a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-3-37"><a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="k">end</span>
+<p>Conditionals support multiple syntaxes for flexible execution control. They're evaluated against the workflow instance.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ContentAccessCheck</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">workflow</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">workflow</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">can?</span><span class="p">(</span><span class="ss">:publish_content</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">end</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">OnboardingWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="c1"># Symbols resolve to instance methods on the workflow</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:email_configured?</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="c1"># Procs and lambdas are instance_exec&#39;d against the workflow</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">features_enabled?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="c1"># Class or instance: must respond to #call(workflow)</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">unless</span><span class="p">:</span><span class="w"> </span><span class="no">ContentAccessCheck</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="no">ContentAccessCheck</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">  </span><span class="c1"># The conditional applies to every task in the group</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">CreateDashboard</span><span class="p">,</span><span class="w"> </span><span class="no">SetupTutorial</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:email_configured?</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">email_configured?</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email_address</span><span class="o">.</span><span class="n">matches?</span><span class="p">(</span><span class="sr">/@mycompany.com/</span><span class="p">)</span>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="k">end</span>
 </span></code></pre></div>
 <h2 id="halt-behavior">Halt Behavior<a class="headerlink" href="#halt-behavior" title="Permanent link">&para;</a></h2>
-<p>By default, skipped tasks don't stop the workflow—they're treated as no-ops. Configure breakpoints globally via <a href="../configuration/#breakpoints"><code>workflow_breakpoints</code></a> or per-task to customize this behavior.</p>
+<p>A workflow halts on the <strong>first failed result</strong> in any group. Skipped tasks never halt the pipeline — they're treated as no-ops and the next task runs as normal.</p>
+<p>When a task fails, the pipeline echoes its <code>reason</code>, <code>state</code>, and <code>status</code> through the workflow via <code>throw!</code>, so the workflow's own result is <code>failed?</code> with the same <code>reason</code>. The propagated signal carries the failed leaf as its <code>origin</code>, so <code>result.origin</code> / <code>result.threw_failure</code> / <code>result.caused_failure</code> all point at the originating task without scanning the chain:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AnalyticsWorkflow</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">result</span><span class="o">.</span><span class="n">failed?</span><span class="w">                  </span><span class="c1">#=&gt; true</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">result</span><span class="o">.</span><span class="n">reason</span><span class="w">                   </span><span class="c1">#=&gt; &quot;metrics service unreachable&quot;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">task</span><span class="w">              </span><span class="c1">#=&gt; CollectMetrics</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">result</span><span class="o">.</span><span class="n">caused_failure</span><span class="o">.</span><span class="n">task</span><span class="w">      </span><span class="c1">#=&gt; CollectMetrics</span>
+</span></code></pre></div>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AnalyticsWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CollectMetrics</span><span class="w">      </span><span class="c1"># If fails → workflow stops</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CollectMetrics</span><span class="w">      </span><span class="c1"># If fails → workflow stops, AnalyticsWorkflow is failed</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">FilterOutliers</span><span class="w">      </span><span class="c1"># If skipped → workflow continues</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">GenerateDashboard</span><span class="w">   </span><span class="c1"># Only runs if no failures occurred</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">GenerateDashboard</span><span class="w">   </span><span class="c1"># Only runs if no upstream failure occurred</span>
 </span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="task-configuration">Task Configuration<a class="headerlink" href="#task-configuration" title="Permanent link">&para;</a></h3>
-<p>Configure halt behavior for the entire workflow:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SecurityWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+<p>To make a "soft" failure non-halting, have the task <code>skip!</code> instead of <code>fail!</code>. There is no per-group or per-workflow setting to ignore failures.</p>
+<h2 id="rollback-in-workflows">Rollback in Workflows<a class="headerlink" href="#rollback-in-workflows" title="Permanent link">&para;</a></h2>
+<p>When a task fails, Runtime calls its <code>#rollback</code> method (if defined) immediately after <code>work</code> returns and <em>before</em> the failure is <code>throw!</code>n up to the workflow. Concretely, the failed leaf task's lifecycle is: <code>perform_work</code> → <code>perform_rollback</code> → <code>on_*</code> callbacks → result finalization → throw to workflow.</p>
+<p>When a workflow's pipeline halts, <code>Pipeline</code> then walks every previously executed task instance whose result is <code>success?</code> in <strong>reverse</strong> execution order and invokes <code>#rollback</code> on any that defines it — saga-style compensation across the whole pipeline. Each compensated result's <code>#rolled_back?</code> becomes <code>true</code>. Skipped tasks are excluded; the failing task itself is rolled back by Runtime and is not re-invoked. Exceptions raised inside a compensator propagate to the caller — handling them is the developer's responsibility.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="c1"># Halt on both failed and skipped results</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">workflow_breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">PerformSecurityScan</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ValidateSecurityRules</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">end</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">OptionalTasksWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="c1"># Never halt, always continue</span>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[]</span><span class="p">)</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">TryBackupData</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">TryCleanupLogs</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">TryOptimizeCache</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="k">end</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ReserveInventory</span><span class="w">   </span><span class="c1"># Succeeds → no rollback</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ChargeCard</span><span class="w">         </span><span class="c1"># Fails    → ChargeCard#rollback runs</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendConfirmation</span><span class="w">   </span><span class="c1"># Never runs (workflow halts on failure)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">end</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCard</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">PaymentGateway</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Declined&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="o">.</span><span class="n">declined?</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">rollback</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="no">PaymentGateway</span><span class="o">.</span><span class="n">void</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="group-configuration">Group Configuration<a class="headerlink" href="#group-configuration" title="Permanent link">&para;</a></h3>
-<p>Different task groups can have different halt behavior:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SubscriptionWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+<div class="admonition note">
+<p class="admonition-title">Compensation across tasks</p>
+<p>Pipeline rollback covers the common saga case automatically: define <code>#rollback</code> on each task that has side effects to undo, and the workflow will compensate them in reverse order on failure. Use a workflow-level <code>on_failed</code> callback only when compensation logic doesn't belong to any single task (e.g. it spans multiple contexts or external systems).</p>
+</div>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CreateSubscription</span><span class="p">,</span><span class="w"> </span><span class="no">ValidatePayment</span><span class="p">,</span><span class="w"> </span><span class="ss">breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="o">]</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="c1"># Never halt, always continue</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendConfirmationEmail</span><span class="p">,</span><span class="w"> </span><span class="no">UpdateBilling</span><span class="p">,</span><span class="w"> </span><span class="ss">breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[]</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="rollback-in-workflows">Rollback in Workflows<a class="headerlink" href="#rollback-in-workflows" title="Permanent link">&para;</a></h2>
-<p>Each task in a workflow handles its own rollback independently. When a task's status matches the <code>rollback_on</code> setting (default: <code>["failed"]</code>), that task's <code>rollback</code> method is called immediately after its execution — not retroactively for previously completed tasks.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ReserveInventory</span><span class="w">   </span><span class="c1"># Succeeds → no rollback</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ChargeCard</span><span class="w">          </span><span class="c1"># Fails → ChargeCard.rollback called</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendConfirmation</span><span class="w">    </span><span class="c1"># Never runs (workflow halts on failure)</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">end</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChargeCard</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">PaymentGateway</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nb">fail</span><span class="o">!</span><span class="p">(</span><span class="s2">&quot;Declined&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="o">.</span><span class="n">declined?</span>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
-</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">rollback</span>
-</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="w">    </span><span class="no">PaymentGateway</span><span class="o">.</span><span class="n">void</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">charge</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
-</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="k">end</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ReserveInventory</span><span class="w">  </span><span class="c1"># rolled back second on failure (in reverse)</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ChargeCard</span><span class="w">        </span><span class="c1"># rolled back first if it succeeded; Runtime rolls it back if it failed</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">SendConfirmation</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="k">end</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">ReserveInventory</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="n">context</span><span class="o">.</span><span class="n">reservation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Inventory</span><span class="o">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">sku</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">qty</span><span class="p">)</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">rollback</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="no">Inventory</span><span class="o">.</span><span class="n">release</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">reservation_id</span><span class="p">)</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition warning">
-<p class="admonition-title">Important</p>
-<p>CMDx does <strong>not</strong> automatically rollback previously successful tasks when a later task fails. If you need to undo <code>ReserveInventory</code> when <code>ChargeCard</code> fails, handle it in <code>ChargeCard</code>'s rollback or use a callback on the workflow itself.</p>
+<p class="admonition-title">Parallel groups</p>
+<p>Tasks in a <code>:parallel</code> group run on a <code>deep_dup</code>'d context. Their <code>#rollback</code> sees that per-task copy, not the merged workflow context. Keep parallel compensators self-contained (e.g. external API calls keyed off values captured during <code>work</code>) rather than relying on shared workflow state.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PaymentWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+<h2 id="nested-workflows">Nested Workflows<a class="headerlink" href="#nested-workflows" title="Permanent link">&para;</a></h2>
+<p>Workflows are tasks, so they nest naturally:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailPreparationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ValidateRecipients</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CompileTemplate</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">end</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailDeliveryWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendEmails</span><span class="p">,</span><span class="w"> </span><span class="no">TrackDeliveries</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="k">end</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompleteEmailWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-7-15"><a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-7-16"><a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+</span><span id="__span-7-17"><a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">EmailPreparationWorkflow</span>
+</span><span id="__span-7-18"><a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">EmailDeliveryWorkflow</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">preparation_successful?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-7-19"><a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">GenerateDeliveryReport</span>
+</span><span id="__span-7-20"><a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>A nested workflow's failure echoes through its parent the same way a leaf task's failure does, and the chain captures every result for traceability.</p>
+<h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
+<p>Run a group concurrently using native Ruby threads. No external dependencies required.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="n">on_failed</span><span class="w"> </span><span class="ss">:compensate!</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ReserveInventory</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ChargeCard</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="kp">private</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="c1"># One thread per task (default)</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="c1"># Bounded thread pool</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">pool_size</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
 </span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
-</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">compensate!</span>
-</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">    </span><span class="no">ReleaseInventory</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">reservation_id</span>
-</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="nested-workflows">Nested Workflows<a class="headerlink" href="#nested-workflows" title="Permanent link">&para;</a></h2>
-<p>Build hierarchical workflows by composing workflows within workflows:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailPreparationWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">ValidateRecipients</span>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">CompileTemplate</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">end</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">EmailDeliveryWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendEmails</span><span class="p">,</span><span class="w"> </span><span class="no">TrackDeliveries</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="k">end</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">class</span><span class="w"> </span><span class="nc">CompleteEmailWorkflow</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">EmailPreparationWorkflow</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">EmailDeliveryWorkflow</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">context</span><span class="o">.</span><span class="n">preparation_successful?</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">  </span><span class="n">task</span><span class="w"> </span><span class="no">GenerateDeliveryReport</span>
-</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h2>
-<p>Run tasks concurrently using native Ruby threads for maximum throughput. No external dependencies required.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendWelcomeNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="c1"># One thread per task (default)</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="c1"># Fixed thread pool size</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">SendWelcomeEmail</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomeSms</span><span class="p">,</span><span class="w"> </span><span class="no">SendWelcomePush</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">pool_size</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="k">end</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">  </span><span class="c1"># Default behavior: pending parallel tasks are cancelled once any sibling fails</span>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">ChargeCard</span><span class="p">,</span><span class="w"> </span><span class="no">ReserveInventory</span><span class="p">,</span><span class="w"> </span><span class="no">EmitAnalytics</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="c1"># Batch processing: run every task and collect every failure into result.errors</span>
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">ProcessOrder1</span><span class="p">,</span><span class="w"> </span><span class="no">ProcessOrder2</span><span class="p">,</span><span class="w"> </span><span class="no">ProcessOrder3</span><span class="p">,</span>
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">continue_on_failure</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Each parallel task receives its own context copy, which is merged back after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts.</p>
+<p>Each parallel task receives its own deep-duplicated <code>context</code> copy, which is merged back into the workflow's context after execution (declaration order, not completion order). If multiple tasks write to the same key, the last task in declaration order wins. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through <code>throw!</code>. With <code>continue_on_failure: true</code>, every task runs to completion and all failures are aggregated into the workflow's <code>errors</code> (keyed as Symbols: <code>:"TaskClass.&lt;input&gt;"</code> for validation errors or <code>:"TaskClass.&lt;status&gt;"</code> for bare <code>fail!</code> reasons); the first failure in declaration order is still the one propagated through <code>throw!</code>.</p>
 </div>
-<h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
-<p>Generate new CMDx workflow tasks quickly using the built-in generator:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:workflow<span class="w"> </span>SendNotifications
+<h3 id="batch-processing-with-continue_on_failure">Batch processing with <code>continue_on_failure</code><a class="headerlink" href="#batch-processing-with-continue_on_failure" title="Permanent link">&para;</a></h3>
+<p>For batch-style groups where you want to know about every failure rather than stopping at the first one, set <code>continue_on_failure: true</code>. Failures are aggregated into the workflow's <code>errors</code> collection.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessOrders</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">ProcessOrderA</span><span class="p">,</span><span class="w"> </span><span class="no">ProcessOrderB</span><span class="p">,</span><span class="w"> </span><span class="no">ProcessOrderC</span><span class="p">,</span><span class="w"> </span><span class="ss">continue_on_failure</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">end</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOrders</span><span class="o">.</span><span class="n">execute</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">result</span><span class="o">.</span><span class="n">failed?</span><span class="w">           </span><span class="c1"># =&gt; true (any task in the group failed)</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">to_h</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># =&gt; {</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1">#      :&quot;ProcessOrderA.failed&quot; =&gt; [&quot;card declined&quot;],</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1">#      :&quot;ProcessOrderC.amount&quot; =&gt; [&quot;amount must be greater than 0&quot;]</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c1">#    }</span>
 </span></code></pre></div>
-<p>This creates a new workflow task file with the basic structure:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># app/tasks/send_notifications.rb</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+<p>The pipeline still halts after the failed group — subsequent groups do not run. The first failure (declaration order) is the signal origin.</p>
+<h3 id="executors">Executors<a class="headerlink" href="#executors" title="Permanent link">&para;</a></h3>
+<p>The <code>:executor</code> option swaps the concurrency backend while keeping the rest of the parallel semantics (context isolation, merge-on-success, fail-fast) identical.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Default — native Ruby threads</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">executor</span><span class="p">:</span><span class="w"> </span><span class="ss">:threads</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Fiber scheduler — requires Fiber.scheduler to be installed on the caller</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">executor</span><span class="p">:</span><span class="w"> </span><span class="ss">:fibers</span><span class="p">,</span><span class="w"> </span><span class="ss">pool_size</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Custom callable</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">executor</span><span class="p">:</span><span class="w"> </span><span class="no">MyPool</span><span class="o">.</span><span class="n">method</span><span class="p">(</span><span class="ss">:run</span><span class="p">)</span>
+</span></code></pre></div>
+<p><code>:fibers</code> spawns one fiber per job bounded by <code>pool_size</code> (via a semaphore) and relies on whatever scheduler the caller has installed — most commonly the <a href="https://github.com/socketry/async"><code>async</code></a> gem:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">require</span><span class="w"> </span><span class="s2">&quot;async&quot;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="no">Async</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="no">SendWelcomeNotifications</span><span class="o">.</span><span class="n">execute!</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Without a scheduler, <code>:fibers</code> raises at run time — the gem itself stays zero-dep.</p>
+<p>A user-supplied executor is any object responding to <code>call(jobs:, concurrency:, on_job:)</code>. It must invoke <code>on_job.call(job)</code> for each job and block until all jobs have completed. Chain propagation, cancellation, and context merging are already baked into <code>on_job</code>; the executor only decides how to dispatch.</p>
+<p>Executors are resolved from a per-task registry (<code>CMDx::Executors</code>). Built-ins ship with <code>:threads</code> and <code>:fibers</code>; register your own named executor once and reference it by symbol from <code>:executor</code>:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ApplicationTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:executor</span><span class="p">,</span><span class="w"> </span><span class="ss">:bounded_pool</span><span class="p">,</span><span class="w"> </span><span class="no">MyPool</span><span class="o">.</span><span class="n">method</span><span class="p">(</span><span class="ss">:run</span><span class="p">)</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">end</span>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">Task1</span><span class="p">,</span><span class="w"> </span><span class="no">Task2</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="k">end</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ShipItAll</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">executor</span><span class="p">:</span><span class="w"> </span><span class="ss">:bounded_pool</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="k">end</span>
 </span></code></pre></div>
+<p>The same registry is available globally via <code>CMDx.configuration.executors.register(...)</code>.</p>
+<h3 id="merge-strategies">Merge strategies<a class="headerlink" href="#merge-strategies" title="Permanent link">&para;</a></h3>
+<p>After every successful sibling completes, each sibling's duplicated context is folded back into the workflow context. The default is last-write-wins in declaration order — reliable and fast, but brittle when two tasks write a nested structure under the same key. <code>:merger</code> lets you pick the collision policy up front.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Default — shallow, last declared task wins on conflicts</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">merger</span><span class="p">:</span><span class="w"> </span><span class="ss">:last_write_wins</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Recursive hash merge — nested structures are combined instead of replaced</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">merger</span><span class="p">:</span><span class="w"> </span><span class="ss">:deep_merge</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># Don&#39;t touch the workflow context at all</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">merger</span><span class="p">:</span><span class="w"> </span><span class="ss">:no_merge</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="c1"># Custom — e.g. namespace each sibling&#39;s output under its class name</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="n">tasks</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">      </span><span class="ss">merger</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ctx</span><span class="o">[</span><span class="n">result</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">to_h</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<p>Behavior notes:</p>
+<ul>
+<li>Merging always walks successful results in <strong>declaration order</strong>, never completion order — the fold is deterministic even though parallel execution isn't.</li>
+<li><code>:deep_merge</code> recurses only into <code>Hash</code> values; non-hash collisions (Integer, String, Array, custom objects) still follow last-write-wins so a scalar on either side wins over a hash on the other.</li>
+<li><code>:no_merge</code> keeps the parallel tasks' side effects (each sibling's <code>result.context</code> is still reachable via <code>result.chain</code>) but nothing is written back to the workflow context. Useful when you're only interested in per-task telemetry, or when tasks own their own persistence.</li>
+<li>A callable receives <code>(workflow_context, result)</code> and is free to write whatever shape you want. Failed results never reach the merger.</li>
+<li>Merge strategies are resolved from a per-task registry (<code>CMDx::Mergers</code>). Register your own named merger with <code>register :merger, :name, callable</code> (or on <code>CMDx.configuration.mergers</code>) and reference it by symbol from <code>:merger</code>.</li>
+</ul>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BuildDashboard</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="n">tasks</span><span class="w"> </span><span class="no">FetchRevenue</span><span class="p">,</span><span class="w"> </span><span class="no">FetchTraffic</span><span class="p">,</span><span class="w"> </span><span class="no">FetchErrors</span><span class="p">,</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">        </span><span class="ss">strategy</span><span class="p">:</span><span class="w"> </span><span class="ss">:parallel</span><span class="p">,</span><span class="w"> </span><span class="ss">merger</span><span class="p">:</span><span class="w"> </span><span class="ss">:deep_merge</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="c1"># FetchRevenue: context.metrics = { revenue: ... }</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="c1"># FetchTraffic: context.metrics = { visitors: ... }</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span><span class="c1"># After merge: context.metrics == { revenue: ..., visitors: ..., errors: ... }</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="k">end</span>
+</span></code></pre></div>
+<h2 id="task-generator">Task Generator<a class="headerlink" href="#task-generator" title="Permanent link">&para;</a></h2>
+<p>Generate a workflow scaffold:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>rails<span class="w"> </span>generate<span class="w"> </span>cmdx:workflow<span class="w"> </span>SendNotifications
+</span></code></pre></div>
+<p>Produces:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># app/tasks/send_notifications.rb</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendNotifications</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">ApplicationTask</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="kp">include</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Workflow</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="c1"># Docs: https://drexed.github.io/cmdx/workflows</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>If <code>ApplicationTask</code> isn't defined the generator falls back to <code>CMDx::Task</code>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Use <strong>present tense verbs + pluralized noun</strong> for workflow task names, eg: <code>SendNotifications</code>, <code>DownloadFiles</code>, <code>ValidateDocuments</code></p>
+<p>Use <strong>present-tense verb + pluralized noun</strong> for workflow names: <code>SendNotifications</code>, <code>DownloadFiles</code>, <code>ValidateDocuments</code>.</p>
 </div>
 
 
@@ -2677,7 +2817,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../returns/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Returns">
+          <a href="../outputs/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Outputs">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2687,7 +2827,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Returns
+                Outputs
               </div>
             </div>
           </a>

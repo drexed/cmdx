@@ -53,8 +53,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"IBM Plex Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=DM+Sans:300,300i,400,400i,700,700i%7CDM+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"DM Sans";--md-code-font:"DM Mono"}</style>
       
     
     
@@ -561,50 +561,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#breakpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Breakpoints
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rollback" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rollback
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dump-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dump Context
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-freezing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result Freezing
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#default-locale" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -616,10 +572,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#backtraces" class="md-nav__link">
+  <a href="#backtrace-cleaner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backtraces
+        Backtrace Cleaner
       
     </span>
   </a>
@@ -627,10 +583,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#exception-handlers" class="md-nav__link">
+  <a href="#strict-context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Handlers
+        Strict Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#correlation-id-xid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation ID (xid)
       
     </span>
   </a>
@@ -671,6 +638,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#coercions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -692,21 +670,43 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#executors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mergers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mergers
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-configuration" class="md-nav__link">
+  <a href="#class-level-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Configuration
+        Class-Level Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Task Configuration">
+    <nav class="md-nav" aria-label="Class-Level Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -714,6 +714,28 @@
     <span class="md-ellipsis">
       
         Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecation
       
     </span>
   </a>
@@ -1025,14 +1047,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../interruptions/halt/" class="md-nav__link">
+      <a href="../interruptions/signals/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Halt
+    Signals
   
 
     
@@ -1251,6 +1273,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../outcomes/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1294,7 +1344,7 @@
   <span class="md-ellipsis">
     
   
-    Attributes
+    Inputs
   
 
     
@@ -1310,7 +1360,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Attributes
+    Inputs
   
 
           </label>
@@ -1323,7 +1373,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/definitions/" class="md-nav__link">
+      <a href="../inputs/definitions/" class="md-nav__link">
         
   
   
@@ -1351,7 +1401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/naming/" class="md-nav__link">
+      <a href="../inputs/naming/" class="md-nav__link">
         
   
   
@@ -1379,7 +1429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/coercions/" class="md-nav__link">
+      <a href="../inputs/coercions/" class="md-nav__link">
         
   
   
@@ -1407,7 +1457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/validations/" class="md-nav__link">
+      <a href="../inputs/validations/" class="md-nav__link">
         
   
   
@@ -1435,7 +1485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/defaults/" class="md-nav__link">
+      <a href="../inputs/defaults/" class="md-nav__link">
         
   
   
@@ -1463,7 +1513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../attributes/transformations/" class="md-nav__link">
+      <a href="../inputs/transformations/" class="md-nav__link">
         
   
   
@@ -1724,14 +1774,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../returns/" class="md-nav__link">
+      <a href="../outputs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Returns
+    Outputs
   
 
     
@@ -1873,34 +1923,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../exceptions/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exceptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../tips_and_tricks/" class="md-nav__link">
         
   
@@ -1937,6 +1959,34 @@
     
   
     Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v2-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v1 → v2 Migration
   
 
     
@@ -2327,50 +2377,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#breakpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Breakpoints
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rollback" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rollback
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#dump-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dump Context
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#result-freezing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Result Freezing
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#default-locale" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2382,10 +2388,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#backtraces" class="md-nav__link">
+  <a href="#backtrace-cleaner" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backtraces
+        Backtrace Cleaner
       
     </span>
   </a>
@@ -2393,10 +2399,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#exception-handlers" class="md-nav__link">
+  <a href="#strict-context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exception Handlers
+        Strict Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#correlation-id-xid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Correlation ID (xid)
       
     </span>
   </a>
@@ -2437,6 +2454,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#telemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#coercions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2458,21 +2486,43 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#executors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mergers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mergers
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-configuration" class="md-nav__link">
+  <a href="#class-level-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task Configuration
+        Class-Level Configuration
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Task Configuration">
+    <nav class="md-nav" aria-label="Class-Level Configuration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2480,6 +2530,28 @@
     <span class="md-ellipsis">
       
         Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecation
       
     </span>
   </a>
@@ -2610,19 +2682,18 @@
 
 
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
-<p>Configure CMDx to customize framework behavior, register components, and control execution flow through global defaults with task-level overrides.</p>
+<p>Configure CMDx to register components, control logging, and customize framework behavior. Configuration lives at two levels: global defaults and per-class overrides.</p>
 <h2 id="configuration-hierarchy">Configuration Hierarchy<a class="headerlink" href="#configuration-hierarchy" title="Permanent link">&para;</a></h2>
-<p>CMDx uses a straightforward two-tier configuration system:</p>
+<p>CMDx uses a two-tier configuration system:</p>
 <ol>
-<li><strong>Global Configuration</strong> — Framework-wide defaults</li>
-<li><strong>Task Settings</strong> — Class-level overrides using <code>settings</code></li>
+<li><strong>Global Configuration</strong> — Framework-wide defaults via <code>CMDx.configure</code></li>
+<li><strong>Class-level overrides</strong> — On the task class via <code>settings</code>, <code>register</code>, <code>deregister</code>, <code>retry_on</code>, <code>deprecation</code></li>
 </ol>
 <div class="admonition warning">
 <p class="admonition-title">Important</p>
-<p>Task settings take precedence over global config. Settings are inherited from parent classes and can be overridden in subclasses.</p>
+<p>Every class-level registry (<code>middlewares</code>, <code>callbacks</code>, <code>coercions</code>, <code>validators</code>, <code>executors</code>, <code>mergers</code>, <code>retriers</code>, <code>deprecators</code>, <code>telemetry</code>, <code>inputs</code>, <code>outputs</code>) is <strong>lazily duplicated</strong> from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call <code>CMDx.reset_configuration!</code> in test setup to invalidate the cached copies on <code>Task</code>.</p>
 </div>
 <h2 id="global-configuration">Global Configuration<a class="headerlink" href="#global-configuration" title="Permanent link">&para;</a></h2>
-<p>Configure framework-wide defaults that apply to all tasks. These settings come with sensible defaults out of the box.</p>
 <h3 id="default-values">Default Values<a class="headerlink" href="#default-values" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2634,29 +2705,24 @@
 </thead>
 <tbody>
 <tr>
-<td><code>task_breakpoints</code></td>
-<td><code>["failed"]</code></td>
-<td>Statuses that cause <code>execute!</code> to raise</td>
+<td><code>logger</code></td>
+<td><code>Logger.new($stdout, progname: "cmdx", formatter: Line.new, level: INFO)</code></td>
+<td>Logger instance</td>
 </tr>
 <tr>
-<td><code>workflow_breakpoints</code></td>
-<td><code>["failed"]</code></td>
-<td>Statuses that halt workflow pipelines</td>
+<td><code>log_level</code></td>
+<td><code>nil</code></td>
+<td>Optional override applied on top of <code>logger.level</code> (nil = use the logger's own level)</td>
 </tr>
 <tr>
-<td><code>rollback_on</code></td>
-<td><code>["failed"]</code></td>
-<td>Statuses that trigger <code>rollback</code></td>
+<td><code>log_formatter</code></td>
+<td><code>nil</code></td>
+<td>Optional override applied on top of <code>logger.formatter</code> (nil = use the logger's own formatter)</td>
 </tr>
 <tr>
-<td><code>dump_context</code></td>
-<td><code>false</code></td>
-<td>Include <code>context</code> in hash representation</td>
-</tr>
-<tr>
-<td><code>freeze_results</code></td>
-<td><code>true</code></td>
-<td>Freeze results after execution</td>
+<td><code>log_exclusions</code></td>
+<td><code>[]</code></td>
+<td><code>Result#to_h</code> keys stripped from the lifecycle log entry (e.g. <code>[:context]</code>)</td>
 </tr>
 <tr>
 <td><code>default_locale</code></td>
@@ -2664,311 +2730,463 @@
 <td>Locale for built-in translation fallbacks</td>
 </tr>
 <tr>
-<td><code>backtrace</code></td>
-<td><code>false</code></td>
-<td>Include backtraces for non-fault exceptions</td>
-</tr>
-<tr>
 <td><code>backtrace_cleaner</code></td>
 <td><code>nil</code></td>
-<td>Callable to clean backtraces (Rails: <code>Rails.backtrace_cleaner.clean</code>)</td>
+<td>Callable to clean fault backtraces</td>
 </tr>
 <tr>
-<td><code>exception_handler</code></td>
+<td><code>strict_context</code></td>
+<td><code>false</code></td>
+<td>Raise <code>NoMethodError</code> on unknown <code>context.foo</code> reads</td>
+</tr>
+<tr>
+<td><code>correlation_id</code></td>
 <td><code>nil</code></td>
-<td>Callable invoked on non-fault exceptions</td>
+<td>Callable resolved once per root execution; surfaced as <code>xid</code> on <code>Chain</code>/<code>Result</code>/<code>Telemetry::Event</code></td>
 </tr>
 <tr>
-<td><code>logger</code></td>
-<td><code>Logger.new($stdout, level: INFO, formatter: Line)</code></td>
-<td>Logger instance</td>
+<td><code>middlewares</code></td>
+<td><code>Middlewares.new</code> (empty)</td>
+<td>Middleware registry</td>
+</tr>
+<tr>
+<td><code>callbacks</code></td>
+<td><code>Callbacks.new</code> (empty)</td>
+<td>Callback registry</td>
+</tr>
+<tr>
+<td><code>coercions</code></td>
+<td><code>Coercions.new</code> (13 built-ins)</td>
+<td>Coercion registry</td>
+</tr>
+<tr>
+<td><code>validators</code></td>
+<td><code>Validators.new</code> (7 built-ins)</td>
+<td>Validator registry</td>
+</tr>
+<tr>
+<td><code>executors</code></td>
+<td><code>Executors.new</code> (<code>:threads</code>, <code>:fibers</code>)</td>
+<td>Parallel-group executor registry</td>
+</tr>
+<tr>
+<td><code>mergers</code></td>
+<td><code>Mergers.new</code> (<code>:last_write_wins</code>, <code>:deep_merge</code>, <code>:no_merge</code>)</td>
+<td>Parallel-group merge-strategy registry</td>
+</tr>
+<tr>
+<td><code>retriers</code></td>
+<td><code>Retriers.new</code> (7 built-ins)</td>
+<td>Retry/jitter strategy registry</td>
+</tr>
+<tr>
+<td><code>deprecators</code></td>
+<td><code>Deprecators.new</code> (<code>:log</code>, <code>:warn</code>, <code>:error</code>)</td>
+<td>Deprecation handler registry</td>
+</tr>
+<tr>
+<td><code>telemetry</code></td>
+<td><code>Telemetry.new</code> (empty)</td>
+<td>Telemetry pub/sub</td>
 </tr>
 </tbody>
 </table>
-<h3 id="breakpoints">Breakpoints<a class="headerlink" href="#breakpoints" title="Permanent link">&para;</a></h3>
-<p>Control when <code>execute!</code> raises a <code>CMDx::Fault</code> based on task status.</p>
+<h3 id="default-locale">Default Locale<a class="headerlink" href="#default-locale" title="Permanent link">&para;</a></h3>
+<p>Set the locale used for built-in translation fallbacks when the <code>I18n</code> gem isn't loaded. See <a href="../internationalization/">Internationalization</a> for the full locale list.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">task_breakpoints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="w"> </span><span class="c1"># String or Array[String]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">default_locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;es&quot;</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">end</span>
 </span></code></pre></div>
-<p>For workflows, configure which statuses halt the execution pipeline:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When <code>I18n</code> is loaded, CMDx delegates to <code>I18n.translate</code> and <code>default_locale</code> is unused — locale comes from <code>I18n.locale</code>. Without <code>I18n</code>, all built-in messages (validation errors, coercion errors, etc.) resolve from this setting.</p>
+</div>
+<h3 id="backtrace-cleaner">Backtrace Cleaner<a class="headerlink" href="#backtrace-cleaner" title="Permanent link">&para;</a></h3>
+<p>Trim noise from <code>Fault</code> backtraces with any callable that takes <code>Array&lt;String&gt;</code> and returns a cleaned array.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">workflow_breakpoints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;skipped&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;failed&quot;</span><span class="o">]</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">end</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">bt</span><span class="o">.</span><span class="n">reject</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">l</span><span class="o">|</span><span class="w"> </span><span class="n">l</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;/gems/&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="c1"># Rails:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="rollback">Rollback<a class="headerlink" href="#rollback" title="Permanent link">&para;</a></h3>
-<p>Control when a <code>rollback</code> of task execution is called.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Rails apps wire this automatically via <code>CMDx::Railtie</code>.</p>
+</div>
+<h3 id="strict-context">Strict Context<a class="headerlink" href="#strict-context" title="Permanent link">&para;</a></h3>
+<p>Raise <code>NoMethodError</code> for unknown dynamic context reads instead of returning <code>nil</code>. Applies to the <code>ctx.foo</code> reader only — <code>[]</code>, <code>fetch</code>, <code>dig</code>, <code>key?</code>, and predicate <code>ctx.foo?</code> keep their lenient behavior. See <a href="../basics/context/#strict-mode">Context - Strict Mode</a> for usage.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">rollback_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;failed&quot;</span><span class="o">]</span><span class="w"> </span><span class="c1"># String or Array[String]</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">strict_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">end</span>
 </span></code></pre></div>
-<h3 id="dump-context">Dump Context<a class="headerlink" href="#dump-context" title="Permanent link">&para;</a></h3>
-<p>Include context in hash representations and by extension log output.</p>
+<p>Override per-task via <code>settings(strict_context: true)</code>.</p>
+<h3 id="correlation-id-xid">Correlation ID (xid)<a class="headerlink" href="#correlation-id-xid" title="Permanent link">&para;</a></h3>
+<p>Thread an external correlation id (e.g. Rails <code>request_id</code>) through every task in a chain so they can be filtered together in logs and telemetry. Provide a callable; Runtime invokes it <strong>once per root execution</strong> when it builds the chain. The resolved value is stored on the <code>Chain</code> and surfaced as <code>xid</code> on every <code>Result#to_h</code> and <code>Telemetry::Event</code>.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">dump_context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">request_id</span><span class="w"> </span><span class="p">}</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">ProcessOrder</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="ss">order_id</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">result</span><span class="o">.</span><span class="n">xid</span><span class="w">                            </span><span class="c1">#=&gt; &quot;abc-123-...&quot;</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">result</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:xid</span><span class="p">)</span><span class="o">.</span><span class="n">uniq</span><span class="w">          </span><span class="c1">#=&gt; [&quot;abc-123-...&quot;] (every task in the chain shares it)</span>
 </span></code></pre></div>
+<p>Override per-task via <code>settings(correlation_id: -&gt;{ ... })</code> to give a specific task family its own resolver. Returning <code>nil</code> from the callable leaves <code>xid</code> as <code>nil</code>. Resolver exceptions propagate (so misconfigured resolvers fail loudly).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Large context can make dumps and logs very noisy, so it is only include it if explicitly enabled. This option is especially helpful for debugging context mutations.</p>
+<p>The resolver fires only on the <strong>root</strong> chain creation. Nested subtasks inherit the same xid via the shared chain — even if the underlying thread-local mutates mid-flight, every result in the same execution sees a stable value.</p>
 </div>
-<h3 id="result-freezing">Result Freezing<a class="headerlink" href="#result-freezing" title="Permanent link">&para;</a></h3>
-<p>By default, results, context, and chains are frozen after execution to enforce immutability. There are very rare instances where disabling this is needed so take great care.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">freeze_results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">false</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">end</span>
-</span></code></pre></div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Only disable <code>freeze_results</code> in tests. Frozen results prevent accidental mutation in production code.</p>
-</div>
-<h3 id="default-locale">Default Locale<a class="headerlink" href="#default-locale" title="Permanent link">&para;</a></h3>
-<p>Set the locale used for CMDx's built-in translation fallbacks when the <code>I18n</code> gem is not available. See <a href="../internationalization/">Internationalization</a> for the full locale list.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">default_locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;es&quot;</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">end</span>
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When the <code>I18n</code> gem is loaded, CMDx delegates to <code>I18n.t</code> and this setting is only used for fallback defaults. Without <code>I18n</code>, all built-in messages (validation errors, coercion errors, etc.) are resolved from the configured locale file.</p>
-</div>
-<h3 id="backtraces">Backtraces<a class="headerlink" href="#backtraces" title="Permanent link">&para;</a></h3>
-<p>Enable detailed backtraces for non-fault exceptions to improve debugging. Optionally clean up stack traces to remove framework noise.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In Rails environments, <code>backtrace_cleaner</code> defaults to <code>Rails.backtrace_cleaner.clean</code>.</p>
-</div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Truthy</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">true</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(backtrace)`)</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">AdvanceCleaner</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">backtrace_cleaner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">backtrace</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">backtrace</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">5</span><span class="o">]</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">end</span>
-</span></code></pre></div>
-<h3 id="exception-handlers">Exception Handlers<a class="headerlink" href="#exception-handlers" title="Permanent link">&para;</a></h3>
-<p>Register handlers that run when non-fault exceptions occur during <code>execute</code> (non-bang). The handler receives the <strong>task instance</strong> and the <strong>exception</strong> — access the result via <code>task.result</code>.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Use exception handlers to send errors to your APM of choice.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Exception handlers only run for non-fault <code>StandardError</code> exceptions caught by <code>execute</code>. Faults (<code>skip!</code>/<code>fail!</code>) and <code>execute!</code> exceptions do not trigger the handler.</p>
-</div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(task, exception)`)</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">exception_handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">NewRelicReporter</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">exception_handler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">exception</span><span class="o">|</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="no">APMService</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span><span class="w"> </span><span class="ss">extra_data</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">      </span><span class="ss">task</span><span class="p">:</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="nb">id</span><span class="p">:</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">      </span><span class="ss">status</span><span class="p">:</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">status</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="p">})</span>
-</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="k">end</span>
-</span></code></pre></div>
 <h3 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">CustomLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">)</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">logger</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">,</span><span class="w"> </span><span class="ss">progname</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cmdx&quot;</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_level</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_formatter</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">JSON</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">log_exclusions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="ss">:context</span><span class="o">]</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">end</span>
 </span></code></pre></div>
+<p>Built-in formatters live under <code>CMDx::LogFormatters</code>: <code>Line</code> (default), <code>JSON</code>, <code>KeyValue</code>, <code>Logstash</code>, <code>Raw</code>. See <a href="../logging/">Logging</a> for the emitted fields and sample output.</p>
+<p><code>log_exclusions</code> trims noisy keys from the logged <code>Result#to_h</code> (common targets: <code>:context</code>, <code>:metadata</code>, <code>:tags</code>). The returned <code>Result</code> and telemetry payloads still carry the full data — only the log line is filtered.</p>
 <h3 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">&para;</a></h3>
-<p>See the <a href="../middlewares/#declarations">Middlewares</a> docs for task level configurations.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(task, options)`)</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="o">|</span>
-</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="n">start_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Process</span><span class="o">.</span><span class="n">clock_gettime</span><span class="p">(</span><span class="no">Process</span><span class="o">::</span><span class="no">CLOCK_MONOTONIC</span><span class="p">)</span>
-</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">yield</span>
-</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="n">end_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Process</span><span class="o">.</span><span class="n">clock_gettime</span><span class="p">(</span><span class="no">Process</span><span class="o">::</span><span class="no">CLOCK_MONOTONIC</span><span class="p">)</span>
-</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;task completed in </span><span class="si">#{</span><span class="p">((</span><span class="n">end_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="n">result</span>
-</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="c1"># With options</span>
-</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">AuditTrailMiddleware</span><span class="p">,</span><span class="w"> </span><span class="ss">service_name</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;document_processor&quot;</span>
-</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
-</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">  </span><span class="c1"># Remove middleware</span>
-</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
-</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="k">end</span>
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Middlewares are executed in registration order. Each middleware wraps the next, creating an execution chain around task logic.</p>
-</div>
-<h3 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h3>
-<p>See the <a href="../callbacks/#declarations">Callbacks</a> docs for task level configurations.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="c1"># Via method</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:initialize_user_session</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(task)`)</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:on_success</span><span class="p">,</span><span class="w"> </span><span class="no">LogUserActivity</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:on_complete</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="n">execution_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:runtime</span><span class="o">]</span>
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="no">Metrics</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="s2">&quot;task.execution_time&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">execution_time</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;task:</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">underscore</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">  </span><span class="c1"># With options</span>
-</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:on_failure</span><span class="p">,</span><span class="w"> </span><span class="ss">:send_alert_notification</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="ss">:critical_task?</span>
-</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>
-</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">  </span><span class="c1"># Remove callback</span>
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:on_success</span><span class="p">,</span><span class="w"> </span><span class="no">LogUserActivity</span>
-</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="k">end</span>
-</span></code></pre></div>
-<h3 id="coercions">Coercions<a class="headerlink" href="#coercions" title="Permanent link">&para;</a></h3>
-<p>See the <a href="../attributes/coercions/#declarations">Attributes - Coercions</a> docs for task level configurations.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(value, options)`)</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:currency</span><span class="p">,</span><span class="w"> </span><span class="no">CurrencyCoercion</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="c1"># Via method (must match signature `def coordinates_coercion(value, options)`)</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:coordinates</span><span class="p">,</span><span class="w"> </span><span class="ss">:coordinates_coercion</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:tag_list</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="o">|</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:delimiter</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;,&#39;</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="n">max_tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:max_tags</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">50</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="n">tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:strip</span><span class="p">)</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:empty?</span><span class="p">)</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">    </span><span class="n">tags</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">max_tags</span><span class="p">)</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
-</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">  </span><span class="c1"># Remove coercion</span>
-</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:currency</span>
-</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="k">end</span>
-</span></code></pre></div>
-<h3 id="validators">Validators<a class="headerlink" href="#validators" title="Permanent link">&para;</a></h3>
-<p>See the <a href="../attributes/validations/#declarations">Attributes - Validations</a> docs for task level configurations.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="c1"># Via callable (must respond to `call(value, options)`)</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:username</span><span class="p">,</span><span class="w"> </span><span class="no">UsernameValidator</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="c1"># Via method (must match signature `def url_validator(value, options)`)</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:url</span><span class="p">,</span><span class="w"> </span><span class="ss">:url_validator</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">  </span><span class="c1"># Via proc or lambda</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:access_token</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="o">|</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="n">expected_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:prefix</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;tok_&quot;</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="n">minimum_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:min_length</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">40</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="n">value</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="n">expected_prefix</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">minimum_length</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">  </span><span class="c1"># Remove validator</span>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:username</span>
-</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="k">end</span>
-</span></code></pre></div>
-<h2 id="task-configuration">Task Configuration<a class="headerlink" href="#task-configuration" title="Permanent link">&para;</a></h2>
-<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
-<p>Override global configuration for specific tasks:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">GenerateInvoice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="c1"># Global configuration overrides</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="ss">task_breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;failed&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">                </span><span class="c1"># Breakpoint override</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="ss">workflow_breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;failed&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">            </span><span class="c1"># Breakpoint override</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="ss">dump_context</span><span class="p">:</span><span class="w"> </span><span class="kp">false</span><span class="p">,</span><span class="w">                         </span><span class="c1"># Include context</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="ss">backtrace</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">,</span><span class="w">                             </span><span class="c1"># Toggle backtrace</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="ss">backtrace_cleaner</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">bt</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">5</span><span class="o">]</span><span class="w"> </span><span class="p">},</span><span class="w">      </span><span class="c1"># Backtrace cleaner</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="ss">logger</span><span class="p">:</span><span class="w"> </span><span class="no">CustomLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">),</span><span class="w">           </span><span class="c1"># Custom logger</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="c1"># Task configuration settings</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="ss">breakpoints</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;failed&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">                     </span><span class="c1"># Contextual pointer for :task_breakpoints and :workflow_breakpoints</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">    </span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="ss">:info</span><span class="p">,</span><span class="w">                            </span><span class="c1"># Log level override</span>
-</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">    </span><span class="ss">log_formatter</span><span class="p">:</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">Json</span><span class="o">.</span><span class="n">new</span><span class="w"> </span><span class="c1"># Log formatter override</span>
-</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">    </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;billing&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;financial&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">              </span><span class="c1"># Logging tags</span>
-</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">    </span><span class="ss">deprecate</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span><span class="p">,</span><span class="w">                             </span><span class="c1"># Task deprecations</span>
-</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">    </span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">                                  </span><span class="c1"># Non-fault exception retries</span>
-</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">    </span><span class="ss">retry_on</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="no">External</span><span class="o">::</span><span class="no">ApiError</span><span class="o">]</span><span class="p">,</span><span class="w">              </span><span class="c1"># List of exceptions to retry on</span>
-</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">    </span><span class="ss">retry_jitter</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">                             </span><span class="c1"># Space between retry iteration, eg: current retry num + 1</span>
-</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="w">    </span><span class="ss">rollback_on</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;failed&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;skipped&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">          </span><span class="c1"># Rollback on override</span>
-</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="w">    </span><span class="ss">returns</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="ss">:user</span><span class="p">,</span><span class="w"> </span><span class="ss">:account_number</span><span class="o">]</span><span class="w">            </span><span class="c1"># Predefines expected return values</span>
-</span><span id="__span-13-22"><a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="w">  </span><span class="p">)</span>
-</span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>
-</span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-13-25"><a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-13-26"><a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-13-27"><a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="k">end</span>
+<p>Middlewares wrap the entire task lifecycle. The signature is <code>call(task) { ... }</code> — call <code>yield</code> (or <code>next_link.call</code> from a Proc) to invoke the next link.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="c1"># Class with #call(task)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">CustomMiddleware</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="c1"># Instance</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">CustomMiddleware</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">threshold</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="c1"># Proc / Lambda — must declare &amp;next_link to pass the block</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">next_link</span><span class="o">|</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">locale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Current</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">locale</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="no">I18n</span><span class="o">.</span><span class="n">default_locale</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="no">I18n</span><span class="o">.</span><span class="n">with_locale</span><span class="p">(</span><span class="n">locale</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:locale</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">locale</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">      </span><span class="n">next_link</span><span class="o">.</span><span class="n">call</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="c1"># Insert at a specific position</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="no">MyOuterMiddleware</span><span class="p">,</span><span class="w"> </span><span class="ss">at</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">  </span><span class="c1"># Remove</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="no">CustomMiddleware</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="k">end</span>
 </span></code></pre></div>
 <div class="admonition danger">
 <p class="admonition-title">Caution</p>
-<p><code>settings</code> is initialized <strong>once per class</strong> on first access. Subsequent calls return the existing instance and ignore any new overrides. Define all overrides in a single <code>settings</code> call.</p>
+<p>A middleware that forgets to yield raises <code>CMDx::MiddlewareError</code> — the task body is never invoked, so silent skips are caught immediately.</p>
 </div>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;api&quot;</span><span class="o">]</span><span class="p">)</span><span class="w">     </span><span class="c1"># These apply</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">retries</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="w">                    </span><span class="c1"># Ignored — settings already initialized</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="k">end</span>
+<p>See the <a href="../middlewares/">Middlewares</a> docs for class-level configuration.</p>
+<h3 id="callbacks">Callbacks<a class="headerlink" href="#callbacks" title="Permanent link">&para;</a></h3>
+<p>Callbacks fire at specific lifecycle points. Valid events:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:before_execution</code></td>
+<td>Before any <code>work</code> is executed</td>
+</tr>
+<tr>
+<td><code>:before_validation</code></td>
+<td>Right after <code>:before_execution</code>, before input resolution</td>
+</tr>
+<tr>
+<td><code>:around_execution</code></td>
+<td>Wraps <code>before_validation</code>, <code>work</code>, <code>rollback</code>, and <code>after_execution</code>; must invoke its continuation</td>
+</tr>
+<tr>
+<td><code>:after_execution</code></td>
+<td>After <code>work</code> and <code>rollback</code> is executed</td>
+</tr>
+<tr>
+<td><code>:on_complete</code></td>
+<td>When <code>state == "complete"</code> (success path)</td>
+</tr>
+<tr>
+<td><code>:on_interrupted</code></td>
+<td>When <code>state == "interrupted"</code> (skip or fail)</td>
+</tr>
+<tr>
+<td><code>:on_success</code></td>
+<td>When <code>status == "success"</code></td>
+</tr>
+<tr>
+<td><code>:on_skipped</code></td>
+<td>When <code>status == "skipped"</code></td>
+</tr>
+<tr>
+<td><code>:on_failed</code></td>
+<td>When <code>status == "failed"</code></td>
+</tr>
+<tr>
+<td><code>:on_ok</code></td>
+<td>Success or skipped (<code>signal.ok?</code> — not failed)</td>
+</tr>
+<tr>
+<td><code>:on_ko</code></td>
+<td>Skipped or failed (<code>signal.ko?</code> — not success)</td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="c1"># Symbol — dispatched as task.send(:method)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:initialize_session</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="c1"># Class / instance with #call(task)</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:on_success</span><span class="p">,</span><span class="w"> </span><span class="no">LogUserActivity</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="c1"># Proc / Lambda — instance_exec&#39;d on the task; receives task as block arg.</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="c1"># The Result isn&#39;t built yet during callbacks; subscribe to Telemetry&#39;s</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="c1"># :task_executed event when you need result data like duration.</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:on_complete</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">&quot;task.completed&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;task:</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="c1"># Remove every callback for an event</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:on_success</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span><span class="c1"># Or remove a specific entry — match by `==` (Procs/Lambdas by identity)</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:on_success</span><span class="p">,</span><span class="w"> </span><span class="no">LogUserActivity</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>deregister(event)</code> drops every callback for that event; pass a second argument to remove only matching entries (matched by <code>==</code>). Unknown events raise <code>ArgumentError</code>; unmatched callables are a silent no-op.</p>
+</div>
+<p>See <a href="../callbacks/">Callbacks</a> for class-level usage.</p>
+<h3 id="telemetry">Telemetry<a class="headerlink" href="#telemetry" title="Permanent link">&para;</a></h3>
+<p>Pub/sub for runtime lifecycle events. Subscribers receive a <code>Telemetry::Event</code> data object with <code>cid</code>, <code>xid</code>, <code>root</code>, <code>type</code>, <code>task</code>, <code>tid</code>, <code>name</code>, <code>payload</code>, and <code>timestamp</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:task_started</code></td>
+<td>empty</td>
+</tr>
+<tr>
+<td><code>:task_deprecated</code></td>
+<td>empty</td>
+</tr>
+<tr>
+<td><code>:task_retried</code></td>
+<td><code>{ attempt: Integer }</code></td>
+</tr>
+<tr>
+<td><code>:task_rolled_back</code></td>
+<td>empty</td>
+</tr>
+<tr>
+<td><code>:task_executed</code></td>
+<td><code>{ result: Result }</code></td>
+</tr>
+</tbody>
+</table>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:task_executed</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="no">StatsD</span><span class="o">.</span><span class="n">timing</span><span class="p">(</span><span class="s2">&quot;cmdx.task&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:result</span><span class="o">].</span><span class="n">duration</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="s2">&quot;class:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="s2">&quot;status:</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:result</span><span class="o">].</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="ss">:task_retried</span><span class="p">,</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;[cmdx] retry #</span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="o">[</span><span class="ss">:attempt</span><span class="o">]</span><span class="si">}</span><span class="s2"> for </span><span class="si">#{</span><span class="n">event</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">  </span><span class="p">})</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">telemetry</span><span class="o">.</span><span class="n">unsubscribe</span><span class="p">(</span><span class="ss">:task_executed</span><span class="p">,</span><span class="w"> </span><span class="n">my_subscriber</span><span class="p">)</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Runtime emits events <strong>only</strong> when subscribers exist for them, so unused events have zero overhead.</p>
+</div>
+<h3 id="coercions">Coercions<a class="headerlink" href="#coercions" title="Permanent link">&para;</a></h3>
+<p>Custom coercions are callables receiving <code>(value, **options)</code> and returning the coerced value or <code>CMDx::Coercions::Failure.new(message)</code> on failure.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:currency</span><span class="p">,</span><span class="w"> </span><span class="no">CurrencyCoercion</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:tag_list</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">opts</span><span class="o">|</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opts</span><span class="o">[</span><span class="ss">:delimiter</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;,&quot;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">max_tags</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">opts</span><span class="o">[</span><span class="ss">:max_tags</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">50</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="n">value</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:strip</span><span class="p">)</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:empty?</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">max_tags</span><span class="p">)</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:currency</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>See <a href="../inputs/coercions/">Inputs - Coercions</a> for usage.</p>
+<h3 id="validators">Validators<a class="headerlink" href="#validators" title="Permanent link">&para;</a></h3>
+<p>Custom validators are callables receiving <code>(value, options)</code> (options is a positional hash). Return <code>CMDx::Validators::Failure.new(message)</code> to mark the value invalid; any other return value (including <code>nil</code>) is treated as success.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:uuid</span><span class="p">,</span><span class="w"> </span><span class="no">UuidValidator</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:access_token</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">options</span><span class="o">|</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:prefix</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;tok_&quot;</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="n">min</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">options</span><span class="o">[</span><span class="ss">:min_length</span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mi">40</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="k">unless</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">min</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Validators</span><span class="o">::</span><span class="no">Failure</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;invalid access token&quot;</span><span class="p">)</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="k">end</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:uuid</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>See <a href="../inputs/validations/">Inputs - Validations</a> for usage.</p>
+<h3 id="executors">Executors<a class="headerlink" href="#executors" title="Permanent link">&para;</a></h3>
+<p>Named concurrency backends used by <code>Workflow</code> <code>:parallel</code> groups. An executor is any callable with signature <code>call(jobs:, concurrency:, on_job:)</code> that invokes <code>on_job.call(job)</code> for each job and blocks until all jobs complete. Built-ins: <code>:threads</code> (default), <code>:fibers</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="c1"># Class or instance with #call(jobs:, concurrency:, on_job:)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">executors</span><span class="o">.</span><span class="n">register</span><span class="w"> </span><span class="ss">:ractor</span><span class="p">,</span><span class="w"> </span><span class="no">RactorExecutor</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="c1"># Proc / Lambda</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">executors</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:inline</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="ss">jobs</span><span class="p">:,</span><span class="w"> </span><span class="ss">concurrency</span><span class="p">:,</span><span class="w"> </span><span class="ss">on_job</span><span class="p">:</span><span class="o">|</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="n">jobs</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">job</span><span class="o">|</span><span class="w"> </span><span class="n">on_job</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">job</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">executors</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:fibers</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>See <a href="../workflows/#parallel-execution">Workflows - Parallel Groups</a> for usage.</p>
+<h3 id="mergers">Mergers<a class="headerlink" href="#mergers" title="Permanent link">&para;</a></h3>
+<p>Named strategies for folding successful parallel task results back into the workflow context. A merger is any callable with signature <code>call(workflow_context, result)</code>. Built-ins: <code>:last_write_wins</code> (default), <code>:deep_merge</code>, <code>:no_merge</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="c1"># Only merge specific keys</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">mergers</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="ss">:whitelist</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="o">|</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="n">result</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">to_h</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="ss">:user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:tenant_id</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="o">|</span><span class="w"> </span><span class="n">ctx</span><span class="o">[</span><span class="n">k</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="k">end</span><span class="p">)</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">mergers</span><span class="o">.</span><span class="n">deregister</span><span class="w"> </span><span class="ss">:no_merge</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>See <a href="../workflows/#parallel-execution">Workflows - Parallel Groups</a> for usage.</p>
+<h2 id="class-level-configuration">Class-Level Configuration<a class="headerlink" href="#class-level-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h3>
+<p><code>Settings</code> exposes a small set of per-class overrides for logger and tagging:</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">GenerateInvoice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="ss">logger</span><span class="p">:</span><span class="w"> </span><span class="no">CustomLogger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="vg">$stdout</span><span class="p">),</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="ss">log_formatter</span><span class="p">:</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">LogFormatters</span><span class="o">::</span><span class="no">JSON</span><span class="o">.</span><span class="n">new</span><span class="p">,</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span><span class="p">,</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="ss">log_exclusions</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="ss">:context</span><span class="p">,</span><span class="w"> </span><span class="ss">:metadata</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="ss">backtrace_cleaner</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">bt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">bt</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;billing&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;financial&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="ss">strict_context</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span><span class="p">)</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="c1"># ...</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="k">end</span>
+</span></code></pre></div>
+<p>Every getter falls back to the global configuration when an option isn't set. Subclasses inherit and may layer on top — multiple <code>settings(...)</code> calls compose (each merges on top of the previous).</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;api&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">end</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ChildTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">BaseTask</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;billing&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="ss">log_level</span><span class="p">:</span><span class="w"> </span><span class="no">Logger</span><span class="o">::</span><span class="no">DEBUG</span><span class="p">)</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">  </span><span class="c1"># tags = [&quot;billing&quot;] (child wins; settings.build does Hash#merge)</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Settings</code> only stores <code>:logger</code>, <code>:log_formatter</code>, <code>:log_level</code>, <code>:log_exclusions</code>, <code>:backtrace_cleaner</code>, <code>:tags</code>, <code>:strict_context</code>, and <code>:correlation_id</code>. Other class-level config uses dedicated DSL (<code>retry_on</code>, <code>deprecation</code>, <code>register</code>, <code>before_execution</code>, …).</p>
+</div>
+<h3 id="retry">Retry<a class="headerlink" href="#retry" title="Permanent link">&para;</a></h3>
+<p>Configure exception-based retries with <code>retry_on</code>. Accumulates across inheritance.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FetchInvoice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">OpenTimeout</span><span class="p">,</span><span class="w"> </span><span class="no">Net</span><span class="o">::</span><span class="no">ReadTimeout</span><span class="p">,</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="ss">delay</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="ss">max_delay</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="ss">jitter</span><span class="p">:</span><span class="w"> </span><span class="ss">:exponential</span><span class="w">   </span><span class="c1"># :exponential, :half_random, :full_random, :bounded_random, :linear, :fibonacci, :decorrelated_jitter</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">  </span><span class="n">retry_on</span><span class="w"> </span><span class="no">External</span><span class="o">::</span><span class="no">ApiError</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">attempt</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="o">|</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="w">    </span><span class="n">delay</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">attempt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c1"># custom jitter block</span>
+</span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">end</span>
+</span></code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>jitter:</code> takes precedence over a custom block — pass one or the other, not both, or the block is silently ignored.</p>
+</div>
+<h3 id="deprecation">Deprecation<a class="headerlink" href="#deprecation" title="Permanent link">&para;</a></h3>
+<p>See <a href="../deprecation/">Deprecation</a>. Declared via the class-level <code>deprecation</code> DSL — <strong>not</strong> via <code>settings</code>.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">LegacyTask</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="n">deprecation</span><span class="w"> </span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="k">if</span><span class="p">:</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">production?</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="registrations">Registrations<a class="headerlink" href="#registrations" title="Permanent link">&para;</a></h3>
-<p>Register or deregister middlewares, callbacks, coercions, and validators for specific tasks:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendCampaignEmail</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="c1"># Middlewares</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Middlewares</span><span class="o">::</span><span class="no">Timeout</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditTrailMiddleware</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">  </span><span class="c1"># Callbacks</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_complete</span><span class="p">,</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span>
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="n">runtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">metadata</span><span class="o">[</span><span class="ss">:runtime</span><span class="o">]</span>
-</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="no">Analytics</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="s2">&quot;email_campaign.sent&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">runtime</span><span class="p">,</span><span class="w"> </span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;task:</span><span class="si">#{</span><span class="n">task</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:before_execution</span><span class="p">,</span><span class="w"> </span><span class="ss">:initialize_user_session</span>
-</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
-</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">  </span><span class="c1"># Coercions</span>
-</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:currency</span><span class="p">,</span><span class="w"> </span><span class="no">CurrencyCoercion</span>
-</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:coordinates</span>
-</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
-</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">  </span><span class="c1"># Validators</span>
-</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:username</span><span class="p">,</span><span class="w"> </span><span class="ss">:username_validator</span>
-</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:url</span>
-</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
-</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">    </span><span class="c1"># Your logic here...</span>
-</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="k">end</span>
+<p>Register or deregister middlewares, callbacks, coercions, and validators on a specific task class.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SendCampaignEmail</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="c1"># Middlewares</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">AuditTrailMiddleware</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span><span class="n">deregister</span><span class="w"> </span><span class="ss">:middleware</span><span class="p">,</span><span class="w"> </span><span class="no">GlobalLoggingMiddleware</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">  </span><span class="c1"># Callbacks (use the dedicated DSL OR register :callback explicitly)</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">  </span><span class="n">before_execution</span><span class="w"> </span><span class="ss">:find_campaign</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">  </span><span class="n">on_complete</span><span class="w"> </span><span class="nb">proc</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">task</span><span class="o">|</span><span class="w"> </span><span class="no">Analytics</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="s2">&quot;email_sent&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">recipient</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:callback</span><span class="p">,</span><span class="w"> </span><span class="ss">:on_failed</span><span class="p">,</span><span class="w"> </span><span class="ss">:send_alert</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">  </span><span class="c1"># Coercions</span>
+</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:coercion</span><span class="p">,</span><span class="w"> </span><span class="ss">:currency</span><span class="p">,</span><span class="w"> </span><span class="no">CurrencyCoercion</span>
+</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="w">  </span><span class="c1"># Validators</span>
+</span><span id="__span-16-15"><a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:validator</span><span class="p">,</span><span class="w"> </span><span class="ss">:uuid</span><span class="p">,</span><span class="w"> </span><span class="no">UuidValidator</span>
+</span><span id="__span-16-16"><a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+</span><span id="__span-16-17"><a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="w">  </span><span class="c1"># Inputs / outputs (per-class schemas)</span>
+</span><span id="__span-16-18"><a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:input</span><span class="p">,</span><span class="w"> </span><span class="ss">:recipient_id</span><span class="p">,</span><span class="w"> </span><span class="ss">coerce</span><span class="p">:</span><span class="w"> </span><span class="ss">:integer</span><span class="p">,</span><span class="w"> </span><span class="ss">presence</span><span class="p">:</span><span class="w"> </span><span class="kp">true</span>
+</span><span id="__span-16-19"><a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a><span class="w">  </span><span class="n">register</span><span class="w"> </span><span class="ss">:output</span><span class="p">,</span><span class="w"> </span><span class="ss">:delivered_at</span>
+</span><span id="__span-16-20"><a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="k">end</span>
 </span></code></pre></div>
+<p>See <a href="../inputs/definitions/">Inputs - Definitions</a> and <a href="../outputs/">Outputs</a> for the full schema DSL — the dedicated <code>required</code> / <code>optional</code> / <code>output</code> helpers are usually preferred over <code>register :input</code> / <code>register :output</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>deregister</code> mirrors <code>register</code>'s arity per registry. For callbacks: <code>deregister :callback, event</code> clears every entry for that event, or pass a third arg (<code>deregister :callback, event, callable</code>) to drop only matching entries (matched by <code>==</code>). For middlewares: <code>deregister :middleware, callable_or_class</code> (or <code>at:</code> index) matches by reference.</p>
+</div>
 <h2 id="configuration-management">Configuration Management<a class="headerlink" href="#configuration-management" title="Permanent link">&para;</a></h2>
 <h3 id="access">Access<a class="headerlink" href="#access" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Global configuration access</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">logger</span><span class="w">               </span><span class="c1">#=&gt; &lt;Logger instance&gt;</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">task_breakpoints</span><span class="w">     </span><span class="c1">#=&gt; [&quot;failed&quot;]</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">registry</span><span class="w"> </span><span class="c1">#=&gt; [&lt;Middleware&gt;, ...]</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># Task configuration access</span>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessUpload</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;files&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;storage&quot;</span><span class="o">]</span><span class="p">)</span>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
-</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
-</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="w">    </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">logger</span><span class="w"> </span><span class="c1">#=&gt; Global configuration value</span>
-</span><span id="__span-16-12"><a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="w">    </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">tags</span><span class="w">   </span><span class="c1">#=&gt; Task configuration value =&gt; [&quot;files&quot;, &quot;storage&quot;]</span>
-</span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-16-14"><a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Global</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">logger</span><span class="w">              </span><span class="c1">#=&gt; &lt;Logger instance&gt;</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">size</span><span class="w">    </span><span class="c1">#=&gt; 0</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">coercions</span><span class="o">.</span><span class="n">registry</span><span class="w">  </span><span class="c1">#=&gt; { array: ..., big_decimal: ..., ... }</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># Class-level</span>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProcessUpload</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">CMDx</span><span class="o">::</span><span class="no">Task</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span><span class="n">settings</span><span class="p">(</span><span class="ss">tags</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;files&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span><span class="k">def</span><span class="w"> </span><span class="nf">work</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">    </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">tags</span><span class="w">        </span><span class="c1">#=&gt; [&quot;files&quot;]</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">    </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">logger</span><span class="w">      </span><span class="c1">#=&gt; falls back to CMDx.configuration.logger</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">    </span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">size</span><span class="w">     </span><span class="c1">#=&gt; inherited count</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="k">end</span>
 </span></code></pre></div>
 <h3 id="resetting">Resetting<a class="headerlink" href="#resetting" title="Permanent link">&para;</a></h3>
-<p>Resetting affects the global CMDx configuration settings.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Reset to framework defaults</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span>
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Verify reset</span>
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">task_breakpoints</span><span class="w">     </span><span class="c1">#=&gt; [&quot;failed&quot;] (default)</span>
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">middlewares</span><span class="o">.</span><span class="n">registry</span><span class="w"> </span><span class="c1">#=&gt; Empty registry</span>
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="c1"># Commonly used in test setup (RSpec example)</span>
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span>
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="w">  </span><span class="k">end</span>
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="k">end</span>
+<p><code>CMDx.reset_configuration!</code> replaces the global config with a fresh instance and invalidates the cached registries on <code>Task</code> so subclasses rebuild from the new config on next access.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1"># Test setup (RSpec)</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="no">RSpec</span><span class="o">.</span><span class="n">configure</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">config</span><span class="o">|</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="n">config</span><span class="o">.</span><span class="n">before</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="no">CMDx</span><span class="o">.</span><span class="n">reset_configuration!</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">  </span><span class="k">end</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="k">end</span>
 </span></code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p><code>reset_configuration!</code> clears <code>@middlewares</code>, <code>@callbacks</code>, <code>@coercions</code>, <code>@validators</code>, <code>@executors</code>, <code>@mergers</code>, <code>@retriers</code>, <code>@deprecators</code>, and <code>@telemetry</code> on <code>Task</code> only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via <code>stub_const</code> or anonymous classes).</p>
+</div>
 
 
 

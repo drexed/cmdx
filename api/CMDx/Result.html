@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::Result
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::Result";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -85,11 +87,6 @@
 
   
   
-  <dl>
-      <dt>Extended by:</dt>
-      <dd>Forwardable</dd>
-  </dl>
-  
   
   
   
@@ -99,105 +96,34 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/result.rb</dd>
+    <dd>lib/cmdx/result.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Represents the execution result of a CMDx task, tracking state transitions, status changes, and providing methods for handling different outcomes.</p>
-
-<p>The Result class manages the lifecycle of task execution from initialization through completion or interruption, offering a fluent interface for status checking and conditional handling.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-
-</div>
-  
-    <h2>
-      Constant Summary
-      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
-    </h2>
-
-    <dl class="constants">
-      
-        <dt id="STATES-constant" class="">STATES =
-          <div class="docstring">
-  <div class="discussion">
-    
+    <p>Frozen outcome of a task execution. Provides read-only access to the
+task's signal (state/status/reason/metadata/cause), the chain it belongs
+to, its context, and lifecycle metadata (retries, duration, rollback,
+deprecated). Constructed by Runtime at the end of <code>execute</code>.</p>
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>STATES: <a href="String">Array</a></p>
-</div>
-      
-    </li>
-  
-</ul>
 
-</div>
-        </dt>
-        <dd><pre class="code"><span class='lbracket'>[</span>
-  <span class='const'>INITIALIZED</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>initialized</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>  <span class='comment'># Initial state before execution
-</span>  <span class='const'>EXECUTING</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>executing</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>      <span class='comment'># Currently executing task logic
-</span>  <span class='const'>COMPLETE</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>complete</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>        <span class='comment'># Successfully completed execution
-</span>  <span class='const'>INTERRUPTED</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>interrupted</span><span class='tstring_end'>&quot;</span></span>   <span class='comment'># Execution was halted due to failure
-</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
-      
-        <dt id="STATUSES-constant" class="">STATUSES =
-          <div class="docstring">
-  <div class="discussion">
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
     
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>STATUSES: <a href="String">Array</a></p>
-</div>
-      
-    </li>
-  
-</ul>
+      <li><span class='object_link'>CMDx::Runtime#finalize_result</span></li>
+    
+      <li><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></li>
+    
+  </ul>
 
 </div>
-        </dt>
-        <dd><pre class="code"><span class='lbracket'>[</span>
-  <span class='const'>SUCCESS</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>  <span class='comment'># Task completed successfully
-</span>  <span class='const'>SKIPPED</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>skipped</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>  <span class='comment'># Task was skipped intentionally
-</span>  <span class='const'>FAILED</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>failed</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'># Task failed due to error or validation
-</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
-      
-    </dl>
-  
-
 
 
 
@@ -207,7 +133,7 @@
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#cause-instance_method" title="#cause (instance method)">#<strong>cause</strong>  &#x21d2; Exception<sup>?</sup> </a>
+      <a href="#chain-instance_method" title="#chain (instance method)">#<strong>chain</strong>  &#x21d2; Object </a>
     
 
     
@@ -226,237 +152,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the exception that caused the interruption.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#metadata-instance_method" title="#metadata (instance method)">#<strong>metadata</strong>  &#x21d2; Hash{Symbol =&gt; Object} </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns additional metadata about the result.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#reason-instance_method" title="#reason (instance method)">#<strong>reason</strong>  &#x21d2; String<sup>?</sup> </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the reason for interruption (skip or failure).</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#retries-instance_method" title="#retries (instance method)">#<strong>retries</strong>  &#x21d2; Integer </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the number of retries attempted.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#rolled_back-instance_method" title="#rolled_back (instance method)">#<strong>rolled_back</strong>  &#x21d2; Boolean </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns whether the result has been rolled back.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#state-instance_method" title="#state (instance method)">#<strong>state</strong>  &#x21d2; String </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the current execution state of the result.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#status-instance_method" title="#status (instance method)">#<strong>status</strong>  &#x21d2; String </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the execution status of the result.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#strict-instance_method" title="#strict (instance method)">#<strong>strict</strong>  &#x21d2; Boolean </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns whether this result is strict.</p>
-</div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>  &#x21d2; CMDx::Task </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Returns the task instance associated with this result.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Returns the value of attribute chain.</p></div></span>
   
 </li>
 
@@ -477,7 +173,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#bad%3F-instance_method" title="#bad? (instance method)">#<strong>bad?</strong>  &#x21d2; Boolean </a>
+      <a href="#as_json-instance_method" title="#as_json (instance method)">#<strong>as_json</strong>  &#x21d2; Hash{Symbol =&gt; Object} </a>
     
 
     
@@ -491,9 +187,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the task execution was unsuccessful (not success).</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>JSON-friendly hash view.</p></div></span>
   
 </li>
 
@@ -501,7 +195,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#caused_failure-instance_method" title="#caused_failure (instance method)">#<strong>caused_failure</strong>  &#x21d2; CMDx::Result<sup>?</sup> </a>
+      <a href="#backtrace-instance_method" title="#backtrace (instance method)">#<strong>backtrace</strong>  &#x21d2; Array&lt;String&gt;<sup>?</sup> </a>
     
 
     
@@ -515,9 +209,51 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>The result that caused this failure, or nil.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>The backtrace captured by <code>fail!</code> / <code>throw!</code> for Fault propagation.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cause-instance_method" title="#cause (instance method)">#<strong>cause</strong>  &#x21d2; Exception<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#caused_failure-instance_method" title="#caused_failure (instance method)">#<strong>caused_failure</strong>  &#x21d2; Result<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The originating failed result at the bottom of the propagation chain.</p></div></span>
   
 </li>
 
@@ -539,9 +275,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether this result caused the failure.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>True when this result originated the failure chain.</p></div></span>
   
 </li>
 
@@ -549,7 +283,29 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#complete!-instance_method" title="#complete! (instance method)">#<strong>complete!</strong>  &#x21d2; Object </a>
+      <a href="#cid-instance_method" title="#cid (instance method)">#<strong>cid</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Uuid_v7 identifier for the chain this result belongs to.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#complete%3F-instance_method" title="#complete? (instance method)">#<strong>complete?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -571,7 +327,31 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#deconstruct-instance_method" title="#deconstruct (instance method)">#<strong>deconstruct</strong>  &#x21d2; Array </a>
+      <a href="#context-instance_method" title="#context (instance method)">#<strong>context</strong>  &#x21d2; Context </a>
+    
+
+    
+      (also: #ctx)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Frozen after the root task's teardown.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deconstruct-instance_method" title="#deconstruct (instance method)">#<strong>deconstruct</strong>  &#x21d2; Array&lt;Array(Symbol, Object)&gt; </a>
     
 
     
@@ -585,9 +365,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Array containing state, status, reason, cause, and metadata.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Pattern-matching support for <code>case result in [...]</code>.</p></div></span>
   
 </li>
 
@@ -595,7 +373,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#deconstruct_keys-instance_method" title="#deconstruct_keys (instance method)">#<strong>deconstruct_keys</strong>  &#x21d2; Hash </a>
+      <a href="#deconstruct_keys-instance_method" title="#deconstruct_keys (instance method)">#<strong>deconstruct_keys</strong>(keys)  &#x21d2; Hash{Symbol =&gt; Object} </a>
     
 
     
@@ -609,9 +387,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Hash with key-value pairs for pattern matching.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Pattern-matching support for <code>case result in {...}</code>.</p></div></span>
   
 </li>
 
@@ -619,7 +395,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#executed!-instance_method" title="#executed! (instance method)">#<strong>executed!</strong>  &#x21d2; self </a>
+      <a href="#deprecated%3F-instance_method" title="#deprecated? (instance method)">#<strong>deprecated?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -633,9 +409,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns self for method chaining.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>True when the task class is marked deprecated.</p></div></span>
   
 </li>
 
@@ -643,7 +417,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#executed%3F-instance_method" title="#executed? (instance method)">#<strong>executed?</strong>  &#x21d2; Boolean </a>
+      <a href="#duration-instance_method" title="#duration (instance method)">#<strong>duration</strong>  &#x21d2; Float<sup>?</sup> </a>
     
 
     
@@ -657,9 +431,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the task has been executed (complete or interrupted).</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Lifecycle duration in milliseconds.</p></div></span>
   
 </li>
 
@@ -667,7 +439,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#executing!-instance_method" title="#executing! (instance method)">#<strong>executing!</strong>  &#x21d2; Object </a>
+      <a href="#errors-instance_method" title="#errors (instance method)">#<strong>errors</strong>  &#x21d2; Errors </a>
     
 
     
@@ -681,7 +453,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Frozen by Runtime teardown.</p></div></span>
   
 </li>
 
@@ -689,55 +461,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#fail!-instance_method" title="#fail! (instance method)">#<strong>fail!</strong>(reason = nil, halt: true, cause: nil, strict: true, **metadata)  &#x21d2; Object </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#good%3F-instance_method" title="#good? (instance method)">#<strong>good?</strong>  &#x21d2; Boolean </a>
-    
-
-    
-      (also: #ok?)
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the task execution was successful (not failed).</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#halt!-instance_method" title="#halt! (instance method)">#<strong>halt!</strong>  &#x21d2; Object </a>
+      <a href="#failed%3F-instance_method" title="#failed? (instance method)">#<strong>failed?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -759,7 +483,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#index-instance_method" title="#index (instance method)">#<strong>index</strong>  &#x21d2; Integer </a>
+      <a href="#index-instance_method" title="#index (instance method)">#<strong>index</strong>  &#x21d2; Integer<sup>?</sup> </a>
     
 
     
@@ -773,9 +497,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Index of this result in the chain.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>This result's position in the chain.</p></div></span>
   
 </li>
 
@@ -783,7 +505,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(task)  &#x21d2; CMDx::Result </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(chain, task, signal, **options)  &#x21d2; Result </a>
     
 
     
@@ -799,9 +521,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>A new result instance for the task.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>A new instance of Result.</p></div></span>
   
 </li>
 
@@ -809,7 +529,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#interrupt!-instance_method" title="#interrupt! (instance method)">#<strong>interrupt!</strong>  &#x21d2; Object </a>
+      <a href="#interrupted%3F-instance_method" title="#interrupted? (instance method)">#<strong>interrupted?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -831,7 +551,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on-instance_method" title="#on (instance method)">#<strong>on</strong>(*states_or_statuses) {|self| ... } &#x21d2; self </a>
+      <a href="#ko%3F-instance_method" title="#ko? (instance method)">#<strong>ko?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -845,9 +565,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Returns self for method chaining.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -855,7 +573,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#outcome-instance_method" title="#outcome (instance method)">#<strong>outcome</strong>  &#x21d2; String </a>
+      <a href="#metadata-instance_method" title="#metadata (instance method)">#<strong>metadata</strong>  &#x21d2; Hash{Symbol =&gt; Object} </a>
     
 
     
@@ -869,9 +587,95 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>The outcome of the task execution.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Frozen empty hash when none provided.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ok%3F-instance_method" title="#ok? (instance method)">#<strong>ok?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on-instance_method" title="#on (instance method)">#<strong>on</strong>(*keys) {|result| ... } &#x21d2; Result </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Dispatches the block when any of <code>keys</code> matches a truthy predicate on this result.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#origin-instance_method" title="#origin (instance method)">#<strong>origin</strong>  &#x21d2; Result<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The upstream failed result this one was echoed from (via <code>Task#throw!</code> or a rescued <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span> inside <code>work</code>).</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reason-instance_method" title="#reason (instance method)">#<strong>reason</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -893,9 +697,29 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the result has been retried.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#retries-instance_method" title="#retries (instance method)">#<strong>retries</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -917,9 +741,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the result has been rolled back.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>True when a failing task's <code>rollback</code> ran.</p></div></span>
   
 </li>
 
@@ -927,7 +749,29 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#skip!-instance_method" title="#skip! (instance method)">#<strong>skip!</strong>(reason = nil, halt: true, cause: nil, strict: true, **metadata)  &#x21d2; Object </a>
+      <a href="#root%3F-instance_method" title="#root? (instance method)">#<strong>root?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>True when this result is the root of the chain.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skipped%3F-instance_method" title="#skipped? (instance method)">#<strong>skipped?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -942,6 +786,50 @@
 
   
     <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#state-instance_method" title="#state (instance method)">#<strong>state</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>One of <span class='object_link'><a href="Signal.html#STATES-constant" title="CMDx::Signal::STATES (constant)">Signal::STATES</a></span>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#status-instance_method" title="#status (instance method)">#<strong>status</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>One of <span class='object_link'><a href="Signal.html#STATUSES-constant" title="CMDx::Signal::STATUSES (constant)">Signal::STATUSES</a></span>.</p></div></span>
   
 </li>
 
@@ -963,9 +851,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether the result is strict.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>True when produced via <code>execute!</code>.</p></div></span>
   
 </li>
 
@@ -973,79 +859,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#success!-instance_method" title="#success! (instance method)">#<strong>success!</strong>(reason = nil, halt: true, **metadata)  &#x21d2; Object </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Sets a reason and optional metadata on a successful result without changing its state or status.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#threw_failure-instance_method" title="#threw_failure (instance method)">#<strong>threw_failure</strong>  &#x21d2; CMDx::Result<sup>?</sup> </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>The result that threw this failure, or nil.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#threw_failure%3F-instance_method" title="#threw_failure? (instance method)">#<strong>threw_failure?</strong>  &#x21d2; Boolean </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'>
-<p>Whether this result threw the failure.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#throw!-instance_method" title="#throw! (instance method)">#<strong>throw!</strong>(result, halt: true, cause: nil, **metadata)  &#x21d2; Object </a>
+      <a href="#success%3F-instance_method" title="#success? (instance method)">#<strong>success?</strong>  &#x21d2; Boolean </a>
     
 
     
@@ -1067,6 +881,72 @@
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#tags-instance_method" title="#tags (instance method)">#<strong>tags</strong>  &#x21d2; Array&lt;Symbol, String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>  &#x21d2; Class&lt;Task&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The task class that ran.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#threw_failure-instance_method" title="#threw_failure (instance method)">#<strong>threw_failure</strong>  &#x21d2; Result<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The nearest upstream failed result.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#thrown_failure%3F-instance_method" title="#thrown_failure? (instance method)">#<strong>thrown_failure?</strong>  &#x21d2; Boolean </a>
     
 
@@ -1081,9 +961,7 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Whether this result is a thrown failure.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>True when this result re-threw an upstream failure.</p></div></span>
   
 </li>
 
@@ -1091,7 +969,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#to_h-instance_method" title="#to_h (instance method)">#<strong>to_h</strong>  &#x21d2; Hash </a>
+      <a href="#tid-instance_method" title="#tid (instance method)">#<strong>tid</strong>  &#x21d2; String </a>
     
 
     
@@ -1105,9 +983,51 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Hash representation of the result.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Uuid_v7 identifier for this execution.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_h-instance_method" title="#to_h (instance method)">#<strong>to_h</strong>  &#x21d2; Hash{Symbol =&gt; Object} </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Memoized serialization.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_json-instance_method" title="#to_json (instance method)">#<strong>to_json</strong>(*args)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Serializes the result to a JSON string.</p></div></span>
   
 </li>
 
@@ -1129,24 +1049,66 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>String representation of the result.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>Space-separated <code>key=value.inspect</code> pairs; failure references render as <code>&lt;TaskClass uuid&gt;</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p><code>&quot;Task&quot;</code> or <code>&quot;Workflow&quot;</code>.</p></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#xid-instance_method" title="#xid (instance method)">#<strong>xid</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Correlation id or the global configuration's correlation id.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
-
-  <div id="constructor_details" class="method_details_list">
+<div id="constructor_details" class="method_details_list">
   <h2>Constructor Details</h2>
   
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(task)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt> 
+    #<strong>initialize</strong>(chain, task, signal, **options)  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt> 
   
 
   
@@ -1154,77 +1116,143 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns A new result instance for the task.</p>
-
+    <p>Returns a new instance of Result.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_my_task'>my_task</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span> <span class='comment'># =&gt; &quot;initialized&quot;</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
+  
+    <li>
+      
+        <span class='name'>chain</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Chain.html" title="CMDx::Chain (class)">Chain</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the chain this result belongs to</p></div>
+      
+    </li>
   
     <li>
       
         <span class='name'>task</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">CMDx::Task</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>The task instance this result represents</p>
-</div>
+        <div class='inline'><p>the executed task instance</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>signal</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Signal.html" title="CMDx::Signal (class)">Signal</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the final signal from the task's lifecycle</p></div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>frozen execution metadata</p></div>
       
     </li>
   
 </ul>
 
-<p class="tag_title">Raises:</p>
-<ul class="raise">
   
-    <li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>**options</tt>):</p>
+    <ul class="option">
       
+        <li>
+          <span class="name">:tid</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
       
-        <span class='type'>(<tt>TypeError</tt>)</span>
+        <li>
+          <span class="name">:strict</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
       
+        <li>
+          <span class="name">:deprecated</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
       
+        <li>
+          <span class="name">:rolled_back</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
       
-        &mdash;
-        <div class='inline'>
-<p>When task is not a CMDx::Task instance</p>
-</div>
+        <li>
+          <span class="name">:retries</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
       
-    </li>
+        <li>
+          <span class="name">:duration</span>
+          <span class="type">(<tt>Float</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'><p>milliseconds</p></div>
+          
+        </li>
+      
+    </ul>
   
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Task) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
+
 
 </div><table class="source_code">
   <tr>
@@ -1232,35 +1260,21 @@
       <pre class="lines">
 
 
-148
-149
-150
-151
-152
-153
-154
-155
-156
-157
-158
-159
-160</pre>
+33
+34
+35
+36
+37
+38</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 33</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be a CMDx::Task</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../CMDx.html" title="CMDx (module)">CMDx</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span></span><span class='rparen'>)</span>
-
-  <span class='ivar'>@task</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>INITIALIZED</span>
-  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='const'>SUCCESS</span>
-  <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
-  <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='kw'>nil</span>
-  <span class='ivar'>@cause</span> <span class='op'>=</span> <span class='kw'>nil</span>
-  <span class='ivar'>@retries</span> <span class='op'>=</span> <span class='int'>0</span>
-  <span class='ivar'>@strict</span> <span class='op'>=</span> <span class='kw'>true</span>
-  <span class='ivar'>@rolled_back</span> <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_chain'>chain</span><span class='comma'>,</span> <span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_signal'>signal</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='ivar'>@chain</span>   <span class='op'>=</span> <span class='id identifier rubyid_chain'>chain</span>
+  <span class='ivar'>@task</span>    <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
+  <span class='ivar'>@signal</span>  <span class='op'>=</span> <span class='id identifier rubyid_signal'>signal</span>
+  <span class='ivar'>@options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1275,94 +1289,9 @@
       
       <span id=""></span>
       <div class="method_details first">
-  <h3 class="signature first" id="cause-instance_method">
+  <h3 class="signature first" id="chain-instance_method">
   
-    #<strong>cause</strong>  &#x21d2; <tt><span class='object_link'><a href="../CMDx.html#Exception-constant" title="CMDx::Exception (constant)">Exception</a></span></tt><sup>?</sup>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the exception that caused the interruption.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_cause'>cause</span> <span class='comment'># =&gt; #&lt;StandardError: Connection timeout&gt;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#Exception-constant" title="CMDx::Exception (constant)">Exception</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The causing exception, or nil if not interrupted</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@cause: (Exception | nil)</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-100
-101
-102</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 100</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_cause'>cause</span>
-  <span class='ivar'>@cause</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="metadata-instance_method">
-  
-    #<strong>metadata</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt>  <span class="extras">(readonly)</span>
+    #<strong>chain</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -1370,56 +1299,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns additional metadata about the result.</p>
-
+    <p>Returns the value of attribute chain.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span> <span class='comment'># =&gt; { duration: 1.5, code: 200, message: &quot;Success&quot; }</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Metadata hash</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@metadata: Hash[Symbol, untyped]</p>
-</div>
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -1427,610 +1312,15 @@
       <pre class="lines">
 
 
-80
-81
-82</pre>
+21
+22
+23</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 21</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_metadata'>metadata</span>
-  <span class='ivar'>@metadata</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="reason-instance_method">
-  
-    #<strong>reason</strong>  &#x21d2; <tt>String</tt><sup>?</sup>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the reason for interruption (skip or failure).</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span> <span class='comment'># =&gt; &quot;Validation failed&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The reason message, or nil if not interrupted</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@reason: (String | nil)</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-90
-91
-92</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 90</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_reason'>reason</span>
-  <span class='ivar'>@reason</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id="retries=-instance_method"></span>
-      <div class="method_details ">
-  <h3 class="signature " id="retries-instance_method">
-  
-    #<strong>retries</strong>  &#x21d2; <tt>Integer</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the number of retries attempted.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_retries'>retries</span> <span class='comment'># =&gt; 2</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Integer</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The number of retries attempted</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@retries: Integer</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-110
-111
-112</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 110</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_retries'>retries</span>
-  <span class='ivar'>@retries</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id="rolled_back=-instance_method"></span>
-      <div class="method_details ">
-  <h3 class="signature " id="rolled_back-instance_method">
-  
-    #<strong>rolled_back</strong>  &#x21d2; <tt>Boolean</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns whether the result has been rolled back.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_rolled_back?'>rolled_back?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether the result has been rolled back</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@rolled_back: bool</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-132
-133
-134</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 132</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_rolled_back'>rolled_back</span>
-  <span class='ivar'>@rolled_back</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="state-instance_method">
-  
-    #<strong>state</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the current execution state of the result.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span> <span class='comment'># =&gt; &quot;complete&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>One of: “initialized”, “executing”, “complete”, “interrupted”</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@state: String</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-60
-61
-62</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 60</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_state'>state</span>
-  <span class='ivar'>@state</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="status-instance_method">
-  
-    #<strong>status</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the execution status of the result.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='comment'># =&gt; &quot;success&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>One of: “success”, “skipped”, “failed”</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@status: String</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-70
-71
-72</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 70</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_status'>status</span>
-  <span class='ivar'>@status</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="strict-instance_method">
-  
-    #<strong>strict</strong>  &#x21d2; <tt>Boolean</tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns whether this result is strict. When false, <span class='object_link'>Executor#halt_execution?</span> returns false regardless of the task’s breakpoint settings.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_strict?'>strict?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether the result is strict</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@strict: bool</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-122
-123
-124</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 122</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_strict'>strict</span>
-  <span class='ivar'>@strict</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="task-instance_method">
-  
-    #<strong>task</strong>  &#x21d2; <tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">CMDx::Task</a></span></tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns the task instance associated with this result.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='comment'># =&gt; &quot;users/create&quot;</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Task.html" title="CMDx::Task (class)">CMDx::Task</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The task instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>@task: Task</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-50
-51
-52</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 50</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='ivar'>@task</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_chain'>chain</span>
+  <span class='ivar'>@chain</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2045,9 +1335,9 @@
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="bad?-instance_method">
+  <h3 class="signature first" id="as_json-instance_method">
   
-    #<strong>bad?</strong>  &#x21d2; <tt>Boolean</tt> 
+    #<strong>as_json</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt> 
   
 
   
@@ -2055,52 +1345,22 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether the task execution was unsuccessful (not success).</p>
-
+    <p>JSON-friendly hash view. Aliases the memoized <span class='object_link'><a href="#to_h-instance_method" title="CMDx::Result#to_h (method)">#to_h</a></span> for conventional
+<code>as_json</code> callers (e.g. Rails).</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_bad?'>bad?</span> <span class='comment'># =&gt; true if !success?</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Boolean</tt>)</span>
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether the task execution was unsuccessful (not success)</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
       
     </li>
   
@@ -2112,15 +1372,15 @@
       <pre class="lines">
 
 
-263
-264
-265</pre>
+296
+297
+298</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 263</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 296</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_bad?'>bad?</span>
-  <span class='op'>!</span><span class='id identifier rubyid_success?'>success?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_as_json'>as_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_to_h'>to_h</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2128,9 +1388,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="caused_failure-instance_method">
+  <h3 class="signature " id="backtrace-instance_method">
   
-    #<strong>caused_failure</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt><sup>?</sup> 
+    #<strong>backtrace</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt><sup>?</sup> 
   
 
   
@@ -2138,53 +1398,23 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns The result that caused this failure, or nil.</p>
-
+    <p>The backtrace captured by <code>fail!</code> / <code>throw!</code> for Fault propagation.
+<code>nil</code> when this result is not a failure or the failure didn't capture
+a backtrace.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_cause'>cause</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_caused_failure'>caused_failure</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Caused by: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cause'>cause</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_cause'>cause</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The result that caused this failure, or nil</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Result?</p>
-</div>
       
     </li>
   
@@ -2196,19 +1426,15 @@
       <pre class="lines">
 
 
-433
-434
-435
-436
-437</pre>
+219
+220
+221</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 433</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 219</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_caused_failure'>caused_failure</span>
-  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
-
-  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_reverse_each'>reverse_each</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:failed?</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_backtrace'>backtrace</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2216,9 +1442,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="caused_failure?-instance_method">
+  <h3 class="signature " id="cause-instance_method">
   
-    #<strong>caused_failure?</strong>  &#x21d2; <tt>Boolean</tt> 
+    #<strong>cause</strong>  &#x21d2; <tt>Exception</tt><sup>?</sup> 
   
 
   
@@ -2227,421 +1453,20 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns Whether this result caused the failure.</p>
-
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This task caused the failure</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Boolean</tt>)</span>
+        <span class='type'>(<tt>Exception</tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether this result caused the failure</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-447
-448
-449
-450
-451</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 447</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
-  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
-
-  <span class='id identifier rubyid_caused_failure'>caused_failure</span> <span class='op'>==</span> <span class='kw'>self</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="complete!-instance_method">
-  
-    #<strong>complete!</strong>  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_complete!'>complete!</span> <span class='comment'># Transitions from executing to complete</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When attempting to transition from invalid state</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-213
-214
-215
-216
-217
-218
-219</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 213</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_complete!'>complete!</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_complete?'>complete?</span>
-
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>can only transition to </span><span class='embexpr_beg'>#{</span><span class='const'>COMPLETE</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='const'>EXECUTING</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_executing?'>executing?</span>
-
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>COMPLETE</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="deconstruct-instance_method">
-  
-    #<strong>deconstruct</strong>  &#x21d2; <tt>Array</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns Array containing state, status, reason, cause, and metadata.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_status'>status</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_deconstruct'>deconstruct</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>State: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_state'>state</span><span class='embexpr_end'>}</span><span class='tstring_content'>, Status: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_status'>status</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Array</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Array containing state, status, reason, cause, and metadata</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(*untyped) -&gt; <a href="untyped">Array</a></p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-606
-607
-608</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 606</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_deconstruct'>deconstruct</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
-  <span class='lbracket'>[</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_status'>status</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_cause'>cause</span><span class='comma'>,</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='rbracket'>]</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="deconstruct_keys-instance_method">
-  
-    #<strong>deconstruct_keys</strong>  &#x21d2; <tt>Hash</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns Hash with key-value pairs for pattern matching.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>case</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span>
-<span class='kw'>in</span> <span class='lbrace'>{</span><span class='label'>state:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>complete</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>good:</span> <span class='kw'>true</span><span class='rbrace'>}</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task completed successfully</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>in</span> <span class='lbrace'>{</span><span class='label'>bad:</span> <span class='kw'>true</span><span class='rbrace'>}</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task had issues</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Hash</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Hash with key-value pairs for pattern matching</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(*untyped) -&gt; Hash[Symbol, untyped]</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-621
-622
-623
-624
-625
-626
-627
-628
-629
-630
-631
-632
-633</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 621</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
-  <span class='lbrace'>{</span>
-    <span class='label'>state:</span> <span class='id identifier rubyid_state'>state</span><span class='comma'>,</span>
-    <span class='label'>status:</span> <span class='id identifier rubyid_status'>status</span><span class='comma'>,</span>
-    <span class='label'>reason:</span> <span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span>
-    <span class='label'>cause:</span> <span class='id identifier rubyid_cause'>cause</span><span class='comma'>,</span>
-    <span class='label'>metadata:</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span>
-    <span class='label'>outcome:</span> <span class='id identifier rubyid_outcome'>outcome</span><span class='comma'>,</span>
-    <span class='label'>executed:</span> <span class='id identifier rubyid_executed?'>executed?</span><span class='comma'>,</span>
-    <span class='label'>good:</span> <span class='id identifier rubyid_good?'>good?</span><span class='comma'>,</span>
-    <span class='label'>bad:</span> <span class='id identifier rubyid_bad?'>bad?</span>
-  <span class='rbrace'>}</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="executed!-instance_method">
-  
-    #<strong>executed!</strong>  &#x21d2; <tt>self</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns self for method chaining</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_executed!'>executed!</span> <span class='comment'># Transitions to complete or interrupted</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>self</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Returns self for method chaining</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; self</p>
-</div>
       
     </li>
   
@@ -2660,8 +1485,8 @@
     <td>
       <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 179</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_executed!'>executed!</span>
-  <span class='id identifier rubyid_success?'>success?</span> <span class='op'>?</span> <span class='id identifier rubyid_complete!'>complete!</span> <span class='op'>:</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_cause'>cause</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_cause'>cause</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2669,9 +1494,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="executed?-instance_method">
+  <h3 class="signature " id="caused_failure-instance_method">
   
-    #<strong>executed?</strong>  &#x21d2; <tt>Boolean</tt> 
+    #<strong>caused_failure</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt><sup>?</sup> 
   
 
   
@@ -2679,22 +1504,70 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether the task has been executed (complete or interrupted).</p>
-
+    <p>The originating failed result at the bottom of the propagation chain.
+Walks <code>origin</code> recursively. <code>self</code> when this result is the originator;
+<code>nil</code> when not failed.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
       
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_executed?'>executed?</span> <span class='comment'># =&gt; true if complete? || interrupted?</span></code></pre>
-    
-  </div>
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_caused_failure'>caused_failure</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
+
+  <span class='ivar'>@caused_failure</span> <span class='op'>||=</span> <span class='id identifier rubyid_origin'>origin</span> <span class='op'>?</span> <span class='id identifier rubyid_origin'>origin</span><span class='period'>.</span><span class='id identifier rubyid_caused_failure'>caused_failure</span> <span class='op'>:</span> <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="caused_failure?-instance_method">
+  
+    #<strong>caused_failure?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns true when this result originated the failure chain.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -2706,25 +1579,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>Whether the task has been executed (complete or interrupted)</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
+        <div class='inline'><p>true when this result originated the failure chain</p></div>
       
     </li>
   
@@ -2736,15 +1591,15 @@
       <pre class="lines">
 
 
-189
-190
-191</pre>
+195
+196
+197</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 195</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_executed?'>executed?</span>
-  <span class='id identifier rubyid_complete?'>complete?</span> <span class='op'>||</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
+  <span class='id identifier rubyid_failed?'>failed?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_origin'>origin</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2752,9 +1607,64 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="executing!-instance_method">
+  <h3 class="signature " id="cid-instance_method">
   
-    #<strong>executing!</strong>  &#x21d2; <tt>Object</tt> 
+    #<strong>cid</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns uuid_v7 identifier for the chain this result belongs to.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>uuid_v7 identifier for the chain this result belongs to</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 61</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cid'>cid</span>
+  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="complete?-instance_method">
+  
+    #<strong>complete?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -2768,44 +1678,15 @@
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_executing!'>executing!</span> <span class='comment'># Transitions from initialized to executing</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>When attempting to transition from invalid state</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
       
     </li>
   
@@ -2817,23 +1698,15 @@
       <pre class="lines">
 
 
-199
-200
-201
-202
-203
-204
-205</pre>
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 199</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 92</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_executing!'>executing!</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_executing?'>executing?</span>
-
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>can only transition to </span><span class='embexpr_beg'>#{</span><span class='const'>EXECUTING</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='const'>INITIALIZED</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_initialized?'>initialized?</span>
-
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>EXECUTING</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_complete?'>complete?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_complete?'>complete?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -2841,293 +1714,38 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="fail!-instance_method">
+  <h3 class="signature " id="context-instance_method">
   
-    #<strong>fail!</strong>(reason = nil, halt: true, cause: nil, strict: true, **metadata)  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Validation failed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_validation_error'>validation_error</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Network timeout</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>timeout:</span> <span class='int'>30</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Soft failure</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>reason</span>
-      
-      
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Reason for task failure</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>halt</span>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether to halt execution after failure</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>cause</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#Exception-constant" title="CMDx::Exception (constant)">Exception</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Exception that caused the failure</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>strict</span>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether this failure is strict (default: true). When false, <span class='object_link'>Executor#halt_execution?</span> returns false regardless of task settings.</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>metadata</span>
-      
-      
-        <span class='type'>(<tt>Hash</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Additional metadata about the failure</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <p class="tag_title">Options Hash (<tt>**metadata</tt>):</p>
-    <ul class="option">
-      
-        <li>
-          <span class="name">:*</span>
-          <span class="type">(<tt>Object</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Any key-value pairs for additional metadata</p>
-</div>
-          
-        </li>
-      
-    </ul>
-  
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When attempting to fail from invalid status</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(?String? reason, halt: bool, cause: Exception?, strict: bool, **untyped metadata) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-357
-358
-359
-360
-361
-362
-363
-364
-365
-366
-367
-368
-369
-370</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 357</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_fail!'>fail!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_failed?'>failed?</span>
-
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>can only transition to </span><span class='embexpr_beg'>#{</span><span class='const'>FAILED</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='const'>SUCCESS</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_success?'>success?</span>
-
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>INTERRUPTED</span>
-  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='const'>FAILED</span>
-  <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="Locale.html" title="CMDx::Locale (module)">Locale</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'>t</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.reasons.unspecified</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='ivar'>@cause</span> <span class='op'>=</span> <span class='id identifier rubyid_cause'>cause</span>
-  <span class='ivar'>@strict</span> <span class='op'>=</span> <span class='id identifier rubyid_strict'>strict</span>
-  <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span>
-
-  <span class='id identifier rubyid_halt!'>halt!</span> <span class='kw'>if</span> <span class='id identifier rubyid_halt'>halt</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="good?-instance_method">
-  
-    #<strong>good?</strong>  &#x21d2; <tt>Boolean</tt> 
+    #<strong>context</strong>  &#x21d2; <tt><span class='object_link'><a href="Context.html" title="CMDx::Context (class)">Context</a></span></tt> 
   
 
   
     <span class="aliases">Also known as:
-    <span class="names"><span id='ok?-instance_method'>ok?</span></span>
+    <span class="names"><span id='ctx-instance_method'>ctx</span></span>
     </span>
   
 
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether the task execution was successful (not failed).</p>
-
+    <p>Returns frozen after the root task's teardown.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_good?'>good?</span> <span class='comment'># =&gt; true if !failed?</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Boolean</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Context.html" title="CMDx::Context (class)">Context</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Whether the task execution was successful (not failed)</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
+        <div class='inline'><p>frozen after the root task's teardown</p></div>
       
     </li>
   
@@ -3139,15 +1757,15 @@
       <pre class="lines">
 
 
-252
-253
-254</pre>
+76
+77
+78</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 252</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 76</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_good?'>good?</span>
-  <span class='op'>!</span><span class='id identifier rubyid_failed?'>failed?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_context'>context</span>
+  <span class='ivar'>@task</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3155,9 +1773,296 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="halt!-instance_method">
+  <h3 class="signature " id="deconstruct-instance_method">
   
-    #<strong>halt!</strong>  &#x21d2; <tt>Object</tt> 
+    #<strong>deconstruct</strong>  &#x21d2; <tt>Array&lt;Array(Symbol, Object)&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Pattern-matching support for <code>case result in [...]</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Array(Symbol, Object)&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+343
+344
+345</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 343</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deconstruct'>deconstruct</span>
+  <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deconstruct_keys-instance_method">
+  
+    #<strong>deconstruct_keys</strong>(keys)  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Pattern-matching support for <code>case result in {...}</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>keys</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol&gt;</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>restrict the returned hash to these keys</p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+336
+337
+338</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 336</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deconstruct_keys'>deconstruct_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>:</span> <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deprecated?-instance_method">
+  
+    #<strong>deprecated?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns true when the task class is marked deprecated.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>true when the task class is marked deprecated</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deprecated?'>deprecated?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:deprecated</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="duration-instance_method">
+  
+    #<strong>duration</strong>  &#x21d2; <tt>Float</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns lifecycle duration in milliseconds.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Float</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>lifecycle duration in milliseconds</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+249
+250
+251</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 249</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_duration'>duration</span>
+  <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:duration</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="errors-instance_method">
+  
+    #<strong>errors</strong>  &#x21d2; <tt><span class='object_link'><a href="Errors.html" title="CMDx::Errors (class)">Errors</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns frozen by Runtime teardown.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Errors.html" title="CMDx::Errors (class)">Errors</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>frozen by Runtime teardown</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_errors'>errors</span>
+  <span class='ivar'>@task</span><span class='period'>.</span><span class='id identifier rubyid_errors'>errors</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="failed?-instance_method">
+  
+    #<strong>failed?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -3171,58 +2076,15 @@
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_halt!'>halt!</span> <span class='comment'># Raises appropriate fault based on status</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#SkipFault-constant" title="CMDx::SkipFault (constant)">SkipFault</a></span></tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>When task was skipped</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#FailFault-constant" title="CMDx::FailFault (constant)">FailFault</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When task failed</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
       
     </li>
   
@@ -3234,51 +2096,15 @@
       <pre class="lines">
 
 
-379
-380
-381
-382
-383
-384
-385
-386
-387
-388
-389
-390
-391
-392
-393
-394
-395
-396
-397
-398
-399</pre>
+117
+118
+119</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 379</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 117</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_halt!'>halt!</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_success?'>success?</span>
-
-  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='id identifier rubyid_skipped?'>skipped?</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="../CMDx.html#SkipFault-constant" title="CMDx::SkipFault (constant)">SkipFault</a></span></span> <span class='op'>:</span> <span class='const'><span class='object_link'><a href="../CMDx.html#FailFault-constant" title="CMDx::FailFault (constant)">FailFault</a></span></span>
-  <span class='id identifier rubyid_fault'>fault</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
-
-  <span class='comment'># Strip the first two frames (this method and the delegator)
-</span>  <span class='id identifier rubyid_frames'>frames</span> <span class='op'>=</span> <span class='id identifier rubyid_caller_locations'>caller_locations</span><span class='lparen'>(</span><span class='int'>3</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
-
-  <span class='kw'>unless</span> <span class='id identifier rubyid_frames'>frames</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-    <span class='id identifier rubyid_frames'>frames</span> <span class='op'>=</span> <span class='id identifier rubyid_frames'>frames</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span>
-
-    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_cleaner'>cleaner</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_backtrace_cleaner'>backtrace_cleaner</span><span class='rparen'>)</span>
-      <span class='id identifier rubyid_cleaner'>cleaner</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_frames'>frames</span><span class='rparen'>)</span>
-    <span class='kw'>end</span>
-
-    <span class='id identifier rubyid_fault'>fault</span><span class='period'>.</span><span class='id identifier rubyid_set_backtrace'>set_backtrace</span><span class='lparen'>(</span><span class='id identifier rubyid_frames'>frames</span><span class='rparen'>)</span>
-  <span class='kw'>end</span>
-
-  <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='id identifier rubyid_fault'>fault</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_failed?'>failed?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_failed?'>failed?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3288,7 +2114,7 @@
       <div class="method_details ">
   <h3 class="signature " id="index-instance_method">
   
-    #<strong>index</strong>  &#x21d2; <tt>Integer</tt> 
+    #<strong>index</strong>  &#x21d2; <tt>Integer</tt><sup>?</sup> 
   
 
   
@@ -3296,53 +2122,24 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Index of this result in the chain.</p>
-
+    <p>Returns this result's position in the chain.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_position'>position</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_position'>position</span> <span class='op'>+</span> <span class='int'>1</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Integer</tt>)</span>
+        <span class='type'>(<tt>Integer</tt>, <tt>nil</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Index of this result in the chain</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Integer</p>
-</div>
+        <div class='inline'><p>this result's position in the chain</p></div>
       
     </li>
   
@@ -3354,15 +2151,15 @@
       <pre class="lines">
 
 
-540
-541
-542</pre>
+66
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 540</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 66</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_index'>index</span>
-  <span class='ivar'>@chain_index</span> <span class='op'>||</span> <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='ivar'>@chain</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3370,9 +2167,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="interrupt!-instance_method">
+  <h3 class="signature " id="interrupted?-instance_method">
   
-    #<strong>interrupt!</strong>  &#x21d2; <tt>Object</tt> 
+    #<strong>interrupted?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -3386,44 +2183,15 @@
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span> <span class='comment'># Transitions from executing to interrupted</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
+        <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>When attempting to transition from invalid state</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; void</p>
-</div>
       
     </li>
   
@@ -3435,23 +2203,174 @@
       <pre class="lines">
 
 
-227
-228
-229
-230
-231
-232
-233</pre>
+97
+98
+99</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 227</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 97</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_interrupted?'>interrupted?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ko?-instance_method">
+  
+    #<strong>ko?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
 
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cannot transition to </span><span class='embexpr_beg'>#{</span><span class='const'>INTERRUPTED</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='const'>COMPLETE</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_complete?'>complete?</span>
+  
 
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>INTERRUPTED</span>
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ko?'>ko?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_ko?'>ko?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="metadata-instance_method">
+  
+    #<strong>metadata</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns frozen empty hash when none provided.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>frozen empty hash when none provided</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_metadata'>metadata</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ok?-instance_method">
+  
+    #<strong>ok?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ok?'>ok?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_ok?'>ok?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3461,7 +2380,7 @@
       <div class="method_details ">
   <h3 class="signature " id="on-instance_method">
   
-    #<strong>on</strong>(*states_or_statuses) {|self| ... } &#x21d2; <tt>self</tt> 
+    #<strong>on</strong>(*keys) {|result| ... } &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt> 
   
 
   
@@ -3469,9 +2388,8 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns self for method chaining</p>
-
+    <p>Dispatches the block when any of <code>keys</code> matches a truthy predicate on
+this result. Returns <code>self</code> for chaining.</p>
 
   </div>
 </div>
@@ -3481,25 +2399,45 @@
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='symbol'>:bad</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task had issues: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='symbol'>:success</span><span class='comma'>,</span> <span class='symbol'>:complete</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Task completed successfully</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span></code></pre>
+      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span>
+  <span class='period'>.</span><span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='symbol'>:success</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_deliver'>deliver</span><span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='period'>.</span><span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='symbol'>:failed</span><span class='rparen'>)</span>  <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_alert'>alert</span><span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span><span class='rparen'>)</span> <span class='rbrace'>}</span></code></pre>
     
   </div>
-
-<p class="tag_title">Yields:</p>
-<ul class="yield">
+<p class="tag_title">Parameters:</p>
+<ul class="param">
   
     <li>
       
+        <span class='name'>keys</span>
       
-        <span class='type'>(<tt>self</tt>)</span>
+      
+        <span class='type'>(<tt>Array&lt;Symbol, String&gt;</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Executes the block if task status or state matches</p>
-</div>
+        <div class='inline'><p>any of the predicate bases:
+<code>complete</code>, <code>interrupted</code>, <code>success</code>, <code>skipped</code>, <code>failed</code>, <code>ok</code>, <code>ko</code></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>result</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>this result</p></div>
       
     </li>
   
@@ -3510,14 +2448,12 @@
     <li>
       
       
-        <span class='type'>(<tt>self</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Returns self for method chaining</p>
-</div>
+        <div class='inline'><p>self for chaining</p></div>
       
     </li>
   
@@ -3533,25 +2469,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>When no block is provided</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() { (Result) -&gt; void } -&gt; self</p>
-</div>
+        <div class='inline'><p>when no block is given or a key is unknown</p></div>
       
     </li>
   
@@ -3563,20 +2481,36 @@
       <pre class="lines">
 
 
-278
-279
-280
-281
-282
-283</pre>
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 278</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 144</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_states_or_statuses'>states_or_statuses</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on'>on</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>block required</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
 
-  <span class='kw'>yield</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_states_or_statuses'>states_or_statuses</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_public_send'>public_send</span><span class='lparen'>(</span><span class='symbol'>:&quot;#{</span><span class='id identifier rubyid_s'>s</span><span class='embexpr_end'>}</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>yield</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='kw'>unless</span> <span class='const'>EVENTS</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unknown event </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>, must be one of </span><span class='embexpr_beg'>#{</span><span class='const'>EVENTS</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_public_send'>public_send</span><span class='lparen'>(</span><span class='symbol'>:&quot;#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
   <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -3585,9 +2519,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="outcome-instance_method">
+  <h3 class="signature " id="origin-instance_method">
   
-    #<strong>outcome</strong>  &#x21d2; <tt>String</tt> 
+    #<strong>origin</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt><sup>?</sup> 
   
 
   
@@ -3595,52 +2529,23 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns The outcome of the task execution.</p>
-
+    <p>The upstream failed result this one was echoed from (via <code>Task#throw!</code>
+or a rescued <span class='object_link'><a href="Fault.html" title="CMDx::Fault (class)">Fault</a></span> inside <code>work</code>). <code>nil</code> when this is a locally
+originated failure or the result didn't fail.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_outcome'>outcome</span> <span class='comment'># =&gt; &quot;success&quot; or &quot;interrupted&quot;</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>String</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The outcome of the task execution</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; String</p>
-</div>
       
     </li>
   
@@ -3652,15 +2557,67 @@
       <pre class="lines">
 
 
-550
-551
-552</pre>
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 550</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 174</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_outcome'>outcome</span>
-  <span class='id identifier rubyid_initialized?'>initialized?</span> <span class='op'>||</span> <span class='id identifier rubyid_thrown_failure?'>thrown_failure?</span> <span class='op'>?</span> <span class='id identifier rubyid_state'>state</span> <span class='op'>:</span> <span class='id identifier rubyid_status'>status</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_origin'>origin</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_origin'>origin</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reason-instance_method">
+  
+    #<strong>reason</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reason'>reason</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3679,21 +2636,11 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Returns Whether the result has been retried.</p>
-
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_retried?'>retried?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -3703,27 +2650,6 @@
         <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether the result has been retried</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
       
     </li>
   
@@ -3735,15 +2661,67 @@
       <pre class="lines">
 
 
-509
-510
-511</pre>
+229
+230
+231</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 509</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 229</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_retried?'>retried?</span>
   <span class='id identifier rubyid_retries'>retries</span><span class='period'>.</span><span class='id identifier rubyid_positive?'>positive?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="retries-instance_method">
+  
+    #<strong>retries</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+224
+225
+226</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 224</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_retries'>retries</span>
+  <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:retries</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3761,22 +2739,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether the result has been rolled back.</p>
-
+    <p>Returns true when a failing task's <code>rollback</code> ran.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_rolled_back?'>rolled_back?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -3788,25 +2756,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>Whether the result has been rolled back</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
+        <div class='inline'><p>true when a failing task's <code>rollback</code> ran</p></div>
       
     </li>
   
@@ -3818,15 +2768,15 @@
       <pre class="lines">
 
 
-529
-530
-531</pre>
+244
+245
+246</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 529</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 244</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rolled_back?'>rolled_back?</span>
-  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@rolled_back</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:rolled_back</span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3834,9 +2784,64 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="skip!-instance_method">
+  <h3 class="signature " id="root?-instance_method">
   
-    #<strong>skip!</strong>(reason = nil, halt: true, cause: nil, strict: true, **metadata)  &#x21d2; <tt>Object</tt> 
+    #<strong>root?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns true when this result is the root of the chain.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>true when this result is the root of the chain</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_root?'>root?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:root</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="skipped?-instance_method">
+  
+    #<strong>skipped?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -3850,168 +2855,15 @@
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Dependencies not met</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_dependency_error'>dependency_error</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Already processed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Optional step</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>false</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
-      
-        <span class='name'>reason</span>
-      
-      
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Reason for skipping the task</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>halt</span>
       
       
         <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether to halt execution after skipping</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>cause</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#Exception-constant" title="CMDx::Exception (constant)">Exception</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Exception that caused the skip</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>strict</span>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether this skip is strict (default: true). When false, <span class='object_link'>Executor#halt_execution?</span> returns false regardless of task settings.</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>metadata</span>
-      
-      
-        <span class='type'>(<tt>Hash</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Additional metadata about the skip</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <p class="tag_title">Options Hash (<tt>**metadata</tt>):</p>
-    <ul class="option">
-      
-        <li>
-          <span class="name">:*</span>
-          <span class="type">(<tt>Object</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Any key-value pairs for additional metadata</p>
-</div>
-          
-        </li>
-      
-    </ul>
-  
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When attempting to skip from invalid status</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(?String? reason, halt: bool, cause: Exception?, strict: bool, **untyped metadata) -&gt; void</p>
-</div>
       
     </li>
   
@@ -4023,37 +2875,125 @@
       <pre class="lines">
 
 
-326
-327
-328
-329
-330
-331
-332
-333
-334
-335
-336
-337
-338
-339</pre>
+112
+113
+114</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 326</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 112</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_skip!'>skip!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>strict:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_skipped?'>skipped?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_skipped?'>skipped?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_skipped?'>skipped?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="state-instance_method">
+  
+    #<strong>state</strong>  &#x21d2; <tt>String</tt> 
+  
 
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>can only transition to </span><span class='embexpr_beg'>#{</span><span class='const'>SKIPPED</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='const'>SUCCESS</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_success?'>success?</span>
+  
 
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='const'>INTERRUPTED</span>
-  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='const'>SKIPPED</span>
-  <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="Locale.html" title="CMDx::Locale (module)">Locale</a></span></span><span class='period'>.</span><span class='id identifier rubyid_t'>t</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmdx.reasons.unspecified</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='ivar'>@cause</span> <span class='op'>=</span> <span class='id identifier rubyid_cause'>cause</span>
-  <span class='ivar'>@strict</span> <span class='op'>=</span> <span class='id identifier rubyid_strict'>strict</span>
-  <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span>
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns one of <span class='object_link'><a href="Signal.html#STATES-constant" title="CMDx::Signal::STATES (constant)">Signal::STATES</a></span>.</p>
 
-  <span class='id identifier rubyid_halt!'>halt!</span> <span class='kw'>if</span> <span class='id identifier rubyid_halt'>halt</span>
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>one of <span class='object_link'><a href="Signal.html#STATES-constant" title="CMDx::Signal::STATES (constant)">Signal::STATES</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_state'>state</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="status-instance_method">
+  
+    #<strong>status</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns one of <span class='object_link'><a href="Signal.html#STATUSES-constant" title="CMDx::Signal::STATUSES (constant)">Signal::STATUSES</a></span>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>one of <span class='object_link'><a href="Signal.html#STATUSES-constant" title="CMDx::Signal::STATUSES (constant)">Signal::STATUSES</a></span></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_status'>status</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4071,22 +3011,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether the result is strict.</p>
-
+    <p>Returns true when produced via <code>execute!</code>.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_strict?'>strict?</span> <span class='comment'># =&gt; true</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -4098,25 +3028,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>Whether the result is strict</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
+        <div class='inline'><p>true when produced via <code>execute!</code></p></div>
       
     </li>
   
@@ -4128,15 +3040,15 @@
       <pre class="lines">
 
 
-519
-520
-521</pre>
+234
+235
+236</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 519</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 234</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_strict?'>strict?</span>
-  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@strict</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:strict</span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4144,9 +3056,9 @@
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="success!-instance_method">
+  <h3 class="signature " id="success?-instance_method">
   
-    #<strong>success!</strong>(reason = nil, halt: true, **metadata)  &#x21d2; <tt>Object</tt> 
+    #<strong>success?</strong>  &#x21d2; <tt>Boolean</tt> 
   
 
   
@@ -4155,134 +3067,20 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Sets a reason and optional metadata on a successful result without changing its state or status. Useful for annotating why a task succeeded. When halt is true, uses throw/catch to exit the work method early.</p>
-
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Created 42 records</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Imported</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>rows:</span> <span class='int'>100</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
-      
-        <span class='name'>reason</span>
-      
-      
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Reason or note for the success</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>halt</span>
       
       
         <span class='type'>(<tt>Boolean</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether to halt execution after success</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>metadata</span>
-      
-      
-        <span class='type'>(<tt>Hash</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Additional metadata about the success</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-  
-    
-    
-    
-    
-    
-    
-    <p class="tag_title">Options Hash (<tt>**metadata</tt>):</p>
-    <ul class="option">
-      
-        <li>
-          <span class="name">:*</span>
-          <span class="type">(<tt>Object</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Any key-value pairs for additional metadata</p>
-</div>
-          
-        </li>
-      
-    </ul>
-  
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>RuntimeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When status is not success</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(?String? reason, halt: bool, **untyped metadata) -&gt; void</p>
-</div>
       
     </li>
   
@@ -4294,25 +3092,122 @@
       <pre class="lines">
 
 
-301
-302
-303
-304
-305
-306
-307
-308</pre>
+107
+108
+109</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 301</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 107</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_success!'>success!</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>can only be used while </span><span class='embexpr_beg'>#{</span><span class='const'>SUCCESS</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_success?'>success?</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_success?'>success?</span>
+  <span class='ivar'>@signal</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tags-instance_method">
+  
+    #<strong>tags</strong>  &#x21d2; <tt>Array&lt;Symbol, String&gt;</tt> 
+  
 
-  <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='id identifier rubyid_reason'>reason</span>
-  <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span>
+  
 
-  <span class='id identifier rubyid_throw'>throw</span><span class='lparen'>(</span><span class='symbol'>:cmdx_halt</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_halt'>halt</span>
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Symbol, String&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tags'>tags</span>
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_settings'>settings</span><span class='period'>.</span><span class='id identifier rubyid_tags'>tags</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="task-instance_method">
+  
+    #<strong>task</strong>  &#x21d2; <tt>Class&lt;<span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns the task class that ran.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Class&lt;<span class='object_link'><a href="Task.html" title="CMDx::Task (class)">Task</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>the task class that ran</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span>
+  <span class='ivar'>@task</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4322,7 +3217,7 @@
       <div class="method_details ">
   <h3 class="signature " id="threw_failure-instance_method">
   
-    #<strong>threw_failure</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt><sup>?</sup> 
+    #<strong>threw_failure</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt><sup>?</sup> 
   
 
   
@@ -4330,53 +3225,22 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns The result that threw this failure, or nil.</p>
-
+    <p>The nearest upstream failed result. <code>self</code> when this result is the
+originator; <code>nil</code> when not failed.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_thrown'>thrown</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_threw_failure'>threw_failure</span>
-<span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Thrown by: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thrown'>thrown</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_thrown'>thrown</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The result that threw this failure, or nil</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Result?</p>
-</div>
       
     </li>
   
@@ -4388,328 +3252,19 @@
       <pre class="lines">
 
 
-460
-461
-462
-463
-464
-465
-466
-467
-468
-469
-470
-471
-472
-473
-474
-475</pre>
+203
+204
+205
+206
+207</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 460</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 203</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_threw_failure'>threw_failure</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
 
-  <span class='id identifier rubyid_current'>current</span> <span class='op'>=</span> <span class='id identifier rubyid_index'>index</span>
-  <span class='id identifier rubyid_last_failed'>last_failed</span> <span class='op'>=</span> <span class='kw'>nil</span>
-
-  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span>
-    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_failed?'>failed?</span>
-
-    <span class='kw'>return</span> <span class='id identifier rubyid_r'>r</span> <span class='kw'>if</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_current'>current</span>
-
-    <span class='id identifier rubyid_last_failed'>last_failed</span> <span class='op'>=</span> <span class='id identifier rubyid_r'>r</span>
-  <span class='kw'>end</span>
-
-  <span class='id identifier rubyid_last_failed'>last_failed</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="threw_failure?-instance_method">
-  
-    #<strong>threw_failure?</strong>  &#x21d2; <tt>Boolean</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-<p>Returns Whether this result threw the failure.</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_threw_failure?'>threw_failure?</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This task threw the failure</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether this result threw the failure</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-485
-486
-487
-488
-489</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 485</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_threw_failure?'>threw_failure?</span>
-  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_failed?'>failed?</span>
-
-  <span class='id identifier rubyid_threw_failure'>threw_failure</span> <span class='op'>==</span> <span class='kw'>self</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      <div class="method_details ">
-  <h3 class="signature " id="throw!-instance_method">
-  
-    #<strong>throw!</strong>(result, halt: true, cause: nil, **metadata)  &#x21d2; <tt>Object</tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_other_result'>other_result</span> <span class='op'>=</span> <span class='const'>OtherTask</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span>
-<span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_other_result'>other_result</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='id identifier rubyid_upstream_error'>upstream_error</span><span class='rparen'>)</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
-<ul class="param">
-  
-    <li>
-      
-        <span class='name'>result</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="" title="CMDx::Result (class)">CMDx::Result</a></span></tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Result to throw from current result</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>halt</span>
-      
-      
-        <span class='type'>(<tt>Boolean</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>true</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Whether to halt execution after throwing</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>cause</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../CMDx.html#Exception-constant" title="CMDx::Exception (constant)">Exception</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Exception that caused the throw</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>metadata</span>
-      
-      
-        <span class='type'>(<tt>Hash</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>Additional metadata to merge</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    <p class="tag_title">Options Hash (<tt>**metadata</tt>):</p>
-    <ul class="option">
-      
-        <li>
-          <span class="name">:*</span>
-          <span class="type">(<tt>Object</tt>)</span>
-          <span class="default">
-            
-          </span>
-          
-            &mdash; <div class='inline'>
-<p>Any key-value pairs for additional metadata</p>
-</div>
-          
-        </li>
-      
-    </ul>
-  
-
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>TypeError</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>When result is not a CMDx::Result instance</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(Result result, halt: bool, cause: Exception?, **untyped metadata) -&gt; void</p>
-</div>
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-414
-415
-416
-417
-418
-419
-420
-421
-422
-423
-424</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 414</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_throw!'>throw!</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='label'>halt:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cause:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must be a CMDx::Result</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="CMDx::Result (class)">Result</a></span></span><span class='rparen'>)</span>
-
-  <span class='ivar'>@state</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span>
-  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span>
-  <span class='ivar'>@reason</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_reason'>reason</span>
-  <span class='ivar'>@cause</span> <span class='op'>=</span> <span class='id identifier rubyid_cause'>cause</span> <span class='op'>||</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_cause'>cause</span>
-  <span class='ivar'>@metadata</span> <span class='op'>=</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata'>metadata</span><span class='rparen'>)</span>
-
-  <span class='id identifier rubyid_halt!'>halt!</span> <span class='kw'>if</span> <span class='id identifier rubyid_halt'>halt</span>
+  <span class='id identifier rubyid_origin'>origin</span> <span class='op'>||</span> <span class='kw'>self</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4727,24 +3282,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Whether this result is a thrown failure.</p>
-
+    <p>Returns true when this result re-threw an upstream failure.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_thrown_failure?'>thrown_failure?</span>
-  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This failure was thrown from another task</span><span class='tstring_end'>&quot;</span></span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -4756,25 +3299,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>Whether this result is a thrown failure</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; bool</p>
-</div>
+        <div class='inline'><p>true when this result re-threw an upstream failure</p></div>
       
     </li>
   
@@ -4786,15 +3311,70 @@
       <pre class="lines">
 
 
-499
-500
-501</pre>
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 499</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_thrown_failure?'>thrown_failure?</span>
-  <span class='id identifier rubyid_failed?'>failed?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_caused_failure?'>caused_failure?</span>
+  <span class='id identifier rubyid_failed?'>failed?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_origin'>origin</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tid-instance_method">
+  
+    #<strong>tid</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns uuid_v7 identifier for this execution.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>uuid_v7 identifier for this execution</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tid'>tid</span>
+  <span class='ivar'>@options</span><span class='lbracket'>[</span><span class='symbol'>:tid</span><span class='rbracket'>]</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4804,7 +3384,7 @@
       <div class="method_details ">
   <h3 class="signature " id="to_h-instance_method">
   
-    #<strong>to_h</strong>  &#x21d2; <tt>Hash</tt> 
+    #<strong>to_h</strong>  &#x21d2; <tt>Hash{Symbol =&gt; Object}</tt> 
   
 
   
@@ -4812,53 +3392,28 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns Hash representation of the result.</p>
-
+    <p>Returns memoized serialization. Includes
+<code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>, <code>:caused_failure</code>, <code>:rolled_back</code>
+on failure.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
-<span class='comment'># =&gt; {state: &quot;complete&quot;, status: &quot;success&quot;, outcome: &quot;success&quot;, reason: &quot;Unspecified&quot;, metadata: {}}</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>Hash</tt>)</span>
+        <span class='type'>(<tt>Hash{Symbol =&gt; Object}</tt>)</span>
       
       
       
         &mdash;
-        <div class='inline'>
-<p>Hash representation of the result</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; Hash[Symbol, untyped]</p>
-</div>
+        <div class='inline'><p>memoized serialization. Includes
+<code>:cause</code>, <code>:origin</code>, <code>:threw_failure</code>, <code>:caused_failure</code>, <code>:rolled_back</code>
+on failure.</p></div>
       
     </li>
   
@@ -4870,47 +3425,141 @@
       <pre class="lines">
 
 
-561
-562
-563
-564
-565
-566
-567
-568
-569
-570
-571
-572
-573
-574
-575
-576
-577
-578
-579</pre>
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 561</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 261</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
-  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span>
+  <span class='ivar'>@to_h</span> <span class='op'>||=</span> <span class='lbrace'>{</span>
+    <span class='label'>xid:</span><span class='comma'>,</span>
+    <span class='label'>cid:</span><span class='comma'>,</span>
+    <span class='label'>index:</span><span class='comma'>,</span>
+    <span class='label'>root:</span> <span class='id identifier rubyid_root?'>root?</span><span class='comma'>,</span>
+    <span class='label'>type:</span><span class='comma'>,</span>
+    <span class='label'>task:</span><span class='comma'>,</span>
+    <span class='label'>tid:</span><span class='comma'>,</span>
+    <span class='label'>context:</span><span class='comma'>,</span>
     <span class='label'>state:</span><span class='comma'>,</span>
     <span class='label'>status:</span><span class='comma'>,</span>
-    <span class='label'>outcome:</span><span class='comma'>,</span>
     <span class='label'>reason:</span><span class='comma'>,</span>
-    <span class='label'>metadata:</span>
-  <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='op'>|</span>
-    <span class='kw'>if</span> <span class='id identifier rubyid_interrupted?'>interrupted?</span>
+    <span class='label'>metadata:</span><span class='comma'>,</span>
+    <span class='label'>strict:</span> <span class='id identifier rubyid_strict?'>strict?</span><span class='comma'>,</span>
+    <span class='label'>deprecated:</span> <span class='id identifier rubyid_deprecated?'>deprecated?</span><span class='comma'>,</span>
+    <span class='label'>retried:</span> <span class='id identifier rubyid_retried?'>retried?</span><span class='comma'>,</span>
+    <span class='label'>retries:</span><span class='comma'>,</span>
+    <span class='label'>duration:</span><span class='comma'>,</span>
+    <span class='label'>tags:</span>
+  <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_failed?'>failed?</span>
       <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:cause</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_cause'>cause</span>
+      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hash_for_failure'>hash_for_failure</span><span class='lparen'>(</span><span class='symbol'>:origin</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:threw_failure</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hash_for_failure'>hash_for_failure</span><span class='lparen'>(</span><span class='symbol'>:threw_failure</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:caused_failure</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_hash_for_failure'>hash_for_failure</span><span class='lparen'>(</span><span class='symbol'>:caused_failure</span><span class='rparen'>)</span>
       <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='symbol'>:rolled_back</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rolled_back?'>rolled_back?</span>
     <span class='kw'>end</span>
-
-    <span class='kw'>if</span> <span class='id identifier rubyid_failed?'>failed?</span>
-      <span class='const'>STRIP_FAILURE</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='symbol'>:threw_failure</span><span class='rparen'>)</span>
-      <span class='const'>STRIP_FAILURE</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='symbol'>:caused_failure</span><span class='rparen'>)</span>
-    <span class='kw'>end</span>
   <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_json-instance_method">
+  
+    #<strong>to_json</strong>(*args)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Serializes the result to a JSON string. Non-primitive entries (the
+<code>:task</code> Class, <code>:cause</code> Exception) emit via their stdlib <code>to_json</code>
+defaults; <code>:context</code> delegates to <span class='object_link'><a href="Context.html#to_json-instance_method" title="CMDx::Context#to_json (method)">Context#to_json</a></span>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>forwarded to <code>Hash#to_json</code></p></div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+306
+307
+308</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 306</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -4928,29 +3577,13 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Returns String representation of the result.</p>
-
+    <p>Returns space-separated <code>key=value.inspect</code> pairs; failure
+references render as <code>&lt;TaskClass uuid&gt;</code>.</p>
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='comment'># =&gt; &quot;task_id=my_task state=complete status=success&quot;</span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>With failure</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='comment'># =&gt; &quot;task_id=my_task state=complete status=failed threw_failure=&lt;[1] MyTask: my_task&gt;&quot;</span></code></pre>
-    
-  </div>
-
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -4962,25 +3595,8 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>String representation of the result</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>() -&gt; String</p>
-</div>
+        <div class='inline'><p>space-separated <code>key=value.inspect</code> pairs; failure
+references render as <code>&lt;TaskClass uuid&gt;</code>.</p></div>
       
     </li>
   
@@ -4992,27 +3608,157 @@
       <pre class="lines">
 
 
-589
-590
-591
-592
-593
-594
-595
-596
-597</pre>
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 589</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 312</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
-  <span class='const'><span class='object_link'><a href="Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_str'><span class='object_link'><a href="Utils/Format.html#to_str-instance_method" title="CMDx::Utils::Format#to_str (method)">to_str</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
-    <span class='kw'>if</span> <span class='const'>FAILURE_KEY_REGEX</span><span class='period'>.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>=&lt;[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='symbol'>:index</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='symbol'>:class</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&quot;</span></span>
-    <span class='kw'>else</span>
-      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@to_s</span> <span class='op'>||=</span> <span class='kw'>begin</span>
+    <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='const'>String</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>capacity:</span> <span class='int'>256</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_to_h'>to_h</span><span class='period'>.</span><span class='id identifier rubyid_each_with_object'>each_with_object</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='op'>|</span>
+      <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+      <span class='id identifier rubyid_ks'>ks</span> <span class='op'>=</span> <span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ks'>ks</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=nil</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_ks'>ks</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>origin</span><span class='tstring_end'>&quot;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_ks'>ks</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_failure</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ks'>ks</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=&lt;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='symbol'>:tid</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ks'>ks</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=</span><span class='tstring_end'>&quot;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span>
+      <span class='kw'>end</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns <code>&quot;Task&quot;</code> or <code>&quot;Workflow&quot;</code>.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p><code>&quot;Task&quot;</code> or <code>&quot;Workflow&quot;</code></p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="xid-instance_method">
+  
+    #<strong>xid</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns correlation id or the global configuration's correlation id.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>correlation id or the global configuration's correlation id</p></div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/result.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_xid'>xid</span>
+  <span class='id identifier rubyid_chain'>chain</span><span class='period'>.</span><span class='id identifier rubyid_xid'>xid</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -5024,9 +3770,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:22 2026 by
+  Generated on Tue May  5 18:40:00 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>

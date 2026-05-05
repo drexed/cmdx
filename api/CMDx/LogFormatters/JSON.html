@@ -6,13 +6,13 @@
 <title>
   Class: CMDx::LogFormatters::JSON
   
-    &mdash; Documentation by YARD 0.9.39
+    &mdash; Documentation by YARD 0.9.43
   
 </title>
 
-  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/style.css" type="text/css">
 
-  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/common.css" type="text/css">
 
 <script type="text/javascript">
   pathId = "CMDx::LogFormatters::JSON";
@@ -27,6 +27,8 @@
 
   </head>
   <body>
+    <div id="main_progress" aria-hidden="true"></div>
+
     <div class="nav_wrap">
       <iframe id="nav" src="../../class_list.html?1"></iframe>
       <div id="resizer"></div>
@@ -94,18 +96,17 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/cmdx/log_formatters/json.rb</dd>
+    <dd>lib/cmdx/log_formatters/json.rb
+</dd>
   </dl>
   
 </div>
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    
-<p>Formats log messages as JSON for structured logging</p>
-
-<p>This formatter converts log entries into JSON format with standardized fields including severity, timestamp, program name, process ID, and formatted message. The output is suitable for log aggregation systems and structured analysis.</p>
-
+    <p><code>Logger</code> formatter that emits one JSON object per line with <code>severity</code>,
+ISO8601 <code>timestamp</code>, <code>progname</code>, <code>pid</code>, and <code>message</code> (rendered via
+<code>#to_h</code> when available — Result instances serialize themselves).</p>
 
   </div>
 </div>
@@ -144,14 +145,13 @@
   
 
   
-    <span class="summary_desc"><div class='inline'>
-<p>Formats a log entry as a JSON string.</p>
-</div></span>
+    <span class="summary_desc"><div class='inline'><p>JSON line terminated by <code>&quot;\n&quot;</code>.</p></div></span>
   
 </li>
 
       
     </ul>
+    
   
 
 
@@ -171,27 +171,12 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-<p>Formats a log entry as a JSON string</p>
-
+    <p>Returns JSON line terminated by <code>&quot;\n&quot;</code>.</p>
 
   </div>
 </div>
 <div class="tags">
-  
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-        <h5 class="example_title"><div class='inline'>
-<p>Basic usage</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='id identifier rubyid_logger_formatter'>logger_formatter</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>INFO</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MyApp</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>User logged in</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-<span class='comment'># =&gt; &#39;{&quot;severity&quot;:&quot;INFO&quot;,&quot;timestamp&quot;:&quot;2024-01-15T10:30:45.123456Z&quot;,&quot;progname&quot;:&quot;MyApp&quot;,&quot;pid&quot;:12345,&quot;message&quot;:&quot;User logged in&quot;}\n&#39;</span></code></pre>
-    
-  </div>
-<p class="tag_title">Parameters:</p>
+  <p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -204,9 +189,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The log level (e.g., “INFO”, “ERROR”, “DEBUG”)</p>
-</div>
+        <div class='inline'><p>Logger severity name</p></div>
       
     </li>
   
@@ -219,11 +202,6 @@
       
       
       
-        &mdash;
-        <div class='inline'>
-<p>The timestamp when the log entry was created</p>
-</div>
-      
     </li>
   
     <li>
@@ -234,11 +212,6 @@
         <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
       
       
-      
-        &mdash;
-        <div class='inline'>
-<p>The program name or identifier</p>
-</div>
       
     </li>
   
@@ -252,9 +225,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>The log message content</p>
-</div>
+        <div class='inline'><p>anything <code>Logger</code> was handed</p></div>
       
     </li>
   
@@ -271,25 +242,7 @@
       
       
         &mdash;
-        <div class='inline'>
-<p>A JSON-formatted log entry with a trailing newline</p>
-</div>
-      
-    </li>
-  
-</ul>
-<p class="tag_title">Rbs:</p>
-<ul class="rbs">
-  
-    <li>
-      
-      
-      
-      
-        
-        <div class='inline'>
-<p>(String severity, Time time, String? progname, String message) -&gt; String</p>
-</div>
+        <div class='inline'><p>JSON line terminated by <code>&quot;\n&quot;</code></p></div>
       
     </li>
   
@@ -301,20 +254,20 @@
       <pre class="lines">
 
 
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36</pre>
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/json.rb', line 26</span>
+      <pre class="code"><span class="info file"># File 'lib/cmdx/log_formatters/json.rb', line 15</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_severity'>severity</span><span class='comma'>,</span> <span class='id identifier rubyid_time'>time</span><span class='comma'>,</span> <span class='id identifier rubyid_progname'>progname</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
@@ -322,7 +275,7 @@
     <span class='label'>timestamp:</span> <span class='id identifier rubyid_time'>time</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span><span class='period'>.</span><span class='id identifier rubyid_iso8601'>iso8601</span><span class='lparen'>(</span><span class='int'>6</span><span class='rparen'>)</span><span class='comma'>,</span>
     <span class='label'>progname:</span><span class='comma'>,</span>
     <span class='label'>pid:</span> <span class='const'>Process</span><span class='period'>.</span><span class='id identifier rubyid_pid'>pid</span><span class='comma'>,</span>
-    <span class='label'>message:</span> <span class='const'><span class='object_link'><a href="../Utils.html" title="CMDx::Utils (module)">Utils</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Utils/Format.html" title="CMDx::Utils::Format (module)">Format</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_log'><span class='object_link'><a href="../Utils/Format.html#to_log-instance_method" title="CMDx::Utils::Format#to_log (method)">to_log</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+    <span class='label'>message:</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:to_h</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span> <span class='op'>:</span> <span class='id identifier rubyid_message'>message</span>
   <span class='rbrace'>}</span>
 
   <span class='op'>::</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
@@ -337,9 +290,9 @@
 </div>
 
       <div id="footer">
-  Generated on Fri Apr 10 01:38:23 2026 by
+  Generated on Tue May  5 18:40:01 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.39 (ruby-3.4.9).
+  0.9.43 (ruby-3.4.9).
 </div>
 
     </div>
