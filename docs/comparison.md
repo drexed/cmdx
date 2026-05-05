@@ -29,7 +29,7 @@ CMDx bundles structured logging, telemetry hooks, type coercion, middleware, and
 
 - **Retries and faults** — declarative `retry_on` with configurable jitter, halt primitives (`success!` / `skip!` / `fail!`), and `throw!` for propagating peer failures.
 
-- **Pluggable parallelism** — workflow groups can run tasks concurrently using registered executors (`:threads`, `:fibers`, or custom) and fold results with registered mergers (`:last_write_wins`, `:deep_merge`, `:no_merge`, or custom). See [Workflows - Parallel Groups](workflows.md#parallel-groups).
+- **Pluggable parallelism** — workflow groups can run tasks concurrently using registered executors (`:threads`, `:fibers`, or custom) and fold results with registered mergers (`:last_write_wins`, `:deep_merge`, `:no_merge`, or custom). See [Workflows - Parallel Groups](workflows.md#parallel-execution).
 
 - **Full telemetry surface** — `:task_started`, `:task_deprecated`, `:task_retried`, `:task_rolled_back`, and `:task_executed` events are emitted only when subscribers exist; subscribe from a single `CMDx.configure` block.
 

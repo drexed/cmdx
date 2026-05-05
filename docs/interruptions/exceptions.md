@@ -11,6 +11,7 @@ CMDx defines a small, flat exception hierarchy. Every exception the framework ra
 ```
 StandardError
 └── CMDx::Error  (alias: CMDx::Exception)
+    ├── CMDx::CallbackError
     ├── CMDx::DefinitionError
     ├── CMDx::DeprecationError
     ├── CMDx::ImplementationError
@@ -94,6 +95,21 @@ IncompleteTask.execute  #=> raises CMDx::ImplementationError
 IncompleteTask.execute! #=> raises CMDx::ImplementationError
 ```
 
+### CMDx::CallbackError
+
+Raised when an `around_execution` callback fails to invoke its continuation. Without this guard, a buggy around callback would silently bypass the task body.
+
+```ruby
+class ForgetfulCallback < CMDx::Task
+  around_execution proc { |task, _cont| log("started") }  # never calls cont
+
+  def work; end
+end
+
+ForgetfulCallback.execute!
+#=> raises CMDx::CallbackError: "around_execution callback did not invoke its continuation"
+```
+
 ### CMDx::MiddlewareError
 
 Raised by the middleware chain when a registered middleware forgets to yield to `next_link`. Without this guard, a buggy middleware would silently bypass the task body.
@@ -136,8 +152,8 @@ rescue CMDx::Fault => e
   e.result.origin     #=> the upstream result this signal was echoed from
   e.context           #=> the failing task's frozen context
   e.chain             #=> the full Chain of Results from the run
-  e.message           #=> e.result.reason (or the localized "unspecified" fallback)
-  e.backtrace         #=> cleaned via Settings#backtrace_cleaner when configured
+  e.message           #=> I18nProxy.tr(e.result.reason) — translated when the reason is an i18n key, otherwise passes through verbatim; falls back to the localized "unspecified" string when reason is nil
+  e.backtrace         #=> cleaned via the task's `backtrace_cleaner` setting when configured
 end
 ```
 
@@ -174,7 +190,7 @@ end
 | `throw!(failed_result)` | failed result | raises `Fault` |
 | Coercion / validation error on input | failed result | raises `Fault` |
 | Non-framework `StandardError` inside `work` | failed result with `cause` | re-raises the **original** exception |
-| Any `CMDx::Error` subclass inside `work` (`ImplementationError`, `DeprecationError`, `MiddlewareError`) | propagates | propagates |
+| Any `CMDx::Error` subclass inside `work` (`ImplementationError`, `DeprecationError`, `MiddlewareError`, `CallbackError`) | propagates | propagates |
 | `ImplementationError` from `Workflow.method_added` | propagates at class-load time | propagates at class-load time |
 | `DefinitionError` from a conflicting input declaration | propagates at class-load time | propagates at class-load time |
 | Non-`StandardError` (e.g. `Interrupt`, `SignalException`) | propagates | propagates |

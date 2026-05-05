@@ -158,7 +158,7 @@ end
 
 ## Sharing Behavior via a Base Class
 
-Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`, and `retry_on` automatically.
+Pull cross-cutting concerns onto a base task. Subclasses inherit `settings`, `callbacks`, `middlewares`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `inputs`, `outputs`, `retry_on`, and `deprecation` automatically.
 
 ```ruby
 class ApplicationTask < CMDx::Task
@@ -184,7 +184,7 @@ class ProcessInvoice < ApplicationTask
 end
 ```
 
-Inherited registries (callbacks, middlewares, validators, coercions, executors, mergers) accumulate — declaring more in a subclass appends to (or overwrites by name in) the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
+Inherited registries (callbacks, middlewares, validators, coercions, executors, mergers, retriers, deprecators, inputs, outputs) accumulate — declaring more in a subclass appends to (or overwrites by name in) the parent's list. To opt out of an inherited entry, use `deregister` (e.g. `deregister :callback, :before_execution, :ensure_current_tenant!`). `retry_on` and `settings` likewise accumulate via merge: a subclass `retry_on` adds exception classes and overrides individual options (`limit:`, `delay:`, …) without dropping the parent's, and `settings` merges new keys on top.
 
 ## Useful Examples
 

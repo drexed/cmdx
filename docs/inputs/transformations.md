@@ -53,17 +53,23 @@ Use any object that responds to `#call(value, task)` for reusable transformation
 
 ```ruby
 class EmailNormalizer
-  def call(value, task)
+  def self.call(value, _task)
     value.to_s.downcase.strip
   end
 end
 
+class PhoneNormalizer
+  def call(value, _task)
+    value.to_s.gsub(/\D/, "")
+  end
+end
+
 class ProcessContacts < CMDx::Task
-  # Class or Module
+  # Class with a class-level `.call` — pass the class itself
   input :email, transform: EmailNormalizer
 
-  # Instance
-  input :email, transform: EmailNormalizer.new
+  # Instance with `#call` — instantiate when registering
+  input :phone, transform: PhoneNormalizer.new
 end
 ```
 

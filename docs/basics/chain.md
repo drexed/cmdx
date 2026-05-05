@@ -49,7 +49,7 @@ class ImportDataset < CMDx::Task
   def work
     context.dataset = Dataset.find(context.dataset_id)
 
-    result1 = ValidateSchema.execute
+    result1 = ValidateSchema.execute(context)
     result1.chain.size #=> 1 (the parent hasn't finalized yet)
 
     result2 = TransformData.execute!(context)

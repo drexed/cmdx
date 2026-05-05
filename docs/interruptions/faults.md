@@ -10,8 +10,8 @@
 | `fault.task` | `Class<CMDx::Task>` | The failing task **class** (`fault.result.task`) |
 | `fault.context` | `CMDx::Context` | The failing task's frozen context |
 | `fault.chain` | `CMDx::Chain` | The chain of every result produced during the run |
-| `fault.message` | `String` | The result's `reason`, or the localized `cmdx.reasons.unspecified` when `nil` |
-| `fault.backtrace` | `Array<String>` | Cleaned via `task.settings.backtrace_cleaner` when configured |
+| `fault.message` | `String` | `I18nProxy.tr(result.reason)` — translates when the reason is an i18n key, otherwise passes through; falls back to the localized `cmdx.reasons.unspecified` when reason is `nil` |
+| `fault.backtrace` | `Array<String>` | From `result.backtrace` or `result.cause&.backtrace_locations`, cleaned via `task.settings.backtrace_cleaner` when configured |
 
 Use `fault.result` to read the failed outcome's `reason`, `metadata`, `cause`, `origin`, `state`, and `status`.
 
@@ -142,7 +142,7 @@ begin
   DocumentWorkflow.execute!(document_data: data)
 rescue CMDx::Fault => e
   puts "Originated by #{e.task}: #{e.message}"
-  puts "Workflow result: #{e.chain.first.task}"
+  puts "Root task: #{e.chain.first.task}"     # chain.first is always the root execution
 end
 
 # Or via non-bang execute:

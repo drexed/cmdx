@@ -11,7 +11,7 @@ CMDx uses a two-tier configuration system:
 
 !!! warning "Important"
 
-    Class-level registries (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `telemetry`) are **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
+    Every class-level registry (`middlewares`, `callbacks`, `coercions`, `validators`, `executors`, `mergers`, `retriers`, `deprecators`, `telemetry`, `inputs`, `outputs`) is **lazily duplicated** from the parent class (or from the global configuration at the top of the hierarchy) on first access. Configure globals before any task first touches a registry, or call `CMDx.reset_configuration!` in test setup to invalidate the cached copies on `Task`.
 
 ## Global Configuration
 
@@ -33,6 +33,8 @@ CMDx uses a two-tier configuration system:
 | `validators` | `Validators.new` (7 built-ins) | Validator registry |
 | `executors` | `Executors.new` (`:threads`, `:fibers`) | Parallel-group executor registry |
 | `mergers` | `Mergers.new` (`:last_write_wins`, `:deep_merge`, `:no_merge`) | Parallel-group merge-strategy registry |
+| `retriers` | `Retriers.new` (7 built-ins) | Retry/jitter strategy registry |
+| `deprecators` | `Deprecators.new` (`:log`, `:warn`, `:error`) | Deprecation handler registry |
 | `telemetry` | `Telemetry.new` (empty) | Telemetry pub/sub |
 
 ### Default Locale
@@ -289,7 +291,7 @@ CMDx.configure do |config|
 end
 ```
 
-See [Workflows - Parallel Groups](workflows.md#parallel-groups) for usage.
+See [Workflows - Parallel Groups](workflows.md#parallel-execution) for usage.
 
 ### Mergers
 
@@ -306,7 +308,7 @@ CMDx.configure do |config|
 end
 ```
 
-See [Workflows - Parallel Groups](workflows.md#parallel-groups) for usage.
+See [Workflows - Parallel Groups](workflows.md#parallel-execution) for usage.
 
 ## Class-Level Configuration
 
@@ -359,7 +361,7 @@ class FetchInvoice < CMDx::Task
     limit: 3,
     delay: 0.5,
     max_delay: 5.0,
-    jitter: :exponential   # :exponential, :half_random, :full_random, :bounded_random
+    jitter: :exponential   # :exponential, :half_random, :full_random, :bounded_random, :linear, :fibonacci, :decorrelated_jitter
 
   retry_on External::ApiError, limit: 5 do |attempt, delay|
     delay * (attempt + 1)  # custom jitter block
@@ -453,4 +455,4 @@ end
 
 !!! warning "Important"
 
-    `reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).
+    `reset_configuration!` clears `@middlewares`, `@callbacks`, `@coercions`, `@validators`, `@executors`, `@mergers`, `@retriers`, `@deprecators`, and `@telemetry` on `Task` only — subclasses that already cached their own copy keep them. In tests, prefer letting each example use freshly defined task classes (e.g. via `stub_const` or anonymous classes).

@@ -109,10 +109,16 @@ class OutdatedConnector < CMDx::Task
   deprecation proc { |task|
     Rails.env.development? ? raise(CMDx::DeprecationError, "#{task.class} retired") : task.logger.warn("legacy")
   }
+end
 
+class TenantLegacy < CMDx::Task
   deprecation ->(task) { task.context.tenant.legacy_mode? ? warn("legacy") : nil }
 end
 ```
+
+!!! warning
+
+    Only one `deprecation` declaration is honored per class — repeated calls overwrite the previous declaration. To express multi-modal behavior, branch inside a single callable.
 
 ### Class or Module
 
@@ -128,8 +134,11 @@ class OutdatedTaskDeprecator
 end
 
 class OutdatedConnector < CMDx::Task
-  deprecation OutdatedTaskDeprecator       # class
-  deprecation OutdatedTaskDeprecator.new   # instance
+  deprecation OutdatedTaskDeprecator       # class — must define `.call(task)`
+end
+
+class AnotherOutdatedConnector < CMDx::Task
+  deprecation OutdatedTaskDeprecator.new   # instance — must define `#call(task)`
 end
 ```
 
@@ -140,7 +149,10 @@ Pass `:if` / `:unless` to skip the deprecation action when the gate fails. Both 
 ```ruby
 class OutdatedConnector < CMDx::Task
   deprecation :error, if: -> { Rails.env.production? }
-  deprecation :log,   unless: :tenant_grandfathered?
+end
+
+class GrandfatheredTenants < CMDx::Task
+  deprecation :log, unless: :tenant_grandfathered?
 
   private
 

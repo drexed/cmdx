@@ -125,9 +125,11 @@ end
 
 ```ruby
 class ProcessProduct < CMDx::Task
+  # Shorthand: a bare Regexp is normalized to `{ with: regex }`
   input :sku, format: /\A[A-Z]{3}-[0-9]{4}\z/
 
-  input :sku, format: { with: /\A[A-Z]{3}-[0-9]{4}\z/ }
+  # Equivalent long form
+  input :code, format: { with: /\A[A-Z]{3}-[0-9]{4}\z/ }
 end
 ```
 

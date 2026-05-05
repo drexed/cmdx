@@ -29,9 +29,9 @@ CMDx is a Ruby framework for building maintainable, observable business logic th
 ## Requirements
 
 - Ruby: MRI 3.3+ or a compatible JRuby/TruffleRuby release
-- Dependencies: None
+- Runtime dependencies: `bigdecimal` and `logger` (both stdlib gems on most distributions)
 
-Rails support is built-in, but it's framework-agnostic at its core.
+No ActiveSupport or Rails required — Rails integration is opt-in via `CMDx::Railtie`.
 
 ## Installation
 
@@ -227,7 +227,7 @@ flowchart TD
     Work -.->|raises StandardError| Fail
     Retry -.->|retriable error| Retry
     OK --> Verify[Verify outputs]
-    Fail --> Rollback{task.rollback?}
+    Fail --> Rollback{defines #rollback?}
     Echo --> Rollback
     Rollback -->|yes| DoRollback[Run rollback]
     Rollback -->|no| Cb

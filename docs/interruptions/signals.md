@@ -84,7 +84,7 @@ result.reason #=> "Refund period has expired"
 
 !!! note
 
-    `result.reason` is exactly what you passed (or `nil`). The `"Unspecified"` fallback only appears on `Fault#message` when `execute!` raises with no reason.
+    `result.reason` is exactly what you passed (or `nil`). The localized `cmdx.reasons.unspecified` fallback only appears on `Fault#message` when `execute!` raises with no reason.
 
 ## Metadata Enrichment
 
@@ -180,7 +180,10 @@ Use `throw!` to halt the current task by echoing another task's failed result. I
 class ReportMonthlyMetrics < CMDx::Task
   def work
     result = BuildReport.execute(context)
-    throw!(result) # bubbles up with the same reason, metadata, origin
+    throw!(result) # echoes the peer's state/status/reason; the upstream
+                   # result is exposed via `origin`. Metadata on this task's
+                   # result is this task's `metadata` (merged with any kwargs
+                   # passed to throw!), not a copy of the peer's metadata.
 
     # ...happy path continues here when result isn't failed
   end
@@ -204,7 +207,7 @@ fail!("File format not supported by processor", code: "FORMAT_UNSUPPORTED")
 # Good: Clear reason
 skip!("Document processing paused for compliance review")
 
-# Avoid: nil reason (Fault#message falls back to the localized "Unspecified")
+# Avoid: nil reason (Fault#message falls back to the localized cmdx.reasons.unspecified)
 skip!
 fail!
 ```

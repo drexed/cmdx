@@ -66,7 +66,7 @@ Options apply to the entire group:
 | `pool_size:`  | `tasks.size`   | Worker/fiber count when `strategy: :parallel`          |
 | `executor:`   | `:threads`     | Parallel dispatch backend: `:threads`, `:fibers`, or a callable. `:fibers` requires a `Fiber.scheduler` to be installed (e.g. inside `Async { ... }`) |
 | `merger:` | `:last_write_wins` | How successful parallel contexts fold back into the workflow context: `:last_write_wins`, `:deep_merge`, `:no_merge`, or a callable `->(workflow_context, result) { ... }` |
-| `continue_on_failure:` | `false` | When `true`, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's `errors` (keyed `"TaskClass.input"` for input/validation errors and `"TaskClass.<status>"` for bare `fail!` reasons). Applies to both strategies. When `false` (default), `:sequential` halts on the first failure and `:parallel` cancels pending tasks (in-flight tasks still finish) |
+| `continue_on_failure:` | `false` | When `true`, run every task in the group to completion even after a failure, and aggregate all failures into the workflow's `errors` (keyed as the Symbol `:"TaskClass.<input>"` for input/validation errors and `:"TaskClass.<status>"` for bare `fail!` reasons). Applies to both strategies. When `false` (default), `:sequential` halts on the first failure and `:parallel` cancels pending tasks (in-flight tasks still finish) |
 | `if:` / `unless:` | —          | Skip the entire group when the predicate isn't satisfied |
 
 ### Conditionals
@@ -242,7 +242,7 @@ end
 
 !!! warning
 
-    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution. If multiple tasks write to the same key, the last merge wins non-deterministically. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through `throw!`. With `continue_on_failure: true`, every task runs to completion and all failures are aggregated into the workflow's `errors` keyed `"TaskClass.input"` (validation errors) or `"TaskClass.<status>"` (bare `fail!` reasons); the first failure (declaration order) is still propagated through `throw!`.
+    Each parallel task receives its own deep-duplicated `context` copy, which is merged back into the workflow's context after execution (declaration order, not completion order). If multiple tasks write to the same key, the last task in declaration order wins. Use distinct keys per task to avoid conflicts. By default, when any parallel task fails, pending tasks are cancelled (in-flight tasks still finish and successful contexts still merge) and the failed result is propagated through `throw!`. With `continue_on_failure: true`, every task runs to completion and all failures are aggregated into the workflow's `errors` (keyed as Symbols: `:"TaskClass.<input>"` for validation errors or `:"TaskClass.<status>"` for bare `fail!` reasons); the first failure in declaration order is still the one propagated through `throw!`.
 
 ### Batch processing with `continue_on_failure`
 

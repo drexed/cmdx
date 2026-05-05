@@ -8,7 +8,7 @@ Statuses represent the business outcome — did the task succeed, skip, or fail?
 | ------ | ----------- |
 | `success` | Task `work` ran to completion (and any declared outputs verified), or halted via `success!`. Default outcome. |
 | `skipped` | Task halted via `skip!`. Treated as a non-failure outcome. |
-| `failed`  | Task halted via `fail!`, `throw!`, an unrescued `StandardError`, or accumulated `task.errors`. |
+| `failed`  | Task halted via `fail!`, `throw!`, accumulated `task.errors`, or a `StandardError` raised from `work` (Runtime captures it on `result.cause`). |
 
 !!! note
 

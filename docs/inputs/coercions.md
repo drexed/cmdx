@@ -48,7 +48,7 @@ ParseMetrics.execute(
 | `:date` | `:strptime` | `Date.parse` on strings, `#to_date` on anything else that responds | `"2024-01-23"` → `Date.new(2024, 1, 23)` |
 | `:date_time` | `:strptime` | `DateTime.parse` on strings, `#to_datetime` on anything else that responds | `"2024-01-23 10:30"` → `DateTime.new(2024, 1, 23, 10, 30)` |
 | `:float` | | Floating-point numbers | `"123.45"` → `123.45` |
-| `:hash` | | Hash conversion with JSON support (`nil` → `{}`) | `'{"a":1}'` → `{"a" => 1}` |
+| `:hash` | | `nil` → `{}`; strings are JSON-decoded (must decode to a Hash); falls back to `#to_hash`/`#to_h` | `'{"a":1}'` → `{"a" => 1}` |
 | `:integer` | | Integer via `Kernel#Integer` (hex/octal with explicit prefix) | `"0xFF"` → `255`, `"0o77"` → `63` |
 | `:rational` | `:denominator` (default `1`) | Rational numbers | `"1/2"` → `Rational(1, 2)` |
 | `:string` | | String conversion | `123` → `"123"` |
@@ -77,14 +77,14 @@ class TransformCoordinates < CMDx::Task
   rescue StandardError
     CMDx::Coercions::Failure.new("could not convert into a geolocation")
   end
+end
 
+class FormatTimeRange < CMDx::Task
   # Lambda
-  register :coercion, :geolocation, ->(value, **options) {
-    begin
-      Geolocation(value)
-    rescue StandardError
-      CMDx::Coercions::Failure.new("could not convert into a geolocation")
-    end
+  register :coercion, :time_range, ->(value, **options) {
+    TimeRange(value)
+  rescue StandardError
+    CMDx::Coercions::Failure.new("could not convert into a time range")
   }
 end
 ```

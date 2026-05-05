@@ -8,8 +8,8 @@ Both methods return results, but handle failures differently:
 
 | Method | Returns | Exceptions | Use Case |
 |--------|---------|------------|----------|
-| `execute` | Always returns `CMDx::Result` | Never raises | Branch on `result.success?` / `failed?` / `skipped?` |
-| `execute!` | Returns `CMDx::Result` on success or skip | Raises `CMDx::Fault` (or the underlying exception) when failed | Exception-based control flow |
+| `execute` | Returns `CMDx::Result` for any task outcome | Never raises for ordinary failures; framework errors (`CMDx::Error` subclasses like `ImplementationError`, `MiddlewareError`, `CallbackError`, `DefinitionError`, `DeprecationError`) still propagate | Branch on `result.success?` / `failed?` / `skipped?` |
+| `execute!` | Returns `CMDx::Result` on success or skip | Raises `CMDx::Fault` on failed outcomes, or the underlying exception when `work` raised a non-`Fault` `StandardError` | Exception-based control flow |
 
 `call` / `call!` are aliases. `execute` / `execute!` also accept a block — when given, the block receives the `Result` and its return value is returned instead of the result.
 
@@ -51,7 +51,7 @@ flowchart LR
 
 ## Non-bang Execution
 
-Always returns a `CMDx::Result`, never raises. Default choice for most call sites.
+Returns a `CMDx::Result` for every task outcome (success, skip, fail). Default choice for most call sites. Framework errors (`CMDx::Error` subclasses) still propagate — they signal misconfiguration that should never be silently swallowed.
 
 ```ruby
 result = CreateAccount.execute(email: "user@example.com")

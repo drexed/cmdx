@@ -39,7 +39,8 @@ end
 # 1. AuditMiddleware (before)
 # 2.   AuthorizationMiddleware (before)
 # 3.     CacheMiddleware (before)
-# 4.       [task lifecycle: callbacks → work → callbacks]
+# 4.       [deprecation, callbacks, input resolution, retried `work`,
+#          output verification, rollback, completion callbacks, result finalization]
 # 5.     CacheMiddleware (after)
 # 6.   AuthorizationMiddleware (after)
 # 7. AuditMiddleware (after)

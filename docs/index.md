@@ -8,7 +8,7 @@ template: home.html
 
 ```ruby
 class ApproveLoan < CMDx::Task
-  register :middleware, DeeplI18nMiddleware
+  register :middleware, DeepLI18nMiddleware
 
   required :application_id, coerce: :integer
 

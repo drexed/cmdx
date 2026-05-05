@@ -31,7 +31,8 @@ end
 
 ```ruby
 output :report_path
-output :exported_at, if: ->(t) { t.context.persist? }
+output :exported_at, if: -> { context.persist? }    # Proc/Lambda is instance_exec'd (no args)
+output :tracked, if: :persist?                       # Symbol calls task.persist?
 ```
 
 ### Defaults

@@ -7,7 +7,7 @@ States track the lifecycle dimension of a result: did `work` run end-to-end, or 
 | State | Description |
 | ----- | ----------- |
 | `complete` | Task finished `work` (and output verification) without interruption. Includes both the implicit success path and an explicit `success!` halt. |
-| `interrupted` | Task halted via `skip!`, `fail!`, `throw!`, an unrescued `StandardError`, or accumulated `task.errors`. |
+| `interrupted` | Task halted via `skip!`, `fail!`, `throw!`, accumulated `task.errors`, or a `StandardError` raised from `work` (Runtime captures it on `result.cause` and converts the outcome to failed). |
 
 State-Status combinations:
 
