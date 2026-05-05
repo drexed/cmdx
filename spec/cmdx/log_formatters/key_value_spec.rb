@@ -17,7 +17,8 @@ RSpec.describe CMDx::LogFormatters::KeyValue do
 
   it "uses to_h for message objects" do
     message = Struct.new(:name).new("alice")
+    line    = formatter.call("INFO", time, nil, message)
 
-    expect(formatter.call("INFO", time, nil, message)).to include('message={name: "alice"}')
+    expect(line).to include("message=#{message.to_h.inspect}")
   end
 end
