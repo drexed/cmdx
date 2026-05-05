@@ -124,6 +124,36 @@ RSpec.describe CMDx::Fault do
     end
   end
 
+  describe ".reason?" do
+    let(:signal) { CMDx::Signal.failed("boom") }
+
+    it "raises when called without a reason" do
+      expect { described_class.reason?(nil) }.to raise_error(ArgumentError, "reason required")
+    end
+
+    it "matches faults whose result reason equals the given reason" do
+      matcher = described_class.reason?("boom")
+      expect(matcher === described_class.new(build_result(signal))).to be(true)
+    end
+
+    it "does not match faults with a different reason" do
+      matcher = described_class.reason?("other")
+      expect(matcher === described_class.new(build_result(signal))).to be(false)
+    end
+
+    it "only matches instances of the class that defined it" do
+      subclass = Class.new(described_class)
+      matcher = subclass.reason?("boom")
+
+      expect(matcher === described_class.new(build_result(signal))).to be(false)
+    end
+
+    it "does not match non-Fault objects" do
+      matcher = described_class.reason?("boom")
+      expect(matcher === "not a fault").to be(false)
+    end
+  end
+
   describe ".matches?" do
     let(:signal) { CMDx::Signal.failed("boom") }
     let(:result) { build_result(signal) }

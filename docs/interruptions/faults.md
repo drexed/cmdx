@@ -59,6 +59,18 @@ rescue CMDx::Fault.for?(FormatValidator, ContentProcessor) => e
 end
 ```
 
+### Reason-Specific Matching
+
+`Fault.reason?(reason)` returns an anonymous matcher subclass that matches any fault whose `result.reason` equals the given string:
+
+```ruby
+begin
+  ProcessPayment.execute!(payment_data: data)
+rescue CMDx::Fault.reason?("Payment declined") => e
+  notify_customer(e.context.customer_id)
+end
+```
+
 ### Custom Logic Matching
 
 `Fault.matches?` takes a block returning `true`/`false` against the fault. Use it for arbitrary predicates — metadata, status, cause class, etc.:

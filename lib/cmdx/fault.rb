@@ -33,6 +33,25 @@ module CMDx
         end
       end
 
+      # Returns a matcher subclass that matches Faults whose `result.reason`
+      # is equal to the given string. Suitable for use in `rescue`.
+      #
+      # @param reason [String] the reason to match
+      # @return [Class<Fault>] anonymous matcher subclass
+      # @raise [ArgumentError] when no reason is given
+      #
+      # @example
+      #   rescue Fault.reason?("Payment failed") => fault
+      #     Alert.for_fault(fault)
+      #   end
+      def reason?(reason)
+        raise ArgumentError, "reason required" unless reason
+
+        matcher do |other|
+          other.result.reason == reason
+        end
+      end
+
       # Returns a matcher subclass whose `===` runs `block` against the fault.
       #
       # @yieldparam fault [Fault]

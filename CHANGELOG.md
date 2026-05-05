@@ -37,7 +37,7 @@ Full runtime rewrite: the v1 state-machine plus Zeitwerk architecture is replace
 - Add `Result#strict?`, `Result#deprecated?`, `Result#duration`, `Result#index`, `Result#root?`, `Result#backtrace`, `Result#errors`, `Result#tags`, `Result#origin`, and `Result#ctx` alias
 - Add `Signal#origin` / `Result#origin` — upstream `Result` a signal/result was echoed from (`nil` for locally originated failures); set by `Task#throw!`, `Pipeline` when propagating workflow failures, and `Runtime` when rescuing a `Fault` inside `work`
 - Add `Chain#unshift`, `Chain#root`, `Chain#state`, `Chain#status`, `Chain#last`, `Chain#freeze`; Runtime `unshift`s the root result (so `chain.root` and `chain[0]` point to the outermost task) and freezes the chain on root teardown
-- Add `Fault.for?(*tasks)` and `Fault.matches?(&block)` anonymous matcher subclasses suitable for `rescue`
+- Add `Fault.for?(*tasks)`, `Fault.reason?(reason)`, and `Fault.matches?(&block)` anonymous matcher subclasses suitable for `rescue`
 - Add `include Enumerable` to `Errors`, `Chain`, and `Context`, exposing `map`, `select`, `find`, `include?`, `to_a`, `any?`, `all?`, `group_by`, `partition`, etc.
 - Add `Set`-backed deduping per key on `Errors`, plus `keys`, `each_key`, `each_value`, `count`, `delete`, `clear`, `full_messages`, `to_hash(full)`
 - Add `Context#keys`, `values`, `empty?`, `size`, `delete`, `clear`, `eql?` / `==`, `hash`, `deep_dup`, `respond_to_missing?`, and `Context#merge` that accepts any context-like object
