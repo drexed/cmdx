@@ -195,6 +195,7 @@ nav:
       - llms-full.txt: https://drexed.github.io/cmdx/llms-full.txt
       - AI Skills: https://github.com/drexed/cmdx/blob/main/skills
     - Ecosystem:
+      - cmdx-i18n: https://github.com/drexed/cmdx-i18n
       - cmdx-rspec: https://github.com/drexed/cmdx-rspec
   - Blog: blog/index.md
 
